@@ -1,6 +1,7 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 
+
 class Audience(TimeStampedModel):
     id = models.IntegerField("id", primary_key=True)
     name = models.CharField("name", max_length=255)
@@ -22,6 +23,8 @@ class Arrangement(TimeStampedModel):
     ends = models.DateField("ends")
 
     timeline_events = models.ManyToManyField("TimelineEvent")
+
+    owners = models.ManyToManyField("Person")
 
     class Meta:
         db_table = "arrangements"
@@ -169,6 +172,7 @@ class Organization(TimeStampedModel):
     organization_type = models.ForeignKey(OrganizationType, on_delete=models.RESTRICT)
 
     notes = models.ManyToManyField(Note)
+    members = models.ManyToManyField(Person)
 
     def __str__(self):
         return self.name
@@ -182,21 +186,6 @@ class ServiceProvider(TimeStampedModel):
 
     def __str__(self):
         return f"{self.service_name} of type {self.service_type} provided by {self.organization.name}"
-
-
-class OrganizationMember(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    organization = models.ForeignKey(Organization, on_delete=models.RESTRICT)
-
-
-class ArrangementOwner(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
-    person = models.ForeignKey(Person, on_delete=models.RESTRICT)
-    arrangement = models.ForeignKey(Arrangement, on_delete=models.RESTRICT)
-
-    class Meta:
-        db_table = "arrangementowners"
 
 
 class Event(TimeStampedModel):
@@ -225,9 +214,4 @@ class EventService(TimeStampedModel):
     event = models.ForeignKey(Event, on_delete=models.RESTRICT)
     service_provider = models.ForeignKey(ServiceProvider, on_delete=models.RESTRICT)
     notes = models.ManyToManyField(Note)
-
-
-class EventServicePerson (TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
-    person = models.ForeignKey("Person", on_delete=models.RESTRICT)
-    event_service = models.ForeignKey("EventService", on_delete=models.RESTRICT)
+    associated_people = models.ManyToManyField(Person, on_delete=models.RESTRICT)
