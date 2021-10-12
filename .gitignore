@@ -328,3 +328,5 @@ webook/media/
 *.sqlite
 *.sqlite3
 
+# ignore pycharm meta files
+.idea/
