@@ -3,7 +3,6 @@ from django_extensions.db.models import TimeStampedModel
 
 
 class Audience(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     name = models.CharField("name", max_length=255)
 
     class Meta:
@@ -33,7 +32,6 @@ class Arrangement(TimeStampedModel):
 
 
 class Location (TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     name = models.CharField("name", max_length=255)
 
     class Meta:
@@ -44,7 +42,6 @@ class Location (TimeStampedModel):
 
 
 class Room(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     name = models.CharField("name", max_length=128)
 
@@ -56,7 +53,6 @@ class Room(TimeStampedModel):
 
 
 class Article(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     name = models.CharField("name", max_length=255)
 
     class Meta:
@@ -67,7 +63,6 @@ class Article(TimeStampedModel):
 
 
 class OrganizationType(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     name = models.CharField("name", max_length=255)
 
     class Meta:
@@ -78,7 +73,6 @@ class OrganizationType(TimeStampedModel):
 
 
 class TimelineEvent (TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     content = models.CharField("content", max_length=1024)
 
     def __str__(self):
@@ -86,7 +80,6 @@ class TimelineEvent (TimeStampedModel):
 
 
 class ServiceType(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     name = models.CharField("name", max_length=255)
 
     def __str__(self):
@@ -94,7 +87,6 @@ class ServiceType(TimeStampedModel):
 
 
 class BusinessHour(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     start_of_business_hours = models.TimeField("StartOfBusinessHours")
     end_of_business_hours = models.TimeField("EndOfBusinessHours")
 
@@ -104,7 +96,6 @@ class BusinessHour(TimeStampedModel):
 
 class Calendar(TimeStampedModel):
     # TODO: Make connection between owner (Person)
-    id = models.IntegerField("id", primary_key=True)
     name = models.CharField("name", max_length=255)
     is_personal = models.BooleanField("ispersonal", default=True)
 
@@ -116,7 +107,6 @@ class Calendar(TimeStampedModel):
 
 
 class Note(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     author = models.ForeignKey('Person', on_delete=models.RESTRICT)
     content = models.TextField("content", max_length=1024)
 
@@ -127,7 +117,6 @@ class Note(TimeStampedModel):
 
 
 class ConfirmationReceipt (TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     guid = models.CharField("Guid", max_length=68)
     requested_by = models.ForeignKey("Person", on_delete=models.RESTRICT)
     sent_to = models.CharField("SentTo", max_length=255)
@@ -140,7 +129,6 @@ class ConfirmationReceipt (TimeStampedModel):
 
 
 class Person(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     personal_email = models.CharField("PersonalEmail", max_length=255, blank=False, null=False)
     first_name = models.CharField("FirstName", max_length=255)
     middle_name = models.CharField("MiddleName", max_length=255, blank=True)
@@ -158,7 +146,6 @@ class Person(TimeStampedModel):
 
 
 class Organization(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     organization_number = models.IntegerField("Organization Number", null=True, blank=True)
     name = models.CharField("name", max_length=255)
     organization_type = models.ForeignKey(OrganizationType, on_delete=models.RESTRICT)
@@ -171,7 +158,6 @@ class Organization(TimeStampedModel):
 
 
 class ServiceProvider(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     service_name = models.CharField("ServiceName", max_length=255)
     service_type = models.ForeignKey(ServiceType, on_delete=models.RESTRICT)
     organization = models.ForeignKey(Organization, on_delete=models.RESTRICT)
@@ -181,7 +167,6 @@ class ServiceProvider(TimeStampedModel):
 
 
 class Event(TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
     title = models.CharField("title", max_length=255)
     start = models.DateTimeField("start", null=False)
     end = models.DateTimeField("end", null=False)
@@ -202,7 +187,6 @@ class Event(TimeStampedModel):
 
 class EventService(TimeStampedModel):
     # TODO: Connect to receipt
-    id = models.IntegerField("id", primary_key=True)
     event = models.ForeignKey(Event, on_delete=models.RESTRICT)
     service_provider = models.ForeignKey(ServiceProvider, on_delete=models.RESTRICT)
     notes = models.ManyToManyField(Note)
