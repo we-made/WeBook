@@ -14,7 +14,6 @@ class Audience(TimeStampedModel):
 
 
 class Arrangement(TimeStampedModel):
-    # TODO: Connect to owner
     name = models.CharField("name", max_length=255)
 
     audience = models.ForeignKey(Audience, on_delete=models.CASCADE)
@@ -128,7 +127,7 @@ class Note(TimeStampedModel):
 class NoteConfirmation (TimeStampedModel):
     id = models.IntegerField("id", primary_key=True)
     note = models.ForeignKey("Note", on_delete=models.RESTRICT)
-    event_service = models.ForeignKey("EventService", on_delete=models.RESTRICT)
+    receipt_id = models.ForeignKey("ConfirmationReceipt", on_delete=models.RESTRICT)
 
 
 class ConfirmationReceipt (TimeStampedModel):
