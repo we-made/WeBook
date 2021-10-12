@@ -75,12 +75,18 @@ class OrganizationType(TimeStampedModel):
 class TimelineEvent (TimeStampedModel):
     content = models.CharField("content", max_length=1024)
 
+    class Meta:
+        db_table = "timelineevents"
+
     def __str__(self):
         return self.content
 
 
 class ServiceType(TimeStampedModel):
     name = models.CharField("name", max_length=255)
+
+    class Meta:
+        db_table = "servicetypes"
 
     def __str__(self):
         return self.name
@@ -89,6 +95,9 @@ class ServiceType(TimeStampedModel):
 class BusinessHour(TimeStampedModel):
     start_of_business_hours = models.TimeField("StartOfBusinessHours")
     end_of_business_hours = models.TimeField("EndOfBusinessHours")
+
+    class Meta:
+        db_table = "businesshours"
 
     def __str__(self):
         return f"{self.start_of_business_hours} - {self.end_of_business_hours}"
@@ -102,6 +111,9 @@ class Calendar(TimeStampedModel):
     people_resources = models.ManyToManyField("Person")
     room_resources = models.ManyToManyField("Room")
 
+    class Meta:
+        db_table = "calendars"
+
     def __str__(self):
         return self.name
 
@@ -111,6 +123,9 @@ class Note(TimeStampedModel):
     content = models.TextField("content", max_length=1024)
 
     confirmation = models.ForeignKey("ConfirmationReceipt", on_delete=models.RESTRICT, null=True)
+
+    class Meta:
+        db_table = "Notes"
 
     def __str__(self):
         return self.content
@@ -123,6 +138,9 @@ class ConfirmationReceipt (TimeStampedModel):
     confirmed = models.BooleanField("Confirmed", default=False)
     sent_when = models.DateTimeField("SentWhen")
     confirmed_when = models.DateTimeField("ConfirmedWhen")
+
+    class Meta:
+        db_table = "confirmationreceipts"
 
     def __str__(self):
         return f"{self.requested_by.get_name()} petitioned {self.sent_to} for a confirmation at STAMP."
@@ -138,11 +156,11 @@ class Person(TimeStampedModel):
     business_hours = models.ForeignKey(BusinessHour, on_delete=models.RESTRICT, null=True, blank=True)
     notes = models.ManyToManyField(Note)
 
-    def __str__(self):
-        return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
-
     class Meta:
         db_table = "people"
+
+    def __str__(self):
+        return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
 
 
 class Organization(TimeStampedModel):
@@ -153,6 +171,9 @@ class Organization(TimeStampedModel):
     notes = models.ManyToManyField(Note)
     members = models.ManyToManyField(Person)
 
+    class Meta:
+        db_table = "organizations"
+
     def __str__(self):
         return self.name
 
@@ -161,6 +182,9 @@ class ServiceProvider(TimeStampedModel):
     service_name = models.CharField("ServiceName", max_length=255)
     service_type = models.ForeignKey(ServiceType, on_delete=models.RESTRICT)
     organization = models.ForeignKey(Organization, on_delete=models.RESTRICT)
+
+    class Meta:
+        db_table = "serviceproviders"
 
     def __str__(self):
         return f"{self.service_name} of type {self.service_type} provided by {self.organization.name}"
@@ -191,3 +215,6 @@ class EventService(TimeStampedModel):
     service_provider = models.ForeignKey(ServiceProvider, on_delete=models.RESTRICT)
     notes = models.ManyToManyField(Note)
     associated_people = models.ManyToManyField(Person)
+
+    class Meta:
+        db_table = "eventservices"
