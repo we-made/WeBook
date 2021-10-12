@@ -150,9 +150,6 @@ class Person(TimeStampedModel):
     business_hours = models.ForeignKey(BusinessHour, on_delete=models.RESTRICT, null=True, blank=True)
     notes = models.ManyToManyField(Note)
 
-    def get_name(self):
-        return self.first_name + " " + self.middle_name + " " + self.last_name
-
     def __str__(self):
         return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
 
