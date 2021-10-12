@@ -120,14 +120,10 @@ class Note(TimeStampedModel):
     author = models.ForeignKey('Person', on_delete=models.RESTRICT)
     content = models.TextField("content", max_length=1024)
 
+    confirmation = models.ForeignKey("ConfirmationReceipt", on_delete=models.RESTRICT, null=True)
+
     def __str__(self):
         return self.content
-
-
-class NoteConfirmation (TimeStampedModel):
-    id = models.IntegerField("id", primary_key=True)
-    note = models.ForeignKey("Note", on_delete=models.RESTRICT)
-    receipt_id = models.ForeignKey("ConfirmationReceipt", on_delete=models.RESTRICT)
 
 
 class ConfirmationReceipt (TimeStampedModel):
