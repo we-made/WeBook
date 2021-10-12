@@ -209,4 +209,4 @@ class EventService(TimeStampedModel):
     event = models.ForeignKey(Event, on_delete=models.RESTRICT)
     service_provider = models.ForeignKey(ServiceProvider, on_delete=models.RESTRICT)
     notes = models.ManyToManyField(Note)
-    associated_people = models.ManyToManyField(Person, on_delete=models.RESTRICT)
+    associated_people = models.ManyToManyField(Person)
