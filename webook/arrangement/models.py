@@ -124,6 +124,9 @@ class BusinessHour(TimeStampedModel):
 class Calendar(TimeStampedModel):
     """Calendar model"""
     # TODO: Make connection between owner (Person)
+
+    owner = models.ForeignKey("Person", on_delete=models.RESTRICT, related_name="owner")
+
     name = models.CharField("name", max_length=255)
     is_personal = models.BooleanField("ispersonal", default=True)
 
@@ -243,7 +246,8 @@ class Event(TimeStampedModel):
 
 class EventService(TimeStampedModel):
     """Event service model"""
-    # TODO: Connect to receipt
+
+    receipt = models.ForeignKey(ConfirmationReceipt, on_delete=models.RESTRICT)
     event = models.ForeignKey(Event, on_delete=models.RESTRICT)
     service_provider = models.ForeignKey(ServiceProvider, on_delete=models.RESTRICT)
     notes = models.ManyToManyField(Note)
