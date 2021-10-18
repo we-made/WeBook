@@ -137,7 +137,7 @@ class TimelineEvent (TimeStampedModel):
     :type content: str.
 
     :param stamp: The date and time the event happened
-    :tyep stamp: datetime.
+    :type stamp: datetime.
     """
 
     content = models.CharField("Content", max_length=1024)
