@@ -24,6 +24,9 @@ class Arrangement(TimeStampedModel):
 
     owners = models.ManyToManyField("Person")
 
+    people_participants = models.ManyToManyField("Person", "participating_in")
+    organization_participants = models.ManyToManyField("Organization", "participating_in")
+
     def __str__(self):
         """Return arrangement name"""
         return self.name
