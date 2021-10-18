@@ -135,8 +135,13 @@ class TimelineEvent (TimeStampedModel):
 
     :param content: The content of this event, to be displayed in the timeline
     :type content: str.
+
+    :param stamp: The date and time the event happened
+    :tyep stamp: datetime.
     """
+
     content = models.CharField("Content", max_length=1024)
+    stamp = models.DateTimeField("Stamp", null=False)
 
     def __str__(self):
         """Return content"""
