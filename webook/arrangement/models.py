@@ -5,6 +5,7 @@ from django_extensions.db.models import TimeStampedModel
 class Audience(TimeStampedModel):
     """Audience model"""
     name = models.CharField("name", max_length=255)
+    icon_class = models.CharField("icon_class", max_length=255, blank=True)
 
     def __str__(self):
         """Return audience name"""
