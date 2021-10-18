@@ -47,7 +47,7 @@ class Arrangement(TimeStampedModel):
                                  organization_participant
      :type people_participants: Person.
 
-     :param organization_participans: The organizations who are participating in this arrangement
+     :param organization_participants: The organizations who are participating in this arrangement
      :type organization_participants: Organization.
      """
     name = models.CharField("Name", max_length=255)
