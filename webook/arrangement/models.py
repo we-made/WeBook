@@ -127,8 +127,8 @@ class ConfirmationReceipt (TimeStampedModel):
     requested_by = models.ForeignKey("Person", on_delete=models.RESTRICT)
     sent_to = models.CharField("SentTo", max_length=255)
     confirmed = models.BooleanField("Confirmed", default=False)
-    sent_when = models.DateTimeField("SentWhen")
-    confirmed_when = models.DateTimeField("ConfirmedWhen")
+    sent_when = models.DateTimeField("SentWhen", null=True)
+    confirmed_when = models.DateTimeField("ConfirmedWhen", null=True)
 
     def __str__(self):
         """Return description of receipt"""
