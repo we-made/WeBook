@@ -185,6 +185,7 @@ class Event(TimeStampedModel):
     title = models.CharField("title", max_length=255)
     start = models.DateTimeField("start", null=False)
     end = models.DateTimeField("end", null=False)
+    all_day = models.BooleanField("all_day")
     sequence_guid = models.CharField("sequence_guid", max_length=40, null=True, blank=True)
     arrangement = models.ForeignKey(Arrangement, on_delete=models.CASCADE)
 
