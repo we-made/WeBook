@@ -11,3 +11,15 @@
   background-color: #f2dede;
   border-color: #eed3d7;
 }
+
+/*
+  Fix close button existing on the left side of the modal due to inconsistencies
+  between mdbootstrap and bootbox.js. The button can exist in two states - one with a title present, and one
+  without. The issue with placement only occur when title is not present (hence div.modal-body >, if a title is
+  used then bootbox-close-button will be placed in modal-header wrapper along with the title.
+*/
+div.modal-body > .bootbox-close-button {
+  display: block!important;
+  width: 100%;
+  text-align: right;
+}
