@@ -1,0 +1,329 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-10-22 10:54+0200\n"
+"PO-Revision-Date: 2021-10-22 11:11+0200\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 3.0\n"
+
+#: .\config\settings\base.py:41
+msgid "English"
+msgstr "Engelsk"
+
+#: .\config\settings\base.py:42
+msgid "Norwegian"
+msgstr "Norsk"
+
+#: .\webook\templates\account\account_inactive.html:5
+#: .\webook\templates\account\account_inactive.html:8
+msgid "Account Inactive"
+msgstr "Konto er inaktiv"
+
+#: .\webook\templates\account\account_inactive.html:10
+msgid "This account is inactive."
+msgstr "Denne kontoen er inaktiv."
+
+#: .\webook\templates\account\email.html:7
+msgid "Account"
+msgstr "Konto"
+
+#: .\webook\templates\account\email.html:10
+msgid "E-mail Addresses"
+msgstr "Epost Adresse"
+
+#: .\webook\templates\account\email.html:13
+msgid "The following e-mail addresses are associated with your account:"
+msgstr "De følgende epost adressene er assosiert med din konto:"
+
+#: .\webook\templates\account\email.html:27
+msgid "Verified"
+msgstr "Verifisert"
+
+#: .\webook\templates\account\email.html:29
+msgid "Unverified"
+msgstr "Uverifisert"
+
+#: .\webook\templates\account\email.html:31
+msgid "Primary"
+msgstr "Primær"
+
+#: .\webook\templates\account\email.html:37
+msgid "Make Primary"
+msgstr "Gjør til primær"
+
+#: .\webook\templates\account\email.html:38
+msgid "Re-send Verification"
+msgstr "Send verifikasjon på nytt"
+
+#: .\webook\templates\account\email.html:39
+msgid "Remove"
+msgstr "Fjern"
+
+#: .\webook\templates\account\email.html:46
+msgid "Warning:"
+msgstr "Advarsel:"
+
+#: .\webook\templates\account\email.html:46
+msgid ""
+"You currently do not have any e-mail address set up. You should really add "
+"an e-mail address so you can receive notifications, reset your password, etc."
+msgstr ""
+"Du har ikke satt opp noen epost adresse ennå. Du burde legge til en epost "
+"adresse slik at du kan motta notifikasjoner, resette passord, osv."
+
+#: .\webook\templates\account\email.html:51
+msgid "Add E-mail Address"
+msgstr "Legg til en epost adresse"
+
+#: .\webook\templates\account\email.html:56
+msgid "Add E-mail"
+msgstr "Legg til epost"
+
+#: .\webook\templates\account\email.html:66
+msgid "Do you really want to remove the selected e-mail address?"
+msgstr "Ønsker du virkelig å fjerne den valgte epost adressen?"
+
+#: .\webook\templates\account\email_confirm.html:6
+#: .\webook\templates\account\email_confirm.html:10
+msgid "Confirm E-mail Address"
+msgstr "Bekreft epost adresse"
+
+#: .\webook\templates\account\email_confirm.html:16
+#, python-format
+msgid ""
+"Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-mail "
+"address for user %(user_display)s."
+msgstr ""
+"Vennligst bekreft at <a href=\"mailto:%(email)s\">%(email)s</a> er en epost "
+"adresse for %(user_display)s."
+
+#: .\webook\templates\account\email_confirm.html:20
+msgid "Confirm"
+msgstr "Bekreft"
+
+#: .\webook\templates\account\email_confirm.html:27
+#, python-format
+msgid ""
+"This e-mail confirmation link expired or is invalid. Please <a href="
+"\"%(email_url)s\">issue a new e-mail confirmation request</a>."
+msgstr ""
+"Denne bekreftelseslinken har ekspirert, eller er ugyldig. Vennligst <a href="
+"\"%(email_url)s\">forespør en ny bekreftelseslink for å bekrefte din epost</"
+"a>."
+
+#: .\webook\templates\account\login.html:7
+#: .\webook\templates\account\login.html:11
+#: .\webook\templates\account\login.html:44 .\webook\templates\base.html:61
+msgid "Sign In"
+msgstr "Logg inn"
+
+#: .\webook\templates\account\login.html:16
+#, python-format
+msgid ""
+"Please sign in with one\n"
+"of your existing third party accounts. Or, <a href=\"%(signup_url)s\">sign "
+"up</a>\n"
+"for a %(site_name)s account and sign in below:"
+msgstr ""
+"Vennligst logg in med en\n"
+"av dine eksisterende tredjepartskontoer. Eller, <a href=\"%(signup_url)s"
+"\">registrer</a>\n"
+"for en %(site_name)s konto og logg inn under:"
+
+#: .\webook\templates\account\login.html:26
+msgid "or"
+msgstr "eller"
+
+#: .\webook\templates\account\login.html:33
+#, python-format
+msgid ""
+"If you have not created an account yet, then please\n"
+"<a href=\"%(signup_url)s\">sign up</a> first."
+msgstr ""
+"Hvis du ikke har opprettet en konto ennå, så vennligst\n"
+"<a href=\"%(signup_url)s\">registrer</a> deg først."
+
+#: .\webook\templates\account\login.html:43
+msgid "Forgot Password?"
+msgstr "Glemt passord?"
+
+#: .\webook\templates\account\logout.html:5
+#: .\webook\templates\account\logout.html:8
+#: .\webook\templates\account\logout.html:17 .\webook\templates\base.html:52
+msgid "Sign Out"
+msgstr "Logg ut"
+
+#: .\webook\templates\account\logout.html:10
+msgid "Are you sure you want to sign out?"
+msgstr "Er du sikker på at du vil logge ut?"
+
+#: .\webook\templates\account\password_change.html:6
+#: .\webook\templates\account\password_change.html:9
+#: .\webook\templates\account\password_change.html:14
+#: .\webook\templates\account\password_reset_from_key.html:5
+#: .\webook\templates\account\password_reset_from_key.html:8
+#: .\webook\templates\account\password_reset_from_key_done.html:4
+#: .\webook\templates\account\password_reset_from_key_done.html:7
+msgid "Change Password"
+msgstr "Endre passord"
+
+#: .\webook\templates\account\password_reset.html:7
+#: .\webook\templates\account\password_reset.html:11
+#: .\webook\templates\account\password_reset_done.html:6
+#: .\webook\templates\account\password_reset_done.html:9
+msgid "Password Reset"
+msgstr "Gjenopprett Passord"
+
+#: .\webook\templates\account\password_reset.html:16
+msgid ""
+"Forgotten your password? Enter your e-mail address below, and we'll send you "
+"an e-mail allowing you to reset it."
+msgstr ""
+"Glemt passordet ditt? Skriv inn epost adressen din under, og så sender vi "
+"deg en epost som vil hjelpe deg med å resette passordet ditt."
+
+#: .\webook\templates\account\password_reset.html:21
+msgid "Reset My Password"
+msgstr "Gjenopprett mitt passord"
+
+#: .\webook\templates\account\password_reset.html:24
+msgid "Please contact us if you have any trouble resetting your password."
+msgstr ""
+"Vennligst kontakt oss om du har problemer med å gjenopprette passordet."
+
+#: .\webook\templates\account\password_reset_done.html:15
+msgid ""
+"We have sent you an e-mail. Please contact us if you do not receive it "
+"within a few minutes."
+msgstr ""
+"Vi har sent deg en epost. Vennligst kontakt oss om du ikke mottar den innen "
+"et par minutter."
+
+#: .\webook\templates\account\password_reset_from_key.html:8
+msgid "Bad Token"
+msgstr "Dårlig Token"
+
+#: .\webook\templates\account\password_reset_from_key.html:12
+#, python-format
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</"
+"a>."
+msgstr ""
+"Linken for gjenoppretting av passord var ugyldig, Muligens fordi den "
+"allerede har blitt brukt.  Vennligst forespør en <a href="
+"\"%(passwd_reset_url)s\">ny gjenoppretting av passord</a>."
+
+#: .\webook\templates\account\password_reset_from_key.html:18
+msgid "change password"
+msgstr "endre passord"
+
+#: .\webook\templates\account\password_reset_from_key.html:21
+#: .\webook\templates\account\password_reset_from_key_done.html:8
+msgid "Your password is now changed."
+msgstr "Ditt passord har nå blitt endret."
+
+#: .\webook\templates\account\password_set.html:6
+#: .\webook\templates\account\password_set.html:9
+#: .\webook\templates\account\password_set.html:14
+msgid "Set Password"
+msgstr "Sett passord"
+
+#: .\webook\templates\account\signup.html:6
+msgid "Signup"
+msgstr "Registrer"
+
+#: .\webook\templates\account\signup.html:9
+#: .\webook\templates\account\signup.html:19 .\webook\templates\base.html:57
+msgid "Sign Up"
+msgstr "Registrer"
+
+#: .\webook\templates\account\signup.html:11
+#, python-format
+msgid ""
+"Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
+msgstr ""
+"Har du allerde en konto? Hvis så, <a href=\"%(login_url)s\">logg inn</a>."
+
+#: .\webook\templates\account\signup_closed.html:5
+#: .\webook\templates\account\signup_closed.html:8
+msgid "Sign Up Closed"
+msgstr "Registrering er stengt"
+
+#: .\webook\templates\account\signup_closed.html:10
+msgid "We are sorry, but the sign up is currently closed."
+msgstr "Beklager, registrering har blitt deaktivert."
+
+#: .\webook\templates\account\verification_sent.html:5
+#: .\webook\templates\account\verification_sent.html:8
+#: .\webook\templates\account\verified_email_required.html:5
+#: .\webook\templates\account\verified_email_required.html:8
+msgid "Verify Your E-mail Address"
+msgstr "Bekreft epost adressen din"
+
+#: .\webook\templates\account\verification_sent.html:10
+msgid ""
+"We have sent an e-mail to you for verification. Follow the link provided to "
+"finalize the signup process. Please contact us if you do not receive it "
+"within a few minutes."
+msgstr ""
+"Vi har sendt en epost til deg for verifikasjon. Vennligst følg linken gitt "
+"for å fullføre registreringsprosessen. Vennligst kontakt oss om du ikke "
+"mottar eposten innen et par minutter."
+
+#: .\webook\templates\account\verified_email_required.html:12
+msgid ""
+"This part of the site requires us to verify that\n"
+"you are who you claim to be. For this purpose, we require that you\n"
+"verify ownership of your e-mail address. "
+msgstr ""
+"Denne delen av siden krever at du bekrefter at\n"
+"du er den du utgir deg for å være. For denne hensikt, så krever vi at du\n"
+"bekrefter eierskap av epost adressen din. "
+
+#: .\webook\templates\account\verified_email_required.html:16
+msgid ""
+"We have sent an e-mail to you for\n"
+"verification. Please click on the link inside this e-mail. Please\n"
+"contact us if you do not receive it within a few minutes."
+msgstr ""
+"Vi har sendt en epost til deg for\n"
+"verifikasjon. Vennligst klikk linken i denne eposten. Vennligst\n"
+"kontakt oss om du ikke mottar den innen et par minutter."
+
+#: .\webook\templates\account\verified_email_required.html:20
+#, python-format
+msgid ""
+"<strong>Note:</strong> you can still <a href=\"%(email_url)s\">change your e-"
+"mail address</a>."
+msgstr ""
+"<strong>Merk:</strong> du kan fortsatt <a href=\"%(email_url)s\">endre epost "
+"adressen din</a>."
+
+#: .\webook\templates\base.html:48
+msgid "My Profile"
+msgstr "Min profil"
+
+#: .\webook\users\apps.py:7
+msgid "Users"
+msgstr "Brukere"
+
+#: .\webook\users\forms.py:18
+msgid "This username has already been taken."
+msgstr "Dette brukernavnet har allerede blitt tatt."
+
+#: .\webook\users\models.py:12
+msgid "Name of User"
+msgstr "Brukerens navn"

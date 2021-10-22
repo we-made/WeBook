@@ -3,7 +3,7 @@ Base settings to build other settings files upon.
 """
 
 from pathlib import Path
-
+from django.utils.translation import ugettext_lazy as _
 import environ
 
 # webook/
@@ -36,6 +36,12 @@ USE_I18N = True
 USE_L10N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('nb', _('Norwegian'))
+]
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#locale-paths
 LOCALE_PATHS = [str(BASE_DIR / "locale")]
 
