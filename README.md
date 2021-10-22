@@ -134,3 +134,14 @@ dropuser --if-exists myuser
 ```
 
 
+## About translations
+To activate another translation you need to compile the .po files into .mo files. We do not store the .mo files
+in git. It can be done very simply:
+
+```bash
+python manage.py compilemessages
+```
+This command will run over all available .po files and create .mo files, which are binary files optimized for
+use by gettext.
+
+Remember to also change the language code.
