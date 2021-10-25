@@ -23,3 +23,11 @@ div.modal-body > .bootbox-close-button {
   width: 100%;
   text-align: right;
 }
+
+/*
+  Needed to resolve the same issue as above (div.modal-body > .bootbox-close-button).
+  This ensures that in alerts with 'X' close buttons, that they will be positioned correctly to the right.
+ */
+.close {
+  float:right;
+}
