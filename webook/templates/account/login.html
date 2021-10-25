@@ -55,12 +55,14 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
     {{ form.password.errors }}
   </div>
 
+
   <div class="row mt-2">
     <div class="col-6">
       <div class="form-check mb-0">
-        <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3" autocompleted="">
-        <label class="form-check-label" for="form2Example3">
-          Remember me
+        <input class="form-check-input me-2" type="checkbox"
+               id="{{ form.remember.id_for_label }}" name="{{ form.remember.name }}">
+        <label class="form-check-label" for="{{ form.remember.id_for_label }}">
+          {% trans "Remember me" %}
         </label>
       </div>
     </div>
