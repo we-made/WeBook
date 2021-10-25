@@ -292,3 +292,12 @@ SOCIALACCOUNT_ADAPTER = (
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+APP_LOGO = env(
+    "APP_LOGO",
+    default="static/images/wemade_logo.jpg"
+)
+
+APP_TITLE = env(
+    "APP_TITLE",
+    default="WeBook"
+)
