@@ -6,17 +6,53 @@
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
 {% block inner %}
-<h1>{% trans "Sign Up" %}</h1>
 
 <p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</p>
 
 <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}
-  {{ form|crispy }}
+  <!--{{ form|crispy }}-->
+
+  <div class="form-group">
+    <div class="form-outline">
+      <input type="email" class="form-control form-control-lg"
+          id="{{ form.email.id_for_label }}" name="{{ form.email.name }}"/>
+      <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+    </div>
+    {{ form.email.errors }}
+  </div>
+
+  <div class="form-group mt-4">
+    <div class="form-outline">
+      <input type="text" class="form-control form-control-lg"
+        id="{{ form.username.id_for_label }}" name="{{ form.username.name }}"/>
+      <label class="form-label" for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+    </div>
+    {{ form.username.errors }}
+  </div>
+
+  <div class="form-group mt-4">
+    <div class="form-outline">
+      <input type="password" class="form-control form-control-lg"
+        id="{{ form.password1.id_for_label }}" name="{{ form.password1.name }}"/>
+      <label class="form-label" for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+    </div>
+    {{ form.password1.errors }}
+  </div>
+
+  <div class="form-group mt-4">
+    <div class="form-outline">
+      <input type="password" class="form-control form-control-lg"
+        id="{{ form.password2.id_for_label }}" name="{{ form.password2.name }}"/>
+      <label class="form-label" for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+    </div>
+    {{ form.password2.errors }}
+  </div>
+
   {% if redirect_field_value %}
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
   {% endif %}
-  <button class="btn btn-primary" type="submit">{% trans "Sign Up" %} &raquo;</button>
+  <button class="btn btn-primary mt-3 float-end" type="submit">{% trans "Sign Up" %} &raquo;</button>
 </form>
 
 {% endblock %}
