@@ -15,7 +15,12 @@
     <div class="row">
       <div class="col-sm-12 col-lg-8">
 
-
+        <div class="form-group">
+          <div class="form-outline">
+            <input type="text" class="form-control" id="{{ form.name.id_for_label }}" name="{{ form.name.name }}" />
+            <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+          </div>
+        </div>
 
         <div class="control-group mt-2">
           <div class="controls">
