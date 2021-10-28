@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block content %}
+  <h1>{% trans "Good day" %}, {{ request.user.name }}</h1>
+  <br>
+  <div class="row">
+    <div class="col-sm-12 col-lg-3">
+      <ul class="list-group">
+
+        <li class="list-group-item text-center">
+          <a class="text-muted font-weight-bold" href="{% url 'users:detail' request.user.username  %}">
+            My Dashboard
+          </a>
+        </li>
+
+        <li class="list-group-item text-center">
+          <a  class="text-muted font-weight-bold" href="{% url 'users:update' %}" role="button">
+            {% trans "My Info" %}
+          </a>
+        </li>
+        <li class="list-group-item text-center">
+          <a  class="text-muted font-weight-bold"  href="{% url 'account_email' %}" role="button">
+            {% trans "E-Mail" %}
+          </a>
+        </li>
+        <li class="list-group-item text-center">
+          <a  class="text-muted font-weight-bold"  href="{% url 'account_reset_password' %}" role="button">
+            {% trans "Reset Password" %}
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="col-lg-9 col-sm-12">
+      {% block inner %}{% endblock %}
+    </div>
+  </div>
+{% endblock %}
