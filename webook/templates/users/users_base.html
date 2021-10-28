@@ -2,7 +2,7 @@
 {% load static i18n %}
 
 {% block content %}
-  <h1>{% trans "Good day" %}, {{ object.name }}</h1>
+  <h1>{% trans "Good day" %}, {{ request.user.name }}</h1>
   <br>
   <div class="row">
     <div class="col-sm-12 col-lg-3">
