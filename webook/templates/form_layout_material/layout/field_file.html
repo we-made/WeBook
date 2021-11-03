@@ -40,12 +40,12 @@
         </script>
     </div>
     {% if not widget.data.is_initial %}
-    {% include 'mdbootstrap/layout/help_text_and_errors.html' %}
+    {% include 'form_layout_material/layout/help_text_and_errors.html' %}
     {% endif %}
 {% if widget.data.is_initial %}
 </div>
 <div class="input-group mb-0">
-{% include 'mdbootstrap/layout/help_text_and_errors.html' %}
+{% include 'form_layout_material/layout/help_text_and_errors.html' %}
 </div>
 {% endif %}
 {% endfor %}
