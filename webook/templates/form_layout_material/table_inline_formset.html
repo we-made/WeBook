@@ -33,25 +33,25 @@
         <tbody>
             <tr class="d-none empty-form">
                 {% for field in formset.empty_form %}
-                    {% include 'bootstrap4/field.html' with tag="td" form_show_labels=False %}
+                    {% include 'form_layout_material/field.html' with tag="td" form_show_labels=False %}
                 {% endfor %}
             </tr>
 
             {% for form in formset %}
                 {% if form_show_errors and not form.is_extra %}
-                    {% include "bootstrap4/errors.html" %}
+                    {% include "form_layout_material/errors.html" %}
                 {% endif %}
 
                 <tr>
                     {% for field in form %}
-                        {% include 'bootstrap4/field.html' with tag="td" form_show_labels=False %}
+                        {% include 'form_layout_material/field.html' with tag="td" form_show_labels=False %}
                     {% endfor %}
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    {% include "bootstrap4/inputs.html" %}
+    {% include "form_layout_material/inputs.html" %}
 
 {% if formset_tag %}</form>{% endif %}
 {% endspecialspaceless %}
