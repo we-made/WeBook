@@ -301,3 +301,8 @@ APP_TITLE = env(
     "APP_TITLE",
     default="WeBook"
 )
+
+FULLCALENDAR_LICENSE_KEY = env(
+    "FULLCALENDAR_LICENSE_KEY",
+    default=""
+)
