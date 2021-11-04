@@ -30,17 +30,17 @@
 
       <a
         class="nav-link {% if request.get_full_path == my_info_url %}active{% endif %}"
-        id="v-tabs-home-tab"
+        id="v-tabs-my-info-tab"
         href="{% url 'users:update' %}"
-        aria-controls="v-tabs-home"
+        aria-controls="v-tabs-my-info"
         aria-selected="{% if request.get_full_path == my_info_url %}true{% else %}false{% endif %}">
         {% trans "My Info" %}
       </a>
       <a
         class="nav-link {% if request.get_full_path == emails_url %}active{% endif %}"
-        id="v-tabs-profile-tab"
+        id="v-tabs-email-tab"
         href="{% url 'account_email' %}"
-        aria-controls="v-tabs-profile"
+        aria-controls="v-tabs-email"
         aria-selected="{% if request.get_full_path == emails_url %}true{% else %}false{% endif %}">
         {% trans "E-Mail" %}</a>
       <a
