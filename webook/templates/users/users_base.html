@@ -6,36 +6,46 @@
   <br>
   <div class="row">
     <div class="col-sm-12 col-lg-3">
-      <ul class="list-group">
-       <li class="list-group-item text-center">
-          <a class="font-weight-bolder text-dark">
-            My User
-          </a>
-        </li>
+    <!-- Tab navs -->
+    <div
+      class="nav flex-column nav-tabs text-center"
+      id="v-tabs-tab"
+      role="tablist"
+      aria-orientation="vertical"
+    >
+      <a class="nav-link active"
+          id="v-tabs-overview-tab"
+          href="{% url 'users:detail' request.user.username  %}"
+          aria-controls="v-tabs-overview"
+          aria-selected="true">
+          {% trans "Overview" %}
+      </a>
 
-        <li class="list-group-item text-center">
-          <a class="text-muted font-weight-bold" href="{% url 'users:detail' request.user.username  %}">
-            My Dashboard
-          </a>
-        </li>
-
-        <li class="list-group-item text-center">
-          <a  class="text-muted font-weight-bold" href="{% url 'users:update' %}" role="button">
-            {% trans "My Info" %}
-          </a>
-        </li>
-        <li class="list-group-item text-center">
-          <a  class="text-muted font-weight-bold"  href="{% url 'account_email' %}" role="button">
-            {% trans "E-Mail" %}
-          </a>
-        </li>
-        <li class="list-group-item text-center">
-          <a  class="text-muted font-weight-bold"  href="{% url 'account_reset_password' %}" role="button">
-            {% trans "Reset Password" %}
-          </a>
-        </li>
-      </ul>
+      <a
+        class="nav-link"
+        id="v-tabs-home-tab"
+        href="{% url 'users:update' %}"
+        aria-controls="v-tabs-home"
+        aria-selected="false">
+        {% trans "My Info" %}
+      </a>
+      <a
+        class="nav-link"
+        id="v-tabs-profile-tab"
+        href="{% url 'account_email' %}"
+        aria-controls="v-tabs-profile"
+        aria-selected="false">
+        {% trans "E-Mail" %}</a>
+      <a
+        class="nav-link"
+        id="v-tabs-reset-password-tab"
+        href="{% url 'account_reset_password' %}"
+        aria-controls="v-tabs-reset-password"
+        aria-selected="false">
+        {% trans "Reset Password" %}
+      </a>
     </div>
+  </div>
 
     <div class="col-9">
       {% block inner %}{% endblock %}
