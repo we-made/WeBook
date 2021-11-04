@@ -2,7 +2,6 @@
 {% load static i18n %}
 
 
-
 {% block content %}
   {% url "users:detail" request.user.username as overview_url %}
   {% url "users:update" as my_info_url %}
