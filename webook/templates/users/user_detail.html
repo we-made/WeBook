@@ -1,4 +1,5 @@
 {% extends "users/users_base.html" %}
+{% load  cbuddy_filters %}
 {% load static %}
 {% load static i18n %}
 
@@ -6,8 +7,11 @@
 
 {% block inner %}
   <h2 class=" mb-0">
-     Dashboard
+     Dashboard --
   </h2>
+
+  {{  calendar_context | fullcalendar  }}
+
   <hr class="mt-1">
 {% endblock inner %}
 

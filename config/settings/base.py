@@ -86,7 +86,8 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "webook.users.apps.UsersConfig",
     # Your stuff: custom apps go here
-    "webook.arrangement.apps.ArrangementConfig"
+    "webook.arrangement.apps.ArrangementConfig",
+    "webook.utils.calendar_buddy.apps.CalendarBuddyConfig"
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

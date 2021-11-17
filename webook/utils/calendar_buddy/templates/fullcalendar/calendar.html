@@ -1,0 +1,23 @@
+<div id="calendar">
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarElement = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarElement, {
+            initialView: '{{ context.ui_config.initialView }}',
+            events: JSON.parse('{{ context.events_json | safe }}'),
+
+            {% for attr, value in context.ui_config_as_dict %}
+              {% if value is list and value|length == 0 or value is None %}
+                {{ attr }}: "undefined",
+              {% else %}
+                {% if value|safe != "[]" %}
+                  {{ attr }}: "{{ value | safe }}",
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+        });
+        calendar.render();
+    });
+</script>
