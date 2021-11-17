@@ -301,3 +301,8 @@ APP_TITLE = env(
     "APP_TITLE",
     default="WeBook"
 )
+
+ASSET_SERVER_URL = env(
+    "APP_TITLE",
+    default="localhost/static"
+)
