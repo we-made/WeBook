@@ -23,7 +23,8 @@ def simple_hook (ctx):
 
 
 class TestFactoryManager:
-    def test_flush_state():
+    def test_flush_state(self):
+        register_testing_calendarcontext_factory()
         factory_manager.flush_state()
         assert type(factory_manager._CONTEXT_FACTORIES) is dict and len(factory_manager._CONTEXT_FACTORIES) == 0
         assert type(factory_manager._FACTORY_HOOKS) is list and len(factory_manager._FACTORY_HOOKS) == 0
