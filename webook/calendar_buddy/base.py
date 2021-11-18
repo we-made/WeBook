@@ -56,7 +56,7 @@ class BaseCalendarContext:
             Run before handing the context over to the template. This is where the last minute preparations
             that must happen last are run (for instance JSON serialization of events/resources).
         """
-        self.ui_config_as_dict = self.ui_config.__dict__.items()
+        self.ui_config_as_dict = self.ui_config.__dict__
 
     def events_as_json(self):
         """
