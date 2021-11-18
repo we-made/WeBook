@@ -6,7 +6,9 @@ from django.views.generic import (
     RedirectView,
     UpdateView,
 )
-from webook.utils.calendar_buddy import calendar_buddy
+from webook.calendar_buddy import calendar_buddy
+from webook.calendar_buddy.base import CalendarContext
+
 from datetime import datetime
 
 User = get_user_model()
@@ -27,12 +29,13 @@ event_1["id"] = 1
 event_1["title"] = "AAA EEEEE"
 event_1["start"] = datetime.now()
 event_1["end"] = datetime.now()
+event_1["other_thing"] = "herro"
 events.append(event_1)
 
 calendar_context = calendar_buddy.new_calendar(
     events=events,
     resources=list(),
-    context_type=calendar_buddy.CalendarContext.FULLCALENDAR
+    context_type=CalendarContext.FULLCALENDAR
 ).configure_ui(
     view = 0,
     views = ["timeGridWeek"],

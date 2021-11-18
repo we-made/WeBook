@@ -1,4 +1,4 @@
-from .calendar_buddy import CalendarContext
+from .base import CalendarContext
 from typing import Callable
 from enum import Enum
 from .exceptions import FactoryNotFoundException

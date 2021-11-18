@@ -1,6 +1,6 @@
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
-from webook.utils.calendar_buddy.contexts.fullcalendar.models import EventDisplay
+from .models import EventDisplay
 
 class BusinessHoursSchema(Schema):
     startTime = fields.Time()
