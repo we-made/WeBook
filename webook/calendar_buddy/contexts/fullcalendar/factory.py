@@ -1,4 +1,4 @@
-import standard_library
+from . import standard_library
 from ....calendar_buddy import base
 from . context import FullCalendarContext
 
