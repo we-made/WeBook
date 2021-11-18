@@ -1,7 +1,7 @@
 from datetime import datetime
 from .models import EventDisplay
 
-def event_standard(self):
+def event_standard():
     event_standard = dict()
     event_standard["groupId"] = ""
     event_standard["allDay"] = False
@@ -23,8 +23,9 @@ def event_standard(self):
     event_standard["textColor"] = ""
     event_standard["extendedProps"] = []
     event_standard["source"] = None
+    return event_standard
 
-def resource_standard(self):
+def resource_standard():
     resource_standard = dict()
     resource_standard["extendedProps"] = []
     resource_standard["eventConstraint"] = None
@@ -34,3 +35,4 @@ def resource_standard(self):
     resource_standard["eventBorderColor"] = ""
     resource_standard["eventTextColor"] = ""
     resource_standard["eventClassNames"] = []
+    return resource_standard

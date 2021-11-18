@@ -8,8 +8,8 @@ class FullCalendarFactory(base.BaseCalendarContextFactory):
         super().__init__()
         self.standard_ui_config = base.UIConfig().overwrite(standard_ui_config)
         
-        self.event_standard = standard_library.event_standard
-        self.resource_standard = standard_library.resource_standard
+        self.event_standard = standard_library.event_standard()
+        self.resource_standard = standard_library.resource_standard()
 
         # use functionality from base to mesh the base/standard default (default if nothing is supplied), with the
         # eventual defaults of the user.
