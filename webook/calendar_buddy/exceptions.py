@@ -5,7 +5,7 @@ class FactoryNotFoundException(Exception):
         self.context_type = context_type
         self.message = message
 
-        if self.message is False:
+        if self.message is None or False:
             self.message = (f"Could not find a context factory for the specified context type" 
                        "Make sure that a factory is registered for the given context type " 
                        "before you attempt to make any subsequent factory dependent operations.")
