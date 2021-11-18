@@ -1,5 +1,5 @@
 import pytest
-from WeBook.webook.calendar_buddy.base import CalendarContext
+from webook.calendar_buddy.base import CalendarContext
 from webook.calendar_buddy import calendar_buddy
 from webook.calendar_buddy.base import BaseCalendarContext, UIConfig
 from webook.calendar_buddy import factory_manager
