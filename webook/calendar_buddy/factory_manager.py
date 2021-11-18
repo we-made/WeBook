@@ -19,6 +19,11 @@ class StandardType(Enum):
     RESOURCE = 3
 
 
+def flush_state():
+    """ Flushes the state of the factory manager, reverting it back to "new", without any registered entities """
+    _CONTEXT_FACTORIES = {}
+    _FACTORY_HOOKS = list()
+
 def _get_context_factory_for_context_type(context_type: CalendarContext) -> object:
     """ 
         Get the context factory associated with the given context type 

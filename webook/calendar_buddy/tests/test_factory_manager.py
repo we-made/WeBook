@@ -21,13 +21,15 @@ def simple_hook (ctx):
     ctx.hook_has_been_here = True
     return ctx
 
-def flush_factory_manager():
-    factory_manager._CONTEXT_FACTORIES = {}
-    factory_manager._FACTORY_HOOKS = list()
 
 class TestFactoryManager:
+    def test_flush_state():
+        factory_manager.flush_state()
+        assert type(factory_manager._CONTEXT_FACTORIES) is dict and len(factory_manager._CONTEXT_FACTORIES) == 0
+        assert type(factory_manager._FACTORY_HOOKS) is list and len(factory_manager._FACTORY_HOOKS) == 0
+
     def test_register_context_factory (self):
-        flush_factory_manager()
+        factory_manager.flush_state()
         factory = base.BaseCalendarContextFactory()
         context_type = base.CalendarContext.FULLCALENDAR
         factory_manager.register_context_factory(
@@ -35,10 +37,9 @@ class TestFactoryManager:
             context_type=context_type
         )
         assert len(factory_manager._CONTEXT_FACTORIES) == 1
-        flush_factory_manager()
 
     def test_fabricate_calendar_context(self):
-        flush_factory_manager()
+        factory_manager.flush_state()
         factory = base.BaseCalendarContextFactory()
         factory.fabricate = simple_fabrication_method
         factory_manager.register_context_factory(
@@ -48,16 +49,14 @@ class TestFactoryManager:
         fabricated_context = factory_manager.fabricate_calendar_context(context_type=base.CalendarContext.FULLCALENDAR)
 
         assert type(fabricated_context) is base.BaseCalendarContext and fabricated_context.__getattribute__("something")
-        flush_factory_manager()
 
     def test_fabricate_calendar_context_on_nonexisting_factory(self):
-        flush_factory_manager()
+        factory_manager.flush_state()
         with pytest.raises(FactoryNotFoundException):
             factory_manager.fabricate_calendar_context(context_type=base.CalendarContext.FULLCALENDAR)
-        flush_factory_manager()
 
     def test_that_hook_is_run_on_fabrication (self):
-        flush_factory_manager()
+        factory_manager.flush_state()
         register_testing_calendarcontext_factory()
         factory_manager.register_fabrication_hook(
             hook=simple_hook,
@@ -65,10 +64,9 @@ class TestFactoryManager:
         )
         fabricated = factory_manager.fabricate_calendar_context(base.CalendarContext.FULLCALENDAR)
         assert fabricated.__getattribute__("hook_has_been_here")
-        flush_factory_manager()
 
     def test_attempt_register_defaults_on_nonexisting_factory(self):
-        flush_factory_manager()
+        factory_manager.flush_state()
         with pytest.raises(FactoryNotFoundException):
             default_dict = dict()
             factory_manager.register_defaults(
@@ -78,7 +76,7 @@ class TestFactoryManager:
             )
 
     def test_register_event_defaults(self):
-        flush_factory_manager()
+        factory_manager.flush_state()
         register_testing_calendarcontext_factory()
 
         event_default_dict = dict()
@@ -94,7 +92,7 @@ class TestFactoryManager:
         assert ctx_factory is not None and ctx_factory.event_standard is not None and "something" in ctx_factory.event_standard
 
     def test_register_resource_defaults(self):
-        flush_factory_manager()
+        factory_manager.flush_state()
         register_testing_calendarcontext_factory()
 
         resource_default_dict = dict()
@@ -110,7 +108,7 @@ class TestFactoryManager:
         assert ctx_factory is not None and ctx_factory.resource_standard is not None and "something" in ctx_factory.resource_standard
     
     def test_register_uiconfig_defaults(self):
-        flush_factory_manager()
+        factory_manager.flush_state()
         register_testing_calendarcontext_factory()
 
         uiconfig_default_dict = dict()
