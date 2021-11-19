@@ -12,6 +12,7 @@ from webook.arrangement.models import (
     BusinessHour,
     Calendar,
     Location,
+    Note,
     OrganizationType,
     Room,
     ServiceType,
@@ -88,3 +89,10 @@ def test_calendar__str__():
     calendar.name = "test"
     assert calendar.__str__() == "test"
     assert str(calendar) == "test"
+
+
+def test_note__str__():
+    note = Note()
+    note.content = "test"
+    assert note.__str__() == "test"
+    assert str(note) == "test"
