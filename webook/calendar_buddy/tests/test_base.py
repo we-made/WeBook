@@ -1,7 +1,13 @@
 import pytest
-from webook.calendar_buddy.base import BaseCalendarContext, UIConfig
+from webook.calendar_buddy.base import (
+    BaseCalendarContext, 
+    UIConfig, 
+    BaseCalendarContextFactory, 
+    Calendar, 
+    CalendarContext, 
+    UIConfig
+    )
 from webook.calendar_buddy.mediative.mediative_event import MediativeEvent
-from webook.calendar_buddy.base import BaseCalendarContextFactory, Calendar, CalendarContext, UIConfig
 from datetime import datetime
 
 
