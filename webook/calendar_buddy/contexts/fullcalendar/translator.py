@@ -1,9 +1,7 @@
 from ....calendar_buddy.mediative.mediative_event import MediativeEvent
 from ....calendar_buddy.mediative.mediative_resource import MediativeResource
 
-from ....calendar_buddy.contexts.fullcalendar.models import Event, EventDisplay, Resource, BusinessHours
-from datetime import datetime
-
+from ....calendar_buddy.contexts.fullcalendar.models import Event, Resource
 
 def _set_defaults_on_dict(dict_to_set_defaults_on: dict(), defaults_to_set) -> dict:
     for key in defaults_to_set:
