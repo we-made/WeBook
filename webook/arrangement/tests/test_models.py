@@ -65,3 +65,18 @@ def test_timeline_event__str__():
     timeline_event.content = "test"
     assert timeline_event.__str__() == "test"
     assert str(timeline_event) == "test"
+
+
+def test_service_type__str__():
+    service_type = ServiceType()
+    service_type.name = "test"
+    assert service_type.__str__() == "test"
+    assert str(service_type) == "test"
+
+
+def test_business_hour__str__():
+    business_hour = BusinessHour()
+    business_hour.start_of_business_hours = time(7, 0)
+    business_hour.end_of_business_hours = time(14, 0) 
+    assert business_hour.__str__() == "07:00:00 - 14:00:00"
+    assert str(business_hour) == "07:00:00 - 14:00:00"
