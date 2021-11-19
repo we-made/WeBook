@@ -10,6 +10,7 @@ from webook.arrangement.models import (
     Article,
     Audience,
     BusinessHour,
+    Calendar,
     Location,
     OrganizationType,
     Room,
@@ -80,3 +81,10 @@ def test_business_hour__str__():
     business_hour.end_of_business_hours = time(14, 0) 
     assert business_hour.__str__() == "07:00:00 - 14:00:00"
     assert str(business_hour) == "07:00:00 - 14:00:00"
+
+
+def test_calendar__str__():
+    calendar = Calendar()
+    calendar.name = "test"
+    assert calendar.__str__() == "test"
+    assert str(calendar) == "test"
