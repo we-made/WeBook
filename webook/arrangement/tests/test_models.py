@@ -37,3 +37,10 @@ def test_location__str__():
     location.name = "test"
     assert location.__str__() == "test"
     assert str(location) == "test"
+
+
+def test_room__str__():
+    room = Room()
+    room.name = "test"
+    assert room.__str__() == "test"
+    assert str(room) == "test"
