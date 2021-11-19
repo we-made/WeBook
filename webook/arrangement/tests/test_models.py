@@ -11,12 +11,14 @@ from webook.arrangement.models import (
     Audience,
     BusinessHour,
     Calendar,
+    ConfirmationReceipt,
     Location,
     Note,
     OrganizationType,
     Room,
     ServiceType,
     TimelineEvent,
+    Person
 )
 
 
@@ -96,3 +98,17 @@ def test_note__str__():
     note.content = "test"
     assert note.__str__() == "test"
     assert str(note) == "test"
+
+
+def test_confirmation_receipt__str__():
+    confirmation_receipt = ConfirmationReceipt()
+
+    requested_by = Person()
+    requested_by.first_name = "John"
+    requested_by.last_name = "Smith"
+
+    confirmation_receipt.sent_to = "test@test.com"
+    confirmation_receipt.requested_by = requested_by
+    print(confirmation_receipt.__str__())
+    assert confirmation_receipt.__str__() == "John Smith petitioned test@test.com for a confirmation at STAMP."
+    assert str(confirmation_receipt) == "John Smith petitioned test@test.com for a confirmation at STAMP."
