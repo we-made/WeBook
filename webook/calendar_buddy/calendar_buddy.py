@@ -42,7 +42,7 @@ def register_defaults_for_resources(defaults: dict(), context_type: base.Calenda
                                       standard_type=factory_manager.StandardType.RESOURCE)
 
 
-def new_calendar(context_type, events=[], resources=[]) -> object:
+def new_calendar(context_type, events=[], resources=[], html_element_id=None) -> object:
     """
         Create a new calendar instance, with the given events and resources, with the context_type deciding
         the calendar type/context. 
@@ -57,13 +57,17 @@ def new_calendar(context_type, events=[], resources=[]) -> object:
             context_type
                 The type of context that we want to fabricate a new calendar of. For instance FullCalendar.
 
+            html_element_id
+                The id we are to assign to the rendered HTML element for the calendar. How interesting this is for you
+                depends on the context.
+
         Returns: 
             A context, determined by context_type, that you can manipulate further before using the appropriate filter 
             in your template, rendering the context/calendar.
     """
     
     context = factory_manager.fabricate_calendar_context(context_type)
-    calendar = base.Calendar(events, resources, context)
+    calendar = base.Calendar(events, resources, context, html_element_id)
     context.calendar = calendar
     context.translate()
     return context
