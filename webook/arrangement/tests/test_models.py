@@ -58,3 +58,10 @@ def test_organization_type__str__():
     organization_type.name = "test"
     assert organization_type.__str__() == "test"
     assert str(organization_type) == "test"
+
+
+def test_timeline_event__str__():
+    timeline_event = TimelineEvent()
+    timeline_event.content = "test"
+    assert timeline_event.__str__() == "test"
+    assert str(timeline_event) == "test"
