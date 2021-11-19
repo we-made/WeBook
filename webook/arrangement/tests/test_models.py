@@ -12,6 +12,7 @@ from webook.arrangement.models import (
     BusinessHour,
     Calendar,
     ConfirmationReceipt,
+    Event,
     Location,
     Note,
     OrganizationType,
@@ -156,3 +157,14 @@ def test_service_provider__str__():
 
     assert service_provider.__str__() == "Code Testing of type Quality Assurance provided by The Test Corporation"
     assert str(service_provider) == "Code Testing of type Quality Assurance provided by The Test Corporation"
+
+
+def test_event__str__():
+    event = Event()
+
+    event.title = "test"
+    event.start = time(7, 0)
+    event.end = time(14, 0)
+
+    assert event.__str__() == "test (07:00:00 - 14:00:00)"
+    assert str(event) == "test (07:00:00 - 14:00:00)"
