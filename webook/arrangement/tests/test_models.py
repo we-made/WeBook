@@ -109,6 +109,6 @@ def test_confirmation_receipt__str__():
 
     confirmation_receipt.sent_to = "test@test.com"
     confirmation_receipt.requested_by = requested_by
-    print(confirmation_receipt.__str__())
+
     assert confirmation_receipt.__str__() == "John Smith petitioned test@test.com for a confirmation at STAMP."
     assert str(confirmation_receipt) == "John Smith petitioned test@test.com for a confirmation at STAMP."
