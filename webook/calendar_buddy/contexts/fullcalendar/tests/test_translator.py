@@ -14,7 +14,7 @@ def test_translate_event():
         groupId="1" # <-- **kwargs
     )
 
-    result_of_translation = translator.translate_event(mediative_event, standard_library.event_standard())
+    result_of_translation = translator.translate_event(mediative_event, standard_library.get_base_event_standard())
 
     assert result_of_translation is not None
     assert type(result_of_translation) is models.Event
@@ -28,7 +28,7 @@ def test_translate_resource():
         eventAllow=True
     )
 
-    result_of_translation = translator.translate_resource(mediative_resource, standard_library.resource_standard())
+    result_of_translation = translator.translate_resource(mediative_resource, standard_library.get_base_resource_standard())
 
     assert result_of_translation is not None
     assert type(result_of_translation) is models.Resource

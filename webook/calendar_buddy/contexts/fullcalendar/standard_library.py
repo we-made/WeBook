@@ -2,7 +2,7 @@ from datetime import datetime
 from .models import EventDisplay
 
 
-def event_standard():
+def get_base_event_standard():
     event_standard = dict()
     event_standard["groupId"] = ""
     event_standard["allDay"] = False
@@ -27,7 +27,7 @@ def event_standard():
     return event_standard
 
 
-def resource_standard():
+def get_base_resource_standard():
     resource_standard = dict()
     resource_standard["extendedProps"] = []
     resource_standard["eventConstraint"] = None

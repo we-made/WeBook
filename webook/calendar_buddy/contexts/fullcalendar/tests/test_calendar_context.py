@@ -40,8 +40,8 @@ def get_sample_resources():
 def test_context_translate():
     ui_config = UIConfig()
     test_context = context.FullCalendarContext(ui_config, calendar=get_test_calendar())
-    test_context.event_standard = standard_library.event_standard()
-    test_context.resource_standard = standard_library.resource_standard()
+    test_context.event_standard = standard_library.get_base_event_standard()
+    test_context.resource_standard = standard_library.get_base_resource_standard()
     test_context.translate()
 
     assert len([f for f in test_context.calendar.events if type(f) is mediative_event.MediativeEvent]) == 0
@@ -53,8 +53,8 @@ def test_events_as_json():
     test_context = context.FullCalendarContext(ui_config)
 
     test_context.calendar = get_test_calendar()
-    test_context.event_standard = standard_library.event_standard()
-    test_context.resource_standard = standard_library.resource_standard()
+    test_context.event_standard = standard_library.get_base_event_standard()
+    test_context.resource_standard = standard_library.get_base_resource_standard()
     test_context.translate()
     jsonified = test_context.events_as_json()
 
@@ -66,8 +66,8 @@ def test_resources_as_json():
     test_context = context.FullCalendarContext(ui_config)
 
     test_context.calendar = get_test_calendar()
-    test_context.event_standard = standard_library.event_standard()
-    test_context.resource_standard = standard_library.resource_standard()
+    test_context.event_standard = standard_library.get_base_event_standard()
+    test_context.resource_standard = standard_library.get_base_resource_standard()
     test_context.translate()
     jsonified = test_context.resources_as_json()
 
@@ -81,8 +81,8 @@ def test_context_launch():
     ui_config = UIConfig(config_dict=config)
 
     test_context = context.FullCalendarContext(ui_config, calendar=get_test_calendar())
-    test_context.event_standard = standard_library.event_standard()
-    test_context.resource_standard = standard_library.resource_standard()
+    test_context.event_standard = standard_library.get_base_event_standard()
+    test_context.resource_standard = standard_library.get_base_resource_standard()
     test_context.translate()
     test_context.launch()
 

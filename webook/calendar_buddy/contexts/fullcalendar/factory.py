@@ -8,13 +8,13 @@ class FullCalendarFactory(base.BaseCalendarContextFactory):
         super().__init__()
         self.standard_ui_config = base.UIConfig().overwrite(standard_ui_config)
 
-        self.event_standard = standard_library.event_standard()
-        self.resource_standard = standard_library.resource_standard()
+        self.event_standard = standard_library.get_base_event_standard()
+        self.resource_standard = standard_library.get_base_resource_standard()
 
         # use functionality from base to mesh the base/standard default (default if nothing is supplied), with the
         # eventual defaults of the user.
-        self.event_standard = self._get_standard_event_default(specified_defaults = event_standard)
-        self.resource_standard = self._get_standard_resource_default(specified_defaults = resource_standard)
+        self.event_standard = self._get_standard_event_default(specified_defaults=event_standard)
+        self.resource_standard = self._get_standard_resource_default(specified_defaults=resource_standard)
 
     def fabricate(self, custom_event_standard: list() = None, custom_resource_standard: list() = None) -> FullCalendarContext:
         if custom_event_standard is None:
