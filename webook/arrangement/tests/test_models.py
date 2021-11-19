@@ -146,7 +146,6 @@ def test_service_provider__str__():
     service_provider = ServiceProvider()
     service_provider.service_name = "Code Testing"
 
-
     service_type = ServiceType()
     service_type.name = "Quality Assurance"
     service_provider.service_type = service_type
