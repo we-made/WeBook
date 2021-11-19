@@ -1,6 +1,7 @@
 from datetime import datetime
 from .models import EventDisplay
 
+
 def event_standard():
     event_standard = dict()
     event_standard["groupId"] = ""
@@ -24,6 +25,7 @@ def event_standard():
     event_standard["extendedProps"] = []
     event_standard["source"] = None
     return event_standard
+
 
 def resource_standard():
     resource_standard = dict()

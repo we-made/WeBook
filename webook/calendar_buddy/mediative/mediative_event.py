@@ -2,6 +2,7 @@
 from datetime import datetime
 import json
 
+
 class MediativeEvent:
     def __init__(self, id: str, title: str, start: datetime, end: datetime, **kwargs):
         self.id = id

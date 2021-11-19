@@ -4,16 +4,18 @@ from webook.calendar_buddy.base import CalendarContext
 from webook.calendar_buddy import calendar_buddy, factory_manager
 from webook.calendar_buddy.tests import test_factory_manager
 
+
 def simple_hook (ctx):
     print("Hook runs")
     return ctx
+
 
 class TestCalendarBuddy:
     def test_register_hook (self):
         factory_manager.flush_state()
         calendar_buddy.register_hook(simple_hook, context_type=CalendarContext.FULLCALENDAR)
         assert len(factory_manager._FACTORY_HOOKS) == 1
-    
+
     def test_get_hook_for_context_type (self):
         factory_manager.flush_state()
         calendar_buddy.register_hook(simple_hook, context_type=CalendarContext.FULLCALENDAR)
@@ -44,4 +46,3 @@ class TestCalendarBuddy:
         ctx_factory = factory_manager._CONTEXT_FACTORIES[1]
         assert ctx_factory is not None and ctx_factory.event_standard is not None
         assert "something" in ctx_factory.resource_standard
-    

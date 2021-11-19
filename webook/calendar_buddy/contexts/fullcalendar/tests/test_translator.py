@@ -4,6 +4,7 @@ from webook.calendar_buddy.contexts.fullcalendar import translator, standard_lib
 from datetime import datetime
 import pytest
 
+
 def test_translate_event():
     mediative_event = MediativeEvent(
         id="1",
@@ -18,6 +19,7 @@ def test_translate_event():
     assert result_of_translation is not None
     assert type(result_of_translation) is models.Event
     assert result_of_translation.groupId == "1"
+
 
 def test_translate_resource():
     mediative_resource = MediativeResource(

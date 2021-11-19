@@ -1,12 +1,14 @@
-import pytest 
+import pytest
 from webook.calendar_buddy import base, factory_manager
 from webook.calendar_buddy.exceptions import FactoryNotFoundException
+
 
 def simple_fabrication_method (custom_event_standard = None, custom_resource_standard = None) -> base.BaseCalendarContext:
     ui_config = base.UIConfig()
     fabricated_context = base.BaseCalendarContext(ui_config=ui_config)
     fabricated_context.something = "something"
     return fabricated_context
+
 
 def register_testing_calendarcontext_factory():
     factory = base.BaseCalendarContextFactory()
@@ -15,6 +17,7 @@ def register_testing_calendarcontext_factory():
         factory=factory,
         context_type=base.CalendarContext.FULLCALENDAR
     )
+
 
 def simple_hook (ctx):
     ctx.hook_has_been_here = True
@@ -106,7 +109,7 @@ class TestFactoryManager:
 
         ctx_factory = factory_manager._CONTEXT_FACTORIES[1]
         assert ctx_factory is not None and ctx_factory.resource_standard is not None and "something" in ctx_factory.resource_standard
-    
+
     def test_register_uiconfig_defaults(self):
         factory_manager.flush_state()
         register_testing_calendarcontext_factory()

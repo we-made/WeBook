@@ -28,17 +28,18 @@ class Calendar:
         """ Parse the events, if they are stored as dicts, convert them into MediativeEvent (if possible) """
         converted_events = list()
         for event in self.events:
-            if (type(event) == dict):
-                converted_event = mediative_event.MediativeEvent(id = event["id"], title = event["title"], start = event["start"], end = event["end"])
+            if type(event) == dict:
+                converted_event = mediative_event.MediativeEvent(
+                    id=event["id"], title=event["title"], start=event["start"], end=event["end"]
+                )
                 keys_not_in = [y for y in event if y not in dir(converted_event)]
                 for f in keys_not_in:
                     converted_event.__dict__[f] = event[f]
                 converted_events.append(converted_event)
-            else: 
+            else:
                 converted_events.append(event)
 
         self.events = converted_events
-
 
 
 class BaseCalendarContext:
@@ -51,6 +52,7 @@ class BaseCalendarContext:
         self.ui_config = ui_config
         self.event_schema = None
         self.resource_schema = None
+        self.ui_config_as_dict = None
 
     def launch(self):
         """
@@ -94,7 +96,7 @@ class UIConfig:
             Returns:
                 this instance (self)
         """
-        if (config_dict != None):
+        if config_dict is not None:
             self.__dict__.update(config_dict)
         return self
 
@@ -108,8 +110,9 @@ class BaseCalendarContextFactory:
         self.event_standard = dict()
         self.resource_standard = dict()
 
-    def _mesh_defaults(self, base_defaults: dict(), specified_defaults: dict() = None) -> dict:
-        if (specified_defaults != None):
+    @staticmethod
+    def _mesh_defaults(base_defaults: dict(), specified_defaults: dict() = None) -> dict:
+        if specified_defaults is not None:
             base_defaults.update(specified_defaults)
         return base_defaults
 
