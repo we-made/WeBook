@@ -112,3 +112,20 @@ def test_confirmation_receipt__str__():
 
     assert confirmation_receipt.__str__() == "John Smith petitioned test@test.com for a confirmation at STAMP."
     assert str(confirmation_receipt) == "John Smith petitioned test@test.com for a confirmation at STAMP."
+
+
+def test_person__str__():
+    person = Person()
+    person.first_name = "John"
+    person.last_name = "Smith"
+
+    person_with_middle_name = Person()
+    person_with_middle_name.first_name = "John"
+    person_with_middle_name.middle_name = "Test"
+    person_with_middle_name.last_name = "Smith"
+
+    assert person.__str__() == "John Smith"
+    assert str(person) == "John Smith"
+
+    assert person_with_middle_name.__str__() == "John Test Smith"
+    assert str(person_with_middle_name) == "John Test Smith"
