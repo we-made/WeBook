@@ -16,6 +16,7 @@ from webook.arrangement.models import (
     Note,
     OrganizationType,
     Room,
+    ServiceProvider,
     ServiceType,
     TimelineEvent,
     Person,
@@ -139,3 +140,20 @@ def test_organization__str__():
 
     assert organization.__str__() == "The Test Corporation"
     assert str(organization) == "The Test Corporation"
+
+
+def test_service_provider__str__():
+    service_provider = ServiceProvider()
+    service_provider.service_name = "Code Testing"
+
+
+    service_type = ServiceType()
+    service_type.name = "Quality Assurance"
+    service_provider.service_type = service_type
+
+    organization = Organization()
+    organization.name = "The Test Corporation"
+    service_provider.organization = organization
+
+    assert service_provider.__str__() == "Code Testing of type Quality Assurance provided by The Test Corporation"
+    assert str(service_provider) == "Code Testing of type Quality Assurance provided by The Test Corporation"
