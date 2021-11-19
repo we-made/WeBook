@@ -23,29 +23,8 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     slug_field = "username"
     slug_url_kwarg = "username"
 
-events = list()
-event_1 = dict()
-event_1["id"] = 1
-event_1["title"] = "AAA EEEEE"
-event_1["start"] = datetime.now()
-event_1["end"] = datetime.now()
-event_1["other_thing"] = "herro"
-events.append(event_1)
 
-calendar_context = calendar_buddy.new_calendar(
-    events=events,
-    resources=list(),
-    context_type=CalendarContext.FULLCALENDAR
-).configure_ui(
-    view = 0,
-    views = ["timeGridWeek"],
-    locale = "nbLocale",
-    weekNumbers = True,
-    nowIndicator = True,
-    allDaySlot = False
-)
-
-user_detail_view = UserDetailView.as_view(extra_context={'calendar_context': calendar_context})
+user_detail_view = UserDetailView.as_view()
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
