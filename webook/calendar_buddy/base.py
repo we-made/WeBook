@@ -17,7 +17,7 @@ class Calendar:
         Represents a calendar, with types and resources, while being lightly divorced from the context.
     """
 
-    def __init__(self, events: list(), resources: list(), calendar_context: CalendarContext, html_element_id: None) -> None:
+    def __init__(self, events: list(), resources: list(), calendar_context: CalendarContext, html_element_id:str=None) -> None:
         self.events = events
         self.resources = resources
         self.context = calendar_context
