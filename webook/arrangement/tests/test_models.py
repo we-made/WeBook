@@ -51,3 +51,10 @@ def test_article__str__():
     article.name = "test"
     assert article.__str__() == "test"
     assert str(article) == "test"
+
+
+def test_organization_type__str__():
+    organization_type = OrganizationType()
+    organization_type.name = "test"
+    assert organization_type.__str__() == "test"
+    assert str(organization_type) == "test"
