@@ -1,6 +1,5 @@
 import pytest 
-from webook.calendar_buddy import factory_manager
-from webook.calendar_buddy import base
+from webook.calendar_buddy import base, factory_manager
 from webook.calendar_buddy.exceptions import FactoryNotFoundException
 
 def simple_fabrication_method (custom_event_standard = None, custom_resource_standard = None) -> base.BaseCalendarContext:
