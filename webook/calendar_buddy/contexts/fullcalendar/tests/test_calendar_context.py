@@ -1,6 +1,6 @@
 import pytest
 from webook.calendar_buddy.base import UIConfig, Calendar, CalendarContext
-from webook.calendar_buddy.contexts.fullcalendar import context, models, translator, standard_library
+from webook.calendar_buddy.contexts.fullcalendar import context, standard_library
 from webook.calendar_buddy.mediative import mediative_event, mediative_resource
 from datetime import datetime
 
