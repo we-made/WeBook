@@ -18,7 +18,8 @@ from webook.arrangement.models import (
     Room,
     ServiceType,
     TimelineEvent,
-    Person
+    Person,
+    Organization,
 )
 
 
@@ -129,3 +130,12 @@ def test_person__str__():
 
     assert person_with_middle_name.__str__() == "John Test Smith"
     assert str(person_with_middle_name) == "John Test Smith"
+
+
+def test_organization__str__():
+    organization = Organization()
+
+    organization.name = "The Test Corporation"
+
+    assert organization.__str__() == "The Test Corporation"
+    assert str(organization) == "The Test Corporation"
