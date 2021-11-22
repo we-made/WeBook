@@ -15,7 +15,8 @@ class User(AbstractUser):
 
     profile_picture = models.FileField(
         verbose_name="Profile Picture",
-        upload_to=media_pathing.profile_picture_path
+        upload_to=media_pathing.profile_picture_path,
+        blank=True
     )
 
     def get_absolute_url(self):
