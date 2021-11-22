@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-import media_pathing
+import webook.users.media_pathing as media_pathing
 
 
 class User(AbstractUser):
