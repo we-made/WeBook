@@ -2,7 +2,7 @@
 {% load static %}
 {% load static i18n %}
 
-{% block title %}User: {{ object.username }}{% endblock %}
+{% block title %}User: {{ object.get_representative_name }}{% endblock %}
 
 {% block inner %}
   <h2 class=" mb-0">
