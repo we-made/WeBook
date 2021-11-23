@@ -74,7 +74,7 @@ class User(AbstractUser):
             on this method, thus the slug should be now based on the person instance.
         """
         if (self.person is None):
-            return str(self.mail).split('@')[0]
+            return str(self.email).split('@')[0]
         return str(self.person)
         
 
