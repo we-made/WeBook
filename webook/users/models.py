@@ -50,19 +50,33 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    person = models.ForeignKey(Person, blank=True, on_delete=models.RESTRICT)
+    person = models.ForeignKey(Person, blank=True, null=True, on_delete=models.RESTRICT)
     slug = AutoSlugField(populate_from="_get_slug", blank=True)
 
-    objects =  CustomUserManager()
+    objects = CustomUserManager()
 
     def get_absolute_url(self):
         return reverse(
             "users:detail", kwargs={"slug": self.slug}
         )
 
+    @property 
+    def get_representative_name (self) -> str:
+        """ Get a 'friendly' representative name which can be used in frontend """
+        return self._get_slug()
+
     @property
     def _get_slug (self):
-        return str(self.email).split('@')[0]
+        """
+            Generate slug for this user. We want to, as far as it is possible, generate the slug based on the person associated with this user. 
+            But if no person is available we will settle for the first fragment of the users email address.
+            If one later attaches a person, one should set slug field to None, and it will regenerate the slug based
+            on this method, thus the slug should be now based on the person instance.
+        """
+        if (self.person is None):
+            return str(self.mail).split('@')[0]
+        return str(self.person)
+        
 
     def __str__(self) -> str:
         return self.email

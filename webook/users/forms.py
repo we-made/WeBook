@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import fields
 from django.utils.translation import gettext_lazy as _
 from django import forms as dj_forms
+from webook.arrangement.models import Person
 
 from allauth.account.forms import SignupForm
 
@@ -17,10 +18,21 @@ class UserChangeForm(forms.UserChangeForm):
 
 class UserCreationForm(SignupForm):
 
-    name = dj_forms.CharField(max_length=512, label=_("Your Name"))
+    first_name = dj_forms.CharField(max_length=512, label=_("First Name"))
+    middle_name = dj_forms.CharField(max_length=512, label=_("Middle Name"))
+    last_name = dj_forms.CharField(max_length=512, label=_("Last Name"))
     
     def save (self, request):
         user = super(UserCreationForm, self).save(request)
-        user.name = self.cleaned_data['name']
+        person = Person()
+        person.first_name = self.cleaned_data['first_name']
+        person.middle_name = self.cleaned_data['middle_name']
+        person.last_name = self.cleaned_data['last_name']
+        person.save()
+        user.person = person
+
+        # force the slug to refresh, so that it will use values from our person instance
+        user.slug = None
+
         user.save()
         return user
