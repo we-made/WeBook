@@ -53,10 +53,10 @@
             data-mdb-toggle="dropdown"
             aria-expanded="false"
           >
-            {% trans "Hi" %}, {{ request.user.username }}
+            {% trans "Hi" %}, {{ request.user.name }}
           </button>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'users:detail' request.user.username  %}"><i class="la la-user"></i>&nbsp; {% trans "My Profile" %}</a></li>
+            <li><a class="dropdown-item" href="{% url 'users:detail' request.user.slug  %}"><i class="la la-user"></i>&nbsp; {% trans "My Profile" %}</a></li>
             <li>
               <hr class="dropdown-divider" />
             </li>
