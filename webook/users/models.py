@@ -50,8 +50,8 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    person = models.ForeignKey(Person, blank=False, on_delete=models.RESTRICT)
-    slug = AutoSlugField(populate_from=str(email).split('@')[0], blank=True)
+    person = models.ForeignKey(Person, blank=True, on_delete=models.RESTRICT)
+    slug = AutoSlugField(populate_from="_get_slug", blank=True)
 
     objects =  CustomUserManager()
 
@@ -59,6 +59,10 @@ class User(AbstractUser):
         return reverse(
             "users:detail", kwargs={"slug": self.slug}
         )
+
+    @property
+    def _get_slug (self):
+        return str(self.email).split('@')[0]
 
     def __str__(self) -> str:
         return self.email
