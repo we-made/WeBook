@@ -51,7 +51,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     person = models.ForeignKey(Person, blank=True, null=True, on_delete=models.RESTRICT)
-    slug = AutoSlugField(populate_from="_get_slug", blank=True)
+    slug = AutoSlugField(populate_from="_get_slug", blank=True, unique=True)
 
     objects = CustomUserManager()
 
