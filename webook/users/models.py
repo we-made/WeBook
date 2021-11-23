@@ -46,7 +46,7 @@ class User(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['name']
 
     # First Name and Last Name Do Not Cover Name Patterns
     # Around the Globe.
