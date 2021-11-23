@@ -63,7 +63,7 @@ class User(AbstractUser):
     @property 
     def get_representative_name (self) -> str:
         """ Get a 'friendly' representative name which can be used in frontend """
-        return self._get_slug()
+        return self._get_slug
 
     @property
     def _get_slug (self):
@@ -73,7 +73,7 @@ class User(AbstractUser):
             If one later attaches a person, one should set slug field to None, and it will regenerate the slug based
             on this method, thus the slug should be now based on the person instance.
         """
-        if (self.person is None):
+        if (self.person is None or self.person.first_name == "" and self.person.last_name == ""):
             return str(self.email).split('@')[0]
         return str(self.person)
         
