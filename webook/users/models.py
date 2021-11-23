@@ -8,7 +8,10 @@ from autoslug import AutoSlugField
 
 
 class CustomUserManager(BaseUserManager):
-    """Define a model manager for User model with no username field."""
+    """
+    Custom user model manager without a username field.
+    
+    """
 
     use_in_migrations = True
 

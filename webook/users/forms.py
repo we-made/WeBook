@@ -17,7 +17,7 @@ class UserChangeForm(forms.UserChangeForm):
 
 class UserCreationForm(SignupForm):
 
-    name = dj_forms.CharField(max_length=512, label="Navn")
+    name = dj_forms.CharField(max_length=512, label=_("Your Name"))
     
     def save (self, request):
         user = super(UserCreationForm, self).save(request)
