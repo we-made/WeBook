@@ -1,10 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
+from webook.arrangement.models import Person
 from django.views.generic import (
     DetailView,
     RedirectView,
     UpdateView,
+    FormView,
 )
 
 User = get_user_model()
@@ -23,13 +25,13 @@ user_detail_view = UserDetailView.as_view()
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     fields = [
-        "name",
+        "first_name",
+        "middle_name",
+        "last_name",
+        "birth_date",
     ]
-
-    # We already imported user in the View code above,
-    #   remember?
-    model = User
-
+    template_name = "users/user_form.html"
+    model = Person
     # Send the User Back to Their Own Page after a
     #   successful Update
     def get_success_url(self):
@@ -41,10 +43,14 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     def get_object(self):
         # Only Get the User Record for the
         #   User Making the Request
-        return User.objects.get(
+        person_object = Person()
+        user = User.objects.get(
             slug=self.request.user.slug
         )
+        if (user is not None and user.person is not None):
+            person_object = user.person
 
+        return person_object
 
 user_update_view = UserUpdateView.as_view()
 
