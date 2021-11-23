@@ -302,11 +302,11 @@ class Person(TimeStampedModel):
     :param notes: Notes written about this person
     :type notes: Note.
     """
-    personal_email = models.CharField("PersonalEmail", max_length=255, blank=False, null=False)
-    first_name = models.CharField("FirstName", max_length=255)
-    middle_name = models.CharField("MiddleName", max_length=255, blank=True)
-    last_name = models.CharField("LastName", max_length=255)
-    birth_date = models.DateField("BirthDate", null=True, blank=True)
+    personal_email = models.CharField(verbose_name="Personal Email", max_length=255, blank=False, null=False)
+    first_name = models.CharField(verbose_name="First Name", max_length=255)
+    middle_name = models.CharField(verbose_name="Middle Name", max_length=255, blank=True)
+    last_name = models.CharField(verbose_name="Last Name", max_length=255)
+    birth_date = models.DateField(verbose_name="Date of Birth", null=True, blank=True)
 
     business_hours = models.ForeignKey(BusinessHour, on_delete=models.RESTRICT, null=True, blank=True)
     notes = models.ManyToManyField(Note)
