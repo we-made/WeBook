@@ -40,9 +40,8 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
       <input type="text" class="form-control form-control-lg" id="{{ form.login.id_for_label }}" name="{{ form.login.name}}"
              placeholder="{{ form.login.placeholder }}"/>
       <label class="form-label" for="{{ form.login.id_for_label }}">{{ form.login.label }}</label>
-
     </div>
-    {{ form.username.errors }}
+    {{ form.login.errors }}
   </div>
 
 
