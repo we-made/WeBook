@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from autoslug import AutoSlugField
 
 
-
 class CustomUserManager(BaseUserManager):
     """
     Custom user model manager without a username field.
@@ -50,11 +49,6 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
-    # First Name and Last Name Do Not Cover Name Patterns
-    # Around the Globe.
-    name = models.CharField(
-        _("Name of User"), blank=True, max_length=255
-    )
     slug = AutoSlugField(populate_from="name", blank=True)
 
     objects =  CustomUserManager()
@@ -63,6 +57,9 @@ class User(AbstractUser):
         return reverse(
             "users:detail", kwargs={"slug": self.slug}
         )
+
+    def get_email_slug(self):
+        return str(self.email).split('@')[0]
 
     def __str__(self) -> str:
         return self.email
