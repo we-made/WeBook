@@ -21,10 +21,10 @@ class User(AbstractUser):
     )
     slug = AutoSlugField(populate_from="name", blank=True)
 
-    # def get_absolute_url(self):
-    #     return reverse(
-    #         "users:detail", kwargs={"username": self.username}
-    #     )
+    def get_absolute_url(self):
+        return reverse(
+            "users:detail", kwargs={"slug": self.slug}
+        )
 
     def __str__(self) -> str:
         return self.email
