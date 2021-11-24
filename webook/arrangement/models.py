@@ -101,6 +101,7 @@ class Room(TimeStampedModel):
     """
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Name", max_length=128)
+    slug = AutoSlugField(populate_from="Name", unique=True)
 
     def __str__(self):
         """Return room name"""
