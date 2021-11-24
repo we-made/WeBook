@@ -165,6 +165,7 @@ class ServiceType(TimeStampedModel):
     :type name: str.
     """
     name = models.CharField(verbose_name="Name", max_length=255)
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return service type name"""
@@ -220,6 +221,8 @@ class Calendar(TimeStampedModel):
 
     people_resources = models.ManyToManyField(to="Person")
     room_resources = models.ManyToManyField(to="Room")
+
+    slug = 
 
     def __str__(self):
         """Return calendar name"""
