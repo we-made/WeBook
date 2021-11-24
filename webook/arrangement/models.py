@@ -52,17 +52,17 @@ class Arrangement(TimeStampedModel):
      """
     name = models.CharField(verbose_name="Name", max_length=255)
 
-    audience = models.ForeignKey(Audience, on_delete=models.CASCADE)
+    audience = models.ForeignKey(to=Audience, on_delete=models.CASCADE)
 
     starts = models.DateField(verbose_name="Starts")
     ends = models.DateField(verbose_name="Ends")
 
-    timeline_events = models.ManyToManyField("TimelineEvent")
+    timeline_events = models.ManyToManyField(to="TimelineEvent")
 
-    owners = models.ManyToManyField("Person")
+    owners = models.ManyToManyField(to="Person")
 
-    people_participants = models.ManyToManyField("Person", "participating_in")
-    organization_participants = models.ManyToManyField("Organization", "participating_in")
+    people_participants = models.ManyToManyField(to="Person", related_name="participating_in")
+    organization_participants = models.ManyToManyField(to="Organization", related_name="participating_in")
 
     def __str__(self):
         """Return arrangement name"""
@@ -203,13 +203,13 @@ class Calendar(TimeStampedModel):
     :type room_resources: Room.
     """
 
-    owner = models.ForeignKey("Person", on_delete=models.RESTRICT, related_name="owners")
+    owner = models.ForeignKey(to="Person", on_delete=models.RESTRICT, related_name="owners")
 
     name = models.CharField(verbose_name="Name", max_length=255)
     is_personal = models.BooleanField(verbose_name="Is Personal", default=True)
 
-    people_resources = models.ManyToManyField("Person")
-    room_resources = models.ManyToManyField("Room")
+    people_resources = models.ManyToManyField(to="Person")
+    room_resources = models.ManyToManyField(to="Room")
 
     def __str__(self):
         """Return calendar name"""
@@ -232,10 +232,10 @@ class Note(TimeStampedModel):
 
     """
 
-    author = models.ForeignKey('Person', on_delete=models.RESTRICT)
+    author = models.ForeignKey(to='Person', on_delete=models.RESTRICT)
     content = models.TextField(verbose_name="Content", max_length=1024)
 
-    confirmation = models.ForeignKey("ConfirmationReceipt", on_delete=models.RESTRICT, null=True)
+    confirmation = models.ForeignKey(to="ConfirmationReceipt", on_delete=models.RESTRICT, null=True)
 
     def __str__(self):
         """Return contents of note"""
@@ -267,7 +267,7 @@ class ConfirmationReceipt (TimeStampedModel):
     """
 
     guid = models.CharField(verbose_name="Guid", max_length=68, unique=True, db_index=True)
-    requested_by = models.ForeignKey("Person", on_delete=models.RESTRICT)
+    requested_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT)
     sent_to = models.CharField(verbose_name="SentTo", max_length=255)
     confirmed = models.BooleanField(verbose_name="Confirmed", default=False)
     sent_when = models.DateTimeField(verbose_name="SentWhen", null=True)
@@ -308,8 +308,8 @@ class Person(TimeStampedModel):
     last_name = models.CharField(verbose_name="LastName", max_length=255)
     birth_date = models.DateField(verbose_name="BirthDate", null=True, blank=True)
 
-    business_hours = models.ForeignKey(BusinessHour, on_delete=models.RESTRICT, null=True, blank=True)
-    notes = models.ManyToManyField(Note)
+    business_hours = models.ForeignKey(to=BusinessHour, on_delete=models.RESTRICT, null=True, blank=True)
+    notes = models.ManyToManyField(to=Note)
 
     def __str__(self):
         """Return full person name"""
@@ -336,10 +336,10 @@ class Organization(TimeStampedModel):
     """
     organization_number = models.IntegerField(verbose_name="Organization Number", null=True, blank=True)
     name = models.CharField(verbose_name="Name", max_length=255)
-    organization_type = models.ForeignKey(OrganizationType, on_delete=models.RESTRICT)
+    organization_type = models.ForeignKey(to=OrganizationType, on_delete=models.RESTRICT)
 
-    notes = models.ManyToManyField(Note)
-    members = models.ManyToManyField(Person)
+    notes = models.ManyToManyField(to=Note)
+    members = models.ManyToManyField(to=Person)
 
     def __str__(self):
         """Return organization name"""
@@ -362,8 +362,8 @@ class ServiceProvider(TimeStampedModel):
     """
 
     service_name = models.CharField(verbose_name="ServiceName", max_length=255)
-    service_type = models.ForeignKey(ServiceType, on_delete=models.RESTRICT)
-    organization = models.ForeignKey(Organization, on_delete=models.RESTRICT)
+    service_type = models.ForeignKey(to=ServiceType, on_delete=models.RESTRICT)
+    organization = models.ForeignKey(to=Organization, on_delete=models.RESTRICT)
 
     def __str__(self):
         """Return description of service provider"""
@@ -412,12 +412,12 @@ class Event(TimeStampedModel):
     end = models.DateTimeField(verbose_name="End", null=False)
     all_day = models.BooleanField(verbose_name="AllDay")
     sequence_guid = models.CharField(verbose_name="SequenceGuid", max_length=40, null=True, blank=True)
-    arrangement = models.ForeignKey(Arrangement, on_delete=models.CASCADE)
+    arrangement = models.ForeignKey(to=Arrangement, on_delete=models.CASCADE)
 
-    people = models.ManyToManyField(Person)
-    rooms = models.ManyToManyField(Room)
-    articles = models.ManyToManyField(Article)
-    notes = models.ManyToManyField(Note)
+    people = models.ManyToManyField(to=Person)
+    rooms = models.ManyToManyField(to=Room)
+    articles = models.ManyToManyField(to=Article)
+    notes = models.ManyToManyField(to=Note)
 
     def __str__(self):
         """Return title of event, with start and end times"""
@@ -445,8 +445,8 @@ class EventService(TimeStampedModel):
     :type associated_people: Person.
     """
 
-    receipt = models.ForeignKey(ConfirmationReceipt, on_delete=models.RESTRICT)
-    event = models.ForeignKey(Event, on_delete=models.RESTRICT)
-    service_provider = models.ForeignKey(ServiceProvider, on_delete=models.RESTRICT)
-    notes = models.ManyToManyField(Note)
-    associated_people = models.ManyToManyField(Person)
+    receipt = models.ForeignKey(to=ConfirmationReceipt, on_delete=models.RESTRICT)
+    event = models.ForeignKey(to=Event, on_delete=models.RESTRICT)
+    service_provider = models.ForeignKey(to=ServiceProvider, on_delete=models.RESTRICT)
+    notes = models.ManyToManyField(to=Note)
+    associated_people = models.ManyToManyField(to=Person)
