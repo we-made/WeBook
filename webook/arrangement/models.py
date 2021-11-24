@@ -222,6 +222,8 @@ class Calendar(TimeStampedModel):
     people_resources = models.ManyToManyField(to="Person")
     room_resources = models.ManyToManyField(to="Room")
 
+    slug = AutoSlugField(populate_from="name", unique=True)
+
     def __str__(self):
         """Return calendar name"""
         return self.name
