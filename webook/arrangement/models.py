@@ -1,6 +1,6 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
-from django_extensions.db.fields import AutoSlugField
+from autoslug import AutoSlugField
 
 
 class Audience(TimeStampedModel):
