@@ -117,6 +117,7 @@ class Article(TimeStampedModel):
     """
 
     name = models.CharField(verbose_name="Name", max_length=255)
+    slug = AutoSlugField(populate_from="Name", unique=True)
 
     def __str__(self):
         """Return article name"""
