@@ -275,7 +275,7 @@ class ConfirmationReceipt (TimeStampedModel):
 
     def __str__(self):
         """Return description of receipt"""
-        return f"{self.requested_by.get_name()} petitioned {self.sent_to} for a confirmation at STAMP."
+        return f"{self.requested_by} petitioned {self.sent_to} for a confirmation at STAMP."
 
 
 class Person(TimeStampedModel):
