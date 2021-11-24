@@ -324,9 +324,15 @@ class Person(TimeStampedModel):
     business_hours = models.ForeignKey(to=BusinessHour, on_delete=models.RESTRICT, null=True, blank=True)
     notes = models.ManyToManyField(to=Note)
 
+    slug = AutoSlugField(populate_from="name", unique=True)
+
+    @property
+    def full_name(self):
+        return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
+
     def __str__(self):
         """Return full person name"""
-        return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
+        return self.full_name
 
 
 class Organization(TimeStampedModel):
