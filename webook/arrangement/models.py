@@ -67,6 +67,8 @@ class Arrangement(TimeStampedModel):
     people_participants = models.ManyToManyField(to="Person", related_name="participating_in")
     organization_participants = models.ManyToManyField(to="Organization", related_name="participating_in")
 
+    slug = AutoSlugField(populate_from="name", unique=True)
+
     def __str__(self):
         """Return arrangement name"""
         return self.name
@@ -80,6 +82,8 @@ class Location (TimeStampedModel):
     :type name: str.
     """
     name = models.CharField(verbose_name="Name", max_length=255)
+
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return location name"""
@@ -97,6 +101,7 @@ class Room(TimeStampedModel):
     """
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Name", max_length=128)
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return room name"""
@@ -112,7 +117,8 @@ class Article(TimeStampedModel):
     """
 
     name = models.CharField(verbose_name="Name", max_length=255)
-
+    slug = AutoSlugField(populate_from="name", unique=True)
+    
     def __str__(self):
         """Return article name"""
         return self.name
