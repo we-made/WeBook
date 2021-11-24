@@ -15,6 +15,8 @@ class Audience(TimeStampedModel):
     name = models.CharField(verbose_name="Name", max_length=255)
     icon_class = models.CharField(verbose_name="Icon Class", max_length=255, blank=True)
 
+    slug = AutoSlugField(populate_from="name", unique=True)
+
     def __str__(self):
         """Return audience name"""
         return self.name
