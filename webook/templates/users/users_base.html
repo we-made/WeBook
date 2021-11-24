@@ -1,38 +1,62 @@
 {% extends "base.html" %}
 {% load static i18n %}
 
+
 {% block content %}
-  <h1>{% trans "Good day" %}, {{ request.user.name }}</h1>
-  <br>
+  {% url "users:detail" request.user.username as overview_url %}
+  {% url "users:update" as my_info_url %}
+  {% url "account_email" as emails_url %}
+  {% url "account_reset_password" as account_reset_password_url %}
+
+  <p class="h2 mb-0">{% trans "Good day" %}, {{ request.user.name }}</p>
+  <hr class="mb-4">
   <div class="row">
     <div class="col-sm-12 col-lg-3">
-      <ul class="list-group">
+    <div
+      class="nav flex-column nav-tabs text-center"
+      id="v-tabs-tab"
+      role="tablist"
+      aria-orientation="vertical"
+    >
+      <a class="nav-link {% if request.get_full_path == overview_url %}active{% endif %}"
+          id="v-tabs-overview-tab"
+          href="{% url 'users:detail' request.user.username  %}"
+          aria-controls="v-tabs-overview"
+          aria-selected="{% if request.get_full_path == overview_url %}true{% else %}false{% endif %}">
+          {% trans "Overview" %}
+      </a>
 
-        <li class="list-group-item text-center">
-          <a class="text-muted font-weight-bold" href="{% url 'users:detail' request.user.username  %}">
-            My Dashboard
-          </a>
-        </li>
-
-        <li class="list-group-item text-center">
-          <a  class="text-muted font-weight-bold" href="{% url 'users:update' %}" role="button">
-            {% trans "My Info" %}
-          </a>
-        </li>
-        <li class="list-group-item text-center">
-          <a  class="text-muted font-weight-bold"  href="{% url 'account_email' %}" role="button">
-            {% trans "E-Mail" %}
-          </a>
-        </li>
-        <li class="list-group-item text-center">
-          <a  class="text-muted font-weight-bold"  href="{% url 'account_reset_password' %}" role="button">
-            {% trans "Reset Password" %}
-          </a>
-        </li>
-      </ul>
+      <a
+        class="nav-link {% if request.get_full_path == my_info_url %}active{% endif %}"
+        id="v-tabs-my-info-tab"
+        href="{% url 'users:update' %}"
+        aria-controls="v-tabs-my-info"
+        aria-selected="{% if request.get_full_path == my_info_url %}true{% else %}false{% endif %}">
+        {% trans "My Info" %}
+      </a>
+      <a
+        class="nav-link {% if request.get_full_path == emails_url %}active{% endif %}"
+        id="v-tabs-email-tab"
+        href="{% url 'account_email' %}"
+        aria-controls="v-tabs-email"
+        aria-selected="{% if request.get_full_path == emails_url %}true{% else %}false{% endif %}">
+        {% trans "E-Mail" %}</a>
+      <a
+        class="nav-link {% if request.get_full_path == account_reset_password_url %}active{% endif %}"
+        id="v-tabs-reset-password-tab"
+        href="{% url 'account_reset_password' %}"
+        aria-controls="v-tabs-reset-password"
+        aria-selected="{% if request.get_full_path == account_reset_password_url %}true{% else %}false{% endif %}">
+        {% trans "Reset Password" %}
+      </a>
     </div>
+  </div>
 
-    <div class="col-lg-9 col-sm-12">
+    <div class="col-9 mt-sm-4 mt-lg-0">
+      <p class="h3">
+        {% block section_title %}{% endblock %}
+      </p>
+
       {% block inner %}{% endblock %}
     </div>
   </div>

@@ -212,7 +212,7 @@ TEMPLATES = [
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 # http://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "form_layout_material"
 
 # FIXTURES
 # ------------------------------------------------------------------------------
@@ -306,4 +306,9 @@ APP_TITLE = env(
 FULLCALENDAR_LICENSE_KEY = env(
     "FULLCALENDAR_LICENSE_KEY",
     default=""
+)
+
+ASSET_SERVER_URL = env(
+    "APP_TITLE",
+    default="localhost/static"
 )
