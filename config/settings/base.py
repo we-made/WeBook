@@ -166,6 +166,7 @@ STATICFILES_DIRS = [str(APPS_DIR / "static")]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "npm.finders.NpmFinder",
 ]
 
 # MEDIA
@@ -300,6 +301,11 @@ APP_LOGO = env(
 APP_TITLE = env(
     "APP_TITLE",
     default="WeBook"
+)
+
+FULLCALENDAR_LICENSE_KEY = env(
+    "FULLCALENDAR_LICENSE_KEY",
+    default=""
 )
 
 ASSET_SERVER_URL = env(
