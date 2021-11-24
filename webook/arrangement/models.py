@@ -101,7 +101,7 @@ class Room(TimeStampedModel):
     """
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Name", max_length=128)
-    slug = AutoSlugField(populate_from="Name", unique=True)
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return room name"""
@@ -117,7 +117,7 @@ class Article(TimeStampedModel):
     """
 
     name = models.CharField(verbose_name="Name", max_length=255)
-    slug = AutoSlugField(populate_from="Name", unique=True)
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return article name"""
@@ -132,7 +132,7 @@ class OrganizationType(TimeStampedModel):
     :type name: str.
     """
     name = models.CharField(verbose_name="Name", max_length=255)
-    slug = AutoSlugField(populate_from="Name", unique=True)
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return name of organizationtype"""
@@ -221,8 +221,6 @@ class Calendar(TimeStampedModel):
 
     people_resources = models.ManyToManyField(to="Person")
     room_resources = models.ManyToManyField(to="Room")
-
-    slug = 
 
     def __str__(self):
         """Return calendar name"""
