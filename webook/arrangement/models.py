@@ -440,6 +440,8 @@ class Event(TimeStampedModel):
     articles = models.ManyToManyField(to=Article)
     notes = models.ManyToManyField(to=Note)
 
+    slug = AutoSlugField(populate_from = "title", unique=True)
+
     def __str__(self):
         """Return title of event, with start and end times"""
         return f"{self.title} ({self.start} - {self.end})"
