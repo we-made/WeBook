@@ -360,6 +360,8 @@ class Organization(TimeStampedModel):
     notes = models.ManyToManyField(to=Note)
     members = models.ManyToManyField(to=Person)
 
+    slug = AutoSlugField(populate_from="name", unique=True)
+
     def __str__(self):
         """Return organization name"""
         return self.name
