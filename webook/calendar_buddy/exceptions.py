@@ -1,4 +1,8 @@
 class FactoryNotFoundException(Exception):
+    """
+        Exception to be raised when a factory has been requested, but it could not be found.
+        For instance, if one tries to register a hook to a factory that has not been registered yet.
+    """
     def __init__(self,
                  context_type,
                  message=None):
