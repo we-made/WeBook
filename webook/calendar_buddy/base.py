@@ -125,6 +125,19 @@ class BaseCalendarContextFactory:
         return base_defaults
 
     def _get_standard_event_default(self, specified_defaults: dict() = None) -> dict:
+        """
+            Get the set default standard for events, intermeshed with specified_defaults parameter.
+            In practice this allows the context to have its "hardcoded" standard, and for the consumer to load
+            in their own standard, without having to define standards for the entire event model. The consumer only
+            needs to concern themselves about the fields that deviates from that base standard.
+
+            :param specified_defaults: The defaults to intermesh in. May be None.
+            :type specified_defaults: dict
+
+            :return: Returns the result of intermeshing specified_defaults with the standard event defaults in the context implementation.
+                     If specified_defaults is none, you will simply just get the context defaults unoverriden.
+            :rtyoe: dict
+        """
         return self._mesh_defaults(self.event_standard, specified_defaults)
 
     def _get_standard_resource_default(self, specified_defaults: dict() = None) -> dict:
