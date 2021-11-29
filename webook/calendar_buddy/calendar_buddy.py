@@ -51,21 +51,19 @@ def new_calendar(context_type, events=[], resources=[]) -> object:
         Create a new calendar instance, with the given events and resources, with the context_type deciding
         the calendar type/context. 
 
-        Parameters:
-            events: 
-                Start, stop and such some. Must satisfy the mediative standards. Please refer to documentation.
-            
-            resources:
-                For instance a room or a person. Must satisfy mediative standards. Please refer to documentation.
+        :param events: Start, stop and such some. Must satisfy the mediative standards.
+        :type events: list of events derivated from MediativeEvent
 
-            context_type
-                The type of context that we want to fabricate a new calendar of. For instance FullCalendar.
+        :param resources: For instance a room or a person. Must satisfy mediative standards.
+        :type resources: list of resources derivated from MediativeResource
 
-        Returns: 
-            A context, determined by context_type, that you can manipulate further before using the appropriate filter 
-            in your template, rendering the context/calendar.
+        :param context_type: The type of context that we want to fabricate a new calendar of. For instance FullCalendar.
+        :type context_type: ContextType
+
+        :return: A context, determined by context_type, that you can manipulate further before using the appropriate filter 
+                 in your template, rendering the context/calendar.
+        :rtype: object 
     """
-    
     context = factory_manager.fabricate_calendar_context(context_type)
     calendar = base.Calendar(events, resources, context)
     context.calendar = calendar
