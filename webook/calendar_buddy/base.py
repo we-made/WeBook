@@ -141,5 +141,7 @@ class BaseCalendarContextFactory:
     def identify_self(self) -> CalendarContext:
         """
             Identify the current context
+            
+            :raises NotImplementedError: Raises not implemented error if not implemented by the derivative
         """
         raise NotImplementedError
