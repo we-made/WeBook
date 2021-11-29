@@ -1,8 +1,6 @@
+from . import standard_library
 from ....calendar_buddy import base
 from . context import FullCalendarContext
-from .models import EventDisplay
-
-import datetime
 
 
 class FullCalendarFactory(base.BaseCalendarContextFactory):
@@ -25,41 +23,14 @@ class FullCalendarFactory(base.BaseCalendarContextFactory):
         """
         super().__init__()
         self.standard_ui_config = base.UIConfig().overwrite(standard_ui_config)
-        self.event_standard = self._get_standard_event_default(specified_defaults = event_standard)
-        self.resource_standard = self._get_standard_resource_default(specified_defaults = resource_standard)
-        
-        self.event_standard = dict()
-        self.event_standard["groupId"] = ""
-        self.event_standard["allDay"] = False
-        self.event_standard["start"] = datetime.datetime.now()
-        self.event_standard["end"] = datetime.datetime.now()
-        self.event_standard["startStr"] = ""
-        self.event_standard["endStr"] = ""
-        self.event_standard["url"] = ""
-        self.event_standard["classNames"] = []
-        self.event_standard["editable"] = False
-        self.event_standard["startEditable"] = False
-        self.event_standard["durationEditable"] = False
-        self.event_standard["resourceEditable"] = False
-        self.event_standard["display"] = EventDisplay.AUTO
-        self.event_standard["overlap"] = None
-        self.event_standard["constraint"] = None
-        self.event_standard["backgroundColor"] = ""
-        self.event_standard["borderColor"] = ""
-        self.event_standard["textColor"] = ""
-        self.event_standard["extendedProps"] = []
-        self.event_standard["source"] = None
 
-        self.resource_standard = dict()
-        self.resource_standard["extendedProps"] = []
-        self.resource_standard["eventConstraint"] = None
-        self.resource_standard["eventOverlap"] = False
-        self.resource_standard["eventAllow"] = False
-        self.resource_standard["eventBackgroundColor"] = ""
-        self.resource_standard["eventBorderColor"] = ""
-        self.resource_standard["eventTextColor"] = ""
-        self.resource_standard["eventClassNames"] = []
+        self.event_standard = standard_library.get_base_event_standard()
+        self.resource_standard = standard_library.get_base_resource_standard()
 
+        # use functionality from base to mesh the base/standard default (default if nothing is supplied), with the
+        # eventual defaults of the user.
+        self.event_standard = self._get_standard_event_default(specified_defaults=event_standard)
+        self.resource_standard = self._get_standard_resource_default(specified_defaults=resource_standard)
 
     def fabricate(self, custom_event_standard: list() = None, custom_resource_standard: list() = None) -> FullCalendarContext:
         """
@@ -74,9 +45,9 @@ class FullCalendarFactory(base.BaseCalendarContextFactory):
             :return: Returns a newly fabricated FullCalendarContext, composed and molded based on the standards and hooks supplied
             :rtype: FullCalendarContext
         """
-        if (custom_event_standard is None):
+        if custom_event_standard is None:
             custom_event_standard = self.event_standard
-        if (custom_resource_standard is None):
+        if custom_resource_standard is None:
             custom_resource_standard = self.resource_standard
 
         return FullCalendarContext(

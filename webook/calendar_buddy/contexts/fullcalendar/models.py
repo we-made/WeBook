@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, time
 from enum import Enum
-import json
-from json import JSONEncoder
 
 
 class EventDisplay(Enum):

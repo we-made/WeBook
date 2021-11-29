@@ -4,7 +4,6 @@ from ....calendar_buddy.contexts.fullcalendar import translator
 from .marshmallow_schemas import EventSchema, ResourceSchema
 
 
-
 class FullCalendarContext(base.BaseCalendarContext):
     def __init__(self, ui_config, calendar=None,
                  event_standard=None, resource_standard=None) -> None:
@@ -34,9 +33,9 @@ class FullCalendarContext(base.BaseCalendarContext):
             :return: Returns events serialized to JSON
             :rtype: str
         """
-        eventSchema = EventSchema()
-        return eventSchema.dumps(self.calendar.events, many=True)
-    
+        event_schema = EventSchema()
+        return event_schema.dumps(self.calendar.events, many=True)
+
     def resources_as_json(self) -> str:
         """
             Get resources as json - remember to translate() first
@@ -44,8 +43,8 @@ class FullCalendarContext(base.BaseCalendarContext):
             :return: Returns resources serialized to JSON
             :rtype: str
         """
-        resourceSchema = ResourceSchema()
-        return resourceSchema.dumps(self.calendar.resources, many=True)
+        resource_schema = ResourceSchema()
+        return resource_schema.dumps(self.calendar.resources, many=True)
 
     def launch(self) -> None:
         """

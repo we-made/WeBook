@@ -17,10 +17,11 @@ class Calendar:
         Represents a calendar, with types and resources, while being lightly divorced from the context.
     """
 
-    def __init__(self, events: list(), resources: list(), calendar_context: CalendarContext) -> None:
+    def __init__(self, events: list(), resources: list(), calendar_context: CalendarContext, html_element_id:str=None) -> None:
         self.events = events
         self.resources = resources
         self.context = calendar_context
+        self.html_element_id = html_element_id
         self._parse_events()
 
     def _parse_events (self):
@@ -29,17 +30,18 @@ class Calendar:
         """
         converted_events = list()
         for event in self.events:
-            if (type(event) == dict):
-                converted_event = mediative_event.MediativeEvent(id = event["id"], title = event["title"], start = event["start"], end = event["end"])
+            if type(event) == dict:
+                converted_event = mediative_event.MediativeEvent(
+                    id=event["id"], title=event["title"], start=event["start"], end=event["end"]
+                )
                 keys_not_in = [y for y in event if y not in dir(converted_event)]
                 for f in keys_not_in:
                     converted_event.__dict__[f] = event[f]
                 converted_events.append(converted_event)
-            else: 
+            else:
                 converted_events.append(event)
 
         self.events = converted_events
-
 
 
 class BaseCalendarContext:
@@ -52,13 +54,14 @@ class BaseCalendarContext:
         self.ui_config = ui_config
         self.event_schema = None
         self.resource_schema = None
+        self.ui_config_as_dict = None
 
     def launch(self):
         """
             Run before handing the context over to the template. This is where the last minute preparations
             that must happen last are run (for instance JSON serialization of events/resources).
         """
-        self.ui_config_as_dict = self.ui_config.__dict__.items()
+        self.ui_config_as_dict = self.ui_config.__dict__
 
     def events_as_json(self):
         """
@@ -105,7 +108,7 @@ class UIConfig:
             :return: Returns this instance/this UIConfig
             :rtype: UIConfig
         """
-        if (config_dict != None):
+        if config_dict is not None:
             self.__dict__.update(config_dict)
         return self
 
@@ -129,7 +132,7 @@ class BaseCalendarContextFactory:
             :param specified_defaults: The top layer that always has the highest priority, values from here will always override base_defaults
             :type specified_defaults: dict
         """
-        if (specified_defaults != None):
+        if specified_defaults is not None:
             base_defaults.update(specified_defaults)
         return base_defaults
 

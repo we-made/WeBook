@@ -7,6 +7,7 @@ from django.template.loader import get_template
 
 register = template.Library()
 
+
 @register.filter(name="fullcalendar")
 def fullcalendar(context: FullCalendarContext):
     """

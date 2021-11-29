@@ -1,5 +1,3 @@
-
-
 class MediativeResource:
     """
         MediativeResource is the bare minimum a resource type for a context must implement. 

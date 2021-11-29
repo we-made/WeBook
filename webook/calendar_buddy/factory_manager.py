@@ -8,7 +8,7 @@ from .contexts.fullcalendar.factory import FullCalendarFactory
 
 # Available context factories
 _CONTEXT_FACTORIES = {}
-# Hooks to be run after factory identified by context type has fabcricated a context
+# Hooks to be run after factory identified by context type has fabricated a context
 _FACTORY_HOOKS = list()
 
 
@@ -17,6 +17,12 @@ class StandardType(Enum):
     UI_CONFIG = 1
     EVENT = 2
     RESOURCE = 3
+
+
+def flush_state():
+    """ Flushes the state of the factory manager, reverting it back to "new", without any registered entities """
+    _CONTEXT_FACTORIES.clear()
+    _FACTORY_HOOKS.clear()
 
 
 def _get_context_factory_for_context_type(context_type: CalendarContext) -> object:
@@ -29,12 +35,13 @@ def _get_context_factory_for_context_type(context_type: CalendarContext) -> obje
         :return: Returns a factory, of which the concrete type may vary based on the context, and its implementation. In general refer to BaseCalendarContextFactory.
         :rtype: A derivation of BaseCalendarContextFactory, dependent on the type
     """
-    if (context_type.value in _CONTEXT_FACTORIES):
+    
+    if context_type.value in _CONTEXT_FACTORIES:
         return _CONTEXT_FACTORIES[context_type.value]
 
 
 def _get_hooks_for_context_type(context_type: CalendarContext) -> list():
-    """ 
+    """
         Get the fabrication hooks associated with the given context type, these will be run after fabrication
         in the order as retrieved 
 
@@ -46,14 +53,14 @@ def _get_hooks_for_context_type(context_type: CalendarContext) -> list():
      """
     hooks = []
     for hook in _FACTORY_HOOKS:
-        if (hook["context_type"] == context_type):
+        if hook["context_type"] == context_type:
             hooks.append(hook["hook"])
     return hooks
 
 
 def register_context_factory(factory: base.BaseCalendarContextFactory, context_type: CalendarContext) -> None:
-    """ 
-        Register a new context factory, under a given context_type. There can only be one factory per context type. 
+    """
+        Register a new context factory, under a given context_type. There can only be one factory per context type.
 
         :param factory: The factory to register
         :type factory: Must be a derivation of BaseCalendarContextFactory
@@ -65,7 +72,7 @@ def register_context_factory(factory: base.BaseCalendarContextFactory, context_t
 
 
 def fabricate_calendar_context(context_type: CalendarContext) -> object:
-    """ 
+    """
         Fabricate a new calendar context for the specified context_type
         Returns a calendar context of the type specified. E.g FullCalendarContext, if context_type is FULLCALENDAR.
         All contexts follow base.BaseCalendarContext
@@ -88,7 +95,7 @@ def fabricate_calendar_context(context_type: CalendarContext) -> object:
 
 
 def register_fabrication_hook(hook: Callable, context_type: CalendarContext) -> None:
-    """ 
+    """
         Register a fabrication hook, to be run after creating a new calendar context, on the fabricated context.
         This allows you to append your own changes to the fabrication process of this context, in a global fashion.
 
@@ -107,7 +114,7 @@ def register_fabrication_hook(hook: Callable, context_type: CalendarContext) -> 
 def register_defaults (defaults: dict(), context_type: CalendarContext, standard_type: StandardType) -> None:
     """
         Register a new set of defaults, for a context_type with type standard_type. This in practice
-        allows you to register a set of defaults "globally" on a context - meaning it will always be 
+        allows you to register a set of defaults "globally" on a context - meaning it will always be
         applied.
 
         :param defaults: A dict containing the defaults to register

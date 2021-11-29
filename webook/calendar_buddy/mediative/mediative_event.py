@@ -2,6 +2,7 @@
 from datetime import datetime
 import json
 
+
 class MediativeEvent:
     """
         MediativeEvent is the bare minimum an event type for a context must implement. 
