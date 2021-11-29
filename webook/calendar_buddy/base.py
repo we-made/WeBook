@@ -133,6 +133,8 @@ class BaseCalendarContextFactory:
     def fabricate(self):
         """
             Fabricate a new calendar context
+
+            :raises NotImplementedError: Raises not implemented error if not implemented by the derivative
         """
         raise NotImplementedError
 
