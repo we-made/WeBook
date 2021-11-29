@@ -212,6 +212,36 @@
       <script src="{% static 'js/fullcalendar/locales-all.min.js' %}"></script>
       <!-- place project specific Javascript in this file -->
       <script src="{% static 'js/project.js' %}"></script>
+
+            <!-- Handle window resizing, and automatic hiding/showing of the sidenav to correspond. -->
+      <script>
+          const sidenav = document.getElementById("sidenav-1");
+          const instance = mdb.Sidenav.getInstance(sidenav);
+
+          let innerWidth = null;
+
+          const setMode = (e) => {
+            // Check necessary for Android devices
+            if (window.innerWidth === innerWidth) {
+              return;
+            }
+
+            innerWidth = window.innerWidth;
+
+            if (window.innerWidth < 1400) {
+              instance.changeMode("over");
+              instance.hide();
+            } else {
+              instance.changeMode("side");
+              instance.show();
+            }
+          };
+
+          setMode();
+
+          // Event listeners
+          window.addEventListener("resize", setMode);
+      </script>
     {% endblock javascript %}
   </body>
 </html>
