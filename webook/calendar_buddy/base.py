@@ -71,6 +71,8 @@ class BaseCalendarContext:
     def resources_as_json(self):
         """
             Get all resources serialized to JSON
+
+            :raises NotImplementedError: Raises not implemented error if not implemented by the derivative
         """
         raise NotImplementedError
 
