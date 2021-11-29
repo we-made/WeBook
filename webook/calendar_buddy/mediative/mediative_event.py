@@ -8,7 +8,7 @@ class MediativeEvent:
         It serves as the "common tongue" that CalendarBuddy understands, and can work with.
         The kwargs attribute allows you to specify extra attributes, and through the use of translators
         in your context implementation you should be able to build a fully fledged event that matches
-        the contexts domain.
+        the context domain.
     """
 
     def __init__(self, id: str, title: str, start: datetime, end: datetime, **kwargs):
