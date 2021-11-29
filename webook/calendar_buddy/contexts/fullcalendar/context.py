@@ -40,6 +40,9 @@ class FullCalendarContext(base.BaseCalendarContext):
     def resources_as_json(self) -> str:
         """
             Get resources as json - remember to translate() first
+            
+            :return: Returns resources serialized to JSON
+            :rtype: str
         """
         resourceSchema = ResourceSchema()
         return resourceSchema.dumps(self.calendar.resources, many=True)
