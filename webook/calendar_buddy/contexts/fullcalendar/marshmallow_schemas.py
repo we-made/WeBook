@@ -3,12 +3,20 @@ from marshmallow_enum import EnumField
 from .models import EventDisplay
 
 class BusinessHoursSchema(Schema):
+    """
+        Marshmallow schema used to serialize from FC business hours to JSON
+    """
+
     startTime = fields.Time()
     endTime = fields.Time()
 
     daysOfWeek = fields.List(fields.Str())
 
 class EventSchema(Schema):
+    """
+        Marshmallow schema used to serialize from FC event to JSON
+    """
+
     id = fields.Str()
     groupId = fields.Str()
     allDay = fields.Bool() 
@@ -34,6 +42,9 @@ class EventSchema(Schema):
     
 
 class ResourceSchema(Schema):
+    """
+        Marshmallow schema used to serialize from FC resource to JSON
+    """
     id = fields.Str()
     title = fields.Str()
     extendedProps = fields.List(fields.Str())
