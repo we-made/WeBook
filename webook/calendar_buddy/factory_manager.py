@@ -70,9 +70,8 @@ def fabricate_calendar_context(context_type: CalendarContext) -> object:
         Returns a calendar context of the type specified. E.g FullCalendarContext, if context_type is FULLCALENDAR.
         All contexts follow base.BaseCalendarContext
 
-        Parameters:
-            context_type
-                Which context_type to fabricate a context for
+        :param context_type: Which context_type to fabricate a context for
+        :type context_type: CalendarContext
     """
 
     context_factory = _get_context_factory_for_context_type(context_type)
@@ -93,10 +92,12 @@ def register_fabrication_hook(hook: Callable, context_type: CalendarContext) -> 
         Register a fabrication hook, to be run after creating a new calendar context, on the fabricated context.
         This allows you to append your own changes to the fabrication process of this context, in a global fashion.
 
+        :param hook: The function that is to be registered, and later run on fabrications. Will always receive the context, and should always return the context.
+        :type hook: Callable, function
+
         Parameters:
             hook (function):
-                The function that is to be registered, and later run on fabrications
-                Will always receive the context, and should always return the context.
+                
 
             context_type (CalendarContext):
                 Designates which context this fabrication hook applies to. The factory serving
