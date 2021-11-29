@@ -87,6 +87,12 @@ class UIConfig:
         self.overwrite(config_dict)
 
     def convert_to_dict(self) -> dict:
+        """
+            Returns a converted version of the current UIConfig instance as a dict
+
+            :return: A dict equivalent of the current instance
+            :rtype: dict
+        """
         return self.__dict__
 
     def overwrite(self, config_dict) -> UIConfig:
