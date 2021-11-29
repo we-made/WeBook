@@ -1,6 +1,8 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
+from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
+
 
 
 class Audience(TimeStampedModel):
@@ -14,6 +16,8 @@ class Audience(TimeStampedModel):
     """
     name = models.CharField(verbose_name="Name", max_length=255)
     icon_class = models.CharField(verbose_name="Icon Class", max_length=255, blank=True)
+
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return audience name"""
@@ -65,6 +69,8 @@ class Arrangement(TimeStampedModel):
     people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
 
+    slug = AutoSlugField(populate_from="name", unique=True)
+
     def __str__(self):
         """Return arrangement name"""
         return self.name
@@ -78,6 +84,8 @@ class Location (TimeStampedModel):
     :type name: str.
     """
     name = models.CharField(verbose_name="Name", max_length=255)
+
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return location name"""
@@ -95,6 +103,7 @@ class Room(TimeStampedModel):
     """
     location = models.ForeignKey(Location, verbose_name=_("Location"), on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Name", max_length=128)
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return room name"""
@@ -110,6 +119,7 @@ class Article(TimeStampedModel):
     """
 
     name = models.CharField(verbose_name="Name", max_length=255)
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return article name"""
@@ -124,6 +134,7 @@ class OrganizationType(TimeStampedModel):
     :type name: str.
     """
     name = models.CharField(verbose_name="Name", max_length=255)
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return name of organizationtype"""
@@ -156,6 +167,7 @@ class ServiceType(TimeStampedModel):
     :type name: str.
     """
     name = models.CharField(verbose_name="Name", max_length=255)
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return service type name"""
@@ -211,6 +223,8 @@ class Calendar(TimeStampedModel):
 
     people_resources = models.ManyToManyField(to="Person", verbose_name=_("People Resources"))
     room_resources = models.ManyToManyField(to="Room", verbose_name=_("Room Resources"))
+
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return calendar name"""
@@ -312,9 +326,15 @@ class Person(TimeStampedModel):
     business_hours = models.ForeignKey(to=BusinessHour, verbose_name=_("Business Hours"), on_delete=models.RESTRICT, null=True, blank=True)
     notes = models.ManyToManyField(to=Note, verbose_name="Notes")
 
+    slug = AutoSlugField(populate_from="name", unique=True)
+
+    @property
+    def full_name(self):
+        return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
+
     def __str__(self):
         """Return full person name"""
-        return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
+        return self.full_name
 
 
 class Organization(TimeStampedModel):
@@ -341,6 +361,8 @@ class Organization(TimeStampedModel):
 
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     members = models.ManyToManyField(to=Person, verbose_name=_("Members"))
+
+    slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return organization name"""
@@ -419,6 +441,8 @@ class Event(TimeStampedModel):
     rooms = models.ManyToManyField(to=Room, verbose_name=_("Rooms"))
     articles = models.ManyToManyField(to=Article, verbose_name=_("Articles"))
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
+
+    slug = AutoSlugField(populate_from = "title", unique=True)
 
     def __str__(self):
         """Return title of event, with start and end times"""
