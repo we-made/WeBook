@@ -55,14 +55,12 @@ def register_context_factory(factory: base.BaseCalendarContextFactory, context_t
     """ 
         Register a new context factory, under a given context_type. There can only be one factory per context type. 
 
-        Parameters:
-            factory
-                The factory to register
-            
-            context_type
-                Which context type to register the factory to.
-    """
+        :param factory: The factory to register
+        :type factory: Must be a derivation of BaseCalendarContextFactory
 
+        :param context_type: The context type this factory applies to
+        :type context_type: CalendarContext
+    """
     _CONTEXT_FACTORIES[context_type.value] = factory
 
 
