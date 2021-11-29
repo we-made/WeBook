@@ -24,7 +24,9 @@ class Calendar:
         self._parse_events()
 
     def _parse_events (self):
-        """ Parse the events, if they are stored as dicts, convert them into MediativeEvent (if possible) """
+        """ 
+            Parse the events. If they are stored as dicts, convert them into MediativeEvent if possible.
+        """
         converted_events = list()
         for event in self.events:
             if (type(event) == dict):
