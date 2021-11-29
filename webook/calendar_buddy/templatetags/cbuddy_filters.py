@@ -9,6 +9,15 @@ register = template.Library()
 
 @register.filter(name="fullcalendar")
 def fullcalendar(context: FullCalendarContext):
+    """
+        Custom filter for the FullCalendar context
+        Renders a FullCalendarContext into an actual FullCalendar instance in the front-end
+        For example (in Jinja2): {{ my_fc_context | fullcalendar }}
+
+        :param context: The context to render
+        :type context: FullCalendar context type
+    """
+
     context.launch()
     ctx = Context(
         {
