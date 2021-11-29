@@ -48,6 +48,10 @@ class FullCalendarContext(base.BaseCalendarContext):
         return resourceSchema.dumps(self.calendar.resources, many=True)
 
     def launch(self) -> None:
+        """
+            Perform last minute preparations and conversions that can't be done until just before
+            we hit the rendering stage.
+        """
         super().launch()
         self.ui_config.initialView = self.ui_config.views[self.ui_config.view]
         self.events_json = self.events_as_json()
@@ -55,7 +59,7 @@ class FullCalendarContext(base.BaseCalendarContext):
 
     def translate(self) -> None:
         """
-            Convert mediative events to fullcalendar events
+            Convert mediative events as given to us by calendarbuddy to fullcalendar compliant events
         """
         for index, event in enumerate(self.calendar.events):
             self.calendar.events[index] = translator.translate_event(event, self.event_standard)
