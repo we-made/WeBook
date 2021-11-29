@@ -95,16 +95,8 @@ def register_fabrication_hook(hook: Callable, context_type: CalendarContext) -> 
         :param hook: The function that is to be registered, and later run on fabrications. Will always receive the context, and should always return the context.
         :type hook: Callable, function
 
-        Parameters:
-            hook (function):
-                
-
-            context_type (CalendarContext):
-                Designates which context this fabrication hook applies to. The factory serving
-                the designated context will run the hook you supplied.
-
-        Returns: 
-            Nothing    
+        :param context_type: Designates which context this fabrication hook applies to. The factory serving the designated context will run the hook you supplied.
+        :type context_type: CalendarContext 
     """
     _FACTORY_HOOKS.append({
         "hook": hook,
