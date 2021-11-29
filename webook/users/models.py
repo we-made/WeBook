@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-
+import webook.users.media_pathing as media_path
 
 class User(AbstractUser):
 
@@ -15,7 +15,8 @@ class User(AbstractUser):
     profile_picture = models.ImageField(
         name="profile_picture",
         verbose_name=_("Profile Picture"),
-        blank=True
+        upload_to=media_path.profile_picture_path,
+        blank=True,
     )
 
     def get_absolute_url(self):
