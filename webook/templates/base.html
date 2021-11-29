@@ -23,58 +23,160 @@
     <link rel="stylesheet" href="{% static 'css/fullcalendar/main.min.css' %}">
     <!-- This file stores project-specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
     {% endblock %}
 
   </head>
 
   <body>
+    <header>
+      <!-- Sidenav -->
+      <nav id="sidenav-1" class="sidenav ps sidenav-primary" data-mdb-mode="side" data-mdb-hidden="false" data-mdb-accordion="true" style="width: 240px; height: 100vh; position: fixed; transition: all 0.3s linear 0s; ">
+        <a class="ripple d-flex justify-content-center py-4" href="#!" data-mdb-ripple-color="primary">
+          <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" draggable="false">
+        </a>
+  
+        <div class="text-center p-2 h3">
+          {{ APP_TITLE }}
+        </div>
+  
+        <ul class="sidenav-menu">
+          <li class="sidenav-item">
+            <a class="sidenav-link ripple-surface" href="{% url "home" %}" tabindex="-1">
+              <i class="fas fa-chart-area fa-fw me-3" aria-hidden="true"></i><span>{% trans "Dashboard" %}</span></a>
+          </li>
 
-    <div class="mb-4">
-      <nav class="navbar navbar-expand-md navbar-light bg-light container-fluid">
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <a class="navbar-brand" href="{% url 'home' %}">{{ APP_TITLE }}</a>
+          <li class="sidenav-item">
+            <a class="sidenav-link ripple-surface" href="{% url "home" %}" tabindex="-1">
+              <i class="fas fa-calendar fa-fw me-3" aria-hidden="true"></i><span>{% trans "Calendars" %}</span></a>
+          </li>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'about' %}">About</a>
-            </li>
-          </ul>
+          <li>
+            <a class="sidenav-link ripple-surface" href="{% url "home" %}" tabindex="-1">
+              <i class="fas fa-suitcase fa-fw me-3" aria-hidden="true"></i><span>{% trans "Arrangements" %}</span></a>
+          </li>
 
+          <li>
+            <a class="sidenav-link ripple-surface" href="{% url "home" %}" tabindex="-1">
+              <i class="fas fa-building fa-fw me-3" aria-hidden="true"></i><span>{% trans "Rooms & Locations" %}</span></a>
+          </li>
 
-        {% if request.user.is_authenticated %}
-        <div class="btn-group shadow-0">
-          <button
-            type="button"
-            class="btn btn-link dropdown-toggle"
-            data-mdb-toggle="dropdown"
-            aria-expanded="false"
-          >
-            {% trans "Hi" %}, {{ request.user.username }}
+          <li>
+            <a class="sidenav-link ripple-surface" href="{% url "home" %}" tabindex="-1">
+              <i class="fas fa-dollar-sign fa-fw me-3" aria-hidden="true"></i><span>{% trans "Organizations" %}</span></a>
+          </li>
+
+          <li>
+            <a class="sidenav-link ripple-surface" href="{% url "home" %}" tabindex="-1">
+              <i class="fas fa-users fa-fw me-3" aria-hidden="true"></i><span>{% trans "People" %}</span></a>
+          </li>
+          <div class="container-fluid">
+            <hr>
+          </div>
+          <li class="sidenav-item">
+            <a class="sidenav-link ripple-surface" data-mdb-toggle="collapse" href="#sidenav-collapse-1-0-1" role="button" tabindex="-1" aria-expanded="false">
+                <i class="fas fa-lock fa-fw me-3" aria-hidden="true"></i>
+                <span>Min Profil</span>
+                <i class="fas fa-angle-down rotate-icon" aria-hidden="true"></i>
+            </a>
+            <ul class="sidenav-collapse collapse" id="sidenav-collapse-1-0-1">
+              <li class="sidenav-item">
+                <a class="sidenav-link ripple-surface" href="#" tabindex="-1">{% trans "My Profile" %}</a>
+              </li>
+              <li class="sidenav-item">
+                <a class="sidenav-link ripple-surface" href="{% url 'users:update' %}" tabindex="-1">{% trans "My Info" %}</a>
+              </li>
+              <li class="sidenav-item">
+                <a class="sidenav-link ripple-surface"  href="{% url 'account_email' %}" tabindex="-1">{% trans "E-Mail" %}</a>
+              </li>
+              <li class="sidenav-item">
+                <a class="sidenav-link ripple-surface" href="{% url 'account_reset_password' %}" tabindex="-1">{% trans "Reset Password" %}</a>
+              </li>
+            </ul>
+          </li>
+  
+          <li class="sidenav-item">
+            <a class="sidenav-link ripple-surface" href="{% url 'account_logout' %}" tabindex="-1">
+              <i class="fas fa-door-closed fa-fw me-3"></i><span>{% trans "Sign Out" %}</span>
+            </a>
+          </li>
+        </ul>
+      <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div></div><div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div></div></nav>
+      <!-- Sidenav -->
+  
+      <!-- Navbar -->
+      <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+        <!-- Container wrapper -->
+        <div class="container-fluid">
+          <!-- Toggler -->
+          <button data-mdb-toggle="sidenav" data-mdb-target="#sidenav-1" class="btn shadow-0 p-0 me-3 d-block d-xxl-none" aria-controls="#sidenav-1" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-bars fa-lg" aria-hidden="true"></i>
           </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'users:detail' request.user.username  %}"><i class="la la-user"></i>&nbsp; {% trans "My Profile" %}</a></li>
-            <li>
-              <hr class="dropdown-divider" />
+  
+          <!-- Search form -->
+          <form class="d-none d-md-flex input-group w-auto my-auto">
+            <input autocomplete="off" type="search" class="form-control rounded" placeholder="Search (ctrl + &quot;/&quot; to focus)" style="min-width: 225px">
+            <span class="input-group-text border-0"><i class="fas fa-search" aria-hidden="true"></i></span>
+          </form>
+  
+          <!-- Right links -->
+          <ul class="navbar-nav ms-auto d-flex flex-row">
+            <!-- Notification dropdown -->
+            <li class="nav-item dropdown">
+              <a class="nav-link me-4 me-lg-0 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bell" aria-hidden="true"></i>
+                <span class="badge rounded-pill badge-notification bg-danger">1</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                <li><a class="dropdown-item" href="#">Some news</a></li>
+                <li><a class="dropdown-item" href="#">Another news</a></li>
+                <li>
+                  <a class="dropdown-item" href="#">Something else here</a>
+                </li>
+              </ul>
             </li>
-            <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="la la-times-circle"></i>&nbsp; {% trans "Sign Out" %}</a></li>
           </ul>
+  
+          {% if request.user.is_authenticated %}
+            <div class="btn-group shadow-0">
+              <button
+                type="button"
+                class="btn btn-link dropdown-toggle"
+                data-mdb-toggle="dropdown"
+                aria-expanded="false"
+              >
+                {% trans "Hi" %}, {{ request.user.username }}
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href=""><i class="la la-user"></i>&nbsp; {% trans "My Profile" %}</a></li>
+                <li>
+                  <hr class="dropdown-divider" />
+                </li>
+                <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="la la-times-circle"></i>&nbsp; {% trans "Sign Out" %}</a></li>
+              </ul>
+            </div>
+          {% else %}
+            <a id="log-in-link" class="btn btn-success" href="{% url 'account_login' %}"><i class="la la-lock-open"></i> {% trans "Sign In" %}</a>
+            <a id="sign-up-link" class="btn btn-info ms-2" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
+          {% endif %}
         </div>
-        {% else %}
-          <a id="log-in-link" class="btn btn-success" href="{% url 'account_login' %}"><i class="la la-lock-open"></i> {% trans "Sign In" %}</a>
-          <a id="sign-up-link" class="btn btn-info ms-2" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
-        {% endif %}
-
-        </div>
+        <!-- Container wrapper -->
       </nav>
-    </div>
+      <!-- Navbar -->
+    </header>
 
-    <div class="container">
+      <style>
+      @media (min-width: 1400px) {
+        main,
+        header,
+        #main-navbar {
+          padding-left: 240px;
+        }
+      }
+      INPUT:-webkit-autofill,SELECT:-webkit-autofill,TEXTAREA:-webkit-autofill{animation-name:onautofillstart}INPUT:not(:-webkit-autofill),SELECT:not(:-webkit-autofill),TEXTAREA:not(:-webkit-autofill){animation-name:onautofillcancel}@keyframes onautofillstart{from{}}@keyframes onautofillcancel{from{}}
+  </style>
+
+    <div class="container" style="margin-left: 260px;">
 
       {% if messages %}
           {% for message in messages %}
@@ -110,6 +212,36 @@
       <script src="{% static 'js/fullcalendar/locales-all.min.js' %}"></script>
       <!-- place project specific Javascript in this file -->
       <script src="{% static 'js/project.js' %}"></script>
+
+            <!-- Handle window resizing, and automatic hiding/showing of the sidenav to correspond. -->
+      <script>
+          const sidenav = document.getElementById("sidenav-1");
+          const instance = mdb.Sidenav.getInstance(sidenav);
+
+          let innerWidth = null;
+
+          const setMode = (e) => {
+            // Check necessary for Android devices
+            if (window.innerWidth === innerWidth) {
+              return;
+            }
+
+            innerWidth = window.innerWidth;
+
+            if (window.innerWidth < 1400) {
+              instance.changeMode("over");
+              instance.hide();
+            } else {
+              instance.changeMode("side");
+              instance.show();
+            }
+          };
+
+          setMode();
+
+          // Event listeners
+          window.addEventListener("resize", setMode);
+      </script>
     {% endblock javascript %}
   </body>
 </html>
