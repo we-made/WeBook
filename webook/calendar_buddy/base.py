@@ -120,6 +120,15 @@ class BaseCalendarContextFactory:
         self.resource_standard = dict()
 
     def _mesh_defaults(self, base_defaults: dict(), specified_defaults: dict() = None) -> dict:
+        """
+            Helper method for meshing two dicts together, with a predictable priority or result
+
+            :param base_defaults: The bottom layer that always has the least priority
+            :type base_defaults: dict
+
+            :param specified_defaults: The top layer that always has the highest priority, values from here will always override base_defaults
+            :type specified_defaults: dict
+        """
         if (specified_defaults != None):
             base_defaults.update(specified_defaults)
         return base_defaults
@@ -136,11 +145,24 @@ class BaseCalendarContextFactory:
 
             :return: Returns the result of intermeshing specified_defaults with the standard event defaults in the context implementation.
                      If specified_defaults is none, you will simply just get the context defaults unoverriden.
-            :rtyoe: dict
+            :rtype: dict
         """
         return self._mesh_defaults(self.event_standard, specified_defaults)
 
     def _get_standard_resource_default(self, specified_defaults: dict() = None) -> dict:
+        """
+            Get the set default standard for resources, intermeshed with specified_defaults parameter.
+            In practice this allows the context to have its "hardcoded" standard, and for the consumer to load
+            in their own standard, without having to define standards for the entire resources model. The consumer only
+            needs to concern themselves about the fields that deviates from that base standard.
+
+            :param specified_defaults: The defaults to intermesh in. May be None.
+            :type specified_defaults: dict
+
+            :return: Returns the result of intermeshing specified_defaults with the standard resources defaults in the context implementation.
+                     If specified_defaults is none, you will simply just get the context defaults unoverriden.
+            :rtype: dict
+        """
         return self._mesh_defaults(self.resource_standard, specified_defaults)
 
     def fabricate(self):
