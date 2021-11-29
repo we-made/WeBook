@@ -14,12 +14,11 @@ def register_defaults_for_events(defaults: dict(), context_type: base.CalendarCo
     """
         Register a set of defaults that is to be applied to all events in calendars of context_type.
 
-        Parameters
-            defaults:
-                Dict containing the defaults to apply to all the events
-            
-            context_type:
-                The context type that these defaults affect
+        :param defaults: Dict containing the defaults to apply to all the events
+        :type defaults: dict
+        
+        :param context_type: The context type that these defaults affect
+        :type context_type: CalendarContext         
     """
     factory_manager.register_defaults(defaults=defaults,
                                       context_type=context_type,
