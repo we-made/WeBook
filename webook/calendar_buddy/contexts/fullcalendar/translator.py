@@ -5,14 +5,35 @@ from ....calendar_buddy.contexts.fullcalendar.models import Event, EventDisplay,
 from datetime import datetime
 
 
-def _set_defaults_on_dict(dict_to_set_defaults_on: dict(), defaults_to_set) -> dict:
+def _set_defaults_on_dict(dict_to_set_defaults_on: dict(), defaults_to_set: dict()) -> dict:
+    """
+        Internal helper aiding in setting defaults on an existing set of defaults (As dicts)
+
+        :param dict_to_set_defaults_on: The dict to override defaults on, consider this base
+        :type dict_to_set_defaults_on: dict
+        
+        :param defaults_to_set: The defaults to set on base dict -- the interloper
+        :type defaults_to_set: dict
+    """
+
     for key in defaults_to_set:
         dict_to_set_defaults_on.setdefault(key, defaults_to_set[key])
     return dict_to_set_defaults_on
 
 
 def translate_event (mediative_event: MediativeEvent, defaults: dict()) -> Event:
-    """ Translate from a mediative event to a FullCalendar event object """
+    """ 
+        Translate from a mediative event to a FullCalendar event object 
+
+        :param mediative_event: The mediative event to translate into a FC event
+        :type mediative_event: MediativeEvent
+
+        :param defaults: Ad-hoc defaults to apply to this translation. Use to override the standard defaults.
+        :type defaults: dict
+
+        :return: Returns a FullCalendar event, translated from the mediative_event specified
+        :rtype: Event
+    """
 
     mediative_event.kwargs = _set_defaults_on_dict(mediative_event.kwargs, defaults)
 
@@ -45,7 +66,18 @@ def translate_event (mediative_event: MediativeEvent, defaults: dict()) -> Event
 
 
 def translate_resource(mediative_resource: MediativeResource, defaults: dict()) -> Resource:
-    """ Translate from a mediative resource to a FullCalendar resource object """
+    """ 
+        Translate from a mediative resource to a FullCalendar resource object 
+
+        :param mediative_resource: The mediative event to translate into a FC event
+        :type mediative_resource: MediativeResource
+
+        :param defaults: Ad-hoc defaults to apply to this translation. Use to override the standard defaults.
+        :type defaults: dict
+
+        :return: Returns a FullCalendar resource, translated from the mediative_resource specified
+        :rtype: Resource
+    """
 
     mediative_resource.kwargs = _set_defaults_on_dict(mediative_resource.kwargs, defaults)
 
