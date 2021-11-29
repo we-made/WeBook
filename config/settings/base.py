@@ -305,7 +305,7 @@ APP_TITLE = env(
 
 FULLCALENDAR_LICENSE_KEY = env(
     "FULLCALENDAR_LICENSE_KEY",
-    default="'CC-Attribution-NonCommercial-NoDerivatives'"
+    default="CC-Attribution-NonCommercial-NoDerivatives"
 )
 
 ASSET_SERVER_URL = env(
