@@ -24,7 +24,7 @@ def _get_context_factory_for_context_type(context_type: CalendarContext) -> obje
         Get the context factory associated with the given context type 
 
         :param context_type: The context type of which to get the associated factory from
-        :type context_type: ContextType:
+        :type context_type: CalendarContext
 
         :return: Returns a factory, of which the concrete type may vary based on the context, and its implementation. In general refer to BaseCalendarContextFactory.
         :rtype: A derivation of BaseCalendarContextFactory, dependent on the type
@@ -39,7 +39,7 @@ def _get_hooks_for_context_type(context_type: CalendarContext) -> list():
         in the order as retrieved 
 
         :param context_type: The context type of which to get hooks for
-        :type context_type: ContextType
+        :type context_type: CalendarContext
 
         :return: Returns a list of callable hooks. Will be empty if no hooks are registered.
         :rtype: list of functions

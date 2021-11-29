@@ -58,7 +58,7 @@ def new_calendar(context_type, events=[], resources=[]) -> object:
         :type resources: list of resources derivated from MediativeResource
 
         :param context_type: The type of context that we want to fabricate a new calendar of. For instance FullCalendar.
-        :type context_type: ContextType
+        :type context_type: CalendarContext
 
         :return: A context, determined by context_type, that you can manipulate further before using the appropriate filter 
                  in your template, rendering the context/calendar.
