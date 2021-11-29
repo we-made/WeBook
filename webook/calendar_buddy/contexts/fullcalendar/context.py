@@ -30,6 +30,9 @@ class FullCalendarContext(base.BaseCalendarContext):
     def events_as_json(self) -> str:
         """
             Get events as json - remember to translate() first
+
+            :return: Returns events serialized to JSON
+            :rtype: str
         """
         eventSchema = EventSchema()
         return eventSchema.dumps(self.calendar.events, many=True)
