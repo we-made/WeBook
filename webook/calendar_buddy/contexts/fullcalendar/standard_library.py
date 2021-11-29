@@ -2,7 +2,14 @@ from datetime import datetime
 from .models import EventDisplay
 
 
-def get_base_event_standard():
+def get_base_event_standard() -> dict:
+    """
+        Get the base event standard.
+        This covers the entire fullcalendar event model
+        
+        :return: Returns a dict, containing the base event standards
+        :rtype: dict
+    """
     event_standard = dict()
     event_standard["groupId"] = ""
     event_standard["allDay"] = False
@@ -27,7 +34,14 @@ def get_base_event_standard():
     return event_standard
 
 
-def get_base_resource_standard():
+def get_base_resource_standard() -> dict:
+    """
+        Get the base resource standard.
+        This covers the entire fullcalendar event model
+
+        :return: Returns a dict, containing the base resource standards
+        :rtype: dict
+    """
     resource_standard = dict()
     resource_standard["extendedProps"] = []
     resource_standard["eventConstraint"] = None
