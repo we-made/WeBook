@@ -6,6 +6,12 @@ from typing import Callable
 def register_hook(hook: Callable, context_type: base.CalendarContext) -> None:
     """ 
         Register a hook that allows you to mutate the context upon its creation, specified by context_type. 
+
+        :param hook: The hook that is to be registered, and run on the context after fabrication
+        :type hook: Callable / Function
+
+        :param context_type: The context type that this hook applies to
+        :type context_type: CalendarContext
     """
     factory_manager.register_fabrication_hook(hook=hook, context_type=context_type)
 
@@ -29,12 +35,11 @@ def register_defaults_for_resources(defaults: dict(), context_type: base.Calenda
     """
         Register a set of defaults that is to be applied to all resources in calendars of context_type.
 
-        Parameters
-            defaults:
-                Dict containing the defaults to apply to all the resources
-            
-            context_type:
-                The context type that these defaults affect
+        :param defaults: Dict containing the defaults to apply to all the resources
+        :type defaults: dict
+
+        :param context_type: The context type that these defaults affect
+        :type context_type: CalendarContext  
     """
     factory_manager.register_defaults(defaults=defaults,
                                       context_type=context_type,
