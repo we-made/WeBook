@@ -37,6 +37,12 @@ def _get_hooks_for_context_type(context_type: CalendarContext) -> list():
     """ 
         Get the fabrication hooks associated with the given context type, these will be run after fabrication
         in the order as retrieved 
+
+        :param context_type: The context type of which to get hooks for
+        :type context_type: ContextType
+
+        :return: Returns a list of callable hooks. Will be empty if no hooks are registered.
+        :rtype: list of functions
      """
     hooks = []
     for hook in _FACTORY_HOOKS:
