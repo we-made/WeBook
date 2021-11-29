@@ -15,6 +15,7 @@ class User(AbstractUser):
     profile_picture = models.ImageField(
         name="profile_picture",
         verbose_name=_("Profile Picture"),
+        blank=True
     )
 
     def get_absolute_url(self):
