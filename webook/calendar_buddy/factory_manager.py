@@ -110,20 +110,15 @@ def register_defaults (defaults: dict(), context_type: CalendarContext, standard
         allows you to register a set of defaults "globally" on a context - meaning it will always be 
         applied.
 
-        Parameters:
-            defaults (dict):
-                A dict containing the defaults to register
+        :param defaults: A dict containing the defaults to register
+        :type defaults: dict
 
-            context_type (CalendarContext):
-                Designates which context this standard applies to. For instance FullCalendar.
-            
-            standard_type (StandardType):
-                Designates what kind of standard this is
-
-        Returns: 
-            Nothing
+        :param context_type: Designates which context this standard applies to. For instance FullCalendar.
+        :type context_type: CalendarContext
+        
+        :param standard_type: Designates what kind of standard this is
+        :type standard_type: StandardType
     """
-
     factory = _get_context_factory_for_context_type(context_type)
 
     if factory is None:
