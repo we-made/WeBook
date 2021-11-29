@@ -22,6 +22,12 @@ class StandardType(Enum):
 def _get_context_factory_for_context_type(context_type: CalendarContext) -> object:
     """ 
         Get the context factory associated with the given context type 
+
+        :param context_type: The context type of which to get the associated factory from
+        :type context_type: ContextType:
+
+        :return: Returns a factory, of which the concrete type may vary based on the context, and its implementation. In general refer to BaseCalendarContextFactory.
+        :rtype: A derivation of BaseCalendarContextFactory, dependent on the type
     """
     if (context_type.value in _CONTEXT_FACTORIES):
         return _CONTEXT_FACTORIES[context_type.value]
