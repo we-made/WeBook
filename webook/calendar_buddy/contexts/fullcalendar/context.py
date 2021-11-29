@@ -18,9 +18,11 @@ class FullCalendarContext(base.BaseCalendarContext):
         """
             Set UI configuration variables
 
-            Parameters:
-                kwargs: 
-                    Config values to write into the UI config
+            :param kwargs: Config values to write into the UI config
+            :type kwargs: dict
+
+            :return: Returns this instance
+            :rtype: FullCalendarContext
         """
         self.ui_config.overwrite(kwargs)
         return self
