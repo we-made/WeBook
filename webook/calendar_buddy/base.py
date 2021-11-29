@@ -97,13 +97,13 @@ class UIConfig:
 
     def overwrite(self, config_dict) -> UIConfig:
         """
-            Overwrite the current UIConfig instance with another UIConfig instance
+            Overwrite the current UIConfig instance with a dict
 
-            Parameters:
-                dict expected. Overwrite attributes by key and value.
+            :param config_dict: The dict which is to overwrite the existing UIConfig values
+            :type config_dict: dict
 
-            Returns:
-                this instance (self)
+            :return: Returns this instance/this UIConfig
+            :rtype: UIConfig
         """
         if (config_dict != None):
             self.__dict__.update(config_dict)
