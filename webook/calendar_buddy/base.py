@@ -63,6 +63,8 @@ class BaseCalendarContext:
     def events_as_json(self):
         """
             Get all events serialized to JSON
+
+            :raises NotImplementedError: Raises not implemented error if not implemented by the derivative
         """
         raise NotImplementedError
 
