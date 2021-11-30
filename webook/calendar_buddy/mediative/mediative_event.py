@@ -12,7 +12,7 @@ class MediativeEvent:
         the context domain.
     """
 
-    def __init__(self, id: str, title: str, start: datetime, end: datetime, **kwargs):
+    def __init__(self, id: str, title: str, start: datetime, end: datetime, **kwargs: dict):
         self.id = id
         self.title = title
         self.start = start
