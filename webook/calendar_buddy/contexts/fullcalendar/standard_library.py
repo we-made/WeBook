@@ -10,6 +10,28 @@ def get_base_event_standard() -> dict:
         :return: Returns a dict, containing the base event standards
         :rtype: dict
     """
+    return {
+        "groupId": "",
+        "allDay": False,
+        "start": datetime.now(),
+        "end": datetime.now(),
+        "startStr": "",
+        "endStr": "",
+        "url": "",
+        "classNames": [],
+        "editable": False,
+        "startEditable": False,
+        "durationEditable": False,
+        "resourceEditable": False,
+        "display": EventDisplay.AUTO,
+        "overlap": None,
+        "constraint": None,
+        "backgroundColor": "",
+        "borderColor": "",
+        "textColor": "",
+        "extendedProps": [],
+        "source": None
+    }
     event_standard = dict()
     event_standard["groupId"] = ""
     event_standard["allDay"] = False
