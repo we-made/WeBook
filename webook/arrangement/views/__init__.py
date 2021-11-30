@@ -8,6 +8,6 @@
 from .location_views import (
     location_detail_view,
     location_update_view,
-    location_list_view
+    location_list_view,
+    location_create_view,
 )
-
