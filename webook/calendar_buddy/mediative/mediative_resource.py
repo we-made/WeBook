@@ -7,7 +7,7 @@ class MediativeResource:
         the context domain.
     """
 
-    def __init__(self, id, title: str, **kwargs):
+    def __init__(self, id: str, title: str, **kwargs: dict):
         self.id = id
         self.title = title
         self.kwargs = kwargs
