@@ -46,7 +46,7 @@ def register_defaults_for_resources(defaults: dict, context_type: base.CalendarC
                                       standard_type=factory_manager.StandardType.RESOURCE)
 
 
-def new_calendar(context_type: base.CalendarContext, events: list() = [], resources: list() = [], html_element_id: str = None) -> object:
+def new_calendar(context_type: base.CalendarContext, events: list() = [], resources: list() = [], html_element_id: Optional[str] = None) -> object:
     """
         Create a new calendar instance, with the given events and resources, with the context_type deciding
         the calendar type/context.
