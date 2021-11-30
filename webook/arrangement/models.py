@@ -4,7 +4,6 @@ from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
 
 
-
 class Audience(TimeStampedModel):
     """Audience represents a target audience, and is used for categorical purposes.
 
@@ -14,8 +13,8 @@ class Audience(TimeStampedModel):
     :param icon_class: The CSS class of the icon used to represent this audience in views
     :type name: str
     """
-    name = models.CharField(verbose_name="Name", max_length=255)
-    icon_class = models.CharField(verbose_name="Icon Class", max_length=255, blank=True)
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
+    icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
@@ -55,12 +54,12 @@ class Arrangement(TimeStampedModel):
      :param organization_participants: The organizations who are participating in this arrangement
      :type organization_participants: Organization.
      """
-    name = models.CharField(verbose_name="Name", max_length=255)
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
 
     audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE)
 
-    starts = models.DateField(verbose_name="Starts")
-    ends = models.DateField(verbose_name="Ends")
+    starts = models.DateField(verbose_name=_("Starts"))
+    ends = models.DateField(verbose_name=_("Ends"))
 
     timeline_events = models.ManyToManyField(to="TimelineEvent", verbose_name=_("Timeline Events"))
 
@@ -83,7 +82,7 @@ class Location (TimeStampedModel):
     :param name: The name of the location
     :type name: str.
     """
-    name = models.CharField(verbose_name="Name", max_length=255)
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
@@ -101,8 +100,9 @@ class Room(TimeStampedModel):
     :param name: The name of the room
     :type name: str.
     """
+
     location = models.ForeignKey(Location, verbose_name=_("Location"), on_delete=models.CASCADE)
-    name = models.CharField(verbose_name="Name", max_length=128)
+    name = models.CharField(verbose_name=_("Name"), max_length=128)
     slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
@@ -118,7 +118,7 @@ class Article(TimeStampedModel):
     :type name: str.
     """
 
-    name = models.CharField(verbose_name="Name", max_length=255)
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
@@ -133,7 +133,7 @@ class OrganizationType(TimeStampedModel):
     :param name: The name of the organization type
     :type name: str.
     """
-    name = models.CharField(verbose_name="Name", max_length=255)
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
@@ -152,8 +152,8 @@ class TimelineEvent (TimeStampedModel):
     :type stamp: datetime.
     """
 
-    content = models.CharField(verbose_name="Content", max_length=1024)
-    stamp = models.DateTimeField(verbose_name="Stamp", null=False)
+    content = models.CharField(verbose_name=_("Content"), max_length=1024)
+    stamp = models.DateTimeField(verbose_name=_("Stamp"), null=False)
 
     def __str__(self):
         """Return content"""
@@ -166,7 +166,7 @@ class ServiceType(TimeStampedModel):
     :param name: The name of the service type
     :type name: str.
     """
-    name = models.CharField(verbose_name="Name", max_length=255)
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
@@ -187,8 +187,8 @@ class BusinessHour(TimeStampedModel):
 
     """
 
-    start_of_business_hours = models.TimeField(verbose_name="Start Of Business Hours")
-    end_of_business_hours = models.TimeField(verbose_name="End Of Business Hours")
+    start_of_business_hours = models.TimeField(verbose_name=_("Start Of Business Hours"))
+    end_of_business_hours = models.TimeField(verbose_name=_("End Of Business Hours"))
 
     def __str__(self):
         """Return from and to business hours"""
@@ -218,8 +218,8 @@ class Calendar(TimeStampedModel):
 
     owner = models.ForeignKey(to="Person", verbose_name=_("Owner"), on_delete=models.RESTRICT, related_name="owners")
 
-    name = models.CharField(verbose_name="Name", max_length=255)
-    is_personal = models.BooleanField(verbose_name="Is Personal", default=True)
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
+    is_personal = models.BooleanField(verbose_name=_("Is Personal"), default=True)
 
     people_resources = models.ManyToManyField(to="Person", verbose_name=_("People Resources"))
     room_resources = models.ManyToManyField(to="Room", verbose_name=_("Room Resources"))
@@ -248,7 +248,7 @@ class Note(TimeStampedModel):
     """
 
     author = models.ForeignKey(to='Person', on_delete=models.RESTRICT)
-    content = models.TextField(verbose_name="Content", max_length=1024)
+    content = models.TextField(verbose_name=_("Content"), max_length=1024)
 
     confirmation = models.ForeignKey(to="ConfirmationReceipt", verbose_name=_("Confirmation Receipt"), on_delete=models.RESTRICT, null=True)
 
@@ -281,12 +281,12 @@ class ConfirmationReceipt (TimeStampedModel):
 
     """
 
-    guid = models.CharField(verbose_name="Guid", max_length=68, unique=True, db_index=True)
+    guid = models.CharField(verbose_name=_("Guid"), max_length=68, unique=True, db_index=True)
     requested_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT, verbose_name=_("Requested By"))
-    sent_to = models.CharField(verbose_name="SentTo", max_length=255)
-    confirmed = models.BooleanField(verbose_name="Confirmed", default=False)
-    sent_when = models.DateTimeField(verbose_name="SentWhen", null=True)
-    confirmed_when = models.DateTimeField(verbose_name="ConfirmedWhen", null=True)
+    sent_to = models.CharField(verbose_name=_("SentTo"), max_length=255)
+    confirmed = models.BooleanField(verbose_name=_("Confirmed"), default=False)
+    sent_when = models.DateTimeField(verbose_name=_("SentWhen"), null=True)
+    confirmed_when = models.DateTimeField(verbose_name=_("ConfirmedWhen"), null=True)
 
     def __str__(self):
         """Return description of receipt"""
@@ -317,11 +317,11 @@ class Person(TimeStampedModel):
     :param notes: Notes written about this person
     :type notes: Note.
     """
-    personal_email = models.CharField(verbose_name="PersonalEmail", max_length=255, blank=False, null=False)
-    first_name = models.CharField(verbose_name="FirstName", max_length=255)
-    middle_name = models.CharField(verbose_name="MiddleName", max_length=255, blank=True)
-    last_name = models.CharField(verbose_name="LastName", max_length=255)
-    birth_date = models.DateField(verbose_name="BirthDate", null=True, blank=True)
+    personal_email = models.CharField(verbose_name=_("PersonalEmail"), max_length=255, blank=False, null=False)
+    first_name = models.CharField(verbose_name=_("FirstName"), max_length=255)
+    middle_name = models.CharField(verbose_name=_("MiddleName"), max_length=255, blank=True)
+    last_name = models.CharField(verbose_name=_("LastName"), max_length=255)
+    birth_date = models.DateField(verbose_name=_("BirthDate"), null=True, blank=True)
 
     business_hours = models.ForeignKey(to=BusinessHour, verbose_name=_("Business Hours"), on_delete=models.RESTRICT, null=True, blank=True)
     notes = models.ManyToManyField(to=Note, verbose_name="Notes")
@@ -355,7 +355,7 @@ class Organization(TimeStampedModel):
     :param members: The members of this organization
     :type name: Person
     """
-    organization_number = models.IntegerField(verbose_name="Organization Number", null=True, blank=True)
+    organization_number = models.IntegerField(verbose_name=_("Organization Number"), null=True, blank=True)
     name = models.CharField(verbose_name="Name", max_length=255)
     organization_type = models.ForeignKey(to=OrganizationType, verbose_name=_("Organization Type"), on_delete=models.RESTRICT)
 
@@ -384,7 +384,7 @@ class ServiceProvider(TimeStampedModel):
     :type organization: Organization.
     """
 
-    service_name = models.CharField(verbose_name="ServiceName", max_length=255)
+    service_name = models.CharField(verbose_name=_("ServiceName"), max_length=255)
     service_type = models.ForeignKey(to=ServiceType, on_delete=models.RESTRICT, verbose_name=_("Service Type"))
     organization = models.ForeignKey(to=Organization, on_delete=models.RESTRICT, verbose_name=_("Organization"))
 
@@ -430,18 +430,19 @@ class Event(TimeStampedModel):
 
     """
 
-    title = models.CharField(verbose_name="Title", max_length=255)
-    start = models.DateTimeField(verbose_name="Start", null=False)
-    end = models.DateTimeField(verbose_name="End", null=False)
-    all_day = models.BooleanField(verbose_name="AllDay")
-    sequence_guid = models.CharField(verbose_name="SequenceGuid", max_length=40, null=True, blank=True)
+
+    title = models.CharField(verbose_name=_("Title"), max_length=255)
+    start = models.DateTimeField(verbose_name=_("Start"), null=False)
+    end = models.DateTimeField(verbose_name=_("End"), null=False)
+    all_day = models.BooleanField(verbose_name=_("AllDay"))
+    sequence_guid = models.CharField(verbose_name=_("SequenceGuid"), max_length=40, null=True, blank=True)
     
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.CASCADE, verbose_name=_("Arrangement"))
     people = models.ManyToManyField(to=Person, verbose_name=_("People"))
     rooms = models.ManyToManyField(to=Room, verbose_name=_("Rooms"))
     articles = models.ManyToManyField(to=Article, verbose_name=_("Articles"))
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
-
+    
     slug = AutoSlugField(populate_from = "title", unique=True)
 
     def __str__(self):
