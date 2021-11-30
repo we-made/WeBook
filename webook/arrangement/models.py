@@ -2,6 +2,7 @@ from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 
 class Audience(TimeStampedModel):
@@ -86,6 +87,11 @@ class Location (TimeStampedModel):
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
+    def get_absolute_url(self):
+        return reverse(
+            "arrangement:location_detail", kwargs={"slug": self.slug}
+        )
+
     def __str__(self):
         """Return location name"""
         return self.name
@@ -101,9 +107,19 @@ class Room(TimeStampedModel):
     :type name: str.
     """
 
-    location = models.ForeignKey(Location, verbose_name=_("Location"), on_delete=models.CASCADE)
+    location = models.ForeignKey(
+        Location, 
+        verbose_name=_("Location"), 
+        on_delete=models.CASCADE,
+        related_name="rooms"
+    )
     name = models.CharField(verbose_name=_("Name"), max_length=128)
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    def get_absolute_url(self):
+        return reverse(
+            "arrangement:room_detail", kwargs={"slug": self.slug}
+        )
 
     def __str__(self):
         """Return room name"""
@@ -317,20 +333,25 @@ class Person(TimeStampedModel):
     :param notes: Notes written about this person
     :type notes: Note.
     """
-    personal_email = models.CharField(verbose_name=_("PersonalEmail"), max_length=255, blank=False, null=False)
-    first_name = models.CharField(verbose_name=_("FirstName"), max_length=255)
-    middle_name = models.CharField(verbose_name=_("MiddleName"), max_length=255, blank=True)
-    last_name = models.CharField(verbose_name=_("LastName"), max_length=255)
-    birth_date = models.DateField(verbose_name=_("BirthDate"), null=True, blank=True)
+    personal_email = models.CharField(verbose_name=_("Personal Email"), max_length=255, blank=False, null=False)
+    first_name = models.CharField(verbose_name=_("First Name"), max_length=255)
+    middle_name = models.CharField(verbose_name=_("Middle Name"), max_length=255, blank=True)
+    last_name = models.CharField(verbose_name=_("Last Name"), max_length=255)
+    birth_date = models.DateField(verbose_name=_("Birth Date"), null=True, blank=True)
 
     business_hours = models.ForeignKey(to=BusinessHour, verbose_name=_("Business Hours"), on_delete=models.RESTRICT, null=True, blank=True)
     notes = models.ManyToManyField(to=Note, verbose_name="Notes")
 
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = AutoSlugField(populate_from="full_name", unique=True)
 
     @property
     def full_name(self):
         return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
+
+    def get_absolute_url(self):
+        return reverse(
+            "arrangement:person_detail", kwargs={"slug": self.slug }
+        )
 
     def __str__(self):
         """Return full person name"""
@@ -363,6 +384,11 @@ class Organization(TimeStampedModel):
     members = models.ManyToManyField(to=Person, verbose_name=_("Members"))
 
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    def get_absolute_url(self):
+        return reverse(
+            "arrangement:organization_detail", kwargs={'slug': self.slug}
+        )
 
     def __str__(self):
         """Return organization name"""

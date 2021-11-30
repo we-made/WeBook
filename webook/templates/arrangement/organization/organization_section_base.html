@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block section_icon_class %}
+    fas fa-dollar-sign
+{% endblock %}
+
+{% block section_title %}
+    Organizations
+{% endblock %}
+
+{% block section_crumb_icon %}
+    <i class="fas fa-dollar-sign"></i>
+{% endblock %}
+{% block section_crumb_title %}
+    Organization
+{% endblock %}
+{% block section_crumb_url %}
+    {% url 'arrangement:organization_list' %}
+{% endblock %}

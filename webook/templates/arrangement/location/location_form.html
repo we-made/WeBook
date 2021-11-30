@@ -1,0 +1,49 @@
+{% extends "arrangement/location/location_section_base.html" %}
+{% load static i18n %}
+{% load crispy_forms_tags %}
+
+{% block section_title %}
+    {% if object.name is None %}
+        {% trans "New Location" %}
+    {% else %}
+        {% trans "Edit Location" %}
+    {% endif %}
+{% endblock %}
+
+{% block title %}
+    {% if object.name is None %}
+        {% trans "New Location" %}
+    {% else %}
+        {% trans "Edit Location" %}
+    {% endif %}
+{% endblock %}
+
+{% block current_crumb_title %}
+    {% if object.name is None %}
+        <i class="fas fa-plus"></i>&nbsp; {% trans "New Location" %}
+    {% else %}
+        <i class="fas fa-edit"></i>&nbsp; {% trans "Edit Location" %} '{{ form.name.value }}'
+    {% endif %}
+{% endblock %}
+
+{% block section_subtitle %}
+    {% if object.id is not None %}
+        {{ form.name.value }}
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+
+        {{ form | crispy }}
+        
+        <button type="submit" class="btn btn-success float-end mt-3">
+            {% trans "Save" %}
+        </button>
+
+    </form>
+{% endblock %}

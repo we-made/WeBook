@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block section_icon_class %}
+    fas fa-users
+{% endblock %}
+
+{% block section_title %}
+    People
+{% endblock %}
+
+{% block section_crumb_icon %}
+    <i class="fas fa-users"></i>
+{% endblock %}
+{% block section_crumb_title %}
+    Person
+{% endblock %}
+{% block section_crumb_url %}
+    {% url 'arrangement:person_list' %}
+{% endblock %}

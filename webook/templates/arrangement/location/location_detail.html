@@ -1,0 +1,93 @@
+{% extends "arrangement/location/location_section_base.html" %}
+{% load static i18n %}
+
+{% block title %}
+    {% trans "Location" %} {{ object.name }}
+{% endblock %}
+
+{% block section_subtitle %}
+    {{ object.name }}
+{% endblock %}
+
+{% block current_crumb_title %}
+    {{ object.name }}
+{% endblock %}
+
+{% block beneath_breadcrumbs_block %}
+    <a class="btn btn-outline-success"
+        href="{% url 'arrangement:location_edit' object.slug %}">
+        
+        <i class="fa fa-edit"></i>&nbsp; Edit
+    </a>
+    <a class="btn  btn-outline-danger">
+        <i class="fa fa-trash"></i>&nbsp; Delete
+    </a>
+{% endblock %}
+
+{% block content %}
+    <section class="mt-5"> 
+
+        <div class="row">
+            <div class="col-6">
+                <h4><i class="fas fa-question"></i>&nbsp; Location Information</h4>
+                <table class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <th><strong>Name</strong></th>
+                            <td>{{ object.name }}</td>
+                        </tr>
+                        <tr>
+                            <th><strong>Rooms</strong></th>
+                            <td>{{ object.rooms|length }}</td>  
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="mt-5">
+        <h4><i class="fas fa-table"></i>&nbsp; Rooms</h3>
+        
+        <button class="btn btn-link">
+            <i class="fa fa-plus"></i>&nbsp; New Room
+        </button>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Maximum People</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in object.rooms.all %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>0</td>
+                        <td>
+                            <a
+                                class="btn btn-sm btn-outline-info"
+                                href="{% url 'arrangement:room_detail' item.slug %}">
+                                Show
+                            </a>
+                            <a
+                                class="btn btn-sm btn-outline-success"
+                                href="{% url 'arrangement:room_edit' item.slug %}">
+                                Edit
+                            </a>
+                            <a
+                                class="btn btn-sm btn-outline-danger"
+                                href="">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "arrangement/organization/organization_section_base.html" %}
+{% load static i18n %}
+
+{% block title %}
+    {% trans "Organization" %} {{ object.name }}
+{% endblock %}
+
+{% block section_subtitle %}
+    {{ object.name }}
+{% endblock %}
+
+{% block current_crumb_title %}
+    {{ object.name }}
+{% endblock %}
+
+{% block beneath_breadcrumbs_block %}
+    <a class="btn btn-outline-success"
+        href="{% url 'arrangement:organization_edit' object.slug %}">
+        <i class="fa fa-edit"></i>&nbsp; Edit
+    </a>
+    <a class="btn  btn-outline-danger">
+        <i class="fa fa-trash"></i>&nbsp; Delete
+    </a>
+{% endblock %}
+
+{% block content %}
+
+<section>
+    <div class="row">
+        <div class="col-3">
+            <h4>Organization Information</h4>
+            <div>
+                <h5 class="fw-bold">
+                    #
+                    Organization Number
+                </h5>
+                <span>{{ object.organization_number }}</span>
+            </div>
+
+            <div class="mt-3">
+                <h5 class="fw-bold">
+                    Name
+                </h5>
+                <span>{{ object.name }}</span>
+            </div>
+
+            <div class="mt-3">
+                <h5 class="fw-bold">
+                    Organization Type
+                </h5>
+                <span>{{ object.organization_type }}</span>
+            </div>
+        </div>
+
+        <div class="col-9">
+            <h4>
+                <i class="fas fa-users"></i>
+                Members
+            </h4>
+            
+            <div class="btn-group" style="box-shadow:0!important;">
+                <a class="btn">
+                    <i class="fas fa-user-plus text-success"></i>
+                </a>
+                <a class="btn btn-link">
+                    Register a new member
+                </a>
+                <a class="btn btn-link">
+                    Add a registered person
+                </a>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Has user?</th>
+                        <th>Options</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in object.members.all %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>
+                            <i class="fas fa-time text-danger"></i>
+                        </td>
+                        <td>
+                            <button>
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

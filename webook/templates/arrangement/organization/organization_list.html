@@ -1,0 +1,67 @@
+{% extends "arrangement/organization/organization_section_base.html" %}
+{% load static i18n %}
+
+{% block title %}
+    {% trans "Organizations" %}
+{% endblock %}
+
+{% block section_subtitle %}
+    All Organizations
+{% endblock %}
+
+{% block current_crumb_title %}
+    <i class="fas fa-list"></i>&nbsp; All Organizations
+{% endblock %}
+
+{% block content %}
+
+<h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; All Organizations</h4>
+<a class="btn btn-link"
+    href="{% url 'arrangement:organization_create' %}">
+    <i class="fas fa-plus"></i>&nbsp; New Organization
+</a>
+<table class="table">
+    <thead>
+        <tr>
+            <td class="h6">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Organization</span>
+            </td>
+            <td class="h6">
+                <i class="fas fa-cog"></i>
+                <span>Options</span>
+            </td>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for item in object_list %}
+            <tr>
+                <td>
+                    {{ item.name }}
+                </td>
+
+                <td>
+                    <a class="btn btn-sm btn-outline-info"
+                        href="{% url 'arrangement:organization_detail' item.slug %}">
+
+                        <i class="fa fa-eye"></i>
+                        Open
+                    </a>
+                    <a class="btn btn-sm btn-outline-success"
+                        href="{% url 'arrangement:organization_edit' item.slug %}">
+
+                        <i class="fa fa-edit"></i>
+                        Edit
+                    </a>
+                    <button class="btn btn-sm btn-outline-danger">
+                        <i class="fa fa-trash"></i>
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block section_icon_class %}
+    fas fa-door-open
+{% endblock %}
+
+{% block section_title %}
+    Rooms
+{% endblock %}
+
+{% block section_crumb_icon %}
+    <i class="fas fa-door-open"></i>
+{% endblock %}
+{% block section_crumb_title %}
+    Room
+{% endblock %}
+{% block section_crumb_url %}
+    {% url 'arrangement:room_list' %}
+{% endblock %}
