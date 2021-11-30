@@ -1,19 +1,20 @@
 from __future__ import annotations
+from typing import Optional
 from ....calendar_buddy import base
 from ....calendar_buddy.contexts.fullcalendar import translator
 from .marshmallow_schemas import EventSchema, ResourceSchema
 
 
 class FullCalendarContext(base.BaseCalendarContext):
-    def __init__(self, ui_config, calendar=None,
-                 event_standard=None, resource_standard=None) -> None:
+    def __init__(self, ui_config: base.UIConfig, calendar: Optional[base.Calendar] = None,
+                 event_standard: Optional[dict] = None, resource_standard: Optional[dict] = None) -> None:
         super().__init__(ui_config, calendar)
         self.calendar = calendar
         self.event_standard = event_standard
         self.resource_standard = resource_standard
         self.events_json = ""
 
-    def configure_ui(self, **kwargs) -> FullCalendarContext:
+    def configure_ui(self, **kwargs: dict) -> FullCalendarContext:
         """
             Set UI configuration variables
 
