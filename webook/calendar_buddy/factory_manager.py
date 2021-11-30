@@ -40,7 +40,7 @@ def _get_context_factory_for_context_type(context_type: CalendarContext) -> obje
         return _CONTEXT_FACTORIES[context_type.value]
 
 
-def _get_hooks_for_context_type(context_type: CalendarContext) -> list():
+def _get_hooks_for_context_type(context_type: CalendarContext) -> list:
     """
         Get the fabrication hooks associated with the given context type, these will be run after fabrication
         in the order as retrieved 
@@ -111,7 +111,7 @@ def register_fabrication_hook(hook: Callable, context_type: CalendarContext) -> 
     })
 
 
-def register_defaults (defaults: dict(), context_type: CalendarContext, standard_type: StandardType) -> None:
+def register_defaults (defaults: dict, context_type: CalendarContext, standard_type: StandardType) -> None:
     """
         Register a new set of defaults, for a context_type with type standard_type. This in practice
         allows you to register a set of defaults "globally" on a context - meaning it will always be

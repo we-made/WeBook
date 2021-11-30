@@ -8,7 +8,7 @@ class FullCalendarFactory(base.BaseCalendarContextFactory):
         A factory which can fabricate FullCalendarContexts
     """
 
-    def __init__(self, standard_ui_config: base.UIConfig = None, event_standard: dict() = None, resource_standard: dict() = None) -> None:
+    def __init__(self, standard_ui_config: base.UIConfig = None, event_standard: dict = None, resource_standard: dict = None) -> None:
         """
             Initialize the FullCalendarFactory
 
@@ -32,7 +32,7 @@ class FullCalendarFactory(base.BaseCalendarContextFactory):
         self.event_standard = self._get_standard_event_default(specified_defaults=event_standard)
         self.resource_standard = self._get_standard_resource_default(specified_defaults=resource_standard)
 
-    def fabricate(self, custom_event_standard: list() = None, custom_resource_standard: list() = None) -> FullCalendarContext:
+    def fabricate(self, custom_event_standard: list = None, custom_resource_standard: list = None) -> FullCalendarContext:
         """
             Fabricate a new FullCalendarContext
 

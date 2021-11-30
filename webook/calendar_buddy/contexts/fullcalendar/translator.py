@@ -4,7 +4,7 @@ from ....calendar_buddy.mediative.mediative_resource import MediativeResource
 from ....calendar_buddy.contexts.fullcalendar.models import Event, Resource
 
 
-def _set_defaults_on_dict(dict_to_set_defaults_on: dict(), defaults_to_set: dict()) -> dict:
+def _set_defaults_on_dict(dict_to_set_defaults_on: dict, defaults_to_set: dict) -> dict:
     """
         Internal helper aiding in setting defaults on an existing set of defaults (As dicts)
 
@@ -20,7 +20,7 @@ def _set_defaults_on_dict(dict_to_set_defaults_on: dict(), defaults_to_set: dict
     return dict_to_set_defaults_on
 
 
-def translate_event (mediative_event: MediativeEvent, defaults: dict()) -> Event:
+def translate_event (mediative_event: MediativeEvent, defaults: dict) -> Event:
     """ 
         Translate from a mediative event to a FullCalendar event object 
 
@@ -64,7 +64,7 @@ def translate_event (mediative_event: MediativeEvent, defaults: dict()) -> Event
     return event
 
 
-def translate_resource(mediative_resource: MediativeResource, defaults: dict()) -> Resource:
+def translate_resource(mediative_resource: MediativeResource, defaults: dict) -> Resource:
     """ 
         Translate from a mediative resource to a FullCalendar resource object 
 

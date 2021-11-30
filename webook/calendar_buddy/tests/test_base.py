@@ -83,7 +83,7 @@ class TestBaseCalendarContextFactory:
 
 class TestCalendar:
     def test_parse_events(self):
-        calendar = Calendar(events=list(), resources=list(), calendar_context = CalendarContext.FULLCALENDAR)
+        calendar = Calendar(events=list, resources=list, calendar_context = CalendarContext.FULLCALENDAR)
 
         events = list()
 
@@ -112,7 +112,7 @@ class TestCalendar:
         assert len([ev for ev in calendar.events if type(ev) == MediativeEvent]) == 2
 
     def test_calendar_init (self):
-        calendar = Calendar(events=list(), resources=list(), calendar_context = CalendarContext.FULLCALENDAR)
+        calendar = Calendar(events=list, resources=list, calendar_context = CalendarContext.FULLCALENDAR)
         assert type(calendar.events) is list
         assert type(calendar.resources) is list
         assert type(calendar.context) is CalendarContext

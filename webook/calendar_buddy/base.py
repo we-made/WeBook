@@ -17,7 +17,7 @@ class Calendar:
         Represents a calendar, with types and resources, while being lightly divorced from the context.
     """
 
-    def __init__(self, events: list(), resources: list(), calendar_context: CalendarContext, html_element_id:str=None) -> None:
+    def __init__(self, events: list, resources: list, calendar_context: CalendarContext, html_element_id:str=None) -> None:
         self.events = events
         self.resources = resources
         self.context = calendar_context
@@ -122,7 +122,7 @@ class BaseCalendarContextFactory:
         self.event_standard = dict()
         self.resource_standard = dict()
 
-    def _mesh_defaults(self, base_defaults: dict(), specified_defaults: dict() = None) -> dict:
+    def _mesh_defaults(self, base_defaults: dict, specified_defaults: dict = None) -> dict:
         """
             Helper method for meshing two dicts together, with a predictable priority or result
 
@@ -136,7 +136,7 @@ class BaseCalendarContextFactory:
             base_defaults.update(specified_defaults)
         return base_defaults
 
-    def _get_standard_event_default(self, specified_defaults: dict() = None) -> dict:
+    def _get_standard_event_default(self, specified_defaults: dict = None) -> dict:
         """
             Get the set default standard for events, intermeshed with specified_defaults parameter.
             In practice this allows the context to have its "hardcoded" standard, and for the consumer to load
@@ -152,7 +152,7 @@ class BaseCalendarContextFactory:
         """
         return self._mesh_defaults(self.event_standard, specified_defaults)
 
-    def _get_standard_resource_default(self, specified_defaults: dict() = None) -> dict:
+    def _get_standard_resource_default(self, specified_defaults: dict = None) -> dict:
         """
             Get the set default standard for resources, intermeshed with specified_defaults parameter.
             In practice this allows the context to have its "hardcoded" standard, and for the consumer to load

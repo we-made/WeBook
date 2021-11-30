@@ -16,7 +16,7 @@ def register_hook(hook: Callable, context_type: base.CalendarContext) -> None:
     factory_manager.register_fabrication_hook(hook=hook, context_type=context_type)
 
 
-def register_defaults_for_events(defaults: dict(), context_type: base.CalendarContext) -> None:
+def register_defaults_for_events(defaults: dict, context_type: base.CalendarContext) -> None:
     """
         Register a set of defaults that is to be applied to all events in calendars of context_type.
 
@@ -31,7 +31,7 @@ def register_defaults_for_events(defaults: dict(), context_type: base.CalendarCo
                                       standard_type=factory_manager.StandardType.EVENT)
 
 
-def register_defaults_for_resources(defaults: dict(), context_type: base.CalendarContext) -> None:
+def register_defaults_for_resources(defaults: dict, context_type: base.CalendarContext) -> None:
     """
         Register a set of defaults that is to be applied to all resources in calendars of context_type.
 
