@@ -26,7 +26,7 @@ class BusinessHours:
     startTime: time
     endTime: time
 
-    daysOfWeek: list()
+    daysOfWeek: list
 
 
 @dataclass
@@ -47,7 +47,7 @@ class Event:
     endStr: str
     title: str
     url: str
-    classNames: list()
+    classNames: list
     editable: bool
     startEditable: bool
     durationEditable: bool
@@ -58,7 +58,7 @@ class Event:
     backgroundColor: str
     borderColor: str
     textColor: str
-    extendedProps: list()
+    extendedProps: list
     source: str
 
 
@@ -71,7 +71,7 @@ class Resource:
 
     id: str
     title: str
-    extendedProps: list()
+    extendedProps: list
     eventConstraint: BusinessHours
     eventOverlap: bool
     eventAllow: bool
