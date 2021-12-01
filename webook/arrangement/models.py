@@ -185,6 +185,11 @@ class ServiceType(TimeStampedModel):
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
 
+    def get_absolute_url (self):
+        return reverse(
+            "arrangement:servicetype_detail", kwargs={"slug": self.slug}
+        )
+
     def __str__(self):
         """Return service type name"""
         return self.name

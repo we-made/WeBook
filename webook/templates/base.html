@@ -70,6 +70,21 @@
             <a class="sidenav-link ripple-surface" href="{% url "arrangement:person_list" %}" tabindex="-1">
               <i class="fas fa-users fa-fw me-3" aria-hidden="true"></i><span>{% trans "People" %}</span></a>
           </li>
+          <li class="sidenav-item">
+            <a class="sidenav-link ripple-surface" data-mdb-toggle="collapse" href="#sidenav-collapse-1-0-1" role="button" tabindex="-1" aria-expanded="false">
+              <i class="fas fa-lock fa-fw me-3" aria-hidden="true"></i>
+              <span>Typer</span>
+              <i class="fas fa-angle-down rotate-icon" aria-hidden="true"></i>
+            </a>
+            <ul class="sidenav-collapse collapse" id="sidenav-collapse-1-0-1">
+              <li class="sidenav-item">
+                <a class="sidenav-link ripple-surface" href="{% url 'arrangement:servicetype_list' %}" tabindex="-1">{% trans "Service Types" %}</a>
+              </li>
+              <li class="sidenav-item">
+                <a class="sidenav-link ripple-surface" href="{% url 'users:update' %}" tabindex="-1">{% trans "Organization Types" %}</a>
+              </li>
+            </ul>
+          </li>
           <div class="container-fluid">
             <hr>
           </div>
@@ -204,7 +219,10 @@
                   </a>
               </li>
       
-              <li class="breadcrumb-item active" aria-current="page">{% block current_crumb_title %}{% endblock %}</li>
+              <li class="breadcrumb-item active" aria-current="page">
+                <i class="{% block current_crumb_icon %}{% endblock %}"></i>&nbsp; 
+                {% block current_crumb_title %}{% endblock %}
+              </li>
           </ol>
         </nav>
       </section>

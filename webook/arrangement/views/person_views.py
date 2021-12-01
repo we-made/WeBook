@@ -21,9 +21,13 @@ section_manifest = {
     "SECTION_CRUMB_URL": lambda: reverse("arrangement:location_list")
 }
 
-class PersonListView(LoginRequiredMixin, ListView):
+class PersonListView(LoginRequiredMixin, CrumbMixin, ListView):
     queryset = Person.objects.all()
     template_name = "arrangement/person/person_list.html"
+    section = section_manifest
+    section_subtitle = "All People"
+    current_crumb_title = "All People"
+    current_crumb_icon = "fas fa-list"
 
 person_list_view = PersonListView.as_view()
 

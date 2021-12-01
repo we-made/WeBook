@@ -1,0 +1,55 @@
+{% extends "arrangement/crumb_base.html" %}
+{% load static i18n %}
+
+{% block content %}
+<h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; All {{ENTITY_NAME_PLURAL}}</h4>
+
+{% if URL_TO_CREATE %}
+    <a class="btn btn-link"
+        href="{{ URL_TO_CREATE }}">
+        <i class="fas fa-plus"></i>&nbsp; New {{ENTITY_NAME}}
+    </a>
+{% endif %}
+
+{% if object_list|length == 0 %}
+<div class="alert alert-info">
+    <h4>No {{ENTITY_NAME_PLURAL}} registered yet!</h4>
+    <p>
+        After you have begun registering {{ENTITY_NAME_PLURAL}} they will be shown here! None have been registered yet,
+        but you can resolve this by clicking the link above!
+    </p>
+</div>
+{% else %}
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                {% for col in COLUMNS %}
+                    <th class="h6">
+                        {% if col.2  %}
+                            <i class="{{col.2}}"></i>&nbsp; 
+                        {% endif %}
+                        {{ col.1 }}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in ROWS %}
+                <tr>
+                    {% for col in row %}
+                    <td>
+                        {{ col }}
+                    </td>
+                    {% endfor %}
+
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endif %}
+
+{% endblock %}
