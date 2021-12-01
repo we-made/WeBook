@@ -8,8 +8,16 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location
+from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 
+
+section_manifest = {
+    "SECTION_TITLE": _("Locations"),
+    "SECTION_ICON": "fas fa-building",
+    "SECTION_CRUMB_URL": lambda: reverse("arrangement:location_list")
+}
 
 class LocationListView(LoginRequiredMixin, ListView):
     queryset = Location.objects.all()
@@ -50,3 +58,21 @@ class LocationCreateView(LoginRequiredMixin, CreateView):
     model = Location
 
 location_create_view = LocationCreateView.as_view()
+
+
+class LocationDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
+    model = Location
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/delete_view.html"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:location_list"
+        )
+
+    section = section_manifest
+    entity_name_attribute = "name"
+    section_subtitle_prefix = _("Delete")
+
+location_delete_view = LocationDeleteView.as_view()

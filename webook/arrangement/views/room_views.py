@@ -8,8 +8,16 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Room
+from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 
+
+section_manifest = {
+    "SECTION_TITLE": _("Rooms"),
+    "SECTION_ICON": "fas fa-door-open",
+    "SECTION_CRUMB_URL": lambda: reverse("arrangement:room_list")
+}
 
 class RoomListView(LoginRequiredMixin, ListView):
     queryset = Room.objects.all()
@@ -52,3 +60,21 @@ class RoomCreateView(LoginRequiredMixin, CreateView):
     model = Room
 
 room_create_view = RoomCreateView.as_view()
+
+
+class RoomDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
+    model = Room
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/delete_view.html"
+    
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:room_list"
+        )
+
+    section = section_manifest
+    entity_name_attribute = "name"
+    section_subtitle_prefix = _("Delete")
+
+room_delete_view = RoomDeleteView.as_view()

@@ -8,8 +8,16 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Organization
+from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 
+
+section_manifest = {
+    "SECTION_TITLE": _("Organizations"),
+    "SECTION_ICON": "fas fa-dollar-sign",
+    "SECTION_CRUMB_URL": lambda: reverse("arrangement:organization_list")
+}
 
 class OrganizationListView(LoginRequiredMixin, ListView):
     queryset = Organization.objects.all()
@@ -54,3 +62,21 @@ class OrganizationCreateView(LoginRequiredMixin, CreateView):
     template_name = "arrangement/organization/organization_form.html"
 
 organization_create_view = OrganizationCreateView.as_view()
+
+
+class OrganizationDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
+    model = Organization
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name="arrangement/delete_view.html"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:organization_list"
+        )
+
+    section = section_manifest
+    entity_name_attribute = "name"
+    section_subtitle_prefix = _("Delete")
+
+organization_delete_view = OrganizationDeleteView.as_view()

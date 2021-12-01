@@ -8,21 +8,25 @@ from webook.arrangement.views import (
     location_detail_view,
     location_update_view,
     location_create_view,
+    location_delete_view,
 
     room_list_view,
     room_detail_view,
     room_update_view,
     room_create_view,
+    room_delete_view,
 
     organization_list_view,
     organization_detail_view,
     organization_update_view,
     organization_create_view,
+    organization_delete_view,
 
     person_list_view,
     person_detail_view,
     person_update_view,
     person_create_view,
+    person_delete_view,
 )
 
 app_name = "arrangement"
@@ -48,6 +52,11 @@ urlpatterns = [
         route="location/<slug:slug>/",
         view=location_detail_view,
         name="location_detail",
+    ),
+    path(
+        route="location/delete/<slug:slug>/",
+        view=location_delete_view,
+        name="location_delete"
     ),
     
     # Section: room
@@ -75,6 +84,12 @@ urlpatterns = [
         name="room_detail",
     ),
 
+    path(
+        route="room/delete/<slug:slug>/",
+        view=room_delete_view,
+        name="room_delete",
+    ),
+
     # Section: calendar
     # Section: organization
     path(
@@ -82,23 +97,25 @@ urlpatterns = [
         view=organization_list_view,
         name="organization_list",
     ),
-
     path(
         route="organization/create/",
         view=organization_create_view,
         name="organization_create",
     ),
-
     path(
         route="organization/edit/<slug:slug>",
         view=organization_update_view,
         name="organization_edit",
     ),
-
     path(
         route="organization/<slug:slug>/",
         view=organization_detail_view,
         name="organization_detail",
+    ),
+    path(
+        route="organization/delete/<slug:slug>/",
+        view=organization_delete_view,
+        name="organization_delete"
     ),
 
     # Section: person
@@ -125,4 +142,10 @@ urlpatterns = [
         view=person_detail_view,
         name="person_detail",
     ),
+
+    path(
+        route="person/delete/<slug:slug>/",
+        view=person_delete_view,
+        name="person_delete",
+    )
 ]

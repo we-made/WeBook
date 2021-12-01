@@ -10,6 +10,7 @@ from .location_views import (
     location_update_view,
     location_list_view,
     location_create_view,
+    location_delete_view,
 )
 
 from .room_views import (
@@ -17,6 +18,7 @@ from .room_views import (
     room_update_view,
     room_list_view,
     room_create_view,
+    room_delete_view,
 )
 
 from .organization_views import (
@@ -24,6 +26,7 @@ from .organization_views import (
     organization_update_view,
     organization_list_view,
     organization_create_view,
+    organization_delete_view,
 )
 
 from .person_views import (
@@ -31,4 +34,5 @@ from .person_views import (
     person_update_view,
     person_list_view,
     person_create_view,
+    person_delete_view,
 )

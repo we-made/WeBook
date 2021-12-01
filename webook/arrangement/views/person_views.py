@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -8,8 +9,17 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Person
+from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 
+
+
+section_manifest = {
+    "SECTION_TITLE": _("People"),
+    "SECTION_ICON": "fas fa-users",
+    "SECTION_CRUMB_URL": lambda: reverse("arrangement:location_list")
+}
 
 class PersonListView(LoginRequiredMixin, ListView):
     queryset = Person.objects.all()
@@ -53,3 +63,21 @@ class PersonDetailView(LoginRequiredMixin, DetailView):
     template_name = "arrangement/person/person_detail.html"
 
 person_detail_view = PersonDetailView.as_view()
+
+
+class PersonDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
+    model = Person
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name="arrangement/delete_view.html"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:person_list"
+        )
+
+    section = section_manifest
+    entity_name_attribute = "full_name"
+    section_subtitle_prefix = _("Delete")
+    
+person_delete_view = PersonDeleteView.as_view()

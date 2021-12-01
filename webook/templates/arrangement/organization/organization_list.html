@@ -54,10 +54,11 @@
                         <i class="fa fa-edit"></i>
                         Edit
                     </a>
-                    <button class="btn btn-sm btn-outline-danger">
+                    <a class="btn btn-sm btn-outline-danger"
+                        href="{% url 'arrangement:organization_delete' item.slug %}">
                         <i class="fa fa-trash"></i>
                         Delete
-                    </button>
+                    </a>
                 </td>
             </tr>
         {% endfor %}
