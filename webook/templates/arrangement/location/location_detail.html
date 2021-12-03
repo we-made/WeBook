@@ -23,8 +23,65 @@
 {% endblock %}
 
 {% block content %}
-    <section class="mt-5"> 
 
+<ul class="nav  border text-white nav-tabs mb-3" id="myTab0" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link text-muted fw-bold" disabled>
+            <i class="fas fa-ellipsis-v"></i>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link active"
+        id="home-tab0"
+        data-mdb-toggle="tab"
+        data-mdb-target="#home0"
+        type="button"
+        role="tab"
+        aria-controls="home"
+        aria-selected="true"
+      >
+        <i class="fa fa-info"></i>&nbsp; About {{ object.name }}
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="profile-tab0"
+        data-mdb-toggle="tab"
+        data-mdb-target="#profile0"
+        type="button"
+        role="tab"
+        aria-controls="profile"
+        aria-selected="false"
+      >
+        <i class="fa fa-calendar"></i>&nbsp; Calendar
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="contact-tab0"
+        data-mdb-toggle="tab"
+        data-mdb-target="#contact0"
+        type="button"
+        role="tab"
+        aria-controls="contact"
+        aria-selected="false"
+      >
+      <i class="fa fa-door-open"></i>&nbsp; Rooms
+      </button>
+    </li>
+  </ul>
+  <div class="tab-content" id="myTabContent0">
+    <div
+      class="tab-pane fade show active"
+      id="home0"
+      role="tabpanel"
+      aria-labelledby="home-tab0"
+    >
+    <section class="mt-5"> 
+        
         <div class="row">
             <div class="col-6">
                 <h4><i class="fas fa-question"></i>&nbsp; Location Information</h4>
@@ -44,48 +101,71 @@
         </div>
 
     </section>
-
-    <section class="mt-5">
-        <h4><i class="fas fa-table"></i>&nbsp; Rooms</h3>
-        
-        <button class="btn btn-link">
-            <i class="fa fa-plus"></i>&nbsp; New Room
-        </button>
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Maximum People</th>
-                    <th>Options</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for item in object.rooms.all %}
+    </div>
+    <div class="tab-pane fade" id="profile0" role="tabpanel" aria-labelledby="profile-tab0">
+        <section class="mt-5">
+            <h4><i class="fa fa-calendar"></i>&nbsp; Calendar</h3>
+            
+            <div id="location_calendar" class="mb-4"></div>
+        </section>
+    </div>
+    <div class="tab-pane fade" id="contact0" role="tabpanel" aria-labelledby="contact-tab0">
+        <section class="mt-5">
+            <h4><i class="fas fa-table"></i>&nbsp; Rooms</h3>
+            
+            <button class="btn btn-link">
+                <i class="fa fa-plus"></i>&nbsp; New Room
+            </button>
+    
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>{{ item.name }}</td>
-                        <td>0</td>
-                        <td>
-                            <a
-                                class="btn btn-sm btn-outline-info"
-                                href="{% url 'arrangement:room_detail' item.slug %}">
-                                Show
-                            </a>
-                            <a
-                                class="btn btn-sm btn-outline-success"
-                                href="{% url 'arrangement:room_edit' item.slug %}">
-                                Edit
-                            </a>
-                            <a
-                                class="btn btn-sm btn-outline-danger"
-                                href="">
-                                Delete
-                            </a>
-                        </td>
+                        <th>Name</th>
+                        <th>Maximum People</th>
+                        <th>Options</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
+                </thead>
+    
+                <tbody>
+                    {% for item in object.rooms.all %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>0</td>
+                            <td>
+                                <a
+                                    class="btn btn-sm btn-outline-info"
+                                    href="{% url 'arrangement:room_detail' item.slug %}">
+                                    Show
+                                </a>
+                                <a
+                                    class="btn btn-sm btn-outline-success"
+                                    href="{% url 'arrangement:room_edit' item.slug %}">
+                                    Edit
+                                </a>
+                                <a
+                                    class="btn btn-sm btn-outline-danger"
+                                    href="">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+  </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('location_calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'resourceTimelineMonth',
+                height: 600,
+                navLinks:true,
+            });
+            calendar.render();
+          });
+      </script>
 {% endblock %}

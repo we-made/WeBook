@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/wemadefree/WeBook#readme",
   "dependencies": {
-    "fullcalendar": "^5.10.1"
+    "@fullcalendar/core": "^5.10.1",
+    "@fullcalendar/resource-timeline": "^5.10.1",
+    "fullcalendar": "^5.10.1",
+    "fullcalendar-scheduler": "^5.10.1"
   }
 }

@@ -1,18 +1,137 @@
-{% extends "base.html" %}
+{% extends "arrangement/crumb_base.html" %}
 
 {% block content %}
 
-    <div id="arrangement_calendar"></div>
+    <div class="row">
+      <div class="col-3">
+        <h3 class="text-uppercase fw-bold">Legend</h3>
+        <hr>
 
-{% endblock %}
+        <div class="mt-3">
+          <h5>Dimension</h5>
+          <select class="form-control">
+            <option>Arrangement</option>
+          </select>
+        </div>
+
+        <div class="mt-3">
+          <h5>
+            <i class="fas fa-building"></i>&nbsp;
+            Locations
+          </h5>
+          <div class="alert alert-sm alert-light mb-1 mt-1 p-0">
+            Include <strong>only</strong> the checked locations
+          </div>
+          <div class="badge badge-info">
+            <input type="checkbox" />
+            Grålum
+            <i class="fas fa-times text-danger"></i>
+          </div>
+
+          <div class="badge badge-info">
+            <input type="checkbox" />
+            Årvoll
+            <i class="fas fa-times text-danger"></i>
+          </div>
+
+          <div class="badge badge-info">
+            <input type="checkbox" />
+            Ullevaal
+            <i class="fas fa-times text-danger"></i>
+          </div>
+
+          <div class="badge badge-info">
+            <input type="checkbox" />
+            Storslett
+            <i class="fas fa-times text-danger"></i>
+          </div>
+
+          <div class="badge badge-info">
+            <input type="checkbox" />
+            Kvænangen
+            <i class="fas fa-times text-danger"></i>
+          </div>
+
+          <div class="badge badge-info">
+            <input type="checkbox" />
+            Rio De Janeiro
+            <i class="fas fa-times text-danger"></i>
+          </div>
+
+          <div class="badge badge-info">
+            <input type="checkbox" />
+            Slottet
+            <i class="fas fa-times text-danger"></i>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <h5>
+            <i class="fas fa-users"></i>&nbsp;
+            People
+          </h5>
+          <div class="alert alert-sm alert-light mb-1 mt-1 p-0">
+            Include <strong>only</strong> the checked people
+          </div>
+
+          <div class="badge badge-light">
+            <input type="checkbox" />
+            Magnus
+            <i class="fas fa-times text-danger"></i>
+
+          </div>
+
+          <div class="badge badge-light">
+            <input type="checkbox" />
+            Magnus
+            <i class="fas fa-times text-danger"></i>
+
+          </div>
+          <div class="badge badge-light">
+            <input type="checkbox" />
+            Magnus
+            <i class="fas fa-times text-danger"></i>
+
+          </div>
+          <div class="badge badge-light">
+            <input type="checkbox" />
+            Magnus
+            <i class="fas fa-times text-danger"></i>
+
+          </div>
+        </div>
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('arrangement_calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth'
+        <button class="btn btn-outline-success mt-3 float-end">
+          <i class="fas fa-check"></i>&nbsp; 
+          Update
+        </button>
+        <button class="btn btn-outline-warning mt-3 me-2 float-end">
+          Reset
+        </button>
+      </div>
+
+      <div class="col-9">
+        <div id="arrangement_calendar"></div>
+
+      </div>
+    </div>
+
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          var calendarEl = document.getElementById('arrangement_calendar');
+          var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            navLinks:true,
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay'
+          }
+          });
+          calendar.render();
         });
-        calendar.render();
-      });
-</script>
+  </script>
+{% endblock %}

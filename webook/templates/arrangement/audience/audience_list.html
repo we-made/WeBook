@@ -1,0 +1,55 @@
+{% extends "arrangement/crumb_base.html" %}
+
+{% block content %}
+
+<h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; All Audiences</h4>
+<a class="btn btn-link"
+    href="{% url 'arrangement:audience_create' %}">
+    <i class="fas fa-plus"></i>&nbsp; New Audience
+</a>
+<table class="table">
+    <thead>
+        <tr>
+            <td class="h6">
+                <i class="fas fa-user"></i>
+                <span>Audience</span>
+            </td>
+            <td class="h6">
+                <i class="fas fa-cog"></i>
+                <span>Options</span>
+            </td>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for item in object_list %}
+            <tr>
+                <td>
+                    {{ item.name }}
+                </td>
+
+                <td>
+                    <a class="btn btn-sm btn-outline-info"
+                        href="{% url 'arrangement:audience_detail' item.slug %}">
+
+                        <i class="fa fa-eye"></i>
+                        Open
+                    </a>
+                    <a class="btn btn-sm btn-outline-success"
+                        href="{% url 'arrangement:audience_edit' item.slug %}">
+
+                        <i class="fa fa-edit"></i>
+                        Edit
+                    </a>
+                    <a class="btn btn-sm btn-outline-danger"
+                            href="{% url 'arrangement:audience_delete' item.slug %}">
+                        <i class="fa fa-trash"></i>
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

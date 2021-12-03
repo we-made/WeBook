@@ -19,6 +19,11 @@ class Audience(TimeStampedModel):
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
+    def get_absolute_url(self):
+        return reverse(
+            "arrangement:audience_detail", kwargs={"slug": self.slug}
+        )
+
     def __str__(self):
         """Return audience name"""
         return self.name
@@ -70,6 +75,11 @@ class Arrangement(TimeStampedModel):
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
 
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    def get_absolute_url(self):
+        return reverse(
+            "arrangement:arrangement_detail", kwargs={"slug": self.slug}
+        )
 
     def __str__(self):
         """Return arrangement name"""

@@ -38,4 +38,29 @@
     </div>
 </section>
 
+<section class="mt-5 mb-5">
+    <div class="row">
+        <div class="col-12">
+            <div id="room_calendar"></div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('room_calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      height: 600,
+      navLinks:true,
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      }
+    });
+    calendar.render();
+  });
+</script>
+
 {% endblock %}

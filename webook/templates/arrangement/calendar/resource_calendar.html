@@ -4,15 +4,14 @@
 
     <div id="resource_calendar"></div>
 
-{% endblock %}
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('resource_calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth'
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          var calendarEl = document.getElementById('resource_calendar');
+          var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth'
+          });
+          calendar.render();
         });
-        calendar.render();
-      });
-</script>
+    </script>
+
+{% endblock %}

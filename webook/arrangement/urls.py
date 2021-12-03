@@ -33,11 +33,93 @@ from webook.arrangement.views import (
     service_type_update_view,
     service_type_create_view,
     service_type_delete_view,
+
+    arrangement_calendar_view,
+    calendar_samples_overview,
+
+    arrangement_list_view,
+    arrangement_detail_view,
+    arrangement_update_view,
+    arrangement_create_view,
+    arrangement_delete_view,
+
+    audience_list_view,
+    audience_detail_view,
+    audience_update_view,
+    audience_create_view,
+    audience_delete_view,
+
+    dashboard_view,
 )
 
 app_name = "arrangement"
 urlpatterns = [
     # Section: arrangement
+
+    path(
+        route="arrangement/list/",
+        view=arrangement_list_view,
+        name="arrangement_list",
+    ),
+    path(
+        route="arrangement/create/",
+        view=arrangement_create_view,
+        name="arrangement_create",
+    ),
+    path(
+        route="arrangement/edit/<slug:slug>",
+        view=arrangement_update_view,
+        name="arrangement_edit",
+    ),
+    path(
+        route="arrangement/<slug:slug>/",
+        view=arrangement_detail_view,
+        name="arrangement_detail",
+    ),
+    path(
+        route="arrangement/delete/<slug:slug>",
+        view=arrangement_delete_view,
+        name="arrangement_delete",
+    ),
+
+    path(
+        route="audience/list/",
+        view = audience_list_view,
+        name="audience_list"
+    ),
+    path(
+        route="audience/create/",
+        view=audience_create_view,
+        name="audience_create",
+    ),
+    path(
+        route="audience/edit/<slug:slug>",
+        view=audience_update_view,
+        name="audience_edit",
+    ),
+    path(
+        route="audience/<slug:slug>/",
+        view=audience_detail_view,
+        name="audience_detail",
+    ),
+    path(
+        route="audience/delete/<slug:slug>",
+        view=audience_delete_view,
+        name="audience_delete",
+    ),
+
+
+    path(
+        route="calendar/sample_overview",
+        view=calendar_samples_overview,
+        name="sample_overview",
+    ),
+
+    path(
+        route="calendar/arrangement_calendar",
+        view=arrangement_calendar_view,
+        name="arrangement_calendar",
+    ),
 
     #Section: service type
     path(
@@ -181,5 +263,11 @@ urlpatterns = [
         route="person/delete/<slug:slug>/",
         view=person_delete_view,
         name="person_delete",
-    )
+    ),
+
+    path(
+        route="dashboard",
+        view=dashboard_view,
+        name="dashboard"
+    ),
 ]
