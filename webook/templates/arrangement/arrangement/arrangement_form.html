@@ -28,7 +28,7 @@
                 placeholder="Name of the arrangement..."/>
         </div>
 
-        <div class="form-group mt-4 border-top pt-3 pb-2">
+        <div class="form-group mt-4 pt-3 pb-2">
             <label class="h5 d-block fw-bold">
                 {{form.audience.label}}
                 
@@ -52,7 +52,7 @@
             {{ form.audience }}
         </div>
 
-        <div class="form-group mt-2 border-top pt-3 pb-2">
+        <div class="form-group mt-2 pt-3 pb-2">
             <label for="{{ form.starts.id_for_label }}" class="h5 d-block fw-bold">
                 {{ form.starts.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
@@ -72,7 +72,7 @@
                 value="{{ form.starts.value|default:'' }}">
         </div>
 
-        <div class="form-group mt-2 border-top pt-3 pb-2">
+        <div class="form-group mt-2 pt-3 pb-2">
             <label for="{{ form.ends.id_for_label }}" class="h5 d-block fw-bold">
                 {{ form.ends.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
@@ -92,7 +92,6 @@
                 value="{{ form.ends.value|default:'' }}">
         </div>
         
-        <hr>
         
         <button type="submit" class="btn btn-success mt-3">
             <i class="fa fa-save"></i>&nbsp; 

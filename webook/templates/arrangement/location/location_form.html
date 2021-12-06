@@ -3,11 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block section_title %}
-    {% if object.name is None %}
-        {% trans "New Location" %}
-    {% else %}
-        {% trans "Edit Location" %}
-    {% endif %}
+    {% trans "Location" %}
 {% endblock %}
 
 {% block title %}
@@ -27,8 +23,10 @@
 {% endblock %}
 
 {% block section_subtitle %}
-    {% if object.id is not None %}
-        {{ form.name.value }}
+    {% if object.name is None %}
+        {% trans "New Location" %}
+    {% else %}
+        {% trans "Edit Location" %}
     {% endif %}
 {% endblock %}
 
