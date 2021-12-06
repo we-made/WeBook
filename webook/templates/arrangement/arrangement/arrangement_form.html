@@ -6,10 +6,102 @@
     <form method="post">
         {% csrf_token %}
 
-        {{ form | crispy }}
+        <div class="form-group">
+            <label for="{{ form.name.id_for_label }}" class="h5 d-block">
+                {{ form.name.label }}
+                <i class="fas fa-asterisk float-end text-warning me-2"
+                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                <i class="fas fa-quote-right float-end text-secondary me-2"
+                    data-toggle="tooltip" title="* This field expects text"></i>
+            </label>
+
+            <div class="alert alert-primary alert-sm mb-2 border-start border-3 border-info p-1 ps-3 bg-white">
+                <i class="fas fa-question-circle"></i>
+                <span class="ps-2 ">What should this arrangement be known as? This will be the name shown primarily to identify this arrangement.</span>
+            </div>
+
+            <input type="text" class="form-control" 
+                id="{{ form.name.id_for_label }}" 
+                value="{{ form.name.value|default:'' }}"
+                name="{{ form.name.name }}"
+                placeholder="Name of the arrangement..."/>
+        </div>
+
+        <div class="form-group mt-4 border-top pt-3 pb-2">
+            <label class="h5 d-block">
+                {{form.audience.label}}
+                
+                <i class="fas fa-asterisk float-end text-warning me-2"
+                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                                    
+                <i class="fas fa-object-group float-end text-secondary me-2"
+                    data-toggle="tooltip" title="* This is a reference to the Audience entity"></i>
+            </label>
+
+            <a href="{% url 'arrangement:audience_list' %}" target="_blank" class="btn btn-link btn-sm">
+                <i class="fas fa-arrow-right"></i>&nbsp; Go to audiences in a new tab
+            </a>
+
+            <div class="alert alert-primary alert-sm mb-2 border-start border-3 border-info p-1 ps-3 bg-white">
+                <i class="fas fa-question-circle"></i>
+                <span class="ps-2 ">Which audience is this arrangement targeted towards?</span>
+            </div>
+
+            {{ form.audience }}
+        </div>
+
+        <div class="form-group mt-2 border-top pt-3 pb-2">
+            <label for="{{ form.starts.id_for_label }}" class="h5 d-block">
+                {{ form.starts.label }}
+                <i class="fas fa-asterisk float-end text-warning me-2"
+                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                <i class="fas fa-calendar float-end text-secondary me-2"></i>
+            </label>
+
+            <div class="alert alert-primary alert-sm mb-2 border-start border-3 border-info p-1 ps-3 bg-white">
+                <i class="fas fa-question-circle"></i>
+                <span class="ps-2 ">When does this arrangement start?</span>
+            </div>
+            
+            <input type="date" class="form-control pb-2"
+                id="{{ form.starts.id_for_label }}"
+                name="{{ form.starts.name }}"
+                value="{{ form.starts.value|default:'' }}">
+        </div>
+
+        <div class="form-group mt-2 border-top pt-3 pb-2">
+            <label for="{{ form.ends.id_for_label }}" class="h5 d-block">
+                {{ form.ends.label }}
+                <i class="fas fa-asterisk float-end text-warning me-2"
+                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                <i class="fas fa-calendar float-end text-secondary me-2"></i>
+
+            </label>
+
+            <div class="alert alert-primary alert-sm mb-2 border-start border-3 border-info p-1 ps-3 bg-white">
+                <i class="fas fa-question-circle"></i>
+                <span class="ps-2 ">When does this arrangement end?</span>
+            </div>
+            
+            <input type="date" class="form-control"
+                id="{{ form.ends.id_for_label }}"
+                name="{{ form.ends.name }}"
+                value="{{ form.ends.value|default:'' }}">
+        </div>
         
-        <button type="submit" class="btn btn-success float-end mt-3">
+        <hr>
+        
+        <button type="submit" class="btn btn-success mt-3">
+            <i class="fa fa-save"></i>&nbsp; 
             {% trans "Save" %}
+        </button>
+        <a class="btn btn-danger mt-3" href="{% url 'arrangement:arrangement_list' %}">
+            <i class="fas fa-times"></i>&nbsp; 
+            Cancel
+        </a>
+
+        <button class="btn btn-warning float-end mt-3" type="reset">
+            Reset Form
         </button>
 
     </form>
