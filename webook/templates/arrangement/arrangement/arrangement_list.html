@@ -3,11 +3,11 @@
 {% block content %}
 
 <h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; All Arrangements</h4>
-<a class="btn btn-link"
+<a class="btn btn-sm mt-2 mb-2 btn-success"
     href="{% url 'arrangement:arrangement_create' %}">
     <i class="fas fa-plus"></i>&nbsp; New Arrangement
 </a>
-<table class="table">
+<table class="table table-sm table-striped">
     <thead>
         <tr>
             <td class="h6">
@@ -29,19 +29,19 @@
                 </td>
 
                 <td>
-                    <a class="btn btn-sm btn-outline-info"
+                    <a class="btn btn-sm btn-info"
                         href="{% url 'arrangement:arrangement_detail' item.slug %}">
 
                         <i class="fa fa-eye"></i>
                         Open
                     </a>
-                    <a class="btn btn-sm btn-outline-success"
+                    <a class="btn btn-sm btn-success"
                         href="{% url 'arrangement:arrangement_edit' item.slug %}">
 
                         <i class="fa fa-edit"></i>
                         Edit
                     </a>
-                    <a class="btn btn-sm btn-outline-danger"
+                    <a class="btn btn-sm btn-danger"
                             href="{% url 'arrangement:arrangement_delete' item.slug %}">
                         <i class="fa fa-trash"></i>
                         Delete
