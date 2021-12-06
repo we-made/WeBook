@@ -3,15 +3,11 @@
 {% load crispy_forms_tags %}
 
 {% block section_title %}
-    {% if object.name is None %}
-        {% trans "New Person" %}
-    {% else %}
-        {% trans "Edit Person" %}
-    {% endif %}
+    {% trans "People" %}
 {% endblock %}
 
 {% block title %}
-    {% if object.name is None %}
+    {% if object.first_name is None %}
         {% trans "New Person" %}
     {% else %}
         {% trans "Edit Person" %}
@@ -19,16 +15,18 @@
 {% endblock %}
 
 {% block current_crumb_title %}
-    {% if object.name is None %}
+    {% if object.first_name is None %}
         <i class="fas fa-plus"></i>&nbsp; {% trans "New Person" %}
     {% else %}
-        <i class="fas fa-edit"></i>&nbsp; {% trans "Edit Person" %} '{{ form.name.value }}'
+        <i class="fas fa-edit"></i>&nbsp; {% trans "Edit Person" %} '{{ object.full_name }}'
     {% endif %}
 {% endblock %}
 
 {% block section_subtitle %}
-    {% if object.id is not None %}
-        {{ form.name.value }}
+    {% if object.first_name is None %}
+        {% trans "New Person" %}
+    {% else %}
+        {% trans "Edit Person" %}
     {% endif %}
 {% endblock %}
 
@@ -38,12 +36,97 @@
     <form method="post">
         {% csrf_token %}
         
+        <div class="form-group">
+            <div>
+                <h5>Name</h5>
 
-        {{ form | crispy }}
+                <div class="row">
+                    <div class="col-lg-4 col-sm-12">
+                        <label class="d-block">
+                            First Name
+                            <i class="fas fa-asterisk text-warning float-end"></i>
+                            <i class="fas fa-quote-right text-secondary me-2 float-end"></i>
+                        </label>
+                        <input type="text" class="form-control" 
+                            id="{{ form.first_name.id_for_label }}"
+                            name="{{ form.first_name.name }}"
+                            value="{{ form.first_name.value|default:'' }}"
+                            placeholder="First name..." />
+
+                        {{ form.first_name.errors }}
+                    </div>
+                    <div class="col-lg-4 col-sm-12 mt-lg-0 mt-sm-2">
+                        <label class="d-block">
+                            Middle Name
+                            <i class="fas fa-quote-right text-secondary float-end"></i>
+                        </label>
+                        <input type="text" class="form-control"
+                            id="{{ form.middle_name.id_for_label }}"
+                            name="{{ form.middle_name.name }}"
+                            value="{{ form.middle_name.value|default:'' }}"
+                            placeholder="Middle name... (optional)" />
+                    </div>
+                    <div class="col-lg-4 col-sm-12 mt-lg-0 mt-sm-2">
+                        <label class="d-block">
+                            Last Name
+                            <i class="fas fa-asterisk text-warning float-end"></i>
+                            <i class="fas fa-quote-right text-secondary me-2 float-end"></i>
+                        </label>
+                        <input type="text" class="form-control"
+                            id="{{ form.last_name.id_for_label }}"
+                            name="{{ form.last_name.name }}"
+                            value="{{ form.last_name.value|default:'' }}"
+                            placeholder="Last name..." />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mt-2 pt-3 pb-2">
+            <label for="{{ form.personal_email.id_for_label }}" class="h5 d-block">
+                {{ form.personal_email.label }}
+                <i class="fas fa-asterisk float-end text-warning me-2"
+                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                <i class="fas fa-at float-end text-secondary me-2"
+                    data-toggle="tooltip" title="* This field expects text"></i>
+            </label>
+
+
+            <input type="text" class="form-control"
+                id="{{ form.personal_email.id_for_label }}" 
+                value="{{ form.personal_email.value|default:'' }}"
+                name="{{ form.personal_email.name }}"
+                placeholder="example@example.com"/>
+        </div>
+
+        <div class="form-group mt-2 pt-3 pb-2">
+            <label for="{{ form.birth_date.id_for_label }}" class="h5 d-block">
+                {{ form.birth_date.label }}
+                <i class="fas fa-calendar float-end text-secondary me-2"
+                    data-toggle="tooltip" title="* This field expects text"></i>
+            </label>
+
+            <input type="date" class="form-control" 
+                id="{{ form.birth_date.id_for_label }}" 
+                value="{{ form.birth_date.value|default:'' }}"
+                name="{{ form.birth_date.name }}"
+                placeholder="Name of the location..."/>
+        </div>
         
-        <button type="submit" class="btn btn-success float-end mt-3">
-            {% trans "Save" %}
-        </button>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i>&nbsp; 
+                {% trans "Save" %}
+            </button>
+            <a class="btn btn-danger" href="{% url 'arrangement:person_list' %}">
+                <i class="fas fa-times"></i>&nbsp; 
+                {% trans "Cancel" %}
+            </a>
+
+            <button type="reset" class="float-end btn btn-warning">
+                {% trans "Reset Form" %}
+            </button>
+        </div>
 
     </form>
 {% endblock %}

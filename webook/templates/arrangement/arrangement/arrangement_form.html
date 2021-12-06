@@ -7,7 +7,7 @@
         {% csrf_token %}
 
         <div class="form-group">
-            <label for="{{ form.name.id_for_label }}" class="h5 d-block">
+            <label for="{{ form.name.id_for_label }}" class="h5 d-block fw-bold">
                 {{ form.name.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
                     data-toggle="tooltip" title="* This field is mandatory"></i>
@@ -15,12 +15,13 @@
                     data-toggle="tooltip" title="* This field expects text"></i>
             </label>
 
-            <div class="alert alert-primary alert-sm mb-2 border-start border-3 border-info p-1 ps-3 bg-white">
+            <div class="alert alert-info alert-sm mb-2 border-start border-5 border-info p-1 ps-3 bg-white"
+                style="border-radius: 0px;">
                 <i class="fas fa-question-circle"></i>
-                <span class="ps-2 ">What should this arrangement be known as? This will be the name shown primarily to identify this arrangement.</span>
+                <span class="ps-2">What should this arrangement be known as? This will be the name shown primarily to identify this arrangement.</em>
             </div>
 
-            <input type="text" class="form-control" 
+            <input type="text" class="form-control form-control-lg" 
                 id="{{ form.name.id_for_label }}" 
                 value="{{ form.name.value|default:'' }}"
                 name="{{ form.name.name }}"
@@ -28,7 +29,7 @@
         </div>
 
         <div class="form-group mt-4 border-top pt-3 pb-2">
-            <label class="h5 d-block">
+            <label class="h5 d-block fw-bold">
                 {{form.audience.label}}
                 
                 <i class="fas fa-asterisk float-end text-warning me-2"
@@ -42,48 +43,50 @@
                 <i class="fas fa-arrow-right"></i>&nbsp; Go to audiences in a new tab
             </a>
 
-            <div class="alert alert-primary alert-sm mb-2 border-start border-3 border-info p-1 ps-3 bg-white">
+            <div class="alert alert-info alert-sm mb-2 border-start border-5 border-info p-1 ps-3 bg-white"
+                style="border-radius: 0px;">
                 <i class="fas fa-question-circle"></i>
-                <span class="ps-2 ">Which audience is this arrangement targeted towards?</span>
+                <span class="ps-2">Which audience is this arrangement targeted towards?</em>
             </div>
 
             {{ form.audience }}
         </div>
 
         <div class="form-group mt-2 border-top pt-3 pb-2">
-            <label for="{{ form.starts.id_for_label }}" class="h5 d-block">
+            <label for="{{ form.starts.id_for_label }}" class="h5 d-block fw-bold">
                 {{ form.starts.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
                     data-toggle="tooltip" title="* This field is mandatory"></i>
                 <i class="fas fa-calendar float-end text-secondary me-2"></i>
             </label>
 
-            <div class="alert alert-primary alert-sm mb-2 border-start border-3 border-info p-1 ps-3 bg-white">
+            <div class="alert alert-info alert-sm mb-2 border-start border-5 border-info p-1 ps-3 bg-white"
+                style="border-radius: 0px;">
                 <i class="fas fa-question-circle"></i>
-                <span class="ps-2 ">When does this arrangement start?</span>
+                <span class="ps-2">When does this arrangement start?</em>
             </div>
             
-            <input type="date" class="form-control pb-2"
+            <input type="date" class="form-control form-control-lg"
                 id="{{ form.starts.id_for_label }}"
                 name="{{ form.starts.name }}"
                 value="{{ form.starts.value|default:'' }}">
         </div>
 
         <div class="form-group mt-2 border-top pt-3 pb-2">
-            <label for="{{ form.ends.id_for_label }}" class="h5 d-block">
+            <label for="{{ form.ends.id_for_label }}" class="h5 d-block fw-bold">
                 {{ form.ends.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
                     data-toggle="tooltip" title="* This field is mandatory"></i>
                 <i class="fas fa-calendar float-end text-secondary me-2"></i>
-
             </label>
 
-            <div class="alert alert-primary alert-sm mb-2 border-start border-3 border-info p-1 ps-3 bg-white">
+            <div class="alert alert-info alert-sm mb-2 border-start border-5 border-info p-1 ps-3 bg-white"
+                style="border-radius: 0px;">
                 <i class="fas fa-question-circle"></i>
-                <span class="ps-2 ">When does this arrangement end?</span>
+                <span class="ps-2">When does this arrangement end?</em>
             </div>
             
-            <input type="date" class="form-control"
+            <input type="date" class="form-control form-control-lg"
                 id="{{ form.ends.id_for_label }}"
                 name="{{ form.ends.name }}"
                 value="{{ form.ends.value|default:'' }}">
