@@ -53,6 +53,10 @@ from .organizationtype_views import (
     organization_type_delete_view,
 )
 
+from .insights_views import (
+    global_timeline_view,
+)
+
 from .calendar_views import (
     arrangement_calendar_view,
     calendar_samples_overview,

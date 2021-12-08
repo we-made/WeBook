@@ -56,6 +56,8 @@ from webook.arrangement.views import (
     audience_delete_view,
 
     dashboard_view,
+
+    global_timeline_view,
 )
 
 app_name = "arrangement"
@@ -125,6 +127,12 @@ urlpatterns = [
         route="calendar/arrangement_calendar",
         view=arrangement_calendar_view,
         name="arrangement_calendar",
+    ),
+
+    path(
+        route="insights/globaltimeline",
+        view=global_timeline_view,
+        name="global_timeline"
     ),
 
     #Section: organization type

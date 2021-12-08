@@ -68,35 +68,41 @@
             </h4>
             
             <div class="btn-group" style="box-shadow:none!important;">
-                <a class="btn btn-success" style="background-color: #66a880; text-white;">
+                <a class="btn btn-success btn-disabled disabled" disabled style="background-color: #66a880; text-white;">
                     <i class="fas fa-user-plus"></i>&nbsp; 
                     Register a new member
                 </a>
-                <a class="btn btn-success"  style="background-color: #66a880; text-white;">
-                    <i class="fas fa-user-tag"></i>&nbsp; 
-                    Add a registered person
-                </a>
             </div>
 
-            <table class="table table-sm table-striped mt-2">
+            <table class="table table-sm table-striped text-center mt-2">
                 <thead>
                     <tr>
                         <th class="h6">
                             <em>Name</em>&nbsp;
-                            <i class="fas fa-info-circle text-muted"></i>
                         </th>
                         <th class="h6">
                             <em>Has associated user?</em>&nbsp;
-                            <i class="fas fa-info-circle text-muted"></i>
+                            <i class="fas fa-info-circle text-muted"
+                                data-toggle="tooltip" title="Does this person have an associated user in this application?"></i>
                         </th>
                         <th class="h6">
                             <em>Options</em>&nbsp;
-                            <i class="fas fa-info-circle text-muted"></i>
                         </th>
                     </tr>
                 </thead>
 
                 <tbody>
+                    <tr>
+                        <td>Ola Nordmann</td>
+                        <td>
+                            <i class="fas fa-times text-danger"></i>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-sm">
+                                <i class="fa fa-ban"></i>
+                            </button>
+                        </td>
+                    </tr>
                     {% for item in object.members.all %}
                     <tr>
                         <td>{{ item.name }}</td>
