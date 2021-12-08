@@ -3,8 +3,67 @@
 {% load static i18n %}
 
 {% block title %}User: {{ object.username }}{% endblock %}
-{% block section_title %}<span>{% trans "Overview" %}</span>{% endblock %}
 
 {% block inner %}
+
+    <!-- <h4>
+        <i class="fa fa-user"></i>
+        Overview
+    </h4> -->
+
+
+    <!-- <div class="col-12 text-dark  bg-white shadow-1-strong border-start-4 mb-4"
+   >
+        <div style="background-color: rgba(2, 0, 0, 0.2)" class="p-4">
+            <h4 class="mb-0 fw-bold text-uppercase text-white">Nasjonalmuseet</h4>
+            <div class="clearfix">
+                <button class="float-end btn btn-success"><i class="fas fa-arrow-right"></i>&nbsp; Gå til organisasjon</button>
+            </div>
+        </div>
+    </div> -->
+
+    <div id="day_calendar" class="mb-4"></div>
+    
+    <script>
+        var events=[ 
+            {
+                id: "make-coffee-01",
+                title: "Forelesning",
+                start: "2021-12-08T09:00:00",
+                end: "2021-12-08T14:00:00",
+                display:"auto",
+                backgroundColor:'pink',
+            },
+            {
+                id: "drink-some-tasty-coffee",
+                title: "Studier",
+                start: "2021-12-08T14:00:00",
+                end: "2021-12-08T16:00:00",
+                display:"auto",
+                backgroundColor:'green',
+            },
+            {
+                id: "nap",
+                title: "Fritid",
+                start: "2021-12-08T16:00:00",
+                end: "2021-12-08T23:00:00",
+                display:"auto",
+                backgroundColor:'orange',
+                textColor: "red",
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('day_calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'listDay',
+                height: 600,
+                navLinks:true,
+                events: events,
+                locale: 'nb',
+            });
+            calendar.render();
+          });
+      </script>
 {% endblock inner %}
 

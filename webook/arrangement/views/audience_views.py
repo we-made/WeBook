@@ -24,6 +24,9 @@ class AudienceListView(LoginRequiredMixin, CrumbMixin, ListView):
     queryset = Audience.objects.all()
     template_name = "arrangement/audience/audience_list.html"
     section = section_manifest
+    section_subtitle = _("All Audiences")
+    current_crumb_title = "All Audiences"
+    current_crumb_icon = "fas fa-list"
 
 audience_list_view = AudienceListView.as_view()
 
@@ -34,6 +37,7 @@ class AudienceDetailView(LoginRequiredMixin, CrumbMixin, DetailView):
     slug_url_kwarg = "slug"
     section = section_manifest
     template_name = "arrangement/audience/audience_detail.html"
+    entity_name_attribute = "name"
 
 audience_detail_view = AudienceDetailView.as_view()
 

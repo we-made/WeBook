@@ -27,20 +27,6 @@
 <ul class="nav  border-bottom text-white nav-tabs mb-3" id="myTab0" role="tablist">
     <li class="nav-item" role="presentation">
       <button
-        class="nav-link active"
-        id="home-tab0"
-        data-mdb-toggle="tab"
-        data-mdb-target="#home0"
-        type="button"
-        role="tab"
-        aria-controls="home"
-        aria-selected="true"
-      >
-        <i class="fa fa-info"></i>&nbsp; About {{ object.name }}
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button
         class="nav-link"
         id="profile-tab0"
         data-mdb-toggle="tab"
@@ -50,7 +36,7 @@
         aria-controls="profile"
         aria-selected="false"
       >
-        <i class="fa fa-calendar"></i>&nbsp; Calendar
+      <span class="h5"><i class="fa fa-calendar"></i>&nbsp; Calendar</span>
       </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -64,39 +50,10 @@
         aria-controls="contact"
         aria-selected="false"
       >
-      <i class="fa fa-door-open"></i>&nbsp; Rooms
+      <span class="h5"><i class="fa fa-door-open"></i>&nbsp; Rooms</span>
       </button>
     </li>
   </ul>
-  <div class="tab-content" id="myTabContent0">
-    <div
-      class="tab-pane fade show active"
-      id="home0"
-      role="tabpanel"
-      aria-labelledby="home-tab0"
-    >
-    <section class="mt-5"> 
-        
-        <div class="row">
-            <div class="col-6">
-                <h4><i class="fas fa-question"></i>&nbsp; Location Information</h4>
-                <table class="table table-sm">
-                    <tbody>
-                        <tr>
-                            <th><strong>Name</strong></th>
-                            <td>{{ object.name }}</td>
-                        </tr>
-                        <tr>
-                            <th><strong>Rooms</strong></th>
-                            <td>{{ object.rooms|length }}</td>  
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </section>
-    </div>
     <div class="tab-pane fade" id="profile0" role="tabpanel" aria-labelledby="profile-tab0">
         <section class="mt-5">
             <h4><i class="fa fa-calendar"></i>&nbsp; Calendar</h3>
@@ -153,12 +110,61 @@
 
 
     <script>
+        var events=[ 
+            {
+                id: "make-coffee-01",
+                title: "Arrangement B",
+                start: "2021-12-08T09:00:00",
+                end: "2021-12-12T14:00:00",
+                display:"auto",
+                backgroundColor:'green',
+                resourceId: "u3"
+            },
+            {
+                id: "drink-some-tasty-coffee",
+                title: "Arrangement A",
+                start: "2021-12-08T14:00:00",
+                end: "2021-12-10T16:00:00",
+                display:"auto",
+                backgroundColor:'orange',
+                resourceId: "u2"
+            },
+            {
+                id: "nap",
+                title: "Arrangement A",
+                start: "2021-12-08T16:00:00",
+                end: "2021-12-12T23:00:00",
+                display:"auto",
+                backgroundColor:'orange',
+                textColor: "white",
+                resourceId: "u1"
+            }
+        ];
+
+        var resources = [
+            {
+                id: "u1",
+                title:"Rom A"
+            },
+            {
+                id: "u2",
+                title: "Rom B"
+            },
+            {
+                id: "u3",
+                title: "Rom C"
+            }
+        ]
+
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('location_calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'resourceTimelineMonth',
+                initialView: 'resourceTimelineWeek',
                 height: 600,
                 navLinks:true,
+                locale: 'nb',
+                events: events,
+                resources: resources
             });
             calendar.render();
           });

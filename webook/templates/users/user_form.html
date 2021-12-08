@@ -7,6 +7,10 @@
 {% block section_title %}{% trans "My Info" %}{% endblock %}
 
 {% block inner %}
+  <h4 class="mb-0">
+    <i class="fas fa-info-circle"></i>
+    My Info
+  </h4>
   <form class="form-horizontal" method="post" action="{% url 'users:update' %}">
     {% csrf_token %}
     <div class="row">

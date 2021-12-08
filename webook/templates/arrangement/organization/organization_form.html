@@ -79,8 +79,10 @@
                     data-toggle="tooltip" title="* This field expects text"></i>
             </label>
 
-
-
+            <a href="{% url 'arrangement:organizationtype_list' %}" target="_blank" class="btn btn-link btn-sm">
+                <i class="fas fa-arrow-right"></i>&nbsp; Go to organization types in a new tab
+            </a>
+            <div></div>
             {{ form.organization_type }}
         </div>
         

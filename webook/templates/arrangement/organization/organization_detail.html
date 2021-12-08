@@ -34,21 +34,28 @@
                         <h5 class="fw-bold">
                             Organization Number
                         </h5>
-                        <span class="bg-light d-block">{{ object.organization_number }}</span>
+                        <span class=" d-block">{{ object.organization_number }}</span>
                     </div>
 
                     <div class="mt-3">
                         <h5 class="fw-bold">
                             Name
                         </h5>
-                        <span class="bg-light d-block">{{ object.name }}</span>
+                        <span class=" d-block">{{ object.name }}</span>
                     </div>
 
                     <div class="mt-3">
                         <h5 class="fw-bold">
                             Organization Type
                         </h5>
-                        <span class="bg-light d-block">{{ object.organization_type }}</span>
+                        <span class=" d-block">
+                            <span class="badge badge-md badge-success">
+                                <a href="{% url 'arrangement:organizationtype_detail' object.organization_type.slug %}">
+                                    {{ object.organization_type }} 
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            </span>
+                        </span>
                     </div>
                 </div>
             </div>

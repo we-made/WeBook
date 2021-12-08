@@ -1,4 +1,5 @@
 {% extends "arrangement/crumb_base.html" %}
+{% load static i18n %}
 
 {% block content %}
 
@@ -49,6 +50,11 @@
             </tr>
         {% endfor %}
     </tbody>
+    <tfoot>
+        <td colspan="2">
+            <em class="float-end">{{ object_list|length }} {% trans "elements" %}</em>
+        </td>
+    </tfoot>
 </table>
 
 {% endblock %}

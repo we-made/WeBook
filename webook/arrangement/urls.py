@@ -34,6 +34,12 @@ from webook.arrangement.views import (
     service_type_create_view,
     service_type_delete_view,
 
+    organization_type_list_view,
+    organization_type_detail_view,
+    organization_type_update_view,
+    organization_type_create_view,
+    organization_type_delete_view,
+
     arrangement_calendar_view,
     calendar_samples_overview,
 
@@ -119,6 +125,33 @@ urlpatterns = [
         route="calendar/arrangement_calendar",
         view=arrangement_calendar_view,
         name="arrangement_calendar",
+    ),
+
+    #Section: organization type
+    path(
+        route="organizationtype/list/",
+        view=organization_type_list_view,
+        name="organizationtype_list",
+    ),
+    path(
+        route="organizationtype/create/",
+        view=organization_type_create_view,
+        name="organizationtype_create",
+    ),
+    path(
+        route="organizationtype/edit/<slug:slug>",
+        view=organization_type_update_view,
+        name="organizationtype_edit",
+    ),
+    path(
+        route="organizationtype/<slug:slug>/",
+        view=organization_type_detail_view,
+        name="organizationtype_detail",
+    ),
+    path(
+        route="organizationtype/delete/<slug:slug>",
+        view=organization_type_delete_view,
+        name="organizationtype_delete",
     ),
 
     #Section: service type

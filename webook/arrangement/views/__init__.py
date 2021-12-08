@@ -45,6 +45,14 @@ from .servicetype_views import (
     service_type_delete_view,
 )
 
+from .organizationtype_views import (
+    organization_type_detail_view,
+    organization_type_update_view,
+    organization_type_list_view,
+    organization_type_create_view,
+    organization_type_delete_view,
+)
+
 from .calendar_views import (
     arrangement_calendar_view,
     calendar_samples_overview,
