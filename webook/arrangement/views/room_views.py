@@ -62,10 +62,6 @@ class RoomCreateView(LoginRequiredMixin, CreateView):
 
     model = Room
 
-    # def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-    #     print(request.data)
-    #     return super().post(request, *args, **kwargs)
-
 room_create_view = RoomCreateView.as_view()
 
 
@@ -93,7 +89,6 @@ class LocationRoomListView (LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         location = self.request.GET.get('location')
-        print(location)
         return Room.objects.filter(
             location=location
         )

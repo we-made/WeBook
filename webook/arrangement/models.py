@@ -401,7 +401,7 @@ class Organization(TimeStampedModel):
     organization_type = models.ForeignKey(to=OrganizationType, verbose_name=_("Organization Type"), on_delete=models.RESTRICT, related_name="organizations")
 
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
-    members = models.ManyToManyField(to=Person, verbose_name=_("Members"))
+    members = models.ManyToManyField(to=Person, verbose_name=_("Members"), related_name="organizations")
 
     slug = AutoSlugField(populate_from="name", unique=True)
 

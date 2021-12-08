@@ -28,6 +28,7 @@ from webook.arrangement.views import (
     person_update_view,
     person_create_view,
     person_delete_view,
+    organization_person_member_list_view,
 
     service_type_list_view,
     service_type_detail_view,
@@ -280,6 +281,12 @@ urlpatterns = [
         route="organization/delete/<slug:slug>/",
         view=organization_delete_view,
         name="organization_delete"
+    ),
+
+    path(
+        route="person/organizationmemberlist?organization=<str:organization>",
+        view=organization_person_member_list_view,
+        name="organizationmemberlist"
     ),
 
     # Section: person

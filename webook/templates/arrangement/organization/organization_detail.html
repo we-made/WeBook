@@ -68,58 +68,127 @@
             </h4>
             
             <div class="btn-group" style="box-shadow:none!important;">
-                <a class="btn btn-success btn-disabled disabled" disabled style="background-color: #66a880; text-white;">
+                <a class="btn btn-success" style="background-color: #66a880;"
+                        data-mdb-toggle="modal"
+                        data-mdb-target="#registerMemberModal">
                     <i class="fas fa-user-plus"></i>&nbsp; 
                     Register a new member
                 </a>
             </div>
 
-            <table class="table table-sm table-striped text-center mt-2">
-                <thead>
-                    <tr>
-                        <th class="h6">
-                            <em>Name</em>&nbsp;
-                        </th>
-                        <th class="h6">
-                            <em>Has associated user?</em>&nbsp;
-                            <i class="fas fa-info-circle text-muted"
-                                data-toggle="tooltip" title="Does this person have an associated user in this application?"></i>
-                        </th>
-                        <th class="h6">
-                            <em>Options</em>&nbsp;
-                        </th>
-                    </tr>
-                </thead>
+            <span id="personTableLoaderWrapper">
 
-                <tbody>
-                    <tr>
-                        <td>Ola Nordmann</td>
-                        <td>
-                            <i class="fas fa-times text-danger"></i>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger btn-sm">
-                                <i class="fa fa-ban"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    {% for item in object.members.all %}
-                    <tr>
-                        <td>{{ item.name }}</td>
-                        <td>
-                            <i class="fas fa-time text-danger"></i>
-                        </td>
-                        <td>
-                            <button>
-                                <i class="fas fa-ban"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            </span>
         </div>
     </div>
 </section>
+
+<div
+class="modal fade"
+id="registerMemberModal"
+tabindex="-1"
+aria-labelledby="exampleModalLabel"
+aria-hidden="true"
+>
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">
+          <span class="badge badge-success">
+              <i class="fas fa-user-plus"></i>
+          </span>
+          Register Member
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        data-mdb-dismiss="modal"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="modal-body">
+      <form id="registerNewMemberDialogForm">
+          <input type="hidden" name="organization" value="{{ object.id }}" />
+
+          <div class="form-group">
+              <label>First Name</label>
+              <input type="text" class="form-control" name="first_name"/>
+          </div>
+          <div class="form-group mt-3">
+                <label>Middle Name</label>
+                <input type="text" class="form-control" name="middle_name"/>
+          </div>
+          <div class="form-group mt-3">
+                <label>Last Name</label>
+                <input type="text" class="form-control" name="last_name"/>
+          </div>
+
+          <div class="form-group mt-3">
+                <label>Personal Email</label>
+                <input type="email" class="form-control" name="personal_email"/>
+          </div>
+
+          <div class="form-group mt-3">
+                <label>Birth Date</label>
+                <input type="date" class="form-control" name="birth_date"/>
+          </div>
+
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-success" onclick="registerANewOrganizationMember()">Register</button>
+      <button type="button" class="btn btn-success" onclick="registerANewOrganizationMember(false /* dont close after save*/)">Register, and new</button>
+      <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">
+        <i class="fa fas-times"></i>&nbsp; Cancel
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadMembersTableForOrganization()
+    });
+
+    function loadMembersTableForOrganization () {
+        $('#personTableLoaderWrapper').load('{% url "arrangement:organizationmemberlist" object.id %}?organization={{object.id}}')
+    }
+
+    async function registerANewOrganizationMember (closeModalOnDone=false) {
+        let dataForm = new FormData(document.getElementById("registerNewMemberDialogForm"))
+        let url = "{% url 'arrangement:person_create' %}"
+
+        fetch(url, {
+            method: 'POST',
+            body: dataForm,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(function(response) {
+            console.log(response);
+            if (response.ok) {
+                console.log("Response after member register is OK")
+                loadMembersTableForOrganization() // refresh rooms table to include our newly created room
+            }
+            else {
+                console.log(response)
+                throw "Response not OK."
+            }
+        }).catch(function(err) {
+            console.log(err)
+        }).then(function(response) {
+            if (closeModalOnDone) {
+                $('#registerMemberModal').modal('hide');
+            }
+            else {
+                // if we don't want to close the modal, we know we want to empty the form
+                $('#registerNewMemberDialogForm').trigger("reset");
+            }
+        })
+    }
+
+</script>
 
 {% endblock %}

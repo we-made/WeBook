@@ -36,6 +36,7 @@ from .person_views import (
     person_list_view,
     person_create_view,
     person_delete_view,
+    organization_person_member_list_view,
 )
 
 from .servicetype_views import (
