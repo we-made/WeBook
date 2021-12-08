@@ -1,0 +1,31 @@
+{% extends "arrangement/crumb_base.html" %}
+{% load crispy_forms_tags %}
+{% load static i18n %}
+
+{% block title %}
+    {% if object.name is None %}
+        {% trans "New Organization Type" %}
+    {% else %}
+        {% trans "Edit Organization Type" %}
+    {% endif %}
+{% endblock %}
+{% block section_subtitle %}
+    {% if object.name is None %}
+        {% trans "New Organization Type" %}
+    {% else %}
+        {% trans "Edit Organization Type" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form | crispy }}
+        
+        <button type="submit" class="btn btn-success float-end mt-3">
+            {% trans "Save" %}
+        </button>
+
+    </form>
+{% endblock %}

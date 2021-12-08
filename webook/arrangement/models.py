@@ -62,7 +62,7 @@ class Arrangement(TimeStampedModel):
      """
     name = models.CharField(verbose_name=_("Name"), max_length=255)
 
-    audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE)
+    audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE, related_name="arrangements")
 
     starts = models.DateField(verbose_name=_("Starts"))
     ends = models.DateField(verbose_name=_("Ends"))
@@ -161,6 +161,11 @@ class OrganizationType(TimeStampedModel):
     """
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    def get_absolute_url(self):
+        return reverse(
+            "arrangement:organizationtype_detail", kwargs={"slug": self.slug}
+        )
 
     def __str__(self):
         """Return name of organizationtype"""
@@ -393,7 +398,7 @@ class Organization(TimeStampedModel):
     """
     organization_number = models.IntegerField(verbose_name=_("Organization Number"), null=True, blank=True)
     name = models.CharField(verbose_name="Name", max_length=255)
-    organization_type = models.ForeignKey(to=OrganizationType, verbose_name=_("Organization Type"), on_delete=models.RESTRICT)
+    organization_type = models.ForeignKey(to=OrganizationType, verbose_name=_("Organization Type"), on_delete=models.RESTRICT, related_name="organizations")
 
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     members = models.ManyToManyField(to=Person, verbose_name=_("Members"))

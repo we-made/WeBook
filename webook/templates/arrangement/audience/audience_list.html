@@ -1,13 +1,14 @@
 {% extends "arrangement/crumb_base.html" %}
+{% load static i18n %}
 
 {% block content %}
 
 <h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; All Audiences</h4>
-<a class="btn btn-link"
+<a class="btn btn-success btn-sm mb-2 mt-2"
     href="{% url 'arrangement:audience_create' %}">
     <i class="fas fa-plus"></i>&nbsp; New Audience
 </a>
-<table class="table">
+<table class="table table-sm table-striped">
     <thead>
         <tr>
             <td class="h6">
@@ -29,19 +30,18 @@
                 </td>
 
                 <td>
-                    <a class="btn btn-sm btn-outline-info"
+                    <a class="btn btn-sm btn-info"
                         href="{% url 'arrangement:audience_detail' item.slug %}">
 
                         <i class="fa fa-eye"></i>
                         Open
                     </a>
-                    <a class="btn btn-sm btn-outline-success"
+                    <a class="btn btn-sm btn-success"
                         href="{% url 'arrangement:audience_edit' item.slug %}">
-
                         <i class="fa fa-edit"></i>
                         Edit
                     </a>
-                    <a class="btn btn-sm btn-outline-danger"
+                    <a class="btn btn-sm btn-danger"
                             href="{% url 'arrangement:audience_delete' item.slug %}">
                         <i class="fa fa-trash"></i>
                         Delete
@@ -50,6 +50,11 @@
             </tr>
         {% endfor %}
     </tbody>
+    <tfoot>
+        <td colspan="2">
+            <em class="float-end">{{ object_list|length }} {% trans "elements" %}</em>
+        </td>
+    </tfoot>
 </table>
 
 {% endblock %}
