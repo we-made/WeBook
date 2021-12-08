@@ -29,6 +29,7 @@ class ArrangementDetailView (LoginRequiredMixin, CrumbMixin, DetailView):
     slug_url_kwarg = "slug"
 
     section = section_manifest
+    entity_name_attribute = "name"
 
     template_name = "arrangement/arrangement/arrangement_detail.html"
 

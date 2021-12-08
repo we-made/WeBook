@@ -2,21 +2,451 @@
 
 
 {% block content %}
-    <h4>{{ object.name }}</h4>
 
-    <div id="arrangement_calendar">
 
+    <ul class="nav  border-bottom text-white nav-tabs mb-3" id="myTab0" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link text-muted fw-bold" disabled>
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button
+                class="nav-link active fw-bold"
+                id="home-tab0"
+                data-mdb-toggle="tab"
+                data-mdb-target="#home0"
+                type="button"
+                role="tab"
+                aria-controls="home"
+                aria-selected="true"
+            >
+                <i class="fa fa-info"></i>&nbsp; General
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button
+                class="nav-link fw-bold"
+                id="home-tab3"
+                data-mdb-toggle="tab"
+                data-mdb-target="#home3"
+                type="button"
+                role="tab"
+                aria-controls="home"
+                aria-selected="true">
+                <i class="fa fa-users"></i>&nbsp; Owners
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button
+                class="nav-link fw-bold"
+                id="home-tab1"
+                data-mdb-toggle="tab"
+                data-mdb-target="#home1"
+                type="button"
+                role="tab"
+                aria-controls="home"
+                aria-selected="true">
+                <i class="fa fa-calendar"></i>&nbsp; Calendar
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button
+                class="nav-link fw-bold"
+                id="home-tab2"
+                data-mdb-toggle="tab"
+                data-mdb-target="#home2"
+                type="button"
+                role="tab"
+                aria-controls="home"
+                aria-selected="true">
+                <i class="fa fa-comment"></i>&nbsp; Notes
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button
+                class="nav-link fw-bold"
+                id="home-tab3"
+                data-mdb-toggle="tab"
+                data-mdb-target="#home3"
+                type="button"
+                role="tab"
+                aria-controls="home"
+                aria-selected="true">
+                <i class="fa fa-object-group"></i>&nbsp; 
+                    System Messages
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button
+                class="nav-link fw-bold"
+                id="home-tab4"
+                data-mdb-toggle="tab"
+                data-mdb-target="#home4"
+                type="button"
+                role="tab"
+                aria-controls="home"
+                aria-selected="true">
+                <i class="fa fa-hourglass"></i>&nbsp; 
+                    Timeline
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button
+                class="nav-link fw-bold"
+                id="home-tab4"
+                data-mdb-toggle="tab"
+                data-mdb-target="#home4"
+                type="button"
+                role="tab"
+                aria-controls="home"
+                aria-selected="true">
+                <i class="fa fa-receipt"></i>&nbsp; 
+                    Resource Confirmation Receipts
+            </button>
+        </li>
+    </ul>
+    
+    <div class="tab-content" id="myTabContent0">
+
+        <!-- TAB: Home -->
+        <div 
+            class="tab-pane fade show active"
+            id="home0"
+            role="tabpanel"
+            aria-labelledby="home-tab0">
+
+
+            <div class="row mb-3">
+                <div class="col-4 text-center">
+                    <div class=" p-4">
+                        <h5 class="mb-2 text-muted text-uppercase"><strong class="h4">N</strong><small>AME</small></h5>
+                        <h4 class="d-inline">{{ object.name }}</h4> 
+                    </div>
+                </div>
+
+                <div class="col-4 text-center">
+                    <div class=" p-4">
+                        <h5 class="mb-2 text-muted text-uppercase"><strong class="h4">R</strong><small>esponsible</small></h5>
+                        <h4 class="d-inline">Mr. Jeffords</h4> 
+                    </div>
+                </div>
+
+                <div class="col-4 text-center">
+                    <div class="p-4">
+                        <h5 class="mb-2 text-muted text-uppercase"><strong class="h4">T</strong><small>ARGET</small> <strong class="h4">A</strong><small>UDIENCE</small></h5>
+                        <h4 class="d-inline">Old People</h4> 
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="mt-5">Status i korte trekk</h4>
+
+            <div>
+                <i class="fa fa-receipt"></i>
+                Bekreftelse på oppmøte
+            </div>
+            <div class="progress col-6" style="height:40px">
+                <div
+                  class="progress-bar bg-success"
+                  role="progressbar"
+                  style="width: 25%;"
+                  aria-valuenow="25"
+                  aria-valuemin="0"
+                  aria-valuemax="100">
+                     <strong>(25%)</strong>
+                    
+                </div>
+                <div class="full-width me-4" style="width: 100%; padding-top: 10px">
+                    <a href="#" class="float-end">
+                        <i class="fas fa-question-circle"></i>
+                        <strong>Hvem mangler?</strong>
+                    </a>
+                </div>
+            </div>   
+
+            <div class="mt-2">
+                <i class="fa fa-check"></i>
+                Gjennomføring
+            </div>
+            <div class="progress col-6 mb-4" style="height:40px">
+                <div
+                  class="progress-bar bg-info"
+                  role="progressbar"
+                  style="width: 25%;"
+                  aria-valuenow="25"
+                  aria-valuemin="0"
+                  aria-valuemax="100">
+                     <strong>(25%)</strong>
+                    
+                </div>
+                <div class="full-width me-4" style="width: 100%; padding-top: 10px">
+                    <a href="#" class="float-end">
+                        <i class="fas fa-question-circle"></i>
+                        <strong>Gjennomført?</strong>
+                    </a>
+                </div>
+            </div>   
+
+            <br>
+            <h4>Tidslinje</h4>
+            <p class="text-tooltip">
+                Click an event in the timeline to open up a richer and more contextful view. 
+            </p>
+            <div class="row">
+                <div class="col-3">
+
+                </div>
+                <div class="col-3">
+
+                </div>
+            </div>
+
+            <div class="clearfix">
+                <ul class="list-inline float-end">
+                    <li class="list-inline-item">
+                        <a href="#" class="fw-bold me-4"
+                            data-mdb-toggle="modal"
+                            data-mdb-target="#colorLegendModal">
+                            <i class="fa fa-info-circle"></i>&nbsp;Color Legend
+                        </a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a href="#" class="fw-bold"
+                            data-mdb-toggle="modal"
+                            data-mdb-target="#iconLegendModal">
+                            <i class="fa fa-info-circle"></i>&nbsp;Icon Legend
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="visualization" class="mb-4"></div>  
+
+
+            <div class="row">
+                <div class="col-7">
+
+                </div>
+
+                <div class="col-5">
+      
+
+                    
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- TAB: Calendar -->
+        <div
+            class="tab-pane fade"
+            id="home1"
+            role="tabpanel"
+            aria-labelledby="home-tab1">
+
+            <div id="arrangement_calendar"></div>
+
+        </div>
+
+        <!-- TAB: Notes -->
+        <div class="tab-pane fade"
+             id="home2"
+             role="tabpanel"
+             aria-labelledby="home-tab2">
+            
+             <h4>Notes</h4>
+
+        </div>
+
+        <div class="tab-pane fade"
+             id="home3"
+             role="tabpanel"
+             aria-labelledby="home-tab3">
+        
+             <h4>Owners</h4>
+             <p>Owners are people who are responsible for x, y, z, and will get a, d, e</p>
+             
+             <div class="row">
+                 <div class="col-6">
+                     <div class="border border-1 border-light p-2 ps-0">
+                         <h5>Ola Nordmann</h5>
+                        The man. Jaws. Lord of the rings. Numero uno<br>
+                        <div class="clearfix">
+                            <button class="btn btn-danger">Fjern som eier</button>
+                        </div>  
+                    </div>
+                 </div>
+             </div>
+        </div>
+
+        <div class="tab-pane fade"
+            id="home4"
+            role="tabpanel"
+            aria-labelledby="home-tab4">
+        
+            <h4>Timeline</h4>
+            
+        </div>
     </div>
 
+
+    <!-- Modal -->
+<div
+    class="modal fade"
+    id="colorLegendModal"
+    tabindex="-1"
+    aria-labelledby="colorLegendModal"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="colorLegendModalLabel">
+                <i class="fa fa-info-circle"></i>
+                Color Legend
+            </h5>
+            <button
+                type="button"
+                class="btn-close"
+                data-mdb-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr class="bg-light">
+                            <th class="h6 fw-bold">Color</th>
+                            <th class="h6 fw-bold">Explanation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="width: 10px">
+                                <div style="width:100%; height:20px;" class="bg-success"></div>
+                            </td>
+                            <td>
+                                All resources have accepted invitations
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 10px">
+                                <div style="width:100%; height:20px;" class="bg-warning"></div>
+                            </td>
+                            <td>
+                                There are resources that have not accepted invitations
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 10px">
+                                <div style="width:100%; height:20px;" class="bg-danger"></div>
+                            </td>
+                            <td>
+                                There are resource(s) that have denied invitations
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-mdb-dismiss="modal">
+                <i class="fa fa-times"></i>&nbsp; Close
+            </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Modal -->
+<div
+    class="modal fade"
+    id="iconLegendModal"
+    tabindex="-1"
+    aria-labelledby="iconLegendModal"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">
+                <i class="fa fa-info-circle"></i>
+                Icon Legend
+            </h5>
+            <button
+                type="button"
+                class="btn-close"
+                data-mdb-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr class="bg-light">
+                            <th class="h6 fw-bold">Icon</th>
+                            <th class="h6 fw-bold">Explanation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="width: 10px;" class="text-center">
+                                <i class="fa fa-check text-success fw-bold"></i>
+                            </td>
+                            <td>
+                                Based on the system rules this event is configured 
+                                fully.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 10px;" class="text-center">
+                                <i class="fa fa-exclamation-triangle text-warning fw-bold"></i>
+                            </td>
+                            <td>
+                                An alert has been triggered on this event. You should check 
+                                the notification.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-mdb-dismiss="modal">
+                <i class="fa fa-times"></i>&nbsp; Close
+            </button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('arrangement_calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'resourceTimelineMonth',
-                height: 600,
-                navLinks:true,
-            });
-            calendar.render();
-          });
-      </script>
+
+
+    // DOM element where the Timeline will be attached
+    var container = document.getElementById('visualization');
+
+    // Create a DataSet (allows two way data-binding)
+    var items = new vis.DataSet([
+    {id: 1, content: 'The Saga Begins', className:"bg-info text-white", start: '2013-04-20'},
+    {id: 2, content: 'A Phantom Menace', className:"bg-danger text-white", start: '2013-04-14'},
+    {id: 3, content: 'Something something', start: '2013-04-18'},
+    {id: 4, content: 'And what not?', start: '2013-04-16', end: '2013-04-19'},
+    {id: 5, content: 'A New Hope', start: '2013-04-25'},
+    {id: 6, content: 'Of necessity', start: '2013-04-27'}
+    ]);
+
+    // Configuration for the Timeline
+    var options = {};
+
+    // Create a Timeline
+    var timeline = new vis.Timeline(container, items, options);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('arrangement_calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'resourceTimelineMonth',
+            height: 600,
+            navLinks:true,
+        });
+
+        calendar.render();
+    });
+    </script>
 {% endblock %}

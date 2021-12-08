@@ -18,11 +18,14 @@
     {% block css %}
     <!-- Third-party CSS libraries go here -->
     <!-- <link href="{% static 'css/mdb.min.css' %}" rel="stylesheet"> -->
-    <link href="{{ ASSET_SERVER_URL }}mdb/css/mdb.min.css"
+    <link href="{{ ASSET_SERVER_URL }}mdb/css/mdb.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'vis-timeline/styles/vis-timeline-graph2d.min.css' %}" />
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <link rel="stylesheet" href="{% static 'fullcalendar-scheduler/main.min.css' %}">
     <!-- This file stores project-specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
+    <script src="{% static 'vis-timeline/standalone/umd/vis-timeline-graph2d.js' %}"></script>
+
     <script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
     {% endblock %}
 
@@ -269,6 +272,7 @@
       <script src="{% static 'fullcalendar-scheduler/locales-all.min.js' %}"></script>
       <!-- place project specific Javascript in this file -->
       <script src="{% static 'js/project.js' %}"></script>
+
 
             <!-- Handle window resizing, and automatic hiding/showing of the sidenav to correspond. -->
       <script>
