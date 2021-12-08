@@ -11,68 +11,16 @@
     // DOM element where the Timeline will be attached
     var container = document.getElementById('visualization');
 
-    var group = [
-        {
-            id: 1,
-            content: "Lokasjon A",
-            nestedGroups: [ 4, 5 ]
-        },
-        {
-            id: 2,
-            content: "Lokasjon B",
-            nestedGroups: [  6 ]
-        },
-        {
-            id: 3,
-            content: "Lokasjon C",
-            nestedGroups: [ 7, 8, 9, 10, 11, 12 ]
-        }, 
-        {
-            id:4,
-            content: "Rom A"
-        },
-        {
-            id:5,
-            content: "Rom B"
-        },
-        {
-            id: 6,
-            content: "Rom C"
-        },
-        {
-            id: 7,
-            content: "Rom D"
-        },
-        {
-            id: 8,
-            content: "Rom E"
-        },
-        {
-            id: 9,
-            content: "Rom F"
-        },
-        {
-            id: 10,
-            content: "Rom G"
-        },
-        {
-            id: 11,
-            content: "Rom I"
-        },
-        {
-            id: 12,
-            content: "Rom J"
-        }
-    ]
+    var group = JSON.parse('{{ groups |safe }}')
 
     // Create a DataSet (allows two way data-binding)
     var items = new vis.DataSet([
-    {id: 1, content: 'Arrangement A', className:"bg-info text-white", start: '2022-04-20'},
-    {id: 2, content: 'Arrangement B', className:"bg-danger text-white", start: '2022-04-14'},
-    {id: 3, content: 'Arrangement C', start: '2022-04-18', group: 4},
-    {id: 4, content: 'Arrangement D', start: '2022-04-16', end: '2022-04-19', group: 5},
-    {id: 5, content: 'Arrangement E', start: '2022-04-25', group: 6, className: "bg-success text-white"},
-    {id: 6, content: 'Arrangement F', start: '2022-04-27', group: 7, className: "bg-danger text-white"}
+    // {id: 1, content: 'Arrangement A', className:"bg-info text-white", start: '2022-04-20'},
+    // {id: 2, content: 'Arrangement B', className:"bg-danger text-white", start: '2022-04-14'},
+    // {id: 3, content: 'Arrangement C', start: '2022-04-18', group: 4},
+    // {id: 4, content: 'Arrangement D', start: '2022-04-16', end: '2022-04-19', group: 5},
+    // {id: 5, content: 'Arrangement E', start: '2022-04-25', group: 6, className: "bg-success text-white"},
+    // {id: 6, content: 'Arrangement F', start: '2022-04-27', group: 7, className: "bg-danger text-white"}
     ]);
 
     // Configuration for the Timeline

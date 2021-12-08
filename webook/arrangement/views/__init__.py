@@ -19,6 +19,7 @@ from .room_views import (
     room_list_view,
     room_create_view,
     room_delete_view,
+    location_room_list_view,
 )
 
 from .organization_views import (

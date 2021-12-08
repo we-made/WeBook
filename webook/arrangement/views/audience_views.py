@@ -13,12 +13,12 @@ from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Audience
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 
+
 section_manifest = {
     "SECTION_TITLE": _("Audience"),
     "SECTION_ICON": "fas fa-user",
     "SECTION_CRUMB_URL": lambda: reverse("arrangement:audience_list")
 }
-
 
 class AudienceListView(LoginRequiredMixin, CrumbMixin, ListView):
     queryset = Audience.objects.all()

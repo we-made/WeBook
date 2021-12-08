@@ -1,4 +1,7 @@
+from typing import Any, Dict
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
@@ -9,9 +12,9 @@ from django.views.generic import (
     CreateView,
 )
 from django.views.generic.edit import DeleteView
-from webook.arrangement.models import Room
+from webook.arrangement.models import Location, Room
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
-
+import json
 
 section_manifest = {
     "SECTION_TITLE": _("Rooms"),
@@ -59,6 +62,10 @@ class RoomCreateView(LoginRequiredMixin, CreateView):
 
     model = Room
 
+    # def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+    #     print(request.data)
+    #     return super().post(request, *args, **kwargs)
+
 room_create_view = RoomCreateView.as_view()
 
 
@@ -78,3 +85,22 @@ class RoomDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
     section_subtitle_prefix = _("Delete")
 
 room_delete_view = RoomDeleteView.as_view()
+
+
+class LocationRoomListView (LoginRequiredMixin, ListView):
+    model = Room
+    template_name="arrangement/room/partials/_location_room_list.html"
+
+    def get_queryset(self):
+        location = self.request.GET.get('location')
+        print(location)
+        return Room.objects.filter(
+            location=location
+        )
+    
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context =  super().get_context_data(**kwargs)
+        context["location"] = self.request.GET.get('location')
+        return context
+
+location_room_list_view = LocationRoomListView.as_view()

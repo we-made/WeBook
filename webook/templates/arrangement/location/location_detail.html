@@ -24,149 +24,140 @@
 
 {% block content %}
 
-<ul class="nav  border-bottom text-white nav-tabs mb-3" id="myTab0" role="tablist">
+
+<ul class="nav nav-tabs mb-3" id="ex1" role="tablist">
     <li class="nav-item" role="presentation">
-      <button
-        class="nav-link"
-        id="profile-tab0"
-        data-mdb-toggle="tab"
-        data-mdb-target="#profile0"
-        type="button"
-        role="tab"
-        aria-controls="profile"
-        aria-selected="false"
-      >
-      <span class="h5"><i class="fa fa-calendar"></i>&nbsp; Calendar</span>
-      </button>
+      <a class="nav-link active" id="ex1-tab-1" data-mdb-toggle="tab" href="#profile0" role="tab" aria-controls="ex1-tabs-1" aria-selected="true">Calendar</a>
     </li>
     <li class="nav-item" role="presentation">
-      <button
-        class="nav-link"
-        id="contact-tab0"
-        data-mdb-toggle="tab"
-        data-mdb-target="#contact0"
-        type="button"
-        role="tab"
-        aria-controls="contact"
-        aria-selected="false"
-      >
-      <span class="h5"><i class="fa fa-door-open"></i>&nbsp; Rooms</span>
-      </button>
+      <a class="nav-link" id="ex1-tab-2" data-mdb-toggle="tab" href="#contact0" role="tab" aria-controls="ex1-tabs-2" aria-selected="false">Rooms</a>
     </li>
   </ul>
-    <div class="tab-pane fade" id="profile0" role="tabpanel" aria-labelledby="profile-tab0">
-        <section class="mt-5">
-            <h4><i class="fa fa-calendar"></i>&nbsp; Calendar</h3>
-            
-            <div id="location_calendar" class="mb-4"></div>
-        </section>
-    </div>
-    <div class="tab-pane fade" id="contact0" role="tabpanel" aria-labelledby="contact-tab0">
-        <section class="mt-5">
+
+  <div class="tab-content">
+
+        <div class="tab-pane fade " id="profile0" role="tabpanel" aria-labelledby="profile-tab0">
+            <section class="mt-5">
+                <h4><i class="fa fa-calendar"></i>&nbsp; Calendar</h3>
+                
+                <div id="location_calendar" class="mb-4"></div>
+            </section>
+        </div>
+        <div class="tab-pane fade" id="contact0" role="tabpanel" aria-labelledby="contact-tab0">
             <h4><i class="fas fa-table"></i>&nbsp; Rooms</h3>
             
-            <button class="btn btn-link">
+            <button class="btn btn-success"
+                    data-mdb-toggle="modal"
+                    data-mdb-target="#createRoomModal">
                 <i class="fa fa-plus"></i>&nbsp; New Room
             </button>
-    
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Maximum People</th>
-                        <th>Options</th>
-                    </tr>
-                </thead>
-    
-                <tbody>
-                    {% for item in object.rooms.all %}
-                        <tr>
-                            <td>{{ item.name }}</td>
-                            <td>0</td>
-                            <td>
-                                <a
-                                    class="btn btn-sm btn-outline-info"
-                                    href="{% url 'arrangement:room_detail' item.slug %}">
-                                    Show
-                                </a>
-                                <a
-                                    class="btn btn-sm btn-outline-success"
-                                    href="{% url 'arrangement:room_edit' item.slug %}">
-                                    Edit
-                                </a>
-                                <a
-                                    class="btn btn-sm btn-outline-danger"
-                                    href="">
-                                    Delete
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
+
+            <span id="roomsTableLoaderWrapper">
+
+            </span>
+        </div>
+    </div>
+
+    <div
+  class="modal fade"
+  id="createRoomModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+            <span class="badge badge-success">
+                <i class="fas fa-plus"></i>
+            </span>
+            New room
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-mdb-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="createNewRoomDialogForm">
+            <input type="hidden" name="location" value="{{ object.id }}" />
+            <div class="form-group">
+                <label>Lokasjon</label>
+                <input type="text" class="form-control" value="{{ object.name }}" disabled/>
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Room Name</label>
+                <input type="text" class="form-control" name="name" id="roomNameInput"/>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="createNewRoom()">Create room</button>
+        <button type="button" class="btn btn-success" onclick="createNewRoom(false /* dont close after save*/)">Create room, and new</button>
+        <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">
+          <i class="fa fas-times"></i>&nbsp; Cancel
+        </button>
+      </div>
     </div>
   </div>
+</div>
 
+<script>
+    var resources = JSON.parse('{{ resources_json |safe }}')
 
-    <script>
-        var events=[ 
-            {
-                id: "make-coffee-01",
-                title: "Arrangement B",
-                start: "2021-12-08T09:00:00",
-                end: "2021-12-12T14:00:00",
-                display:"auto",
-                backgroundColor:'green',
-                resourceId: "u3"
-            },
-            {
-                id: "drink-some-tasty-coffee",
-                title: "Arrangement A",
-                start: "2021-12-08T14:00:00",
-                end: "2021-12-10T16:00:00",
-                display:"auto",
-                backgroundColor:'orange',
-                resourceId: "u2"
-            },
-            {
-                id: "nap",
-                title: "Arrangement A",
-                start: "2021-12-08T16:00:00",
-                end: "2021-12-12T23:00:00",
-                display:"auto",
-                backgroundColor:'orange',
-                textColor: "white",
-                resourceId: "u1"
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('location_calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'resourceTimelineWeek',
+            height: 600,
+            navLinks:true,
+            locale: 'nb',
+            
+            resources: resources
+        });
+        calendar.render();
+        loadRoomsTableForLocation()
+    });
+
+    function loadRoomsTableForLocation () {
+        $('#roomsTableLoaderWrapper').load('{% url "arrangement:locationroomlist" object.id %}?location={{object.id }}')
+    }
+
+    async function createNewRoom (closeModalOnDone=true) {
+        let dataForm = new FormData(document.getElementById("createNewRoomDialogForm"))
+        let url = "{% url 'arrangement:room_create' %}"
+
+        fetch(url, {
+            method: 'POST',
+            body: dataForm,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
             }
-        ];
-
-        var resources = [
-            {
-                id: "u1",
-                title:"Rom A"
-            },
-            {
-                id: "u2",
-                title: "Rom B"
-            },
-            {
-                id: "u3",
-                title: "Rom C"
+        }).then(function(response) {
+            console.log(response);
+            if (response.ok) {
+                console.log("Response after room create is OK")
+                loadRoomsTableForLocation() // refresh rooms table to include our newly created room
             }
-        ]
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('location_calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'resourceTimelineWeek',
-                height: 600,
-                navLinks:true,
-                locale: 'nb',
-                events: events,
-                resources: resources
-            });
-            calendar.render();
-          });
-      </script>
+            else {
+                console.log(response)
+                throw "Response not OK."
+            }
+        }).catch(function(err) {
+            console.log(err)
+        }).then(function(response) {
+            if (closeModalOnDone) {
+                $('#createRoomModal').modal('hide');
+            }
+            else {
+                // if we don't want to close the modal, we know we want to empty the form
+                $('#createNewRoomDialogForm').trigger("reset");
+            }
+        })
+    }
+</script>
 {% endblock %}

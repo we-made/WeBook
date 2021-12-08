@@ -15,6 +15,7 @@ from webook.arrangement.views import (
     room_update_view,
     room_create_view,
     room_delete_view,
+    location_room_list_view,
 
     organization_list_view,
     organization_detail_view,
@@ -245,6 +246,12 @@ urlpatterns = [
         route="room/delete/<slug:slug>/",
         view=room_delete_view,
         name="room_delete",
+    ),
+
+    path(
+        route="room/locationrooms?location=<str:location>",
+        view=location_room_list_view, 
+        name="locationroomlist"
     ),
 
     # Section: calendar

@@ -1,0 +1,38 @@
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Maximum People</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in object_list %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>0</td>
+                    <td>
+                        <a
+                            class="btn btn-sm btn-outline-info"
+                            href="{% url 'arrangement:room_detail' item.slug %}">
+                            Show
+                        </a>
+                        <a
+                            class="btn btn-sm btn-outline-success"
+                            href="{% url 'arrangement:room_edit' item.slug %}">
+                            Edit
+                        </a>
+                        <a
+                            class="btn btn-sm btn-outline-danger"
+                            href="">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div> 
