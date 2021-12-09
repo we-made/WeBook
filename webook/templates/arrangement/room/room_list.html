@@ -6,30 +6,30 @@
 {% endblock %}
 
 {% block section_subtitle %}
-    All Rooms
+    {% trans "All Rooms" %}
 {% endblock %}
 
 {% block current_crumb_title %}
-    <i class="fas fa-list"></i>&nbsp; All Rooms
+    <i class="fas fa-list"></i>&nbsp; {% trans "All Rooms" %}
 {% endblock %}
 
 {% block content %}
 
-<h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; All Rooms</h4>
+<h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; {% trans "All Rooms" %}</h4>
 <a class="btn btn-sm mt-2 mb-2 btn-success"
     href="{% url 'arrangement:room_create' %}">
-    <i class="fas fa-plus"></i>&nbsp; New Room
+    <i class="fas fa-plus"></i>&nbsp; {% trans "New Room" %}
 </a>
 <table class="table table-striped table-sm">
     <thead>
         <tr>
             <td class="h6">
                 <i class="fas fa-door-open"></i>
-                <span>Room</span>
+                <span>{% trans "Room" %}</span>
             </td>
             <td class="h6">
                 <i class="fas fa-cog"></i>
-                <span>Options</span>
+                <span>{% trans "Options" %}</span>
             </td>
         </tr>
     </thead>
@@ -46,18 +46,18 @@
                         href="{% url 'arrangement:room_detail' item.slug %}">
 
                         <i class="fa fa-eye"></i>
-                        Open
+                         {% trans "Open" %}
                     </a>
                     <a class="btn btn-sm btn-success"
                         href="{% url 'arrangement:room_edit' item.slug %}">
 
                         <i class="fa fa-edit"></i>
-                        Edit
+                        {% trans "Edit" %}
                     </a>
                     <a class="btn btn-sm btn-danger"
                         href="{% url 'arrangement:room_delete' item.slug %}"">
                         <i class="fa fa-trash"></i>
-                        Delete
+                        {% trans "Delete" %}
                     </a>
                 </td>
             </tr>

@@ -6,30 +6,30 @@
 {% endblock %}
 
 {% block section_subtitle %}
-    All Organizations
+    {% trans "All Organizations" %}
 {% endblock %}
 
 {% block current_crumb_title %}
-    <i class="fas fa-list"></i>&nbsp; All Organizations
+    <i class="fas fa-list"></i>&nbsp; {% trans "All Organizations" %}
 {% endblock %}
 
 {% block content %}
 
-<h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; All Organizations</h4>
+<h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; {% trans "All Organizations" %}</h4>
 <a class="btn btn-sm btn-success mt-2 mb-2"
     href="{% url 'arrangement:organization_create' %}">
-    <i class="fas fa-plus"></i>&nbsp; New Organization
+    <i class="fas fa-plus"></i>&nbsp; {% trans "New Organization" %}
 </a>
 <table class="table table-sm table-striped">
     <thead>
         <tr>
             <td class="h6">
                 <i class="fas fa-dollar-sign"></i>
-                <span>Organization</span>
+                <span>{% trans "Organization" %}</span>
             </td>
             <td class="h6">
                 <i class="fas fa-cog"></i>
-                <span>Options</span>
+                <span>{% trans "Options" %}</span>
             </td>
         </tr>
     </thead>
@@ -46,18 +46,18 @@
                         href="{% url 'arrangement:organization_detail' item.slug %}">
 
                         <i class="fa fa-eye"></i>
-                        Open
+                        {% trans "Open" %}
                     </a>
                     <a class="btn btn-sm btn-success"
                         href="{% url 'arrangement:organization_edit' item.slug %}">
 
                         <i class="fa fa-edit"></i>
-                        Edit
+                        {% trans "Edit" %}
                     </a>
                     <a class="btn btn-sm btn-danger"
                         href="{% url 'arrangement:organization_delete' item.slug %}">
                         <i class="fa fa-trash"></i>
-                        Delete
+                        {% trans "Delete" %}
                     </a>
                 </td>
             </tr>

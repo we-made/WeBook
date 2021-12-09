@@ -12,24 +12,24 @@
 {% endblock %}
 
 {% block beneath_breadcrumbs_block %}
-    <a class="btn btn-outline-success"
+    <a class="btn btn-success"
         href="{% url 'arrangement:location_edit' object.slug %}">
-        
         <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
     </a>
-    <a class="btn  btn-outline-danger">
+    <a class="btn btn-danger"
+        href="{% url 'arrangement:location_delete' object.slug %}">
         <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
     </a>
 {% endblock %}
 
 {% block content %}
 
-<h4><i class="fas fa-table"></i>&nbsp; Rooms</h3>
+<h4><i class="fas fa-table"></i>&nbsp; {% trans "Rooms" %}</h3>
         
 <button class="btn btn-success"
         data-mdb-toggle="modal"
         data-mdb-target="#createRoomModal">
-    <i class="fa fa-plus"></i>&nbsp; New Room
+    <i class="fa fa-plus"></i>&nbsp; {% trans "New Room" %}
 </button>
 
 <span id="roomsTableLoaderWrapper">
@@ -37,7 +37,7 @@
 </span>
 
 
-<h4 class="mt-5"><i class="fas fa-calendar"></i>&nbsp; Lokasjonskalender</h3>
+<h4 class="mt-5"><i class="fas fa-calendar"></i>&nbsp; {% trans "Location Calendar" %}</h3>
 <div id="location_calendar" class="mb-4"></div>
 
 
@@ -55,7 +55,7 @@
             <span class="badge badge-success">
                 <i class="fas fa-plus"></i>
             </span>
-            New room
+            {% trans "New room" %}
         </h5>
         <button
           type="button"
@@ -68,21 +68,26 @@
         <form id="createNewRoomDialogForm">
             <input type="hidden" name="location" value="{{ object.id }}" />
             <div class="form-group">
-                <label>Lokasjon</label>
+                <label>{% trans "Location" %}</label>
                 <input type="text" class="form-control" value="{{ object.name }}" disabled/>
             </div>
 
             <div class="form-group mt-3">
-                <label>Room Name</label>
+                <label>{% trans "Maximum Occupancy" %}</label>
+                <input type="number" name="max_capacity" class="form-control" value="0" />
+            </div>
+
+            <div class="form-group mt-3">
+                <label>{% trans "Room Name" %}</label>
                 <input type="text" class="form-control" name="name" id="roomNameInput"/>
             </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" onclick="createNewRoom()">Create room</button>
-        <button type="button" class="btn btn-success" onclick="createNewRoom(false /* dont close after save*/)">Create room, and new</button>
+        <button type="button" class="btn btn-success" onclick="createNewRoom()">{% trans "Create room" %}</button>
+        <button type="button" class="btn btn-success" onclick="createNewRoom(false /* dont close after save*/)">{% trans "Create room, and new" %}</button>
         <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">
-          <i class="fa fas-times"></i>&nbsp; Cancel
+          <i class="fa fas-times"></i>&nbsp; {% trans "Cancel" %}
         </button>
       </div>
     </div>

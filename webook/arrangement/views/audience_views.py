@@ -25,7 +25,7 @@ class AudienceListView(LoginRequiredMixin, CrumbMixin, ListView):
     template_name = "arrangement/audience/audience_list.html"
     section = section_manifest
     section_subtitle = _("All Audiences")
-    current_crumb_title = "All Audiences"
+    current_crumb_title = _("All Audiences")
     current_crumb_icon = "fas fa-list"
 
 audience_list_view = AudienceListView.as_view()
@@ -49,8 +49,8 @@ class AudienceCreateView(LoginRequiredMixin, CrumbMixin, CreateView):
     ]
     section = section_manifest
     template_name = "arrangement/audience/audience_form.html"
-    current_crumb_title = "Create Audience"
-    section_subtitle = "Create Audience"
+    current_crumb_title = _("Create Audience")
+    section_subtitle = _("Create Audience")
 
 audience_create_view = AudienceCreateView.as_view()
 

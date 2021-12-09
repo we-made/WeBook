@@ -41,7 +41,7 @@ class ArrangementListView(LoginRequiredMixin, CrumbMixin, ListView):
     template_name = "arrangement/arrangement/arrangement_list.html"
 
     section = section_manifest
-    section_subtitle = "All Arrangements"
+    section_subtitle = _("All Arrangements")
 
 arrangement_list_view = ArrangementListView.as_view()
 
@@ -53,9 +53,10 @@ class ArrangementCreateView (LoginRequiredMixin, CrumbMixin, CreateView):
         "audience",
         "starts",
         "ends",
+        "responsible",
     ]
-    current_crumb_title = "Create Arrangement"
-    section_subtitle = "Create Arrangement"
+    current_crumb_title = _("Create Arrangement")
+    section_subtitle = _("Create Arrangement")
     template_name = "arrangement/arrangement/arrangement_form.html"
     section = section_manifest
 
@@ -69,9 +70,10 @@ class ArrangementUpdateView(LoginRequiredMixin, CrumbMixin, UpdateView):
         "audience",
         "starts",
         "ends",
+        "responsible",
     ]
-    current_crumb_title = "Edit Arrangement"
-    section_subtitle = "Edit Arrangement"
+    current_crumb_title = _("Edit Arrangement")
+    section_subtitle = _("Edit Arrangement")
     template_name = "arrangement/arrangement/arrangement_form.html"
     section = section_manifest
 
@@ -80,8 +82,8 @@ arrangement_update_view = ArrangementUpdateView.as_view()
 
 class ArrangementDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
     model = Arrangement
-    current_crumb_title = "Delete Arrangement"
-    section_subtitle = "Edit Arrangement"
+    current_crumb_title = _("Delete Arrangement")
+    section_subtitle = _("Edit Arrangement")
     template_name = "arrangement/delete_view.html"
     section = section_manifest
 

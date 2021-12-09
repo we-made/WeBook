@@ -24,8 +24,8 @@ section_manifest = {
 
 class GlobalTimelineView (LoginRequiredMixin, CrumbMixin, TemplateView):
     section = section_manifest
-    section_subtitle = "Global Timeline"
-    current_crumb_title = "Global Timeline"
+    section_subtitle = _("Global Timeline")
+    current_crumb_title = _("Global Timeline")
     template_name = "arrangement/insights/global_timeline.html"
 
     def get_context_data(self, **kwargs):

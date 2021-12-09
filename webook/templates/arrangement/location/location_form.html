@@ -41,22 +41,22 @@
             <label for="{{ form.name.id_for_label }}" class="h5 d-block">
                 {{ form.name.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
-                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field is mandatory' %}"></i>
                 <i class="fas fa-quote-right float-end text-secondary me-2"
-                    data-toggle="tooltip" title="* This field expects text"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field expects text' %}"></i>
             </label>
 
             <div class="alert alert-info alert-sm mb-2 border-start border-5 border-info p-1 ps-3 bg-white"
                 style="border-radius: 0px;">
                 <i class="fas fa-question-circle"></i>
-                <span class="ps-2">What is the name of the location we are creating?</em>
+                <span class="ps-2">{% trans "What is the name of the location we are creating?" %}</em>
             </div>
 
             <input type="text" class="form-control" 
                 id="{{ form.name.id_for_label }}" 
                 value="{{ form.name.value|default:'' }}"
                 name="{{ form.name.name }}"
-                placeholder="Name of the location..."/>
+                placeholder="{% trans 'Name of the location' %}..."/>
         </div>
 
         <hr>

@@ -24,6 +24,6 @@ section_manifest = {
 class DashboardView (LoginRequiredMixin, CrumbMixin, TemplateView):
     template_name = "arrangement/dashboard/dashboard.html"
     section = section_manifest
-    section_subtitle = "Welcome back!"
+    section_subtitle = _("Welcome back!")
 
 dashboard_view = DashboardView.as_view()

@@ -40,47 +40,45 @@
             <label for="{{ form.organization_number.id_for_label }}" class="h5 d-block">
                 {{ form.organization_number.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
-                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field is mandatory' %}"></i>
                 <i class="float-end text-secondary me-2"
-                    data-toggle="tooltip" title="* This field expects text">#</i>
+                    data-toggle="tooltip" title="* {% trans 'This field expects text' %}">#</i>
             </label>
 
             <input type="number" class="form-control form-control-lg" 
                 id="{{ form.organization_number.id_for_label }}" 
                 value="{{ form.organization_number.value|default:'' }}"
                 name="{{ form.organization_number.name }}"
-                placeholder="Organization number..."/>
+                placeholder="{‰ trans 'Organization number' %}..."/>
         </div>
 
         <div class="form-group mt-3">
             <label for="{{ form.name.id_for_label }}" class="h5 d-block">
                 {{ form.name.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
-                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field is mandatory' %}"></i>
                 <i class="fas fa-quote-right float-end text-secondary me-2"
-                    data-toggle="tooltip" title="* This field expects text"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field expects text' %}"></i>
             </label>
-
-
 
             <input type="text" class="form-control form-control-lg" 
                 id="{{ form.name.id_for_label }}" 
                 value="{{ form.name.value|default:'' }}"
                 name="{{ form.name.name }}"
-                placeholder="Name..."/>
+                placeholder="{% trans 'Name' %}..."/>
         </div>
 
         <div class="form-group mt-3">
             <label for="{{ form.organization_type.id_for_label }}" class="h5 d-block">
                 {{ form.organization_type.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
-                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field is mandatory' %}"></i>
                 <i class="fas fa-quote-right float-end text-secondary me-2"
-                    data-toggle="tooltip" title="* This field expects text"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field expects text' %}"></i>
             </label>
 
             <a href="{% url 'arrangement:organizationtype_list' %}" target="_blank" class="btn btn-link btn-sm">
-                <i class="fas fa-arrow-right"></i>&nbsp; Go to organization types in a new tab
+                <i class="fas fa-arrow-right"></i>&nbsp; {% trans "Go to organization types in a new tab" %}
             </a>
             <div></div>
             {{ form.organization_type }}

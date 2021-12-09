@@ -1,18 +1,19 @@
 {% extends "base.html" %}
+{% load static i18n %}
 
 {% block section_icon_class %}
     fas fa-dollar-sign
 {% endblock %}
 
 {% block section_title %}
-    Organizations
+    {% trans 'Organizations' %}
 {% endblock %}
 
 {% block section_crumb_icon %}
     <i class="fas fa-dollar-sign"></i>
 {% endblock %}
 {% block section_crumb_title %}
-    Organization
+    {‰ trans 'Organization' %}
 {% endblock %}
 {% block section_crumb_url %}
     {% url 'arrangement:organization_list' %}

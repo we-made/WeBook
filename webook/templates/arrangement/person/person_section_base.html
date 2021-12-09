@@ -1,18 +1,19 @@
 {% extends "base.html" %}
+{% load static i18n %}
 
 {% block section_icon_class %}
     fas fa-users
 {% endblock %}
 
 {% block section_title %}
-    People
+    {% trans "People" %}
 {% endblock %}
 
 {% block section_crumb_icon %}
     <i class="fas fa-users"></i>
 {% endblock %}
 {% block section_crumb_title %}
-    Person
+    {% trans "Person" %}
 {% endblock %}
 {% block section_crumb_url %}
     {% url 'arrangement:person_list' %}

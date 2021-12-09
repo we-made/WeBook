@@ -28,8 +28,8 @@ class PersonListView(LoginRequiredMixin, CrumbMixin, ListView):
     queryset = Person.objects.all()
     template_name = "arrangement/person/person_list.html"
     section = section_manifest
-    section_subtitle = "All People"
-    current_crumb_title = "All People"
+    section_subtitle = _("All People")
+    current_crumb_title = _("All People")
     current_crumb_icon = "fas fa-list"
 
 person_list_view = PersonListView.as_view()

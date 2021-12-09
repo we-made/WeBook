@@ -25,8 +25,8 @@ class ServiceTypeListView (LoginRequiredMixin, CrumbMixin, ListView):
     queryset = ServiceType.objects.all()
     template_name = "arrangement/servicetype/servicetype_list.html"
     section = section_manifest
-    section_subtitle = "All Service Types"
-    current_crumb_title = "All Service Types"
+    section_subtitle = _("All Service Types")
+    current_crumb_title = _("All Service Types")
     current_crumb_icon = "fas fa-list"
 
 service_type_list_view = ServiceTypeListView.as_view()
@@ -51,7 +51,7 @@ class ServiceTypeUpdateView (LoginRequiredMixin, CrumbMixin, UpdateView):
     template_name = "arrangement/servicetype/servicetype_form.html"
     section = section_manifest
     entity_name_attribute = "name"
-    section_subtitle_prefix = "Edit"
+    section_subtitle_prefix = _("Edit")
 
 service_type_update_view = ServiceTypeUpdateView.as_view()
 
@@ -82,6 +82,6 @@ class ServiceTypeDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
 
     section = section_manifest
     entity_name_attribute = "name"
-    section_subtitle_prefix = "Delete"
+    section_subtitle_prefix = _("Delete")
 
 service_type_delete_view = ServiceTypeDeleteView.as_view()

@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% load static i18n %}
 
 {% block section_icon_class %}
     fas fa-building
 {% endblock %}
 
 {% block section_title %}
-    Locations
+    {% trans 'Locations' %}
 {% endblock %}
 
 {% block section_crumb_icon %}

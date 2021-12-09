@@ -38,12 +38,12 @@
         
         <div class="form-group">
             <div>
-                <h5>Name</h5>
+                <h5>{% trans "Name" %}</h5>
 
                 <div class="row">
                     <div class="col-lg-4 col-sm-12">
                         <label class="d-block">
-                            First Name
+                            {% trans "First Name" %}
                             <i class="fas fa-asterisk text-warning float-end"></i>
                             <i class="fas fa-quote-right text-secondary me-2 float-end"></i>
                         </label>
@@ -51,24 +51,24 @@
                             id="{{ form.first_name.id_for_label }}"
                             name="{{ form.first_name.name }}"
                             value="{{ form.first_name.value|default:'' }}"
-                            placeholder="First name..." />
+                            placeholder="{% trans 'First name' %}..." />
 
                         {{ form.first_name.errors }}
                     </div>
                     <div class="col-lg-4 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
-                            Middle Name
+                            {% trans "Middle Name" %}
                             <i class="fas fa-quote-right text-secondary float-end"></i>
                         </label>
                         <input type="text" class="form-control"
                             id="{{ form.middle_name.id_for_label }}"
                             name="{{ form.middle_name.name }}"
                             value="{{ form.middle_name.value|default:'' }}"
-                            placeholder="Middle name... (optional)" />
+                            placeholder="{% trans 'Middle name' %}... ({% trans 'Optional' %})" />
                     </div>
                     <div class="col-lg-4 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
-                            Last Name
+                            {% trans 'Last Name' %}
                             <i class="fas fa-asterisk text-warning float-end"></i>
                             <i class="fas fa-quote-right text-secondary me-2 float-end"></i>
                         </label>
@@ -76,7 +76,7 @@
                             id="{{ form.last_name.id_for_label }}"
                             name="{{ form.last_name.name }}"
                             value="{{ form.last_name.value|default:'' }}"
-                            placeholder="Last name..." />
+                            placeholder="{% trans 'Last name' %}..." />
                     </div>
                 </div>
             </div>
@@ -86,9 +86,9 @@
             <label for="{{ form.personal_email.id_for_label }}" class="h5 d-block">
                 {{ form.personal_email.label }}
                 <i class="fas fa-asterisk float-end text-warning me-2"
-                    data-toggle="tooltip" title="* This field is mandatory"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field is mandatory' %}"></i>
                 <i class="fas fa-at float-end text-secondary me-2"
-                    data-toggle="tooltip" title="* This field expects text"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field expects text' %}"></i>
             </label>
 
 
@@ -103,14 +103,14 @@
             <label for="{{ form.birth_date.id_for_label }}" class="h5 d-block">
                 {{ form.birth_date.label }}
                 <i class="fas fa-calendar float-end text-secondary me-2"
-                    data-toggle="tooltip" title="* This field expects text"></i>
+                    data-toggle="tooltip" title="* {% trans 'This field expects text' %}"></i>
             </label>
 
             <input type="date" class="form-control" 
                 id="{{ form.birth_date.id_for_label }}" 
                 value="{{ form.birth_date.value|default:'' }}"
                 name="{{ form.birth_date.name }}"
-                placeholder="Name of the location..."/>
+                placeholder="{% trans 'Name of the location' %}..."/>
         </div>
         
         <div class="mt-3">

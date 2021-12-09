@@ -69,6 +69,7 @@ class Arrangement(TimeStampedModel):
 
     timeline_events = models.ManyToManyField(to="TimelineEvent", verbose_name=_("Timeline Events"))
 
+    responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="arrangements_responsible_for")
     owners = models.ManyToManyField(to="Person", verbose_name=_("Owners"))
 
     people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")

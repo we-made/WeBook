@@ -1,18 +1,19 @@
 {% extends "base.html" %}
+{% load static i18n %}
 
 {% block section_icon_class %}
     fas fa-door-open
 {% endblock %}
 
 {% block section_title %}
-    Rooms
+    {% trans "Rooms" %}
 {% endblock %}
 
 {% block section_crumb_icon %}
     <i class="fas fa-door-open"></i>
 {% endblock %}
 {% block section_crumb_title %}
-    Room
+    {% trans "Room" %}
 {% endblock %}
 {% block section_crumb_url %}
     {% url 'arrangement:room_list' %}

@@ -9,7 +9,7 @@ from django.views.generic import (
     CreateView,
     TemplateView
 )
-from webook.arrangement.models import Event, Person, Room
+from webook.arrangement.models import Event, Location, Person, Room
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 
 
@@ -22,8 +22,8 @@ section_manifest = {
 class CalendarSamplesOverview (LoginRequiredMixin, CrumbMixin, TemplateView):
     template_name = "arrangement/calendar/calendars_list.html"
     section = section_manifest
-    current_crumb_title = "Calendar Samples"
-    section_subtitle = "Calendar Samples"
+    current_crumb_title = _("Calendar Samples")
+    section_subtitle = _("Calendar Samples")
 
 calendar_samples_overview = CalendarSamplesOverview.as_view()
 
@@ -31,8 +31,14 @@ calendar_samples_overview = CalendarSamplesOverview.as_view()
 class ArrangementCalendarView (LoginRequiredMixin, CrumbMixin, TemplateView):
     template_name = "arrangement/calendar/arrangement_calendar.html"
     section = section_manifest
-    current_crumb_title = "Arrangement Calendar"
-    section_subtitle = "Arrangement Calendar"
+    current_crumb_title = _("Arrangement Calendar")
+    section_subtitle = _("Arrangement Calendar")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["locations"] = Location.objects.all()
+        context["people"] = Person.objects.all()
+        return context
 
 
 arrangement_calendar_view = ArrangementCalendarView.as_view()

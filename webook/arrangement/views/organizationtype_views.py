@@ -25,8 +25,8 @@ class OrganizationTypeListView (LoginRequiredMixin, CrumbMixin, ListView):
     queryset = OrganizationType.objects.all()
     template_name = "arrangement/organizationtype/organizationtype_list.html"
     section = section_manifest
-    section_subtitle = "All Organization Types"
-    current_crumb_title = "All Organization Types"
+    section_subtitle = _("All Organization Types")
+    current_crumb_title = _("All Organization Types")
     current_crumb_icon = "fas fa-list"
 
 organization_type_list_view = OrganizationTypeListView.as_view()
@@ -82,6 +82,6 @@ class OrganizationTypeDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
 
     section = section_manifest
     entity_name_attribute = "name"
-    section_subtitle_prefix = "Delete"
+    section_subtitle_prefix = _("Delete")
 
 organization_type_delete_view = OrganizationTypeDeleteView.as_view()

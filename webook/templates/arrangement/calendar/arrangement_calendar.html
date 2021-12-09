@@ -1,113 +1,63 @@
 {% extends "arrangement/crumb_base.html" %}
+{% load static i18n %}
 
 {% block content %}
 
     <div class="row">
       <div class="col-3">
-        <h3 class="text-uppercase fw-bold">Legend</h3>
+        <h3 class="text-uppercase fw-bold">{% trans "Legend" %}</h3>
         <hr>
 
         <div class="mt-3">
-          <h5>Dimension</h5>
+          <h5>{% trans "Dimension" %}</h5>
           <select class="form-control">
-            <option>Arrangement</option>
+            <option>{% trans "Arrangement" %}</option>
           </select>
         </div>
 
         <div class="mt-3">
           <h5>
             <i class="fas fa-building"></i>&nbsp;
-            Locations
+            {% trans "Locations" %}
           </h5>
           <div class="alert alert-sm alert-light mb-1 mt-1 p-0">
-            Include <strong>only</strong> the checked locations
-          </div>
-          <div class="badge badge-info">
-            <input type="checkbox" />
-            Grålum
-            <i class="fas fa-times text-danger"></i>
+            {% trans "Include" %} <strong>{% trans "only" %}</strong> {% trans "the checked locations" %}
           </div>
 
+          {% for loc in locations %}
           <div class="badge badge-info">
             <input type="checkbox" />
-            Årvoll
+            {{ loc.name }}
             <i class="fas fa-times text-danger"></i>
           </div>
-
-          <div class="badge badge-info">
-            <input type="checkbox" />
-            Ullevaal
-            <i class="fas fa-times text-danger"></i>
-          </div>
-
-          <div class="badge badge-info">
-            <input type="checkbox" />
-            Storslett
-            <i class="fas fa-times text-danger"></i>
-          </div>
-
-          <div class="badge badge-info">
-            <input type="checkbox" />
-            Kvænangen
-            <i class="fas fa-times text-danger"></i>
-          </div>
-
-          <div class="badge badge-info">
-            <input type="checkbox" />
-            Rio De Janeiro
-            <i class="fas fa-times text-danger"></i>
-          </div>
-
-          <div class="badge badge-info">
-            <input type="checkbox" />
-            Slottet
-            <i class="fas fa-times text-danger"></i>
-          </div>
+          {% endfor %}
         </div>
 
         <div class="mt-3">
           <h5>
             <i class="fas fa-users"></i>&nbsp;
-            People
+            {% trans "People" %}
           </h5>
           <div class="alert alert-sm alert-light mb-1 mt-1 p-0">
-            Include <strong>only</strong> the checked people
+            {% trans "Include" %} <strong>{% trans "only" %}</strong> {% trans "the checked people" %}
           </div>
 
+          {% for person in people %}
           <div class="badge badge-light">
             <input type="checkbox" />
-            Magnus
+            {{ person.full_name }}
             <i class="fas fa-times text-danger"></i>
-
           </div>
-
-          <div class="badge badge-light">
-            <input type="checkbox" />
-            Magnus
-            <i class="fas fa-times text-danger"></i>
-
-          </div>
-          <div class="badge badge-light">
-            <input type="checkbox" />
-            Magnus
-            <i class="fas fa-times text-danger"></i>
-
-          </div>
-          <div class="badge badge-light">
-            <input type="checkbox" />
-            Magnus
-            <i class="fas fa-times text-danger"></i>
-
-          </div>
+          {% endfor %}
         </div>
 
 
         <button class="btn btn-outline-success mt-3 float-end">
           <i class="fas fa-check"></i>&nbsp; 
-          Update
+          {% trans "Update" %}
         </button>
         <button class="btn btn-outline-warning mt-3 me-2 float-end">
-          Reset
+          {% trans "Reset" %}
         </button>
       </div>
 
@@ -125,11 +75,12 @@
             initialView: 'dayGridMonth',
             navLinks:true,
             initialView: 'dayGridMonth',
+            locale: 'nb',
             headerToolbar: {
               left: 'prev,next today',
               center: 'title',
               right: 'dayGridMonth,timeGridWeek,timeGridDay'
-          }
+            } 
           });
           calendar.render();
         });

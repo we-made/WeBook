@@ -156,7 +156,7 @@ aria-hidden="true"
         $('#personTableLoaderWrapper').load('{% url "arrangement:organizationmemberlist" object.id %}?organization={{object.id}}')
     }
 
-    async function registerANewOrganizationMember (closeModalOnDone=false) {
+    async function registerANewOrganizationMember (closeModalOnDone=true) {
         let dataForm = new FormData(document.getElementById("registerNewMemberDialogForm"))
         let url = "{% url 'arrangement:person_create' %}"
 
@@ -179,12 +179,11 @@ aria-hidden="true"
         }).catch(function(err) {
             console.log(err)
         }).then(function(response) {
+            console.log(closeModalOnDone)
+            $('#registerNewMemberDialogForm').trigger("reset");
+
             if (closeModalOnDone) {
                 $('#registerMemberModal').modal('hide');
-            }
-            else {
-                // if we don't want to close the modal, we know we want to empty the form
-                $('#registerNewMemberDialogForm').trigger("reset");
             }
         })
     }
