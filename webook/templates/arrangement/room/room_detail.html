@@ -14,26 +14,34 @@
 {% endblock %}
 
 {% block beneath_breadcrumbs_block %}
-    <a class="btn btn-outline-success"
+    <a class="btn btn-success"
         href="{% url 'arrangement:room_edit' object.slug %}">
-        <i class="fa fa-edit"></i>&nbsp; Edit
+        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
     </a>
-    <a class="btn  btn-outline-danger">
-        <i class="fa fa-trash"></i>&nbsp; Delete
+    <a class="btn btn-danger">
+        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
     </a>
 {% endblock %}
 
 {% block content %}
 
 <section>
-    <div class="col-6">
-        <div class="text-center">
-            <h4><i class="fas fa-building h3"></i> <strong>Location</strong></h4>
-            <h4 class="mb-2">{{object.location.name}}</h4>
-            <a class="mt-3 btn btn-info"
-               href="{% url 'arrangement:location_detail' object.location.slug %}">
-                Gå til
-            </a>
+    <div class="row">
+        <div class="col-6">
+            <div class="text-center">
+                <h4><i class="fas fa-building h3"></i> <strong>Location</strong></h4>
+                <h4 class="mb-2">{{object.location.name}}</h4>
+                <a class="mt-3 btn btn-info"
+                href="{% url 'arrangement:location_detail' object.location.slug %}">
+                    {% trans "Go To" %}
+                </a>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="text-center">
+                <h4><i class="fas fa-users h3"></i> <strong>{% trans "Max Occupants" %}</strong></h4>
+                <h4 class="mb-2">{{object.max_capacity}}</h4>
+            </div>
         </div>
     </div>
 </section>

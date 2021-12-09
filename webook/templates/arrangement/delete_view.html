@@ -5,12 +5,12 @@
     <form method="post">
         {% csrf_token %}
 
-        <h1>Are you sure?</h1>
+        <h1>{% trans "Are you sure?" %}</h1>
         <h4>
-            Are you sure you want to delete <i>'{{ ENTITY_NAME }}'</i> ?<br>
-            This action can not be reversed.
+            {% trans "Are you sure you want to delete" %} <i>'{{ ENTITY_NAME }}'</i> ?<br>
+            {% trans "This action can not be reversed." %}
         </h4>
-        <a class="btn btn-info" href="{{ RETURN_URL }}"><i class="fas fa-times"></i>&nbsp; Cancel</a>
-        <button class="btn btn-danger" type="submit"><i class="fas fa-trash"></i>&nbsp; Delete</button>
+        <button class="btn btn-danger" type="submit"><i class="fas fa-trash"></i>&nbsp; {% trans "Delete" %}</button>
+        <a class="btn btn-info" href="{{ RETURN_URL }}"><i class="fas fa-times"></i>&nbsp; {% trans "Cancel" %}</a>
     </form>
 {% endblock %}

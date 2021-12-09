@@ -1,16 +1,18 @@
+{% load static i18n %}
+
 <table class="table table-sm table-striped text-center mt-2">
     <thead>
         <tr>
             <th class="h6">
-                <em>Name</em>&nbsp;
+                <em>{% trans "Name" %}</em>&nbsp;
             </th>
             <th class="h6">
-                <em>Has associated user?</em>&nbsp;
+                <em>{% trans "Has associated user?" %}</em>&nbsp;
                 <i class="fas fa-info-circle text-muted"
-                    data-toggle="tooltip" title="Does this person have an associated user in this application?"></i>
+                    data-toggle="tooltip" title="{% trans 'Does this person have an associated user in this application?' %}"></i>
             </th>
             <th class="h6">
-                <em>Options</em>&nbsp;
+                <em>{% trans "Options" %}</em>&nbsp;
             </th>
         </tr>
     </thead>
@@ -24,15 +26,15 @@
             </td>
             <td>
                 <button class="btn btn-success btn-sm disabled"
-                    data-toggle="tooltip" title="* Go to this persons page">
+                    data-toggle="tooltip" title="* {% trans 'Go to this persons page' %}">
                     <i class="fa fa-arrow-right"></i>
                 </button>
                 <button class="btn btn-danger btn-sm disabled"
-                    data-toggle="tooltip" title="* Remove this person from this organization. This does not delete the person.">
+                    data-toggle="tooltip" title="* {% trans 'Remove this person from this organization. This does not delete the person.' %}">
                     <i class="fa fa-ban"></i>
                 </button>
                 <button class="btn btn-info btn-sm disabled"
-                    data-toggle="tooltip" title="* Anonymize this person, removing all PII while retaining relational integrity.">
+                    data-toggle="tooltip" title="* {% trans 'Anonymize this person, removing all PII while retaining relational integrity.' %}">
                     <i class="fa fa-user-secret"></i>
                 </button>
             </td>

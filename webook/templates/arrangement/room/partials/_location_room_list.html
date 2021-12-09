@@ -1,11 +1,12 @@
+{% load static i18n %}
 
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Maximum People</th>
-                <th>Options</th>
+                <th class="h6">{% trans "Name" %}</th>
+                <th class="h6">{% trans "Maximum Occupants" %}</th>
+                <th class="h6">{% trans "Options" %}</th>
             </tr>
         </thead>
 
@@ -13,22 +14,22 @@
             {% for item in object_list %}
                 <tr>
                     <td>{{ item.name }}</td>
-                    <td>0</td>
+                    <td>{{ item.max_capacity }}</td>
                     <td>
                         <a
-                            class="btn btn-sm btn-outline-info"
+                            class="btn btn-sm btn-info"
                             href="{% url 'arrangement:room_detail' item.slug %}">
-                            Show
+                            {% trans "Show" %}
                         </a>
                         <a
-                            class="btn btn-sm btn-outline-success"
+                            class="btn btn-sm btn-success"
                             href="{% url 'arrangement:room_edit' item.slug %}">
-                            Edit
+                            {% trans "Edit" %}
                         </a>
                         <a
-                            class="btn btn-sm btn-outline-danger"
+                            class="btn btn-sm btn-danger"
                             href="">
-                            Delete
+                            {% trans "Delete" %}
                         </a>
                     </td>
                 </tr>
