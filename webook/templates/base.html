@@ -107,7 +107,7 @@
             </a>
             <ul class="sidenav-collapse collapse" id="sidenav-collapse-1-0-1">
               <li class="sidenav-item">
-                <a class="sidenav-link ripple-surface" href="#" tabindex="-1">{% trans "My Profile" %}</a>
+                <a class="sidenav-link ripple-surface" href="{% url 'users:detail' request.user.username %}" tabindex="-1">{% trans "My Page" %}</a>
               </li>
               <li class="sidenav-item">
                 <a class="sidenav-link ripple-surface" href="{% url 'users:update' %}" tabindex="-1">{% trans "My Info" %}</a>

@@ -123,6 +123,7 @@ class Room(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="rooms"
     )
+    max_capacity = models.IntegerField(verbose_name="Maximum Occupants")
     name = models.CharField(verbose_name=_("Name"), max_length=128)
     slug = AutoSlugField(populate_from="name", unique=True)
 
