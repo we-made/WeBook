@@ -43,6 +43,7 @@ class RoomUpdateView(LoginRequiredMixin, UpdateView):
     fields = [
         "location",
         "name",
+        "max_capacity",
     ]
 
     template_name = "arrangement/room/room_form.html"
@@ -55,7 +56,8 @@ room_update_view = RoomUpdateView.as_view()
 class RoomCreateView(LoginRequiredMixin, CreateView):
     fields = [
         "location",
-        "name"
+        "name",
+        "max_capacity",
     ]
 
     template_name = "arrangement/room/room_form.html"
