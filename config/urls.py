@@ -1,3 +1,4 @@
+from typing import Reversible
 from django.conf import settings
 from django.urls import include, path
 from django.conf.urls.static import static
@@ -6,15 +7,27 @@ from django.views.generic import TemplateView
 from django.views import defaults as default_views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.base import RedirectView
+from django.urls import reverse
 
 
-class HomeView(LoginRequiredMixin, TemplateView):
-    template_name="pages/home.html"
+class HomeView(LoginRequiredMixin, RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        if (self.request.user.is_authenticated):
+            return reverse(
+                "users:detail", kwargs={"username": self.request.user.username}
+            )
+        else:
+            return reverse(
+                "account_login"
+            )
+
 
 urlpatterns = [
     path(
         "",
-        HomeView.as_view(),
+        HomeView.as_view(), 
+        # HomeView.as_view(),
         name="home",
     ),
     # Django Admin, use {% url 'admin:index' %}
