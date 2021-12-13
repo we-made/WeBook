@@ -28,6 +28,12 @@
                 value="{{ form.name.value|default:'' }}"
                 name="{{ form.name.name }}"
                 placeholder="{% trans 'Name of the arrangement' %}..."/>
+            
+            {% if form.name.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.name.errors }}
+                </div>
+            {% endif %}
         </div>
 
         <div class="form-group mt-4 pt-3 pb-2">
@@ -52,6 +58,12 @@
             </div>
 
             {{ form.audience }}
+
+            {% if form.audience.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.audience.errors }}
+                </div>
+            {% endif %}
         </div>
 
         <div class="form-group mt-2 pt-3 pb-2">
@@ -72,6 +84,12 @@
                 id="{{ form.starts.id_for_label }}"
                 name="{{ form.starts.name }}"
                 value="{{ form.starts.value|default:'' }}">
+            
+            {% if form.starts.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.starts.errors }}
+                </div>
+            {% endif %}
         </div>
 
         <div class="form-group mt-2 pt-3 pb-2">
@@ -92,8 +110,13 @@
                 id="{{ form.ends.id_for_label }}"
                 name="{{ form.ends.name }}"
                 value="{{ form.ends.value|default:'' }}">
+
+            {% if form.ends.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.ends.errors }}
+                </div>
+            {% endif %}
         </div>
-        
         
         <button type="submit" class="btn btn-success mt-3">
             <i class="fa fa-save"></i>&nbsp; 
