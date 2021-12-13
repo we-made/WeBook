@@ -12,13 +12,6 @@
     </a>
 {% endif %}
 
-{% if URL_TO_CREATE %}
-    <a class="btn btn-success"
-        href="{{ URL_TO_CREATE }}">
-        <i class="fas fa-plus"></i>&nbsp; {% trans "New" %} {{ ENTITY_NAME_SINGULAR }}
-    </a>
-{% endif %}
-
 {% if object_list|length == 0 %}
 <div class="alert alert-info">
     <h4>{% blocktrans %} No <em>{{ENTITY_NAME_PLURAL}}</em> registered yet! {% endblocktrans %}</h4>
