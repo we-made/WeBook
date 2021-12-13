@@ -44,7 +44,6 @@ class GenericListTemplateMixin:
         context["ENTITY_NAME_PLURAL"] = self.model.entity_name_plural
         context["COLUMN_DEFINITION"] = self.columns
         context["LIST"] = self.construct_list()
-        print(context["LIST"])
         context["SHOW_OPTIONS"] = self.show_options
         context["HIDDEN_KEYS"] = [f[0] for f in self.columns if f[2] == False]
         context["SHOW_CREATE_BUTTON"] = self.show_create_button
