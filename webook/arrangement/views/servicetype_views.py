@@ -21,11 +21,11 @@ section_manifest = {
     "SECTION_ICON": "fas fa-concierge-bell",
     "SECTION_CRUMB_URL": lambda: reverse("arrangement:servicetype_list"),
     "CRUDL_MAP": SectionCrudlPathMap(
-        detail_url="arrangement:organization_detail",
-        create_url="arrangement:organization_create",
-        edit_url="arrangement:organization_edit",
-        delete_url="arrangement:organization_delete",
-        list_url="arrangement:organization_list",
+        detail_url="arrangement:servicetype_detail",
+        create_url="arrangement:servicetype_create",
+        edit_url="arrangement:servicetype_edit",
+        delete_url="arrangement:servicetype_delete",
+        list_url="arrangement:servicetype_list",
     )
 }
 
