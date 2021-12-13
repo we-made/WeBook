@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -16,15 +16,35 @@ from webook.arrangement.models import Location, Room
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 import json
 
+from webook.utils.crudl_utils.path_maps import SectionCrudlPathMap
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+
 section_manifest = {
     "SECTION_TITLE": _("Rooms"),
     "SECTION_ICON": "fas fa-door-open",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:room_list")
+    "SECTION_CRUMB_URL": lambda: reverse("arrangement:room_list"),
+    "CRUDL_MAP": SectionCrudlPathMap(
+        detail_url="arrangement:room_detail",
+        create_url="arrangement:room_create",
+        edit_url="arrangement:room_edit",
+        delete_url="arrangement:room_delete",
+        list_url="arrangement:room_list",
+    )
 }
 
-class RoomListView(LoginRequiredMixin, ListView):
+class RoomListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
     queryset = Room.objects.all()
-    template_name = "arrangement/room/room_list.html"
+    template_name = "arrangement/list_view.html"
+    model = Room
+    section = section_manifest
+    section_subtitle = _("All Rooms")
+    current_crumb_title = _("All Rooms")
+    current_crumb_icon = "fas fa-list"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["CRUDL_MAP"] = self.section["CRUDL_MAP"]
+        return context
 
 room_list_view = RoomListView.as_view()
 
