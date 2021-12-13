@@ -136,10 +136,10 @@ aria-hidden="true"
       </form>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-success" onclick="registerANewOrganizationMember()">Register</button>
-      <button type="button" class="btn btn-success" onclick="registerANewOrganizationMember(false /* dont close after save*/)">Register, and new</button>
+      <button type="button" class="btn btn-success" onclick="registerANewOrganizationMember()">{% trans "Register" %}</button>
+      <button type="button" class="btn btn-success" onclick="registerANewOrganizationMember(false /* dont close after save*/)">{% trans "Register, and new" %}</button>
       <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">
-        <i class="fa fas-times"></i>&nbsp; Cancel
+        <i class="fa fas-times"></i>&nbsp; {% trans "Cancel" %}
       </button>
     </div>
   </div>
