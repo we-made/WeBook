@@ -344,7 +344,7 @@ class ConfirmationReceipt (TimeStampedModel):
         return f"{self.requested_by} petitioned {self.sent_to} for a confirmation at STAMP."
 
 
-class Person(TimeStampedModel):
+class Person(TimeStampedModel, ModelNamingMetaMixin):
     """Represents a person entity. Does not represent a user however.
 
     :param personal_email: Email of the person
@@ -378,6 +378,14 @@ class Person(TimeStampedModel):
     notes = models.ManyToManyField(to=Note, verbose_name="Notes")
 
     slug = AutoSlugField(populate_from="full_name", unique=True)
+
+    entity_name_singular = _("Person")
+    entity_name_plural = _("People")
+
+    @property
+    def resolved_name(self):
+        # override template name mixin, as it relies on "name" attribute which is no good in this context. We want to use full_name instead.
+        return self.full_name
 
     @property
     def full_name(self):
