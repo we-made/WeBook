@@ -5,10 +5,11 @@
 <h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; {% trans "All" %} {{ENTITY_NAME_PLURAL}}</h4>
 
 {% if SHOW_CREATE_BUTTON %}
-    <button class="btn btn-success mb-2">
+    <a class="btn btn-success mb-2"
+        href="{% url CRUDL_MAP.create_url %}">
         <i class="fas fa-plus"></i>&nbsp; 
         {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
-    </button>
+    </a>
 {% endif %}
 
 {% if URL_TO_CREATE %}
