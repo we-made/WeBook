@@ -26,11 +26,9 @@ class GenericListTemplateMixin:
     show_create_button = True
 
     def construct_list(self):
-        objects = self.queryset
-
         constructed_list = list()
 
-        for obj in objects:
+        for obj in self.object_list:
             extracted_row = {}
             for col in self.columns:
                 extracted_row[col[0]] = (getattr(obj, col[0]))
@@ -46,6 +44,7 @@ class GenericListTemplateMixin:
         context["ENTITY_NAME_PLURAL"] = self.model.entity_name_plural
         context["COLUMN_DEFINITION"] = self.columns
         context["LIST"] = self.construct_list()
+        print(context["LIST"])
         context["SHOW_OPTIONS"] = self.show_options
         context["HIDDEN_KEYS"] = [f[0] for f in self.columns if f[2] == False]
         context["SHOW_CREATE_BUTTON"] = self.show_create_button
