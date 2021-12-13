@@ -6,7 +6,8 @@
 
 {% if SHOW_CREATE_BUTTON %}
     <button class="btn btn-success mb-2">
-        Create
+        <i class="fas fa-plus"></i>&nbsp; 
+        {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
     </button>
 {% endif %}
 
