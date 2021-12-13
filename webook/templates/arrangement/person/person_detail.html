@@ -16,10 +16,10 @@
 {% block beneath_breadcrumbs_block %}
     <a class="btn btn-outline-success"
         href="{% url 'arrangement:person_edit' object.slug %}">
-        <i class="fa fa-edit"></i>&nbsp; Edit
+        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
     </a>
     <a class="btn  btn-outline-danger">
-        <i class="fa fa-trash"></i>&nbsp; Delete
+        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
     </a>
 {% endblock %}
 
@@ -30,46 +30,46 @@
         <div class="col-3">
             <h4>
                 <i class="fas fa-cogs"></i>
-                Actions
+                {% trans "Actions" %}
             </h4>
 
             <section>
                 <h5 class="mt-4">Provision user</h5>
-                <p>Provision a user account for this person, that they can use to log in with.
+                <p>{% trans "Provision a user account for this person, that they can use to log in with." %}
                 </p>
                 <button class="btn btn-outline-dark btn-block"">
-                    Provision user
+                    {% trans "Provision user" %}
                 </button>
             </section>
 
             <section>
-                <h5 class="mt-4">Associate with user</h5>
+                <h5 class="mt-4">{% trans "Associate with user" %}</h5>
                 <p>
-                    Associate this person with an existing user account.
+                    {% trans "Associate this person with an existing user account." %}
                 </p>
                 <button class="btn btn-outline-dark btn-block"">
-                    Associate with user
+                    {% trans "Associate with user" %}
                 </button>
             </section>
 
             <section>
-                <h5 class="mt-4">Associate with organization</h5>
+                <h5 class="mt-4">{% trans "Associate with organization" %}</h5>
                 <p>
-                    Associate this person with an organization.
+                    {% trans "Associate this person with an organization." %}
                 </p>
                 <button class="btn btn-outline-dark btn-block">
-                    Associate with organization
+                    {% trans "Associate with organization" %}
                 </button>
             </section>
         </div>
         <div class="col-3 ps-5">
             <h4 class="mb-4">
                 <i class="fas fa-info"></i>&nbsp; 
-                Personalia
+                {% trans "Personalia" %}
             </h4>
             <div>
                 <h5>
-                    Name
+                    {% trans "Name" %}
                 </h5>
                 <span>{{ object.full_name }}</span>
             </div>
@@ -77,7 +77,7 @@
             <div class="mt-3">
                 <h5>
                     <i>@</i>
-                    Personal Email
+                    {% trans "Personal Email" %}
                 </h5>
                 <span>{{ object.personal_email }}</span>
             </div>
@@ -85,14 +85,14 @@
             <div class="mt-3">
                 <h5>
                     <i class="fas fa-calendar"></i>
-                    Date of birth
+                    {% trans "Date of birth" %}
                 </h5>
                 <span>{{ object.birth_date }}</span>
             </div>
 
             <div class="mt-3">
                 <h5>
-                    Has user?
+                    {% trans "Has user?" %}
                 </h5>
                 <span>
                     <i class="fas fa-times text-danger"></i>
@@ -102,11 +102,11 @@
         <div class="col-6">
             <h4 class="mb-4">
                 <i class="fas fa-dollar-sign"></i>&nbsp; 
-                Organizations
+                {% trans "Organizations" %}
             </h4>
 
             {% if object.organizations.all|length %}
-                <em>This person is a member of the following organizations:</em>
+                <em>{% trans "This person is a member of the following organizations:" %}</em>
                 {% for organization in object.organizations.all %}
                     <ul class="mt-3">
                         <li>
