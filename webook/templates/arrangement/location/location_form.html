@@ -57,6 +57,12 @@
                 value="{{ form.name.value|default:'' }}"
                 name="{{ form.name.name }}"
                 placeholder="{% trans 'Name of the location' %}..."/>
+            
+            {% if form.name.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.name.errors }}
+                </div>
+            {% endif %}
         </div>
 
         <hr>
