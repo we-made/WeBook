@@ -23,11 +23,11 @@ section_manifest = {
     "SECTION_ICON": "fas fa-building",
     "SECTION_CRUMB_URL": lambda: reverse("arrangement:location_list"),
     "CRUDL_MAP": SectionCrudlPathMap(
-        detail_url="arrangement:audience_detail",
-        create_url="arrangement:audience_create",
-        edit_url="arrangement:audience_edit",
-        delete_url="arrangement:audience_delete",
-        list_url="arrangement:audience_list",
+        detail_url="arrangement:organization_detail",
+        create_url="arrangement:organization_create",
+        edit_url="arrangement:organization_edit",
+        delete_url="arrangement:organization_delete",
+        list_url="arrangement:organization_list",
     )
 }
 
