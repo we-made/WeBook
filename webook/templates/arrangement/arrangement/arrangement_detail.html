@@ -121,7 +121,7 @@
             <div class="row  mb-3 mt-5">
                 <div class="col-4 text-center">
                     <div class=" p-4">
-                        <h3><i class="fa fa-suitcase"></i></h3>
+                        <h1><i class="fa fa-suitcase"></i></h1>
                         <h5 class="mb-2 text-muted text-uppercase"><strong class="h4">N</strong><small>AME</small></h5>
                         <h4 class="d-inline">{{ object.name }}</h4> 
                         <h6><a href="#" class="btn btn-link text-dark disabled"> {{ object.starts }} - {{ object.ends }}</a></h6>
@@ -130,7 +130,7 @@
 
                 <div class="col-4 text-center">
                     <div class=" p-4">
-                        <h3><i class="fa fa-user"></i></h3>
+                        <h1><i class="fa fa-user"></i></h1>
                         <h5 class="mb-2 text-muted text-uppercase"><strong class="h4">R</strong><small>esponsible</small></h5>
                         <h4 class="d-inline">{{ object.responsible.full_name }}</h4> 
                         <h6><a href="#" class=" btn btn-link">{% trans "GO TO" %} <i class="fa fa-arrow-right"></i></a></h6>
@@ -139,7 +139,7 @@
 
                 <div class="col-4 text-center">
                     <div class="p-4">
-                        <h3><i class="fa fa-object-group"></i></h3>
+                        <h1><i class="fa fa-object-group"></i></h1>
                         <h5 class="mb-2 text-muted text-uppercase"><strong class="h4">T</strong><small>ARGET</small> <strong class="h4">A</strong><small>UDIENCE</small></h5>
                         <h4 class="d-inline">{{ object.audience.name }}</h4> 
                         <h6><a href="{% url 'arrangement:audience_detail' object.audience.slug %}"" class="btn btn-link">{% trans "GO TO" %} <i class="fa fa-arrow-right"></i></a></h6>
