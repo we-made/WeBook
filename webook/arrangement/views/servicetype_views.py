@@ -32,7 +32,7 @@ section_manifest = {
 
 class ServiceTypeListView (LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
     queryset = ServiceType.objects.all()
-    template_name = "arrangement/servicetype/servicetype_list.html"
+    template_name = "arrangement/list_view.html"
     section = section_manifest
     model = ServiceType
     section_subtitle = _("All Service Types")
