@@ -1,3 +1,5 @@
+{% extends request.user.is_authenticated|yesno:"base.html,public_base.html" %}
+
 {% extends "base.html" %}
 {% load static i18n %}
 
