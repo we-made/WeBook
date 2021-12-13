@@ -206,7 +206,7 @@ class TimelineEvent (TimeStampedModel):
         return self.content
 
 
-class ServiceType(TimeStampedModel):
+class ServiceType(TimeStampedModel, ModelNamingMetaMixin):
     """A service type is a type categorization of service providers
 
     :param name: The name of the service type
@@ -214,6 +214,9 @@ class ServiceType(TimeStampedModel):
     """
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    entity_name_singular = "Service Type"
+    entity_name_plural = "Service Types"
 
     def get_absolute_url (self):
         return reverse(
