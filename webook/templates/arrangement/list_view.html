@@ -20,11 +20,12 @@
 
 {% if object_list|length == 0 %}
 <div class="alert alert-info">
-    <h4>{% blocktrans %} No {{ENTITY_NAME_PLURAL}} registered yet! {% endblocktrans %}</h4>
-    <p>
+    <h4>{% blocktrans %} No <em>{{ENTITY_NAME_PLURAL}}</em> registered yet! {% endblocktrans %}</h4>
+    <p class="mb-0">
         {% blocktrans %} 
-        After you have begun registering {{ENTITY_NAME_PLURAL}} they will be shown here! None have been registered yet,
-        but you can resolve this by clicking the link above! {%endblocktrans%}
+            After you have begun registering <em>{{ENTITY_NAME_PLURAL}}</em> they will be shown here! None have been registered yet,
+            but you can resolve this by clicking the button above! 
+        {%endblocktrans%}
     </p>
 </div>
 {% else %}
