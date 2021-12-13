@@ -393,7 +393,7 @@ class Person(TimeStampedModel):
         return self.full_name
 
 
-class Organization(TimeStampedModel):
+class Organization(TimeStampedModel, ModelNamingMetaMixin):
     """ Organizations represent real world organizations
 
     :param organization_number: The organization number associated with this organization - if any
@@ -419,6 +419,9 @@ class Organization(TimeStampedModel):
     members = models.ManyToManyField(to=Person, verbose_name=_("Members"), related_name="organizations")
 
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    entity_name_plural = _("Organizations")
+    entity_name_singular = _("Organization")
 
     def get_absolute_url(self):
         return reverse(

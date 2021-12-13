@@ -11,17 +11,36 @@ from django.views.generic import (
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Organization
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.utils.crudl_utils.path_maps import SectionCrudlPathMap
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 
 
 section_manifest = {
     "SECTION_TITLE": _("Organizations"),
     "SECTION_ICON": "fas fa-dollar-sign",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:organization_list")
+    "SECTION_CRUMB_URL": lambda: reverse("arrangement:organization_list"),
+    "CRUDL_MAP": SectionCrudlPathMap(
+        detail_url="arrangement:organization_detail",
+        create_url="arrangement:organization_create",
+        edit_url="arrangement:organization_edit",
+        delete_url="arrangement:organization_delete",
+        list_url="arrangement:organization_list",
+    )
 }
 
-class OrganizationListView(LoginRequiredMixin, ListView):
+class OrganizationListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
     queryset = Organization.objects.all()
-    template_name = "arrangement/organization/organization_list.html"
+    template_name = "arrangement/list_view.html"
+    section = section_manifest
+    model = Organization
+    section_subtitle = _("All Organizations")
+    current_crumb_title = _("All Organizations")
+    current_crumb_icon = "fas fa-list"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["CRUDL_MAP"] = self.section["CRUDL_MAP"]
+        return context
 
 organization_list_view = OrganizationListView.as_view()
 
