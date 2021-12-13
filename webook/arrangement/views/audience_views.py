@@ -31,7 +31,7 @@ section_manifest = {
 
 class AudienceListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
     template_name = "arrangement/list_view.html"
-    model = Arrangement
+    model = Audience
     queryset = Audience.objects.all()
     section = section_manifest
     section_subtitle = _("All Audiences")
