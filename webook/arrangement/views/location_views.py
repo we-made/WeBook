@@ -14,16 +14,36 @@ from webook.arrangement.models import Location
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 import json
 
+from webook.utils.crudl_utils.path_maps import SectionCrudlPathMap
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+
 
 section_manifest = {
     "SECTION_TITLE": _("Locations"),
     "SECTION_ICON": "fas fa-building",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:location_list")
+    "SECTION_CRUMB_URL": lambda: reverse("arrangement:location_list"),
+    "CRUDL_MAP": SectionCrudlPathMap(
+        detail_url="arrangement:audience_detail",
+        create_url="arrangement:audience_create",
+        edit_url="arrangement:audience_edit",
+        delete_url="arrangement:audience_delete",
+        list_url="arrangement:audience_list",
+    )
 }
 
-class LocationListView(LoginRequiredMixin, ListView):
+class LocationListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
     queryset = Location.objects.all()
-    template_name = "arrangement/location/location_list.html"
+    model = Location
+    section = section_manifest
+    section_subtitle = _("All Locations")
+    current_crumb_title = _("All Locations")
+    current_crumb_icon = "fas fa-list"
+    template_name = "arrangement/list_view.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["CRUDL_MAP"] = self.section["CRUDL_MAP"]
+        return context
 
 location_list_view = LocationListView.as_view()
 
