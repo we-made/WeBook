@@ -3,9 +3,10 @@ from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 
 
-class Audience(TimeStampedModel):
+class Audience(TimeStampedModel, ModelNamingMetaMixin):
     """Audience represents a target audience, and is used for categorical purposes.
 
     :param name: The name of the audience
@@ -19,6 +20,9 @@ class Audience(TimeStampedModel):
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
+    entity_name_singular = _("Audience")
+    entity_name_plural = _("Audiences")
+
     def get_absolute_url(self):
         return reverse(
             "arrangement:audience_detail", kwargs={"slug": self.slug}
@@ -29,7 +33,7 @@ class Audience(TimeStampedModel):
         return self.name
 
 
-class Arrangement(TimeStampedModel):
+class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
      that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
      could be an exhibition, which may have events stretching over a large timespan, but which have a shared nature,
@@ -77,6 +81,9 @@ class Arrangement(TimeStampedModel):
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
+    entity_name_singular = _("Arrangement")
+    entity_name_plural = _("Arrangements")
+
     def get_absolute_url(self):
         return reverse(
             "arrangement:arrangement_detail", kwargs={"slug": self.slug}
@@ -87,7 +94,7 @@ class Arrangement(TimeStampedModel):
         return self.name
 
 
-class Location (TimeStampedModel):
+class Location (TimeStampedModel, ModelNamingMetaMixin):
     """Location represents a physical location, for instance a building.
     In practice a location is a group of rooms, primarily helpful in contextualization and filtering
 
@@ -97,6 +104,9 @@ class Location (TimeStampedModel):
     name = models.CharField(verbose_name=_("Name"), max_length=255)
 
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    entity_name_singular = _("Location")
+    entity_name_plural = _("Locations")
 
     def get_absolute_url(self):
         return reverse(
@@ -108,7 +118,7 @@ class Location (TimeStampedModel):
         return self.name
 
 
-class Room(TimeStampedModel):
+class Room(TimeStampedModel, ModelNamingMetaMixin):
     """Room represents a physical real-world room. All rooms belong to a location.
 
     :param location: The location that this room belongs to
@@ -127,6 +137,9 @@ class Room(TimeStampedModel):
     max_capacity = models.IntegerField(verbose_name="Maximum Occupants")
     name = models.CharField(verbose_name=_("Name"), max_length=128)
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    entity_name_singular = _("Room")
+    entity_name_plural = _("Rooms")
 
     def get_absolute_url(self):
         return reverse(

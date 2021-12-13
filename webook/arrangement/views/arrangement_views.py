@@ -13,12 +13,21 @@ from django.views.generic import (
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.utils.crudl_utils.path_maps import SectionCrudlPathMap
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 
 
 section_manifest  = {
     "SECTION_TITLE": _("Arrangements"),
     "SECTION_ICON": "fas fa-clock",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:arrangement_list")
+    "SECTION_CRUMB_URL": lambda: reverse("arrangement:arrangement_list"),
+    "CRUDL_MAP": SectionCrudlPathMap(
+        detail_url="arrangement:audience_detail",
+        create_url="arrangement:audience_create",
+        edit_url="arrangement:audience_edit",
+        delete_url="arrangement:audience_delete",
+        list_url="arrangement:audience_list",
+    )
 }
 
 
@@ -36,12 +45,17 @@ class ArrangementDetailView (LoginRequiredMixin, CrumbMixin, DetailView):
 arrangement_detail_view = ArrangementDetailView.as_view()
 
 
-class ArrangementListView(LoginRequiredMixin, CrumbMixin, ListView):
+class ArrangementListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
     queryset = Arrangement.objects.all()
-    template_name = "arrangement/arrangement/arrangement_list.html"
-
     section = section_manifest
+    template_name = "arrangement/list_view.html"
+    model = Arrangement
     section_subtitle = _("All Arrangements")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["CRUDL_MAP"] = self.section["CRUDL_MAP"]
+        return context
 
 arrangement_list_view = ArrangementListView.as_view()
 
