@@ -167,7 +167,7 @@ class Article(TimeStampedModel):
         return self.name
 
 
-class OrganizationType(TimeStampedModel):
+class OrganizationType(TimeStampedModel, ModelNamingMetaMixin):
     """An organization type is an arbitrary classification that is applicable to organizations
     For example non-profit organizations, or public organizations. This is for categorical purposes.
 
@@ -176,6 +176,9 @@ class OrganizationType(TimeStampedModel):
     """
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    entity_name_singular = _("Organization Type")
+    entity_name_plural = _("Organization Types")
 
     def get_absolute_url(self):
         return reverse(
