@@ -35,7 +35,25 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
 <form class="login" method="POST" action="{% url 'account_login' %}">
   {% csrf_token %}
 
-  {{ form | crispy }}
+  <div class="form-group">
+    <div class="form-outline">
+      <input type="text" class="form-control form-control-lg" id="{{ form.login.id_for_label }}" name="{{ form.login.name}}"
+             placeholder="{{ form.login.placeholder }}"/>
+      <label class="form-label" for="{{ form.login.id_for_label }}">{{ form.login.label }}</label>
+    </div>
+    {{ form.login.errors }}
+  </div>
+
+
+  <div class="form-group mt-4">
+    <div class="form-outline">
+      <input type="password" class="form-control form-control-lg" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}"
+             placeholder="{{ form.password.placeholder }}"/>
+      <label class="form-label" for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+    </div>
+    {{ form.password.errors }}
+  </div>
+
 
   <div class="clearfix float-right">
     <a class="button secondaryAction float-end" href="{% url 'account_reset_password' %}">
