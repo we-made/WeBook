@@ -19,7 +19,7 @@
           <div class="form-group mt-3">
             <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
             <input type="text" class="form-control form-control-lg" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name}}"
-                    placeholder="{{ form.first_name.placeholder }}" value="{{ form.first_name.value }}"/>
+                    placeholder="{{ form.first_name.placeholder }}" value="{{ form.first_name.value | default:'' }}"/>
           </div>
         </div>
 
@@ -27,7 +27,7 @@
           <div class="form-group mt-3">
             <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.middle_name.label }}</label>
             <input type="text" class="form-control form-control-lg" id="{{ form.middle_name.id_for_label }}" name="{{ form.middle_name.name}}"
-                    placeholder="{{ form.middle_name.placeholder }}" value="{{ form.middle_name.value }}"/>
+                    placeholder="{{ form.middle_name.placeholder }}" value="{{ form.middle_name.value | default:'' }}"/>
           </div>
         </div>
 
@@ -35,7 +35,7 @@
           <div class="form-group mt-3">
             <label class="form-label" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
             <input type="text" class="form-control form-control-lg" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name}}"
-                    placeholder="{{ form.last_name.placeholder }}" value="{{ form.last_name.value }}"/>
+                    placeholder="{{ form.last_name.placeholder }}" value="{{ form.last_name.value | default:'' }} "/>
           </div>
         </div>
       </div>
