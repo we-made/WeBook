@@ -15,7 +15,7 @@ class HomeView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         if (self.request.user.is_authenticated):
             return reverse(
-                "users:detail", kwargs={"username": self.request.user.username}
+                "users:detail", kwargs={"slug": self.request.user.slug}
             )
         else:
             return reverse(
