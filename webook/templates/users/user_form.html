@@ -11,8 +11,12 @@
     <i class="fas fa-info-circle"></i>
     My Info
   </h4>
-  <form class="form-horizontal" method="post" action="{% url 'users:update' %}">
+  <form class="form-horizontal" method="post" action="{% url 'users:update' %}"
+    enctype="multipart/form-data">
     {% csrf_token %}
+
+    
+      {{ form.profile_picture }}
 
       <div class="row">
         <div class="col-lg-4 col-md-12 col-sm-12">

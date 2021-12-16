@@ -16,54 +16,16 @@
 
 <div style="padding-top: 100px; background-color: #21384a; border-bottom: 10px solid #21384a;" class=" shadow-3">
   <div class="container pb-0 mb-0">
-
-    <!-- <img src="http://cdn.onlinewebfonts.com/svg/img_258083.png" style="width: 100px"> -->
-<!-- 
-    <div class="bg-white border border-1 border-dark mb-3" style="height:200px; width: 300px; background-image: url('https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/4437D5EA7354320D14CC794F43A0AC7E9DA78104027446F272D317A363F9F0D1/scale?width=1200&aspectRatio=1.78&format=jpeg');background-size: 300px 200px;">
-      <button class="btn btn-outline-dark">
-        <i class="fas fa-image"></i>&nbsp; 
-        Change Profile Picture
-      </button>
-    </div> -->
-
-
+    <div class=" d-inline">
+      <img src="{{ request.user.profile_picture.url }}" class="border border-4 border-light mb-4" style="width:400px">
+    </div>
   
 
     <h1 class="fw-bold text-white ps-0 pb-1 pt-1 mb-0" 
       >
       <i class="fa fa-home"></i>&nbsp; {% trans "Welcome" %}, {{ request.user.person.full_name }}
     </h1>
-<!--     
-    <span style="background-color: rgb(0, 255, 242, 0.2)" class="p-2 h5 mb-0 border border-2 border-bottom-0 border-info">
-      <span class="p-2">
-        <i class="fas fa-bolt text-danger"></i>
-      </span>
-      <span class="p-2">
-        <i class="fas fa-user-shield text-success"></i>
-      </span>
-      <span class="p-2">
-        <i class="fas fa-code text-secondary"></i>
-      </span>
-    </span> -->
-
-    <!-- <span style="background-color: rgba(12, 246, 4, 0.45);" class="float-end ps-2 pe-2 text-white text-uppercase">
-      <strong>ORG: SYS_DEV</strong>
-    </span>
-    <span style="background-color: rgb(255, 0, 0);" class="float-end ps-2 pe-2 text-white text-uppercase">
-      <strong><i class="fa fa-bolt"></i>&nbsp; SUPER USER</strong>
-    </span> -->
-
     <div class="d-inline-block h5 mb-0">
-
-      <!-- <span class="badge badge-light ms-0 me-0  bg-white border border-2 border-danger border-bottom-0" style="border-radius: 0px">
-        <i class="fas fa-bolt text-danger"></i>
-      </span>
-      <span class="badge badge-light ms-0 me-0  bg-white border border-2 border-success border-bottom-0" style="border-radius: 0px">
-        <i class="fas fa-user-shield text-success"></i>
-      </span>
-      <span class="badge badge-light ms-0 me-0 bg-white  border border-2 border-secondary border-bottom-0" style="border-radius: 0px">
-        <i class="fas fa-code text-secondary"></i>
-      </span> -->
     </div>
 
     <ul class="nav  shadow-3 text-white nav-tabs mb-3 mt-0 bg-white" id="myTab0" role="tablist">
@@ -102,78 +64,13 @@
         <i class="fas fa-lock"></i>&nbsp; 
         {% trans "Reset Password" %}
       </a>
-      <!-- <a
-        class="nav-link {% if request.get_full_path == account_reset_password_url %}active{% endif %}"
-        id="v-tabs-reset-password-tab"
-        href="{% url 'account_reset_password' %}"
-        aria-controls="v-tabs-reset-password"
-        aria-selected="{% if request.get_full_path == account_reset_password_url %}true{% else %}false{% endif %}">
-        <i class="fas fa-dollar-sign"></i>&nbsp; 
-        {% trans "My Organizations" %}
-      </a>
-
-      <a
-        class="nav-link {% if request.get_full_path == account_reset_password_url %}active{% endif %}"
-        id="v-tabs-reset-password-tab"
-        href="{% url 'account_reset_password' %}"
-        aria-controls="v-tabs-reset-password"
-        aria-selected="{% if request.get_full_path == account_reset_password_url %}true{% else %}false{% endif %}">
-        <i class="fas fa-flag"></i>&nbsp; 
-        {% trans "Flags" %}
-      </a> -->
-
     </ul>
   </div>
 </div>
 {% endblock %}
 
 {% block content %}
-  <!-- <div class="row">
-    <div class="col-sm-12 col-lg-2 border-end border-2">
-      <h5 class="text-center mt-3">Tabs</h5>
-    <div
-      class="nav flex-column nav-tabs text-center"
-      id="v-tabs-tab"
-      role="tablist"
-      aria-orientation="vertical"
-    >
-      <a class="nav-link {% if request.get_full_path == overview_url %}active{% endif %}"
-          id="v-tabs-overview-tab"
-          href="{% url 'users:detail' request.user.username  %}"
-          aria-controls="v-tabs-overview"
-          aria-selected="{% if request.get_full_path == overview_url %}true{% else %}false{% endif %}">
-          {% trans "Overview" %}
-      </a>
-
-      <a
-        class="nav-link {% if request.get_full_path == my_info_url %}active{% endif %}"
-        id="v-tabs-my-info-tab"
-        href="{% url 'users:update' %}"
-        aria-controls="v-tabs-my-info"
-        aria-selected="{% if request.get_full_path == my_info_url %}true{% else %}false{% endif %}">
-        {% trans "My Info" %}
-      </a>
-      <a
-        class="nav-link {% if request.get_full_path == emails_url %}active{% endif %}"
-        id="v-tabs-email-tab"
-        href="{% url 'account_email' %}"
-        aria-controls="v-tabs-email"
-        aria-selected="{% if request.get_full_path == emails_url %}true{% else %}false{% endif %}">
-        {% trans "E-Mail" %}</a>
-      <a
-        class="nav-link {% if request.get_full_path == account_reset_password_url %}active{% endif %}"
-        id="v-tabs-reset-password-tab"
-        href="{% url 'account_reset_password' %}"
-        aria-controls="v-tabs-reset-password"
-        aria-selected="{% if request.get_full_path == account_reset_password_url %}true{% else %}false{% endif %}">
-        {% trans "Reset Password" %}
-      </a>
-    </div>
-  </div> -->
-
     <div class="col-12 mt-sm-4 mt-lg-0">
-
-
       {% block inner %}{% endblock %}
     </div>
   </div>

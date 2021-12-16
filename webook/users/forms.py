@@ -9,13 +9,25 @@ from allauth.account.forms import SignupForm
 
 User = get_user_model()
 
+class ComplexUserUpdateForm (forms.UserChangeForm):
+
+    profile_picture = dj_forms.ImageField(max_length=512,label=_("Profile Picture"), required=False)
+
+    class Meta(forms.UserChangeForm.Meta):
+        model = Person
+        fields = [
+            "first_name",
+            "middle_name",
+            "last_name",
+            "birth_date",
+            "profile_picture"
+        ]
 
 class UserChangeForm(forms.UserChangeForm):
     class Meta(forms.UserChangeForm.Meta):
         fields = ()
         field_classes = {}
         model = User
-        fields = ["profile_picture"]
 
 class UserCreationForm(SignupForm):
 
