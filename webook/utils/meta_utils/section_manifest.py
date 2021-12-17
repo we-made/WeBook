@@ -21,7 +21,7 @@ class SectionManifest:
 		section_title: str,
 		section_icon: str,
 		section_crumb_url: str,
-		crudl_map):
+		crudl_map=None):
 		
 		self.section_title = section_title
 		self.section_icon = section_icon
@@ -38,10 +38,10 @@ class ViewMeta:
 	def __init__(self,
 		subtitle: str,
 		current_crumb_title:str,
-		current_crumb_icon: str,
-		entity_name_attribute:str,
+		current_crumb_icon: str=None,
+		entity_name_attribute:str=None,
 		subtitle_mode: SUBTITLE_MODE = SUBTITLE_MODE.TITLE_AS_SUBTITLE,
-		subtitle_prefix: str=""):
+		subtitle_prefix: str=None):
 					
 		self.subtitle = subtitle
 		self.subtitle_prefix = subtitle_prefix
