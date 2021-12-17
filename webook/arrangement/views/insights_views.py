@@ -13,19 +13,24 @@ from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 import json
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = {
-    "SECTION_TITLE": _("Insight"),
-    "SECTION_ICON": "fas fa-chart-pie",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:dashboard")
-}
+section_manifest = SectionManifest(
+    section_title=_("Insight"),
+    section_icon="fas fa-chart-pie",
+    section_crumb_url=lambda: reverse("arrangement:dashboard")
+)
 
 
 class GlobalTimelineView (LoginRequiredMixin, CrumbMixin, TemplateView):
     section = section_manifest
-    section_subtitle = _("Global Timeline")
-    current_crumb_title = _("Global Timeline")
+
+    view_meta = ViewMeta(
+        subtitle=_("Global Timeline"),
+        current_crumb_title=_("Global Timeline"),
+    )
+
     template_name = "arrangement/insights/global_timeline.html"
 
     def get_context_data(self, **kwargs):
