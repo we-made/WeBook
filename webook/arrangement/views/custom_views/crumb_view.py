@@ -1,3 +1,6 @@
+from webook.utils.meta_utils.section_manifest import SUBTITLE_MODE
+
+
 class CrumbMixin:
     
     def get_context_data(self, **kwargs):
@@ -14,32 +17,28 @@ class CrumbMixin:
             SECTION_SUBTITLE --> 
         """
         context =  super().get_context_data(**kwargs)
-        
-        entity_name = ""
-        section_subtitle = self.section_subtitle if hasattr(self, 'section_subtitle') else ""
-        if hasattr(self, 'entity_name_attribute') and self.entity_name_attribute:
-            obj = self.get_object()
-            entity_name = obj.__getattribute__(self.entity_name_attribute)
-            if not section_subtitle:
-                if hasattr(self, "section_subtitle_prefix"):
-                    section_subtitle = f"{self.section_subtitle_prefix} {entity_name}" 
-                else: 
-                    section_subtitle = entity_name
 
-        current_crumb_title = ""
-        if hasattr(self, 'current_crumb_title'):
-            current_crumb_title=self.current_crumb_title
-        elif entity_name:
-            current_crumb_title=entity_name
+        entity_name = ""
+
+        if self.view_meta.subtitle_mode == SUBTITLE_MODE.TITLE_AS_SUBTITLE:
+            section_subtitle = self.view_meta.subtitle
+            current_crumb_title = self.view_meta.current_crumb_title
+        elif self.view_meta.subtitle_mode == SUBTITLE_MODE.ENTITY_NAME_AS_SUBTITLE:
+            entity_name = getattr(self.get_object(), self.view_meta.entity_name_attribute)
+            section_subtitle = entity_name
+            current_crumb_title = entity_name
+
+        section_subtitle = self.view_meta.subtitle_prefix + section_subtitle
+        current_crumb_title = self.view_meta.subtitle_prefix + current_crumb_title
 
         current_crumb_icon = self.current_crumb_icon if hasattr(self, 'current_crumb_icon') else None
 
-        context["SECTION_TITLE"] = self.section["SECTION_TITLE"]
-        context["SECTION_CRUMB_TITLE"] = self.section["SECTION_TITLE"]
-        context["SECTION_CRUMB_ICON"] = self.section["SECTION_ICON"]
-        context["SECTION_CRUMB_URL"] = self.section["SECTION_CRUMB_URL"]()
+        context["SECTION_TITLE"] = self.section.section_title
+        context["SECTION_CRUMB_TITLE"] = self.section.section_title
+        context["SECTION_CRUMB_ICON"] = self.section.section_icon
+        context["SECTION_CRUMB_URL"] = self.section.section_crumb_url()
         context["SECTION_SUBTITLE"] = section_subtitle
-        context["RETURN_URL"] = self.section["SECTION_CRUMB_URL"]()
+        context["RETURN_URL"] = self.section.section_crumb_url()
         context["CURRENT_CRUMB_TITLE"] = current_crumb_title
         context["CURRENT_CRUMB_ICON"] = current_crumb_icon
         context["ENTITY_NAME"] = entity_name
