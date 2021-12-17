@@ -28,8 +28,9 @@ class CrumbMixin:
             section_subtitle = entity_name
             current_crumb_title = entity_name
 
-        section_subtitle = self.view_meta.subtitle_prefix + section_subtitle
-        current_crumb_title = self.view_meta.subtitle_prefix + current_crumb_title
+        if (self.view_meta.subtitle_prefix is not None):
+            section_subtitle = self.view_meta.subtitle_prefix + section_subtitle
+            current_crumb_title = self.view_meta.subtitle_prefix + current_crumb_title
 
         current_crumb_icon = self.current_crumb_icon if hasattr(self, 'current_crumb_icon') else None
 
