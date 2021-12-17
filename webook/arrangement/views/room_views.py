@@ -99,4 +99,4 @@ class LocationRoomListView (LoginRequiredMixin, ListView):
     slug_url_kwarg = "slug"
     template_name="arrangement/room/partials/_location_room_list.html"
 
-    
+location_room_list_view = LocationRoomListView.as_view()
