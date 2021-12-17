@@ -14,6 +14,7 @@ from webook.arrangement.models import Location
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
+
 section_manifest = SectionManifest(
     section_title=_("Dashboard"),
     section_icon="fas fa-chart-pie",
@@ -26,7 +27,8 @@ class DashboardView (LoginRequiredMixin, CrumbMixin, TemplateView):
     section = section_manifest
 
     view_meta = ViewMeta(
-        subtitle=_("Welcome back!")
+        subtitle=_("Welcome back!"),
+        current_crumb_title=_("Dashboard")
     )
 
 dashboard_view = DashboardView.as_view()
