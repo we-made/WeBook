@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic
+from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -15,36 +15,20 @@ from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location, Room
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 import json
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
-from webook.utils.crudl_utils.path_maps import SectionCrudlPathMap
-from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 
-section_manifest = {
-    "SECTION_TITLE": _("Rooms"),
-    "SECTION_ICON": "fas fa-door-open",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:room_list"),
-    "CRUDL_MAP": SectionCrudlPathMap(
-        detail_url="arrangement:room_detail",
-        create_url="arrangement:room_create",
-        edit_url="arrangement:room_edit",
-        delete_url="arrangement:room_delete",
-        list_url="arrangement:room_list",
-    )
-}
+section_manifest = SectionManifest(
+    section_title=_("Rooms"),
+    section_icon="fas fa-door-open",
+    section_crumb_url=lambda: reverse("arrangement:room_list")
+)
 
-class RoomListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
+
+class RoomListView(LoginRequiredMixin, ListView):
     queryset = Room.objects.all()
-    template_name = "arrangement/list_view.html"
-    model = Room
-    section = section_manifest
-    section_subtitle = _("All Rooms")
-    current_crumb_title = _("All Rooms")
-    current_crumb_icon = "fas fa-list"
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["CRUDL_MAP"] = self.section["CRUDL_MAP"]
-        return context
+    template_name = "arrangement/room/room_list.html"
+    view_meta = ViewMeta.Preset.table(Room)
 
 room_list_view = RoomListView.as_view()
 
@@ -53,6 +37,7 @@ class RoomDetailView(LoginRequiredMixin, DetailView):
     model = Room
     slug_field = "slug"
     slug_url_kwarg = "slug"
+    view_meta = ViewMeta.Preset.detail(Room)
 
     template_name = "arrangement/room/room_detail.html"
 
@@ -63,8 +48,8 @@ class RoomUpdateView(LoginRequiredMixin, UpdateView):
     fields = [
         "location",
         "name",
-        "max_capacity",
     ]
+    view_meta = ViewMeta.Preset.edit(Room)
 
     template_name = "arrangement/room/room_form.html"
 
@@ -76,13 +61,16 @@ room_update_view = RoomUpdateView.as_view()
 class RoomCreateView(LoginRequiredMixin, CreateView):
     fields = [
         "location",
-        "name",
-        "max_capacity",
+        "name"
     ]
-
+    view_meta = ViewMeta.Preset.create(Room)
     template_name = "arrangement/room/room_form.html"
 
     model = Room
+
+    # def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+    #     print(request.data)
+    #     return super().post(request, *args, **kwargs)
 
 room_create_view = RoomCreateView.as_view()
 
@@ -99,25 +87,16 @@ class RoomDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
         )
 
     section = section_manifest
-    entity_name_attribute = "name"
-    section_subtitle_prefix = _("Delete")
+    view_meta = ViewMeta.Preset.delete(Room)
 
 room_delete_view = RoomDeleteView.as_view()
 
 
 class LocationRoomListView (LoginRequiredMixin, ListView):
-    model = Room
+    model = Location
+    queryset = Room.objects.all()
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
     template_name="arrangement/room/partials/_location_room_list.html"
 
-    def get_queryset(self):
-        location = self.request.GET.get('location')
-        return Room.objects.filter(
-            location=location
-        )
     
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context =  super().get_context_data(**kwargs)
-        context["location"] = self.request.GET.get('location')
-        return context
-
-location_room_list_view = LocationRoomListView.as_view()
