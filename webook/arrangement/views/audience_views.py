@@ -28,7 +28,6 @@ section_manifest = SectionManifest(
 		list_url="arrangement:audience_list",
 	)
 )
-entity_name_attribute = "name"
 
 
 class AudienceListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
