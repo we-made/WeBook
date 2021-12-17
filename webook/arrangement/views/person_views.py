@@ -14,7 +14,7 @@ from django.views.generic import (
 )
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
-from WeBook.webook.utils.meta_utils.section_manifest import SectionManifest
+from webook.utils.meta_utils.section_manifest import SectionManifest
 from webook.arrangement.models import Organization, Person
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
@@ -44,7 +44,7 @@ class PersonListView(LoginRequiredMixin, CrumbMixin, GenericListTemplateMixin, L
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["CRUDL_MAP"] = self.section["CRUDL_MAP"]
+        context["CRUDL_MAP"] = self.section.crudl_map
         return context
 
 person_list_view = PersonListView.as_view()
@@ -75,7 +75,7 @@ class PersonCreateView(LoginRequiredMixin, CreateView):
         "birth_date",        
     ]
     template_name = "arrangement/person/person_form.html"
-    view_meta = ViewMeta.Person.create(Person)
+    view_meta = ViewMeta.Preset.create(Person)
 
     def get_success_url(self) -> str:
         success_url = super().get_success_url()
@@ -112,8 +112,6 @@ class PersonDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
         )
 
     section = section_manifest
-    entity_name_attribute = "full_name"
-    section_subtitle_prefix = _("Delete")
     
 person_delete_view = PersonDeleteView.as_view()
 
