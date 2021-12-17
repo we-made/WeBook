@@ -1,7 +1,9 @@
 {% extends "arrangement/crumb_base.html" %}
 {% load static i18n %}
+{% load crumbinator_filters %}
 
 {% block content %}
+
 <h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; {% trans "All" %} {{ENTITY_NAME_PLURAL}}</h4>
 
 {% if SHOW_CREATE_BUTTON %}

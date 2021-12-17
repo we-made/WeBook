@@ -1,5 +1,8 @@
+from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 from enum import Enum
+
+from webook.crumbinator.crumb_node import CrumbNode
 
 
 class SectionCrudlPathMap:
@@ -28,6 +31,13 @@ class SectionManifest:
 		self.section_crumb_url = section_crumb_url
 		self.crudl_map = crudl_map
 
+	def get_crumb_node(self):
+		return CrumbNode(
+			title=self.section_title,
+			icon_class=self.section_icon,
+			url=self.section_crumb_url,
+			is_active=False,
+		)
 
 class SUBTITLE_MODE(Enum):
 	TITLE_AS_SUBTITLE = 0,
@@ -50,6 +60,13 @@ class ViewMeta:
 		self.entity_name_attribute = entity_name_attribute
 		self.subtitle_mode = subtitle_mode
 	
+	def get_crumb_node(self):
+		return CrumbNode(
+			title=self.current_crumb_title,
+			url="", # url intentionally blank - this is active node, so not needed
+			icon_class=self.current_crumb_icon,
+			is_active=True,
+		)
 
 	class Preset:
 		@staticmethod

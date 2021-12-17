@@ -1,4 +1,7 @@
-{% load static i18n %}<!DOCTYPE html>
+{% load static i18n %}
+{% load crumbinator_filters %}
+
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -220,32 +223,9 @@
           {% endblock section_title%} 
           | <small class="text-muted h4">{% block section_subtitle %}{% endblock %}</small>
         </h1>
-        <nav class="breadcrumb mt-0 mb-0 p-1">
-          <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item">
-                <a href="#">
-                    <i class="fas fa-home"></i>
-                    Home
-                  </a>
-              </li>
-            <li class="breadcrumb-item">
-                  <a 
-                      href="{% block section_crumb_url %}{% endblock %}">
-                      {% if section_crumb_icon_class %}
-                        <i class="{{ section_crumb_icon_class }}"></i>
-                      {% endif %}
-                      
-                      {% block section_crumb_icon %} {% endblock %}
-                      {% block section_crumb_title %} {% endblock %}
-                  </a>
-              </li>
-      
-              <li class="breadcrumb-item active" aria-current="page">
-                <i class="{% block current_crumb_icon %}{% endblock %}"></i>&nbsp; 
-                {% block current_crumb_title %}{% endblock %}
-              </li>
-          </ol>
-        </nav>
+        {% if CRUMBS  %}
+          {{ CRUMBS|crumbinator }}
+        {% endif %}
       </section>
       <div class="mt-1">
         {% block beneath_breadcrumbs_block %}

@@ -12,6 +12,8 @@ from django.views.generic import (
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, Audience
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.crumbinator.crumb_node import CrumbNode
+from webook.utils import crumbs
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
@@ -40,6 +42,23 @@ class AudienceListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        root_node = crumbs.get_root_crumb(self.request.user.slug)
+        section_node = CrumbNode(
+			title=self.section.section_title,
+			url=reverse(self.section.crudl_map.list_url) if self.section.crudl_map is not None else "",
+            parent=root_node,
+            icon_class="fas fa-users"
+		)
+        current_node=CrumbNode(
+            title=self.view_meta.subtitle,
+            url="",
+            html_classes="active",
+            parent=section_node,
+            icon_class="fas fa-list"
+        )
+
+        context["CRUMBS"] = root_node
         context["CRUDL_MAP"] = self.section.crudl_map
         return context
 

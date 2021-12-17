@@ -1,0 +1,21 @@
+
+
+<section class="text-center">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        {% for crumb in tree %}
+            {% if crumb.is_active %}
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ crumb.icon_html | safe }}
+                    {{ crumb.title }}
+                </li>
+            {% else %}
+                <li class="breadcrumb-item">
+                    {{ crumb.as_html | safe }}
+                </li>
+            {% endif %}
+        {% endfor %}
+
+      </ol>
+    </nav>
+  </section>
