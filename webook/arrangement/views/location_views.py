@@ -16,33 +16,33 @@ import json
 
 from webook.utils.crudl_utils.path_maps import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = {
-    "SECTION_TITLE": _("Locations"),
-    "SECTION_ICON": "fas fa-building",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:location_list"),
-    "CRUDL_MAP": SectionCrudlPathMap(
+section_manifest = SectionManifest(
+    section_title=_("Locations"),
+    section_icon="fas fa-building",
+    section_crumb_url=lambda: reverse("arrangement:location_list"),
+    crudl_map=SectionCrudlPathMap(
         detail_url="arrangement:location_detail",
         create_url="arrangement:location_create",
         edit_url="arrangement:location_edit",
         delete_url="arrangement:location_delete",
         list_url="arrangement:location_list",
     )
-}
+)
+
 
 class LocationListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
     queryset = Location.objects.all()
     model = Location
     section = section_manifest
-    section_subtitle = _("All Locations")
-    current_crumb_title = _("All Locations")
-    current_crumb_icon = "fas fa-list"
+    view_meta = ViewMeta.Preset.table(Location)
     template_name = "arrangement/list_view.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["CRUDL_MAP"] = self.section["CRUDL_MAP"]
+        context["CRUDL_MAP"] = self.section.crudl_map
         return context
 
 location_list_view = LocationListView.as_view()
@@ -52,6 +52,7 @@ class LocationDetailView(LoginRequiredMixin, DetailView):
     model = Location
     slug_field = "slug"
     slug_url_kwarg = "slug"
+    view_meta = ViewMeta.Preset.detail(Location)
 
     template_name = "arrangement/location/location_detail.html" 
 
@@ -77,7 +78,7 @@ class LocationUpdateView(LoginRequiredMixin, UpdateView):
     fields = [
         "name"
     ]
-
+    view_meta = ViewMeta.Preset.edit(Location)
     template_name = "arrangement/location/location_form.html" 
 
     model = Location
@@ -89,7 +90,7 @@ class LocationCreateView(LoginRequiredMixin, CreateView):
     fields = [
         "name"
     ]
-
+    view_meta = ViewMeta.Preset.create(Location)
     template_name = "arrangement/location/location_form.html" 
 
     model = Location
@@ -109,7 +110,6 @@ class LocationDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
         )
 
     section = section_manifest
-    entity_name_attribute = "name"
-    section_subtitle_prefix = _("Delete")
+    view_meta = ViewMeta.Preset.delete(Location)
 
 location_delete_view = LocationDeleteView.as_view()
