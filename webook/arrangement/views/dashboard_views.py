@@ -12,18 +12,21 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
-
-section_manifest = {
-    "SECTION_TITLE": _("Dashboard"),
-    "SECTION_ICON": "fas fa-chart-pie",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:dashboard")
-}
+section_manifest = SectionManifest(
+    section_title=_("Dashboard"),
+    section_icon="fas fa-chart-pie",
+    section_crumb_url=lambda: reverse("arrangement:dashboard")
+)
 
 
 class DashboardView (LoginRequiredMixin, CrumbMixin, TemplateView):
     template_name = "arrangement/dashboard/dashboard.html"
     section = section_manifest
-    section_subtitle = _("Welcome back!")
+
+    view_meta = ViewMeta(
+        subtitle=_("Welcome back!")
+    )
 
 dashboard_view = DashboardView.as_view()
