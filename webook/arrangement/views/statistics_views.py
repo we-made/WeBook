@@ -11,10 +11,11 @@ from django.views.generic import (
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Room
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = {
-    "SECTION_TITLE": _("Statistics"),
-    "SECTION_ICON": "fas fa-graph",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:statistics_hub")
-}
+section_manifest = SectionManifest(
+    section_title=_("Statistics"),
+    section_icon="fas fa-graph",
+    section_crumb_url=lambda: reverse("arrangement:statistics_hub"),
+)
