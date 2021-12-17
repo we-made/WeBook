@@ -10,24 +10,26 @@ from django.views.generic import (
     CreateView,
 )
 from django.views.generic.edit import DeleteView
+from WeBook.webook.utils.meta_utils.section_manifest import SectionManifest
 from webook.arrangement.models import OrganizationType
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 from webook.utils.crudl_utils.path_maps import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = {
-    "SECTION_TITLE": _("Organization Types"),
-    "SECTION_ICON": "fas fa-object-group",
-    "SECTION_CRUMB_URL": lambda: reverse("arrangement:organizationtype_list"),
-    "CRUDL_MAP": SectionCrudlPathMap(
+section_manifest = SectionManifest(
+    section_title=_("Organization Types"),
+    section_icon="fas fa-object-group",
+    section_crumb_url=lambda: reverse("arrangement:organizationtype_list"),
+    crudl_map=SectionCrudlPathMap(
         detail_url="arrangement:organizationtype_detail",
         create_url="arrangement:organizationtype_create",
         edit_url="arrangement:organizationtype_edit",
         delete_url="arrangement:organizationtype_delete",
         list_url="arrangement:organizationtype_list",
     )
-}
+)
 
 
 class OrganizationTypeListView (LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
@@ -35,13 +37,11 @@ class OrganizationTypeListView (LoginRequiredMixin, GenericListTemplateMixin, Cr
     template_name = "arrangement/list_view.html"
     model = OrganizationType
     section = section_manifest
-    section_subtitle = _("All Organization Types")
-    current_crumb_title = _("All Organization Types")
-    current_crumb_icon = "fas fa-list"
+    view_meta = ViewMeta.Preset.table(OrganizationType)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["CRUDL_MAP"] = self.section["CRUDL_MAP"]
+        context["CRUDL_MAP"] = self.section.crudl_map
         return context
 
 organization_type_list_view = OrganizationTypeListView.as_view()
@@ -53,7 +53,7 @@ class OrganizationTypeDetailView(LoginRequiredMixin, CrumbMixin, DetailView):
     slug_url_kwarg = "slug"
     template_name = "arrangement/organizationtype/organizationtype_detail.html"
     section = section_manifest
-    entity_name_attribute = "name"
+    view_meta = ViewMeta.Preset.detail(OrganizationType)
 
 organization_type_detail_view = OrganizationTypeDetailView.as_view()
 
@@ -65,8 +65,7 @@ class OrganizationTypeUpdateView (LoginRequiredMixin, CrumbMixin, UpdateView):
     ]
     template_name = "arrangement/organizationtype/organizationtype_form.html"
     section = section_manifest
-    entity_name_attribute = "name"
-    section_subtitle_prefix = "Edit"
+    view_meta = ViewMeta.Preset.edit(OrganizationType)
 
 organization_type_update_view = OrganizationTypeUpdateView.as_view()
 
@@ -78,8 +77,7 @@ class OrganizationTypeCreateView (LoginRequiredMixin, CrumbMixin, CreateView):
     ]
     template_name = "arrangement/organizationtype/organizationtype_form.html"
     section = section_manifest
-    current_crumb_title = _("New Organization Type")
-    current_crumb_icon = "fas fa-plus"
+    view_meta = ViewMeta.Preset.create(OrganizationType)
 
 organization_type_create_view = OrganizationTypeCreateView.as_view()
 
@@ -96,7 +94,6 @@ class OrganizationTypeDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
         )
 
     section = section_manifest
-    entity_name_attribute = "name"
-    section_subtitle_prefix = _("Delete")
+    view_meta = ViewMeta.Preset.delete(OrganizationType)
 
 organization_type_delete_view = OrganizationTypeDeleteView.as_view()
