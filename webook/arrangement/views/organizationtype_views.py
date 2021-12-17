@@ -10,7 +10,7 @@ from django.views.generic import (
     CreateView,
 )
 from django.views.generic.edit import DeleteView
-from WeBook.webook.utils.meta_utils.section_manifest import SectionManifest
+from webook.utils.meta_utils.section_manifest import SectionManifest
 from webook.arrangement.models import OrganizationType
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 from webook.utils.crudl_utils.path_maps import SectionCrudlPathMap
