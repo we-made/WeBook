@@ -65,6 +65,5 @@ class GlobalTimelineView (LoginRequiredMixin, InsightSectionManifestMixin, Crumb
         ctx["groups"] = json.dumps(nodes)
 
         return ctx  
-        
 
 global_timeline_view = GlobalTimelineView.as_view()
