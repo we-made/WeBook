@@ -69,12 +69,7 @@ class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, C
     ]
     view_meta = ViewMeta.Preset.create(Room)
     template_name = "arrangement/room/room_form.html"
-
     model = Room
-
-    # def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-    #     print(request.data)
-    #     return super().post(request, *args, **kwargs)
 
 room_create_view = RoomCreateView.as_view()
 
