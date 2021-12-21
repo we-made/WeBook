@@ -65,7 +65,8 @@ room_update_view = RoomUpdateView.as_view()
 class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, CreateView):
     fields = [
         "location",
-        "name"
+        "name",
+        "max_capacity",
     ]
     view_meta = ViewMeta.Preset.create(Room)
     template_name = "arrangement/room/room_form.html"
