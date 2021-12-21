@@ -5,7 +5,6 @@ class CrumbNode(NodeMixin):
     
     def __init__(self, title:str, url:Callable, icon_class:str=None, html_classes=None, parent=None, is_active=False) -> None:
         self.title = title
-        print(url)
         self.url = url
         self.html_classes = html_classes if html_classes is not None else list()
         self.parent = parent
