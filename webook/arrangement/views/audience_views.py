@@ -18,26 +18,30 @@ from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = SectionManifest(
-	section_title=_("Audience"),
-	section_icon="fas fa-user",
-	section_crumb_url=lambda:reverse("arrangement:audience_list"),
-	crudl_map=SectionCrudlPathMap(
-		detail_url="arrangement:audience_detail",
-		create_url="arrangement:audience_create",
-		edit_url="arrangement:audience_edit",
-		delete_url="arrangement:audience_delete",
-		list_url="arrangement:audience_list",
-	)
-)
+def get_section_manifest():
+    return SectionManifest(
+        section_title=_("Audience"),
+        section_icon="fas fa-user",
+        section_crumb_url=reverse("arrangement:audience_list"),
+        crudl_map=SectionCrudlPathMap(
+            detail_url="arrangement:audience_detail",
+            create_url="arrangement:audience_create",
+            edit_url="arrangement:audience_edit",
+            delete_url="arrangement:audience_delete",
+            list_url="arrangement:audience_list",
+        )
+    )
+
+class AudienceSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()
 
 
-class AudienceListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
+class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, GenericListTemplateMixin, CrumbMixin, ListView):
     template_name = "arrangement/list_view.html"
     model = Audience
     queryset = Audience.objects.all()
-    
-    section = section_manifest
     view_meta = ViewMeta.Preset.table(Audience)
 
     def get_context_data(self, **kwargs):
@@ -65,45 +69,41 @@ class AudienceListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin,
 audience_list_view = AudienceListView.as_view()
 
 
-class AudienceDetailView(LoginRequiredMixin, CrumbMixin, DetailView):
+class AudienceDetailView(LoginRequiredMixin, AudienceSectionManifestMixin, CrumbMixin, DetailView):
     model = Audience
     slug_field = "slug"
     slug_url_kwarg = "slug"
-    section = section_manifest
     view_meta = ViewMeta.Preset.detail(Audience)
     template_name = "arrangement/audience/audience_detail.html"
 
 audience_detail_view = AudienceDetailView.as_view()
 
 
-class AudienceCreateView(LoginRequiredMixin, CrumbMixin, CreateView):
+class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, CrumbMixin, CreateView):
     model = Audience
     fields = [
         "name"
     ]
-    section = section_manifest
     template_name = "arrangement/audience/audience_form.html"
     view_meta = ViewMeta.Preset.create(Audience)
 
 audience_create_view = AudienceCreateView.as_view()
 
 
-class AudienceUpdateView(LoginRequiredMixin, CrumbMixin, UpdateView):
+class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, CrumbMixin, UpdateView):
     model = Audience
     fields = [
         "name"
     ]
-    section = section_manifest
     view_meta = ViewMeta.Preset.edit(Audience)
     template_name = "arrangement/audience/audience_form.html"
 
 audience_update_view = AudienceUpdateView.as_view()
 
 
-class AudienceDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
+class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, CrumbMixin, DeleteView):
     model = Audience
     view_meta = ViewMeta.Preset.delete(Audience)
     template_name = "arrangement/delete_view.html"
-    section = section_manifest
 
 audience_delete_view = AudienceDeleteView.as_view()

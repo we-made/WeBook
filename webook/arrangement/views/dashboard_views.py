@@ -15,17 +15,21 @@ from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = SectionManifest(
-    section_title=_("Dashboard"),
-    section_icon="fas fa-chart-pie",
-    section_crumb_url=lambda: reverse("arrangement:dashboard")
-)
+def get_section_manifest():
+    return SectionManifest(
+        section_title=_("Dashboard"),
+        section_icon="fas fa-chart-pie",
+        section_crumb_url=reverse("arrangement:dashboard")
+    )
+
+class DashboardSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()
 
 
-class DashboardView (LoginRequiredMixin, CrumbMixin, TemplateView):
+class DashboardView (LoginRequiredMixin, DashboardSectionManifestMixin, CrumbMixin, TemplateView):
     template_name = "arrangement/dashboard/dashboard.html"
-    section = section_manifest
-
     view_meta = ViewMeta(
         subtitle=_("Welcome back!"),
         current_crumb_title=_("Dashboard")

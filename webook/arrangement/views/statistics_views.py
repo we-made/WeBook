@@ -14,8 +14,14 @@ from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = SectionManifest(
-    section_title=_("Statistics"),
-    section_icon="fas fa-graph",
-    section_crumb_url=lambda: reverse("arrangement:statistics_hub"),
-)
+def get_section_manifest():
+    return SectionManifest(
+        section_title=_("Statistics"),
+        section_icon="fas fa-graph",
+        section_crumb_url=reverse("arrangement:statistics_hub"),
+    )
+
+class StatisticsTypeSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()

@@ -14,17 +14,22 @@ from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = SectionManifest(
-    section_title=_("Calendars"),
-    section_icon= "fas fa-calendar",
-    section_crumb_url=lambda: reverse("arrangement:arrangement_calendar")
-)
+def get_section_manifest():
+    return SectionManifest(
+        section_title=_("Calendars"),
+        section_icon= "fas fa-calendar",
+        section_crumb_url=reverse("arrangement:arrangement_calendar")
+    )
 
 
-class CalendarSamplesOverview (LoginRequiredMixin, CrumbMixin, TemplateView):
+class CalendarSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()
+
+
+class CalendarSamplesOverview (LoginRequiredMixin, CalendarSectionManifestMixin, CrumbMixin, TemplateView):
     template_name = "arrangement/calendar/calendars_list.html"
-    section = section_manifest
-
     view_meta=ViewMeta(
         subtitle=_("Calendar Samples"),
         current_crumb_title=_("Calendar Samples")
@@ -33,10 +38,8 @@ class CalendarSamplesOverview (LoginRequiredMixin, CrumbMixin, TemplateView):
 calendar_samples_overview = CalendarSamplesOverview.as_view()
 
 
-class ArrangementCalendarView (LoginRequiredMixin, CrumbMixin, TemplateView):
+class ArrangementCalendarView (LoginRequiredMixin, CalendarSectionManifestMixin, CrumbMixin, TemplateView):
     template_name = "arrangement/calendar/arrangement_calendar.html"
-    section = section_manifest
-
     view_meta = ViewMeta(
         subtitle=_("Arrangement Calendar"),
         current_crumb_title=_("Arrangement Calendar")

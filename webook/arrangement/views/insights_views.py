@@ -16,21 +16,25 @@ import json
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = SectionManifest(
-    section_title=_("Insight"),
-    section_icon="fas fa-chart-pie",
-    section_crumb_url=lambda: reverse("arrangement:dashboard")
-)
+def get_section_manifest():
+    return SectionManifest(
+        section_title=_("Insight"),
+        section_icon="fas fa-chart-pie",
+        section_crumb_url=reverse("arrangement:dashboard")
+    )
 
 
-class GlobalTimelineView (LoginRequiredMixin, CrumbMixin, TemplateView):
-    section = section_manifest
+class InsightSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()
 
+
+class GlobalTimelineView (LoginRequiredMixin, InsightSectionManifestMixin, CrumbMixin, TemplateView):
     view_meta = ViewMeta(
         subtitle=_("Global Timeline"),
         current_crumb_title=_("Global Timeline"),
     )
-
     template_name = "arrangement/insights/global_timeline.html"
 
     def get_context_data(self, **kwargs):
@@ -60,8 +64,7 @@ class GlobalTimelineView (LoginRequiredMixin, CrumbMixin, TemplateView):
             )
         ctx["groups"] = json.dumps(nodes)
 
-        return ctx
-        
+        return ctx  
         
 
 global_timeline_view = GlobalTimelineView.as_view()

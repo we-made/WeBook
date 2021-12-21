@@ -17,24 +17,30 @@ from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = SectionManifest(
-    section_title=_("Organizations"),
-    section_icon="fas fa-dollar-sign",
-    section_crumb_url=lambda: reverse("arrangement:organization_list"),
-    crudl_map=SectionCrudlPathMap(
-        detail_url="arrangement:organization_detail",
-        create_url="arrangement:organization_create",
-        edit_url="arrangement:organization_edit",
-        delete_url="arrangement:organization_delete",
-        list_url="arrangement:organization_list",
+def get_section_manifest():
+    return SectionManifest(
+        section_title=_("Organizations"),
+        section_icon="fas fa-dollar-sign",
+        section_crumb_url=reverse("arrangement:organization_list"),
+        crudl_map=SectionCrudlPathMap(
+            detail_url="arrangement:organization_detail",
+            create_url="arrangement:organization_create",
+            edit_url="arrangement:organization_edit",
+            delete_url="arrangement:organization_delete",
+            list_url="arrangement:organization_list",
+        )
     )
-)
 
 
-class OrganizationListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMixin, ListView):
+class OrganizationSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()
+
+
+class OrganizationListView(LoginRequiredMixin, OrganizationSectionManifestMixin, GenericListTemplateMixin, CrumbMixin, ListView):
     queryset = Organization.objects.all()
     template_name = "arrangement/list_view.html"
-    section = section_manifest
     model = Organization
     view_meta = ViewMeta.Preset.table(Organization)
 
@@ -46,7 +52,7 @@ class OrganizationListView(LoginRequiredMixin, GenericListTemplateMixin, CrumbMi
 organization_list_view = OrganizationListView.as_view()
 
 
-class OrganizationDetailView(LoginRequiredMixin, DetailView):
+class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixin, DetailView):
     model = Organization
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -56,13 +62,12 @@ class OrganizationDetailView(LoginRequiredMixin, DetailView):
 organization_detail_view = OrganizationDetailView.as_view()
 
 
-class OrganizationUpdateView(LoginRequiredMixin, UpdateView):
+class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixin, UpdateView):
     fields = [
         "organization_number",
         "name",
         "organization_type",
     ]
-
     model = Organization
     view_meta = ViewMeta.Preset.edit(Organization)
     template_name = "arrangement/organization/organization_form.html"
@@ -70,13 +75,12 @@ class OrganizationUpdateView(LoginRequiredMixin, UpdateView):
 organization_update_view = OrganizationUpdateView.as_view()
 
 
-class OrganizationCreateView(LoginRequiredMixin, CreateView):
+class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixin, CreateView):
     fields = [
         "organization_number",
         "name",
         "organization_type",
     ]
-
     model = Organization
     view_meta = ViewMeta.Preset.create(Organization)
     template_name = "arrangement/organization/organization_form.html"
@@ -84,18 +88,16 @@ class OrganizationCreateView(LoginRequiredMixin, CreateView):
 organization_create_view = OrganizationCreateView.as_view()
 
 
-class OrganizationDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
+class OrganizationDeleteView(LoginRequiredMixin, OrganizationSectionManifestMixin, CrumbMixin, DeleteView):
     model = Organization
     slug_field = "slug"
     slug_url_kwarg = "slug"
     template_name="arrangement/delete_view.html"
-
+    view_meta = ViewMeta.Preset.delete(Organization)
+    
     def get_success_url(self) -> str:
         return reverse(
             "arrangement:organization_list"
         )
-
-    section = section_manifest
-    view_meta = ViewMeta.Preset.delete(Organization)
 
 organization_delete_view = OrganizationDeleteView.as_view()

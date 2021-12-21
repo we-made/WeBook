@@ -31,7 +31,7 @@ class CrumbMixin:
 
         context["SECTION_TITLE"] = self.section.section_title
         context["SECTION_SUBTITLE"] = section_subtitle
-        context["RETURN_URL"] = self.section.section_crumb_url()
+        context["RETURN_URL"] = self.section.section_crumb_url
         context["ENTITY_NAME"] = entity_name
 
         return context

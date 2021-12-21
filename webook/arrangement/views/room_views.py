@@ -18,14 +18,21 @@ import json
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-section_manifest = SectionManifest(
-    section_title=_("Rooms"),
-    section_icon="fas fa-door-open",
-    section_crumb_url=lambda: reverse("arrangement:room_list")
-)
+def get_section_manifest():
+    return SectionManifest(
+        section_title=_("Rooms"),
+        section_icon="fas fa-door-open",
+        section_crumb_url=reverse("arrangement:room_list")
+    )
 
 
-class RoomListView(LoginRequiredMixin, ListView):
+class RoomSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()
+
+
+class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, ListView):
     queryset = Room.objects.all()
     template_name = "arrangement/room/room_list.html"
     view_meta = ViewMeta.Preset.table(Room)
@@ -33,32 +40,29 @@ class RoomListView(LoginRequiredMixin, ListView):
 room_list_view = RoomListView.as_view()
 
 
-class RoomDetailView(LoginRequiredMixin, DetailView):
+class RoomDetailView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, DetailView):
     model = Room
     slug_field = "slug"
     slug_url_kwarg = "slug"
     view_meta = ViewMeta.Preset.detail(Room)
-
     template_name = "arrangement/room/room_detail.html"
 
 room_detail_view = RoomDetailView.as_view()
 
 
-class RoomUpdateView(LoginRequiredMixin, UpdateView):
+class RoomUpdateView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, UpdateView):
     fields = [
         "location",
         "name",
     ]
     view_meta = ViewMeta.Preset.edit(Room)
-
     template_name = "arrangement/room/room_form.html"
-
     model = Room
 
 room_update_view = RoomUpdateView.as_view()
 
 
-class RoomCreateView(LoginRequiredMixin, CreateView):
+class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, CreateView):
     fields = [
         "location",
         "name"
@@ -75,19 +79,17 @@ class RoomCreateView(LoginRequiredMixin, CreateView):
 room_create_view = RoomCreateView.as_view()
 
 
-class RoomDeleteView(LoginRequiredMixin, CrumbMixin, DeleteView):
+class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, DeleteView):
     model = Room
     slug_field = "slug"
     slug_url_kwarg = "slug"
     template_name = "arrangement/delete_view.html"
-    
+    view_meta = ViewMeta.Preset.delete(Room)
+
     def get_success_url(self) -> str:
         return reverse(
             "arrangement:room_list"
         )
-
-    section = section_manifest
-    view_meta = ViewMeta.Preset.delete(Room)
 
 room_delete_view = RoomDeleteView.as_view()
 
