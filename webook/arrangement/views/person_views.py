@@ -92,7 +92,6 @@ class PersonCreateView(LoginRequiredMixin, PersonSectionManifestMixin, CrumbMixi
         created_user.save()
         return success_url
 
-
 person_create_view = PersonCreateView.as_view()
 
 
