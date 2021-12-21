@@ -57,7 +57,7 @@ class PersonListView(LoginRequiredMixin, PersonSectionManifestMixin, CrumbMixin,
 person_list_view = PersonListView.as_view()
 
 
-class PersonUpdateView(LoginRequiredMixin, PersonSectionManifestMixin, UpdateView):
+class PersonUpdateView(LoginRequiredMixin, PersonSectionManifestMixin, CrumbMixin, UpdateView):
     model = Person
     fields = [
         "personal_email",
@@ -72,7 +72,7 @@ class PersonUpdateView(LoginRequiredMixin, PersonSectionManifestMixin, UpdateVie
 person_update_view = PersonUpdateView.as_view()
 
 
-class PersonCreateView(LoginRequiredMixin, PersonSectionManifestMixin, CreateView):
+class PersonCreateView(LoginRequiredMixin, PersonSectionManifestMixin, CrumbMixin, CreateView):
     model = Person
     fields = [
         "personal_email",
@@ -96,7 +96,7 @@ class PersonCreateView(LoginRequiredMixin, PersonSectionManifestMixin, CreateVie
 person_create_view = PersonCreateView.as_view()
 
 
-class PersonDetailView(LoginRequiredMixin, PersonSectionManifestMixin, DetailView):
+class PersonDetailView(LoginRequiredMixin, PersonSectionManifestMixin, CrumbMixin, DetailView):
     model = Person
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -121,7 +121,7 @@ class PersonDeleteView(LoginRequiredMixin, PersonSectionManifestMixin, CrumbMixi
 person_delete_view = PersonDeleteView.as_view()
 
 
-class OrganizationPersonMemberListView (LoginRequiredMixin, OrganizationSectionManifestMixin, ListView):
+class OrganizationPersonMemberListView (LoginRequiredMixin, OrganizationSectionManifestMixin, CrumbMixin, ListView):
     model = Person
     template_name = "arrangement/person/partials/_organization_member_list.html"
     view_meta = ViewMeta.Preset.table(Person)
