@@ -49,7 +49,7 @@
                 id="{{ form.organization_number.id_for_label }}" 
                 value="{{ form.organization_number.value|default:'' }}"
                 name="{{ form.organization_number.name }}"
-                placeholder="{‰ trans 'Organization number' %}..."/>
+                placeholder="{% trans 'Organization number' %}..."/>
 
             {% if form.organization_number.errors|length > 0 %}
                 <div class="alert alert-danger">
