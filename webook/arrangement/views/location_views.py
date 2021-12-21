@@ -54,7 +54,7 @@ class LocationListView(LoginRequiredMixin, LocationSectionManifestMixin, Generic
 location_list_view = LocationListView.as_view()
 
 
-class LocationDetailView(LoginRequiredMixin, LocationSectionManifestMixin, DetailView):
+class LocationDetailView(LoginRequiredMixin, LocationSectionManifestMixin, CrumbMixin, DetailView):
     model = Location
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -79,7 +79,7 @@ class LocationDetailView(LoginRequiredMixin, LocationSectionManifestMixin, Detai
 location_detail_view = LocationDetailView.as_view()
 
 
-class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, UpdateView):
+class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, CrumbMixin, UpdateView):
     fields = [
         "name"
     ]
@@ -90,7 +90,7 @@ class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, Updat
 location_update_view = LocationUpdateView.as_view()
 
 
-class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, CreateView):
+class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, CrumbMixin, CreateView):
     fields = [
         "name"
     ]
