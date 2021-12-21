@@ -51,5 +51,4 @@ class ArrangementCalendarView (LoginRequiredMixin, CalendarSectionManifestMixin,
         context["people"] = Person.objects.all()
         return context
 
-
 arrangement_calendar_view = ArrangementCalendarView.as_view()
