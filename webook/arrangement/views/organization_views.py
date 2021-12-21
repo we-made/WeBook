@@ -52,7 +52,7 @@ class OrganizationListView(LoginRequiredMixin, OrganizationSectionManifestMixin,
 organization_list_view = OrganizationListView.as_view()
 
 
-class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixin, DetailView):
+class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixin, CrumbMixin, DetailView):
     model = Organization
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -62,7 +62,7 @@ class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixi
 organization_detail_view = OrganizationDetailView.as_view()
 
 
-class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixin, UpdateView):
+class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixin, CrumbMixin, UpdateView):
     fields = [
         "organization_number",
         "name",
@@ -75,7 +75,7 @@ class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixi
 organization_update_view = OrganizationUpdateView.as_view()
 
 
-class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixin, CreateView):
+class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixin, CrumbMixin, CreateView):
     fields = [
         "organization_number",
         "name",
@@ -94,7 +94,7 @@ class OrganizationDeleteView(LoginRequiredMixin, OrganizationSectionManifestMixi
     slug_url_kwarg = "slug"
     template_name="arrangement/delete_view.html"
     view_meta = ViewMeta.Preset.delete(Organization)
-    
+
     def get_success_url(self) -> str:
         return reverse(
             "arrangement:organization_list"
