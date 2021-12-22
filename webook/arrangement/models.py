@@ -384,7 +384,8 @@ class Person(TimeStampedModel, ModelNamingMetaMixin):
     notes = models.ManyToManyField(to=Note, verbose_name="Notes")
 
     slug = AutoSlugField(populate_from="full_name", unique=True)
-
+    
+    instance_name_attribute_name = "full_name"
     entity_name_singular = _("Person")
     entity_name_plural = _("People")
 
