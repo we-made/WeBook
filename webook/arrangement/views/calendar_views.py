@@ -10,7 +10,7 @@ from django.views.generic import (
     TemplateView
 )
 from webook.arrangement.models import Event, Location, Person, Room
-from webook.arrangement.views.custom_views.crumb_view import MetaMixin
+from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 

@@ -11,7 +11,7 @@ from django.views.generic import (
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Organization
-from webook.arrangement.views.custom_views.crumb_view import MetaMixin
+from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap

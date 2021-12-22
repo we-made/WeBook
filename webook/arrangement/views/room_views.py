@@ -13,7 +13,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location, Room
-from webook.arrangement.views.custom_views.crumb_view import MetaMixin
+from webook.utils.meta_utils.meta_mixin import MetaMixin
 import json
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
