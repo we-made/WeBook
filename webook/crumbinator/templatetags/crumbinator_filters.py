@@ -21,7 +21,7 @@ def crumbinator(tree: Node):
                 if f not in top_level_nodes:
                     f.skip_render = True
     
-    unpacked_tree[len(unpacked_tree) - 1].is_active = True
+    unpacked_tree[-1].is_active = True
 
     ctx = Context(
         {
