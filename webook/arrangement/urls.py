@@ -1,7 +1,5 @@
 from django.urls import path
 
-#from webook.arrangement.views import (
-#)
 
 from webook.arrangement.views import (
     location_list_view,
