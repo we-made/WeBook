@@ -3,7 +3,7 @@ Base settings to build other settings files upon.
 """
 
 from pathlib import Path
-
+from django.utils.translation import ugettext_lazy as _
 import environ
 
 # webook/
@@ -36,6 +36,12 @@ USE_I18N = True
 USE_L10N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('nb', _('Norwegian'))
+]
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#locale-paths
 LOCALE_PATHS = [str(BASE_DIR / "locale")]
 
@@ -161,6 +167,7 @@ STATICFILES_DIRS = [str(APPS_DIR / "static")]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "npm.finders.NpmFinder",
 ]
 
 # MEDIA
@@ -206,7 +213,7 @@ TEMPLATES = [
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 # http://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "form_layout_material"
 
 # FIXTURES
 # ------------------------------------------------------------------------------
@@ -287,3 +294,22 @@ SOCIALACCOUNT_ADAPTER = (
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+APP_LOGO = env(
+    "APP_LOGO",
+    default="static/images/wemade_logo.jpg"
+)
+
+APP_TITLE = env(
+    "APP_TITLE",
+    default="WeBook"
+)
+
+FULLCALENDAR_LICENSE_KEY = env(
+    "FULLCALENDAR_LICENSE_KEY",
+    default="CC-Attribution-NonCommercial-NoDerivatives"
+)
+
+ASSET_SERVER_URL = env(
+    "ASSET_SERVER_URL",
+    default="localhost/static"
+)
