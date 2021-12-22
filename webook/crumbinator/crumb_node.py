@@ -13,7 +13,6 @@ class CrumbNode(NodeMixin):
         self.parent = parent
         self.icon_class = icon_class
         self.is_active = is_active
-        self.siblings = siblings
 
     @property
     def icon_html(self) -> str:
