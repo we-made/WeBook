@@ -1,3 +1,5 @@
+from django.conf.urls import url
+from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
 from webook.utils.meta_utils.section_manifest import SUBTITLE_MODE, ViewMeta
 
@@ -13,7 +15,7 @@ class CrumbMixin:
         section_node.parent = root_node
 
         current_node = self.view_meta.get_crumb_node()
-        current_node.parent = root_node
+        current_node.parent = section_node
 
         context["CRUMBS"] = root_node
 
