@@ -19,8 +19,12 @@ class CrumbNode(NodeMixin):
         return f"<i class='{self.icon_class}'></i> " if self.icon_class is not None else ""
 
     @property
+    def joined_html_classes(self):
+        return ' '.join(self.html_classes)
+
+    @property
     def as_html(self) -> str:
-        return f"<a href='{self.url}' class='{' '.join(self.html_classes)}'>{self.icon_html}{self.title}</a>"
+        return f"<a href='{self.url}' class='{self.joined_html_classes}'>{self.icon_html}{self.title}</a>"
 
     def __str__(self) -> str:
         return self.title

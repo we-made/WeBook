@@ -13,7 +13,7 @@
 
                 <li class="breadcrumb-item">
                     <a
-                        href="{{crumb.url}}"
+                        href="{{crumb.url}} {{crumb.joined_html_class}}"
                         class="dropdown-toggle"
                         data-mdb-toggle="dropdown"
                         aria-expanded="false">
@@ -23,7 +23,7 @@
                     <ul class="dropdown-menu">
                         {% for sibling in crumb.siblings %}
                             <li>
-                                <a class="dropdown-item" href="{{sibling.url}}">
+                                <a class="dropdown-item {{crumb.joined_html_class}}" href="{{sibling.url}}">
                                     {{ sibling.icon_html | safe}}
                                     {{sibling.title}}
                                 </a>
