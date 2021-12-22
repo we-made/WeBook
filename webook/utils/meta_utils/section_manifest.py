@@ -6,7 +6,7 @@ from webook.crumbinator.crumb_node import CrumbNode
 
 
 class SectionCrudlPathMap:
-    def __init__(self, detail_url, create_url, edit_url, delete_url, list_url) -> None:
+    def __init__(self, detail_url: str, create_url: str, edit_url: str, delete_url: str, list_url: str) -> None:
         self.detail_url = detail_url
         self.create_url = create_url
         self.edit_url = edit_url
@@ -168,4 +168,4 @@ class ViewMeta:
 				current_crumb_title=name,
 				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 			)
-		
+			
