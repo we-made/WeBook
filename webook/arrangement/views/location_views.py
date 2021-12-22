@@ -14,7 +14,7 @@ from webook.arrangement.models import Location
 from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
 import json
 
-from webook.utils.crudl_utils.path_maps import SectionCrudlPathMap
+from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
