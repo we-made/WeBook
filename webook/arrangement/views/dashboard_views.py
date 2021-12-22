@@ -11,7 +11,7 @@ from django.views.generic import (
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
@@ -28,7 +28,7 @@ class DashboardSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class DashboardView (LoginRequiredMixin, DashboardSectionManifestMixin, CrumbMixin, TemplateView):
+class DashboardView (LoginRequiredMixin, DashboardSectionManifestMixin, MetaMixin, TemplateView):
     template_name = "arrangement/dashboard/dashboard.html"
     view_meta = ViewMeta(
         subtitle=_("Welcome back!"),

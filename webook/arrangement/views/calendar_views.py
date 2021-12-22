@@ -10,7 +10,7 @@ from django.views.generic import (
     TemplateView
 )
 from webook.arrangement.models import Event, Location, Person, Room
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
@@ -28,7 +28,7 @@ class CalendarSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class CalendarSamplesOverview (LoginRequiredMixin, CalendarSectionManifestMixin, CrumbMixin, TemplateView):
+class CalendarSamplesOverview (LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView):
     template_name = "arrangement/calendar/calendars_list.html"
     view_meta=ViewMeta(
         subtitle=_("Calendar Samples"),
@@ -38,7 +38,7 @@ class CalendarSamplesOverview (LoginRequiredMixin, CalendarSectionManifestMixin,
 calendar_samples_overview = CalendarSamplesOverview.as_view()
 
 
-class ArrangementCalendarView (LoginRequiredMixin, CalendarSectionManifestMixin, CrumbMixin, TemplateView):
+class ArrangementCalendarView (LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView):
     template_name = "arrangement/calendar/arrangement_calendar.html"
     view_meta = ViewMeta(
         subtitle=_("Arrangement Calendar"),

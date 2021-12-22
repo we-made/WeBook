@@ -12,7 +12,7 @@ from django.views.generic import (
 from django.views.generic.edit import DeleteView
 from webook.utils.meta_utils.section_manifest import SectionManifest
 from webook.arrangement.models import OrganizationType
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -39,7 +39,7 @@ class OrganizationTypeSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class OrganizationTypeListView (LoginRequiredMixin, OrganizationTypeSectionManifestMixin, GenericListTemplateMixin, CrumbMixin, ListView):
+class OrganizationTypeListView (LoginRequiredMixin, OrganizationTypeSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     queryset = OrganizationType.objects.all()
     template_name = "arrangement/list_view.html"
     model = OrganizationType
@@ -53,7 +53,7 @@ class OrganizationTypeListView (LoginRequiredMixin, OrganizationTypeSectionManif
 organization_type_list_view = OrganizationTypeListView.as_view()
 
 
-class OrganizationTypeDetailView(LoginRequiredMixin, OrganizationTypeSectionManifestMixin, CrumbMixin, DetailView):
+class OrganizationTypeDetailView(LoginRequiredMixin, OrganizationTypeSectionManifestMixin, MetaMixin, DetailView):
     model = OrganizationType
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -63,7 +63,7 @@ class OrganizationTypeDetailView(LoginRequiredMixin, OrganizationTypeSectionMani
 organization_type_detail_view = OrganizationTypeDetailView.as_view()
 
 
-class OrganizationTypeUpdateView (LoginRequiredMixin, OrganizationTypeSectionManifestMixin, CrumbMixin, UpdateView):
+class OrganizationTypeUpdateView (LoginRequiredMixin, OrganizationTypeSectionManifestMixin, MetaMixin, UpdateView):
     model = OrganizationType
     fields = [
         "name"
@@ -74,7 +74,7 @@ class OrganizationTypeUpdateView (LoginRequiredMixin, OrganizationTypeSectionMan
 organization_type_update_view = OrganizationTypeUpdateView.as_view()
 
 
-class OrganizationTypeCreateView (LoginRequiredMixin, OrganizationTypeSectionManifestMixin, CrumbMixin, CreateView):
+class OrganizationTypeCreateView (LoginRequiredMixin, OrganizationTypeSectionManifestMixin, MetaMixin, CreateView):
     model = OrganizationType
     fields = [
         "name"
@@ -85,7 +85,7 @@ class OrganizationTypeCreateView (LoginRequiredMixin, OrganizationTypeSectionMan
 organization_type_create_view = OrganizationTypeCreateView.as_view()
 
 
-class OrganizationTypeDeleteView(LoginRequiredMixin, OrganizationTypeSectionManifestMixin, CrumbMixin, DeleteView):
+class OrganizationTypeDeleteView(LoginRequiredMixin, OrganizationTypeSectionManifestMixin, MetaMixin, DeleteView):
     model = OrganizationType 
     slug_field = "slug"
     slug_url_kwarg = "slug"

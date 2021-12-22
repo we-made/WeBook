@@ -12,7 +12,7 @@ from django.views.generic import (
 from django.views.generic.edit import DeleteView
 from webook.utils.meta_utils.section_manifest import SectionManifest
 from webook.arrangement.models import ServiceType
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils.section_manifest import ViewMeta
@@ -39,7 +39,7 @@ class ServiceTypeSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class ServiceTypeListView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, GenericListTemplateMixin, CrumbMixin, ListView):
+class ServiceTypeListView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     queryset = ServiceType.objects.all()
     template_name = "arrangement/list_view.html"
     model = ServiceType
@@ -53,7 +53,7 @@ class ServiceTypeListView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, 
 service_type_list_view = ServiceTypeListView.as_view()
 
 
-class ServiceTypeDetailView(LoginRequiredMixin, ServiceTypeSectionManifestMixin, CrumbMixin, DetailView):
+class ServiceTypeDetailView(LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, DetailView):
     model = ServiceType
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -63,7 +63,7 @@ class ServiceTypeDetailView(LoginRequiredMixin, ServiceTypeSectionManifestMixin,
 service_type_detail_view = ServiceTypeDetailView.as_view()
 
 
-class ServiceTypeUpdateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, CrumbMixin, UpdateView):
+class ServiceTypeUpdateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, UpdateView):
     model = ServiceType
     fields = [
         "name"
@@ -74,7 +74,7 @@ class ServiceTypeUpdateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin
 service_type_update_view = ServiceTypeUpdateView.as_view()
 
 
-class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, CrumbMixin, CreateView):
+class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, CreateView):
     model = ServiceType
     fields = [
         "name"
@@ -85,7 +85,7 @@ class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin
 service_type_create_view = ServiceTypeCreateView.as_view()
 
 
-class ServiceTypeDeleteView(LoginRequiredMixin, ServiceTypeSectionManifestMixin, CrumbMixin, DeleteView):
+class ServiceTypeDeleteView(LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, DeleteView):
     model = ServiceType 
     slug_field = "slug"
     slug_url_kwarg = "slug"

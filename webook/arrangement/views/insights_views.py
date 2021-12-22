@@ -11,7 +11,7 @@ from django.views.generic import (
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 import json
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
@@ -30,7 +30,7 @@ class InsightSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class GlobalTimelineView (LoginRequiredMixin, InsightSectionManifestMixin, CrumbMixin, TemplateView):
+class GlobalTimelineView (LoginRequiredMixin, InsightSectionManifestMixin, MetaMixin, TemplateView):
     view_meta = ViewMeta(
         subtitle=_("Global Timeline"),
         current_crumb_title=_("Global Timeline"),

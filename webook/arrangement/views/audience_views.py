@@ -11,7 +11,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, Audience
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
@@ -38,7 +38,7 @@ class AudienceSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, GenericListTemplateMixin, CrumbMixin, ListView):
+class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     template_name = "arrangement/list_view.html"
     model = Audience
     queryset = Audience.objects.all()
@@ -69,7 +69,7 @@ class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, Generic
 audience_list_view = AudienceListView.as_view()
 
 
-class AudienceDetailView(LoginRequiredMixin, AudienceSectionManifestMixin, CrumbMixin, DetailView):
+class AudienceDetailView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, DetailView):
     model = Audience
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -79,7 +79,7 @@ class AudienceDetailView(LoginRequiredMixin, AudienceSectionManifestMixin, Crumb
 audience_detail_view = AudienceDetailView.as_view()
 
 
-class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, CrumbMixin, CreateView):
+class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, CreateView):
     model = Audience
     fields = [
         "name"
@@ -90,7 +90,7 @@ class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, Crumb
 audience_create_view = AudienceCreateView.as_view()
 
 
-class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, CrumbMixin, UpdateView):
+class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, UpdateView):
     model = Audience
     fields = [
         "name"
@@ -101,7 +101,7 @@ class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, Crumb
 audience_update_view = AudienceUpdateView.as_view()
 
 
-class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, CrumbMixin, DeleteView):
+class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, DeleteView):
     model = Audience
     view_meta = ViewMeta.Preset.delete(Audience)
     template_name = "arrangement/delete_view.html"

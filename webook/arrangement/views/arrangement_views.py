@@ -12,7 +12,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -39,7 +39,7 @@ class ArrangementSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin, CrumbMixin, DetailView):
+class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, DetailView):
     model = Arrangement
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -49,7 +49,7 @@ class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin
 arrangement_detail_view = ArrangementDetailView.as_view()
 
 
-class ArrangementListView(LoginRequiredMixin, ArrangementSectionManifestMixin, GenericListTemplateMixin, CrumbMixin, ListView):
+class ArrangementListView(LoginRequiredMixin, ArrangementSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     queryset = Arrangement.objects.all()
     template_name = "arrangement/list_view.html"
     model = Arrangement
@@ -63,7 +63,7 @@ class ArrangementListView(LoginRequiredMixin, ArrangementSectionManifestMixin, G
 arrangement_list_view = ArrangementListView.as_view()
 
 
-class ArrangementCreateView (LoginRequiredMixin, ArrangementSectionManifestMixin, CrumbMixin, CreateView):
+class ArrangementCreateView (LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, CreateView):
     model = Arrangement
     fields = [
         "name",
@@ -78,7 +78,7 @@ class ArrangementCreateView (LoginRequiredMixin, ArrangementSectionManifestMixin
 arrangement_create_view = ArrangementCreateView.as_view()
 
 
-class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin, CrumbMixin, UpdateView):
+class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, UpdateView):
     model = Arrangement
     fields = [
         "name",
@@ -95,7 +95,7 @@ class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin,
 arrangement_update_view = ArrangementUpdateView.as_view()
 
 
-class ArrangementDeleteView(LoginRequiredMixin, ArrangementSectionManifestMixin, CrumbMixin, DeleteView):
+class ArrangementDeleteView(LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, DeleteView):
     model = Arrangement
     current_crumb_title = _("Delete Arrangement")
     section_subtitle = _("Edit Arrangement")

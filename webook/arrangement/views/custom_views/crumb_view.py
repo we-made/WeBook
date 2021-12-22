@@ -4,7 +4,7 @@ from webook.utils import crumbs
 from webook.utils.meta_utils.section_manifest import SUBTITLE_MODE, ViewMeta
 
 
-class CrumbMixin:
+class MetaMixin:
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)

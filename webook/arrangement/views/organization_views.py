@@ -11,7 +11,7 @@ from django.views.generic import (
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Organization
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -38,7 +38,7 @@ class OrganizationSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class OrganizationListView(LoginRequiredMixin, OrganizationSectionManifestMixin, GenericListTemplateMixin, CrumbMixin, ListView):
+class OrganizationListView(LoginRequiredMixin, OrganizationSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     queryset = Organization.objects.all()
     template_name = "arrangement/list_view.html"
     model = Organization
@@ -52,7 +52,7 @@ class OrganizationListView(LoginRequiredMixin, OrganizationSectionManifestMixin,
 organization_list_view = OrganizationListView.as_view()
 
 
-class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixin, CrumbMixin, DetailView):
+class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, DetailView):
     model = Organization
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -62,7 +62,7 @@ class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixi
 organization_detail_view = OrganizationDetailView.as_view()
 
 
-class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixin, CrumbMixin, UpdateView):
+class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, UpdateView):
     fields = [
         "organization_number",
         "name",
@@ -75,7 +75,7 @@ class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixi
 organization_update_view = OrganizationUpdateView.as_view()
 
 
-class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixin, CrumbMixin, CreateView):
+class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, CreateView):
     fields = [
         "organization_number",
         "name",
@@ -88,7 +88,7 @@ class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixi
 organization_create_view = OrganizationCreateView.as_view()
 
 
-class OrganizationDeleteView(LoginRequiredMixin, OrganizationSectionManifestMixin, CrumbMixin, DeleteView):
+class OrganizationDeleteView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, DeleteView):
     model = Organization
     slug_field = "slug"
     slug_url_kwarg = "slug"

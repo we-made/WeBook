@@ -11,7 +11,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 import json
 
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
@@ -40,7 +40,7 @@ class LocationSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class LocationListView(LoginRequiredMixin, LocationSectionManifestMixin, GenericListTemplateMixin, CrumbMixin, ListView):
+class LocationListView(LoginRequiredMixin, LocationSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     queryset = Location.objects.all()
     model = Location
     view_meta = ViewMeta.Preset.table(Location)
@@ -54,7 +54,7 @@ class LocationListView(LoginRequiredMixin, LocationSectionManifestMixin, Generic
 location_list_view = LocationListView.as_view()
 
 
-class LocationDetailView(LoginRequiredMixin, LocationSectionManifestMixin, CrumbMixin, DetailView):
+class LocationDetailView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, DetailView):
     model = Location
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -79,7 +79,7 @@ class LocationDetailView(LoginRequiredMixin, LocationSectionManifestMixin, Crumb
 location_detail_view = LocationDetailView.as_view()
 
 
-class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, CrumbMixin, UpdateView):
+class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, UpdateView):
     fields = [
         "name"
     ]
@@ -90,7 +90,7 @@ class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, Crumb
 location_update_view = LocationUpdateView.as_view()
 
 
-class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, CrumbMixin, CreateView):
+class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, CreateView):
     fields = [
         "name"
     ]
@@ -101,7 +101,7 @@ class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, Crumb
 location_create_view = LocationCreateView.as_view()
 
 
-class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, CrumbMixin, DeleteView):
+class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, DeleteView):
     model = Location
     slug_field = "slug"
     slug_url_kwarg = "slug"

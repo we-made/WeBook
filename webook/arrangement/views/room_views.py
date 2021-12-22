@@ -13,7 +13,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location, Room
-from webook.arrangement.views.custom_views.crumb_view import CrumbMixin
+from webook.arrangement.views.custom_views.crumb_view import MetaMixin
 import json
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
@@ -32,7 +32,7 @@ class RoomSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, ListView):
+class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, ListView):
     queryset = Room.objects.all()
     template_name = "arrangement/room/room_list.html"
     view_meta = ViewMeta.Preset.table(Room)
@@ -40,7 +40,7 @@ class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, Lis
 room_list_view = RoomListView.as_view()
 
 
-class RoomDetailView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, DetailView):
+class RoomDetailView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, DetailView):
     model = Room
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -50,7 +50,7 @@ class RoomDetailView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, D
 room_detail_view = RoomDetailView.as_view()
 
 
-class RoomUpdateView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, UpdateView):
+class RoomUpdateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, UpdateView):
     fields = [
         "location",
         "name",
@@ -62,7 +62,7 @@ class RoomUpdateView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, U
 room_update_view = RoomUpdateView.as_view()
 
 
-class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, CreateView):
+class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, CreateView):
     fields = [
         "location",
         "name",
@@ -75,7 +75,7 @@ class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, C
 room_create_view = RoomCreateView.as_view()
 
 
-class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, CrumbMixin, DeleteView):
+class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, DeleteView):
     model = Room
     slug_field = "slug"
     slug_url_kwarg = "slug"
