@@ -11,4 +11,5 @@ from .person_views import (
     person_create_view,
     person_update_view,
     person_delete_view,
+    organization_person_member_list_view,
 )
