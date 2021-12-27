@@ -91,3 +91,13 @@ class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin,
     view_meta = ViewMeta.Preset.edit(Arrangement)
 
 arrangement_update_view = ArrangementUpdateView.as_view()
+
+
+class ArrangementDeleteView(LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, DeleteView):
+    model = Arrangement
+    current_crumb_title = _("Delete Arrangement")
+    section_subtitle = _("Edit Arrangement")
+    template_name = "arrangement/delete_view.html"
+    view_meta = ViewMeta.Preset.delete(Arrangement)
+
+arrangement_delete_view = ArrangementDeleteView.as_view()
