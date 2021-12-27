@@ -33,3 +33,17 @@ class OrganizationTypeSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
+
+
+class OrganizationTypeListView (LoginRequiredMixin, OrganizationTypeSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
+    queryset = OrganizationType.objects.all()
+    template_name = "arrangement/list_view.html"
+    model = OrganizationType
+    view_meta = ViewMeta.Preset.table(OrganizationType)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["CRUDL_MAP"] = self.section.crudl_map
+        return context
+
+organization_type_list_view = OrganizationTypeListView.as_view()
