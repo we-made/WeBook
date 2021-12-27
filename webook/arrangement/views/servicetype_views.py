@@ -79,3 +79,18 @@ class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin
     view_meta = ViewMeta.Preset.create(ServiceType)
 
 service_type_create_view = ServiceTypeCreateView.as_view()
+
+
+class ServiceTypeDeleteView(LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, DeleteView):
+    model = ServiceType 
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/delete_view.html"
+    view_meta = ViewMeta.Preset.delete(ServiceType)
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:servicetype_list"
+        )
+
+service_type_delete_view = ServiceTypeDeleteView.as_view()
