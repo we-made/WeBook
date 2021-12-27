@@ -76,3 +76,14 @@ class LocationDetailView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
         return ctx
 
 location_detail_view = LocationDetailView.as_view()
+
+
+class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, UpdateView):
+    fields = [
+        "name"
+    ]
+    view_meta = ViewMeta.Preset.edit(Location)
+    template_name = "arrangement/location/location_form.html" 
+    model = Location
+
+location_update_view = LocationUpdateView.as_view()
