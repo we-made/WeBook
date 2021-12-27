@@ -79,3 +79,18 @@ class OrganizationTypeCreateView (LoginRequiredMixin, OrganizationTypeSectionMan
     view_meta = ViewMeta.Preset.create(OrganizationType)
 
 organization_type_create_view = OrganizationTypeCreateView.as_view()
+
+
+class OrganizationTypeDeleteView(LoginRequiredMixin, OrganizationTypeSectionManifestMixin, MetaMixin, DeleteView):
+    model = OrganizationType 
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/delete_view.html"
+    view_meta = ViewMeta.Preset.delete(OrganizationType)
+    
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:organization_list"
+        )
+
+organization_type_delete_view = OrganizationTypeDeleteView.as_view()
