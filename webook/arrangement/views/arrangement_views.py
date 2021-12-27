@@ -45,3 +45,17 @@ class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin
     template_name = "arrangement/arrangement/arrangement_detail.html"
 
 arrangement_detail_view = ArrangementDetailView.as_view()
+
+
+class ArrangementListView(LoginRequiredMixin, ArrangementSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
+    queryset = Arrangement.objects.all()
+    template_name = "arrangement/list_view.html"
+    model = Arrangement
+    view_meta = ViewMeta.Preset.table(Arrangement)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["CRUDL_MAP"] = self.section.crudl_map
+        return context
+
+arrangement_list_view = ArrangementListView.as_view()
