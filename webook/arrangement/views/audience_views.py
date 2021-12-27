@@ -10,7 +10,7 @@ from django.views.generic import (
     TemplateView
 )
 from django.views.generic.edit import DeleteView
-from webook.arrangement.models import Arrangement
+from webook.arrangement.models import Audience
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
