@@ -33,3 +33,17 @@ class ServiceTypeSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
+
+
+class ServiceTypeListView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
+    queryset = ServiceType.objects.all()
+    template_name = "arrangement/list_view.html"
+    model = ServiceType
+    view_meta = ViewMeta.Preset.table(ServiceType)
+
+    def get_context_data(self, **kwargs):
+        context =  super().get_context_data(**kwargs)
+        context["CRUDL_MAP"] = self.section.crudl_map
+        return context
+
+service_type_list_view = ServiceTypeListView.as_view()
