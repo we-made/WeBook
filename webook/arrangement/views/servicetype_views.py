@@ -8,6 +8,7 @@ from django.views.generic import (
     CreateView,
     TemplateView
 )
+from webook.arrangement.models import ServiceType
 from django.views.generic.edit import DeleteView
 from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
 from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
