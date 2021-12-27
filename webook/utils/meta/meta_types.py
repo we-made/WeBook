@@ -1,7 +1,6 @@
 from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 from enum import Enum
-
 from webook.crumbinator.crumb_node import CrumbNode
 
 
