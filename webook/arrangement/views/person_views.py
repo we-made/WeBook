@@ -96,3 +96,18 @@ class PersonDetailView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
     view_meta = ViewMeta.Preset.detail(Person)
 
 person_detail_view = PersonDetailView.as_view()
+
+
+class PersonDeleteView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin, DeleteView):
+    model = Person
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name="arrangement/delete_view.html"
+    view_meta = ViewMeta.Preset.delete(Person)
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:person_list"
+        )
+    
+person_delete_view = PersonDeleteView.as_view()
