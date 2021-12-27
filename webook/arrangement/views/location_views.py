@@ -1,4 +1,5 @@
 
+from typing import Any, Dict
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -10,6 +11,7 @@ from django.views.generic import (
     CreateView,
     TemplateView
 )
+import json
 from webook.arrangement.models import Location
 from django.views.generic.edit import DeleteView
 from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
@@ -49,3 +51,28 @@ class LocationListView(LoginRequiredMixin, LocationSectionManifestMixin, Generic
         return context
 
 location_list_view = LocationListView.as_view()
+
+
+class LocationDetailView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, DetailView):
+    model = Location
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    view_meta = ViewMeta.Preset.detail(Location)
+    template_name = "arrangement/location/location_detail.html" 
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        ctx = super().get_context_data(**kwargs)
+
+        current_location = self.get_object()
+        rooms = list()
+        for room in current_location.rooms.all():
+            rooms.append(
+                {
+                    "id": f"R-{room.id}",
+                    "title": f"{room.name}"
+                }
+            )
+        ctx["resources_json"] = json.dumps(rooms)
+        return ctx
+
+location_detail_view = LocationDetailView.as_view()
