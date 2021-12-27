@@ -35,3 +35,13 @@ class ArrangementSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
+
+
+class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, DetailView):
+    model = Arrangement
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    view_meta = ViewMeta.Preset.detail(Arrangement)
+    template_name = "arrangement/arrangement/arrangement_detail.html"
+
+arrangement_detail_view = ArrangementDetailView.as_view()
