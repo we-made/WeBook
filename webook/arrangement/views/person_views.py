@@ -86,3 +86,13 @@ class PersonCreateView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
         return success_url
 
 person_create_view = PersonCreateView.as_view()
+
+
+class PersonDetailView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin, DetailView):
+    model = Person
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/person/person_detail.html"
+    view_meta = ViewMeta.Preset.detail(Person)
+
+person_detail_view = PersonDetailView.as_view()
