@@ -87,3 +87,18 @@ class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
     model = Location
 
 location_update_view = LocationUpdateView.as_view()
+
+
+class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, DeleteView):
+    model = Location
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/delete_view.html"
+    view_meta = ViewMeta.Preset.delete(Location)
+    
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:location_list"
+        )
+
+location_delete_view = LocationDeleteView.as_view()
