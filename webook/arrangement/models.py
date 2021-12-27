@@ -2,7 +2,7 @@ from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
-from webook.utils.meta.meta_mixins import ModelNamingMetaMixin
+from webook.utils.meta.meta_model_mixins import ModelNamingMetaMixin
 
 
 class Audience(TimeStampedModel, ModelNamingMetaMixin):
