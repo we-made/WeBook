@@ -22,3 +22,9 @@ def get_section_manifest():
         section_icon= "fas fa-calendar",
         section_crumb_url=reverse("arrangement:arrangement_calendar")
     )
+
+
+class CalendarSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()
