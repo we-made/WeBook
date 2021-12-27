@@ -1,17 +1,6 @@
-{% extends "arrangement/room/room_section_base.html" %}
+{% extends "arrangement/meta_base.html" %}
 {% load static i18n %}
 
-{% block title %}
-    {% trans "Location" %} {{ object.name }}
-{% endblock %}
-
-{% block section_subtitle %}
-    {{ object.name }}
-{% endblock %}
-
-{% block current_crumb_title %}
-    {{ object.name }}
-{% endblock %}
 
 {% block beneath_breadcrumbs_block %}
     <a class="btn btn-success"
@@ -24,51 +13,49 @@
 {% endblock %}
 
 {% block content %}
-
-<section>
-    <div class="row">
-        <div class="col-6">
-            <div class="text-center">
-                <h4><i class="fas fa-building h3"></i> <strong>{% trans "Location" %}</strong></h4>
-                <h4 class="mb-2">{{object.location.name}}</h4>
-                <a class="mt-3 btn btn-info"
-                href="{% url 'arrangement:location_detail' object.location.slug %}">
-                    {% trans "Go To" %}
-                </a>
+    <section>
+        <div class="row">
+            <div class="col-6">
+                <div class="text-center">
+                    <h4><i class="fas fa-building h3"></i> <strong>{% trans "Location" %}</strong></h4>
+                    <h4 class="mb-2">{{object.location.name}}</h4>
+                    <a class="mt-3 btn btn-info"
+                    href="{% url 'arrangement:location_detail' object.location.slug %}">
+                        {% trans "Go To" %}
+                    </a>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-center">
+                    <h4><i class="fas fa-users h3"></i> <strong>{% trans "Max Occupants" %}</strong></h4>
+                    <h4 class="mb-2">{{object.max_capacity}}</h4>
+                </div>
             </div>
         </div>
-        <div class="col-6">
-            <div class="text-center">
-                <h4><i class="fas fa-users h3"></i> <strong>{% trans "Max Occupants" %}</strong></h4>
-                <h4 class="mb-2">{{object.max_capacity}}</h4>
+    </section>
+
+    <section class="mt-5 mb-5">
+        <div class="row">
+            <div class="col-12">
+                <div id="room_calendar"></div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="mt-5 mb-5">
-    <div class="row">
-        <div class="col-12">
-            <div id="room_calendar"></div>
-        </div>
-    </div>
-</section>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('room_calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      height: 600,
-      navLinks:true,
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-      }
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('room_calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        height: 600,
+        navLinks:true,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        }
+        });
+        calendar.render();
     });
-    calendar.render();
-  });
-</script>
-
+    </script>
 {% endblock %}

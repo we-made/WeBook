@@ -1,38 +1,9 @@
-{% extends "arrangement/person/person_section_base.html" %}
+{% extends "arrangement/meta_base.html" %}
 {% load static i18n %}
 {% load crispy_forms_tags %}
 
-{% block section_title %}
-    {% trans "People" %}
-{% endblock %}
-
-{% block title %}
-    {% if object.first_name is None %}
-        {% trans "New Person" %}
-    {% else %}
-        {% trans "Edit Person" %}
-    {% endif %}
-{% endblock %}
-
-{% block current_crumb_title %}
-    {% if object.first_name is None %}
-        <i class="fas fa-plus"></i>&nbsp; {% trans "New Person" %}
-    {% else %}
-        <i class="fas fa-edit"></i>&nbsp; {% trans "Edit Person" %} '{{ object.full_name }}'
-    {% endif %}
-{% endblock %}
-
-{% block section_subtitle %}
-    {% if object.first_name is None %}
-        {% trans "New Person" %}
-    {% else %}
-        {% trans "Edit Person" %}
-    {% endif %}
-{% endblock %}
-
 
 {% block content %}
-
     <form method="post">
         {% csrf_token %}
         
@@ -127,6 +98,5 @@
                 {% trans "Reset Form" %}
             </button>
         </div>
-
     </form>
 {% endblock %}

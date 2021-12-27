@@ -1,17 +1,6 @@
-{% extends "arrangement/person/person_section_base.html" %}
+{% extends "arrangement/meta_base.html" %}
 {% load static i18n %}
 
-{% block title %}
-    {% trans "Person" %} {{ object.full_name }}
-{% endblock %}
-
-{% block section_subtitle %}
-    {{ object.full_name }}
-{% endblock %}
-
-{% block current_crumb_title %}
-    {{ object.full_name }}
-{% endblock %}
 
 {% block beneath_breadcrumbs_block %}
     <a class="btn btn-outline-success"
