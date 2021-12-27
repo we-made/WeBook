@@ -47,3 +47,13 @@ class ServiceTypeListView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, 
         return context
 
 service_type_list_view = ServiceTypeListView.as_view()
+
+
+class ServiceTypeDetailView(LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, DetailView):
+    model = ServiceType
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/servicetype/servicetype_detail.html"
+    view_meta = ViewMeta.Preset.detail(ServiceType)
+
+service_type_detail_view = ServiceTypeDetailView.as_view()
