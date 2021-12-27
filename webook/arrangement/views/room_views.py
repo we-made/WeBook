@@ -59,3 +59,18 @@ class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Cr
     model = Room
 
 room_create_view = RoomCreateView.as_view()
+
+
+class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, DeleteView):
+    model = Room
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/delete_view.html"
+    view_meta = ViewMeta.Preset.delete(Room)
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:room_list"
+        )
+
+room_delete_view = RoomDeleteView.as_view()
