@@ -26,3 +26,11 @@ class RoomSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
+
+
+class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, ListView):
+    queryset = Room.objects.all()
+    template_name = "arrangement/room/room_list.html"
+    view_meta = ViewMeta.Preset.table(Room)
+
+room_list_view = RoomListView.as_view()
