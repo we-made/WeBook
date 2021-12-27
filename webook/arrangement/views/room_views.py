@@ -8,7 +8,7 @@ from django.views.generic import (
     CreateView,
     TemplateView
 )
-from webook.arrangement.models import Room
+from webook.arrangement.models import Room, Location
 from django.views.generic.edit import DeleteView
 from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
 from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -74,3 +74,13 @@ class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, De
         )
 
 room_delete_view = RoomDeleteView.as_view()
+
+
+class LocationRoomListView (LoginRequiredMixin, ListView):
+    model = Location
+    queryset = Room.objects.all()
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name="arrangement/room/partials/_location_room_list.html"
+
+location_room_list_view = LocationRoomListView.as_view()
