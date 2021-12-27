@@ -50,3 +50,13 @@ class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, Generic
         return context
 
 audience_list_view = AudienceListView.as_view()
+
+
+class AudienceDetailView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, DetailView):
+    model = Audience
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    view_meta = ViewMeta.Preset.detail(Audience)
+    template_name = "arrangement/audience/audience_detail.html"
+
+audience_detail_view = AudienceDetailView.as_view()
