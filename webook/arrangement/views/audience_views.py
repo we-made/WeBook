@@ -36,3 +36,17 @@ class AudienceSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
+
+
+class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
+    template_name = "arrangement/list_view.html"
+    model = Audience
+    queryset = Audience.objects.all()
+    view_meta = ViewMeta.Preset.table(Audience)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["CRUDL_MAP"] = self.section.crudl_map
+        return context
+
+audience_list_view = AudienceListView.as_view()
