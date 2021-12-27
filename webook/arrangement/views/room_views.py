@@ -34,3 +34,15 @@ class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, List
     view_meta = ViewMeta.Preset.table(Room)
 
 room_list_view = RoomListView.as_view()
+
+
+class RoomUpdateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, UpdateView):
+    fields = [
+        "location",
+        "name",
+    ]
+    view_meta = ViewMeta.Preset.edit(Room)
+    template_name = "arrangement/room/room_form.html"
+    model = Room
+
+room_update_view = RoomUpdateView.as_view()
