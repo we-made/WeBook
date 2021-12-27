@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
-from webook.utils.meta_utils.section_manifest import SUBTITLE_MODE, ViewMeta
+from webook.utils.meta.meta_types import SUBTITLE_MODE, ViewMeta
 
 
 class MetaMixin:
