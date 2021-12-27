@@ -11,4 +11,5 @@ from .room_views import (
     room_create_view,
     room_update_view,
     room_delete_view,
+    location_room_list_view,
 )
