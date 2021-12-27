@@ -19,16 +19,13 @@ class MetaMixin:
         context["CRUMBS"] = root_node
 
         section_subtitle=""
-        current_crumb_title=""
         entity_name=""
 
         if self.view_meta.subtitle_mode == SUBTITLE_MODE.TITLE_AS_SUBTITLE:
             section_subtitle = self.view_meta.subtitle
-            current_crumb_title = self.view_meta.current_crumb_title
         elif self.view_meta.subtitle_mode == SUBTITLE_MODE.ENTITY_NAME_AS_SUBTITLE:
             entity_name = getattr(self.get_object(), self.view_meta.entity_name_attribute)
             section_subtitle = entity_name
-            current_crumb_title = entity_name
 
         context["SECTION_TITLE"] = self.section.section_title
         context["SECTION_SUBTITLE"] = section_subtitle
