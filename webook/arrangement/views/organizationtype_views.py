@@ -57,3 +57,14 @@ class OrganizationTypeDetailView(LoginRequiredMixin, OrganizationTypeSectionMani
     view_meta = ViewMeta.Preset.detail(OrganizationType)
 
 organization_type_detail_view = OrganizationTypeDetailView.as_view()
+
+
+class OrganizationTypeUpdateView (LoginRequiredMixin, OrganizationTypeSectionManifestMixin, MetaMixin, UpdateView):
+    model = OrganizationType
+    fields = [
+        "name"
+    ]
+    template_name = "arrangement/organizationtype/organizationtype_form.html"
+    view_meta = ViewMeta.Preset.edit(OrganizationType)
+
+organization_type_update_view = OrganizationTypeUpdateView.as_view()
