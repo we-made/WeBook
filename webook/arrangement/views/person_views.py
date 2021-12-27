@@ -9,7 +9,7 @@ from django.views.generic import (
     CreateView,
     TemplateView
 )
-from webook.arrangement.models import Person
+from webook.arrangement.models import Person, Organization
 from django.views.generic.edit import DeleteView
 from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
 from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -111,3 +111,22 @@ class PersonDeleteView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
         )
     
 person_delete_view = PersonDeleteView.as_view()
+
+
+class OrganizationPersonMemberListView (LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, ListView):
+    model = Person
+    template_name = "arrangement/person/partials/_organization_member_list.html"
+    view_meta = ViewMeta.Preset.table(Person)
+
+    def get_queryset(self):
+        organization = self.request.GET.get('organization')
+        return Organization.objects.filter(
+            id=organization
+        ).first().members
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["organization"] = self.request.GET.get('organization')
+        return context
+
+organization_person_member_list_view = OrganizationPersonMemberListView.as_view()
