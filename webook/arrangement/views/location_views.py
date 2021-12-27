@@ -102,3 +102,14 @@ class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
         )
 
 location_delete_view = LocationDeleteView.as_view()
+
+
+class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, CreateView):
+    fields = [
+        "name"
+    ]
+    view_meta = ViewMeta.Preset.create(Location)
+    template_name = "arrangement/location/location_form.html" 
+    model = Location
+
+location_create_view = LocationCreateView.as_view()
