@@ -176,20 +176,46 @@
       INPUT:-webkit-autofill,SELECT:-webkit-autofill,TEXTAREA:-webkit-autofill{animation-name:onautofillstart}INPUT:not(:-webkit-autofill),SELECT:not(:-webkit-autofill),TEXTAREA:not(:-webkit-autofill){animation-name:onautofillcancel}@keyframes onautofillstart{from{}}@keyframes onautofillcancel{from{}}
   </style>
 
-    <div class="container" style="margin-left: 260px;">
+  {% block superheader %}
+    <div style="margin-top:100px"></div>
+  {% endblock %}
 
-      {% if messages %}
-          {% for message in messages %}
-              <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
-          {% endfor %}
+
+  <div class="container">
+    {% block noheader %}
+
+    <section class="bg-white">
+      <h1 class="h1 fw-bolder">
+        <i class="{% block section_icon_class %}{% endblock %}"></i>
+        
+        {% block section_title %}
+        {% endblock section_title%} 
+        | <small class="text-muted h4">{% block section_subtitle %}{% endblock %}</small>
+      </h1>
+      {% if CRUMBS  %}
+        {{ CRUMBS|crumbinator }}
       {% endif %}
+    </section>
+    <div class="mt-1">
+      {% block beneath_breadcrumbs_block %}
+      {% endblock %}
+    </div>
+    <hr>
+    {% endblock %}
 
-      {% block content %}
-        <p>Flexible booking and event management solution. This text is inherited on other pages!</p>
-      {% endblock content %}
+    <div class="mb-4"></div>
 
-    </div> <!-- /container -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+        {% endfor %}
+    {% endif %}
 
+    {% block content %}
+      <p>Flexible booking and event management solution. This text is inherited on other pages!</p>
+    {% endblock content %}
+  </div>
+  
     {% block modal %}{% endblock modal %}
 
     <!-- Le javascript
