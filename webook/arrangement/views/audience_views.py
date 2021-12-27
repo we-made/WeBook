@@ -71,3 +71,14 @@ class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
     view_meta = ViewMeta.Preset.create(Audience)
 
 audience_create_view = AudienceCreateView.as_view()
+
+
+class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, UpdateView):
+    model = Audience
+    fields = [
+        "name"
+    ]
+    view_meta = ViewMeta.Preset.edit(Audience)
+    template_name = "arrangement/audience/audience_form.html"
+
+audience_update_view = AudienceUpdateView.as_view()
