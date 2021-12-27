@@ -82,3 +82,11 @@ class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
     template_name = "arrangement/audience/audience_form.html"
 
 audience_update_view = AudienceUpdateView.as_view()
+
+
+class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, DeleteView):
+    model = Audience
+    view_meta = ViewMeta.Preset.delete(Audience)
+    template_name = "arrangement/delete_view.html"
+
+audience_delete_view = AudienceDeleteView.as_view()
