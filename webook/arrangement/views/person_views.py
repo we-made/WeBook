@@ -48,3 +48,18 @@ class PersonListView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin, 
         return context
 
 person_list_view = PersonListView.as_view()
+
+
+class PersonUpdateView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin, UpdateView):
+    model = Person
+    fields = [
+        "personal_email",
+        "first_name",
+        "middle_name",
+        "last_name",
+        "birth_date",        
+    ]
+    template_name = "arrangement/person/person_form.html"
+    view_meta = ViewMeta.Preset.edit(Person)
+
+person_update_view = PersonUpdateView.as_view()
