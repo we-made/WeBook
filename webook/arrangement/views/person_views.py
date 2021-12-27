@@ -63,3 +63,26 @@ class PersonUpdateView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
     view_meta = ViewMeta.Preset.edit(Person)
 
 person_update_view = PersonUpdateView.as_view()
+
+
+class PersonCreateView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin, CreateView):
+    model = Person
+    fields = [
+        "personal_email",
+        "first_name",   
+        "middle_name",
+        "last_name",
+        "birth_date",        
+    ]
+    template_name = "arrangement/person/person_form.html"
+    view_meta = ViewMeta.Preset.create(Person)
+
+    def get_success_url(self) -> str:
+        success_url = super().get_success_url()
+        organization = self.request.POST.get("organization")
+        created_user = self.object
+        created_user.organizations.add(organization)
+        created_user.save()
+        return success_url
+
+person_create_view = PersonCreateView.as_view()
