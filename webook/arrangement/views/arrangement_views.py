@@ -11,10 +11,9 @@ from django.views.generic import (
 )
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement
-from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
-from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from webook.utils.meta.meta_view_mixins import MetaMixin
+from webook.utils.meta.meta_types import SectionCrudlPathMap, SectionManifest, ViewMeta
+from webook.utils.meta.meta_view_mixins import GenericListTemplateMixin
 
 
 def get_section_manifest():
@@ -30,3 +29,9 @@ def get_section_manifest():
             list_url="arrangement:arrangement_list",
         )
     )
+
+
+class ArrangementSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()
