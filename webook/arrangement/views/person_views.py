@@ -34,3 +34,17 @@ class PersonSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
+
+
+class PersonListView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin, GenericListTemplateMixin, ListView):
+    queryset = Person.objects.all()
+    template_name = "arrangement/list_view.html"
+    model = Person
+    view_meta = ViewMeta.Preset.table(Person)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["CRUDL_MAP"] = self.section.crudl_map
+        return context
+
+person_list_view = PersonListView.as_view()
