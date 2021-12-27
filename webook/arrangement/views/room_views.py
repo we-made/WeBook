@@ -28,6 +28,16 @@ class RoomSectionManifestMixin:
         self.section = get_section_manifest()
 
 
+class RoomDetailView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, DetailView):
+    model = Room
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    view_meta = ViewMeta.Preset.detail(Room)
+    template_name = "arrangement/room/room_detail.html"
+
+room_detail_view = RoomDetailView.as_view()
+
+
 class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, ListView):
     queryset = Room.objects.all()
     template_name = "arrangement/room/room_list.html"
