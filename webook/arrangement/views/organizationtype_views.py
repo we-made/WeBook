@@ -47,3 +47,13 @@ class OrganizationTypeListView (LoginRequiredMixin, OrganizationTypeSectionManif
         return context
 
 organization_type_list_view = OrganizationTypeListView.as_view()
+
+
+class OrganizationTypeDetailView(LoginRequiredMixin, OrganizationTypeSectionManifestMixin, MetaMixin, DetailView):
+    model = OrganizationType
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/organizationtype/organizationtype_detail.html"
+    view_meta = ViewMeta.Preset.detail(OrganizationType)
+
+organization_type_detail_view = OrganizationTypeDetailView.as_view()
