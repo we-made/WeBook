@@ -68,3 +68,14 @@ class ServiceTypeUpdateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin
     view_meta = ViewMeta.Preset.edit(ServiceType)
 
 service_type_update_view = ServiceTypeUpdateView.as_view()
+
+
+class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, CreateView):
+    model = ServiceType
+    fields = [
+        "name"
+    ]
+    template_name = "arrangement/servicetype/servicetype_form.html"
+    view_meta = ViewMeta.Preset.create(ServiceType)
+
+service_type_create_view = ServiceTypeCreateView.as_view()
