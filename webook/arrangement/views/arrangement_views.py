@@ -59,3 +59,35 @@ class ArrangementListView(LoginRequiredMixin, ArrangementSectionManifestMixin, G
         return context
 
 arrangement_list_view = ArrangementListView.as_view()
+
+
+class ArrangementCreateView (LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, CreateView):
+    model = Arrangement
+    fields = [
+        "name",
+        "audience",
+        "starts",
+        "ends",
+        "responsible",
+    ]
+    template_name = "arrangement/arrangement/arrangement_form.html"
+    view_meta = ViewMeta.Preset.create(Arrangement)
+
+arrangement_create_view = ArrangementCreateView.as_view()
+
+
+class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, UpdateView):
+    model = Arrangement
+    fields = [
+        "name",
+        "audience",
+        "starts",
+        "ends",
+        "responsible",
+    ]
+    current_crumb_title = _("Edit Arrangement")
+    section_subtitle = _("Edit Arrangement")
+    template_name = "arrangement/arrangement/arrangement_form.html"
+    view_meta = ViewMeta.Preset.edit(Arrangement)
+
+arrangement_update_view = ArrangementUpdateView.as_view()
