@@ -1,15 +1,6 @@
 {% extends "arrangement/meta_base.html" %}
 {% load static i18n %}
 
-{% block title %}
-    {% trans "Location" %} {{ object.name }}
-{% endblock %}
-{% block section_subtitle %}
-    {{ object.name }}
-{% endblock %}
-{% block current_crumb_title %}
-    {{ object.name }}
-{% endblock %}
 
 {% block beneath_breadcrumbs_block %}
     <a class="btn btn-success"

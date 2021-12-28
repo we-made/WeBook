@@ -4,6 +4,7 @@
 
 {% block content %}
     <form method="post">
+        
         {% csrf_token %}
 
         <input type="hidden" name="responsible" value="1" />
@@ -130,6 +131,5 @@
         <button class="btn btn-warning float-end mt-3" type="reset">
             {% trans "Reset Form" %}
         </button>
-
     </form>
 {% endblock %}

@@ -46,23 +46,6 @@ class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, Generic
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        root_node = crumbs.get_root_crumb(self.request.user.slug)
-        section_node = CrumbNode(
-			title=self.section.section_title,
-			url=reverse(self.section.crudl_map.list_url) if self.section.crudl_map is not None else "",
-            parent=root_node,
-            icon_class="fas fa-users"
-		)
-        current_node=CrumbNode(
-            title=self.view_meta.subtitle,
-            url="",
-            html_classes="active",
-            parent=section_node,
-            icon_class="fas fa-list"
-        )
-
-        context["CRUMBS"] = root_node
         context["CRUDL_MAP"] = self.section.crudl_map
         return context
 
