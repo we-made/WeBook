@@ -2,10 +2,9 @@ from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
-from webook.utils.meta.meta_model_mixins import ModelNamingMetaMixin
 
 
-class Audience(TimeStampedModel, ModelNamingMetaMixin):
+class Audience(TimeStampedModel):
     """Audience represents a target audience, and is used for categorical purposes.
 
     :param name: The name of the audience
@@ -28,7 +27,7 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
+class Arrangement(TimeStampedModel):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
      that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
      could be an exhibition, which may have events stretching over a large timespan, but which have a shared nature,
@@ -85,7 +84,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class Location (TimeStampedModel, ModelNamingMetaMixin):
+class Location (TimeStampedModel):
     """Location represents a physical location, for instance a building.
     In practice a location is a group of rooms, primarily helpful in contextualization and filtering
 
@@ -105,7 +104,7 @@ class Location (TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class Room(TimeStampedModel, ModelNamingMetaMixin):
+class Room(TimeStampedModel):
     """Room represents a physical real-world room. All rooms belong to a location.
 
     :param location: The location that this room belongs to
@@ -128,7 +127,7 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class Article(TimeStampedModel, ModelNamingMetaMixin):
+class Article(TimeStampedModel):
     """An article is a consumable entity, on the same level in terms of being a resource as room and person.
     In practice an article could for instance be a projector, or any other sort of inanimate physical entity
 
@@ -148,7 +147,7 @@ class Article(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class OrganizationType(TimeStampedModel, ModelNamingMetaMixin):
+class OrganizationType(TimeStampedModel):
     """An organization type is an arbitrary classification that is applicable to organizations
     For example non-profit organizations, or public organizations. This is for categorical purposes.
 
@@ -168,7 +167,7 @@ class OrganizationType(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class TimelineEvent (TimeStampedModel, ModelNamingMetaMixin):
+class TimelineEvent (TimeStampedModel):
     """A timeline event model represents an event on a timeline, not to be confused with an event on a calendar, which
     is represented by the Event model.
 
@@ -191,7 +190,7 @@ class TimelineEvent (TimeStampedModel, ModelNamingMetaMixin):
         return self.content
 
 
-class ServiceType(TimeStampedModel, ModelNamingMetaMixin):
+class ServiceType(TimeStampedModel):
     """A service type is a type categorization of service providers
 
     :param name: The name of the service type
@@ -210,7 +209,7 @@ class ServiceType(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class BusinessHour(TimeStampedModel, ModelNamingMetaMixin):
+class BusinessHour(TimeStampedModel):
     """A business hour model represents a from-to record keeping track of businesshours
     Primarily used visually to differentiate between business times, and outside of business times, in for instance
     the calendar. May apply to resources.
@@ -235,7 +234,7 @@ class BusinessHour(TimeStampedModel, ModelNamingMetaMixin):
         return f"{self.start_of_business_hours} - {self.end_of_business_hours}"
 
 
-class Calendar(TimeStampedModel, ModelNamingMetaMixin):
+class Calendar(TimeStampedModel):
     """Represents an implementation, or a version of a calendar. Calendars are built based on resources,
     namely which resources are wanted to be included. May be personal to a select user, or globally shared and
     available for all users
@@ -337,7 +336,7 @@ class ConfirmationReceipt (TimeStampedModel):
         return f"{self.requested_by} petitioned {self.sent_to} for a confirmation at STAMP."
 
 
-class Person(TimeStampedModel, ModelNamingMetaMixin):
+class Person(TimeStampedModel):
     """Represents a person entity. Does not represent a user however.
 
     :param personal_email: Email of the person
@@ -377,8 +376,6 @@ class Person(TimeStampedModel, ModelNamingMetaMixin):
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
-    instance_name_attribute_name = "full_name"
-
     @property
     def full_name(self):
         return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
@@ -388,7 +385,7 @@ class Person(TimeStampedModel, ModelNamingMetaMixin):
         return self.full_name
 
 
-class Organization(TimeStampedModel, ModelNamingMetaMixin):
+class Organization(TimeStampedModel):
     """ Organizations represent real world organizations
 
     :param organization_number: The organization number associated with this organization - if any
@@ -449,7 +446,7 @@ class ServiceProvider(TimeStampedModel):
         return f"{self.service_name} of type {self.service_type} provided by {self.organization.name}"
 
 
-class Event(TimeStampedModel, ModelNamingMetaMixin):
+class Event(TimeStampedModel):
     """The event model represents an event, or happening that takes place in a set span of time, and which may
     reserve certain resources for use in that span of time (such as a room, or a person etc..).
 
