@@ -78,7 +78,7 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			name = f"{_('View')} {entity_class.entity_name_singular}"
+			name = f"{_('View')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-eye",
 				subtitle=name,
@@ -96,7 +96,7 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			name = f"{_('Create')} {entity_class.entity_name_singular}"
+			name = f"{_('Create')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-plus",
 				subtitle=name,
@@ -113,7 +113,7 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			name = f"{_('Delete')} {entity_class.entity_name_singular}"
+			name = f"{_('Delete')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-trash",
 				subtitle=name,
@@ -130,7 +130,7 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			name = f"{_('Edit')} {entity_class.entity_name_singular}"
+			name = f"{_('Edit')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-edit",
 				subtitle=name,
@@ -147,7 +147,7 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			name = f"{_('All')} {entity_class.entity_name_plural}"
+			name = f"{_('All')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-list",
 				subtitle=name,
