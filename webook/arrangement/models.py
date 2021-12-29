@@ -14,12 +14,14 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin):
     :param icon_class: The CSS class of the icon used to represent this audience in views
     :type name: str
     """
+
+    class Meta:
+        verbose_name = _("Audience")
+        verbose_name_plural = _("Audiences")
+
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
     slug = AutoSlugField(populate_from="name", unique=True)
-
-    entity_name_singular = _("Audience")
-    entity_name_plural = _("Audiences")
 
     def __str__(self):
         """Return audience name"""
@@ -57,6 +59,11 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
      :param organization_participants: The organizations who are participating in this arrangement
      :type organization_participants: Organization.
      """
+
+    class Meta:
+        verbose_name = _("Arrangement")
+        verbose_name_plural = _("Arrangements")
+
     name = models.CharField(verbose_name=_("Name"), max_length=255)
 
     audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE)
@@ -73,9 +80,6 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
-    entity_name_singular = _("Arrangement")
-    entity_name_plural = _("Arrangements")
-
     def __str__(self):
         """Return arrangement name"""
         return self.name
@@ -88,11 +92,13 @@ class Location (TimeStampedModel, ModelNamingMetaMixin):
     :param name: The name of the location
     :type name: str.
     """
+
+    class Meta:
+        verbose_name = _("Location")
+        verbose_name_plural = _("Locations")
+
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
-
-    entity_name_singular = _("Location")
-    entity_name_plural = _("Locations")
 
     def __str__(self):
         """Return location name"""
@@ -109,12 +115,13 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
     :type name: str.
     """
 
+    class Meta:
+        verbose_name = _("Room")
+        verbose_name_plural = _("Rooms")
+
     location = models.ForeignKey(Location, verbose_name=_("Location"), on_delete=models.CASCADE)
     name = models.CharField(verbose_name=_("Name"), max_length=128)
     slug = AutoSlugField(populate_from="name", unique=True)
-
-    entity_name_singular = _("Room")
-    entity_name_plural = _("Rooms")
 
     def __str__(self):
         """Return room name"""
@@ -129,11 +136,12 @@ class Article(TimeStampedModel, ModelNamingMetaMixin):
     :type name: str.
     """
 
+    class Meta:
+        verbose_name = _("Article")
+        verbose_name_plural = _("Articles")
+
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
-
-    entity_name_singular = _("Article")
-    entity_name_plural = _("Articles")
 
     def __str__(self):
         """Return article name"""
@@ -147,11 +155,13 @@ class OrganizationType(TimeStampedModel, ModelNamingMetaMixin):
     :param name: The name of the organization type
     :type name: str.
     """
+
+    class Meta:
+        verbose_name = _("Organization Type")
+        verbose_name_plural = _("Organization Types")
+
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
-
-    entity_name_singular = _("Organization Type")
-    entity_name_plural = _("Organization Types")
 
     def __str__(self):
         """Return name of organizationtype"""
@@ -169,11 +179,12 @@ class TimelineEvent (TimeStampedModel, ModelNamingMetaMixin):
     :type stamp: datetime.
     """
 
+    class Meta:
+        verbose_name = _("Timeline Event")
+        verbose_name_plural = _("Timeline Events")
+
     content = models.CharField(verbose_name=_("Content"), max_length=1024)
     stamp = models.DateTimeField(verbose_name=_("Stamp"), null=False)
-
-    entity_name_singular = _("Timeline Event")
-    entity_name_plural = _("Timeline Events")
 
     def __str__(self):
         """Return content"""
@@ -186,11 +197,13 @@ class ServiceType(TimeStampedModel, ModelNamingMetaMixin):
     :param name: The name of the service type
     :type name: str.
     """
+
+    class Meta:
+        verbose_name = _("Service Type")
+        verbose_name_plural = _("Service Types")
+    
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
-
-    entity_name_singular = _("Service Type")
-    entity_name_plural = _("Service Types")
 
     def __str__(self):
         """Return service type name"""
@@ -210,11 +223,12 @@ class BusinessHour(TimeStampedModel, ModelNamingMetaMixin):
 
     """
 
+    class Meta:
+        verbose_name = _("Business Hour")
+        verbose_name_plural = _("Business Hours")
+
     start_of_business_hours = models.TimeField(verbose_name=_("Start Of Business Hours"))
     end_of_business_hours = models.TimeField(verbose_name=_("End Of Business Hours"))
-
-    entity_name_singular = _("Business Hour")
-    entity_name_plural = _("Business Hours")
 
     def __str__(self):
         """Return from and to business hours"""
@@ -242,6 +256,10 @@ class Calendar(TimeStampedModel, ModelNamingMetaMixin):
     :type room_resources: Room.
     """
 
+    class Meta:
+        verbose_name = _("Calendar")
+        verbose_name_plural = _("Calendars")
+
     owner = models.ForeignKey(to="Person", verbose_name=_("Owner"), on_delete=models.RESTRICT, related_name="owners")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
@@ -251,9 +269,6 @@ class Calendar(TimeStampedModel, ModelNamingMetaMixin):
     room_resources = models.ManyToManyField(to="Room", verbose_name=_("Room Resources"))
 
     slug = AutoSlugField(populate_from="name", unique=True)
-
-    entity_name_singular = _("Calendar")
-    entity_name_plural = _("Calendars")
 
     def __str__(self):
         """Return calendar name"""
@@ -346,6 +361,11 @@ class Person(TimeStampedModel, ModelNamingMetaMixin):
     :param notes: Notes written about this person
     :type notes: Note.
     """
+
+    class Meta:
+        verbose_name = _("Person")
+        verbose_name_plural = _("People")
+
     personal_email = models.CharField(verbose_name=_("PersonalEmail"), max_length=255, blank=False, null=False)
     first_name = models.CharField(verbose_name=_("FirstName"), max_length=255)
     middle_name = models.CharField(verbose_name=_("MiddleName"), max_length=255, blank=True)
@@ -357,8 +377,6 @@ class Person(TimeStampedModel, ModelNamingMetaMixin):
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
-    entity_name_singular = _("Person")
-    entity_name_plural = _("People")
     instance_name_attribute_name = "full_name"
 
     @property
@@ -388,6 +406,11 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin):
     :param members: The members of this organization
     :type name: Person
     """
+
+    class Meta:
+        verbose_name = _("Organization")
+        verbose_name_plural = _("Organizations")
+
     organization_number = models.IntegerField(verbose_name=_("Organization Number"), null=True, blank=True)
     name = models.CharField(verbose_name="Name", max_length=255)
     organization_type = models.ForeignKey(to=OrganizationType, verbose_name=_("Organization Type"), on_delete=models.RESTRICT)
@@ -396,9 +419,6 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin):
     members = models.ManyToManyField(to=Person, verbose_name=_("Members"))
 
     slug = AutoSlugField(populate_from="name", unique=True)
-
-    entity_name_singular = _("Organization")
-    entity_name_plural = _("Organizations")
 
     def __str__(self):
         """Return organization name"""
@@ -466,6 +486,9 @@ class Event(TimeStampedModel, ModelNamingMetaMixin):
 
     """
 
+    class Meta:
+        verbose_name = _("Event")
+        verbose_name_plural = _("Events")
 
     title = models.CharField(verbose_name=_("Title"), max_length=255)
     start = models.DateTimeField(verbose_name=_("Start"), null=False)
@@ -480,9 +503,6 @@ class Event(TimeStampedModel, ModelNamingMetaMixin):
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     
     slug = AutoSlugField(populate_from = "title", unique=True)
-
-    entity_name_singular = "Event"
-    entity_name_plural = "Events"
 
     def __str__(self):
         """Return title of event, with start and end times"""
