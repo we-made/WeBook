@@ -24,7 +24,7 @@ class MetaMixin:
         if self.view_meta.subtitle_mode == SUBTITLE_MODE.TITLE_AS_SUBTITLE:
             section_subtitle = self.view_meta.subtitle
         elif self.view_meta.subtitle_mode == SUBTITLE_MODE.ENTITY_NAME_AS_SUBTITLE:
-            entity_name = getattr(self.get_object(), self.view_meta.entity_name_attribute)
+            entity_name = str(self.get_object())
             section_subtitle = entity_name
 
         context["SECTION_TITLE"] = self.section.section_title
