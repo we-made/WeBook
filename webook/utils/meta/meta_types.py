@@ -57,7 +57,6 @@ class ViewMeta:
 		self.subtitle_prefix = subtitle_prefix
 		self.current_crumb_icon = current_crumb_icon
 		self.current_crumb_title = current_crumb_title
-		self.entity_name_attribute = entity_name_attribute
 		self.subtitle_mode = subtitle_mode
 	
 	def get_crumb_node(self):
@@ -83,7 +82,6 @@ class ViewMeta:
 				current_crumb_icon="fas fa-eye",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 				subtitle_mode=SUBTITLE_MODE.ENTITY_NAME_AS_SUBTITLE
 			)
 		
@@ -101,7 +99,6 @@ class ViewMeta:
 				current_crumb_icon="fas fa-plus",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 			)
 			
 		@staticmethod
@@ -118,7 +115,6 @@ class ViewMeta:
 				current_crumb_icon="fas fa-trash",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 			)
 			
 		@staticmethod
@@ -135,7 +131,6 @@ class ViewMeta:
 				current_crumb_icon="fas fa-edit",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 			)
 			
 		@staticmethod
@@ -152,6 +147,5 @@ class ViewMeta:
 				current_crumb_icon="fas fa-list",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 			)
 			
