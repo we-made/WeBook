@@ -74,8 +74,8 @@ class GenericListTemplateMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        context["ENTITY_NAME_SINGULAR"] = self.model.entity_name_singular
-        context["ENTITY_NAME_PLURAL"] = self.model.entity_name_plural
+        context["ENTITY_NAME_SINGULAR"] = self.model.Meta.verbose_name
+        context["ENTITY_NAME_PLURAL"] = self.model.Meta.verbose_name_plural
         context["COLUMN_DEFINITION"] = self.columns
         context["LIST"] = self.construct_list()
         context["SHOW_OPTIONS"] = self.show_options
