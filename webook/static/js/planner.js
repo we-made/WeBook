@@ -256,7 +256,7 @@ class LocalPlannerContext {
                     respective implementations, and this does to some degree dictate implementations.
                     This does put the onus of managing the end of the series/repetition on the cycle manager (which is what this is.)
                 */
-
+                event_sample = Object.assign({}, event_sample);
                 let result = pattern_strategy.run({cycle: cycle_cursor, start_date: date_cursor, event: event_sample});
 
                 if (result === undefined || (Array.isArray(result) && result.length == 0)) {
@@ -336,8 +336,6 @@ class LocalPlannerContext {
                 start_date = start_date.addDays(interval - 1); // -1 to account for the "move-forward" padding done in cycler
             }
 
-            event = Object.assign({}, event);
-
             event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.start);
             event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.end);
 
@@ -348,8 +346,6 @@ class LocalPlannerContext {
             while ([0,6].includes(start_date.getDay())) {
                 start_date = start_date.addDays(1);
             }
-
-            event = Object.assign({}, event);
 
             event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.start);
             event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.end);
@@ -375,8 +371,6 @@ class LocalPlannerContext {
 
                 start_date = start_date.addDays(7 * week_interval)
             }
-
-            event = Object.assign({}, event);
 
             let events = [];
             let y = 0;
@@ -405,8 +399,6 @@ class LocalPlannerContext {
             if (day_of_month > start_date.getDate()) {
                 return;
             }
-            
-            event = Object.assign({}, event);
 
             let adjusted_date = (new Date(start_date)).setDate(day_of_month);
             event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.start);
@@ -466,8 +458,6 @@ class LocalPlannerContext {
                 start_date.setMonth(month + interval);
             }
 
-            event = Object.assign({}, event);
-
             date = SeriesUtil.arbitrator_find(start_date, arbitrator, weekday);
             event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
             event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end)
@@ -480,8 +470,6 @@ class LocalPlannerContext {
                 start_date.setFullYear ( start_date.getFullYear() + parseInt(year_interval) )
             }
 
-            event = Object.assign({}, event);
-
             let date = new Date(start_date.getFullYear() + "-" + month + "-" + day_index);
             event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
             event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end);
@@ -493,8 +481,6 @@ class LocalPlannerContext {
             if (cycle != 0) {
                 start_date.setFullYear ( start_date.getFullYear() + parseInt(year_interval) )
             }
-
-            event = Object.assign({}, event);
 
             let date = new Date(start_date.getFullYear() + "-" + month + "-01");
             
