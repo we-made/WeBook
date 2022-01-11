@@ -44,14 +44,14 @@
                     <input type="color" id="serie_color" />
                   </td>
                 </tr>
-                <tr>
+                <!-- <tr>
                   <td>
                     <label>Varighet&nbsp;&nbsp;</label>
                   </td>
                   <td>
                     <input type="time" id="serie_duration" />
                   </td>
-                </tr>
+                </tr> -->
               </tbody>
             </table>
           </fieldset>
@@ -61,7 +61,7 @@
             <div class="row">
               <div class="col-3 border-end border-1">
                 <div>
-                  <input type="radio" name="pattern" value="1"/><label>&nbsp; Daglig</label>
+                  <input type="radio" name="pattern" value="1" checked/><label>&nbsp; Daglig</label>
                 </div>
                 <div>
                   <input type="radio" name="pattern" value="2"/><label>&nbsp; Ukentlig</label>
@@ -171,7 +171,7 @@
           </fieldset>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Avbryt</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$(newSerieDialog).modal('hide')">Avbryt</button>
           <button type="button" class="btn btn-primary" onclick="get_series_form_as_obj()">Opprett gjentagende hendelse</button>
         </div>
       </div>
@@ -179,6 +179,7 @@
   </div>
 
 <script>
+
     class LocalValidators {
         NumberValidator = function (value) {
             issues = []
@@ -449,6 +450,9 @@
         }
         
         planner.local_context.add_serie(serie);
+
+        $("#newSerieDialog").modal('hide');
+        toastr["success"]("Serie opprettet!");
     }
 
  
@@ -574,6 +578,8 @@
             field.setAttribute("disabled", "true");
         }
     }
+
+    set_radio_if_none_set();
 
     /* Initialization of state */
     patterns.forEach(function (ptrn) {

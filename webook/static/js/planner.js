@@ -140,18 +140,23 @@ class LocalPlannerContext {
 
         for (let i = 0; i < events.length; i++) {
             let event_uuid = crypto.randomUUID();
-            events[i].id = event_uuid;
-            this.events.set(event_uuid, events[i]);
+            let ev = events[i];
+            ev.id = event_uuid;
+            console.log("EVENT.ID = " + ev.id);
+            console.log("EVENT_UUID = " + event_uuid)
+            this.events.set(event_uuid, ev);
         }
 
         this.onEventsCreated(this.events, this.planner);
     }
 
     delete_serie(serie_uuid) {
-        for (let i = 0; i < this.events.length; i++) {
-            let event = this.events[i];
+        for (let i = 0; i < this.events.values().length; i++) {
+            let event = this.events.values()[i];
+            console.log("Not so far")
             if (event.serie_uuid === serie_uuid) {
-                this.remove_event(i);
+                console.log("Very far")
+                this.remove_event(i.id);
             }
         }
 
@@ -530,8 +535,8 @@ class RendererManager {
         this.onClickEditButton = onClickEditButton;
         this.onClickInfoButton = onClickInfoButton;
 
-        this.onClickDeleteSeriesButton = function (series_index) {
-            context.delete_serie(series_index);
+        this.onClickDeleteSeriesButton = function (series_uuid) {
+            context.delete_serie(series_uuid);
         }
 
         this.onClickDeleteButton = function (eventId) {
@@ -588,6 +593,10 @@ class RendererBase {
 /* 
     Provides utilities to wrap around and manage a FullCalendar calendar instance fluidly
 */
+
+let focused_event_uuid = undefined;
+let focused_serie_uuid = undefined;
+
 class CalendarManager extends RendererBase {
 
     constructor(element_id, fc_options) {
@@ -606,53 +615,65 @@ class CalendarManager extends RendererBase {
         }
 
         this.fc_options.eventDidMount = (arg) => {
-            const eventId = arg.event.id
-            const isRepeated = arg.event._def.extendedProps.serieIndex !== undefined;
-            const isDeviatedFromRepetitionBase = arg.event._def.extendedProps.altered;
+
+            console.log("AT FIRST: " + arg.event.extendedProps.event_uuid)
+
+            const at_first = arg.event.extendedProps.event_uuid;
+            focused_event_uuid = at_first;
+            focused_serie_uuid = arg.event.extendedProps.serie_uuid;
 
             arg.el.addEventListener("contextmenu", (jsEvent) => {
                 jsEvent.preventDefault();
 
+                let argCopy = Object.assign({}, arg);
+
+                console.log(jsEvent);
+                console.log(arg);
+                let evuuid = argCopy.event.extendedProps.event_uuid;
+                console.log(argCopy.event.extendedProps.event_uuid)
                 let onClickEditButton = this.onClickEditButton;
                 let onClickDeleteButton = this.onClickDeleteButton;
                 let onClickDeleteSeriesButton = this.onClickDeleteSeriesButton;
+                console.log("TRI: " + at_first)
+
+                let callback = function () {
+                    onClickEditButton(focused_event_uuid)
+                }
 
                 let items = {
                     edit: {
                         name: "<i class='fas fa-edit'></i> Rediger",
                         isHtmlName: true,
-                        callback: function (key, opt){
-                            onClickEditButton(arg.event._def.extendedProps.event_uuid);
-                        }
+                        callback: callback
                     },
                     delete: {
                         name: "<i class='fas fa-trash'></i> Slett",
                         isHtmlName: true,
                         callback: function (key, opt) {
-                            onClickDeleteButton(arg.event._def.extendedProps.event_uuid);
+                            onClickDeleteButton(focused_event_uuid);
                         }
                     },
                 }
 
-                if (isRepeated === true) {
-                    items.repetition_sep = "---------"
-                    items.repetition_fold = {
-                        name: "<i class='fas fa-calendar-alt'></i> Gjentagende hendelse",
-                        isHtmlName: true,
-                        items: {}
-                    };
-                    items.repetition_fold.items.unhook_from_repetition = {
-                        name: "<i class='fas fa-unlink'></i> Gjør hendelsen individuell",
-                        isHtmlName: true,
-                    }
-                    items.repetition_fold.items.delete_repetition = {
-                        name: "<i class='fas fa-times'></i> Kanseller gjentagende hendelse",
-                        isHtmlName: true,
-                        callback: function (key, opt) {
-                            onClickDeleteSeriesButton(arg.event._def.extendedProps.serieIndex);
-                        }
-                    }
-                }
+                // if (focused_serie_uuid !== undefined) {
+                //     items.repetition_sep = "---------"
+                //     // items.repetition_fold = {
+                //     //     name: "<i class='fas fa-calendar-alt'></i> Gjentagende hendelse",
+                //     //     isHtmlName: true,
+                //     //     items: {}
+                //     // };
+                //     // items.repetition_fold.items.unhook_from_repetition = {
+                //     //     name: "<i class='fas fa-unlink'></i> Gjør hendelsen individuell",
+                //     //     isHtmlName: true,
+                //     // }
+                //     // items.repetition_fold.items.delete_repetition = {
+                //     //     name: "<i class='fas fa-times'></i> Kanseller gjentagende hendelse",
+                //     //     isHtmlName: true,
+                //     //     callback: function (key, opt) {
+                //     //         onClickDeleteSeriesButton(focused_serie_uuid);
+                //     //     }
+                //     // }
+                // }
 
                 $.contextMenu({
                     className: "webook-context-menu",
@@ -683,7 +704,7 @@ class CalendarManager extends RendererBase {
         static get_icons_html(info) {
             let icons_wrapper = document.createElement('div');
 
-            if (info.event.extendedProps.serieIndex !== undefined) {
+            if (info.event.extendedProps.serie_uuid !== undefined) {
                 let icon = document.createElement('i');
                 icon.classList.add('fas', 'fa-link');
                 icons_wrapper.appendChild(icon);

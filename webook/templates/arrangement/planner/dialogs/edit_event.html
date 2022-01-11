@@ -1,3 +1,6 @@
+{% load static i18n %}
+
+
 <div class="modal" tabindex="-1" role="dialog" id="editEventDialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -38,10 +41,9 @@
           <label>Farge</label>
           <input type="color" class="form-control" id="color" code-qualified-name="color">
         </div>
-        <em>Press <strong>alt + enter</strong> to save</em></span>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" onclick="saveEvent()">Save changes</button>
-          <button type="button" class="btn btn-primary" onclick="">Save, and new</button>
+          <button type="button" class="btn btn-secondary" onclick="$(eventEditDialog).modal('hide')">Avbryt</button>
+          <button type="button" class="btn btn-primary" onclick="saveEvent()">{% trans "Save" %}</button>
         </div>
       </div>
     </div>
@@ -67,14 +69,16 @@
     )
 
     function newEventDialog() {
+        eventDialogManager.flush();
         let eventEditDialog = document.getElementById('editEventDialog');
         eventDialogManager.event_id.value = -1;
         $(eventEditDialog).modal('show');
     }
 
     function updateEventDialog(event_uuid) {
+        eventDialogManager.flush();
+        console.log("Event Edit::>> " + event_uuid)
         let event = planner.local_context.events.get(event_uuid);
-
         // Write in existing values for this event
         eventDialogManager.event_id.value = event_uuid;
         eventDialogManager.title.value = event.title;
@@ -97,11 +101,17 @@
 
         console.log(event_obj)
 
+        let toastrMessage = "";
         if (eventDialogManager.event_id.value !== "-1") {
           planner.local_context.update_event(event_obj, eventDialogManager.event_id.value);
+          toastrMessage = "Hendelse oppdatert!";
         }
         else {
           planner.local_context.add_event(event_obj);
+          toastrMessage = "Hendelse opprettet!"
         }
+
+        $(eventEditDialog).modal('hide');
+        toastr["success"](toastrMessage);
     }
 </script>
