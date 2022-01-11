@@ -585,12 +585,57 @@ class CalendarManager extends RendererBase {
         this.calendar = undefined;
         this.rememberedInitialView = "dayGridMonth";
 
+        // this.fc_options.eventRender = (info) => {
+        //     // if (info.view.type === 'listMonth') {
+        //     //     return;
+        //     // }
+            
+        //     console.log(info);
+        //     console.log(info.extendedProps.serieIndex);
+
+        //     if (info.extendedProps.serieIndex !== undefined) {
+        //         console.log('hurricane')
+
+        //         let eventElement = info.el.querySelector('.fc-content');
+        //         let chainedIcon = document.createElement('i');
+        //         chainedIcon.classList.append("fas")
+        //         chainedIcon.classList.append("fa-link")
+        //         eventElement.appendChild(chainedIcon);
+        //     }
+        // }
+
+        this.fc_options.eventContent = (arg) => {
+
+            let rootNode = document.createElement("span");
+            rootNode.classList.add('text-white', 'w-100');
+            rootNode.style="padding:4px; background-color:" + arg.event.backgroundColor + ";";
+
+            let iconsWrapper = document.createElement('span');            
+            if (arg.event.extendedProps.serieIndex !== undefined) {
+                let linkIcon = document.createElement('i');
+                linkIcon.classList.add('fas', 'fa-link');
+                iconsWrapper.appendChild(linkIcon);
+            }
+
+            let eventTitle = document.createElement("span");
+            eventTitle.innerHTML = "&nbsp; " + arg.event.title;
+
+            rootNode.append(
+                iconsWrapper,
+                eventTitle,
+            )
+
+            return { 
+                html: rootNode.outerHTML
+            };
+        }
+
         this.fc_options.eventDidMount = (arg) => {
             const eventId = arg.event.id
             const isRepeated = arg.event._def.extendedProps.serieIndex !== undefined;
             const isDeviatedFromRepetitionBase = arg.event._def.extendedProps.altered;
 
-            console.log(arg.event._def);
+            // console.log(arg.event._def);
 
             arg.el.addEventListener("contextmenu", (jsEvent) => {
                 jsEvent.preventDefault();
