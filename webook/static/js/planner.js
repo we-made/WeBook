@@ -239,6 +239,12 @@ class LocalPlannerContext {
             let instance_cursor = 0;
             let cycle_cursor = 0;
 
+            let event_sample = {
+                title: serie.time.title,
+                start: serie.time.start,
+                end: serie.time.end,
+            }
+
             while ((scope.stop_within_date !== undefined && date_cursor <= scope.stop_within_date) || (scope.instances !== 0 && scope.instances >= instance_cursor)) {
 
                 /* 
@@ -250,7 +256,7 @@ class LocalPlannerContext {
                     This does put the onus of managing the end of the series/repetition on the cycle manager (which is what this is.)
                 */
 
-                let result = pattern_strategy.run({cycle: cycle_cursor, start_date: date_cursor, event: serie.time});
+                let result = pattern_strategy.run({cycle: cycle_cursor, start_date: date_cursor, event: event_sample});
 
                 if (result === undefined || (Array.isArray(result) && result.length == 0)) {
                     cycle_cursor++;
@@ -329,30 +335,21 @@ class LocalPlannerContext {
                 start_date = start_date.addDays(interval - 1); // -1 to account for the "move-forward" padding done in cycler
             }
 
-            let start_date_time = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date. event.start);
-            let end_date_time = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.end);
+            event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date. event.start);
+            event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.end);
 
-            return {
-                title: event.title,
-                from: start_date_time,
-                to: end_date_time,
-            }
+            return event;
         }
 
         static daily__every_weekday({cycle, event, start_date}={}) {
-            let weekday = false
             while ([0,6].includes(start_date.getDay())) {
                 start_date = start_date.addDays(1);
             }
 
-            let start_date_time = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.start);
-            let end_date_time = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.end);
+            event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.start);
+            event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.end);
 
-            return {
-                title: event.title,
-                from: start_date_time,
-                to: end_date_time
-            }
+            return event;
         }
 
         static weekly_standard({cycle, start_date, event, week_interval, days}={}) {
@@ -380,14 +377,10 @@ class LocalPlannerContext {
                 let day = days.get(i)
                 if (day === true) {
                     let adjusted_date = (new Date(start_date)).addDays(y);
-                    let tmp_start_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.start)
-                    let tmp_end_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.end);
+                    event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.start)
+                    event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.end);
 
-                    events.push({
-                        title: event.title,
-                        from: tmp_start_date,
-                        to: tmp_end_date,
-                    });
+                    events.push(event);
                 }
 
                 y++;
@@ -407,14 +400,10 @@ class LocalPlannerContext {
             }
 
             let adjusted_date = (new Date(start_date)).setDate(day_of_month);
-            let tmp_start_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.start);
-            let tmp_end_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.end);
+            event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.start);
+            event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.end);
 
-            return {
-                title: event.title,
-                from: tmp_start_date,
-                to: tmp_end_date,
-            }
+            return event;
         }
 
         static arbitrator_find(start_date, arbitrator, weekday) {
@@ -469,14 +458,10 @@ class LocalPlannerContext {
             }
 
             date = SeriesUtil.arbitrator_find(start_date, arbitrator, weekday);
-            let tmp_start_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
-            let tmp_end_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end)
+            event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
+            event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end)
 
-            return {
-                title: event.title,
-                from: tmp_start_date,
-                to: tmp_end_date,
-            }
+            return event;
         }
 
         static yearly__every_x_of_month ({cycle, start_date, event, day_index, year_interval, month}={}) {
@@ -485,14 +470,8 @@ class LocalPlannerContext {
             }
 
             let date = new Date(start_date.getFullYear() + "-" + month + "-" + day_index);
-            let tmp_start_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
-            let tmp_end_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end);
-
-            event = {
-                title: event.title,
-                from: tmp_start_date,
-                to: tmp_end_date
-            }
+            event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
+            event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end);
 
             return event;
         }
@@ -507,14 +486,10 @@ class LocalPlannerContext {
             // use the "day-seek" algo to find the correct day, according to the arbitrator
             date = SeriesUtil.arbitrator_find(date, arbitrator, weekday);
             
-            let tmp_start_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
-            let tmp_end_date = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end);
+            event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
+            event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end);
 
-            return {
-                title: event.title,
-                from: tmp_start_date,
-                to: tmp_end_date
-            }
+            return event;
         }
     };
 }
