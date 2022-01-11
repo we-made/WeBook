@@ -55,7 +55,7 @@ class Planner {
     }
 
     init() {
-        this.renderer_manager.render(this.local_context.events);
+        this.renderer_manager.render(Array.from(this.local_context.events.values()));
     }
 }
 
@@ -98,8 +98,8 @@ class StrategyExecutorAbstraction {
 /* local context on the client. serves as master */
 class LocalPlannerContext {
     constructor(planner_backref) {
-        this.series = [];
-        this.events = [];
+        this.series = new Map();
+        this.events = new Map();
 
         this.planner = planner_backref
 
@@ -108,53 +108,63 @@ class LocalPlannerContext {
     }
 
     add_serie(serie) {
-        let id = (this.series.push(serie) -1);
-        this.add_events(this.SeriesUtil.calculate_serie(serie), id);
+        let serie_uuid = crypto.randomUUID();
+        serie.id = serie_uuid;
+        this.series.set(serie_uuid, serie);
+        
+        this.add_events(this.SeriesUtil.calculate_serie(serie), serie_uuid);
         this.onSeriesChanged(this.events, this.planner);
     }
 
     add_event(event) {
-        this.events.push(event);
+        let uuid = crypto.randomUUID();
+        event.id = uuid;
+        this.events.set(uuid, event);
         this.onEventsCreated(this.events, this.planner);
     }
 
-    update_event(event, index) {
-        this.events[index] = event;
+    update_event(event, uuid) {
+        this.events.set(uuid, event);
         this.onEventUpdated(this.events, this.planner);
     }
 
-    add_events(events, serie_id=undefined) {
-        if (serie_id !== undefined) {
+    add_events(events, serie_uuid=undefined) {
+        if (serie_uuid !== undefined) {
             events.forEach(function (event) {
-                event.serie_id = serie_id;
+                event.serie_uuid = serie_uuid;
             })
         }
 
-        this.events = this.events.concat(events);
+        for (let i = 0; i < events.length; i++) {
+            let event_uuid = crypto.randomUUID();
+            events[i].id = event_uuid;
+            this.events.set(event_uuid, events[i]);
+        }
+
         this.onEventsCreated(this.events, this.planner);
     }
 
-    delete_serie(serie_index) {
+    delete_serie(serie_uuid) {
         for (let i = 0; i < this.events.length; i++) {
             let event = this.events[i];
-            if (event.serie_id === serie_index) {
+            if (event.serie_uuid === serie_uuid) {
                 this.remove_event(i);
             }
         }
 
-        this.series.splice(serie_index, 1);
+        this.series.delete(serie_uuid, 1);
         this.onSeriesChanged(this.events, this.planner);
         this.onEventDeleted(this.events, this.planner);
     }
 
-    remove_event(index) {
-        this.events.splice(index, 1);
+    remove_event(uuid) {
+        this.events.delete(uuid);
         this.onEventDeleted(this.events, this.planner);
     }
 
-    remove_events(indices) {
-        indices.forEach(function (index) {
-            remove_event(index);
+    remove_events(uuids) {
+        indices.forEach(function (uuid) {
+            remove_event(uuid);
         });
     }
 
@@ -464,7 +474,6 @@ class LocalPlannerContext {
 
         static month__every_arbitrary_date_of_month({cycle, event, start_date, arbitrator, weekday, interval}={}) {
             if (cycle != 0) {
-                console.log(start_date)
                 start_date.setDate(1);
                 let month = start_date.getMonth();
                 start_date.setMonth(month + interval);
@@ -613,14 +622,16 @@ class CalendarManager extends RendererBase {
                         name: "<i class='fas fa-edit'></i> Rediger",
                         isHtmlName: true,
                         callback: function (key, opt){
-                            onClickEditButton(arg.event._def.extendedProps.eventIndex);
+                            console.log(arg.event._def)
+                            onClickEditButton(arg.event._def.extendedProps.event_uuid);
                         }
                     },
                     delete: {
                         name: "<i class='fas fa-trash'></i> Slett",
                         isHtmlName: true,
                         callback: function (key, opt) {
-                            onClickDeleteButton(arg.event._def.extendedProps.eventIndex);
+                            console.log(arg.event._def)
+                            onClickDeleteButton(arg.event._def.extendedProps.event_uuid);
                         }
                     },
                 }
@@ -645,7 +656,7 @@ class CalendarManager extends RendererBase {
                     }
                 }
 
-                let ctx_menu = $.contextMenu({
+                $.contextMenu({
                     className: "webook-context-menu",
                     selector: '.fc-event-main',
                     items: items,
@@ -708,8 +719,8 @@ class CalendarManager extends RendererBase {
                 "start": event.from,
                 "end": event.to,
                 "extendedProps": {
-                    "eventIndex": i,
-                    "serieIndex": event.serie_id
+                    "event_uuid": event.id,
+                    "serie_uuid": event.serie_uuid
                 },
                 "backgroundColor": event.color,
             })

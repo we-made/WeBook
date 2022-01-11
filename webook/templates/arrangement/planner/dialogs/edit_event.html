@@ -72,11 +72,11 @@
         $(eventEditDialog).modal('show');
     }
 
-    function updateEventDialog(eventIndex) {
-        let event = planner.local_context.events[eventIndex];
+    function updateEventDialog(event_uuid) {
+        let event = planner.local_context.events.get(event_uuid);
 
         // Write in existing values for this event
-        eventDialogManager.event_id.value = eventIndex;
+        eventDialogManager.event_id.value = event_uuid;
         eventDialogManager.title.value = event.title;
         eventDialogManager.fromDate.valueAsDate = event.from;
         eventDialogManager.fromTime.value = parseDateObjTimeToString(event.from);
@@ -95,13 +95,10 @@
             color: eventDialogManager.color.value,
         }
 
-        console.log('groovy')
         console.log(event_obj)
 
-        console.log(eventDialogManager.event_id.value);
-
         if (eventDialogManager.event_id.value !== "-1") {
-          planner.local_context.update_event(event_obj, parseInt(eventDialogManager.event_id.value));
+          planner.local_context.update_event(event_obj, eventDialogManager.event_id.value);
         }
         else {
           planner.local_context.add_event(event_obj);
