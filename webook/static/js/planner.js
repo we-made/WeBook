@@ -133,6 +133,19 @@ class LocalPlannerContext {
         this.onEventsCreated(this.events, this.planner);
     }
 
+    delete_serie(serie_index) {
+        for (let i = 0; i < this.events.length; i++) {
+            let event = this.events[i];
+            if (event.serie_id === serie_index) {
+                this.remove_event(i);
+            }
+        }
+
+        this.series.splice(serie_index, 1);
+        this.onSeriesChanged(this.events, this.planner);
+        this.onEventDeleted(this.events, this.planner);
+    }
+
     remove_event(index) {
         this.events.splice(index, 1);
         this.onEventDeleted(this.events, this.planner);
@@ -283,7 +296,7 @@ class LocalPlannerContext {
                 }
 
                 if (scope.instances !== 0) {
-                    if (typeof(result) == "array") {
+                    if (Array.isArray(result)) {
                         instance_cursor += result.length;
                     }
                     else {
@@ -505,6 +518,10 @@ class RendererManager {
         this.onClickEditButton = onClickEditButton;
         this.onClickInfoButton = onClickInfoButton;
 
+        this.onClickDeleteSeriesButton = function (series_index) {
+            context.delete_serie(series_index);
+        }
+
         this.onClickDeleteButton = function (eventId) {
             context.remove_event(eventId)
         }
@@ -528,6 +545,7 @@ class RendererManager {
     add_renderer(renderer) {
         renderer.onClickEditButton = this.onClickEditButton;
         renderer.onClickDeleteButton = this.onClickDeleteButton;
+        renderer.onClickDeleteSeriesButton = this.onClickDeleteSeriesButton;
 
         this.renderers.push(renderer);
     }
@@ -579,6 +597,7 @@ class CalendarManager extends RendererBase {
 
                 let onClickEditButton = this.onClickEditButton;
                 let onClickDeleteButton = this.onClickDeleteButton;
+                let onClickDeleteSeriesButton = this.onClickDeleteSeriesButton;
 
                 let items = {
                     edit: {
@@ -598,9 +617,22 @@ class CalendarManager extends RendererBase {
                 }
 
                 if (isRepeated === true) {
-                    items.delete_repetition = {
-                        name: "<i class='fas fa-trash'></i> Kanseller gjentagende hendelse",
+                    items.repetition_sep = "---------"
+                    items.repetition_fold = {
+                        name: "<i class='fas fa-calendar-alt'></i> Gjentagende hendelse",
                         isHtmlName: true,
+                        items: {}
+                    };
+                    items.repetition_fold.items.unhook_from_repetition = {
+                        name: "<i class='fas fa-unlink'></i> Gjør hendelsen individuell",
+                        isHtmlName: true,
+                    }
+                    items.repetition_fold.items.delete_repetition = {
+                        name: "<i class='fas fa-times'></i> Kanseller gjentagende hendelse",
+                        isHtmlName: true,
+                        callback: function (key, opt) {
+                            onClickDeleteSeriesButton(arg.event._def.extendedProps.serieIndex);
+                        }
                     }
                 }
 
