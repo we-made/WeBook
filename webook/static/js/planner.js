@@ -204,7 +204,7 @@ class LocalPlannerContext {
                     {
                         function_to_run: this.area__stop_within, 
                         parameter_obj: {
-                            stop_within_date: serie.time_area.stop_within
+                            stop_within_date: DateExtensions.OverwriteDateTimeWithTimeInputValue(serie.time_area.stop_within, "23:59")
                         }
                     }
                 )
@@ -246,6 +246,7 @@ class LocalPlannerContext {
                 color: serie.time.color,
             }
 
+            console.log(scope)
             while ((scope.stop_within_date !== undefined && date_cursor <= scope.stop_within_date) || (scope.instances !== 0 && scope.instances >= instance_cursor)) {
 
                 /* 
@@ -299,9 +300,6 @@ class LocalPlannerContext {
 
                 cycle_cursor++;
             }
-
-
-            console.log(events);
 
             return events;
         }
