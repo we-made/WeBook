@@ -336,7 +336,7 @@ class LocalPlannerContext {
                 start_date = start_date.addDays(interval - 1); // -1 to account for the "move-forward" padding done in cycler
             }
 
-            event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date. event.start);
+            event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.start);
             event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(start_date, event.end);
 
             return event;
