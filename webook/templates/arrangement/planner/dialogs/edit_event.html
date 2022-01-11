@@ -32,6 +32,9 @@
               <input type="time" class="form-control" id="toTime" code-qualified-name="toTime">
             </div>
           </div>
+
+          <label>Farge</label>
+          <input type="color" class="form-control" id="color" code-qualified-name="color">
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" onclick="saveEvent()">Save changes</button>
@@ -44,6 +47,10 @@
 <script>
     let eventEditDialog = document.getElementById('editEventDialog');
 
+    $(document).ready(function () {
+      new ColorSelectComponent("color_picker");
+    })
+
     var eventDialogManager = new InputGroupManager(
         [
             document.getElementById('title'),
@@ -51,6 +58,7 @@
             document.getElementById('fromTime'),
             document.getElementById('toTime'),
             document.getElementById('toDate'),
+            document.getElementById('color'),
         ]
     )
 
@@ -68,6 +76,7 @@
         eventDialogManager.fromTime.value = parseDateObjTimeToString(event.from);
         eventDialogManager.toDate.valueAsDate = event.to;
         eventDialogManager.toTime.value = parseDateObjTimeToString(event.to);
+        eventDialogManager.color.value = event.color;
 
         $(eventEditDialog).modal('show');
     }
@@ -76,7 +85,8 @@
         let event_obj = {
             title: eventDialogManager.title.value,
             from: new Date(eventDialogManager.fromDate.value + "T" + eventDialogManager.fromTime.value),
-            to: new Date(eventDialogManager.toDate.value + "T" + eventDialogManager.toTime.value)
+            to: new Date(eventDialogManager.toDate.value + "T" + eventDialogManager.toTime.value),
+            color: eventDialogManager.color.value,
         }
 
         planner.local_context.add_event(event_obj);

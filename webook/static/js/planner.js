@@ -243,6 +243,7 @@ class LocalPlannerContext {
                 title: serie.time.title,
                 start: serie.time.start,
                 end: serie.time.end,
+                color: serie.time.color,
             }
 
             while ((scope.stop_within_date !== undefined && date_cursor <= scope.stop_within_date) || (scope.instances !== 0 && scope.instances >= instance_cursor)) {
@@ -625,7 +626,8 @@ class CalendarManager extends RendererBase {
                 "extendedProps": {
                     "eventIndex": i,
                     "serieIndex": event.serie_id
-                }
+                },
+                "backgroundColor": event.color,
             })
         }
 
@@ -675,11 +677,11 @@ class TimeLineManager extends RendererBase {
                 id: i,
                 content: event.title,
                 start: event.from.toISOString(),
-                end: event.to.toISOString()
+                end: event.to.toISOString(),
+                style: "background-color:" + event.color + ";",
             })
         }
 
-        console.log(events_converted)
         this.flush_dataset();
         this.dataset.add(events_converted);
     }
@@ -742,6 +744,10 @@ class SimpleTableManager extends RendererBase {
     convert_event_to_row(event, index) {
         let row = document.createElement('tr');
 
+        let color_col = document.createElement('td');
+        color_col.innerHTML = "";
+        color_col.style="background-color:" + event.color + ";";
+
         let name_col = document.createElement('td');
         name_col.innerText = event.title;
 
@@ -755,21 +761,22 @@ class SimpleTableManager extends RendererBase {
         let onClickInfoButton = this.onClickInfoButton;
 
         let edit_button = document.createElement('button');
-        edit_button.classList.add('btn', 'btn-success', 'btn-sm')
+        edit_button.classList.add('btn', 'btn-success', 'btn-sm', 'btn-block')
         edit_button.onclick = function () { onClickEditButton(index); }
         edit_button.innerText = "Edit";
         let delete_button = document.createElement('button');
-        delete_button.classList.add('btn', 'btn-danger', 'btn-sm')
+        delete_button.classList.add('btn', 'btn-danger', 'btn-sm','btn-block')
         delete_button.onclick = function () { onClickDeleteButton(index); }
         delete_button.innerText = "Delete";
         let info_button = document.createElement('button')
-        info_button.classList.add('btn', 'btn-primary', 'btn-sm')
+        info_button.classList.add('btn', 'btn-primary', 'btn-sm', 'btn-block')
         info_button.onclick = function () { onClickInfoButton(index); }
         info_button.innerText = "Info"
 
         options_col.append(edit_button, delete_button, info_button);
 
         row.append(
+            color_col,
             name_col,
             time_col,
             options_col
@@ -785,6 +792,8 @@ class SimpleTableManager extends RendererBase {
 
         let theadRow = document.createElement('tr');
 
+        let theadColorCol = document.createElement('th');
+
         let theadNameCol = document.createElement('th');
         theadNameCol.innerText = "Name";
 
@@ -794,7 +803,7 @@ class SimpleTableManager extends RendererBase {
         let theadOptionsCol = document.createElement('th');
         theadOptionsCol.innerText = "Options";
 
-        theadRow.append(theadNameCol, theadTimeCol, theadOptionsCol);
+        theadRow.append(theadColorCol, theadNameCol, theadTimeCol, theadOptionsCol);
         thead_el.append(theadRow)
     }
 

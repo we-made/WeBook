@@ -38,6 +38,14 @@
                 </tr>
                 <tr>
                   <td>
+                    <label>Farge</label>
+                  </td>
+                  <td>
+                    <input type="color" id="serie_color" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
                     <label>Varighet&nbsp;&nbsp;</label>
                   </td>
                   <td>
@@ -345,27 +353,12 @@
       }
     )
 
-    class SelectComponent {
-        constructor (element_id, options) {
-            this.element_id = element_id
-            this.options = options
-        }
-
-        insert_options () {
-            for (let [key, value] of this.options) {
-                let option = document.createElement('option');
-                option.setAttribute("value", key);
-                option.innerText = value;
-                document.getElementById(this.element_id).append(option);
-            }
-        }
-    }
-
     function get_series_form_as_obj() {
         time = {
             title: document.getElementById('serie_title').value,
             start: document.getElementById('serie_start').value,
             end: document.getElementById('serie_end').value,
+            color: document.getElementById('serie_color').value,
         }
 
         pattern = {}
@@ -455,11 +448,10 @@
             time_area: area
         }
         
-
-        console.log(serie);
-
         planner.local_context.add_serie(serie);
     }
+
+ 
 
     class DayOfWeekSelectComponent extends SelectComponent {
         constructor (element_id) {

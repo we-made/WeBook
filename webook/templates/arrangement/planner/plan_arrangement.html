@@ -164,6 +164,50 @@
   <script src="{% static 'js/inputGroupManager.js' %}"></script>
 
 <script>
+    class SelectComponent {
+        constructor (element_id, options) {
+            this.element_id = element_id
+            this.options = options
+        }
+
+        insert_options () {
+            for (let [key, value] of this.options) {
+                let option = document.createElement('option');
+                option.setAttribute("value", key);
+                option.innerText = value;
+                document.getElementById(this.element_id).append(option);
+            }
+        }
+    }
+
+    class ColorSelectComponent extends SelectComponent {
+      constructor (element_id) {
+        let colors = new Map();
+        colors.set("1", "#80684d")
+        colors.set("2", "#006666")
+        colors.set("3", "#684d80")
+        colors.set("4", "#496580")
+        colors.set("5", "#ef5d4f")
+
+        super(element_id, colors);
+        
+        this.insert_options();
+      }
+
+      insert_options() {
+        for (let [key, value] of this.options) {
+          let option = document.createElement('option');
+          option.setAttribute("value", key);
+          option.innerText = key;
+          option.style = "background-color: " + value + ";";
+          document.getElementById(this.element_id).append(option);
+        }
+      }
+    }
+
+    
+
+
     function parseDateObjTimeToString (date_obj, separator=":", include_seconds=false) {
       let hours = String(date_obj.getHours());
       let minutes = String(date_obj.getMinutes());
@@ -204,6 +248,7 @@
         "weekNumbers": true,
         "selectable": true,
         "selectMirror": true,
+        "editable": true,
         "selectMinDistance": 1,
         "eventClick": function ( eventClickInfo ) {
             console.log(eventClickInfo);
