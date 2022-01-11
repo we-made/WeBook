@@ -33,10 +33,11 @@ class Planner {
         )
 
         this.local_context.onSeriesChanged = function (events, planner) {
-            console.log("series added")
+            console.log("=> Serie added")
         }
 
         this.local_context.onEventsCreated = function (events, planner) {
+            console.log("=> Events created")
             planner.init();
         }
 
@@ -46,10 +47,12 @@ class Planner {
         }
 
         this.local_context.onEventsDeleted = function (event, planner) {
+            console.log("=> Events deleted")
             planner.init();
         }
 
         this.local_context.onEventDeleted = function (event, planner) {
+            console.log("=> Event deleted")
             planner.init();
         }
     }
@@ -270,7 +273,6 @@ class LocalPlannerContext {
                 color: serie.time.color,
             }
 
-            console.log(scope)
             while ((scope.stop_within_date !== undefined && date_cursor <= scope.stop_within_date) || (scope.instances !== 0 && scope.instances >= instance_cursor)) {
 
                 /* 
@@ -608,8 +610,6 @@ class CalendarManager extends RendererBase {
             const isRepeated = arg.event._def.extendedProps.serieIndex !== undefined;
             const isDeviatedFromRepetitionBase = arg.event._def.extendedProps.altered;
 
-            // console.log(arg.event._def);
-
             arg.el.addEventListener("contextmenu", (jsEvent) => {
                 jsEvent.preventDefault();
 
@@ -622,7 +622,6 @@ class CalendarManager extends RendererBase {
                         name: "<i class='fas fa-edit'></i> Rediger",
                         isHtmlName: true,
                         callback: function (key, opt){
-                            console.log(arg.event._def)
                             onClickEditButton(arg.event._def.extendedProps.event_uuid);
                         }
                     },
@@ -630,7 +629,6 @@ class CalendarManager extends RendererBase {
                         name: "<i class='fas fa-trash'></i> Slett",
                         isHtmlName: true,
                         callback: function (key, opt) {
-                            console.log(arg.event._def)
                             onClickDeleteButton(arg.event._def.extendedProps.event_uuid);
                         }
                     },
@@ -807,8 +805,6 @@ class SimpleTableManager extends RendererBase {
         this.onClickDeleteButton = onClickDeleteButton;
         this.onClickEditButton = onClickEditButton;
         this.onClickInfoButton = onClickInfoButton;
-
-        console.log(onClickEditButton)
 
         this.primary_render()
     }
