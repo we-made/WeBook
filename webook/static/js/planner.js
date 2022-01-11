@@ -585,25 +585,6 @@ class CalendarManager extends RendererBase {
         this.calendar = undefined;
         this.rememberedInitialView = "dayGridMonth";
 
-        // this.fc_options.eventRender = (info) => {
-        //     // if (info.view.type === 'listMonth') {
-        //     //     return;
-        //     // }
-            
-        //     console.log(info);
-        //     console.log(info.extendedProps.serieIndex);
-
-        //     if (info.extendedProps.serieIndex !== undefined) {
-        //         console.log('hurricane')
-
-        //         let eventElement = info.el.querySelector('.fc-content');
-        //         let chainedIcon = document.createElement('i');
-        //         chainedIcon.classList.append("fas")
-        //         chainedIcon.classList.append("fa-link")
-        //         eventElement.appendChild(chainedIcon);
-        //     }
-        // }
-
         this.fc_options.eventContent = (arg) => {
 
             let rootNode = document.createElement("span");
