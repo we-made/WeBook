@@ -41,6 +41,7 @@ class Planner {
         }
 
         this.local_context.onEventUpdated = function (event, planner) {
+            console.log("==> Event updated")
             planner.init();
         }
 
@@ -587,25 +588,7 @@ class CalendarManager extends RendererBase {
 
         this.fc_options.eventContent = (arg) => {
 
-            let rootNode = document.createElement("span");
-            rootNode.classList.add('text-white', 'w-100');
-            rootNode.style="padding:4px; background-color:" + arg.event.backgroundColor + ";";
-
-            let iconsWrapper = document.createElement('span');            
-            if (arg.event.extendedProps.serieIndex !== undefined) {
-                let linkIcon = document.createElement('i');
-                linkIcon.classList.add('fas', 'fa-link');
-                iconsWrapper.appendChild(linkIcon);
-            }
-
-            let eventTitle = document.createElement("span");
-            eventTitle.innerHTML = "&nbsp; " + arg.event.title;
-
-            rootNode.append(
-                iconsWrapper,
-                eventTitle,
-            )
-
+            let rootNode = this.RenderingUtilities.renderEventForView(arg.view.type, arg);
             return { 
                 html: rootNode.outerHTML
             };
@@ -668,6 +651,51 @@ class CalendarManager extends RendererBase {
                     items: items,
                 });
             })
+        }
+    }
+
+    RenderingUtilities = class RenderingUtilities {
+
+        static renderEventForView(view_name, ev_info) {
+            let viewsToRendererMap = new Map();
+            viewsToRendererMap.set("dayGridMonth", this.renderDayGridMonth_Event);
+            viewsToRendererMap.set("timeGridWeek", this.renderWeek_Event);
+            viewsToRendererMap.set("timeGridDay", this.renderWeek_Event);
+            this.viewsToRendererMap = viewsToRendererMap;
+
+            let renderer_function = this.viewsToRendererMap.get(view_name)
+            if (renderer_function === undefined) {
+                throw "No event renderer for this view -> (" + view_name + ")";
+            }
+
+            return renderer_function(ev_info, this.get_icons_html(ev_info))
+        }
+
+        static get_icons_html(info) {
+            let icons_wrapper = document.createElement('div');
+
+            if (info.event.extendedProps.serieIndex !== undefined) {
+                let icon = document.createElement('i');
+                icon.classList.add('fas', 'fa-link');
+                icons_wrapper.appendChild(icon);
+            }
+
+            return icons_wrapper.outerHTML;
+        }
+
+        static renderDayGridMonth_Event(info, icons_html) {
+            let rootWrapperNode = document.createElement("span");
+            rootWrapperNode.style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+            rootWrapperNode.innerHTML = "&nbsp;<span><i class='fas fa-circle' style='color: " + info.backgroundColor + "'></i></span>&nbsp; <strong>(" + info.timeText + ")</strong> " + info.event.title + "&nbsp;&nbsp; <span style='text-align:right;'><i class='fas fa-ellipsis-v'></i></span>";
+            return rootWrapperNode;
+        }
+
+        static renderWeek_Event(info, icons_html) {
+            let rootWrapperNode = document.createElement("span");
+
+            rootWrapperNode.innerHTML = "<strong>" + info.timeText + "</strong>" + icons_html + "<div>" + info.event.title + "</div>"
+            
+            return rootWrapperNode;
         }
     }
 
