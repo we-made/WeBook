@@ -10,6 +10,7 @@ from .person_urls import person_urls
 from .room_urls import room_urls
 from .servicetype_urls import servicetype_urls
 from .statistics_urls import statistics_urls
+from .planner_urls import planner_urls
 
 
 app_name = "arrangement"
@@ -27,3 +28,4 @@ urlpatterns.extend(person_urls)
 urlpatterns.extend(room_urls)
 urlpatterns.extend(servicetype_urls)
 urlpatterns.extend(statistics_urls)
+urlpatterns.extend(planner_urls)

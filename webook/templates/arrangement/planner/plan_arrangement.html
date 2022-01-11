@@ -1,0 +1,243 @@
+
+{% load static i18n %}
+
+{% block content %}
+<style>
+  #designerCalendar .fc-day-sun, #designerCalendar .fc-day-sat {
+    background-color: #f4f5d7;
+}
+   /* menu header */
+   .css-title:before {
+        content: "some CSS title";
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        background: #DDD;
+        padding: 2px;
+
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        font-weight: bold;
+    }
+    .css-title :first-child {
+        margin-top: 20px;
+    }
+
+    /* menu header via data attribute */
+    .data-title:before {
+        content: attr(data-menutitle);
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        background: #DDD;
+        padding: 2px;
+
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        font-weight: bold;
+    }
+    .data-title :first-child {
+        margin-top: 20px;
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<h3 class="mt-5">Designer</h3>
+<button class="btn btn-primary"
+        onclick="newEventDialog()">
+    New event
+</button>
+<button class="btn btn-primary"
+        onclick="loadNewSerieDialog()">
+    New serie
+</button>
+<ul class="stepper" data-mdb-stepper="stepper">
+    <li class="stepper-step stepper-active">
+      <div class="stepper-head">
+        <span class="stepper-head-icon"> <i class="fas fa-calendar"></i> </span>
+        <span class="stepper-head-text"> {% trans "Calendar" %} </span>
+      </div>
+      <div class="stepper-content py-3">
+        <div class="row">
+          <!-- <div class="col-3">
+
+            <fieldset>
+              <div class="badge badge-md badge-success">
+                0 hendelser
+              </div>
+              <div class="badge badge-md badge-success">
+                0 serier
+              </div>
+            </fieldset>
+
+            <fieldset class="mt-3">
+              <legend>Visning</legend>
+              
+              <div class="form-group">
+                <input type="checkbox"/> Vis blokkere <i class="fas fa-question-circle"></i>
+              </div>
+              <div class="form-group">
+                <input type="checkbox"/> Fargekod serier <i class="fas fa-question-circle"></i>
+              </div>
+            </fieldset>
+
+            <fieldset class="mt-3">
+              <legend>Verktøy</legend>
+              
+              <button class="btn btn-primary btn-block">Kjør Kollisjonsanalyse</button>
+            </fieldset>
+
+            <fieldset class="mt-3">
+              <legend>Repeterende hendelser</legend>
+
+              <input type="text" class="form-control">
+
+              <div class="mt-2">
+                <div class="border border-1 p-2">
+                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
+                </div>
+                <div class="border border-1 p-2">
+                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
+                </div>
+                <div class="border border-1 p-2">
+                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
+                </div>
+                <div class="border border-1 p-2">
+                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
+                </div>
+                <div class="border border-1 p-2">
+                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
+                </div>
+              </div>
+
+            </fieldset>
+
+          </div> -->
+          <div class="col-12">
+            <div id="designerCalendar"></div>
+          </div>
+        </div>
+      </div>
+    </li>
+    <li class="stepper-step">
+      <div class="stepper-head">
+        <span class="stepper-head-icon"> <i class="fas fa-clock"></i> </span>
+        <span class="stepper-head-text"> Timeline </span>
+      </div>
+      <div class="stepper-content py-3">
+
+        <div class="row">
+            <div class="col-12">
+              <div id="timeline_vis"></div>
+            </div>
+        </div>
+      </div>
+    </li>
+    <li class="stepper-step">
+      <div class="stepper-head">
+        <span class="stepper-head-icon"> <i class="fas fa-user"></i> </span>
+        <span class="stepper-head-text"> Table </span>
+      </div>
+      <div class="stepper-content py-3">
+
+        <div class="row">
+            <div class="col-12">
+                <table class="table table-sm table-striped" id="eventsTable">
+                  <thead></thead>
+                  <tbody></tbody>
+                  <tfoot></tfoot>
+                </table>
+            </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+  <script src="{% static 'fullcalendar-scheduler/main.min.js' %}"></script>
+  <script src="{% static 'fullcalendar-scheduler/locales-all.min.js' %}"></script>
+  <script src="{% static 'js/planner.js' %}"></script>
+  <script src="{% static 'js/inputGroupManager.js' %}"></script>
+
+<script>
+    function parseDateObjTimeToString (date_obj, separator=":", include_seconds=false) {
+      let hours = String(date_obj.getHours());
+      let minutes = String(date_obj.getMinutes());
+      let seconds = String(date_obj.getSeconds());
+
+      if (hours.length == 1) {
+        hours = "0" + hours;
+      }
+      if (minutes.length == 1) {
+        minutes += "0";
+      }
+      if (seconds.length == 1 && include_seconds === true) {
+        seconds += "0";
+      }
+
+      return hours + separator + minutes + (include_seconds === true ? separator + seconds : "");
+    }
+
+    var planner = new Planner({
+      onClickEditButton: function (eventId) { updateEventDialog(eventId); },
+    });
+
+    var plannerTableManager = new SimpleTableManager(
+      'eventsTable',
+      function (index) { planner.context.remove_event(index) },
+      function (index) { updateEventDialog(index) },
+      function (index) { console.log('INFO!') },
+    )
+
+    var plannerTimelineManager = new TimeLineManager("timeline_vis");
+
+    var calendarManager = new CalendarManager(
+      "designerCalendar",
+      {
+        "initialView": "dayGridMonth",
+        "navLinks": true,
+        "locale": 'nb',
+        "weekNumbers": true,
+        "selectable": true,
+        "selectMirror": true,
+        "selectMinDistance": 1,
+        "eventClick": function ( eventClickInfo ) {
+            console.log(eventClickInfo);
+            openEventInfoDialog(eventClickInfo.event._def.extendedProps.eventIndex);
+        },
+        "select": function ( selectionInfo ) {
+            eventDialogManager.fromDate.valueAsDate = selectionInfo.start;
+            eventDialogManager.fromTime.value = parseDateObjTimeToString(selectionInfo.start);
+
+            eventDialogManager.toDate.valueAsDate = selectionInfo.end;
+            eventDialogManager.toTime.value = parseDateObjTimeToString(selectionInfo.end);
+
+            eventDialogManager.title.value = "";
+            $(eventEditDialog).modal('show');
+        },
+        "headerToolbar": {
+          "left": 'prev,next today',
+          "center": 'title',
+          "right": 'dayGridMonth,timeGridWeek,timeGridDay'
+        } 
+      },
+    );
+    
+    plannerTableManager.onClickEditButton = function (index) {
+      updateEventDialog(index);
+    }
+
+    planner.renderer_manager.add_renderer(plannerTableManager);
+    planner.renderer_manager.add_renderer(plannerTimelineManager)
+    planner.renderer_manager.add_renderer(calendarManager);
+
+    planner.init()
+  </script>
+  {% include 'arrangement/planner/dialogs/edit_event.html' %}
+  {% include 'arrangement/planner/dialogs/new_serie.html' %}
+  {% include 'arrangement/planner/dialogs/event_info.html' %}
+{% endblock %}

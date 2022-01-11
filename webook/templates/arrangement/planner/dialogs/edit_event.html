@@ -1,0 +1,84 @@
+<div class="modal" tabindex="-1" role="dialog" id="editEventDialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit event</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#editEventDialog').modal('hide')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Tittel</label>
+            <input type="text" class="form-control" id="title" code-qualified-name="title"/>
+          </div>
+
+          <label>Fra</label>
+          <div class="row">
+            <div class="col-6">
+              <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate">
+            </div>
+            <div class="col-6">
+              <input type="time" class="form-control" id="fromTime" code-qualified-name="fromTime">
+            </div>
+          </div>
+
+          <label>Til</label>
+          <div class="row">
+            <div class="col-6">
+              <input type="date" class="form-control" id="toDate" code-qualified-name="toDate">
+            </div>
+            <div class="col-6">
+              <input type="time" class="form-control" id="toTime" code-qualified-name="toTime">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="saveEvent()">Save changes</button>
+          <button type="button" class="btn btn-primary" onclick="">Save, and new</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+    let eventEditDialog = document.getElementById('editEventDialog');
+
+    var eventDialogManager = new InputGroupManager(
+        [
+            document.getElementById('title'),
+            document.getElementById('fromDate'),
+            document.getElementById('fromTime'),
+            document.getElementById('toTime'),
+            document.getElementById('toDate'),
+        ]
+    )
+
+    function newEventDialog() {
+        let eventEditDialog = document.getElementById('editEventDialog');
+        $(eventEditDialog).modal('show');
+    }
+
+    function updateEventDialog(eventIndex) {
+        let event = planner.local_context.events[eventIndex];
+
+        // Write in existing values for this event
+        eventDialogManager.title.value = event.title;
+        eventDialogManager.fromDate.valueAsDate = event.from;
+        eventDialogManager.fromTime.value = parseDateObjTimeToString(event.from);
+        eventDialogManager.toDate.valueAsDate = event.to;
+        eventDialogManager.toTime.value = parseDateObjTimeToString(event.to);
+
+        $(eventEditDialog).modal('show');
+    }
+
+    function saveEvent() {
+        let event_obj = {
+            title: eventDialogManager.title.value,
+            from: new Date(eventDialogManager.fromDate.value + "T" + eventDialogManager.fromTime.value),
+            to: new Date(eventDialogManager.toDate.value + "T" + eventDialogManager.toTime.value)
+        }
+
+        planner.local_context.add_event(event_obj);
+    }
+</script>

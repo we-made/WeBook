@@ -83,3 +83,7 @@ from .audience_views import (
 from .dashboard_views import (
     dashboard_view,
 )
+
+from .planner_views import (
+    plan_arrangement_view
+)

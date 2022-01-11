@@ -1,3 +1,4 @@
+from enum import Enum
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
@@ -509,6 +510,11 @@ class Event(TimeStampedModel):
 
     """
 
+    """ 
+    Flag to indicate if this is a template event.
+    If so it should not be treated as a noraml event, as it is only used for generating events
+    """
+    is_template_event = False
 
     title = models.CharField(verbose_name=_("Title"), max_length=255)
     start = models.DateTimeField(verbose_name=_("Start"), null=False)
@@ -555,3 +561,53 @@ class EventService(TimeStampedModel):
     service_provider = models.ForeignKey(to=ServiceProvider, on_delete=models.RESTRICT, verbose_name=_("Service Provider"))
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     associated_people = models.ManyToManyField(to=Person, verbose_name=_("Associated People"))
+
+
+class ArrangementSchematic(TimeStampedModel, ModelNamingMetaMixin):
+    name = models.CharField(
+        verbose_name=_("Name"),
+        max_length=255,
+    )
+
+    # todo replace
+    entity_name_plural = _("Schematic")
+    entity_name_singular = _("Schematics")
+
+
+class SeriesEventRepetitionInstruction(TimeStampedModel):
+    class RepetitionMethod(models.TextChoices):
+        REPEAT_X_TIMES = 1, _("Repeat a defined amount of times")
+        DO_AS_MANY_TIMES_BETWEEN_START_AND_END = 2, _("Do as many times as we can between start and end")
+
+    interval_days = models.IntegerField(
+        verbose_name=_("Interval in days")
+    )
+    times_to_repeat = models.IntegerField(
+        verbose_name=_("Times to repeat")
+    )
+    from_date = models.DateField(
+        verbose_name=_("From date")
+    )
+    to_date = models.DateField(
+        verbose_name=_("To date")
+    )
+
+class SchematicEventTemplate(TimeStampedModel):
+    title = models.CharField(
+        verbose_name=_("Title"),
+        max_length=255,
+    )
+
+    start = models.TimeField(
+        verbose_name="Start",
+    )
+
+    end = models.TimeField(
+        verbose_name="End",
+    )
+
+    schematic = models.ForeignKey(to="ArrangementSchematic", on_delete=models.RESTRICT)
+    repetition_instruction = models.ForeignKey(to="SeriesEventRepetitionInstruction", on_delete=models.RESTRICT)
+
+    rooms = models.ManyToManyField(to="Room")
+    people = models.ManyToManyField(to="Person")

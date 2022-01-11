@@ -2,6 +2,12 @@
 {% load static i18n %}
 
 {% block beneath_breadcrumbs_block %}
+    <h3>
+        <span class="badge badge-primary">
+            <i class="fas fa-pencil-ruler"></i> Under Planlegging
+        </span>
+    </h3>
+
     <a class="btn btn-success"
         href="{% url 'arrangement:arrangement_edit' object.slug %}">
         <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
@@ -145,35 +151,11 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-3">
 
-                </div>
-                <div class="col-3">
 
-                </div>
+            <div id="planner" class="mb-4">
+                {% include 'arrangement/planner/plan_arrangement.html' %}
             </div>
-
-            <div class="clearfix">
-                <ul class="list-inline float-end">
-                    <li class="list-inline-item">
-                        <a href="#" class="fw-bold me-4"
-                            data-mdb-toggle="modal"
-                            data-mdb-target="#colorLegendModal">
-                            <i class="fa fa-info-circle"></i>&nbsp;{% trans "Color Legend" %}
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="#" class="fw-bold"
-                            data-mdb-toggle="modal"
-                            data-mdb-target="#iconLegendModal">
-                            <i class="fa fa-info-circle"></i>&nbsp;{% trans "Icon Legend" %}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div id="visualization" class="mb-4"></div>  
 
             <h4 class="mt-5">{% trans "Status in short" %}</h4>
 
