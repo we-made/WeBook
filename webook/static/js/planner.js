@@ -405,12 +405,16 @@ class LocalPlannerContext {
             let y = 0;
             for (let i = start_date.getDay(); i < 6; i++) {
                 let day = days.get(i)
+                console.log(i);
+                console.log(day);
                 if (day === true) {
                     let adjusted_date = (new Date(start_date)).addDays(y);
-                    event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.start)
-                    event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.end);
+                    console.log(adjusted_date);
+                    let ev_copy = Object.assign({}, event);
+                    ev_copy.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.start)
+                    ev_copy.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.end);
 
-                    events.push(event);
+                    events.push(ev_copy);
                 }
 
                 y++;

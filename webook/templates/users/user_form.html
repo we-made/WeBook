@@ -15,8 +15,9 @@
     enctype="multipart/form-data">
     {% csrf_token %}
 
-    
-      {{ form.profile_picture }}
+      {% if form.profile_picture %}
+        {{ form.profile_picture }}
+      {% endif %}
 
       <div class="row">
         <div class="col-lg-4 col-md-12 col-sm-12">
