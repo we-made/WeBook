@@ -153,9 +153,7 @@ class LocalPlannerContext {
     delete_serie(serie_uuid) {
         for (let i = 0; i < this.events.values().length; i++) {
             let event = this.events.values()[i];
-            console.log("Not so far")
             if (event.serie_uuid === serie_uuid) {
-                console.log("Very far")
                 this.remove_event(i.id);
             }
         }
@@ -278,7 +276,7 @@ class LocalPlannerContext {
                 color: serie.time.color,
             }
 
-            while ((scope.stop_within_date !== undefined && date_cursor <= scope.stop_within_date) || (scope.instances !== 0 && scope.instances >= instance_cursor)) {
+            while ((scope.stop_within_date !== undefined && date_cursor < scope.stop_within_date) || (scope.instances !== 0 && scope.instances >= instance_cursor)) {
 
                 /* 
                     There are two ways we monitor our "progress" here. One is by the date cursor, and one is by instances.
@@ -408,8 +406,6 @@ class LocalPlannerContext {
             let y = 0;
             for (let i = start_date.getDay(); i < 6; i++) {
                 let day = days.get(i)
-                console.log(i);
-                console.log(day);
                 if (day === true) {
                     let adjusted_date = (new Date(start_date)).addDays(y);
                     console.log(adjusted_date);
