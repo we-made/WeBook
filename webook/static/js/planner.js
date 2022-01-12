@@ -295,8 +295,11 @@ class LocalPlannerContext {
                     cycle_cursor++;
                     continue;
                 }
-
+                
                 if (result.from > scope.stop_within_date) {
+                    console.log("result.from > scope.stop_within_date == True")
+                    console.log(result.from)
+                    console.log(scope.stop_within_date)
                     break;
                 }
 
@@ -487,10 +490,10 @@ class LocalPlannerContext {
             if (cycle != 0) {
                 start_date.setDate(1);
                 let month = start_date.getMonth();
-                start_date.setMonth(month + interval);
+                start_date.setMonth(month + parseInt(interval));
             }
 
-            date = SeriesUtil.arbitrator_find(start_date, arbitrator, weekday);
+            let date = SeriesUtil.arbitrator_find(start_date, arbitrator, weekday);
             event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
             event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end)
 
