@@ -250,10 +250,6 @@
         "selectMirror": true,
         "editable": true,
         "selectMinDistance": 1,
-        "eventClick": function ( eventClickInfo ) {
-            console.log(eventClickInfo);
-            openEventInfoDialog(eventClickInfo.event._def.extendedProps.eventIndex);
-        },
         "select": function ( selectionInfo ) {
             eventDialogManager.fromDate.valueAsDate = selectionInfo.start;
             eventDialogManager.fromTime.value = parseDateObjTimeToString(selectionInfo.start);
@@ -262,6 +258,9 @@
             eventDialogManager.toTime.value = parseDateObjTimeToString(selectionInfo.end);
 
             eventDialogManager.title.value = "";
+
+            eventDialogManager.event_id.value = -1;
+
             $(eventEditDialog).modal('show');
         },
         "headerToolbar": {

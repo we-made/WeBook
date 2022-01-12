@@ -52,9 +52,7 @@
 <script>
     let eventEditDialog = document.getElementById('editEventDialog');
 
-    $(document).ready(function () {
-      new ColorSelectComponent("color_picker");
-    })
+
 
     var eventDialogManager = new InputGroupManager(
         [
@@ -102,6 +100,7 @@
         console.log(event_obj)
 
         let toastrMessage = "";
+        console.log(eventDialogManager.event_id.value);
         if (eventDialogManager.event_id.value !== "-1") {
           planner.local_context.update_event(event_obj, eventDialogManager.event_id.value);
           toastrMessage = "Hendelse oppdatert!";

@@ -120,13 +120,16 @@ class LocalPlannerContext {
     }
 
     add_event(event) {
+        console.log("=> Add_Event")
         let uuid = crypto.randomUUID();
         event.id = uuid;
+        console.log("=> " + event.id)
         this.events.set(uuid, event);
         this.onEventsCreated(this.events, this.planner);
     }
 
     update_event(event, uuid) {
+        console.log("=> Update Event")
         this.events.set(uuid, event);
         this.onEventUpdated(this.events, this.planner);
     }
@@ -258,7 +261,10 @@ class LocalPlannerContext {
                 )
             );
 
+            console.log(serie.time_area);
+
             let area_strategy = area_strategies.get(serie.time_area.method_name);
+            console.log(serie.time_area.method_name)
             let scope = area_strategy.run({ start_date: serie.time_area.start_date });
             
             let pattern_strategy = pattern_strategies.get(serie.pattern.pattern_routine);
@@ -275,8 +281,9 @@ class LocalPlannerContext {
                 end: serie.time.end,
                 color: serie.time.color,
             }
-
-            while ((scope.stop_within_date !== undefined && date_cursor < scope.stop_within_date) || (scope.instances !== 0 && scope.instances >= instance_cursor)) {
+            console.log("PRE ENTER! --> " + scope.instances !== 0 && scope.instances >= instance_cursor)
+            console.log(scope.instance_limit + "!== 0 &&" + scope.instance_limit + ">=" + instance_cursor)
+            while ((scope.stop_within_date !== undefined && date_cursor < scope.stop_within_date) || (scope.instance_limit !== 0 && scope.instance_limit >= instance_cursor)) {
 
                 /* 
                     There are two ways we monitor our "progress" here. One is by the date cursor, and one is by instances.
@@ -289,38 +296,40 @@ class LocalPlannerContext {
                 event_sample = Object.assign({}, event_sample);
                 let result = pattern_strategy.run({cycle: cycle_cursor, start_date: date_cursor, event: event_sample});
 
+                console.log("Cycle: " + cycle_cursor) 
+
                 if (result === undefined || (Array.isArray(result) && result.length == 0)) {
                     cycle_cursor++;
                     continue;
                 }
-                
-                if (result.from > scope.stop_within_date) {
-                    console.log("result.from > scope.stop_within_date == True")
-                    console.log(result.from)
-                    console.log(scope.stop_within_date)
-                    break;
-                }
 
                 if (scope.stop_within_date !== undefined) {
-                    let move_cursor_to = date_cursor
-                    if (Array.isArray(result)) {
-                        move_cursor_to = result[result.length - 1].to
+                    if (result.from > scope.stop_within_date) {
+                        console.log("result.from > scope.stop_within_date == True")
+                        console.log(result.from)
+                        console.log(scope.stop_within_date)
+                        break;
                     }
-                    else {
-                        move_cursor_to = result.to
+                }
+                if (scope.instance_limit !== undefined &&  scope.instance_limit !== undefined) {
+                    if (instance_cursor > scope.instance_limit) {
+                        break;
                     }
-
-                    date_cursor = move_cursor_to
-                    date_cursor = date_cursor.addDays(1)
                 }
 
-                if (scope.instances !== 0) {
-                    if (Array.isArray(result)) {
-                        instance_cursor += result.length;
-                    }
-                    else {
-                        instance_cursor++;
-                    }
+                let move_cursor_to = date_cursor
+                if (Array.isArray(result)) {
+                    move_cursor_to = result[result.length - 1].to
+                }
+                else {
+                    move_cursor_to = result.to
+                }
+
+                date_cursor = move_cursor_to
+                date_cursor = date_cursor.addDays(1)
+
+                if (scope.instance_limit !== 0) {
+                    instance_cursor++;
                 }
 
                 if (Array.isArray(result)) {
@@ -352,10 +361,19 @@ class LocalPlannerContext {
             }
         }
 
-        static area__no_stop_date({start_date, project_x_months} = {}) {
+        static area__no_stop_date({start_date, projectionDistanceInMonths} = {}) {
+            start_date = new Date(start_date)
+
+            let stop_within_date = new Date(start_date)
+            let month = start_date.getMonth();
+            console.log(month)
+            console.log(projectionDistanceInMonths)
+            stop_within_date.setMonth(month + projectionDistanceInMonths);
+            console.log(start_date)
+            console.log(stop_within_date)
             return {
-                start_date: new Date(start_date),
-                stop_within_date: new Date(start_date.setMonth(start_date.getMonth()+project_x_months)),
+                start_date: start_date,
+                stop_within_date: stop_within_date,
                 instance_limit: 0
             }
         }
@@ -856,7 +874,7 @@ class SimpleTableManager extends RendererBase {
         this.tbody_element.appendChild(row_element);
     }
 
-    convert_event_to_row(event, index) {
+    convert_event_to_row(event) {
         let row = document.createElement('tr');
 
         let color_col = document.createElement('td');
@@ -877,18 +895,14 @@ class SimpleTableManager extends RendererBase {
 
         let edit_button = document.createElement('button');
         edit_button.classList.add('btn', 'btn-success', 'btn-sm', 'btn-block')
-        edit_button.onclick = function () { onClickEditButton(index); }
+        edit_button.onclick = function () { onClickEditButton(event.id); }
         edit_button.innerText = "Edit";
         let delete_button = document.createElement('button');
         delete_button.classList.add('btn', 'btn-danger', 'btn-sm','btn-block')
-        delete_button.onclick = function () { onClickDeleteButton(index); }
+        delete_button.onclick = function () { onClickDeleteButton(event.id); }
         delete_button.innerText = "Delete";
-        let info_button = document.createElement('button')
-        info_button.classList.add('btn', 'btn-primary', 'btn-sm', 'btn-block')
-        info_button.onclick = function () { onClickInfoButton(index); }
-        info_button.innerText = "Info"
 
-        options_col.append(edit_button, delete_button, info_button);
+        options_col.append(edit_button, delete_button);
 
         row.append(
             color_col,
@@ -926,7 +940,7 @@ class SimpleTableManager extends RendererBase {
         this.flush_rows();
 
         for (let i = 0; i < events.length; i++) {
-            this.add_row(this.convert_event_to_row(events[i], i));
+            this.add_row(this.convert_event_to_row(events[i]));
         }
     }
 }
