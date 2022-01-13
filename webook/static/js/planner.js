@@ -19,8 +19,7 @@ Date.prototype.addDays = function(days) {
     return date;
 }
 /*
-    Top level "manager" class for the planner and interfacing with it. Highest abstraction level,
-    and probably will serve all use cases.
+    Top level.
 */
 class Planner {
     constructor({ onClickEditButton, onClickInfoButton } = {}) {
@@ -62,13 +61,23 @@ class Planner {
     }
 }
 
+
 /* handle synchronizing data between multiple contexts */
 class ContextSynchronicityManager {
-
+    constructor () {
+        let event_map = new Map()
+        event_map.set("event.created", "")
+    }
 }
 
 class UpstreamPlannerContext {
     constructor(planner_backref) {
+
+    }
+}
+
+class LocalStorageContext {
+    constructor (planner_backref) {
 
     }
 }
@@ -120,16 +129,13 @@ class LocalPlannerContext {
     }
 
     add_event(event) {
-        console.log("=> Add_Event")
         let uuid = crypto.randomUUID();
         event.id = uuid;
-        console.log("=> " + event.id)
         this.events.set(uuid, event);
         this.onEventsCreated(this.events, this.planner);
     }
 
     update_event(event, uuid) {
-        console.log("=> Update Event")
         this.events.set(uuid, event);
         this.onEventUpdated(this.events, this.planner);
     }
@@ -145,8 +151,6 @@ class LocalPlannerContext {
             let event_uuid = crypto.randomUUID();
             let ev = events[i];
             ev.id = event_uuid;
-            console.log("EVENT.ID = " + ev.id);
-            console.log("EVENT_UUID = " + event_uuid)
             this.events.set(event_uuid, ev);
         }
 
@@ -261,10 +265,7 @@ class LocalPlannerContext {
                 )
             );
 
-            console.log(serie.time_area);
-
             let area_strategy = area_strategies.get(serie.time_area.method_name);
-            console.log(serie.time_area.method_name)
             let scope = area_strategy.run({ start_date: serie.time_area.start_date });
             
             let pattern_strategy = pattern_strategies.get(serie.pattern.pattern_routine);
@@ -281,8 +282,6 @@ class LocalPlannerContext {
                 end: serie.time.end,
                 color: serie.time.color,
             }
-            console.log("PRE ENTER! --> " + scope.instances !== 0 && scope.instances >= instance_cursor)
-            console.log(scope.instance_limit + "!== 0 &&" + scope.instance_limit + ">=" + instance_cursor)
             while ((scope.stop_within_date !== undefined && date_cursor < scope.stop_within_date) || (scope.instance_limit !== 0 && scope.instance_limit >= instance_cursor)) {
 
                 /* 
@@ -296,8 +295,6 @@ class LocalPlannerContext {
                 event_sample = Object.assign({}, event_sample);
                 let result = pattern_strategy.run({cycle: cycle_cursor, start_date: date_cursor, event: event_sample});
 
-                console.log("Cycle: " + cycle_cursor) 
-
                 if (result === undefined || (Array.isArray(result) && result.length == 0)) {
                     cycle_cursor++;
                     continue;
@@ -305,9 +302,6 @@ class LocalPlannerContext {
 
                 if (scope.stop_within_date !== undefined) {
                     if (result.from > scope.stop_within_date) {
-                        console.log("result.from > scope.stop_within_date == True")
-                        console.log(result.from)
-                        console.log(scope.stop_within_date)
                         break;
                     }
                 }
@@ -366,11 +360,7 @@ class LocalPlannerContext {
 
             let stop_within_date = new Date(start_date)
             let month = start_date.getMonth();
-            console.log(month)
-            console.log(projectionDistanceInMonths)
             stop_within_date.setMonth(month + projectionDistanceInMonths);
-            console.log(start_date)
-            console.log(stop_within_date)
             return {
                 start_date: start_date,
                 stop_within_date: stop_within_date,
@@ -426,7 +416,6 @@ class LocalPlannerContext {
                 let day = days.get(i)
                 if (day === true) {
                     let adjusted_date = (new Date(start_date)).addDays(y);
-                    console.log(adjusted_date);
                     let ev_copy = Object.assign({}, event);
                     ev_copy.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.start)
                     ev_copy.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.end);
@@ -636,9 +625,6 @@ class CalendarManager extends RendererBase {
         }
 
         this.fc_options.eventDidMount = (arg) => {
-
-            console.log("AT FIRST: " + arg.event.extendedProps.event_uuid)
-
             const at_first = arg.event.extendedProps.event_uuid;
             focused_event_uuid = at_first;
             focused_serie_uuid = arg.event.extendedProps.serie_uuid;
@@ -647,15 +633,10 @@ class CalendarManager extends RendererBase {
                 jsEvent.preventDefault();
 
                 let argCopy = Object.assign({}, arg);
-
-                console.log(jsEvent);
-                console.log(arg);
                 let evuuid = argCopy.event.extendedProps.event_uuid;
-                console.log(argCopy.event.extendedProps.event_uuid)
                 let onClickEditButton = this.onClickEditButton;
                 let onClickDeleteButton = this.onClickDeleteButton;
                 let onClickDeleteSeriesButton = this.onClickDeleteSeriesButton;
-                console.log("TRI: " + at_first)
 
                 let callback = function () {
                     onClickEditButton(focused_event_uuid)
