@@ -477,7 +477,7 @@ class LocalPlannerContext {
 
             let stop_within_date = new Date(start_date)
             let month = start_date.getMonth();
-            stop_within_date.setMonth(month + projectionDistanceInMonths);
+            stop_within_date.setMonth(parseInt(month) + parseInt(projectionDistanceInMonths));
             return {
                 start_date: start_date,
                 stop_within_date: stop_within_date,
