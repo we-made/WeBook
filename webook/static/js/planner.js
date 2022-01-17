@@ -22,7 +22,7 @@ Date.prototype.addDays = function(days) {
     Top level.
 */
 class Planner {
-    constructor({ onClickEditButton, onClickInfoButton } = {}) {
+    constructor({ onClickEditButton, onClickInfoButton, csrf_token, arrangement_id } = {}) {
         this.local_context = new LocalPlannerContext(this)
         this.renderer_manager = new RendererManager(
             /*context:PlannerContext*/this.local_context,
@@ -30,28 +30,46 @@ class Planner {
             onClickEditButton,
             onClickInfoButton,
         )
+        this.csrf_token = csrf_token
+        this.synchronizer = new ContextSynchronicityManager(csrf_token, arrangement_id, this)
+        this.synchronizer.getEventsOnSource();
+        
 
         this.local_context.onSeriesChanged = function (events, planner) {
             console.log("=> Serie added")
         }
 
+        this.local_context.onEventCreated = function (event, planner) {
+            console.log("=> Events created")
+            planner.synchronizer.pushEvent(event);
+
+            planner.init();
+        }
+
         this.local_context.onEventsCreated = function (events, planner) {
             console.log("=> Events created")
+            for (let i = 0; i < events.length; i++) {
+                console.log(events[i]);
+                planner.synchronizer.pushEvent(events[i]);
+            }
             planner.init();
         }
 
         this.local_context.onEventUpdated = function (event, planner) {
             console.log("==> Event updated")
+            planner.synchronizer.pushEvent(event);
             planner.init();
         }
 
         this.local_context.onEventsDeleted = function (event, planner) {
             console.log("=> Events deleted")
+            planner.synchronizer.deleteEvent(event);
             planner.init();
         }
 
         this.local_context.onEventDeleted = function (event, planner) {
             console.log("=> Event deleted")
+            planner.synchronizer.deleteEvent(event);
             planner.init();
         }
     }
@@ -64,9 +82,103 @@ class Planner {
 
 /* handle synchronizing data between multiple contexts */
 class ContextSynchronicityManager {
-    constructor () {
-        let event_map = new Map()
-        event_map.set("event.created", "")
+    constructor (csrf_token, arrangement_id, planner) {
+        this.uuid_to_id_map = new Map();
+
+        let wrap = document.createElement("span");
+        wrap.innerHTML = csrf_token
+        this.csrf_token = wrap.children[0].value;
+        this.planner = planner;
+        this.arrangement_id = arrangement_id;
+    }
+
+    getEventsOnSource () {
+        let planner = this.planner;
+        let id_map = this.uuid_to_id_map;
+        fetch('/arrangement/planner/get_events?arrangement_id=' + this.arrangement_id)
+            .then(response => response.json())
+            .then(data => {
+                let events = JSON.parse(data);
+                events.forEach(function (ev) {
+                    let converted_event = {
+                        title: ev.fields.title,
+                        from: new Date(ev.fields.start),
+                        to: new Date(ev.fields.end),
+                        color: (ev.fields.color !== undefined &&  ev.fields.color !== null && ev.fields.color !== "" ? ev.fields.color : "blue")
+                    };
+                    let uuid = planner.local_context.add_event(converted_event, false);
+                    id_map.set(uuid, ev.pk);
+                });
+            })
+            .then(a => planner.init())
+    }
+
+    pushEvent (event) {
+        let id = this.uuid_to_id_map.get(event.id);
+
+        console.log("EV")
+        console.log(event);
+
+        if (id !== undefined) {
+            let data = new FormData();
+
+            data.append("id", id);
+            data.append("title", event.title);
+            data.append("start", event.from.toISOString());
+            data.append("end", event.to.toISOString());
+            data.append("color", event.color);
+            data.append("arrangement", this.arrangement_id);
+            data.append('csrfmiddlewaretoken', this.csrf_token);
+
+            console.log(data);
+
+            fetch('/arrangement/planner/update_event/' + id, {
+                method: 'POST',
+                body: data,
+                credentials: 'same-origin',
+            });
+        }
+        else {
+            let data = new FormData();
+
+            data.append("title", event.title);
+            data.append("start", event.from.toISOString());
+            data.append("end", event.to.toISOString());
+            data.append("arrangement", this.arrangement_id);
+            data.append("color", event.color);
+            data.append('csrfmiddlewaretoken', this.csrf_token);
+            
+            console.log(data);
+
+            fetch('/arrangement/planner/create_event', {
+                method: 'POST',
+                body: data,
+                credentials: 'same-origin',
+            }).then(response => response.json())
+              .then(data => {
+                  this.uuid_to_id_map.set(event.id, data.id);
+              });
+
+        }
+    }
+
+    deleteEvent (event) {
+        let id = this.uuid_to_id_map.get(event.id);
+
+        if (id === undefined) {
+            throw "Event does not exist upstream, or we do not know about it.";
+        }
+        
+        let data = new FormData();
+        data.append('csrfmiddlewaretoken', this.csrf_token);
+
+        fetch("/arrangement/planner/delete_event/" + id, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': this.csrf_token
+            },
+            credentials: "same-origin"
+        });
     }
 }
 
@@ -128,16 +240,20 @@ class LocalPlannerContext {
         this.onSeriesChanged(this.events, this.planner);
     }
 
-    add_event(event) {
+    add_event(event, triggerEvent=true) {
         let uuid = crypto.randomUUID();
         event.id = uuid;
         this.events.set(uuid, event);
-        this.onEventsCreated(this.events, this.planner);
+        if (triggerEvent === true) {
+            this.onEventCreated(event, this.planner);
+        }
+        return uuid;
     }
 
     update_event(event, uuid) {
         this.events.set(uuid, event);
-        this.onEventUpdated(this.events, this.planner);
+        event.id = uuid;
+        this.onEventUpdated(event, this.planner);
     }
 
     add_events(events, serie_uuid=undefined) {
@@ -154,7 +270,7 @@ class LocalPlannerContext {
             this.events.set(event_uuid, ev);
         }
 
-        this.onEventsCreated(this.events, this.planner);
+        this.onEventsCreated(events, this.planner);
     }
 
     delete_serie(serie_uuid) {
@@ -171,8 +287,9 @@ class LocalPlannerContext {
     }
 
     remove_event(uuid) {
+        let delete_event = this.events.get(uuid);
         this.events.delete(uuid);
-        this.onEventDeleted(this.events, this.planner);
+        this.onEventDeleted(delete_event, this.planner);
     }
 
     remove_events(uuids) {
@@ -625,6 +742,7 @@ class CalendarManager extends RendererBase {
         }
 
         this.fc_options.eventDidMount = (arg) => {
+            console.log(arg.event.extendedProps.event_uuid);
             const at_first = arg.event.extendedProps.event_uuid;
             focused_event_uuid = at_first;
             focused_serie_uuid = arg.event.extendedProps.serie_uuid;
@@ -633,7 +751,7 @@ class CalendarManager extends RendererBase {
                 jsEvent.preventDefault();
 
                 let argCopy = Object.assign({}, arg);
-                let evuuid = argCopy.event.extendedProps.event_uuid;
+                focused_event_uuid= argCopy.event.extendedProps.event_uuid;
                 let onClickEditButton = this.onClickEditButton;
                 let onClickDeleteButton = this.onClickDeleteButton;
                 let onClickDeleteSeriesButton = this.onClickDeleteSeriesButton;
@@ -656,26 +774,6 @@ class CalendarManager extends RendererBase {
                         }
                     },
                 }
-
-                // if (focused_serie_uuid !== undefined) {
-                //     items.repetition_sep = "---------"
-                //     // items.repetition_fold = {
-                //     //     name: "<i class='fas fa-calendar-alt'></i> Gjentagende hendelse",
-                //     //     isHtmlName: true,
-                //     //     items: {}
-                //     // };
-                //     // items.repetition_fold.items.unhook_from_repetition = {
-                //     //     name: "<i class='fas fa-unlink'></i> Gjør hendelsen individuell",
-                //     //     isHtmlName: true,
-                //     // }
-                //     // items.repetition_fold.items.delete_repetition = {
-                //     //     name: "<i class='fas fa-times'></i> Kanseller gjentagende hendelse",
-                //     //     isHtmlName: true,
-                //     //     callback: function (key, opt) {
-                //     //         onClickDeleteSeriesButton(focused_serie_uuid);
-                //     //     }
-                //     // }
-                // }
 
                 $.contextMenu({
                     className: "webook-context-menu",

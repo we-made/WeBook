@@ -57,74 +57,20 @@
     <i class="fas fa-redo"></i>&nbsp; Ny gjentagende hendelse
 </button>
 <ul class="stepper" data-mdb-stepper="stepper">
-    <li class="stepper-step stepper-active">
+    <li class="stepper-step stepper-active" id="item-stepper-calendar">
       <div class="stepper-head">
         <span class="stepper-head-icon"> <i class="fas fa-calendar"></i> </span>
         <span class="stepper-head-text"> {% trans "Calendar" %} </span>
       </div>
       <div class="stepper-content py-3">
         <div class="row">
-          <!-- <div class="col-3">
-
-            <fieldset>
-              <div class="badge badge-md badge-success">
-                0 hendelser
-              </div>
-              <div class="badge badge-md badge-success">
-                0 serier
-              </div>
-            </fieldset>
-
-            <fieldset class="mt-3">
-              <legend>Visning</legend>
-              
-              <div class="form-group">
-                <input type="checkbox"/> Vis blokkere <i class="fas fa-question-circle"></i>
-              </div>
-              <div class="form-group">
-                <input type="checkbox"/> Fargekod serier <i class="fas fa-question-circle"></i>
-              </div>
-            </fieldset>
-
-            <fieldset class="mt-3">
-              <legend>Verktøy</legend>
-              
-              <button class="btn btn-primary btn-block">Kjør Kollisjonsanalyse</button>
-            </fieldset>
-
-            <fieldset class="mt-3">
-              <legend>Repeterende hendelser</legend>
-
-              <input type="text" class="form-control">
-
-              <div class="mt-2">
-                <div class="border border-1 p-2">
-                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
-                </div>
-                <div class="border border-1 p-2">
-                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
-                </div>
-                <div class="border border-1 p-2">
-                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
-                </div>
-                <div class="border border-1 p-2">
-                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
-                </div>
-                <div class="border border-1 p-2">
-                  <i class="fas fa-chevron-down"></i> &nbsp;<div class="badge badge-info">0</div>&nbsp; Serie A <a href="#" class="text-danger" style="text-align: end; float:right"><i class="fas fa-times"></i></a>
-                </div>
-              </div>
-
-            </fieldset>
-
-          </div> -->
           <div class="col-12">
             <div id="designerCalendar"></div>
           </div>
         </div>
       </div>
     </li>
-    <li class="stepper-step">
+    <li class="stepper-step" id="item-stepper-timeline">
       <div class="stepper-head">
         <span class="stepper-head-icon"> <i class="fas fa-clock"></i> </span>
         <span class="stepper-head-text"> Timeline </span>
@@ -138,7 +84,7 @@
         </div>
       </div>
     </li>
-    <li class="stepper-step">
+    <li class="stepper-step" id="item-stepper-table">
       <div class="stepper-head">
         <span class="stepper-head-icon"> <i class="fas fa-user"></i> </span>
         <span class="stepper-head-text"> Table </span>
@@ -164,6 +110,114 @@
   <script src="{% static 'js/inputGroupManager.js' %}"></script>
 
 <script>
+
+ 
+    window.addEventListener('DOMContentLoaded', (event) => {
+      bind_global_hotkeys();
+      hotkey_map.get(document.querySelector('#item-stepper-calendar')).bind();
+    });
+
+
+    function bind_global_hotkeys() {
+      hotkeys('fn+n, fn+s', function (event, handler) {
+        event.preventDefault();
+        switch (handler.key) {
+          case 'ctrl+z+n': 
+            newEventDialog();
+            break;
+          case 'ctrl+z+s':
+            loadNewSerieDialog();
+            break;
+        }
+      });
+    }
+
+    const hotkey_map = new Map();
+
+    hotkey_map.set(document.querySelector("#item-stepper-calendar"), {
+      init: function () {
+        calendarManager.calendar.prev();
+        calendarManager.calendar.next();
+      },
+      bind: function () {
+        console.log("Hotkey bind -- > Calendar");
+
+        hotkeys('ctrl+left, ctrl+right', function (event, handler) {
+          switch (handler.key) {
+            case 'ctrl+left':
+              calendarManager.calendar.prev();
+              break;
+            case 'ctrl+right':
+              calendarManager.calendar.next();
+              break;
+          }
+        });
+      },
+      unbind: function () {
+        console.log("Hotkey unbind -- > Calendar");
+        hotkeys.unbind("ctrl+left, ctrl+right")
+      }
+    });
+    
+    hotkey_map.set(document.querySelector("#item-stepper-timeline"), {
+      init: function () {
+      },
+      bind: function () {
+        console.log("Hotkey bind -- > Timeline");
+      },
+      unbind: function () {
+        console.log("Hotkey unbind -- > Timeline");
+      }
+    });
+    hotkey_map.set(document.querySelector("#item-stepper-table"), {
+      init: function () {
+      },
+      bind: function () {
+        console.log("Hotkey bind -- > Table");
+      },
+      unbind: function () {
+        console.log("Hotkey unbind -- > Table");
+      }
+    })
+
+    const stepper_observer = new MutationObserver((mutations) => {
+      const mutation_on_previous = mutations[mutations.length - 1];
+      const mutation_on_new = mutations[0];
+
+      let handle_step_mutation = function handleMutation (mutation) {
+        const { target } = mutation
+          if (mutation.attributeName === "class") {
+            let section;
+
+            const isSetToActive = mutation.target.classList.contains('stepper-active');
+        
+            let functions_for_target = hotkey_map.get(target);
+
+            if (isSetToActive) {
+              functions_for_target.bind(section);
+              functions_for_target.init();
+            }
+            else {
+              functions_for_target.unbind(section);
+            }
+          }
+      }
+
+      handle_step_mutation(mutation_on_previous);
+      handle_step_mutation(mutation_on_new);
+    });
+
+    let observation_config = {
+      attributes: true,
+      attributeFilter: ['class'],
+      childList: false,
+      characterData: false,
+    };
+
+    stepper_observer.observe(document.querySelector('#item-stepper-calendar'), observation_config);
+    stepper_observer.observe(document.querySelector('#item-stepper-timeline'), observation_config);
+    stepper_observer.observe(document.querySelector('#item-stepper-table'), observation_config);
+
     class SelectComponent {
         constructor (element_id, options) {
             this.element_id = element_id
@@ -205,9 +259,6 @@
       }
     }
 
-    
-
-
     function parseDateObjTimeToString (date_obj, separator=":", include_seconds=false) {
       let hours = String(date_obj.getHours());
       let minutes = String(date_obj.getMinutes());
@@ -228,6 +279,8 @@
 
     var planner = new Planner({
       onClickEditButton: function (eventId) { updateEventDialog(eventId); },
+      csrf_token: '{% csrf_token %}',
+      arrangement_id: {{ object.id }}
     });
 
     var plannerTableManager = new SimpleTableManager(
@@ -249,6 +302,32 @@
         "selectable": true,
         "selectMirror": true,
         "editable": true,
+        "eventResize": function (eventResizeInfo) {
+
+          let event = {
+            id: eventResizeInfo.event.extendedProps.event_uuid,
+            title: eventResizeInfo.event.title,
+            from: eventResizeInfo.event.start,
+            to: eventResizeInfo.event.end,
+            color: eventDropInfo.event.backgroundColor,
+          };
+
+          planner.local_context.update_event(event, eventResizeInfo.event.extendedProps.event_uuid);
+
+        },
+        "eventDrop": function (eventDropInfo) {
+
+          let event = {
+            id: eventDropInfo.event.extendedProps.event_uuid,
+            title: eventDropInfo.event.title,
+            from: eventDropInfo.event.start,
+            to: eventDropInfo.event.end,
+            color: eventDropInfo.event.backgroundColor,
+          };
+
+          planner.local_context.update_event(event, eventDropInfo.event.extendedProps.event_uuid);
+
+        },
         "selectMinDistance": 1,
         "select": function ( selectionInfo ) {
             eventDialogManager.fromDate.valueAsDate = selectionInfo.start;
@@ -281,6 +360,7 @@
 
     planner.init()
   </script>
+
   {% include 'arrangement/planner/dialogs/edit_event.html' %}
   {% include 'arrangement/planner/dialogs/new_serie.html' %}
   {% include 'arrangement/planner/dialogs/event_info.html' %}

@@ -85,5 +85,9 @@ from .dashboard_views import (
 )
 
 from .planner_views import (
-    plan_arrangement_view
+    plan_arrangement_view,
+    plan_create_event,
+    plan_get_events,
+    plan_update_event,
+    plan_delete_event,
 )

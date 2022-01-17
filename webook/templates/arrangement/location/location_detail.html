@@ -114,7 +114,7 @@
             method: 'POST',
             body: dataForm,
             headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': '{% csrf_token %}'
             }
         }).then(function(response) {
             console.log(response);

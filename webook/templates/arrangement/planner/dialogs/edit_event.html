@@ -5,43 +5,48 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Edit event</h5>
+          <h5 class="modal-title">{% trans "Edit event" %}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#editEventDialog').modal('hide')">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="event_id" code-qualified-name="event_id" />
+          <form id="eventEditMockForm">
+            <input type="submit" style="display:none" />
 
-          <div class="form-group">
-            <label>Tittel</label>
-            <input type="text" class="form-control" id="title" code-qualified-name="title"/>
-          </div>
+            <input type="hidden" id="event_id" code-qualified-name="event_id" />
 
-          <label>Fra</label>
-          <div class="row">
-            <div class="col-6">
-              <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate">
+            <div class="form-group">
+              <label>Tittel</label>
+              <input type="text" class="form-control" id="title" code-qualified-name="title" required/>
             </div>
-            <div class="col-6">
-              <input type="time" class="form-control" id="fromTime" code-qualified-name="fromTime">
-            </div>
-          </div>
 
-          <label>Til</label>
-          <div class="row">
-            <div class="col-6">
-              <input type="date" class="form-control" id="toDate" code-qualified-name="toDate">
+            <label>Fra</label>
+            <div class="row">
+              <div class="col-6">
+                <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate" required>
+              </div>
+              <div class="col-6">
+                <input type="time" class="form-control" id="fromTime" code-qualified-name="fromTime" required>
+              </div>
             </div>
-            <div class="col-6">
-              <input type="time" class="form-control" id="toTime" code-qualified-name="toTime">
-            </div>
-          </div>
 
-          <label>Farge</label>
-          <input type="color" class="form-control" id="color" code-qualified-name="color">
+            <label>Til</label>
+            <div class="row">
+              <div class="col-6">
+                <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
+              </div>
+              <div class="col-6">
+                <input type="time" class="form-control" id="toTime" code-qualified-name="toTime" required>
+              </div>
+            </div>
+
+            <label>Farge</label>
+            <input type="color" class="form-control" id="color" code-qualified-name="color">
+          </form>
         </div>
         <div class="modal-footer">
+          <em style="float:left!important;text-align:left!important;">alt + enter</em>
           <button type="button" class="btn btn-secondary" onclick="$(eventEditDialog).modal('hide')">Avbryt</button>
           <button type="button" class="btn btn-primary" onclick="saveEvent()">{% trans "Save" %}</button>
         </div>
@@ -50,9 +55,26 @@
   </div>
 
 <script>
+    function bindHotkeys() {
+      hotkeys('alt+enter', function (event, handler) {
+        switch (handler.key) {
+          case 'alt+enter':
+            saveEvent();
+            break;
+        }
+      });
+
+      // needed to make sure hotkeys work when INPUT elements are in focus
+      hotkeys.filter = function(event){ 
+        return true;
+      }
+    }
+
+    function releaseHotkeys() {
+      hotkeys.unbind("alt+enter");
+    }
+
     let eventEditDialog = document.getElementById('editEventDialog');
-
-
 
     var eventDialogManager = new InputGroupManager(
         [
@@ -89,7 +111,25 @@
         $(eventEditDialog).modal('show');
     }
 
+    $(eventEditDialog).on('hidden.bs.modal', function (e) {
+      hotkeys.unbind("alt+enter");
+    })
+
+    $(eventEditDialog).on('shown.bs.modal', function (e) {
+      bindHotkeys();
+    });
+
     function saveEvent() {
+        let mockForm = document.getElementById('eventEditMockForm');
+        let inputs = mockForm.querySelectorAll("input");
+        let is_valid = true;
+        for (let i = 0; i < inputs.length; i++) {
+          if (inputs[i].checkValidity() === false) {
+            $('#eventEditMockForm').find(':submit').click();
+            return;
+          }
+        }
+
         let event_obj = {
             title: eventDialogManager.title.value,
             from: new Date(eventDialogManager.fromDate.value + "T" + eventDialogManager.fromTime.value),
@@ -112,5 +152,7 @@
 
         $(eventEditDialog).modal('hide');
         toastr["success"](toastrMessage);
+
+        releaseHotkeys();
     }
 </script>
