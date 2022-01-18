@@ -49,9 +49,9 @@ class Planner {
         this.local_context.onEventsCreated = function (events, planner) {
             console.log("=> Events created")
             for (let i = 0; i < events.length; i++) {
-                console.log(events[i]);
                 planner.synchronizer.pushEvent(events[i]);
             }
+            
             planner.init();
         }
 
@@ -182,17 +182,6 @@ class ContextSynchronicityManager {
     }
 }
 
-class UpstreamPlannerContext {
-    constructor(planner_backref) {
-
-    }
-}
-
-class LocalStorageContext {
-    constructor (planner_backref) {
-
-    }
-}
 
 class StrategyExecutorAbstraction {
     constructor ({function_to_run, parameter_obj}={}) {
@@ -749,6 +738,7 @@ class CalendarManager extends RendererBase {
 
             arg.el.addEventListener("contextmenu", (jsEvent) => {
                 jsEvent.preventDefault();
+                console.log(jsEvent)
 
                 let argCopy = Object.assign({}, arg);
                 focused_event_uuid= argCopy.event.extendedProps.event_uuid;
@@ -777,7 +767,7 @@ class CalendarManager extends RendererBase {
 
                 $.contextMenu({
                     className: "webook-context-menu",
-                    selector: '.fc-event-main',
+                    selector: '.fc-event-main, .fc-daygrid-event',
                     items: items,
                 });
             })
@@ -872,10 +862,6 @@ class TimeLineManager extends RendererBase {
         this.options = {};
         this.timeline = undefined;   
         this.dataset = new vis.DataSet();
-    }
-
-    stringify_date(date_obj) {
-        
     }
 
     flush_dataset() {
