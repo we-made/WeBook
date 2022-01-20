@@ -182,44 +182,13 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$(newSerieDialog).modal('hide')">Avbryt</button>
-          <button type="button" class="btn btn-primary" onclick="get_series_form_as_obj()">Opprett gjentagende hendelse</button>
+          <button type="button" class="btn btn-primary" onclick="submit_series()">Opprett gjentagende hendelse</button>
         </div>
       </div>
     </div>
   </div>
 
 <script>
-
-    class LocalValidators {
-        NumberValidator = function (value) {
-            issues = []
-
-            if (value === undefined) {
-                issues.push("Dette er ikke et gyldig tall")
-            }
-            if (typeof(value) !== "int") {
-                issues.push("Dette er ikke et tall");
-            }
-
-            if (value < 0) {
-                issues.push("Tallet må ikke være negativt")
-            }
-
-            return issues;
-        }
-
-        DayOfMonthValidator = function (value) {
-            issues = []
-
-            issues.concat(NumberValidator(value))
-
-            if (value > 30) {
-                issues.push("Dette er ikke riktig.")
-            }
-
-            return issues;
-        }
-    }
 
     let newSerieDialog = $('#newSerieDialog');
 
@@ -242,7 +211,7 @@
                     strategy_name: "daily__every_x_day",
                     route: "pattern_daily_sub__every_x_day",
                     fields: [
-                        { element_id: 'every_x_day__interval', out_prop_name: "interval", validator: LocalValidators.NumberValidator },
+                        { element_id: 'every_x_day__interval', out_prop_name: "interval" },
                     ]
                 },
                 {
@@ -273,8 +242,8 @@
                     strategy_name:"month__every_x_day_every_y_month",
                     route: "pattern_monthly_sub__every_x_day_every_y_month",
                     fields: [
-                        { element_id: 'every_x_day_every_y_month__day_of_month', out_prop_name: "day_of_month", validator: LocalValidators.DayOfMonthValidator },
-                        { element_id: 'every_x_day_every_y_month__month_interval', out_prop_name: "interval", validator: LocalValidators.NumberValidator },
+                        { element_id: 'every_x_day_every_y_month__day_of_month', out_prop_name: "day_of_month" },
+                        { element_id: 'every_x_day_every_y_month__month_interval', out_prop_name: "interval" },
                     ],
                 },
                 {
@@ -296,7 +265,7 @@
             name: "yearly",
             sub_routed_by: 'pattern_yearly_subroute',
             constant_fields: [
-                { element_id: 'pattern_yearly_const__year_interval', out_prop_name: "interval", validator: LocalValidators.NumberValidator },
+                { element_id: 'pattern_yearly_const__year_interval', out_prop_name: "interval" },
             ],
             sub_routes: [
                 {
@@ -511,7 +480,7 @@
       }
     }
 
-    function get_series_form_as_obj() {
+    function submit_series() {
 
         let old_alerts = document.getElementsByClassName('form_alert');
         old_alerts.forEach(function (elem) {
@@ -554,17 +523,6 @@
 
           for (let i = 0; i < sub_route.fields.length; i++) {
               let field = sub_route.fields[i];
-              
-              if (field.validator !== undefined) {
-                  issues = field.validator();
-                  if (issues > 0) {
-                      issues.forEach(function (issue) {
-                          console.log(issue);
-                      })
-                      //return; <--- remember to uncomment this. when ready .) 
-                  }
-              }
-              
               pattern[field.out_prop_name] = document.getElementById(field.element_id).value;
           }
         }
