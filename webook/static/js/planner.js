@@ -36,41 +36,45 @@ class Planner {
         this.synchronizer.getEventsOnSource();
         
 
-        this.local_context.onSeriesChanged = function (events, planner) {
+
+        this.local_context.onSeriesChanged = function ({ planner, eventsAffected, changeType } = {}) {
             console.log("=> Serie added")
         }
 
-        this.local_context.onEventCreated = function (event, planner) {
+        this.local_context.onEventCreated = function ({ createdEvent, planner} = {}) {
             console.log("=> Events created")
-            planner.synchronizer.pushEvent(event);
+            planner.synchronizer.pushEvent(createdEvent);
 
             planner.init();
         }
 
-        this.local_context.onEventsCreated = function (events, planner) {
+        this.local_context.onEventsCreated = function ({eventsCreated, planner} = {}) {
             console.log("=> Events created")
-            for (let i = 0; i < events.length; i++) {
-                planner.synchronizer.pushEvent(events[i]);
+            for (let i = 0; i < eventsCreated.length; i++) {
+                planner.synchronizer.pushEvent(eventsCreated[i]);
             }
             
             planner.init();
         }
 
-        this.local_context.onEventUpdated = function (event, planner) {
+        this.local_context.onEventUpdated = function ({ eventAfterUpdate, planner } = {}) {
             console.log("==> Event updated")
-            planner.synchronizer.pushEvent(event);
+            planner.synchronizer.pushEvent(eventAfterUpdate);
             planner.init();
         }
 
-        this.local_context.onEventsDeleted = function (event, planner) {
+        this.local_context.onEventsDeleted = function ({ deletedEvents, planner } = {}) {
             console.log("=> Events deleted")
-            planner.synchronizer.deleteEvent(event);
+            for (let i = 0; i < deletedEvents.length; i++) {
+                planner.synchronizer.deleteEvent(deletedEvents[i]);
+            }
+
             planner.init();
         }
 
-        this.local_context.onEventDeleted = function (event, planner) {
+        this.local_context.onEventDeleted = function ({ deletedEvent, planner } = {}) {
             console.log("=> Event deleted")
-            planner.synchronizer.deleteEvent(event);
+            planner.synchronizer.deleteEvent(deletedEvent);
             planner.init();
         }
     }
@@ -116,9 +120,6 @@ class ContextSynchronicityManager {
 
     pushEvent (event) {
         let id = this.uuid_to_id_map.get(event.id);
-
-        console.log("EV")
-        console.log(event);
 
         if (id !== undefined) {
             let data = new FormData();
@@ -225,9 +226,9 @@ class LocalPlannerContext {
         let serie_uuid = crypto.randomUUID();
         serie.id = serie_uuid;
         this.series.set(serie_uuid, serie);
-        
-        this.add_events(this.SeriesUtil.calculate_serie(serie), serie_uuid);
-        this.onSeriesChanged(this.events, this.planner);
+        let generatedEvents = this.SeriesUtil.calculate_serie(serie);
+        this.add_events(generatedEvents, serie_uuid);
+        this.onSeriesChanged({planner: this.planner, eventsAffected: this.generatedEvents, changeType: "create" });
     }
 
     add_event(event, triggerEvent=true) {
@@ -235,7 +236,7 @@ class LocalPlannerContext {
         event.id = uuid;
         this.events.set(uuid, event);
         if (triggerEvent === true) {
-            this.onEventCreated(event, this.planner);
+            this.onEventCreated({ createdEvent: event, planner: this.planner });
         }
         return uuid;
     }
@@ -243,7 +244,7 @@ class LocalPlannerContext {
     update_event(event, uuid) {
         this.events.set(uuid, event);
         event.id = uuid;
-        this.onEventUpdated(event, this.planner);
+        this.onEventUpdated({ eventAfterUpdate: event, planner: this.planner });
     }
 
     add_events(events, serie_uuid=undefined) {
@@ -260,7 +261,7 @@ class LocalPlannerContext {
             this.events.set(event_uuid, ev);
         }
 
-        this.onEventsCreated(events, this.planner);
+        this.onEventsCreated({ eventsCreated: events, planner: this.planner });
     }
 
     delete_serie(serie_uuid) {
@@ -272,14 +273,14 @@ class LocalPlannerContext {
         }
 
         this.series.delete(serie_uuid, 1);
-        this.onSeriesChanged(this.events, this.planner);
-        this.onEventDeleted(this.events, this.planner);
+        this.onSeriesChanged({ planner: this.planner, eventsAffected: this.events, changeType: "delete" });
+        this.onEventsDeleted({ deletedEvents: this.events, planner: this.planner });
     }
 
     remove_event(uuid) {
         let delete_event = this.events.get(uuid);
         this.events.delete(uuid);
-        this.onEventDeleted(delete_event, this.planner);
+        this.onEventDeleted({ deletedEvent: delete_event, planner: this.planner });
     }
 
     remove_events(uuids) {
@@ -1039,28 +1040,5 @@ class SimpleTableManager extends RendererBase {
         for (let i = 0; i < events.length; i++) {
             this.add_row(this.convert_event_to_row(events[i]));
         }
-    }
-}
-
-/*
-    Represents a Serie; an instruction on how to generate a collection of events in series 
-*/
-class Serie {
-    constructor({time, pattern, time_area} = {}) {
-        self.time = time
-        self.pattern = pattern
-        self.time_area = time_area
-    }
-}
-
-
-/* 
-    Represents an event; something that happens
-*/
-class CalendarEvent {
-    constructor(title, start, end) {
-        this.title = title;
-        this.start = start;
-        this.end = end;
     }
 }
