@@ -178,7 +178,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$(newSerieDialog).modal('hide')">{% trans "Cancel" %}</button>
-          <button type="button" class="btn btn-primary" onclick="submit_series()">{% trans "Create recurring event" %}</button>
+          <button type="button" class="btn btn-primary" onclick="submit_serie()">{% trans "Create recurring event" %}</button>
         </div>
       </div>
     </div>
@@ -476,7 +476,7 @@
       }
     }
 
-    function submit_series() {
+    function submit_serie() {
 
         let old_alerts = document.getElementsByClassName('form_alert');
         old_alerts.forEach(function (elem) {

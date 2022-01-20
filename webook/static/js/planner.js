@@ -53,7 +53,7 @@ class Planner {
         }
 
         this.local_context.onEventCreated = function ({ createdEvent, planner} = {}) {
-            console.log("=> Events created")
+            console.log("=> Event created")
             planner.synchronizer.pushEvent(createdEvent);
 
             planner.init();
@@ -761,7 +761,7 @@ class CalendarManager extends RendererBase {
                 color: eventResizeInfo.event.backgroundColor,
             };
 
-            this.planner.local_context.add_event(event);
+            this.planner.local_context.update_event(event, event.id);
         }
 
         this.fc_options.eventDrop = (eventDropInfo) => {
@@ -773,7 +773,7 @@ class CalendarManager extends RendererBase {
                 color: eventDropInfo.event.backgroundColor,
             };
             
-            this.planner.local_context.update_event(event);
+            this.planner.local_context.update_event(event, event.id);
         }
 
         this.fc_options.eventDidMount = (arg) => {
