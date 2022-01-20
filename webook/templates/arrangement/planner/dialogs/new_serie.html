@@ -604,19 +604,20 @@
     
     class MonthSelectComponent extends SelectComponent {
         constructor (element_id) {
-            let options = new Map();
-            options.set("1", '{% trans "january" %}')
-            options.set("2", '{% trans "februar" %}')
-            options.set("3", '{% trans "march" %}')
-            options.set("4", '{% trans "april" %}')
-            options.set("5", '{% trans "may" %}')
-            options.set("6", '{% trans "june" %}')
-            options.set("7", '{% trans "july" %}')
-            options.set("8", '{% trans "august" %}')
-            options.set("9", '{% trans "september" %}')
-            options.set("10", '{% trans "october" %}')
-            options.set("11", '{% trans "november" %}')
-            options.set("12", '{% trans "december" %}')
+            let options = new Map([
+              ["1", '{% trans "january" %}'],
+              ["2", '{% trans "februar" %}'],
+              ["3", '{% trans "march" %}'],
+              ["4", '{% trans "april" %}'],
+              ["5", '{% trans "may" %}'],
+              ["6", '{% trans "june" %}'],
+              ["7", '{% trans "july" %}'],
+              ["8", '{% trans "august" %}'],
+              ["9", '{% trans "september" %}'],
+              ["10", '{% trans "october" %}'],
+              ["11", '{% trans "november" %}'],
+              ["12", '{% trans "december" %}'],
+            ]);
 
             super(element_id, options)
 
@@ -627,12 +628,13 @@
     class ArbitratorSelectComponent extends SelectComponent {
       constructor (element_id) {
 
-        let options = new Map();
-        options.set("0", '{% trans "first" %}');
-        options.set("1", '{% trans "second" %}');
-        options.set("2", '{% trans "third" %}');
-        options.set("3", '{% trans "fourth" %}');
-        options.set("4", '{% trans "last" %}');
+        let options = new Map([
+          ["0", '{% trans "first" %}'],
+          ["1", '{% trans "second" %}'],
+          ["2", '{% trans "third" %}'],
+          ["3", '{% trans "fourth" %}'],
+          ["4", '{% trans "last" %}']
+        ]);
 
         super(element_id, options);
 
