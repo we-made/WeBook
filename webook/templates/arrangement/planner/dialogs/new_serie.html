@@ -1,8 +1,10 @@
+{% load static i18n %}
+
 <div class="modal" tabindex="-1" role="dialog" id="newSerieDialog">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Ny gjentagende hendelse</h5>
+          <h5 class="modal-title">{% trans "New recurring event" %}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true" onclick=" $('#newSerieDialog').modal('hide')">&times;</span>
           </button>
@@ -14,12 +16,14 @@
                    formEl.submit() would ignore the attributes settings for validations -->
               <input type="submit" style="display:none">
 
-              <legend>Tidspunkt</legend>
+              <legend>
+                {% trans "Time" %}
+              </legend>
               <table>
                 <tbody>
                   <tr>
                     <td>
-                      <label>Tittel</label>
+                      <label>{% trans "Title" %}</label>
                     </td>
                     <td>
                       <input type="text" id="serie_title" required />
@@ -27,7 +31,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <label>Start</label>
+                      <label>{% trans "Start" %}</label>
                     </td>
                     <td>
                       <input type="time" id="serie_start" required />
@@ -35,7 +39,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <label>Slutt</label>
+                      <label>{% trans "Slutt" %}</label>
                     </td>
                     <td>
                       <input type="time" id="serie_end" required />
@@ -43,7 +47,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <label>Farge</label>
+                      <label>{% trans "Color" %}</label>
                     </td>
                     <td>
                       <input type="color" id="serie_color" />
@@ -63,23 +67,23 @@
           </fieldset>
 
           <fieldset>
-            <legend>Mønster for regelmessighet</legend>
+            <legend>{% trans "Pattern for recurring area" %}</legend>
             <div class="row">
               <div class="col-3 border-end border-1">
                 <form id="patternMockForm">
                   <input type="submit" style="display:none;" />
 
                   <div>
-                    <input type="radio" name="pattern" value="1" checked required/><label>&nbsp; Daglig</label>
+                    <input type="radio" name="pattern" value="1" checked required/><label>&nbsp; {% trans "Daily" %}</label>
                   </div>
                   <div>
-                    <input type="radio" name="pattern" value="2"/><label>&nbsp; Ukentlig</label>
+                    <input type="radio" name="pattern" value="2"/><label>&nbsp; {% trans "Weekly" %}</label>
                   </div>
                   <div>
-                    <input type="radio" name="pattern" value="3"/><label>&nbsp; Månedlig</label>
+                    <input type="radio" name="pattern" value="3"/><label>&nbsp; {% trans "Monthly" %}</label>
                   </div>
                   <div>
-                    <input type="radio" name="pattern" value="4"/><label>&nbsp; Årlig</label>
+                    <input type="radio" name="pattern" value="4"/><label>&nbsp; {% trans "Yearly" %}</label>
                   </div>
                 </form>
               </div>
@@ -88,61 +92,61 @@
                 <div id="patternRoute_daily">
                   <div>
                     <input type="radio" name="pattern_daily_subroute" value="0" required/>
-                    <label>Hver <input type="number" min="1" id="every_x_day__interval" required/> dag</label>
+                    <label>{% trans "Every" %} <input type="number" min="1" id="every_x_day__interval" required/> {% trans "day" %}</label>
                   </div>
                   
                   <div>
                     <input type="radio" name="pattern_daily_subroute" value="1"/>
-                    <label>Hver hverdag</label>
+                    <label>{% trans "Every weekday" %}</label>
                   </div>
                 </div>
 
                 <div id="patternRoute_weekly" style="display: none;">
-                  <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> uke på:</label></div>
+                  <div><label>{% trans "Skjer hver" %} <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> {% trans "week at" %}:</label></div>
                   <span id="day_checkbox_wrapper">
-                    <input type="checkbox" id="monday"> <label>Mandag</label>
-                    <input type="checkbox" id="tuesday"> <label>Tirsdag</label>
-                    <input type="checkbox" id="wednesday"> <label>Onsdag</label>
-                    <input type="checkbox" id="thursday"> <label>Torsdag</label>
-                    <input type="checkbox" id="friday"> <label>Fredag</label>
-                    <input type="checkbox" id="saturday"> <label>Lørdag</label>
-                    <input type="checkbox" id="sunday"> <label>Søndag</label>
+                    <input type="checkbox" id="monday"> <label>{% trans "Monday" %}</label>
+                    <input type="checkbox" id="tuesday"> <label>{% trans "Tuesday" %}</label>
+                    <input type="checkbox" id="wednesday"> <label>{% trans "Wednesday" %}</label>
+                    <input type="checkbox" id="thursday"> <label>{% trans "Thursday" %}</label>
+                    <input type="checkbox" id="friday"> <label>{% trans "Friday" %}</label>
+                    <input type="checkbox" id="saturday"> <label>{% trans "Saturday" %}</label>
+                    <input type="checkbox" id="sunday"> <label>{% trans "Sunday" %}</label>
                   </span>
                 </div>
 
                 <div id="patternRoute_monthly" style="display: none;">
                   <div>
                     <input type="radio" name="pattern_monthly_subroute" value="0" required /> 
-                    Dag <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> hver <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> måned
+                    {% trans "Day" %} <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> {% trans "every" %} <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> {% trans "month" %}
                   </div>
                   <div>
-                    <input type="radio" name="pattern_monthly_subroute" value="1" /> Den
+                    <input type="radio" name="pattern_monthly_subroute" value="1" /> {% trans "The" %}
                     <select id="every_dynamic_date_of_month__arbitrator" required>
                     </select>
                     <select id="every_dynamic_date_of_month__weekday" required>
                     </select>
-                    hver <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> måneder
+                    {% trans "every" %} <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> {% trans "months" %}
                   </div>
                 </div>
 
                 <div id="patternRoute_yearly" style="display: none;">
                   <div>
-                    Skjer hvert <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> år
+                    {% trans "Happens every" %} <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> {% trans "year" %}
                   </div>
                   <div>
-                    <input type="radio" name="pattern_yearly_subroute" value="0" required> Dato:
+                    <input type="radio" name="pattern_yearly_subroute" value="0" required> {% trans "Dato" %}:
                     <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
                     <select id="every_x_of_month__month" required>
                     </select>
                   </div>
 
                   <div>
-                    <input type="radio" name="pattern_yearly_subroute" value="1"> Hver:
+                    <input type="radio" name="pattern_yearly_subroute" value="1"> {% trans "Every" %}:
                     <select id="every_arbitrary_weekday_in_month__arbitrator" required>
                     </select>
                     <select id="every_arbitrary_weekday_in_month__weekday" required>
                     </select>
-                    i
+                    {% trans "in" %}
                     <select id="every_arbitrary_weekday_in_month__month" required>
                     </select>
                   </div>
@@ -152,37 +156,37 @@
           </fieldset>
 
           <fieldset>
-            <legend>Område for regelmessighet</legend>
+            <legend>{% trans "Area of recurrence" %}</legend>
             <div class="row">
               <div class="col-3">
-                <label>Startdato</label>
+                <label>{% trans "Start Date" %}</label>
                 <input type="date" id="area_start_date" required>
               </div>
               <div class="col-9" id="area_methods_wrapper">
                 <div>
                   <input type="radio" name="timeAreaMethod" value="1">
-                  Slutt innen: <input type="date" id="area_stopWithin" required>
+                  {% trans "Stop within" %}: <input type="date" id="area_stopWithin" required>
                 </div>
 
                 <div>
                   <input type="radio" name="timeAreaMethod" value="2">
                   <fieldset>
-                     Slutt etter: <input type="number" min="1" id="area_stopAfterXInstances" required /> forekomster
+                     {% trans "Stop after" %}: <input type="number" min="1" id="area_stopAfterXInstances" required /> {% trans "occurences" %}
                   </fieldset>
                 </div>
 
                 <div>
                   <input type="radio" name="timeAreaMethod" value="3">
-                  Ingen sluttdato
-                  | Projiser <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> måneder fremover
+                  {% trans "No stop date" %}
+                  | {% trans "Project" %} <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> {% trans "months into the future" %}
                 </div>
               </div>
             </div>
           </fieldset>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$(newSerieDialog).modal('hide')">Avbryt</button>
-          <button type="button" class="btn btn-primary" onclick="submit_series()">Opprett gjentagende hendelse</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$(newSerieDialog).modal('hide')">{% trans "Cancel" %}</button>
+          <button type="button" class="btn btn-primary" onclick="submit_series()">{% trans "Create recurring event" %}</button>
         </div>
       </div>
     </div>
@@ -584,20 +588,20 @@
         planner.local_context.add_serie(serie);
 
         $("#newSerieDialog").modal('hide');
-        toastr["success"]("Serie opprettet!");
+        toastr["success"]('{% trans "Recurring event created!" %}');
     }
 
 
     class DayOfWeekSelectComponent extends SelectComponent {
         constructor (element_id) {
             let options = new Map();
-            options.set("1", "mandag")
-            options.set("2", "tirsdag")
-            options.set("3", "onsdag")
-            options.set("4", "torsdag")
-            options.set("5", "fredag")
-            options.set("6", "lørdag")
-            options.set("7", "søndag")
+            options.set("1", '{% trans "monday" %}')
+            options.set("2", '{% trans "tuesday"')
+            options.set("3", '{% trans "wednesday" %}')
+            options.set("4", '{% trans "thursday" %}')
+            options.set("5", '{% trans "friday" %}')
+            options.set("6", '{% trans "saturday" %}')
+            options.set("7", '{% trans "sunday" %}')
 
             super(element_id, options)
 
@@ -608,18 +612,18 @@
     class MonthSelectComponent extends SelectComponent {
         constructor (element_id) {
             let options = new Map();
-            options.set("1", "januar")
-            options.set("2", "februar")
-            options.set("3", "mars")
-            options.set("4", "april")
-            options.set("5", "mai")
-            options.set("6", "juni")
-            options.set("7", "juli")
-            options.set("8", "august")
-            options.set("9", "september")
-            options.set("10", "oktober")
-            options.set("11", "november")
-            options.set("12", "desember")
+            options.set("1", '{% trans "january" %}')
+            options.set("2", '{% trans "februar" %}')
+            options.set("3", '{% trans "march" %}')
+            options.set("4", '{% trans "april" %}')
+            options.set("5", '{% trans "may" %}')
+            options.set("6", '{% trans "june" %}')
+            options.set("7", '{% trans "july" %}')
+            options.set("8", '{% trans "august" %}')
+            options.set("9", '{% trans "september" %}')
+            options.set("10", '{% trans "october" %}')
+            options.set("11", '{% trans "november" %}')
+            options.set("12", '{% trans "december" %}')
 
             super(element_id, options)
 
@@ -631,11 +635,11 @@
       constructor (element_id) {
 
         let options = new Map();
-        options.set("0", "første");
-        options.set("1", "andre");
-        options.set("2", "tredje");
-        options.set("3", "fjerde");
-        options.set("4", "siste");
+        options.set("0", '{% trans "first" %}');
+        options.set("1", '{% trans "second" %}');
+        options.set("2", '{% trans "third" %}');
+        options.set("3", '{% trans "fourth" %}');
+        options.set("4", '{% trans "last" %}');
 
         super(element_id, options);
 
