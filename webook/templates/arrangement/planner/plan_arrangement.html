@@ -47,14 +47,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-<h3 class="mt-5">Designer</h3>
+<h3 class="mt-5">{% trans "Planner" %}</h3>
 <button class="btn btn-primary"
         onclick="newEventDialog()">
-    <i class="fas fa-calendar-plus"></i>&nbsp; Ny hendelse
+    <i class="fas fa-calendar-plus"></i>&nbsp; {% trans "New event" %}
 </button>
 <button class="btn btn-primary"
         onclick="loadNewSerieDialog()">
-    <i class="fas fa-redo"></i>&nbsp; Ny gjentagende hendelse
+    <i class="fas fa-redo"></i>&nbsp; {% trans "New recurring event" %}
 </button>
 <ul class="stepper" data-mdb-stepper="stepper">
     <li class="stepper-step stepper-active" id="item-stepper-calendar">
@@ -73,7 +73,7 @@
     <li class="stepper-step" id="item-stepper-timeline">
       <div class="stepper-head">
         <span class="stepper-head-icon"> <i class="fas fa-clock"></i> </span>
-        <span class="stepper-head-text"> Timeline </span>
+        <span class="stepper-head-text"> {% trans "Timeline" %} </span>
       </div>
       <div class="stepper-content py-3">
 
@@ -87,7 +87,7 @@
     <li class="stepper-step" id="item-stepper-table">
       <div class="stepper-head">
         <span class="stepper-head-icon"> <i class="fas fa-user"></i> </span>
-        <span class="stepper-head-text"> Table </span>
+        <span class="stepper-head-text"> {% trans "Table" %} </span>
       </div>
       <div class="stepper-content py-3">
 
@@ -232,31 +232,6 @@
                 document.getElementById(this.element_id).append(option);
             }
         }
-    }
-
-    class ColorSelectComponent extends SelectComponent {
-      constructor (element_id) {
-        let colors = new Map();
-        colors.set("1", "#80684d")
-        colors.set("2", "#006666")
-        colors.set("3", "#684d80")
-        colors.set("4", "#496580")
-        colors.set("5", "#ef5d4f")
-
-        super(element_id, colors);
-        
-        this.insert_options();
-      }
-
-      insert_options() {
-        for (let [key, value] of this.options) {
-          let option = document.createElement('option');
-          option.setAttribute("value", key);
-          option.innerText = key;
-          option.style = "background-color: " + value + ";";
-          document.getElementById(this.element_id).append(option);
-        }
-      }
     }
 
     function parseDateObjTimeToString (date_obj, separator=":", include_seconds=false) {
