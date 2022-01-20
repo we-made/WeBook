@@ -24,12 +24,13 @@ Date.prototype.addDays = function(days) {
 class Planner {
     constructor({ onClickEditButton, onClickInfoButton, csrf_token, arrangement_id } = {}) {
         this.local_context = new LocalPlannerContext(this)
-        this.renderer_manager = new RendererManager(
-            /*context:PlannerContext*/this.local_context,
-            /*renderers:Array*/undefined,
-            onClickEditButton,
-            onClickInfoButton,
-        )
+        this.renderer_manager = new RendererManager({
+            context: this.local_context,
+            renderers: undefined,
+            onClickEditButton: onClickEditButton,
+            onClickInfoButton: onClickInfoButton,
+            planner:this
+        })
         this.csrf_token = csrf_token
         this.synchronizer = new ContextSynchronicityManager(csrf_token, arrangement_id, this)
         this.synchronizer.getEventsOnSource();
@@ -641,12 +642,18 @@ class LocalPlannerContext {
 
 class RendererManager {
 
-    constructor(context, renderers = undefined, onClickEditButton = undefined, onClickInfoButton = undefined) {
+    constructor({context, 
+                renderers = undefined, 
+                onClickEditButton = undefined, 
+                onClickInfoButton = undefined, 
+                planner=undefined} = {}) {
+
         if (typeof (renderers) !== "array") {
             renderers = [];
         }
 
         this.renderers = renderers;
+        this.planner = planner;
 
         this.onClickEditButton = onClickEditButton;
         this.onClickInfoButton = onClickInfoButton;
@@ -679,6 +686,7 @@ class RendererManager {
         renderer.onClickEditButton = this.onClickEditButton;
         renderer.onClickDeleteButton = this.onClickDeleteButton;
         renderer.onClickDeleteSeriesButton = this.onClickDeleteSeriesButton;
+        renderer.planner = this.planner;
 
         this.renderers.push(renderer);
     }
@@ -728,6 +736,30 @@ class CalendarManager extends RendererBase {
             return { 
                 html: rootNode.outerHTML
             };
+        }
+
+        this.fc_options.eventResize = (eventResizeInfo) => {
+            let event = {
+                id: eventResizeInfo.event.extendedProps.event_uuid,
+                title: eventResizeInfo.event.title,
+                from: eventResizeInfo.event.start,
+                to: eventResizeInfo.event.end,
+                color: eventResizeInfo.event.backgroundColor,
+            };
+
+            this.planner.local_context.add_event(event);
+        }
+
+        this.fc_options.eventDrop = (eventDropInfo) => {
+            let event = {
+                id: eventDropInfo.event.extendedProps.event_uuid,
+                title: eventDropInfo.event.title,
+                from: eventDropInfo.event.start,
+                to: eventDropInfo.event.end,
+                color: eventDropInfo.event.backgroundColor,
+            };
+            
+            this.planner.local_context.update_event(event);
         }
 
         this.fc_options.eventDidMount = (arg) => {

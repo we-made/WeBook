@@ -277,32 +277,6 @@
         "selectable": true,
         "selectMirror": true,
         "editable": true,
-        "eventResize": function (eventResizeInfo) {
-
-          let event = {
-            id: eventResizeInfo.event.extendedProps.event_uuid,
-            title: eventResizeInfo.event.title,
-            from: eventResizeInfo.event.start,
-            to: eventResizeInfo.event.end,
-            color: eventDropInfo.event.backgroundColor,
-          };
-
-          planner.local_context.update_event(event, eventResizeInfo.event.extendedProps.event_uuid);
-
-        },
-        "eventDrop": function (eventDropInfo) {
-
-          let event = {
-            id: eventDropInfo.event.extendedProps.event_uuid,
-            title: eventDropInfo.event.title,
-            from: eventDropInfo.event.start,
-            to: eventDropInfo.event.end,
-            color: eventDropInfo.event.backgroundColor,
-          };
-
-          planner.local_context.update_event(event, eventDropInfo.event.extendedProps.event_uuid);
-
-        },
         "selectMinDistance": 1,
         "select": function ( selectionInfo ) {
             eventDialogManager.fromDate.valueAsDate = selectionInfo.start;
@@ -338,5 +312,4 @@
 
   {% include 'arrangement/planner/dialogs/edit_event.html' %}
   {% include 'arrangement/planner/dialogs/new_serie.html' %}
-  {% include 'arrangement/planner/dialogs/event_info.html' %}
 {% endblock %}
