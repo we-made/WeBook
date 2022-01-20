@@ -108,6 +108,7 @@ class ContextSynchronicityManager {
         this.arrangement_id = arrangement_id;
     }
 
+    /* Retrieve all events from upstream, and push into planner */
     getEventsOnSource () {
         let planner = this.planner;
         let id_map = this.uuid_to_id_map;

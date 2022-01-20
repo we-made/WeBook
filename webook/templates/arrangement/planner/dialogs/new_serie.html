@@ -586,14 +586,15 @@
 
     class DayOfWeekSelectComponent extends SelectComponent {
         constructor (element_id) {
-            let options = new Map();
-            options.set("1", '{% trans "monday" %}')
-            options.set("2", '{% trans "tuesday"')
-            options.set("3", '{% trans "wednesday" %}')
-            options.set("4", '{% trans "thursday" %}')
-            options.set("5", '{% trans "friday" %}')
-            options.set("6", '{% trans "saturday" %}')
-            options.set("7", '{% trans "sunday" %}')
+            let options = new Map([
+              ["1", '{% trans "monday" %}'],
+              ["2", '{% trans "tuesday" %}'],
+              ["3", '{% trans "wednesday" %}'],
+              ["4", '{% trans "thursday" %}'],
+              ["5", '{% trans "friday" %}'],
+              ["6", '{% trans "saturday" %}'],
+              ["7", '{% trans "sunday" %}'],
+            ]);
 
             super(element_id, options)
 
