@@ -1,6 +1,5 @@
 {% load static i18n %}
 
-
 <div class="modal" tabindex="-1" role="dialog" id="editEventDialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -17,11 +16,11 @@
             <input type="hidden" id="event_id" code-qualified-name="event_id" />
 
             <div class="form-group">
-              <label>Tittel</label>
+              <label>{% trans "Title" %}</label>
               <input type="text" class="form-control" id="title" code-qualified-name="title" required/>
             </div>
 
-            <label>Fra</label>
+            <label>{% trans "From" %}</label>
             <div class="row">
               <div class="col-6">
                 <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate" required>
@@ -31,7 +30,7 @@
               </div>
             </div>
 
-            <label>Til</label>
+            <label>{‰ trans "To" %}</label>
             <div class="row">
               <div class="col-6">
                 <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
@@ -41,13 +40,13 @@
               </div>
             </div>
 
-            <label>Farge</label>
+            <label>{% trans "Farge" %}</label>
             <input type="color" class="form-control" id="color" code-qualified-name="color">
           </form>
         </div>
         <div class="modal-footer">
           <em style="float:left!important;text-align:left!important;">alt + enter</em>
-          <button type="button" class="btn btn-secondary" onclick="$(eventEditDialog).modal('hide')">Avbryt</button>
+          <button type="button" class="btn btn-secondary" onclick="$(eventEditDialog).modal('hide')">{% trans "Cancel" %}</button>
           <button type="button" class="btn btn-primary" onclick="saveEvent()">{% trans "Save" %}</button>
         </div>
       </div>
