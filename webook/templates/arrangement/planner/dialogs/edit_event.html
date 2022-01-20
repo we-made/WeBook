@@ -142,11 +142,11 @@
         console.log(eventDialogManager.event_id.value);
         if (eventDialogManager.event_id.value !== "-1") {
           planner.local_context.update_event(event_obj, eventDialogManager.event_id.value);
-          toastrMessage = "Hendelse oppdatert!";
+          toastrMessage = '{% trans "Hendelse oppdatert!" %}';
         }
         else {
           planner.local_context.add_event(event_obj);
-          toastrMessage = "Hendelse opprettet!"
+          toastrMessage = '{% trans "Hendelse opprettet! %}"'
         }
 
         $(eventEditDialog).modal('hide');
