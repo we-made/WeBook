@@ -525,14 +525,15 @@
         else {
           pattern["week_interval"] = $('#week_interval').val();
           
-          let days = new Map();
-          days.set(0, $('#sunday').is(':checked'));
-          days.set(1, $('#monday').is(':checked'));
-          days.set(2, $('#tuesday').is(':checked'));
-          days.set(3, $('#wednesday').is(':checked'));
-          days.set(4, $('#thursday').is(':checked'));
-          days.set(5, $('#friday').is(':checked'));
-          days.set(6, $('#saturday').is(':checked'));
+          let days = new Map([
+            [0, $('#sunday').is(':checked')],
+            [1, $('#monday').is(':checked')],
+            [2, $('#tuesday').is(':checked')],
+            [3, $('#wednesday').is(':checked')],
+            [4, $('#thursday').is(':checked')],
+            [5, $('#friday').is(':checked')],
+            [6, $('#saturday').is(':checked')],
+          ]);
           pattern["days"] = days;
           pattern["pattern_routine"] = "weekly__standard";
         }
