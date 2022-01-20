@@ -22,21 +22,32 @@ Date.prototype.addDays = function(days) {
     Top level.
 */
 class Planner {
-    constructor({ onClickEditButton, onClickInfoButton, csrf_token, arrangement_id } = {}) {
+    constructor({ onClickEditButton, onClickInfoButton, csrf_token, arrangement_id, texts = undefined } = {}) {
         this.local_context = new LocalPlannerContext(this)
+        
         this.renderer_manager = new RendererManager({
             context: this.local_context,
             renderers: undefined,
             onClickEditButton: onClickEditButton,
             onClickInfoButton: onClickInfoButton,
             planner:this
-        })
+        });
+        
+        this.textLib = new Map([
+            ["create", "Create"],
+            ["delete", "Delete"],
+            ["edit", "Edit"],
+            ["info", "Info"]
+        ]);
+
+        if (texts !== undefined) {
+            this.textLib = new Map([...this.textLib, ...texts ]);
+        }
+
         this.csrf_token = csrf_token
         this.synchronizer = new ContextSynchronicityManager(csrf_token, arrangement_id, this)
         this.synchronizer.getEventsOnSource();
         
-
-
         this.local_context.onSeriesChanged = function ({ planner, eventsAffected, changeType } = {}) {
             console.log("=> Serie added")
         }
@@ -785,12 +796,12 @@ class CalendarManager extends RendererBase {
 
                 let items = {
                     edit: {
-                        name: "<i class='fas fa-edit'></i> Rediger",
+                        name: "<i class='fas fa-edit'></i> " + this.planner.textLib.get("edit"),
                         isHtmlName: true,
                         callback: callback
                     },
                     delete: {
-                        name: "<i class='fas fa-trash'></i> Slett",
+                        name: "<i class='fas fa-trash'></i> " + this.planner.textLib.get("delete"),
                         isHtmlName: true,
                         callback: function (key, opt) {
                             onClickDeleteButton(focused_event_uuid);

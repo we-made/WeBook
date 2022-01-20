@@ -252,10 +252,18 @@
       return hours + separator + minutes + (include_seconds === true ? separator + seconds : "");
     }
 
+    let translatedTextsMap = new Map([
+      ["create", '{% trans "Create" %}'],
+      ["edit", '{% trans "Edit" %}'],
+      ["delete", '{% trans "Delete" %}'],
+      ["info", '{% trans "Info" %}']
+    ]);
+
     var planner = new Planner({
       onClickEditButton: function (eventId) { updateEventDialog(eventId); },
       csrf_token: '{% csrf_token %}',
-      arrangement_id: {{ object.id }}
+      texts: translatedTextsMap,
+      arrangement_id: {{ object.id }},
     });
 
     var plannerTableManager = new SimpleTableManager(

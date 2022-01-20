@@ -30,7 +30,7 @@
               </div>
             </div>
 
-            <label>{‰ trans "To" %}</label>
+            <label>{% trans "To" %}</label>
             <div class="row">
               <div class="col-6">
                 <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
@@ -142,11 +142,11 @@
         console.log(eventDialogManager.event_id.value);
         if (eventDialogManager.event_id.value !== "-1") {
           planner.local_context.update_event(event_obj, eventDialogManager.event_id.value);
-          toastrMessage = '{% trans "Hendelse oppdatert!" %}';
+          toastrMessage = '{% trans "Event updated!" %}';
         }
         else {
           planner.local_context.add_event(event_obj);
-          toastrMessage = '{% trans "Hendelse opprettet! %}"'
+          toastrMessage = '{% trans "Event created!" %}'
         }
 
         $(eventEditDialog).modal('hide');
