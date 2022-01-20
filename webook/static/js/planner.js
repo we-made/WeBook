@@ -567,14 +567,15 @@ class LocalPlannerContext {
 
         static arbitrator_find(start_date, arbitrator, weekday) {
            // helps us parse from 1,2,3,4,5,6,7 to 0,1,2,3,4,5,6 that JS uses
-           let weekDayParseReverseMap = new Map();
-           weekDayParseReverseMap.set(0, 7);
-           weekDayParseReverseMap.set(6, 6);
-           weekDayParseReverseMap.set(5, 5);
-           weekDayParseReverseMap.set(4, 4);
-           weekDayParseReverseMap.set(3, 3);
-           weekDayParseReverseMap.set(2, 2);
-           weekDayParseReverseMap.set(1, 1)
+           let weekDayParseReverseMap = new Map([
+               [0, 7],
+               [6, 6],
+               [5, 5],
+               [4, 4],
+               [3, 3],
+               [2, 2],
+               [1, 1],
+           ]);
 
            // Before we can do anything we need to find the first occurrence of weekday 
            // in the month
@@ -821,10 +822,11 @@ class CalendarManager extends RendererBase {
     RenderingUtilities = class RenderingUtilities {
 
         static renderEventForView(view_name, ev_info) {
-            let viewsToRendererMap = new Map();
-            viewsToRendererMap.set("dayGridMonth", this.renderDayGridMonth_Event);
-            viewsToRendererMap.set("timeGridWeek", this.renderWeek_Event);
-            viewsToRendererMap.set("timeGridDay", this.renderWeek_Event);
+            let viewsToRendererMap = new Map([
+                ["dayGridMonth", this.renderDayGridMonth_Event],
+                ["timeGridWeek", this.renderWeek_Event],
+                ["timeGridDay", this.renderWeek_Event]
+            ]);
             this.viewsToRendererMap = viewsToRendererMap;
 
             let renderer_function = this.viewsToRendererMap.get(view_name)
