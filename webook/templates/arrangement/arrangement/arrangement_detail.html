@@ -17,7 +17,8 @@
         <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
     </a>
 
-    <a class="btn btn-success float-end">
+    <a class="btn btn-success float-end"
+        onclick="loadRequsitioningDialog()">
         {% trans "Requisitioning" %}
     </a>
 {% endblock %}
@@ -446,6 +447,8 @@
         </div>
     </div>
 </div>
+
+{% include 'arrangement/requisitioneer/requisition_dialog.html' %}
 
     <script>
 
