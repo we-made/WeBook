@@ -46,6 +46,7 @@
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://dragselect.com/v2/ds.min.js"></script>
 
 <h3 class="mt-5">{% trans "Planner" %}</h3>
 <button class="btn btn-primary"
@@ -110,13 +111,12 @@
   <script src="{% static 'js/inputGroupManager.js' %}"></script>
 
 <script>
+    let selectAllow = true;
 
- 
     window.addEventListener('DOMContentLoaded', (event) => {
       bind_global_hotkeys();
       hotkey_map.get(document.querySelector('#item-stepper-calendar')).bind();
     });
-
 
     function bind_global_hotkeys() {
       hotkeys('fn+n, fn+s', function (event, handler) {
@@ -283,8 +283,10 @@
         "locale": 'nb',
         "weekNumbers": true,
         "selectable": true,
-        "selectMirror": true,
+        "selectMirror": false,
         "editable": true,
+
+        "unselectAuto": true,
         "selectMinDistance": 1,
         "select": function ( selectionInfo ) {
             eventDialogManager.fromDate.valueAsDate = selectionInfo.start;

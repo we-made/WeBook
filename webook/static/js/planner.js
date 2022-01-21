@@ -95,6 +95,26 @@ class Planner {
     }
 }
 
+class SelectEngine {
+    constructor () {
+        this.ds = new DragSelect();
+    }
+
+    /* */
+    reset() {
+
+    }
+
+    /* */
+    bind (nodeList) {
+        this.ds.addSelectables(nodeList);
+    }
+
+    /* */
+    unbind() {
+        
+    }
+}
 
 /* handle synchronizing data between multiple contexts */
 class ContextSynchronicityManager {
@@ -744,8 +764,31 @@ class CalendarManager extends RendererBase {
         this.calendar = undefined;
         this.rememberedInitialView = "dayGridMonth";
 
-        this.fc_options.eventContent = (arg) => {
+        this.dsEventSelector = ".fc-event, .fc-daygrid-event";
 
+        this.ds = new DragSelect({});
+        this.ds.subscribe('callback', ({ items, event }) => {
+            if (items !== undefined && items.length == 0) {
+                let allNodes = document.querySelectorAll(this.dsEventSelector);
+                for (let i = 0; i < allNodes.length; i++) {
+                    allNodes[i].style="";
+                }
+            }
+        });
+        this.ds.subscribe('dragmove', ({items, event}) => {
+            let allNodes = document.querySelectorAll(this.dsEventSelector);
+            for (let i = 0; i < allNodes.length; i++) {
+                allNodes[i].style="";
+            }
+
+            let selectedNodes = this.ds.getSelection();
+            for (let i = 0; i < selectedNodes.length; i++) {
+                selectedNodes[i].style="background-color: grey; color:white;";
+            }
+        });
+
+        this.fc_options.eventContent = (arg) => {
+            this.ds.addSelectables(document.querySelectorAll(this.dsEventSelector));
             let rootNode = this.RenderingUtilities.renderEventForView(arg.view.type, arg);
             return { 
                 html: rootNode.outerHTML
@@ -762,6 +805,10 @@ class CalendarManager extends RendererBase {
             };
 
             this.planner.local_context.update_event(event, event.id);
+        }
+
+        this.fc_options.selectAllow = () => {
+            return this.calendar.view.type !== "dayGridMonth";
         }
 
         this.fc_options.eventDrop = (eventDropInfo) => {
@@ -826,7 +873,7 @@ class CalendarManager extends RendererBase {
             let viewsToRendererMap = new Map([
                 ["dayGridMonth", this.renderDayGridMonth_Event],
                 ["timeGridWeek", this.renderWeek_Event],
-                ["timeGridDay", this.renderWeek_Event]
+                ["timeGridDay", this.renderWeek_Event],
             ]);
             this.viewsToRendererMap = viewsToRendererMap;
 
