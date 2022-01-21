@@ -20,28 +20,33 @@
               <input type="text" class="form-control" id="title" code-qualified-name="title" required/>
             </div>
 
-            <label>{% trans "From" %}</label>
-            <div class="row">
-              <div class="col-6">
-                <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate" required>
-              </div>
-              <div class="col-6">
-                <input type="time" class="form-control" id="fromTime" code-qualified-name="fromTime" required>
-              </div>
-            </div>
-
-            <label>{% trans "To" %}</label>
-            <div class="row">
-              <div class="col-6">
-                <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
-              </div>
-              <div class="col-6">
-                <input type="time" class="form-control" id="toTime" code-qualified-name="toTime" required>
+            <div class="form-group mt-2">
+              <label>{% trans "From" %}</label>
+              <div class="row">
+                <div class="col-6">
+                  <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate" required>
+                </div>
+                <div class="col-6">
+                  <input type="time" class="form-control" id="fromTime" code-qualified-name="fromTime" required>
+                </div>
               </div>
             </div>
-
+            
+            <div class="form-group mt-2">
+              <label>{% trans "To" %}</label>
+              <div class="row">
+                <div class="col-6">
+                  <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
+                </div>
+                <div class="col-6">
+                  <input type="time" class="form-control" id="toTime" code-qualified-name="toTime" required>
+                </div>
+              </div>
+            </div>
+            <div class="form-group mt-2">
             <label>{% trans "Farge" %}</label>
-            <input type="color" class="form-control" id="color" code-qualified-name="color">
+              <input type="color" class="form-control" id="color" code-qualified-name="color">
+            </div>
           </form>
         </div>
         <div class="modal-footer">
