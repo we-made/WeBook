@@ -1,6 +1,9 @@
+import json
+from re import search
 from typing import Any, Dict, List
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.query import QuerySet
+from django.http import JsonResponse
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse
@@ -12,6 +15,7 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.core import serializers
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
 from webook.arrangement.views.organization_views import OrganizationSectionManifestMixin
@@ -20,6 +24,8 @@ from webook.arrangement.models import Organization, Person
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from django.db.models.functions import Concat
+from django.db.models import Q, F
 
 
 def get_section_manifest():
@@ -137,3 +143,35 @@ class OrganizationPersonMemberListView (LoginRequiredMixin, OrganizationSectionM
         return context
 
 organization_person_member_list_view = OrganizationPersonMemberListView.as_view()
+
+
+class SearchPeopleAjax (LoginRequiredMixin, ListView):
+
+    def post(self, request):
+        body_data = json.loads(request.body.decode('utf-8'))
+        search_term = body_data["term"]
+
+        # This avoids concatenation issues. Working with the full name may be difficult, should middle_name be unspecified
+        # One could for instance end up with a string like this in the comparison: "John  Smith" as opposed to the intended "John Smith"
+        # The best solution seems to be to just remove spaces from the user input, and the concatenation, and the issue is eliminated.
+        search_term.replace(' ', "") 
+
+        people = []
+        if (search_term == ""):
+            people = Person.objects.all()
+        else:
+            people = Person.objects\
+                .annotate(afull_name=Concat('first_name', 'middle_name', 'last_name'))\
+                .filter(afull_name__contains=search_term)
+
+        response = serializers.serialize("json", people)
+
+        return JsonResponse(response, safe=False)
+        
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        people = Person.objects.filter(full_name__unaccent__icontains(request.GET["term"]))
+        response = serializers.serialize("json", people)
+        return JsonResponse(response, safe=False)
+
+search_people_ajax_view = SearchPeopleAjax.as_view()

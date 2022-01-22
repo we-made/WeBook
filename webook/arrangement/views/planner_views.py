@@ -42,7 +42,7 @@ class PlanArrangementView(LoginRequiredMixin, PlannerSectionManifestMixin, MetaM
 plan_arrangement_view = PlanArrangementView.as_view()
 
 
-class PlanCreateEvent (CreateView):
+class PlanCreateEvent (LoginRequiredMixin, CreateView):
     model = Event
     fields = [
         "title",
@@ -62,7 +62,7 @@ class PlanCreateEvent (CreateView):
 plan_create_event = PlanCreateEvent.as_view()
 
 
-class PlanUpdateEvent (UpdateView):
+class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
     model = Event
     template_name="arrangement/event/event_form.html"
     fields = [
@@ -83,7 +83,7 @@ class PlanUpdateEvent (UpdateView):
 plan_update_event = PlanUpdateEvent.as_view()
 
 
-class PlanGetEvents (ListView):
+class PlanGetEvents (LoginRequiredMixin, ListView):
     
     def get(self, request, *args, **kwargs):
         events = Event.objects.filter(arrangement_id=request.GET["arrangement_id"]).only("title", "start", "end", "color")
@@ -93,7 +93,7 @@ class PlanGetEvents (ListView):
 plan_get_events = PlanGetEvents.as_view()
 
 
-class PlanDeleteEvent (DeleteView):
+class PlanDeleteEvent (LoginRequiredMixin, DeleteView):
     model = Event
     
     def get_success_url(self) -> str:

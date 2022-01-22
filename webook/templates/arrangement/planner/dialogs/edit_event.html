@@ -4,7 +4,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">{% trans "Edit event" %}</h5>
+          <h5 class="modal-title"><i class="fas fa-edit"></i>&nbsp; {% trans "Edit event" %}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#editEventDialog').modal('hide')">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -16,12 +16,12 @@
             <input type="hidden" id="event_id" code-qualified-name="event_id" />
 
             <div class="form-group">
-              <label>{% trans "Title" %}</label>
+              <label class="d-block">{% trans "Title" %} <small class="text-muted float-end"> * Required</small></label>
               <input type="text" class="form-control" id="title" code-qualified-name="title" required/>
             </div>
 
             <div class="form-group mt-2">
-              <label>{% trans "From" %}</label>
+              <label class="d-block">{% trans "From" %} <small class="text-muted float-end"> * Required</small></label>
               <div class="row">
                 <div class="col-6">
                   <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate" required>
@@ -33,7 +33,7 @@
             </div>
             
             <div class="form-group mt-2">
-              <label>{% trans "To" %}</label>
+              <label class="d-block">{% trans "To" %} <small class="text-muted float-end"> * Required</small></label>
               <div class="row">
                 <div class="col-6">
                   <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
@@ -43,6 +43,19 @@
                 </div>
               </div>
             </div>
+
+            <div class="form-group mt-2">
+              <label class="d-block">{% trans "People" %}</label>
+
+              <select class="select" multiple id="personSelect" data-mdb-filter="true" data-mdb-container="#editEventDialog">
+                <option value="1">
+                  Person A
+                </option>
+                <option value="2">Person A</option>
+                <option value="3">Person B</option>
+              </select>
+            </div>
+
             <div class="form-group mt-2">
             <label>{% trans "Farge" %}</label>
               <input type="color" class="form-control" id="color" code-qualified-name="color">
@@ -50,15 +63,34 @@
           </form>
         </div>
         <div class="modal-footer">
-          <em style="float:left!important;text-align:left!important;">alt + enter</em>
           <button type="button" class="btn btn-secondary" onclick="$(eventEditDialog).modal('hide')">{% trans "Cancel" %}</button>
           <button type="button" class="btn btn-primary" onclick="saveEvent()">{% trans "Save" %}</button>
         </div>
       </div>
     </div>
   </div>
-
+    
 <script>
+
+    let selectExt;
+    $(document).ready(function () {
+      selectExt = new ExtendedSelect({
+        jqElement: $('#personSelect'),
+        getUrl: '{% url "arrangement:search_people_ajax_view" %}',
+        extraHeaders: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        dataParser: function (item) {
+          return {
+            value: item.pk,
+            text: [item.fields.first_name, item.fields.middle_name, item.fields.last_name].join(" "),
+            secondary_text: item.fields.personal_email
+          }
+        }
+      });
+    })
+   
+
     function bindHotkeys() {
       hotkeys('alt+enter', function (event, handler) {
         switch (handler.key) {

@@ -5,6 +5,7 @@ from webook.arrangement.views import (
     person_update_view,
     person_detail_view,
     person_delete_view,
+    search_people_ajax_view,
 )
 
 
@@ -37,5 +38,11 @@ person_urls = [
         route="person/delete/<slug:slug>/",
         view=person_delete_view,
         name="person_delete",
+    ),
+
+    path(
+        route="person/search",
+        view=search_people_ajax_view,
+        name="search_people_ajax_view",
     ),
 ]
