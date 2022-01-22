@@ -6,6 +6,7 @@ from webook.arrangement.views import (
     room_detail_view,
     room_delete_view,
     location_room_list_view,
+    search_rooms_ajax_view,
 )
 
 
@@ -45,4 +46,10 @@ room_urls = [
         view=location_room_list_view, 
         name="locationroomlist"
     ),
+
+    path(
+        route="room/search",
+        view=search_rooms_ajax_view,
+        name="search_rooms_ajax_view"
+    )
 ]

@@ -20,6 +20,7 @@ from .room_views import (
     room_create_view,
     room_delete_view,
     location_room_list_view,
+    search_rooms_ajax_view,
 )
 
 from .organization_views import (

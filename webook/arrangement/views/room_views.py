@@ -1,5 +1,6 @@
 from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse
@@ -11,6 +12,7 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.core import serializers
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location, Room
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -98,3 +100,23 @@ class LocationRoomListView (LoginRequiredMixin, ListView):
     template_name="arrangement/room/partials/_location_room_list.html"
 
 location_room_list_view = LocationRoomListView.as_view()
+
+
+class SearchRoomsAjax (LoginRequiredMixin, ListView):
+
+    def post (self, request):
+        body_data = json.loads(request.body.decode('utf-8'))
+        search_term = body_data["term"]
+
+        rooms = []
+
+        if (search_term == ""):
+            rooms = Room.objects.all()
+        else:
+            rooms = Room.objects.filter(name__contains=search_term)
+
+        response = serializers.serialize("json", rooms)
+
+        return JsonResponse(response, safe=False)
+
+search_rooms_ajax_view = SearchRoomsAjax.as_view()

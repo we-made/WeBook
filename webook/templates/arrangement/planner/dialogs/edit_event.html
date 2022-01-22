@@ -48,11 +48,13 @@
               <label class="d-block">{% trans "People" %}</label>
 
               <select class="select" multiple id="personSelect" data-mdb-filter="true" data-mdb-container="#editEventDialog">
-                <option value="1">
-                  Person A
-                </option>
-                <option value="2">Person A</option>
-                <option value="3">Person B</option>
+              </select>
+            </div>
+
+            <div class="form-group mt-2">
+              <label class="d-block">{% trans "Rooms" %}</label>
+
+              <select class="select" multiple id="roomSelect" data-mdb-filter="true" data-mdb-container="#editEventDialog">
               </select>
             </div>
 
@@ -71,10 +73,8 @@
   </div>
     
 <script>
-
-    let selectExt;
     $(document).ready(function () {
-      selectExt = new ExtendedSelect({
+      let personSelectExt = new ExtendedSelect({
         jqElement: $('#personSelect'),
         getUrl: '{% url "arrangement:search_people_ajax_view" %}',
         extraHeaders: {
@@ -88,6 +88,21 @@
           }
         }
       });
+
+      let roomSelectExt = new ExtendedSelect({
+        jqElement: $('#roomSelect'),
+        getUrl: '{% url "arrangement:search_rooms_ajax_view" %}',
+        extraHeaders: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        dataParser: function (item) {
+          return {
+            value: item.pk,
+            text: item.fields.name,
+            secondary_text: item.fields.location.name
+          }
+        }
+      })
     })
    
 

@@ -103,6 +103,11 @@ class ExtendedSelect {
         let respJson = await response.json();
         let parsedEntities = JSON.parse(respJson);
 
+        let optGroups = this.jqElement[0].querySelectorAll("optgroup");
+        for (let i = 0; i < optGroups.length; i++) {
+            optGroups[i].remove();
+        }
+
         let options = this.jqElement[0].querySelectorAll("option");
         for (let i = 0; i < options.length; i++) {
             options[i].remove();
