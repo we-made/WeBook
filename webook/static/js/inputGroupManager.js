@@ -69,7 +69,7 @@ class InputGroupManager {
             let el = this.origin[i];
             if (el !== undefined && el.id !== undefined) {
                 if ($(el).attr("advanced-select")) {
-                    let instance = mdb.Select.getInstance($('#personSelect')[0])
+                    let instance = mdb.Select.getInstance($(el)[0])
                     instance._handleClear();
                 }
 

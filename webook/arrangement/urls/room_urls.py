@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.urls import path
 from webook.arrangement.views import (
     room_list_view,
@@ -6,6 +7,7 @@ from webook.arrangement.views import (
     room_detail_view,
     room_delete_view,
     location_room_list_view,
+    search_room_ajax_view,
 )
 
 
@@ -44,5 +46,11 @@ room_urls = [
         route="room/locationrooms?location=<str:location>",
         view=location_room_list_view, 
         name="locationroomlist"
+    ),
+
+    path(
+        route="room/search",
+        view=search_room_ajax_view,
+        name="search_room_ajax_view",
     ),
 ]

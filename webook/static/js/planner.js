@@ -143,8 +143,8 @@ class ContextSynchronicityManager {
                         to: new Date(ev.fields.end),
                         color: (ev.fields.color !== undefined &&  ev.fields.color !== null && ev.fields.color !== "" ? ev.fields.color : "blue"),
                         people: ev.fields.people,
+                        rooms: ev.fields.rooms,
                     };
-                    console.log(ev.fields.people)
                     let uuid = planner.local_context.add_event(converted_event, false);
                     id_map.set(uuid, ev.pk);
                 });
@@ -166,6 +166,7 @@ class ContextSynchronicityManager {
             data.append("arrangement", this.arrangement_id);
             data.append('csrfmiddlewaretoken', this.csrf_token);
             data.append("people", event.people);
+            data.append("rooms", event.rooms);
 
             console.log(data);
 
@@ -185,6 +186,7 @@ class ContextSynchronicityManager {
             data.append("color", event.color);
             data.append('csrfmiddlewaretoken', this.csrf_token);
             data.append("people", event.people);
+            data.append("rooms", event.rooms);
             
             console.log(data);
 

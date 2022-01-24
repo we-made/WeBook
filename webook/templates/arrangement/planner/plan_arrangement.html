@@ -289,14 +289,7 @@
         "unselectAuto": true,
         "selectMinDistance": 1,
         "select": function ( selectionInfo ) {
-            eventDialogManager.fromDate.valueAsDate = selectionInfo.start;
-            eventDialogManager.fromTime.value = parseDateObjTimeToString(selectionInfo.start);
-
-            eventDialogManager.toDate.valueAsDate = selectionInfo.end;
-            eventDialogManager.toTime.value = parseDateObjTimeToString(selectionInfo.end);
-
-            eventDialogManager.title.value = "";
-
+            eventDialogManager.flush();
             eventDialogManager.event_id.value = -1;
 
             $(eventEditDialog).modal('show');

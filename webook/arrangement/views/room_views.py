@@ -1,9 +1,11 @@
 from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.core import serializers
 from django.views.generic import (
     DetailView,
     RedirectView,
@@ -89,6 +91,23 @@ class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, De
 
 room_delete_view = RoomDeleteView.as_view()
 
+class SearchRoomsAjax (LoginRequiredMixin, ListView):
+    def post(self, request):
+        body_data = json.loads(request.body.decode('utf-8'))
+        search_term = body_data["term"]
+
+        rooms = []
+
+        if (search_term == ""):
+            rooms = Room.objects.all()
+        else:
+            rooms = Room.objects.filter(name__contains=search_term)
+
+        response = serializers.serialize("json", rooms)
+        
+        return JsonResponse(response, safe=False)
+
+search_room_ajax_view = SearchRoomsAjax.as_view();
 
 class LocationRoomListView (LoginRequiredMixin, ListView):
     model = Location

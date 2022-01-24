@@ -60,17 +60,25 @@ class PlanCreateEvent (LoginRequiredMixin, CreateView):
 
     def get_success_url(self) -> str:
         people = self.request.POST.get("people")
-        
-        print(people)
+        rooms = self.request.POST.get("rooms")
 
-        if (people is None or len(people) == 0):
+        if (people is None and rooms is None):
             return
-        
+
         obj = self.object
-        people = people.split(',')
-        for person in people:
-            obj.people.add(Person.objects.get(id=person))
+
+        if (people is not None and len(people) > 0):
+            people = people.split(',')
+            for personId in people:
+                obj.people.add(Person.objects.get(id=personId))
+        
+        if (rooms is not None and len(rooms) > 0):
+            rooms = rooms.split(',')
+            for roomId in rooms:
+                obj.rooms.add(Room.objects.get(id=roomId))
+
         obj.save()
+
         pass
 
 plan_create_event = PlanCreateEvent.as_view()
@@ -93,14 +101,25 @@ class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
 
     def get_success_url(self) -> str:
         people = self.request.POST.get("people")
-        if (people is None or len(people) == 0):
+        rooms = self.request.POST.get("rooms")
+
+        if (people is None and rooms is None):
             return
 
         obj = self.object
-        people = people.split(',')
-        for person in people:
-            obj.people.add(Person.objects.get(id=person))
+
+        if (people is not None and len(people) > 0):
+            people = people.split(',')
+            for personId in people:
+                obj.people.add(Person.objects.get(id=personId))
+        
+        if (rooms is not None and len(rooms) > 0):
+            rooms = rooms.split(',')
+            for roomId in rooms:
+                obj.rooms.add(Room.objects.get(id=roomId))
+
         obj.save()
+
         pass
 
 plan_update_event = PlanUpdateEvent.as_view()
@@ -109,8 +128,8 @@ plan_update_event = PlanUpdateEvent.as_view()
 class PlanGetEvents (LoginRequiredMixin, ListView):
     
     def get(self, request, *args, **kwargs):
-        events = Event.objects.filter(arrangement_id=request.GET["arrangement_id"]).only("title", "start", "end", "color", "people")
-        response = serializers.serialize("json", events, fields=["title", "start", "end", "color", "people"])
+        events = Event.objects.filter(arrangement_id=request.GET["arrangement_id"]).only("title", "start", "end", "color", "people", "rooms")
+        response = serializers.serialize("json", events, fields=["title", "start", "end", "color", "people", "rooms"])
         return JsonResponse(response, safe=False)
 
 plan_get_events = PlanGetEvents.as_view()

@@ -47,11 +47,12 @@
             <div class="form-group mt-2">
               <label class="d-block">{% trans "People" %}</label>
               <select class="select" multiple id="personSelect" code-qualified-name="personSelect" data-mdb-filter="true" data-mdb-container="#editEventDialog" advanced-select="true">
-                <option value="1">
-                  Person A
-                </option>
-                <option value="2">Person A</option>
-              <option value="3">Person B</option>
+              </select>
+            </div>
+
+            <div class="form-group mt-2">
+              <label class="d-block">{% trans "Rooms" %}</label>
+              <select class="select" multiple id="roomSelect" code-qualified-name="roomSelect" data-mdb-filter="true" data-mdb-container="#editEventDialog" advanced-select="true">
               </select>
             </div>
 
@@ -70,10 +71,8 @@
   </div>
     
 <script>
-
-    let selectExt;
     $(document).ready(function () {
-      selectExt = new ExtendedSelect({
+      new ExtendedSelect({
         jqElement: $('#personSelect'),
         getUrl: '{% url "arrangement:search_people_ajax_view" %}',
         extraHeaders: {
@@ -84,6 +83,21 @@
             value: item.pk,
             text: [item.fields.first_name, item.fields.middle_name, item.fields.last_name].join(" "),
             secondary_text: item.fields.personal_email
+          }
+        }
+      });
+
+      new ExtendedSelect({
+        jqElement: $('#roomSelect'),
+        getUrl: '{% url "arrangement:search_room_ajax_view" %}',
+        extraHeaders: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        dataParser: function (item) {
+          return {
+            value: item.pk,
+            text: item.fields.name,
+            secondary_text: "{% trans 'Max Occupancy: ' %}" + item.fields.max_capacity
           }
         }
       });
@@ -121,6 +135,7 @@
             document.getElementById('toDate'),
             document.getElementById('color'),
             document.getElementById('personSelect'),
+            document.getElementById('roomSelect'),
         ]
     )
 
@@ -143,14 +158,20 @@
         eventDialogManager.toDate.valueAsDate = event.to;
         eventDialogManager.toTime.value = parseDateObjTimeToString(event.to);
         eventDialogManager.color.value = event.color;
-        //event.people
 
-        let mdbSelectInstance = mdb.Select.getInstance($('#personSelect')[0])
-        let values = []
+        let mdbPersonSelectInstance = mdb.Select.getInstance($('#personSelect')[0]);
+        let mdbRoomSelectInstance = mdb.Select.getInstance($('#roomSelect')[0]);
+        let personValues = [];
+        let roomValues = [];
         for (let i = 0; i < event.people.length; i++) {
-          values.push(String(event.people[i]));
+          personValues.push(String(event.people[i]));
         }
-        mdbSelectInstance.setValue(values);
+        for (let i = 0; i < event.rooms.length; i++) {
+          roomValues.push(String(event.rooms[i]));
+        }
+
+        mdbPersonSelectInstance.setValue(personValues);
+        mdbRoomSelectInstance.setValue(roomValues);
 
         $(eventEditDialog).modal('show');
     }
@@ -179,7 +200,8 @@
             from: new Date(eventDialogManager.fromDate.value + "T" + eventDialogManager.fromTime.value),
             to: new Date(eventDialogManager.toDate.value + "T" + eventDialogManager.toTime.value),
             color: eventDialogManager.color.value,
-            people: $(eventDialogManager.personSelect).val()
+            people: $(eventDialogManager.personSelect).val(),
+            rooms: $(eventDialogManager.roomSelect).val(),
         }
 
         console.log(event_obj)
