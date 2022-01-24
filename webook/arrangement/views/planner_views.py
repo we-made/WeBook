@@ -54,9 +54,23 @@ class PlanCreateEvent (LoginRequiredMixin, CreateView):
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         super().post(request, *args, **kwargs)
+        people = self.request.POST.get("people")
+        
         return JsonResponse({"id": self.object.id})
 
     def get_success_url(self) -> str:
+        people = self.request.POST.get("people")
+        
+        print(people)
+
+        if (people is None or len(people) == 0):
+            return
+        
+        obj = self.object
+        people = people.split(',')
+        for person in people:
+            obj.people.add(Person.objects.get(id=person))
+        obj.save()
         pass
 
 plan_create_event = PlanCreateEvent.as_view()
@@ -78,6 +92,15 @@ class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
         return super().post(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
+        people = self.request.POST.get("people")
+        if (people is None or len(people) == 0):
+            return
+
+        obj = self.object
+        people = people.split(',')
+        for person in people:
+            obj.people.add(Person.objects.get(id=person))
+        obj.save()
         pass
 
 plan_update_event = PlanUpdateEvent.as_view()
@@ -86,8 +109,8 @@ plan_update_event = PlanUpdateEvent.as_view()
 class PlanGetEvents (LoginRequiredMixin, ListView):
     
     def get(self, request, *args, **kwargs):
-        events = Event.objects.filter(arrangement_id=request.GET["arrangement_id"]).only("title", "start", "end", "color")
-        response = serializers.serialize("json", events, fields=["title", "start", "end", "color"])
+        events = Event.objects.filter(arrangement_id=request.GET["arrangement_id"]).only("title", "start", "end", "color", "people")
+        response = serializers.serialize("json", events, fields=["title", "start", "end", "color", "people"])
         return JsonResponse(response, safe=False)
 
 plan_get_events = PlanGetEvents.as_view()

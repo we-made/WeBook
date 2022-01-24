@@ -51,7 +51,7 @@
                   Person A
                 </option>
                 <option value="2">Person A</option>
-                <option value="3">Person B</option>
+              <option value="3">Person B</option>
               </select>
             </div>
 
@@ -100,7 +100,7 @@
       });
 
       // needed to make sure hotkeys work when INPUT elements are in focus
-      hotkeys.filter = function(event){ 
+      hotkeys.filter = function(event) { 
         return true;
       }
     }
@@ -143,6 +143,14 @@
         eventDialogManager.toDate.valueAsDate = event.to;
         eventDialogManager.toTime.value = parseDateObjTimeToString(event.to);
         eventDialogManager.color.value = event.color;
+        //event.people
+
+        let mdbSelectInstance = mdb.Select.getInstance($('#personSelect')[0])
+        let values = []
+        for (let i = 0; i < event.people.length; i++) {
+          values.push(String(event.people[i]));
+        }
+        mdbSelectInstance.setValue(values);
 
         $(eventEditDialog).modal('show');
     }
@@ -171,6 +179,7 @@
             from: new Date(eventDialogManager.fromDate.value + "T" + eventDialogManager.fromTime.value),
             to: new Date(eventDialogManager.toDate.value + "T" + eventDialogManager.toTime.value),
             color: eventDialogManager.color.value,
+            people: $(eventDialogManager.personSelect).val()
         }
 
         console.log(event_obj)

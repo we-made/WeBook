@@ -141,8 +141,10 @@ class ContextSynchronicityManager {
                         title: ev.fields.title,
                         from: new Date(ev.fields.start),
                         to: new Date(ev.fields.end),
-                        color: (ev.fields.color !== undefined &&  ev.fields.color !== null && ev.fields.color !== "" ? ev.fields.color : "blue")
+                        color: (ev.fields.color !== undefined &&  ev.fields.color !== null && ev.fields.color !== "" ? ev.fields.color : "blue"),
+                        people: ev.fields.people,
                     };
+                    console.log(ev.fields.people)
                     let uuid = planner.local_context.add_event(converted_event, false);
                     id_map.set(uuid, ev.pk);
                 });
@@ -163,6 +165,7 @@ class ContextSynchronicityManager {
             data.append("color", event.color);
             data.append("arrangement", this.arrangement_id);
             data.append('csrfmiddlewaretoken', this.csrf_token);
+            data.append("people", event.people);
 
             console.log(data);
 
@@ -181,6 +184,7 @@ class ContextSynchronicityManager {
             data.append("arrangement", this.arrangement_id);
             data.append("color", event.color);
             data.append('csrfmiddlewaretoken', this.csrf_token);
+            data.append("people", event.people);
             
             console.log(data);
 
@@ -305,7 +309,7 @@ class LocalPlannerContext {
         }
 
         this.series.delete(serie_uuid, 1);
-        this.onSeriesChanged({ planner: this.planner, eventsAffected: this.events, changeType: "delete" });
+        this.onSeriesChanged({ planner: this.planner, eventsAffected: this.events, changeType: "delete" });
         this.onEventsDeleted({ deletedEvents: this.events, planner: this.planner });
     }
 
