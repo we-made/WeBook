@@ -21,7 +21,8 @@ class ExtendedSelect {
         this.extraParams = extraParams;
         this.searchThreshold = searchThreshold;
         this.extraHeaders = extraHeaders;
-        this.dataParser = (dataParser === undefined ? this.defaultItemParser : dataParser)
+        this.dataParser = (dataParser === undefined ? this.defaultItemParser : dataParser);
+        this.currentlySelectedValues = [];
 
         this.jqElement[0].addEventListener('open.mdb.select', (e) => {
             this.bindToSearch();

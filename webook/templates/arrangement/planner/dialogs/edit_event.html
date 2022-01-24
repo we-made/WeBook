@@ -46,8 +46,7 @@
 
             <div class="form-group mt-2">
               <label class="d-block">{% trans "People" %}</label>
-
-              <select class="select" multiple id="personSelect" data-mdb-filter="true" data-mdb-container="#editEventDialog">
+              <select class="select" multiple id="personSelect" code-qualified-name="personSelect" data-mdb-filter="true" data-mdb-container="#editEventDialog" advanced-select="true">
                 <option value="1">
                   Person A
                 </option>
@@ -121,6 +120,7 @@
             document.getElementById('toTime'),
             document.getElementById('toDate'),
             document.getElementById('color'),
+            document.getElementById('personSelect'),
         ]
     )
 
