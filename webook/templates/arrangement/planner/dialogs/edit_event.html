@@ -72,35 +72,37 @@
     
 <script>
     $(document).ready(function () {
-      new ExtendedSelect({
-        jqElement: $('#personSelect'),
-        getUrl: '{% url "arrangement:search_people_ajax_view" %}',
-        extraHeaders: {
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        dataParser: function (item) {
-          return {
-            value: item.pk,
-            text: [item.fields.first_name, item.fields.middle_name, item.fields.last_name].join(" "),
-            secondary_text: item.fields.personal_email
+      $(eventEditDialog).on("show.bs.modal", function () {
+        new ExtendedSelect({
+          jqElement: $('#personSelect'),
+          getUrl: '{% url "arrangement:search_people_ajax_view" %}',
+          extraHeaders: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          dataParser: function (item) {
+            return {
+              value: item.pk,
+              text: [item.fields.first_name, item.fields.middle_name, item.fields.last_name].join(" "),
+              secondary_text: item.fields.personal_email
+            }
           }
-        }
-      });
+        });
 
-      new ExtendedSelect({
-        jqElement: $('#roomSelect'),
-        getUrl: '{% url "arrangement:search_room_ajax_view" %}',
-        extraHeaders: {
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        dataParser: function (item) {
-          return {
-            value: item.pk,
-            text: item.fields.name,
-            secondary_text: "{% trans 'Max Occupancy: ' %}" + item.fields.max_capacity
+        new ExtendedSelect({
+          jqElement: $('#roomSelect'),
+          getUrl: '{% url "arrangement:search_room_ajax_view" %}',
+          extraHeaders: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          dataParser: function (item) {
+            return {
+              value: item.pk,
+              text: item.fields.name,
+              secondary_text: "{% trans 'Max Occupancy: ' %}" + item.fields.max_capacity
+            }
           }
-        }
-      });
+        });
+      })
     })
    
 

@@ -107,6 +107,8 @@ class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
             return
 
         obj = self.object
+        obj.people.clear()
+        obj.rooms.clear()
 
         if (people is not None and len(people) > 0):
             people = people.split(',')
