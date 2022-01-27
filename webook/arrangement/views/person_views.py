@@ -94,7 +94,8 @@ class PersonCreateView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
         success_url = super().get_success_url()
         organization = self.request.POST.get("organization")
         created_user = self.object
-        created_user.organizations.add(organization)
+        if organization is not None:
+            created_user.organizations.add(organization)
         created_user.save()
         return success_url
 
