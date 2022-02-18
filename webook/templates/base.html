@@ -22,9 +22,13 @@
     <!-- Third-party CSS libraries go here -->
     <!-- <link href="{% static 'css/mdb.min.css' %}" rel="stylesheet"> -->
     <link href="{{ ASSET_SERVER_URL }}mdb/css/mdb.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/color-picker.min.css">
+    <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/wysiwyg.min.css">
     <link rel="stylesheet" href="{% static 'vis-timeline/styles/vis-timeline-graph2d.min.css' %}" />
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <link rel="stylesheet" href="{% static 'fullcalendar-scheduler/main.min.css' %}">
+    <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/wysiwyg.min.js"></script>
+
     <!-- This file stores project-specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
 
@@ -38,6 +42,7 @@
     <script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     {% endblock %}
 
   </head>
@@ -253,6 +258,8 @@
         <p>Flexible booking and event management solution. This text is inherited on other pages!</p>
       {% endblock content %}
 
+
+
     </div> <!-- /container -->
     
     {% block modal %}{% endblock modal %}
@@ -263,14 +270,15 @@
     {% block javascript %}
 
       <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script> -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js" integrity="sha512-kvg/Lknti7OoAw0GqMBP8B+7cGHvp4M9O9V6nAYG91FZVDMW3Xkkq5qrdMhrXiawahqU7IZ5CNsY/wWy1PpGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js" integrity="sha512-kvg/Lknti7OoAw0GqMBP8B+7cGHvp4M9O9V6nAYG91FZVDMW3Xkkq5qrdMhrXiawahqU7IZ5CNsY/wWy1PpGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 
       <!-- Your stuff: Third-party javascript libraries go here -->
       <!-- <script src="{% static 'js/mdb.min.js' %}"></script> -->
 
       <script src="{{ ASSET_SERVER_URL }}mdb/js/mdb.min.js"></script>
+      <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/color-picker.min.js"></script>
 
       <script src="{% static 'js/bootbox.min.js' %}"></script>
       <script src="{% static 'js/bootbox.locales.min.js' %}"></script>
@@ -278,6 +286,7 @@
       <script src="{% static 'fullcalendar-scheduler/main.min.js' %}"></script>
       <script src="{% static 'fullcalendar-scheduler/locales-all.min.js' %}"></script>
       <!-- place project specific Javascript in this file -->
+      <script src="{% static 'js/entityMeta.js' %}"></script>
       <script src="{% static 'js/project.js' %}"></script>
       <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
 

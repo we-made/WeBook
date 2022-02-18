@@ -47,6 +47,7 @@ from .servicetype_views import (
     service_type_list_view,
     service_type_create_view,
     service_type_delete_view,
+    search_service_types,
 )
 
 from .organizationtype_views import (
@@ -72,6 +73,11 @@ from .arrangement_views import (
     arrangement_list_view,
     arrangement_update_view,
     arrangement_delete_view,
+    planners_on_arrangement_view,
+    planners_on_arrangement_table_view,
+    arrangement_add_planner_form_view,
+    arrangement_remove_planner_form_view,
+    arrangement_promote_planner_to_main_view
 )
 
 from .audience_views import (
@@ -80,6 +86,7 @@ from .audience_views import (
     audience_list_view,
     audience_update_view,
     audience_delete_view,
+    audience_search_view,
 )
 
 from .dashboard_views import (
@@ -92,4 +99,22 @@ from .planner_views import (
     plan_get_events,
     plan_update_event,
     plan_delete_event,
+    plan_delete_events,
+    planner_view,
+    plan_order_service_view,
+)
+
+from .note_views import (
+    notes_on_entity_view,
+    post_note_view,
+    delete_note_view,
+    get_notes_view,
+)
+
+from .requisition_views import (
+    requisition_dashboard_view,
+    requisitions_on_event_component_view,
+    requisitions_on_arrangement_component_view,
+    remove_event_from_requisition_view,
+    delete_requisition_view,
 )

@@ -15,6 +15,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location, Room
+from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 import json
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -91,11 +92,10 @@ class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, De
 
 room_delete_view = RoomDeleteView.as_view()
 
-class SearchRoomsAjax (LoginRequiredMixin, ListView):
-    def post(self, request):
-        body_data = json.loads(request.body.decode('utf-8'))
-        search_term = body_data["term"]
+class SearchRoomsAjax (LoginRequiredMixin, SearchView):
+    model = Room
 
+    def search(self, search_term):
         rooms = []
 
         if (search_term == ""):
@@ -103,9 +103,8 @@ class SearchRoomsAjax (LoginRequiredMixin, ListView):
         else:
             rooms = Room.objects.filter(name__contains=search_term)
 
-        response = serializers.serialize("json", rooms)
+        return rooms
         
-        return JsonResponse(response, safe=False)
 
 search_room_ajax_view = SearchRoomsAjax.as_view();
 

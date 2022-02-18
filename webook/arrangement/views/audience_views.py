@@ -11,6 +11,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, Audience
+from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
@@ -60,6 +61,20 @@ class AudienceDetailView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
     template_name = "arrangement/audience/audience_detail.html"
 
 audience_detail_view = AudienceDetailView.as_view()
+
+
+class AudienceSearchView(LoginRequiredMixin, SearchView):
+    def search(self, search_term):
+        audiences = []
+
+        if (search_term == ""):
+            audiences = Audience.objects.all()
+        else: 
+            audiences = Audience.objects.filter(name__contains=search_term)
+
+        return audiences
+
+audience_search_view = AudienceSearchView.as_view()
 
 
 class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, CreateView):

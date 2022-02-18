@@ -1,0 +1,117 @@
+from ast import Delete
+from asyncio import as_completed
+from typing import Any
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import query
+from django.db.models.query import QuerySet
+from django.http import HttpResponseRedirect
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse, JsonResponse
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from django.core import serializers, exceptions
+from django.views import View
+from django.views.generic.edit import FormView
+from django.views.generic import (
+    DetailView,
+    RedirectView,
+    UpdateView,
+    ListView,
+    CreateView,
+    TemplateView
+)
+from django.views.decorators.http import require_http_methods
+import json
+from django.views.generic.edit import DeleteView
+from webook.arrangement.forms.order_service_form import OrderServiceForm
+from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition
+from webook.utils.meta_utils.meta_mixin import MetaMixin
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+
+
+def get_section_manifest():
+    return SectionManifest(
+        section_title=_("Requisitions"),
+        section_icon="fas fa-phone",
+        section_crumb_url=reverse("arrangement:requisitions_dashboard")
+    )
+
+class RequisitionSectionManifestMixin:
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = get_section_manifest()
+
+
+class RequisitionsDashboard(LoginRequiredMixin, RequisitionSectionManifestMixin, MetaMixin, ListView):
+    model = LooseServiceRequisition
+    view_meta = ViewMeta.Preset.table
+
+requisition_dashboard_view = RequisitionsDashboard.as_view()
+
+
+class RequisitionsOnEventComponentView (LoginRequiredMixin, ListView):
+    model = LooseServiceRequisition
+    template_name = "arrangement/requisitioneer/loose_requisitions/loose_requisitions_on_event.html"
+    
+    def get_queryset(self):
+        return LooseServiceRequisition.objects.filter(events__in=[self.request.GET.get("eventId")])
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        
+        context["eventId"] = self.request.GET.get("eventId")
+        date_structured_ev_dict = {}
+        for requisition in self.object_list.all():
+            date_structured_ev_dict[requisition.pk] = set(map(lambda ev: ev.start.date(), requisition.events.all()))
+        context["unique_dates_for_requisition_map"] = date_structured_ev_dict
+        context["reference_frame"] = "event"
+
+        return context      
+        
+requisitions_on_event_component_view = RequisitionsOnEventComponentView.as_view()
+
+
+class DeleteRequisitionView (LoginRequiredMixin, DeleteView):
+    model = LooseServiceRequisition
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        pass
+
+delete_requisition_view = DeleteRequisitionView.as_view()
+
+
+class RemoveEventFromRequisitionView (LoginRequiredMixin, DeleteView):
+    model = LooseServiceRequisition
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        pass
+
+    def delete(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        event_id = self.request.POST.get("event_id")
+        requisition_id = self.request.POST.get("requisition_id")
+
+        requisition = LooseServiceRequisition.objects.get(id=requisition_id)
+        event = Event.objects.get(id=event_id)
+        requisition.events.remove(event)
+
+        success_url = self.get_success_url()
+        return HttpResponseRedirect(success_url)
+
+remove_event_from_requisition_view = RemoveEventFromRequisitionView.as_view()
+
+
+class RequisitionsOnArrangementComponentView (LoginRequiredMixin, ListView):
+    model = LooseServiceRequisition
+    template_name = "arrangement/requisitioneer/loose_requisitions/loose_requisitions_on_event.html"
+
+    def get_queryset(self):
+        return LooseServiceRequisition.objects.filter(arrangement__id=self.request.GET.get("arrangementId"))
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context["reference_frame"] = "arrangement"
+        return context
+
+requisitions_on_arrangement_component_view = RequisitionsOnArrangementComponentView.as_view()

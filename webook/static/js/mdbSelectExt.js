@@ -1,11 +1,18 @@
+/**
+ * @classdesc 
+ * Extension class for the MDB (Material Bootstrap) select, allowing for lazy asynchronous server-side searching 
+ * in a Select2 like fashion.
+*/
 class ExtendedSelect {
-    /* 
-        jqElement: JQuery element of the select
-        getUrl: API url to query.
-        initialSearchValue: initial value to search (default empty, will get all items). Only interesting on the first load.
-        extraParams: object with extra parameters to add to the request body. Default empty.
-        dataParser: parser function to parse items received from querying the api to html options. Default looks for object.key and object.value.
-        searchThreshold: how many characters must be "present" before we start querying the API. Default 3.
+    /** 
+     * Construct a new select extension instance
+     * @param {object} jqElement - The element of the select to which to extend
+     * @param {string} getUrl - The URL which we are to query when user is searching
+     * @param {string} initialSearchValue - The search value to run with on the FIRST load of the select.
+     * @param {Array} extraParams - An array of extra parameters to add to the request body
+     * @param {Array} extraHeaders - An array of extra headers to add to the request
+     * @param {object} dataParser - Function to be used to parse the received data. Implement custom if API returns in a format not covered by the default data parser.
+     * @param {int} searchThreshold - How many characters need to be entered before we start searching
     */
     constructor ( { 
         jqElement, 
@@ -24,6 +31,8 @@ class ExtendedSelect {
         this.dataParser = (dataParser === undefined ? this.defaultItemParser : dataParser);
         this.currentlySelectedValues = [];
 
+        console.log(this.jqElement);
+
         this.jqElement[0].addEventListener('open.mdb.select', (e) => {
             this.bindToSearch();
         });
@@ -31,6 +40,11 @@ class ExtendedSelect {
         this.search(initialSearchValue);    // initialize the select, as to populate data
     }
 
+    /**
+     * Default item parser for parsing data received from the API. Does not cover secondary_text grouping.
+     * @param {object} item - Item to parse
+     * @returns Parsed item
+     */
     /* default for parsing from a fetched item into a html option element */
     defaultItemParser(item) {
         return {
@@ -40,12 +54,18 @@ class ExtendedSelect {
         };
     }
 
+    /**
+     * Check if this extension is valid.
+     * @returns {bool} - A bool indicating if extending this select is actually possible.
+     */
     isValid() {
         return this.jqElement[0].dataset.mdbFilter === "true";
     }
 
-    /* 
-        Bind an event listener to the selects search input.
+    /**
+     * Bind an event listener to the selects search input.
+     * @async
+     * @returns
     */
     async bindToSearch () {
         let ext = this;
@@ -74,9 +94,12 @@ class ExtendedSelect {
         })
     }
 
-    /* 
-        Query
-    */
+    /**
+     * Query the API
+     * @async
+     * @param {string} term - The search string
+     * @returns {Array} - An array of objects parsed from the query response with the data parser.
+     */
     async search( { term } = {} ) {
 
         let data = {}
@@ -121,7 +144,6 @@ class ExtendedSelect {
                 parentEl.setAttribute('label', item.label);
                 this.jqElement.append(parentEl);
             }
-
 
             let secondary = (item.secondary_text !== undefined && item.secondary_text !== "" ? "data-mdb-secondary-text='" + item.secondary_text + "'" : "")
             parentEl.append("<option value='" + item.value + "'" + secondary + ">" + item.text + "</option>");

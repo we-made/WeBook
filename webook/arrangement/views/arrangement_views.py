@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 from django.views.generic import (
     DetailView,
     RedirectView,
@@ -10,8 +11,12 @@ from django.views.generic import (
     TemplateView
 )
 from django.views.generic.edit import DeleteView
-from webook.arrangement.models import Arrangement
+from webook.arrangement.forms.promote_planner_to_main_form import PromotePlannerToMainForm
+from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
+from webook.arrangement.forms.add_planner_form import AddPlannerForm
+from webook.arrangement.models import Arrangement, Person
 from webook.utils.meta_utils.meta_mixin import MetaMixin
+from django.views.generic.edit import FormView
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -102,3 +107,88 @@ class ArrangementDeleteView(LoginRequiredMixin, ArrangementSectionManifestMixin,
     view_meta = ViewMeta.Preset.delete(Arrangement)
 
 arrangement_delete_view = ArrangementDeleteView.as_view()
+
+
+class PlannersOnArrangementView(LoginRequiredMixin, ListView):
+    model = Person
+    template_name = "arrangement/arrangement/planners_on_arrangement.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ARRANGEMENT_ID"] = self.request.GET.get("arrangementId")
+        return context
+
+planners_on_arrangement_view = PlannersOnArrangementView.as_view()
+
+
+class PlannersOnArrangementTableView(LoginRequiredMixin, ListView):
+    model = Person
+    template_name = "arrangement/arrangement/planners_on_arrangement_table.html"
+
+    def get_queryset(self):
+        arrangement_id = self.request.GET.get("arrangementId")
+        arrangement = Arrangement.objects.get(id=arrangement_id)
+        return arrangement.planners
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        arrangement_id = self.request.GET.get("arrangementId")
+        arrangement = Arrangement.objects.get(id=arrangement_id)
+        context["RESPONSIBLE_PLANNER"] = arrangement.responsible
+        context["ARRANGEMENT_ID"] = arrangement.pk
+        return context
+
+planners_on_arrangement_table_view = PlannersOnArrangementTableView.as_view()
+
+
+class ArrangementAddPlannerFormView(LoginRequiredMixin, FormView):
+    form_class = AddPlannerForm
+    template_name="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementAddPlannerView | Form Invalid")
+        return super().form_invalid(form)
+
+arrangement_add_planner_form_view = ArrangementAddPlannerFormView.as_view()
+
+
+class ArrangementPromotePlannerToMainPlanner (LoginRequiredMixin, FormView):
+    form_class = PromotePlannerToMainForm
+    template_name ="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.promote()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementPromotePlannerView | Form Invalid")
+        return super().form_invalid(form)
+
+arrangement_promote_planner_to_main_view = ArrangementPromotePlannerToMainPlanner.as_view()
+
+class ArrangementRemovePlannerFormView(LoginRequiredMixin, FormView):
+    form_class = RemovePlannerForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannerView | Form Invalid")
+        return super().form_invalid(form)
+
+arrangement_remove_planner_form_view = ArrangementRemovePlannerFormView.as_view()
