@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.urls import path
 from webook.arrangement.views import (
     service_type_list_view,
@@ -5,6 +6,7 @@ from webook.arrangement.views import (
     service_type_update_view,
     service_type_detail_view,
     service_type_delete_view,
+    search_service_types,
 )
 
 
@@ -34,4 +36,9 @@ servicetype_urls = [
         view=service_type_delete_view,
         name="servicetype_delete",
     ),
+    path(
+        route="servicetype/search",
+        view=search_service_types,
+        name="servicetype_search",
+    )
 ]

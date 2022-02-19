@@ -66,6 +66,26 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
      :param organization_participants: The organizations who are participating in this arrangement
      :type organization_participants: Organization.
      """
+
+    """ TODO: Write article doc in sphinx concerning the arrangements and how they 'flow' """
+    """ Arrangement is in the planning phase """
+    PLANNING = 'planning'
+    """ Arrangement is in the requisitioning phase """
+    REQUISITIONING = 'requisitioning'
+    """ Arrangement is ready to launch -- requisitioning has been fully completed """
+    READY_TO_LAUNCH = 'ready_to_launch'
+    """ Arrangement has been launched, and is planning-wise to be considered finished """
+    IN_PRODUCTION = 'in_production'
+
+    STAGE_CHOICES = (
+        (PLANNING, PLANNING),
+        (REQUISITIONING, REQUISITIONING),
+        (READY_TO_LAUNCH, READY_TO_LAUNCH),
+        (IN_PRODUCTION, IN_PRODUCTION)
+    )
+
+    stages = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PLANNING)
+
     name = models.CharField(verbose_name=_("Name"), max_length=255)
 
     audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE, related_name="arrangements")
@@ -75,8 +95,10 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
 
     timeline_events = models.ManyToManyField(to="TimelineEvent", verbose_name=_("Timeline Events"))
 
+    notes = models.ManyToManyField(to="Note", verbose_name=_("Notes"), related_name="arrangements")
+
     responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="arrangements_responsible_for")
-    owners = models.ManyToManyField(to="Person", verbose_name=_("Owners"))
+    planners = models.ManyToManyField(to="Person", verbose_name=_("Planners"))
 
     people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
@@ -524,11 +546,10 @@ class Event(TimeStampedModel):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.CASCADE, verbose_name=_("Arrangement"))
     people = models.ManyToManyField(to=Person, verbose_name=_("People"))
     rooms = models.ManyToManyField(to=Room, verbose_name=_("Rooms"))
+    loose_requisitions = models.ManyToManyField(to="LooseServiceRequisition", verbose_name=_("Loose service requisitions"), related_name="events")
     articles = models.ManyToManyField(to=Article, verbose_name=_("Articles"))
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     
-    slug = AutoSlugField(populate_from = "title", unique=True)
-
     def __str__(self):
         """Return title of event, with start and end times"""
         return f"{self.title} ({self.start} - {self.end})"
@@ -561,6 +582,10 @@ class EventService(TimeStampedModel):
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     associated_people = models.ManyToManyField(to=Person, verbose_name=_("Associated People"))
 
-
 class EventSerie(TimeStampedModel):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
+
+class LooseServiceRequisition(TimeStampedModel):
+    arrangement = models.ForeignKey(to="arrangement", related_name="loose_service_requisitions", on_delete=models.RESTRICT)
+    comment = models.TextField(verbose_name=_("Comment"), default="")
+    type_to_order = models.ForeignKey(to=ServiceType, on_delete=models.RESTRICT, verbose_name=_("Type to order"))

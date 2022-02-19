@@ -1,3 +1,5 @@
+
+
 class DateExtensions {
     /* Overwrite the time values for one Date instance with the value of a time field (as a str) */
     static OverwriteDateTimeWithTimeInputValue(date_to_write_time_to, time_input_val_as_str) {
@@ -12,6 +14,26 @@ class DateExtensions {
     }
 }
 
+function getUuidFromEventDomNode(eventDomNode) {
+    let eventId = undefined;
+
+    for (let y = 0; y < eventDomNode.classList.length; y++) {
+        let css_class = eventDomNode.classList[y];
+        if (css_class === undefined || css_class.split("_").length !== 2)
+        {
+            continue;
+        }
+
+        let split = css_class.split("_");
+
+        if (split[0] === "uuid") {
+            eventId = split[1];
+            break;
+        }
+    }
+
+    return eventId;
+}
 
 Date.prototype.addDays = function(days) {
     var date = new Date(this.valueOf());
@@ -22,7 +44,7 @@ Date.prototype.addDays = function(days) {
     Top level.
 */
 class Planner {
-    constructor({ onClickEditButton, onClickInfoButton, csrf_token, arrangement_id, texts = undefined } = {}) {
+    constructor({ onClickEditButton, onClickInfoButton, onClickOrderServiceButton, onSelectionCopied, csrf_token, arrangement_id, texts = undefined } = {}) {
         this.local_context = new LocalPlannerContext(this)
         
         this.renderer_manager = new RendererManager({
@@ -30,8 +52,11 @@ class Planner {
             renderers: undefined,
             onClickEditButton: onClickEditButton,
             onClickInfoButton: onClickInfoButton,
-            planner:this
+            onClickOrderServiceButton: onClickOrderServiceButton,
+            planner:this,
         });
+
+        this.clipboard = new EventClipboard(onSelectionCopied);
         
         this.textLib = new Map([
             ["create", "Create"],
@@ -73,18 +98,22 @@ class Planner {
             planner.synchronizer.pushEvent(eventAfterUpdate);
             planner.init();
         }
+        
+        this.local_context.onEventsUpdated = function ({ eventsAfterUpdate, planner} = {}) {
+            console.log("==> Events updated")
+            planner.synchronizer.pushEvents(eventsAfterUpdate);
+            planner.init();
+        }
 
         this.local_context.onEventsDeleted = function ({ deletedEvents, planner } = {}) {
             console.log("=> Events deleted")
-            for (let i = 0; i < deletedEvents.length; i++) {
-                planner.synchronizer.deleteEvent(deletedEvents[i]);
-            }
-
+            planner.synchronizer.deleteEvents(deletedEvents);
             planner.init();
         }
 
         this.local_context.onEventDeleted = function ({ deletedEvent, planner } = {}) {
             console.log("=> Event deleted")
+            console.log(deletedEvent);
             planner.synchronizer.deleteEvent(deletedEvent);
             planner.init();
         }
@@ -95,24 +124,68 @@ class Planner {
     }
 }
 
-class SelectEngine {
-    constructor () {
-        this.ds = new DragSelect();
+class EventClipboard {
+    constructor (onClipboardUpdated) {
+        this.events = []
+        this.deltasMap = new Map();
+        this.mode = undefined;
+        this.onClipboardUpdated = onClipboardUpdated;
+
+        this.modeHtmlClassMap = new Map([
+            ["cut", "cut-highlight-daygrid-event"],
+            ["copy", ""],
+        ])
     }
 
-    /* */
-    reset() {
-
-    }
-
-    /* */
-    bind (nodeList) {
-        this.ds.addSelectables(nodeList);
-    }
-
-    /* */
-    unbind() {
+    setClipboard (events, startTime, operationType) {
+        this.clearClipboard();
+        console.log(events);
         
+        let baseStartTime = new Date(startTime.getTime())
+        baseStartTime.setHours(1)
+        baseStartTime.setMinutes(0);
+        baseStartTime.setSeconds(0);
+
+        for (let i = 0; i < events.length; i++) {
+            let delta = events[i].from.getTime() - baseStartTime.getTime();
+            this.deltasMap.set(events[i].id, delta)
+            $(events[i].el).addClass(this.modeHtmlClassMap.get(operationType));
+        }
+
+        this.mode = operationType;
+        this.events = events;
+
+        this.onClipboardUpdated(this);
+    }
+
+    computePaste(baseTimeForPaste) {
+        let computedEvents = [];
+
+        for (let i = 0; i < this.events.length; i++) {
+            let newEventAsPasted = Object.assign({}, this.events[i]);
+            let delta = this.deltasMap.get(newEventAsPasted.id) * 1;
+            let diffDelta = newEventAsPasted.to - newEventAsPasted.from;
+
+            let newStart = new Date(baseTimeForPaste.getTime() + delta );
+            let newEnd = new Date(newStart.getTime() + diffDelta);
+
+            newEventAsPasted.from = newStart;
+            newEventAsPasted.to = newEnd;
+            newEventAsPasted.id = crypto.randomUUID();
+
+            computedEvents.push(newEventAsPasted);
+        }
+
+        return computedEvents;
+    }
+
+    clearClipboard() {
+        for (let i = 0; i < this.events.length; i++) {
+            $(this.events[i].el).removeClass(this.modeHtmlClassMap.get(this.mode));
+        }
+
+        this.events = [];
+        this.deltasMap.clear();
     }
 }
 
@@ -138,10 +211,15 @@ class ContextSynchronicityManager {
                 let events = JSON.parse(data);
                 events.forEach(function (ev) {
                     let converted_event = {
+                        pk: ev.pk,
                         title: ev.fields.title,
                         from: new Date(ev.fields.start),
                         to: new Date(ev.fields.end),
-                        color: (ev.fields.color !== undefined &&  ev.fields.color !== null && ev.fields.color !== "" ? ev.fields.color : "blue")
+                        color: (ev.fields.color !== undefined &&  ev.fields.color !== null && ev.fields.color !== "" ? ev.fields.color : "blue"),
+                        people: ev.fields.people,
+                        rooms: ev.fields.rooms,
+                        loose_requisitions: ev.fields.loose_requisitions,
+                        sequence_guid: ev.fields.sequence_guid,
                     };
                     let uuid = planner.local_context.add_event(converted_event, false);
                     id_map.set(uuid, ev.pk);
@@ -150,43 +228,46 @@ class ContextSynchronicityManager {
             .then(a => planner.init())
     }
 
+    pushEvents (events) {
+        for (let i = 0; i < events.length; i++) {
+            this.pushEvent(events[i]);
+        }
+    }
+
     pushEvent (event) {
         let id = this.uuid_to_id_map.get(event.id);
 
-        if (id !== undefined) {
+        let createFormData = function (event, arrangement_id, csrf_token) {
             let data = new FormData();
-
-            data.append("id", id);
+            console.log ((id === undefined ? 0 : id))
+            data.append("id", (id === undefined ? 0 : id));
             data.append("title", event.title);
             data.append("start", event.from.toISOString());
             data.append("end", event.to.toISOString());
             data.append("color", event.color);
-            data.append("arrangement", this.arrangement_id);
-            data.append('csrfmiddlewaretoken', this.csrf_token);
+            if (event.serie_uuid !== undefined) {
+                data.append("sequence_guid", event.serie_uuid);
+            }
+            data.append("arrangement", arrangement_id);
+            data.append('csrfmiddlewaretoken', csrf_token);
+            data.append("people", (event.people === undefined ? [] : event.people));
+            data.append("rooms", (event.rooms === undefined ? [] : event.rooms));
+            data.append("loose_requisitions", (event.loose_requisitions === undefined ? [] : event.loose_requisitions));
 
-            console.log(data);
+            return data;
+        }
 
+        if (id !== undefined) {
             fetch('/arrangement/planner/update_event/' + id, {
                 method: 'POST',
-                body: data,
+                body: createFormData(event, this.arrangement_id, this.csrf_token),
                 credentials: 'same-origin',
             });
         }
         else {
-            let data = new FormData();
-
-            data.append("title", event.title);
-            data.append("start", event.from.toISOString());
-            data.append("end", event.to.toISOString());
-            data.append("arrangement", this.arrangement_id);
-            data.append("color", event.color);
-            data.append('csrfmiddlewaretoken', this.csrf_token);
-            
-            console.log(data);
-
             fetch('/arrangement/planner/create_event', {
                 method: 'POST',
-                body: data,
+                body: createFormData(event, this.arrangement_id, this.csrf_token),
                 credentials: 'same-origin',
             }).then(response => response.json())
               .then(data => {
@@ -212,6 +293,25 @@ class ContextSynchronicityManager {
                 'X-CSRFToken': this.csrf_token
             },
             credentials: "same-origin"
+        });
+    }
+
+    deleteEvents(events) {
+        let data = new FormData();
+        console.log(events);
+        
+        let eventIds = events.map((event) => this.uuid_to_id_map.get(event.id));
+
+        data.append("eventIds", eventIds);
+        data.append("csrfmiddlewaretoken", this.csrf_token);
+
+        fetch("/arrangement/planner/delete_events/", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': this.csrf_token
+            },
+            credentials: 'same-origin',
+            body: data
         });
     }
 }
@@ -242,7 +342,9 @@ class StrategyExecutorAbstraction {
     }
 }
 
-/* local context on the client. serves as master */
+/**
+ * Local planner context interface. Serves as the data interface, and publishes events
+ */
 class LocalPlannerContext {
     constructor(planner_backref) {
         this.series = new Map();
@@ -263,6 +365,12 @@ class LocalPlannerContext {
         this.onSeriesChanged({planner: this.planner, eventsAffected: this.generatedEvents, changeType: "create" });
     }
 
+    /**
+     * Add a new event.
+     * @param {object} event - The event to add
+     * @param {bool} triggerEvent -
+     * @returns 
+     */
     add_event(event, triggerEvent=true) {
         let uuid = crypto.randomUUID();
         event.id = uuid;
@@ -273,12 +381,31 @@ class LocalPlannerContext {
         return uuid;
     }
 
+    /**
+     * Update an existing event
+     * @param {*} event - The event
+     * @param {*} uuid  - The UUID of the event which to update. 
+     */
     update_event(event, uuid) {
         this.events.set(uuid, event);
         event.id = uuid;
         this.onEventUpdated({ eventAfterUpdate: event, planner: this.planner });
     }
 
+    update_events(events) {
+        for (let i = 0; i < events.length; i++) {
+            let ev = events[i];
+            this.events.set(ev.id, ev);
+        }
+        this.onEventsUpdated({ eventsAfterUpdate: events, planner: this.planner });
+        // this.onEventUpdated({ eventAfterUpdate: events[events.length-1], planner: this.planner });
+    }
+
+    /**
+     * Add a list of events, with the option to "serie" them.
+     * @param {Array} events - The events which to add
+     * @param {*} serie_uuid - The serie_uuid which is to be attached to these events.
+     */
     add_events(events, serie_uuid=undefined) {
         if (serie_uuid !== undefined) {
             events.forEach(function (event) {
@@ -296,6 +423,10 @@ class LocalPlannerContext {
         this.onEventsCreated({ eventsCreated: events, planner: this.planner });
     }
 
+    /**
+     * Delete a serie. Will remove the serie, and its events.
+     * @param {string} serie_uuid  - The UUID of the serie which we are to delete.
+     */
     delete_serie(serie_uuid) {
         for (let i = 0; i < this.events.values().length; i++) {
             let event = this.events.values()[i];
@@ -305,22 +436,34 @@ class LocalPlannerContext {
         }
 
         this.series.delete(serie_uuid, 1);
-        this.onSeriesChanged({ planner: this.planner, eventsAffected: this.events, changeType: "delete" });
+        this.onSeriesChanged({ planner: this.planner, eventsAffected: this.events, changeType: "delete" });
         this.onEventsDeleted({ deletedEvents: this.events, planner: this.planner });
     }
 
+    /**
+     * Remove an event
+     * @param {string} uuid - The UUID of the event which to remove
+     */
     remove_event(uuid) {
+        console.log(uuid)
         let delete_event = this.events.get(uuid);
         this.events.delete(uuid);
         this.onEventDeleted({ deletedEvent: delete_event, planner: this.planner });
     }
 
-    remove_events(uuids) {
-        indices.forEach(function (uuid) {
-            remove_event(uuid);
-        });
+    remove_events(events) {
+        console.log(events)
+        
+        for (let i = 0; i < events.length; i++) {
+            this.events.delete(events[i].id);
+        }
+
+        this.onEventsDeleted({ deletedEvents: events, planner: this.planner });
     }
 
+    /**
+     * @inner
+     */
     SeriesUtil = class SeriesUtil {
 
         static calculate_serie (serie) {
@@ -441,7 +584,7 @@ class LocalPlannerContext {
                 }
 
                 if (scope.stop_within_date !== undefined) {
-                    if (result.from > scope.stop_within_date) {
+                    if (result.from >= scope.stop_within_date) {
                         break;
                     }
                 }
@@ -509,7 +652,6 @@ class LocalPlannerContext {
         }
 
         static daily__every_x_day({cycle, start_date, event, interval}={}) {
-
             if (cycle != 0) {
                 start_date = start_date.addDays(interval - 1); // -1 to account for the "move-forward" padding done in cycler
             }
@@ -612,12 +754,7 @@ class LocalPlannerContext {
 
            // go to the first instance of weekday
            let weekdaydiff = parseInt(weekDayParseReverseMap.get(date.getDay())) - parseInt(weekday);
-           if (weekdaydiff > 0) {
-               date = date.addDays(weekdaydiff * -1);
-           }
-           else {
-               date = date.addDays(weekdaydiff * 1);
-           }
+           date = date.addDays(weekdaydiff * (weekdaydiff > 0 ? -1 : 1));
 
            // go to the desired position, as determined by the arbitrator (is that even the right word? :D)
            date = date.addDays(arbitrator * 7);
@@ -675,11 +812,11 @@ class LocalPlannerContext {
 }
 
 class RendererManager {
-
     constructor({context, 
                 renderers = undefined, 
                 onClickEditButton = undefined, 
-                onClickInfoButton = undefined, 
+                onClickInfoButton = undefined,
+                onClickOrderServiceButton = undefined, 
                 planner=undefined} = {}) {
 
         if (typeof (renderers) !== "array") {
@@ -691,6 +828,7 @@ class RendererManager {
 
         this.onClickEditButton = onClickEditButton;
         this.onClickInfoButton = onClickInfoButton;
+        this.onClickOrderServiceButton = onClickOrderServiceButton;
 
         this.onClickDeleteSeriesButton = function (series_uuid) {
             context.delete_serie(series_uuid);
@@ -720,6 +858,7 @@ class RendererManager {
         renderer.onClickEditButton = this.onClickEditButton;
         renderer.onClickDeleteButton = this.onClickDeleteButton;
         renderer.onClickDeleteSeriesButton = this.onClickDeleteSeriesButton;
+        renderer.onClickOrderServiceButton = this.onClickOrderServiceButton;
         renderer.planner = this.planner;
 
         this.renderers.push(renderer);
@@ -734,14 +873,18 @@ class RendererManager {
 }
 
 class RendererBase {
+    /**
+     * @abstract
+     */
     constructor() {
         if (this.constructor == RendererManager) {
             throw new Error("Abstract classes can't be instantiated");
         }
     }
 
-    /* 
+    /**
         Force the renderer to render itself
+        @abstract
     */
     render() {
         throw new Error("Method 'render()' must be implemented");
@@ -755,6 +898,9 @@ class RendererBase {
 let focused_event_uuid = undefined;
 let focused_serie_uuid = undefined;
 
+/**
+ * @classdesc Calendar renderer and manager to work with FullCalendar.
+ */
 class CalendarManager extends RendererBase {
 
     constructor(element_id, fc_options) {
@@ -763,32 +909,45 @@ class CalendarManager extends RendererBase {
         this.fc_options = fc_options;
         this.calendar = undefined;
         this.rememberedInitialView = "dayGridMonth";
+        this._serie_is_marked = false;
+
+        let self = this;
+        this.cellSel = new this.CellSelect({
+            onCellSelected: (cellEl) => {
+                console.log("on cell selected---")
+
+                cellEl.addEventListener('contextmenu', (jsEvent) => {
+                    jsEvent.preventDefault();
+    
+                    $.contextMenu({
+                        className: "",
+                        selector: '.focused-cell',
+                        items: {
+                            paste: {
+                                name: "<i class='fas fa-paste'></i>&nbsp; Lim inn",
+                                isHtmlName: true,
+                                callback: function () {
+                                    self.handle_hotkey("ctrl+v");
+                                }
+                            }
+                        }
+                    })
+                })
+            }}
+        );
+        
+        hotkeys('ctrl+c, ctrl+x, ctrl+v, del', function (event, handler) {
+            event.preventDefault();
+            self.handle_hotkey(handler.key);
+        });
 
         this.dsEventSelector = ".fc-event, .fc-daygrid-event";
-
-        this.ds = new DragSelect({});
-        this.ds.subscribe('callback', ({ items, event }) => {
-            if (items !== undefined && items.length == 0) {
-                let allNodes = document.querySelectorAll(this.dsEventSelector);
-                for (let i = 0; i < allNodes.length; i++) {
-                    allNodes[i].style="";
-                }
-            }
+        this.ds = new DragSelect({
+            area: document.getElementById(this.element_id)
         });
-        this.ds.subscribe('dragmove', ({items, event}) => {
-            let allNodes = document.querySelectorAll(this.dsEventSelector);
-            for (let i = 0; i < allNodes.length; i++) {
-                allNodes[i].style="";
-            }
-
-            let selectedNodes = this.ds.getSelection();
-            for (let i = 0; i < selectedNodes.length; i++) {
-                selectedNodes[i].style="background-color: grey; color:white;";
-            }
-        });
+        this.setup_dragselect()
 
         this.fc_options.eventContent = (arg) => {
-            this.ds.addSelectables(document.querySelectorAll(this.dsEventSelector));
             let rootNode = this.RenderingUtilities.renderEventForView(arg.view.type, arg);
             return { 
                 html: rootNode.outerHTML
@@ -808,10 +967,43 @@ class CalendarManager extends RendererBase {
         }
 
         this.fc_options.selectAllow = () => {
-            return this.calendar.view.type !== "dayGridMonth";
+            return false;
+        }
+
+        this.fc_options.eventDragStart = (info) => {
+            let selected = document.querySelectorAll('.ds-selected');
+            if (selected.length === 1) {
+                this.ds.stop();
+                this.dsIsGood=false;
+            }
+        }
+
+        this.fc_options.eventDragStop = (info) => {
+            if (this.dsIsGood===false) {
+                this.setup_dragselect();
+            }
         }
 
         this.fc_options.eventDrop = (eventDropInfo) => {
+            let selectedNodes = document.querySelectorAll(".ds-selected");
+            
+            let addDelta = function ({delta, add_to}) {
+                add_to = add_to.addDays(delta.days);
+                add_to = new Date(add_to.setMonth(add_to.getMonth()+delta.months))
+                add_to = new Date(add_to.setFullYear(add_to.getFullYear()+delta.years))
+                return add_to;
+            }
+
+            for (let i = 0; i < selectedNodes.length; i++) {
+                let eventId = getUuidFromEventDomNode(selectedNodes[i]);
+
+                let ev = this.planner.local_context.events.get(eventId);
+                ev.from = addDelta({delta: eventDropInfo.delta, add_to: ev.from});
+                ev.to = addDelta({ delta: eventDropInfo.delta, add_to: ev.to });
+
+                this.planner.local_context.update_event(ev, ev.id);
+            }
+            
             let event = {
                 id: eventDropInfo.event.extendedProps.event_uuid,
                 title: eventDropInfo.event.title,
@@ -819,51 +1011,159 @@ class CalendarManager extends RendererBase {
                 to: eventDropInfo.event.end,
                 color: eventDropInfo.event.backgroundColor,
             };
+
+            if (this.dsIsGood === false) {
+                this.setup_dragselect();
+            }
             
             this.planner.local_context.update_event(event, event.id);
         }
 
         this.fc_options.eventDidMount = (arg) => {
-            console.log(arg.event.extendedProps.event_uuid);
-            const at_first = arg.event.extendedProps.event_uuid;
-            focused_event_uuid = at_first;
-            focused_serie_uuid = arg.event.extendedProps.serie_uuid;
+            console.log(arg.el);
+            let selSeq = this.select_sequence;
+            let onClickEditButton = this.onClickEditButton;
+            let onClickDeleteButton = this.onClickDeleteButton;
+            let $argEl = $(arg.el);
+            let uuid = getUuidFromEventDomNode(arg.el);
 
-            arg.el.addEventListener("contextmenu", (jsEvent) => {
-                jsEvent.preventDefault();
-                console.log(jsEvent)
+            let splitOutUuid = function (str) {
+                return str.split(" ")[0].split("_")[1];
+            }
 
-                let argCopy = Object.assign({}, arg);
-                focused_event_uuid= argCopy.event.extendedProps.event_uuid;
-                let onClickEditButton = this.onClickEditButton;
-                let onClickDeleteButton = this.onClickDeleteButton;
-                let onClickDeleteSeriesButton = this.onClickDeleteSeriesButton;
-
-                let callback = function () {
-                    onClickEditButton(focused_event_uuid)
-                }
-
-                let items = {
-                    edit: {
-                        name: "<i class='fas fa-edit'></i> " + this.planner.textLib.get("edit"),
-                        isHtmlName: true,
-                        callback: callback
-                    },
-                    delete: {
-                        name: "<i class='fas fa-trash'></i> " + this.planner.textLib.get("delete"),
-                        isHtmlName: true,
-                        callback: function (key, opt) {
-                            onClickDeleteButton(focused_event_uuid);
+            let ctxMenuItems = {
+                order_service: {
+                    name: "<i class='fas fa-comments-dollar text-success'></i> Bestill tjeneste",
+                    isHtmlName: true,
+                    callback: function (key, opt) {
+                        let events = [];
+                        let selectedNodes = document.querySelectorAll(".ds-selected");
+                        for (let i = 0; i < selectedNodes.length; i++) {
+                            events.push(planner.local_context.events.get(getUuidFromEventDomNode(selectedNodes[i])))
                         }
-                    },
-                }
 
-                $.contextMenu({
-                    className: "webook-context-menu",
-                    selector: '.fc-event-main, .fc-daygrid-event',
-                    items: items,
-                });
+                        planner.renderer_manager.onClickOrderServiceButton(events);
+                    }
+                },
+                edit: {
+                    name: "<i class='fas fa-edit text-success'></i> " + this.planner.textLib.get("edit"),
+                    isHtmlName: true,
+                    callback: function (key, opt) {
+                        onClickEditButton(splitOutUuid(opt.selector));
+                    }
+                },
+                delete: {
+                    name: "<i class='fas fa-trash text-danger'></i> " + this.planner.textLib.get("delete"),
+                    isHtmlName: true,
+                    callback: function (key, opt) {
+                        onClickDeleteButton(splitOutUuid(opt.selector));
+                    }
+                },
+            };
+
+            if (planner.local_context.events.get(uuid).sequence_guid !== undefined) {
+                ctxMenuItems.markSequence = {
+                    name: "<i class='fas fa-hand-pointer'></i>&nbsp; Marker serie",
+                    isHtmlName: true,
+                    callback: function (key, opt) {
+                        selSeq(planner.local_context.events.get(splitOutUuid(opt.selector)).sequence_guid);
+                    }
+                }
+            }
+
+            $.contextMenu({
+                selector: ".uuid_" + uuid + " :not(ds-selected)",
+                items: ctxMenuItems,
             })
+
+            this.ds.addSelectables(document.querySelectorAll(this.dsEventSelector));
+        }
+    }
+
+    select_sequence(sequence_guid) {
+        document.querySelectorAll(".seq_" + sequence_guid).forEach(function (el) {
+            el.style="background-color: #acacff; color:white; border:solid 1px;";
+            el.classList.add("ds-selected");
+        });
+        // this._serie_is_marked = true;
+    }
+
+    allocate_people_to_selection (peopleIds) {
+        let selectedNodes = document.querySelectorAll(".ds-selected");
+
+        for (let i = 0; i < selectedNodes.length; i++) {
+            let event = this.planner.local_context.events.get(getUuidFromEventDomNode(selectedNodes[i]));
+            event.people = event.people.concat(peopleIds);
+            this.planner.local_context.update_event(event, event.id);
+        }
+    }
+
+    allocate_rooms_to_selection (roomIds) {
+        let selectedNodes = document.querySelectorAll(".ds-selected");
+        
+        for (let i = 0; i < selectedNodes.length; i++) {
+            let event = this.planner.local_context.events.get(getUuidFromEventDomNode(selectedNodes[i]));
+            event.rooms = event.rooms.concat(roomIds);
+            this.planner.local_context.update_event(event, event.id);
+        }
+    }
+
+    handle_hotkey(key) {
+        let selectedEvents = [];
+        let selectedEventsDomNodes = document.querySelectorAll(".ds-selected");
+        for (let i = 0; i < selectedEventsDomNodes.length; i++) {
+            let selectedEvent = this.planner.local_context.events.get(getUuidFromEventDomNode(selectedEventsDomNodes[i]));
+            if (selectedEvent !== undefined) {
+                selectedEvent.el = selectedEventsDomNodes[i];
+                selectedEvents.push(selectedEvent);
+            }
+        }
+
+        let getStartTime = function (view) {
+            let startTime = 0;
+
+            for (let i = 0; i < selectedEvents.length; i++) {
+                console.log(selectedEvents[i].from + " < " + startTime)
+                if (selectedEvents[i].from.getTime() > startTime) {
+                    startTime = selectedEvents[i].from;
+                }
+            }
+            
+            return startTime;
+        }
+
+        if (key === "ctrl+c" || key === "ctrl+x") {
+            toastr["success"](selectedEventsDomNodes.length + " hendelser kopiert til utklippstavle!");
+        }
+
+        switch (key) {
+            case 'ctrl+c': 
+                console.log("ctrl+c")
+                this.planner.clipboard.setClipboard(selectedEvents, getStartTime("dayGridMonth"), "copy")
+                for (let i = 0; i < selectedEventsDomNodes.length; i++) {
+                    let ev = selectedEventsDomNodes[i];
+                    $(ev).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+                }
+                break;
+                
+            case 'ctrl+x':
+                this.planner.clipboard.setClipboard(selectedEvents, getStartTime("dayGridMonth"), "cut")
+                break;
+
+            case 'ctrl+v':
+                let date = new Date(this.cellSel.getSelectedDate())
+                let pasteComputed = this.planner.clipboard.computePaste(date)
+                this.planner.local_context.add_events(pasteComputed);
+
+                if (planner.clipboard.mode === "cut") {
+                    this.planner.local_context.remove_events(planner.clipboard.events);
+                }
+                break;
+                
+            case 'del':
+                this.planner.local_context.remove_events(selectedEvents);
+                toastr["warning"](selectedEvents.length + " hendelser slettet!")
+                break;
         }
     }
 
@@ -886,11 +1186,26 @@ class CalendarManager extends RendererBase {
         }
 
         static get_icons_html(info) {
-            let icons_wrapper = document.createElement('div');
+            let icons_wrapper = document.createElement('span');
 
-            if (info.event.extendedProps.serie_uuid !== undefined) {
+            if (info.event.extendedProps.sequence_guid !== undefined) {
                 let icon = document.createElement('i');
-                icon.classList.add('fas', 'fa-link');
+                icon.classList.add('fas', 'fa-link', 'text-success');
+                icons_wrapper.appendChild(icon);
+            }
+            if (info.event.extendedProps.hasRoom === true) {
+                let icon = document.createElement('i');
+                icon.classList.add('fas', 'fa-building', 'text-success');
+                icons_wrapper.appendChild(icon);
+            } 
+            if (info.event.extendedProps.hasPeople === true) {
+                let icon = document.createElement('i');
+                icon.classList.add('fas', 'fa-user', 'text-success');
+                icons_wrapper.appendChild(icon);
+            }
+            if (info.event.extendedProps.hasLooseRequisition === true) {
+                let icon = document.createElement('i');
+                icon.classList.add('fas', 'fa-dollar-sign', 'text-success');
                 icons_wrapper.appendChild(icon);
             }
 
@@ -900,7 +1215,9 @@ class CalendarManager extends RendererBase {
         static renderDayGridMonth_Event(info, icons_html) {
             let rootWrapperNode = document.createElement("span");
             rootWrapperNode.style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-            rootWrapperNode.innerHTML = "&nbsp;<span><i class='fas fa-circle' style='color: " + info.backgroundColor + "'></i></span>&nbsp; <strong>(" + info.timeText + ")</strong> " + info.event.title + "&nbsp;&nbsp; <span style='text-align:right;'><i class='fas fa-ellipsis-v'></i></span>";
+            rootWrapperNode.innerHTML = "&nbsp;<span><i class='fas fa-circle' style='color: " + info.backgroundColor + "'></i></span>&nbsp; <strong>(" + info.timeText + ")</strong> " + info.event.title + "&nbsp;&nbsp;";
+            rootWrapperNode.innerHTML += icons_html;            
+
             return rootWrapperNode;
         }
 
@@ -913,23 +1230,229 @@ class CalendarManager extends RendererBase {
         }
     }
 
+    setup_dragselect() {
+        this.ds.start();
+
+        this.ds.subscribe('callback', ({ items, event }) => {
+            if (items !== undefined && items.length == 0) {
+                let allNodes = document.querySelectorAll(this.dsEventSelector);
+                for (let i = 0; i < allNodes.length; i++) {
+                    allNodes[i].style="";
+                }
+            }
+
+            let planner = this.planner;
+            let self = this;
+
+            for (let i = 0; i < items.length; i++) {
+                if ($(items[i]).hasClass("shadow-event")) {
+                    continue;
+                }
+
+                items[i].addEventListener("contextmenu", (jsEvent) => {
+                    jsEvent.preventDefault();
+
+                    let items = {
+                        batch_comment: {
+                            name: "<i class='fas fa-comment text-success'></i>&nbsp; Kommenter på seleksjon",
+                            isHtmlName: true,
+                            callback: function () {}
+                        },
+                        batch_order: {
+                            name: "<i class='fas fa-comments-dollar text-success'></i>&nbsp; Bestill tjeneste for seleksjon",
+                            isHtmlName: true,
+                            callback: function () { 
+                                let events = [];
+                                let selectedNodes = document.querySelectorAll(".ds-selected");
+                                for (let i = 0; i < selectedNodes.length; i++) {
+                                    events.push(planner.local_context.events.get(getUuidFromEventDomNode(selectedNodes[i])))
+                                }
+
+                                planner.renderer_manager.onClickOrderServiceButton(events);
+                            }
+                        },
+                        batch_allocate_person: {
+                            name: "<i class='fas fa-user text-info'></i>&nbsp; Alloker personressurser for selekterte hendelser",
+                            isHtmlName: true,
+                            callback: function () { loadAllocatePeopleDialog(); }
+                        },
+                        batch_allocate_room: {
+                            name: "<i class='fas fa-building text-info'></i>&nbsp; Alloker romressurser for selekterte hendelser",
+                            isHtmlName: true,
+                            callback: function () { loadAllocateRoomsDialog(); }
+                        },
+                        batch_color: {
+                            name: "<i class='fas fa-palette text-secondary'></i>&nbsp; Fargelegg seleksjon",
+                            isHtmlName: true,
+                            callback: function () {
+                                colorEventsDialog.save = function (newColor) {
+                                    console.log(">> Save")
+                                    let events = [];
+                                    let selectedNodes = document.querySelectorAll(".ds-selected");
+                                    for (let i = 0; i < selectedNodes.length; i++) {
+                                        events.push(planner.local_context.events.get(getUuidFromEventDomNode(selectedNodes[i])))
+                                    }
+
+                                    for (let i = 0; i < events.length; i++) {
+                                        events[i].color = newColor;
+                                    }
+
+                                    planner.local_context.update_events(events);
+                                }
+
+                                colorEventsDialog.open();
+                            }
+                        },
+                        "sep1": "---------",
+                        copy_batch: {
+                            name: "<i class='fas fa-copy text-success'></i>&nbsp; Kopier seleksjon",
+                            isHtmlName: true,
+                            callback: function () {
+                                self.handle_hotkey("ctrl+c");
+                            }
+                        },
+                        cut_batch: {
+                            name: "<i class='fas fa-cut text-warning'></i>&nbsp; Kutt seleksjon",
+                            isHtmlName: true,
+                            callback: function () {
+                                self.handle_hotkey("ctrl+x");
+                            }
+                        },
+                        batch_delete: {
+                            name: "<i class='fas fa-trash text-danger'></i>&nbsp; Slett seleksjon",
+                            isHtmlName: true,
+                            callback: function () {
+                                self.handle_hotkey("del");
+                            }
+                        },
+                    };
+                    
+                    $.contextMenu({
+                        className: 'webook-context-menu',
+                        selector: '.fc-event-main, .fc-daygrid-event',
+                        items: items,
+                    })
+                })
+            }
+        });
+
+        this.ds.subscribe('predragstart', ({ isDragging, isDraggingKeyboard}) => {
+            // If a serie has been marked through the custom marking functionality through the context menu,
+            // then we need to clean it up before DragSelect initiates. This due to inconsistencies.
+            document.querySelectorAll(".ds-selected").forEach(function (el) {
+                el.classList.remove(".ds-selected");
+            })
+            
+        })
+
+        this.ds.subscribe('dragmove', ({items, event, isDragging}) => {
+            let allNodes = document.querySelectorAll(this.dsEventSelector);
+
+            // document.querySelectorAll(".ds-selected").forEach(function (el) {
+            //     el.classList.remove("ds-selected");
+            // })
+
+            for (let i = 0; i < allNodes.length; i++) {
+                allNodes[i].style="";
+            }
+
+            let selectedNodes = this.ds.getSelection();
+            let visibleCounter = 0;
+            for (let i = 0; i < selectedNodes.length; i++) {
+                if (document.body.contains(selectedNodes[i])) {
+                    visibleCounter++;
+                }
+                selectedNodes[i].style="background-color: #acacff; color:white; border:solid 1px;";
+                if (isDragging === true) {
+                    if (selectedNodes.length === 1) {
+                        $(selectedNodes).offset({left: event.pageX, top: event.pageY });
+                    }
+                    else {
+                        let rect = $(selectedNodes[i])[0].getBoundingClientRect();
+                        $(selectedNodes[i]).offset({ left: event.pageX, top: event.pageY + (visibleCounter * 35)});
+                    }
+                }
+            }
+        });
+
+        this.dsIsGood = true;
+    }
+
+    teardown_dragselect() {
+        this.ds.stop()
+        this.dsIsGood = false;
+    }
+
+    go_to_year(year) {
+        this.calendar.gotoDate(new Date(this.calendar.getDate().setFullYear(year)));
+    }
+
+    go_to_month(month) {
+        this.calendar.gotoDate(new Date(this.calendar.getDate().setMonth(month)));
+    }
+
     convert_events(events) {
         let fc_events = []
+        console.log(events);
         for (let i = 0; i < events.length; i++) {
             let event = events[i];
             fc_events.push({
+                "id": event.id,
                 "title": event.title,
                 "start": event.from,
                 "end": event.to,
+                "classNames": ["uuid_" + event.id, (event.sequence_guid !== undefined ? "seq_" + event.sequence_guid : "")],
                 "extendedProps": {
                     "event_uuid": event.id,
-                    "serie_uuid": event.serie_uuid
+                    "serie_uuid": event.serie_uuid,
+                    "is_shadow": false,
+                    "hasRoom": event.rooms !== undefined ? event.rooms.length > 0 : false,
+                    "hasPeople": event.people !== undefined ? event.people.length > 0 : false,
+                    "hasLooseRequisition": event.loose_requisitions === undefined ? false : event.loose_requisitions.length > 0,
+                    "sequence_guid": event.sequence_guid,
                 },
                 "backgroundColor": event.color,
             })
         }
 
         return fc_events;
+    }
+
+    CellSelect = class CellSelect {
+        constructor ({onCellSelected=undefined} = {}) {
+            this.currentlySelectedCell = undefined;
+            this.currentlySelectedCellTextWrapper = undefined;
+            this.onCellSelected = onCellSelected;
+        }
+
+        getSelectedDate() {
+            return this.currentlySelectedCell.attr("data-date");
+        }
+
+        generateHintTextElement() {
+            let hintEl = document.createElement("span");
+            hintEl.innerText = "CTRL-V for å lime inn kopierte hendelser her"
+            return hintEl;
+        }
+
+        selectCell(el) {
+            this.unselectCell();
+            el.addClass('focused-cell ');
+            this.currentlySelectedCell = el;
+            let textContainer = el[0].querySelectorAll(".fc-daygrid-day-bg");
+            this.currentlySelectedCellTextWrapper = textContainer[0];
+
+            this.onCellSelected(el[0])
+        }
+
+        unselectCell() {
+            $(this.currentlySelectedCell).removeClass("focused-cell ");
+            if (this.currentlySelectedCell !== undefined) {
+                this.currentlySelectedCell = undefined;
+                this.currentlySelectedCellTextWrapper.innerHTML = "";
+                this.currentlySelectedCellTextWrapper = undefined;
+            }
+        }
     }
 
     render(events) {
@@ -945,6 +1468,8 @@ class CalendarManager extends RendererBase {
 
         this.calendar = new FullCalendar.Calendar(calendar_element, this.fc_options);
         this.calendar.render();
+
+        this.ds.addSelectables(document.querySelectorAll(this.dsEventSelector));
     }
 }
 

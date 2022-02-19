@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.urls import path
 from webook.arrangement import views
 from webook.arrangement.views import (
@@ -6,10 +7,18 @@ from webook.arrangement.views import (
     plan_get_events,
     plan_update_event,
     plan_delete_event,
+    planner_view,
+    plan_delete_events,
+    plan_order_service_view,
 )
 
 
 planner_urls = [
+    path(
+        route="planner/planner",
+        view=planner_view,
+        name="planner",
+    ),
     path(
         route="planner/plan",
         view=plan_arrangement_view,
@@ -34,5 +43,15 @@ planner_urls = [
         route="planner/delete_event/<int:pk>",
         view=plan_delete_event,
         name="plan_delete_event"
+    ),
+    path(
+        route="planner/delete_events/",
+        view=plan_delete_events,
+        name="plan_delete_events",
+    ),
+    path(
+        route="planner/order_service/",
+        view=plan_order_service_view,
+        name="plan_order_service",
     ),
 ]

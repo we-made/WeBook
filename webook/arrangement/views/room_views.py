@@ -5,6 +5,7 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.core import serializers
 from django.views.generic import (
     DetailView,
     RedirectView,
@@ -15,6 +16,7 @@ from django.views.generic import (
 from django.core import serializers
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location, Room
+from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 import json
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -91,6 +93,21 @@ class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, De
 
 room_delete_view = RoomDeleteView.as_view()
 
+class SearchRoomsAjax (LoginRequiredMixin, SearchView):
+    model = Room
+
+    def search(self, search_term):
+        rooms = []
+
+        if (search_term == ""):
+            rooms = Room.objects.all()
+        else:
+            rooms = Room.objects.filter(name__contains=search_term)
+
+        return rooms
+        
+
+search_room_ajax_view = SearchRoomsAjax.as_view();
 
 class LocationRoomListView (LoginRequiredMixin, ListView):
     model = Location

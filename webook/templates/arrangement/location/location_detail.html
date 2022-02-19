@@ -110,6 +110,8 @@
         let dataForm = new FormData(document.getElementById("createNewRoomDialogForm"))
         let url = "{% url 'arrangement:room_create' %}"
 
+        dataForm.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
         fetch(url, {
             method: 'POST',
             body: dataForm,

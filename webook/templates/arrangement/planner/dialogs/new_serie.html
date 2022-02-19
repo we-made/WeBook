@@ -53,6 +53,22 @@
                       <input type="color" id="serie_color" />
                     </td>
                   </tr>
+                  <tr>
+                    <td>
+                      <label>{% trans "People" %}</label>
+                    </td>
+                    <td>
+                      <select class="select"></select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label>{% trans "Rooms" %}</label>
+                    </td>
+                    <td>
+                      <select class="select"></select>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
               </form>
@@ -595,29 +611,6 @@
               ["5", '{% trans "friday" %}'],
               ["6", '{% trans "saturday" %}'],
               ["7", '{% trans "sunday" %}'],
-            ]);
-
-            super(element_id, options)
-
-            this.insert_options();
-        }
-    }
-    
-    class MonthSelectComponent extends SelectComponent {
-        constructor (element_id) {
-            let options = new Map([
-              ["1", '{% trans "january" %}'],
-              ["2", '{% trans "februar" %}'],
-              ["3", '{% trans "march" %}'],
-              ["4", '{% trans "april" %}'],
-              ["5", '{% trans "may" %}'],
-              ["6", '{% trans "june" %}'],
-              ["7", '{% trans "july" %}'],
-              ["8", '{% trans "august" %}'],
-              ["9", '{% trans "september" %}'],
-              ["10", '{% trans "october" %}'],
-              ["11", '{% trans "november" %}'],
-              ["12", '{% trans "december" %}'],
             ]);
 
             super(element_id, options)

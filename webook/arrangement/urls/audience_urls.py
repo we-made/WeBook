@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.urls import path
 from webook.arrangement.views import (
     audience_list_view,
@@ -5,6 +6,7 @@ from webook.arrangement.views import (
     audience_update_view,
     audience_detail_view,
     audience_delete_view,
+    audience_search_view,
 )
 
 
@@ -33,5 +35,10 @@ audience_urls = [
         route="audience/delete/<slug:slug>",
         view=audience_delete_view,
         name="audience_delete",
+    ),
+    path(
+        route="audience/search",
+        view=audience_search_view,
+        name="audience_search",
     ),
 ]

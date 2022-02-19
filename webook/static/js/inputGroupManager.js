@@ -68,6 +68,11 @@ class InputGroupManager {
         for (let i = 0; i < origin.length; i++) {
             let el = this.origin[i];
             if (el !== undefined && el.id !== undefined) {
+                if ($(el).attr("advanced-select")) {
+                    let instance = mdb.Select.getInstance($(el)[0])
+                    instance._handleClear();
+                }
+
                 this[el.id].value = "";
             }
         }
