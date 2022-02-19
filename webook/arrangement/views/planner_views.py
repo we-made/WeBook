@@ -1,3 +1,5 @@
+from calendar import c
+from datetime import datetime
 from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import query
@@ -21,9 +23,10 @@ from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
 from webook.arrangement.forms.order_service_form import OrderServiceForm
-from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition
+from webook.arrangement.models import Arrangement, Event, Location, Person, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from django.utils.timezone import make_aware
 
 
 def get_section_manifest():
@@ -96,6 +99,68 @@ class PlanCreateEvent (LoginRequiredMixin, CreateView):
 
 plan_create_event = PlanCreateEvent.as_view()
 
+
+class PlanCreateEvents(LoginRequiredMixin, View):
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        """ 
+            This is a temporary (TM) solution. I don't feel like this is the best we can do to solve this.
+            There ought to be a more generic way to solve this -- and it is quite weird that Django doesn't have any inbuilts
+            adressing this specific situation. 
+            querydict.getlist(key) unfortunately does not work in this situation, as it expects data like this:
+                fruit = "Apple"
+                fruit = "Orange"
+                And then you'd do: querydict.getlist("fruit"), and you're off to the market with your shopping list.
+            This doesn't translate well when we have a complex list of event objects that are indexed, as in the querydict our data exists like this:
+                event[0].id = "0", event[0].title = "Superduper event", event[1].id = "0" event[1].title = "Even better event"
+
+                Maybe i am missing something obvious? feels that way :D
+        """
+
+        created_event_ids = []
+        counter = 0;
+        querydict = self.request.POST
+        get_post_value_or_none = lambda attr: querydict.get("events[" + str(counter) + "]." + attr, None)
+        # parse a string of ids to a list of ids, '1,2,3 -> [1,2,3], and avoid default str.split() behaviour of '' = ['']
+        parse_ids_string_to_list = lambda str_to_parse, separator=",": [x for x in str_to_parse.split(separator) if x]
+        
+        while (True):
+            event = Event()
+
+            arrangement_id = get_post_value_or_none("arrangement")
+            if arrangement_id is None:
+                break
+
+            event.arrangement_id = arrangement_id
+            event.title = get_post_value_or_none("title")
+            event.start = get_post_value_or_none("start")
+            event.end = get_post_value_or_none("end")
+            event.sequence_guid = get_post_value_or_none("sequence_guid")
+            event.color = get_post_value_or_none("color")
+
+            # we need to save the event before setting up the many-to-many relationships,
+            # as they need a tangible id to use when establishing themselves
+            event.save()
+
+            rooms_post = get_post_value_or_none("rooms")
+            for roomId in parse_ids_string_to_list(rooms_post):
+                event.rooms.add(Room.objects.get(id=roomId))
+            
+            people_post = get_post_value_or_none("people")
+            for personId in parse_ids_string_to_list(people_post):
+                event.people.add(Person.objects.get(id=personId))
+
+            loose_requisitions_post = get_post_value_or_none("loose_requisitions")
+            for loose_requisition_id in parse_ids_string_to_list(loose_requisitions_post):
+                event.loose_requisitions.add(LooseServiceRequisition.objects.get(id=loose_requisition_id))
+
+            event.save()
+            
+            created_event_ids.append(event.pk)
+            counter += 1
+
+        return JsonResponse({"created_x_events": len(created_event_ids)})
+
+plan_create_events = PlanCreateEvents.as_view()
 
 class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
     model = Event

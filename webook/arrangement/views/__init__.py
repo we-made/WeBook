@@ -103,6 +103,7 @@ from .planner_views import (
     plan_delete_events,
     planner_view,
     plan_order_service_view,
+    plan_create_events,
 )
 
 from .note_views import (

@@ -299,7 +299,7 @@
         $('#peopleTableBody')[0].innerHTML = "";
         $(eventEditDialog).modal('show');
     }
-    // let notes = undefined;
+
     function initNotes (eventId) {
       $('#notesWrapper').load('{% url "arrangement:notes_on_entity_component" %}?entityType=event&entityPk=' + eventId);
     }

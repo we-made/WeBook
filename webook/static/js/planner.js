@@ -86,9 +86,10 @@ class Planner {
 
         this.local_context.onEventsCreated = function ({eventsCreated, planner} = {}) {
             console.log("=> Events created")
-            for (let i = 0; i < eventsCreated.length; i++) {
-                planner.synchronizer.pushEvent(eventsCreated[i]);
-            }
+            // for (let i = 0; i < eventsCreated.length; i++) {
+            //     planner.synchronizer.pushEvent(eventsCreated[i]);
+            // }
+            planner.synchronizer.pushEvents(eventsCreated);
             
             planner.init();
         }
@@ -228,31 +229,59 @@ class ContextSynchronicityManager {
             .then(a => planner.init())
     }
 
-    pushEvents (events) {
-        for (let i = 0; i < events.length; i++) {
-            this.pushEvent(events[i]);
+    /** Convert a given event to a legally upsertable object */
+    _convertEvent(id, event, arrangement_id) {
+        let convertedEvent = {
+            id: (id === undefined ? 0 : id),
+            title: event.title,
+            start: event.from.toISOString(),
+            end: event.to.toISOString(),
+            color: event.color,
+            arrangement: arrangement_id,
+            people: (event.people === undefined ? [] : event.people),
+            rooms: (event.rooms === undefined ? [] : event.rooms),
+            loose_requisitions: (event.loose_requisitions === undefined ? [] : event.loose_requisitions)
         }
+
+        if (event.serie_uuid !== undefined) {
+            convertedEvent.sequence_guid = event.serie_uuid;
+        }
+
+        return convertedEvent;
+    }
+
+    pushEvents (events) {
+        let formData = new FormData();
+
+        for (let i = 0; i < events.length; i++) {
+            let id = this.uuid_to_id_map.get(event.id);
+            let convertedEvent  = this._convertEvent(id, events[i], this.arrangement_id)
+            for (var key in convertedEvent) {
+                formData.append("events[" + i + "]." + key, convertedEvent[key]);
+            }
+        }
+
+        fetch("/arrangement/planner/create_events/", {
+            method:"POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": this.csrf_token
+            },
+            credentials: 'same-origin',
+        });
     }
 
     pushEvent (event) {
         let id = this.uuid_to_id_map.get(event.id);
 
-        let createFormData = function (event, arrangement_id, csrf_token) {
+        let _this = this;
+        let createFormData = function (event, arrangement_id) {
             let data = new FormData();
-            console.log ((id === undefined ? 0 : id))
-            data.append("id", (id === undefined ? 0 : id));
-            data.append("title", event.title);
-            data.append("start", event.from.toISOString());
-            data.append("end", event.to.toISOString());
-            data.append("color", event.color);
-            if (event.serie_uuid !== undefined) {
-                data.append("sequence_guid", event.serie_uuid);
+
+            let ev = _this._convertEvent(id,  event, arrangement_id)
+            for (let key in ev) {
+                data.append(key, ev[key]);
             }
-            data.append("arrangement", arrangement_id);
-            data.append('csrfmiddlewaretoken', csrf_token);
-            data.append("people", (event.people === undefined ? [] : event.people));
-            data.append("rooms", (event.rooms === undefined ? [] : event.rooms));
-            data.append("loose_requisitions", (event.loose_requisitions === undefined ? [] : event.loose_requisitions));
 
             return data;
         }
@@ -261,6 +290,9 @@ class ContextSynchronicityManager {
             fetch('/arrangement/planner/update_event/' + id, {
                 method: 'POST',
                 body: createFormData(event, this.arrangement_id, this.csrf_token),
+                headers: {
+                    "X-CSRFToken": this.csrf_token
+                },
                 credentials: 'same-origin',
             });
         }
@@ -268,6 +300,9 @@ class ContextSynchronicityManager {
             fetch('/arrangement/planner/create_event', {
                 method: 'POST',
                 body: createFormData(event, this.arrangement_id, this.csrf_token),
+                headers: {
+                    "X-CSRFToken": this.csrf_token
+                },
                 credentials: 'same-origin',
             }).then(response => response.json())
               .then(data => {
@@ -1347,10 +1382,6 @@ class CalendarManager extends RendererBase {
 
         this.ds.subscribe('dragmove', ({items, event, isDragging}) => {
             let allNodes = document.querySelectorAll(this.dsEventSelector);
-
-            // document.querySelectorAll(".ds-selected").forEach(function (el) {
-            //     el.classList.remove("ds-selected");
-            // })
 
             for (let i = 0; i < allNodes.length; i++) {
                 allNodes[i].style="";
