@@ -51,6 +51,6 @@ room_urls = [
     path(
         route="room/search",
         view=search_rooms_ajax_view,
-        name="search_rooms_ajax_view",
+        name="search_room_ajax_view",
     ),
 ]
