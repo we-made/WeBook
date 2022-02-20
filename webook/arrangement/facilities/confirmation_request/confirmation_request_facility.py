@@ -29,7 +29,7 @@ class MailMessageFactory():
         def fabricate(confirmation_receipt):
             return {
                 "ORIGINATOR_FRIENDLY_NAME": "The Real WeBook",
-                "recipient": "magnus@wemade.no"
+                "recipient": confirmation_receipt.sent_to
             }
 
     def fabricate_email_message(self, routine: ROUTINES, confirmation_receipt: ConfirmationReceipt):
