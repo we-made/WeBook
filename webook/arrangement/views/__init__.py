@@ -120,3 +120,10 @@ from .requisition_views import (
     remove_event_from_requisition_view,
     delete_requisition_view,
 )
+
+from .confirmation_views import (
+    view_confirmation_request_view,
+    confirmation_request_accept_view,
+    confirmation_request_deny_view,
+    thanks_after_response_view,
+)

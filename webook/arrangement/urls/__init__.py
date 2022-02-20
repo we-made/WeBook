@@ -13,6 +13,7 @@ from .statistics_urls import statistics_urls
 from .planner_urls import planner_urls
 from .note_urls import note_urls
 from .requisition_urls import requisition_urls
+from .confirmation_urls import confirmation_urls
 
 
 app_name = "arrangement"
@@ -33,3 +34,4 @@ urlpatterns.extend(statistics_urls)
 urlpatterns.extend(planner_urls)
 urlpatterns.extend(note_urls)
 urlpatterns.extend(requisition_urls)
+urlpatterns.extend(confirmation_urls)

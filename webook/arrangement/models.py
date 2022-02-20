@@ -362,12 +362,41 @@ class ConfirmationReceipt (TimeStampedModel):
 
     """
 
-    guid = models.CharField(verbose_name=_("Guid"), max_length=68, unique=True, db_index=True)
+    """ Confirmation request has been confirmed - receiver has responded to it """
+    CONFIRMED = 'confirmed'
+    """ Conformation request has been denied - receiver has responded to it """
+    DENIED = 'denied'
+    """ Cofnirmation request is pending - receiver has not responded to ti """
+    PENDING = 'pending'
+    """ Confirmation request has been cancelled """
+    CANCELLED = 'cancelled'
+
+    STAGE_CHOICES = (
+        (CONFIRMED, CONFIRMED),
+        (DENIED, DENIED),
+        (PENDING, PENDING),
+        (CANCELLED, CANCELLED)
+    )
+
+    state = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PENDING)
+
+    """ 
+        Unique generated code that identifies this request. This allows for request confirmations to be
+        responded to without login (which may not always be possible - especially in the cases where a business 
+        is the recipient)...
+    """
+    code = models.CharField(verbose_name=_("Code"), max_length=68, unique=True, db_index=True)
     requested_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT, verbose_name=_("Requested By"))
-    sent_to = models.CharField(verbose_name=_("SentTo"), max_length=255)
-    confirmed = models.BooleanField(verbose_name=_("Confirmed"), default=False)
+    sent_to = models.EmailField(verbose_name=_("SentTo"), max_length=255)
     sent_when = models.DateTimeField(verbose_name=_("SentWhen"), null=True)
-    confirmed_when = models.DateTimeField(verbose_name=_("ConfirmedWhen"), null=True)
+    """
+        Reasoning supplied by the user when denying the request
+    """
+    denial_reasoning = models.TextField(verbose_name=_("Reason of denial"), blank=True)
+
+    @property
+    def is_finished (self):
+        return self.state == self.CONFIRMED or self.state == self.DENIED
 
     def __str__(self):
         """Return description of receipt"""
