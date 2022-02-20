@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django.template.loader import render_to_string
 import secrets
 import uuid
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -28,7 +29,7 @@ class MailMessageFactory():
     class BaseContextFabricator():
         def fabricate(confirmation_receipt):
             return {
-                "ORIGINATOR_FRIENDLY_NAME": "The Real WeBook",
+                "ORIGINATOR_FRIENDLY_NAME": settings.APP_TITLE,
                 "recipient": confirmation_receipt.sent_to
             }
 
