@@ -11,6 +11,7 @@ from webook.arrangement.views import (
     plan_delete_events,
     plan_order_service_view,
     plan_create_events,
+    get_collision_analysis_view,
 )
 
 
@@ -59,5 +60,10 @@ planner_urls = [
         route="planner/create_events/",
         view=plan_create_events,
         name="plan_create_events",
+    ),
+    path(
+        route="planner/get_collision_analysis/",
+        view=get_collision_analysis_view,
+        name="get_collision_analysis",
     ),
 ]

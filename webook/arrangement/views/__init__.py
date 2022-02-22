@@ -104,6 +104,7 @@ from .planner_views import (
     planner_view,
     plan_order_service_view,
     plan_create_events,
+    get_collision_analysis_view,
 )
 
 from .note_views import (

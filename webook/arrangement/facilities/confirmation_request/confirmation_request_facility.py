@@ -101,6 +101,10 @@ def is_request_token_valid(token:str):
 def make_request (recipient_email: str, requested_by: Person):
     """
         Make a new confirmation request
+
+        Returns a tuple, where;
+            T1: bool indicating if mail send was success
+            T2: created confirmationreceipt
     """
     request = ConfirmationReceipt()
     request.code = secrets.token_urlsafe(120)
@@ -114,12 +118,16 @@ def make_request (recipient_email: str, requested_by: Person):
         confirmation_receipt=request,
     )
 
-    return bool(email_message.send(fail_silently=_FAIL_SILENTLY))
+    return (bool(email_message.send(fail_silently=_FAIL_SILENTLY)), request)
 
 
 def cancel_request(code:str):
     """
         Cancel a confirmation request
+
+        Returns a tuple, where;
+            T1: bool indicating if mail send was success
+            T2: created confirmationreceipt
     """
     request = ConfirmationReceipt.objects.get(code=code)
     _validate_request_obj(request)
@@ -131,12 +139,16 @@ def cancel_request(code:str):
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_CANCELLED,
         confirmation_receipt=request
     )
-    return bool(email_message.send(fail_silently=_FAIL_SILENTLY))
+    return (bool(email_message.send(fail_silently=_FAIL_SILENTLY)), request)
 
 
 def deny_request(code:str, denial_reason:str=None):
     """ 
         Deny a confirmation request
+        
+        Returns a tuple, where;
+            T1: bool indicating if mail send was success
+            T2: created confirmationreceipt
     """
     request = ConfirmationReceipt.objects.get(code=code)
     _validate_request_obj(request)
@@ -150,12 +162,16 @@ def deny_request(code:str, denial_reason:str=None):
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_DENIED,
         confirmation_receipt=request
     )
-    return bool(email_message.send(fail_silently=_FAIL_SILENTLY))
+    return (bool(email_message.send(fail_silently=_FAIL_SILENTLY)), request)
 
 
 def confirm_request(code:str):
     """
         Confirm a confirmation request
+        
+        Returns a tuple, where;
+            T1: bool indicating if mail send was success
+            T2: created confirmationreceipt
     """
     request = ConfirmationReceipt.objects.get(code=code)
     _validate_request_obj(request)
@@ -167,4 +183,4 @@ def confirm_request(code:str):
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_CONFIRMED,
         confirmation_receipt=request
     )
-    return bool(email_message.send(fail_silently=_FAIL_SILENTLY))
+    return (bool(email_message.send(fail_silently=_FAIL_SILENTLY)), request)

@@ -4,8 +4,9 @@ from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import query
 from django.db.models.query import QuerySet
+from django.http import Http404
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse, JsonResponse
+from django.http.response import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.core import serializers, exceptions
@@ -26,6 +27,7 @@ from webook.arrangement.forms.order_service_form import OrderServiceForm
 from webook.arrangement.models import Arrangement, Event, Location, Person, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from webook.arrangement.facilities.calendar import analysis_strategies
 from django.utils.timezone import make_aware
 
 
@@ -57,6 +59,27 @@ class PlanArrangementView(LoginRequiredMixin, PlannerSectionManifestMixin, MetaM
 
 plan_arrangement_view = PlanArrangementView.as_view()
 
+
+class GetCollisionAnalysisView(LoginRequiredMixin, View):
+    def get (self, request, *args, **kwargs) -> JsonResponse:
+        arrangement_id = self.request.GET.get("arrangement", None)
+        if (arrangement_id is None):
+            return HttpResponseBadRequest()
+        
+        arrangement = Arrangement.objects.get(id=arrangement_id)
+        if (arrangement is None):
+            return Http404()
+
+        generated_report = analysis_strategies.generate_collision_analysis_report(arrangement)
+        
+        events = []
+        for record in generated_report.records.all():
+            events.append(record.collided_with_event)
+
+        response = serializers.serialize("json", events)
+        return JsonResponse(response, safe=False)
+
+get_collision_analysis_view = GetCollisionAnalysisView.as_view()
 
 class PlanCreateEvent (LoginRequiredMixin, CreateView):
     model = Event

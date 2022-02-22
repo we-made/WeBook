@@ -35,6 +35,21 @@ function getUuidFromEventDomNode(eventDomNode) {
     return eventId;
 }
 
+function parseEvent(eventObjToParse) {
+    return {
+        pk: eventObjToParse.pk,
+        title: eventObjToParse.fields.title,
+        from: new Date(eventObjToParse.fields.start),
+        to: new Date(eventObjToParse.fields.end),
+        color: (eventObjToParse.fields.color !== undefined &&  eventObjToParse.fields.color !== null && eventObjToParse.fields.color !== "" ? eventObjToParse.fields.color : "blue"),
+        people: eventObjToParse.fields.people,
+        rooms: eventObjToParse.fields.rooms,
+        loose_requisitions: eventObjToParse.fields.loose_requisitions,
+        sequence_guid: eventObjToParse.fields.sequence_guid,
+        extra_classes: eventObjToParse.extra_classes !== undefined ? eventObjToParse.extra_classes : []
+    }
+}
+
 Date.prototype.addDays = function(days) {
     var date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
@@ -56,6 +71,9 @@ class Planner {
             planner:this,
         });
 
+        this.arrangement_id = arrangement_id;
+        this.collision_analyzer = new CollisionAnalyzer(this);
+        
         this.clipboard = new EventClipboard(onSelectionCopied);
         
         this.textLib = new Map([
@@ -79,7 +97,10 @@ class Planner {
 
         this.local_context.onEventCreated = function ({ createdEvent, planner} = {}) {
             console.log("=> Event created")
-            planner.synchronizer.pushEvent(createdEvent);
+
+            if (createdEvent.is_shadow !== true) {
+                planner.synchronizer.pushEvent(createdEvent);
+            }
 
             planner.init();
         }
@@ -122,6 +143,76 @@ class Planner {
 
     init() {
         this.renderer_manager.render(Array.from(this.local_context.events.values()));
+    }
+}
+
+class CollisionAnalyzer {
+    constructor (planner) {
+        this._planner = planner;
+
+        this.$collisionAnalysisWrapper = $('#collisionAnalysisWrapper');
+        this.$collisionAnalysisLoader = $('#collisionAnalysisLoader');
+        this.$collisionAnalysisBody = $('#collisionAnalysisBody');
+    }
+
+    requestCollisionAnalysis () {
+
+        this.showLoader();
+
+        fetch ( "/arrangement/planner/get_collision_analysis?arrangement=" + this._planner.arrangement_id )
+            .then(response => response.json())
+            .then(respJson => JSON.parse(respJson))
+            .then(obj => {
+                for (let i = 0; i < obj.length; i++) {
+                    var parsedEvent = parseEvent(obj[i]);
+                    parsedEvent.color = "#f5f5f5";
+                    parsedEvent.borderColor = "red";
+                    parsedEvent.is_shadow = true;
+                    parsedEvent.textColor="black";
+                    parsedEvent.editable = false;
+                    parsedEvent.extra_classes.push("collision_analysis_shadow_event")
+                    this._planner.local_context.add_event(parsedEvent);
+                }
+                return obj.length;
+            }).then(a => this.renderBody(a))
+            .then(obj => {
+                calendarManager.ds.removeSelectables(document.querySelectorAll(".collision_analysis_shadow_event"))
+            })
+
+    }
+
+    reset () {
+        this.$collisionAnalysisWrapper.hide();
+        this.$collisionAnalysisLoader.hide();
+        
+        this.$collisionAnalysisBody.html("");
+        this.$collisionAnalysisBody.hide();
+
+        this._planner.local_context.remove_shadowed_events();
+    }
+
+    showLoader() {
+        this.$collisionAnalysisWrapper.show();
+        this.$collisionAnalysisLoader.show();
+        this.$collisionAnalysisBody.hide();
+    }
+
+    bindCleanupBtn() {
+        let _this = this;
+        $('#cleanupAnalysisBtn').on('click', function () {
+            _this.reset();
+        })
+    }
+
+    renderBody (resultCount) {
+        this.$collisionAnalysisWrapper.show();
+        this.$collisionAnalysisLoader.hide();
+        
+        this.$collisionAnalysisBody
+            .append( $('<em> <span class="text-danger fw-bold">' + resultCount + '</span> kollisjoner funnet. Disse har blitt speilet inn i kalenderen.</em>') )
+            .append( $('<button class="btn btn-block btn-outline-dark" id="cleanupAnalysisBtn">Fjern analyse og speilinger</button>') );
+        this.bindCleanupBtn();
+        this.$collisionAnalysisBody.show();
     }
 }
 
@@ -389,6 +480,17 @@ class LocalPlannerContext {
 
         this.onEventsChanged = function (events) { };
         this.onSeriesChanged = function (events) { };
+    }
+
+    remove_shadowed_events() {
+        var _events = this.events;
+        this.events.forEach(function (value, key, map) {
+            if (value.is_shadow === true) {
+                console.log(value + " - " + key);
+                _events.delete(key);
+            }
+        })
+        this.planner.init();
     }
 
     add_serie(serie) {
@@ -1001,7 +1103,9 @@ class CalendarManager extends RendererBase {
             this.planner.local_context.update_event(event, event.id);
         }
 
-        this.fc_options.selectAllow = () => {
+        this.fc_options.selectAllow = (info) => {
+            let selected = document.querySelectorAll('.ds-selected');
+
             return false;
         }
 
@@ -1146,6 +1250,14 @@ class CalendarManager extends RendererBase {
     handle_hotkey(key) {
         let selectedEvents = [];
         let selectedEventsDomNodes = document.querySelectorAll(".ds-selected");
+        let newEvs = [];
+        for (let i = 0; i < selectedEventsDomNodes.length; i++) {
+            if (!selectedEventsDomNodes[i].classList.contains("collision_analysis_shadow_event")) {
+                newEvs.push(selectedEventsDomNodes[i]);
+            }
+        }
+        selectedEventsDomNodes = newEvs;
+
         for (let i = 0; i < selectedEventsDomNodes.length; i++) {
             let selectedEvent = this.planner.local_context.events.get(getUuidFromEventDomNode(selectedEventsDomNodes[i]));
             if (selectedEvent !== undefined) {
@@ -1249,6 +1361,7 @@ class CalendarManager extends RendererBase {
 
         static renderDayGridMonth_Event(info, icons_html) {
             let rootWrapperNode = document.createElement("span");
+
             rootWrapperNode.style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
             rootWrapperNode.innerHTML = "&nbsp;<span><i class='fas fa-circle' style='color: " + info.backgroundColor + "'></i></span>&nbsp; <strong>(" + info.timeText + ")</strong> " + info.event.title + "&nbsp;&nbsp;";
             rootWrapperNode.innerHTML += icons_html;            
@@ -1388,6 +1501,7 @@ class CalendarManager extends RendererBase {
             }
 
             let selectedNodes = this.ds.getSelection();
+            
             let visibleCounter = 0;
             for (let i = 0; i < selectedNodes.length; i++) {
                 if (document.body.contains(selectedNodes[i])) {
@@ -1427,16 +1541,22 @@ class CalendarManager extends RendererBase {
         console.log(events);
         for (let i = 0; i < events.length; i++) {
             let event = events[i];
+            var classNames = ["uuid_" + event.id, (event.sequence_guid !== undefined ? "seq_" + event.sequence_guid : "")]
+            if (event.extra_classes !== undefined) {
+                classNames = classNames.concat(event.extra_classes);
+            }
             fc_events.push({
                 "id": event.id,
                 "title": event.title,
                 "start": event.from,
+                "editable": event.editable === undefined ? true : event.editable,
+                "textColor": event.textColor === undefined ? "" : event.textColor,
                 "end": event.to,
-                "classNames": ["uuid_" + event.id, (event.sequence_guid !== undefined ? "seq_" + event.sequence_guid : "")],
+                "classNames": classNames,
                 "extendedProps": {
                     "event_uuid": event.id,
                     "serie_uuid": event.serie_uuid,
-                    "is_shadow": false,
+                    "is_shadow": event.is_shadow !== undefined ? event.is_shadow : false,
                     "hasRoom": event.rooms !== undefined ? event.rooms.length > 0 : false,
                     "hasPeople": event.people !== undefined ? event.people.length > 0 : false,
                     "hasLooseRequisition": event.loose_requisitions === undefined ? false : event.loose_requisitions.length > 0,

@@ -1,3 +1,4 @@
+from email.policy import default
 from enum import Enum
 from django.db import models
 from django.db.models.deletion import RESTRICT
@@ -562,6 +563,20 @@ class Event(TimeStampedModel):
 
     """
 
+    PLANNING_SILO = 'planning_silo'
+    ANALYSIS_SILO = 'analysis_silo'
+    REQUISITIONING_SILO = 'requisitioning_silo'
+    PRODUCTION_SILO = 'production_silo'
+
+    SILO_CHOICES = (
+        (PLANNING_SILO, PLANNING_SILO),
+        (REQUISITIONING_SILO, REQUISITIONING_SILO),
+        (ANALYSIS_SILO, ANALYSIS_SILO),
+        (PRODUCTION_SILO, PRODUCTION_SILO),
+    )
+
+    silo = models.CharField(max_length=255, choices=SILO_CHOICES, default=PLANNING_SILO)
+
     serie = models.ForeignKey(to="EventSerie", on_delete=models.RESTRICT, null=True, blank=True, related_name="events")
 
     title = models.CharField(verbose_name=_("Title"), max_length=255)
@@ -571,6 +586,9 @@ class Event(TimeStampedModel):
     sequence_guid = models.CharField(verbose_name=_("SequenceGuid"), max_length=40, null=True, blank=True)
     
     color = models.CharField(verbose_name=_("Primary Color"), max_length=40, null=True, blank=True)
+
+    is_locked = models.BooleanField(verbose_name=_("Is Locked"), default=False)
+    is_requisitionally_complete = models.BooleanField(verbose_name=_("Requisitions Finished"), default=False)
 
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.CASCADE, verbose_name=_("Arrangement"))
     people = models.ManyToManyField(to=Person, verbose_name=_("People"))
@@ -582,6 +600,37 @@ class Event(TimeStampedModel):
     def __str__(self):
         """Return title of event, with start and end times"""
         return f"{self.title} ({self.start} - {self.end})"
+
+
+class CollisionAnalysisReport (TimeStampedModel):
+    generated_for = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
+
+class CollisionAnalysisRecord (TimeStampedModel):
+    DIMENSION_UNDEFINED = "dimension_undefined"
+    DIMENSION_PERSON = "dimension_person"
+    DIMENSION_ROOM = "dimension_room"
+
+    DIMENSION_CHOICES = (
+        (DIMENSION_PERSON, DIMENSION_PERSON),
+        (DIMENSION_ROOM, DIMENSION_ROOM)
+    )
+
+    report = models.ForeignKey(to=CollisionAnalysisReport, on_delete=models.RESTRICT, related_name="records")
+
+    dimension = models.CharField(max_length=255, choices=DIMENSION_CHOICES, default=DIMENSION_UNDEFINED)
+
+    conflicted_room = models.ForeignKey(to=Room, on_delete=models.RESTRICT, null=True)
+    conflicted_person = models.ForeignKey(to=Person, on_delete=models.RESTRICT, null=True)
+
+    originator_event = models.ForeignKey(to=Event, on_delete=models.CASCADE, related_name="collision_records_focal")
+    collided_with_event = models.ForeignKey(to=Event, on_delete=models.RESTRICT, related_name="collision_records_bystanded")
+
+    @property
+    def get_conflicted_entity (self):
+        if (self.dimension == self.DIMENSION_PERSON):
+            return self.conflicted_person
+        if (self.dimension == self.DIMENSION_ROOM):
+            return self.conflicted_rooms
 
 
 class EventService(TimeStampedModel):
@@ -611,10 +660,42 @@ class EventService(TimeStampedModel):
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     associated_people = models.ManyToManyField(to=Person, verbose_name=_("Associated People"))
 
+class RequisitionRecord (TimeStampedModel):
+    
+    REQUISITION_UNDEFINED = 'undefined'
+    REQUISITION_PEOPLE = 'people'
+    REQUISITION_SERVICES = 'services'
+
+    REQUISITION_TYPE_CHOICES = (
+        (REQUISITION_UNDEFINED, REQUISITION_UNDEFINED),
+        (REQUISITION_PEOPLE, REQUISITION_PEOPLE),
+        (REQUISITION_SERVICES, REQUISITION_SERVICES),
+    )
+
+    has_been_locked = models.BooleanField(verbose_name=_("Has been locked"), default=False)
+
+    type_of_requisition = models.CharField(max_length=255, choices=REQUISITION_TYPE_CHOICES, default=REQUISITION_UNDEFINED)
+    """ The events that depend on this requisition """
+    affected_events = models.ManyToManyField(to=Event, verbose_name=_("Affected Events"))
+    associated_confirmation_receipt = models.ForeignKey(to=ConfirmationReceipt, on_delete=models.RESTRICT, null=True)
+
+    is_fulfilled = models.BooleanField(verbose_name=_("Is Fulfilled"), default=False)
+
 class EventSerie(TimeStampedModel):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
+
+class OrderedService(TimeStampedModel):
+    pass
 
 class LooseServiceRequisition(TimeStampedModel):
     arrangement = models.ForeignKey(to="arrangement", related_name="loose_service_requisitions", on_delete=models.RESTRICT)
     comment = models.TextField(verbose_name=_("Comment"), default="")
     type_to_order = models.ForeignKey(to=ServiceType, on_delete=models.RESTRICT, verbose_name=_("Type to order"))
+    
+    ordered_service = models.ForeignKey(to=OrderedService, on_delete=models.RESTRICT, verbose_name=_("Ordered service"), null=True)
+    is_open_for_ordering = models.BooleanField(verbose_name=_("Is Open for Ordering"), default=False)
+
+    @property
+    def is_complete(self):
+        """ Return a bool indicating if the loose requisition has been fulfilled and completed """
+        return self.ordered_service is not None

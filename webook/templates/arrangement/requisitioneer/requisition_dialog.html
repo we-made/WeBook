@@ -12,127 +12,47 @@
             </button>
         </div>
         <div class="modal-body">
-<!-- Form wizrd -->
-<div>
-    <!-- Steps -->
-    <ul class="stepper" id="stepper-form-example" data-mdb-stepper-linear="true">
-      <form class="needs-validation stepper-form">
-        <!-- First step -->
-        <li class="stepper-step stepper-active">
-          <div class="stepper-head">
-            <span class="stepper-head-icon">1</span>
-            <span class="stepper-head-text">Tjenestetype</span>
-          </div>
-          <div class="stepper-content py-3">
-            <div class="alert" role="alert" data-mdb-color="primary">
-                <i class="fas fa-info-circle me-3"></i>Velg typen tjeneste du ønsker å bestille
-              </div>
-            <div class="form-outline mb-4">
-              <input type="text" id="stepper-form-first-name" class="form-control" style="display: none;" />
-              <select class="select" data-mdb-filter="true">
-                  <option value="0">Velg tjenestetype (påkrevd)</option>
-                  <option value="1">Rengjøring</option>
-              </select>
-              <!-- <label class="form-label" for="stepper-form-first-name">Tjenestetype<small class="text-muted"> (påkrevd)</small></label> -->
-              <div class="invalid-feedback">invalid</div>
-            </div>
-          </div>
-        </li>
-        <!-- First step -->
-  
-        <!-- Second step -->
-        <li class="stepper-step">
-          <div class="stepper-head">
-            <span class="stepper-head-icon">2</span>
-            <span class="stepper-head-text">Bedrifter</span>
-          </div>
-          <div class="stepper-content py-3">
-            <div class="form-outline mb-4">
-              <input type="text" id="form6Example3" class="form-control" required />
-              <label class="form-label" for="form6Example3">Company name<small class="text-muted">(required)</small></label>
-              <div class="invalid-feedback">invalid</div>
-            </div>
-  
-            <div class="form-outline mb-4">
-              <input type="text" id="form6Example4" class="form-control" required />
-              <label class="form-label" for="form6Example4">Address<small class="text-muted">(required)</small></label>
-              <div class="invalid-feedback">invalid</div>
-            </div>
-  
-            <div class="form-outline mb-4">
-              <input type="email" id="form6Example5" class="form-control" required />
-              <label class="form-label" for="form6Example5">Email<small class="text-muted">(required)</small></label>
-              <div class="invalid-feedback">invalid</div>
-            </div>
-  
-            <div class="form-outline mb-4">
-              <input type="number" id="form6Example6" class="form-control" />
-              <label class="form-label" for="form6Example6">Phone<small class="text-muted">(optional)</small></label>
-              <div class="invalid-feedback">invalid</div>
-            </div>
-          </div>
-        </li>
-        <!-- Second step -->
-  
-        <!-- Third step -->
-        <li class="stepper-step">
-          <div class="stepper-head">
-            <span class="stepper-head-icon">3</span>
-            <span class="stepper-head-text">Velg hendelser</span>
-          </div>
-          <div class="stepper-content py-3">
-            <div class="form-outline mb-4">
-              <textarea class="form-control" id="form6Example7" rows="4"></textarea>
-              <label class="form-label" for="form6Example7">Additional information</label>
-            </div>
-  
-            <div class="form-check d-flex justify-content-center mb-4">
-              <input class="form-check-input me-2" type="checkbox" value="" id="form6Example8" checked/>
-              <label class="form-check-label" for="form6Example8">Create an account?</label>
-            </div>
-  
-            <button type="submit" class="btn btn-success btn-block mb-4">Place order</button>
-          </div>
-        </li>
-        <!-- Third step -->
-      </form>
-    </ul>
-    <!-- Steps -->
-  
-    <!-- Buttons -->
-    <div class="d-flex justify-content-center px-3">
+          
+          <h2 class="text-center text-warning">
+            <i class="fas fa-exclamation"></i>
+          </h2>
+          <h4 class="fw-bolder text-center">Obs</h4>
 
-    </div>
-    <!-- Buttons -->
-  </div>
-  <!-- Form wizrd -->
+
+          <p>
+            Du er nå i ferd med å endre stadiet på dette arrangementet til rekvireringssfasen.
+            Dette vil medføre at en del ting skjer;
+          </p>
+          <ul>
+            <li>Hendelser låses</li>
+            <li>Hendelser vil bli lagt inn i <abbr title="I praktisk effekt">produksjonskalenderen</abbr></li>
+            <li>Rekvireringer og forespørsler sendes ut til allokerte personer, slik at de kan bekrefte oppmøte</li>
+            <li>Muligheten for å bestille tjenester som har blitt annotert i planleggingen vil nå være mulig</li>
+          </ul>
+          <p>
+            Det er viktig at man er sikker på at man er ferdig med planleggingen før man bytter fase. Det er mulig å gå tilbake 
+            og endre på hendelser - men dette vil være til dels utrygt. Dette vil kreve at du manuelt opphever låser satt på hendelsene.
+          </p>
+          <p>
+            Før du kan igangsette rekvireringen må du kjøre en kollisjonsanalyse og ta en stilling til resultatene.
+          </p>
         </div>
         <div class="modal-footer">
-            <button id="" class="btn btn-danger">Cancel</button>
-            <button id="form-example-prev-step" class="btn btn-dark">Previous step</button>
-            <button id="form-example-next-step" class="btn btn-success">Next step</button>
-            <!-- <button type="button" class="btn btn-secondary" onclick="$('#requisitioningDialog').modal('hide')">{% trans "Cancel" %}</button>
-            <button type="button" class="btn btn-primary" onclick="saveEvent()">{% trans "Save" %}</button> -->
+            <!-- <button id="" class="btn btn-danger">Cancel</button> -->
+            <!-- <button id="form-example-prev-step" class="btn btn-dark">Previous step</button>
+            <button id="form-example-next-step" class="btn btn-success">Next step</button> -->
+            <button type="button" class="btn btn-secondary" onclick="$('#requisitioningDialog').modal('hide')">{% trans "Cancel" %}</button>
+            <button type="button" class="btn btn-primary" onclick="">{% trans "Save" %}</button>
         </div>
         </div>
     </div>
 </div>
 
 <script>
-    $(document).ready(function () {
-        const stepper = new mdb.Stepper(document.getElementById('stepper-form-example'));
-
-        document.getElementById('form-example-next-step').addEventListener('click', () => {
-            stepper.nextStep();
-        });
-        document.getElementById('form-example-prev-step').addEventListener('click', () => {
-            stepper.previousStep();
-        });
-    })
-    
-
-    function loadRequsitioningDialog () {
-        $('#requisitioningDialog').modal('show');
-    }
+  var requisitioningDialog = {
+    open: function () {
+      $('#requisitioningDialog').modal('show');
+    },
+  }
 </script>
 {% endblock %}
