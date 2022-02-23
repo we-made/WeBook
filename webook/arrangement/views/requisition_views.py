@@ -23,10 +23,12 @@ from django.views.generic import (
 from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
+from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.order_service_form import OrderServiceForm
 from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from django.http import HttpResponseBadRequest, Http404
 
 
 def get_section_manifest():
@@ -115,3 +117,41 @@ class RequisitionsOnArrangementComponentView (LoginRequiredMixin, ListView):
         return context
 
 requisitions_on_arrangement_component_view = RequisitionsOnArrangementComponentView.as_view()
+
+
+class RequisitionServiceFormView (LoginRequiredMixin, FormView):
+    form_class=OrderServiceForm
+    template_name="arrangement/requisitioneer/order_service_form.html"
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        loose_requisition_id = self.request.GET.get("lreq_id", None)
+        if loose_requisition_id is None or loose_requisition_id == 0:
+            return HttpResponseBadRequest()
+
+        loose_service_requisition = LooseServiceRequisition.objects.get(id=loose_requisition_id)
+        if (loose_service_requisition is None):
+            return Http404()
+
+        service_type = loose_service_requisition.type_to_order
+        context["PROVIDERS"] = service_type.providers
+        context["LREQ"] = loose_service_requisition
+
+        if (loose_service_requisition.ordered_service is not None):
+            context["ORDER"] = loose_service_requisition.ordered_service
+        
+        return context
+
+    def get_success_url(self) -> str:
+        lreq_id = self.request.GET.get("lreq_id", None)
+        return reverse("arrangement:order_service_form", kwargs={"lreq_id": lreq_id}) + "?lreq_id=" + lreq_id 
+
+    def form_valid(self, form) -> HttpResponse:
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form) -> HttpResponse:
+        print(form.errors)
+        return super().form_invalid(form)
+
+requisition_service_form_view = RequisitionServiceFormView.as_view()

@@ -502,7 +502,7 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class ServiceProvider(TimeStampedModel):
+class ServiceProvidable(TimeStampedModel):
     """The service provider provides services that
     can be consumed by events. An organization may provide multiple
     services, and thus be represented through multiple service provider records.
@@ -517,9 +517,9 @@ class ServiceProvider(TimeStampedModel):
     :type organization: Organization.
     """
 
-    service_name = models.CharField(verbose_name=_("ServiceName"), max_length=255)
-    service_type = models.ForeignKey(to=ServiceType, on_delete=models.RESTRICT, verbose_name=_("Service Type"))
-    organization = models.ForeignKey(to=Organization, on_delete=models.RESTRICT, verbose_name=_("Organization"))
+    service_contact = models.EmailField(verbose_name=_("Service contact"), blank=False, null=False)
+    service_type = models.ForeignKey(to=ServiceType, on_delete=models.RESTRICT, verbose_name=_("Service Type"), related_name="providers")
+    organization = models.ForeignKey(to=Organization, on_delete=models.RESTRICT, verbose_name=_("Organization"), related_name="services_providable")
 
     def __str__(self):
         """Return description of service provider"""
@@ -623,7 +623,7 @@ class CollisionAnalysisRecord (TimeStampedModel):
     conflicted_person = models.ForeignKey(to=Person, on_delete=models.RESTRICT, null=True)
 
     originator_event = models.ForeignKey(to=Event, on_delete=models.CASCADE, related_name="collision_records_focal")
-    collided_with_event = models.ForeignKey(to=Event, on_delete=models.RESTRICT, related_name="collision_records_bystanded")
+    collided_with_event = models.ForeignKey(to=Event, on_delete=models.CASCADE, related_name="collision_records_bystanded")
 
     @property
     def get_conflicted_entity (self):
@@ -656,7 +656,7 @@ class EventService(TimeStampedModel):
 
     receipt = models.ForeignKey(to=ConfirmationReceipt, on_delete=models.RESTRICT, verbose_name=_("Receipt"))
     event = models.ForeignKey(to=Event, on_delete=models.RESTRICT, verbose_name=_("Event"))
-    service_provider = models.ForeignKey(to=ServiceProvider, on_delete=models.RESTRICT, verbose_name=_("Service Provider"))
+    service_provider = models.ForeignKey(to=ServiceProvidable, on_delete=models.RESTRICT, verbose_name=_("Service Provider"), related_name="services_provided")
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     associated_people = models.ManyToManyField(to=Person, verbose_name=_("Associated People"))
 
@@ -685,7 +685,24 @@ class EventSerie(TimeStampedModel):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
 
 class OrderedService(TimeStampedModel):
-    pass
+
+    STATE_AWAITING_RESPONSE = "awaiting_response"
+    STATE_DENIED = "denied"
+    STATE_ACCEPTED = "accepted"
+    STATE_CANCELLED = "cancelled"
+
+    ORDER_STATE_CHOICES = (
+        (STATE_AWAITING_RESPONSE, STATE_AWAITING_RESPONSE),
+        (STATE_DENIED, STATE_DENIED),
+        (STATE_ACCEPTED, STATE_ACCEPTED),
+        (STATE_CANCELLED, STATE_CANCELLED),
+    )
+
+    state = models.CharField(max_length=255, choices=ORDER_STATE_CHOICES, default=STATE_AWAITING_RESPONSE)
+
+    confirmation_receipt = models.ForeignKey(to=ConfirmationReceipt, related_name="ordered_service", on_delete=models.RESTRICT)
+    order_information = models.TextField(blank=True)
+    provider = models.ForeignKey(to=ServiceProvidable, related_name="ordered_services", on_delete=models.RESTRICT)
 
 class LooseServiceRequisition(TimeStampedModel):
     arrangement = models.ForeignKey(to="arrangement", related_name="loose_service_requisitions", on_delete=models.RESTRICT)

@@ -1,23 +1,32 @@
 from django import forms
-from webook.arrangement.models import LooseServiceRequisition, ServiceType, Event
+from webook.arrangement.models import LooseServiceRequisition, OrderedService, ServiceType, Event, ServiceProvidable, Person
+from webook.arrangement.facilities.confirmation_request import confirmation_request_facility
 
 class OrderServiceForm (forms.Form):
-    events = forms.CharField()
-    comment = forms.CharField()
-    service_type = forms.IntegerField()
+    loose_requisition_id = forms.IntegerField()
+    provider_id = forms.IntegerField()
+    order_information = forms.CharField()
 
     def save(self):
-        print(">> Requisition save")
-        requisition = LooseServiceRequisition()
-        requisition.comment = self.cleaned_data["comment"]
-        requisition.type_to_order = ServiceType.objects.get(pk=self.cleaned_data["service_type"]) if self.cleaned_data["service_type"] is not None else None
-        event_ids = self.cleaned_data["events"].split(",") if self.cleaned_data["events"] is not None else []
-        requisition.arrangement = Event.objects.get(id=event_ids[0]).arrangement
-        print(requisition)
-        requisition.save()
-        requisition.events.set(event_ids)
+        print("==>")
+        print("loose_requisition_id: " + str(self.cleaned_data["loose_requisition_id"]))
+        print("provider_id: " + str(self.cleaned_data["provider_id"]))
+        print("order_information: " + str(self.cleaned_data["order_information"]))
 
-        requisition.save()
+        loose_requisition = LooseServiceRequisition.objects.get(id=self.cleaned_data["loose_requisition_id"])
+        provider = ServiceProvidable.objects.get(id=self.cleaned_data["provider_id"])
 
+        print("SERVICE_CONTACT: " + provider.service_contact)
+
+        (send_mail_is_success, receipt) = confirmation_request_facility.make_request(provider.service_contact, requested_by=Person.objects.first())
+        order_service = OrderedService()
+        order_service.state = OrderedService.STATE_AWAITING_RESPONSE
+        order_service.confirmation_receipt = receipt
+        order_service.order_information = self.cleaned_data["order_information"]
+        order_service.provider = provider
+        order_service.save()
+
+        loose_requisition.ordered_service = order_service
+        loose_requisition.save()
         
 

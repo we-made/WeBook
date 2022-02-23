@@ -30,6 +30,8 @@ from .organization_views import (
     organization_list_view,
     organization_create_view,
     organization_delete_view,
+    organization_services_providable_view,
+    organization_register_service_providable_form_view,
 )
 
 from .person_views import (
@@ -120,6 +122,7 @@ from .requisition_views import (
     requisitions_on_arrangement_component_view,
     remove_event_from_requisition_view,
     delete_requisition_view,
+    requisition_service_form_view,
 )
 
 from .confirmation_views import (

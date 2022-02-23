@@ -23,7 +23,7 @@ from django.views.generic import (
 from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
-from webook.arrangement.forms.order_service_form import OrderServiceForm
+from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.models import Arrangement, Event, Location, Person, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -238,7 +238,7 @@ plan_get_events = PlanGetEvents.as_view()
 
 
 class PlanOrderService(LoginRequiredMixin, FormView):
-    form_class = OrderServiceForm
+    form_class = LooselyOrderServiceForm
     template_name = "_blank.html"
 
     def get_success_url(self) -> str:

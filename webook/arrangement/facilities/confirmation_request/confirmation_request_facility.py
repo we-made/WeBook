@@ -27,7 +27,7 @@ class MailMessageFactory():
         NOTIFY_REQUEST_DENIED=4
 
     class BaseContextFabricator():
-        def fabricate(confirmation_receipt):
+        def fabricate(self, confirmation_receipt):
             return {
                 "ORIGINATOR_FRIENDLY_NAME": settings.APP_TITLE,
                 "recipient": confirmation_receipt.sent_to
@@ -41,7 +41,7 @@ class MailMessageFactory():
         mail_message.subject = fabrication_routine_options_dict["subject"]
         mail_message.body = self._generate_mailbody_from_template(
             template=fabrication_routine_options_dict["template"],
-            context=fabrication_routine_options_dict["context_builder"]()
+            context=fabrication_routine_options_dict["context_builder"](confirmation_receipt)
         )
 
         return mail_message
