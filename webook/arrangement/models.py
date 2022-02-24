@@ -379,6 +379,18 @@ class ConfirmationReceipt (TimeStampedModel):
         (CANCELLED, CANCELLED)
     )
 
+    TYPE_DEFAULT = "requisition_default"
+    TYPE_REQUISITION_PERSON = 'requisition_person'
+    TYPE_REQUISITION_SERVICE = 'requisition_service'
+
+    TYPE_CHOICES = (
+        (TYPE_DEFAULT, TYPE_DEFAULT),
+        (TYPE_REQUISITION_PERSON, TYPE_REQUISITION_PERSON),
+        (TYPE_REQUISITION_SERVICE, TYPE_REQUISITION_SERVICE),
+        
+    )
+
+    type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_DEFAULT)
     state = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PENDING)
 
     """ 
@@ -386,7 +398,7 @@ class ConfirmationReceipt (TimeStampedModel):
         responded to without login (which may not always be possible - especially in the cases where a business 
         is the recipient)...
     """
-    code = models.CharField(verbose_name=_("Code"), max_length=68, unique=True, db_index=True)
+    code = models.CharField(verbose_name=_("Code"), max_length=200, unique=True, db_index=True)
     requested_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT, verbose_name=_("Requested By"))
     sent_to = models.EmailField(verbose_name=_("SentTo"), max_length=255)
     sent_when = models.DateTimeField(verbose_name=_("SentWhen"), null=True)
@@ -685,22 +697,8 @@ class EventSerie(TimeStampedModel):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
 
 class OrderedService(TimeStampedModel):
-
-    STATE_AWAITING_RESPONSE = "awaiting_response"
-    STATE_DENIED = "denied"
-    STATE_ACCEPTED = "accepted"
-    STATE_CANCELLED = "cancelled"
-
-    ORDER_STATE_CHOICES = (
-        (STATE_AWAITING_RESPONSE, STATE_AWAITING_RESPONSE),
-        (STATE_DENIED, STATE_DENIED),
-        (STATE_ACCEPTED, STATE_ACCEPTED),
-        (STATE_CANCELLED, STATE_CANCELLED),
-    )
-
-    state = models.CharField(max_length=255, choices=ORDER_STATE_CHOICES, default=STATE_AWAITING_RESPONSE)
-
     confirmation_receipt = models.ForeignKey(to=ConfirmationReceipt, related_name="ordered_service", on_delete=models.RESTRICT)
+
     order_information = models.TextField(blank=True)
     provider = models.ForeignKey(to=ServiceProvidable, related_name="ordered_services", on_delete=models.RESTRICT)
 

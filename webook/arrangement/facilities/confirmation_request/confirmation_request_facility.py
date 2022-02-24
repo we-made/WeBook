@@ -1,10 +1,12 @@
 from re import template
+from django.urls import reverse
 import string
 from webook.arrangement.models import ConfirmationReceipt, Person
 from enum import Enum
 from django.core.mail import send_mail, EmailMessage
 from django.utils.translation import gettext_lazy as _
 from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
 import secrets
 import uuid
 from django.conf import settings
@@ -30,7 +32,8 @@ class MailMessageFactory():
         def fabricate(self, confirmation_receipt):
             return {
                 "ORIGINATOR_FRIENDLY_NAME": settings.APP_TITLE,
-                "recipient": confirmation_receipt.sent_to
+                "recipient": confirmation_receipt.sent_to,
+                "URL": 'https://' + Site.objects.get_current().domain + (reverse("arrangement:view_confirmation_request") + "?token=" + confirmation_receipt.code)
             }
 
     def fabricate_email_message(self, routine: ROUTINES, confirmation_receipt: ConfirmationReceipt):
@@ -98,7 +101,7 @@ def is_request_token_valid(token:str):
     return True
 
 
-def make_request (recipient_email: str, requested_by: Person):
+def make_request (recipient_email: str, requested_by: Person, request_type):
     """
         Make a new confirmation request
 
@@ -110,6 +113,7 @@ def make_request (recipient_email: str, requested_by: Person):
     request.code = secrets.token_urlsafe(120)
     request.sent_to = recipient_email
     request.requested_by = requested_by
+    request.type = request_type
 
     request.save()
 
@@ -178,6 +182,9 @@ def confirm_request(code:str):
 
     request.state = ConfirmationReceipt.CONFIRMED
     request.save()
+
+    # if (request.type == ConfirmationReceipt.TYPE_REQUISITION_SERVICE):
+    #     request.ordered_service.
 
     email_message = MailMessageFactory().fabricate_email_message(
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_CONFIRMED,

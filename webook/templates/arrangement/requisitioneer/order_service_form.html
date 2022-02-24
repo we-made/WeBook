@@ -7,10 +7,10 @@
 <h3><i class="fas fa-dollar-sign"></i>&nbsp; Bestill tjeneste</h3>
 
 <div class="clearfix">
-    <button class="btn btn-light">Tilbake til arrangement</button>
-    <div class="float-end">
-        <button class="btn btn-danger">Åpne for revisjon</button>
-    </div>
+    <a class="btn btn-light"
+       href="{% url 'arrangement:' %}">
+        Tilbake til arrangement
+    </a>
 </div>
 
 {% endblock %}
@@ -32,7 +32,7 @@
                 {% trans "Setting up order" %}
             </div>
         {% else %}
-            {% if ORDER.state == 'awaiting_response' %}
+            {% if ORDER.confirmation_receipt.state == 'pending' %}
                 <div class="badge d-block badge-light rounded-0 rounded-top border border-bottom-0"
                         data-toggle="tooltip"
                         title="{% trans 'We are waiting for the provider to respond to the request we have sent to them by mail.' %}">
@@ -41,7 +41,10 @@
                 <div class="border border-top-0 text-center small rounded-bottom">
                     <em>{% trans 'We are waiting for the provider to respond to the request we have sent to them by mail.' %}</em>
                 </div>
-            {% elif ORDER.state == 'denied' %}
+                <button class="btn d-block mt-4 btn-success">
+                    Kanseller forespørsel, og åpne for redigering
+                </button>
+            {% elif ORDER.confirmation_receipt.state == 'denied' %}
                 <span class="badge d-block badge-danger mb-3"
                         data-toggle="tooltip"
                         title="{% trans 'The provider has denied this request.' %}">
@@ -50,16 +53,39 @@
                 <div class="border-danger border-top-0 text-center small">
                     <em>{% trans 'The provider has denied this request.' %}</em>
                 </div>
-            {% elif ORDER.state == 'accepted' %}
+                <center>
+                    <button class="btn btn-sm mt-4 btn-outline-success"
+                            onclick="$('#openForEditDialog').modal('show')"
+                            type="button">
+                        <i class="fas fa-edit"></i>
+                        Åpne for redigering
+                    </button>
+                </center>
+            {% elif ORDER.confirmation_receipt.state == 'confirmed' %}
                 <span class="badge d-block badge-success mb-3"
                         data-toggle="tooltip"
                         title="{% trans 'The provider has accepted this request' %}">
+                    <i class="fas fa-check"></i>
                     {% trans 'Accepted' %}
                 </span>
                 <div class="border-successs border-top-0 text-center small">
-                    <em>{% trans 'The provider has accepted this request' %}</em>
+                    <em>
+                        {% trans 'The provider has accepted this request' %}
+                    </em>
                 </div>
-            {% elif ORDER.state == 'cancelled' %}
+                <button class="btn btn-success"
+                        onclick="$('#openForEditDialog').modal('show')"
+                        type="button">
+                    <i class="fas fa-edit"></i>
+                    Åpne for redigering
+                </button>
+                <button class="btn d-block mt-2 btn-danger"
+                        onclick="$('#cancelOrderDialog').modal('show');"
+                        type="button">
+                    <i class="fas fa-edit"></i>
+                    Kanseller bestilling
+                </button>
+            {% elif ORDER.confirmation_receipt.state == 'cancelled' %}
                 <span class="badge d-block badge-warning mb-3"
                         data-toggle="tooltip"
                         title="{% trans 'This order has been cancelled' %}">
@@ -71,7 +97,7 @@
             {% endif %}
         {% endif %} 
 
-        <label class="fw-bold">Arrangement:</label>
+        <label class="fw-bold mt-4">Arrangement:</label>
         <div>
             <a href="{% url 'arrangement:arrangement_detail' slug=LREQ.arrangement.slug %}">{{LREQ.arrangement.name}}</a>
         </div>
@@ -169,12 +195,54 @@
                 kunne bekrefte/avbekrefte rekvireringen. De vil også få en oversikt over alle hendelser denne bestillingen gjelder.
                 Velger du å "lagre utkast" så vil forandringene dine bli lagret, men rekvirering vil ikke begynne.
             </div>
+            
+            <button class="btn btn-success mt-1 mb-5 float-end" type="submit">Opprett bestilling</button>
         {% else %}
             {{ORDER.order_information|safe}}
         {% endif %}
 
-        <button class="btn btn-success mt-1 mb-5 float-end" type="submit">Opprett bestilling</button>
     </form>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="cancelOrderDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Er du sikker?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Modal body text goes here.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal" tabindex="-1" role="dialog" id="openForEditDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Er du sikker?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Modal body text goes here.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
