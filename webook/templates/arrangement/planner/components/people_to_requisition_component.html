@@ -1,0 +1,27 @@
+
+<h3>Personer for rekvirering</h3>
+<div class="alert alert-light p-0">
+    <em class="small">
+        Merk at når en ber om kvittering så vil de respektive hendelsene en person er knyttet til bli 
+        låst. For å oppheve låsen må rekvireringen kanselleres.
+    </em>
+</div>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th class="fw-bold">Person</th>
+            <th class="fw-bold">Valg</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for person in object_list %}
+            <tr>
+                <td>{{ person }}</td>
+                <td>
+                    <button id="initiatePersonRequisitionBtn" value="{{ person.pk }}" type="button">Rekvirer</button>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

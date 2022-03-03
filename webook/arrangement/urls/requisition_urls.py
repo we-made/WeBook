@@ -7,7 +7,8 @@ from webook.arrangement.views import (
     requisitions_on_arrangement_component_view,
     remove_event_from_requisition_view,
     delete_requisition_view,
-    requisition_service_form_view
+    requisition_service_form_view,
+    requisition_person_form_view,
 )
 
 
@@ -41,5 +42,10 @@ requisition_urls = [
         route="requisition/<int:lreq_id>/order",
         view=requisition_service_form_view,
         name="order_service_form",
+    ),
+    path(
+        route="requisition/requisition_person",
+        view=requisition_person_form_view,
+        name="requisition_person_form",
     )
 ]

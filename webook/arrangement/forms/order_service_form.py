@@ -1,5 +1,5 @@
 from django import forms
-from webook.arrangement.models import LooseServiceRequisition, OrderedService, ServiceType, Event, ServiceProvidable, Person, ConfirmationReceipt
+from webook.arrangement.models import LooseServiceRequisition, ServiceRequisition, RequisitionRecord, ServiceType, Event, ServiceProvidable, Person, ConfirmationReceipt
 from webook.arrangement.facilities.confirmation_request import confirmation_request_facility
 
 class OrderServiceForm (forms.Form):
@@ -16,14 +16,14 @@ class OrderServiceForm (forms.Form):
             requested_by=Person.objects.first(), 
             request_type=ConfirmationReceipt.TYPE_REQUISITION_SERVICE)
 
-        order_service = OrderedService()
-        order_service.state = OrderedService.STATE_AWAITING_RESPONSE
-        order_service.confirmation_receipt = receipt
-        order_service.order_information = self.cleaned_data["order_information"]
-        order_service.provider = provider
-        order_service.save()
+        service_requisition = ServiceRequisition()
+        service_requisition.parent_record = loose_requisition.generated_requisition_record
+        service_requisition.confirmation_receipt = receipt
+        service_requisition.order_information = self.cleaned_data["order_information"]
+        service_requisition.provider = provider
+        service_requisition.originating_loose_requisition = loose_requisition
+        service_requisition.save()
 
-        loose_requisition.ordered_service = order_service
         loose_requisition.save()
         
 

@@ -1,5 +1,7 @@
+from argparse import ArgumentError
 from email.policy import default
 from enum import Enum
+from tkinter.messagebox import NO
 from django.db import models
 from django.db.models.deletion import RESTRICT
 from django_extensions.db.models import TimeStampedModel
@@ -7,6 +9,47 @@ from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
+
+
+class ModelHistoricallyConfirmableMixin():
+    """
+        Serves as a mixin to facilitate and standardize the business logic that comes after a ConfirmationReceipt state
+        has changed.
+    """
+    confirmation_receipt = models.ForeignKey(
+        to="ConfirmationReceipt", 
+        on_delete=models.RESTRICT, 
+        related_name='%(app_label)s_%(class)s_related', 
+        null=True)
+    historic_confirmation_receipts = models.ManyToManyField(to="ConfirmationReceipt")
+
+    def on_reset(self) -> None:
+        self.historic_confirmation_receipts.add(self.confirmation_receipt)
+        self.confirmation_receipt = None
+        self.save()
+
+    def on_confirm(self) -> None:
+        """ Triggered when the request is confirmed """
+        print (">> Request confirmed")
+        pass
+
+    def on_cancelled(self) -> None:
+        """ Triggered when the request is cancelled """
+        print(">> Request cancelled")
+        pass
+
+    def on_made(self) -> None:
+        """ Triggered when the request has been requested """
+        print(">> Request made")
+        pass
+
+    def on_denied(self) -> None:
+        """ Triggered when the request has been denied """
+        print(">> Request denied")
+        pass
+
+    # class Meta:
+    #     abstract = True
 
 
 class Audience(TimeStampedModel, ModelNamingMetaMixin):
@@ -684,33 +727,78 @@ class RequisitionRecord (TimeStampedModel):
         (REQUISITION_SERVICES, REQUISITION_SERVICES),
     )
 
+    arrangement = models.ForeignKey(to="Arrangement", related_name="requisitions", on_delete=models.RESTRICT)
+
+    """ Indicates wether there are locked events in wait for this requisition """
     has_been_locked = models.BooleanField(verbose_name=_("Has been locked"), default=False)
 
+    """ Designates what is being requisitioned. Also directly equivocates to if order_requisition or person_requisition is set. """
     type_of_requisition = models.CharField(max_length=255, choices=REQUISITION_TYPE_CHOICES, default=REQUISITION_UNDEFINED)
-    """ The events that depend on this requisition """
-    affected_events = models.ManyToManyField(to=Event, verbose_name=_("Affected Events"))
-    associated_confirmation_receipt = models.ForeignKey(to=ConfirmationReceipt, on_delete=models.RESTRICT, null=True)
 
+    """ Set if requisition is of order """
+    service_requisition = models.ForeignKey(to="ServiceRequisition", related_name="parent_record", on_delete=models.RESTRICT, null=True)
+    """ Set if requisition is of person """ 
+    person_requisition = models.ForeignKey(to="PersonRequisition", related_name="parent_record", on_delete=models.RESTRICT, null=True)
+    
+    """ Which events are caught up in this requisition """
+    affected_events = models.ManyToManyField(to=Event, verbose_name=_("Affected Events"))
+
+    """ If this requisition is complete """
     is_fulfilled = models.BooleanField(verbose_name=_("Is Fulfilled"), default=False)
+
+    def get_requisition_data(self):
+        if (self.type_of_requisition == self.REQUISITION_PEOPLE):
+            return self.person_requisition
+        if (self.type_of_requisition == self.REQUISITION_SERVICES):
+            return self.service_requisition
+
 
 class EventSerie(TimeStampedModel):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
 
-class OrderedService(TimeStampedModel):
-    confirmation_receipt = models.ForeignKey(to=ConfirmationReceipt, related_name="ordered_service", on_delete=models.RESTRICT)
-
-    order_information = models.TextField(blank=True)
-    provider = models.ForeignKey(to=ServiceProvidable, related_name="ordered_services", on_delete=models.RESTRICT)
 
 class LooseServiceRequisition(TimeStampedModel):
     arrangement = models.ForeignKey(to="arrangement", related_name="loose_service_requisitions", on_delete=models.RESTRICT)
     comment = models.TextField(verbose_name=_("Comment"), default="")
-    type_to_order = models.ForeignKey(to=ServiceType, on_delete=models.RESTRICT, verbose_name=_("Type to order"))
-    
-    ordered_service = models.ForeignKey(to=OrderedService, on_delete=models.RESTRICT, verbose_name=_("Ordered service"), null=True)
+    type_to_order = models.ForeignKey(to="ServiceType", on_delete=models.RESTRICT, verbose_name=_("Type to order"))
     is_open_for_ordering = models.BooleanField(verbose_name=_("Is Open for Ordering"), default=False)
+    generated_requisition_record = models.ForeignKey(to="RequisitionRecord", on_delete=models.RESTRICT, null=True)
 
     @property
     def is_complete(self):
         """ Return a bool indicating if the loose requisition has been fulfilled and completed """
         return self.ordered_service is not None
+
+class ServiceRequisition(ModelHistoricallyConfirmableMixin, TimeStampedModel):
+    order_information = models.TextField(blank=True)
+    provider = models.ForeignKey(to=ServiceProvidable, related_name="ordered_services", on_delete=models.RESTRICT)
+    originating_loose_requisition = models.ForeignKey(to="LooseServiceRequisition", related_name="actual_requisition", on_delete=models.RESTRICT)
+
+    def on_made(self) -> None:
+        return super().on_made()
+
+    def on_confirm(self) -> None:
+        self.parent_record.is_fulfilled = True
+        return super().on_confirm()
+
+    def on_cancelled(self) -> None:
+        return super().on_cancel()
+
+    def on_denied(self) -> None:
+        return super().on_denied()
+
+
+class PersonRequisition(ModelHistoricallyConfirmableMixin, TimeStampedModel):
+    email = models.EmailField()
+
+    def on_made(self) -> None:
+        return super().on_made()
+
+    def on_confirm(self) -> None:
+        return super().on_confirm()
+
+    def on_cancelled(self) -> None:
+        return super().on_cancel()
+
+    def on_denied(self) -> None:
+        return super().on_denied()

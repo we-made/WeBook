@@ -1,0 +1,40 @@
+<h3>Bestillinger</h3>
+<div class="alert alert-light p-0">
+    <em class="small">
+        Merk at når du gjennomfører en bestilling så settes det en lås på de hendelsene det gjelder!
+        For at denne låsen skal heves må bestillingen kanselleres.
+    </em>
+</div>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th class="fw-bold">Status</th>
+            <th class="fw-bold">Tjenestetype</th>
+            <th class="fw-bold">Kommentar</th>
+            <th class="fw-bold">Valg</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for object in object_list %}
+            <tr>
+                <td>
+
+                    {% if object.generated_requisition_record is None %}
+                        <span class="badge badge-light"
+                              data-toggle="tooltip"
+                              title="Denne bestillingen er løs, det vil si at den ikke er gjennomført, bare satt opp">
+                            Løs bestilling
+                        </span>
+                    {% endif %}
+
+                </td>
+                <td>{{ object.type_to_order.name }}</td>
+                <td>{{ object.comment }}</td>
+                <td>
+                    <button class="btn btn-sm btn-success">Utfør</button>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -24,6 +24,7 @@
     <form method="post" id="serviceRequisitioningForm" onsubmit="handleQuill()">
         {% csrf_token %}
         <input type="hidden" name="loose_requisition_id" value="{{ LREQ.pk }}" />
+        <input type="hidden" name="requisition_record_id" value="{{ REQUISITION_RECORD.pk }}" />
 
         {% if ORDER is None %}
             <div class="badge d-block badge-info mb-3"

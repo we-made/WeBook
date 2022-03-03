@@ -116,6 +116,7 @@ def make_request (recipient_email: str, requested_by: Person, request_type):
     request.type = request_type
 
     request.save()
+    request.requisition.on_make()
 
     email_message = MailMessageFactory().fabricate_email_message(
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_MADE,
@@ -138,6 +139,8 @@ def cancel_request(code:str):
 
     request.state = ConfirmationReceipt.CANCELLED
     request.save()
+
+    request.requisition.on_cancelled()
 
     email_message = MailMessageFactory().fabricate_email_message(
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_CANCELLED,
@@ -162,6 +165,8 @@ def deny_request(code:str, denial_reason:str=None):
         request.denial_reasoning = denial_reason
     request.save()
 
+    request.requisition.on_denied()
+
     email_message = MailMessageFactory().fabricate_email_message(
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_DENIED,
         confirmation_receipt=request
@@ -183,8 +188,7 @@ def confirm_request(code:str):
     request.state = ConfirmationReceipt.CONFIRMED
     request.save()
 
-    # if (request.type == ConfirmationReceipt.TYPE_REQUISITION_SERVICE):
-    #     request.ordered_service.
+    request.requisition.on_confirm()
 
     email_message = MailMessageFactory().fabricate_email_message(
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_CONFIRMED,

@@ -1,0 +1,30 @@
+<h3>Kvitteringer på personressurser</h3>
+
+<div class="alert alert-light p-0">
+    <em class="small">
+        Merk at før en person skal bli rekvirert så må du igangsette rekvireringen. Her ser 
+        du aktive rekvireringer, mens i tabellen nedenfor har du mulighet til å starte rekvirering.
+    </em>
+</div>
+
+{% if object_list is None or object_list|length == 0 %}
+
+<h6>Ingen aktive kvitteringer</h6>
+
+{% else %}
+<table class="table">
+    <thead>
+        <tr>
+
+        </tr>
+    </thead>
+
+    <tbody>
+
+    </tbody>
+</table>
+{% endif %}
+
+{% for item in object_list.all %}
+<span>{{item}}</span>
+{% endfor %}

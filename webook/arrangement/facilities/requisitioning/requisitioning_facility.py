@@ -1,4 +1,4 @@
-from webook.arrangement.models import Arrangement, Event, Person, RequisitionRecord
+from webook.arrangement.models import Arrangement, Event, LooseServiceRequisition, Person, RequisitionRecord
 from webook.arrangement.facilities.confirmation_request import confirmation_request_facility
 
 
@@ -21,7 +21,10 @@ def move_arrangement_to_requisitioning (arrangement: Arrangement, requisitoneer:
 
 def requisition_person(requisitioned_person, requisitioneer, arrangement):
     events_i_am_assigned_to = arrangement.event_set.filter(people__in=[requisitioned_person])
-    (was_mail_sent_successfully, confirmation_receipt) = confirmation_request_facility.make_request(requisitioned_person.personal_email, requested_by=requisitioneer)
+    (was_mail_sent_successfully, confirmation_receipt) = confirmation_request_facility.make_request(
+        recipient_email=requisitioned_person.personal_email, 
+        requested_by=requisitioneer,
+        request_type=RequisitionRecord.REQUISITION_PEOPLE)
 
     # create a requisition record so that we can track the changes optimally
     record = RequisitionRecord()
@@ -32,7 +35,7 @@ def requisition_person(requisitioned_person, requisitioneer, arrangement):
     return record
 
 
-def setup_service_requisition(service):
+def setup_service_requisition(service: LooseServiceRequisition):
     """ Make service requisition fulfillable """
     service.is_open_for_ordering = True
     service.save()
@@ -41,6 +44,9 @@ def setup_service_requisition(service):
     record.affected_events = service.events.all()
     record.type_of_requisition = RequisitionRecord.REQUISITION_SERVICES
     record.save()
+
+    service.generated_requisition_record = record
+
     return record
 
 

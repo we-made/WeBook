@@ -24,6 +24,7 @@ from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
+from webook.arrangement.forms.requisition_person_form import RequisitionPersonForm
 from webook.arrangement.forms.order_service_form import OrderServiceForm
 from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -137,8 +138,8 @@ class RequisitionServiceFormView (LoginRequiredMixin, FormView):
         context["PROVIDERS"] = service_type.providers
         context["LREQ"] = loose_service_requisition
 
-        if (loose_service_requisition.ordered_service is not None):
-            context["ORDER"] = loose_service_requisition.ordered_service
+        if (loose_service_requisition.generated_requisition_record is not None):
+            context["ORDER"] = loose_service_requisition.generated_requisition_record.get_requisition_data()
         
         return context
 
@@ -155,3 +156,20 @@ class RequisitionServiceFormView (LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 requisition_service_form_view = RequisitionServiceFormView.as_view()
+
+
+class RequisitionPersonFormView (LoginRequiredMixin, FormView):
+    form_class = RequisitionPersonForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form) -> HttpResponse:
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form) -> HttpResponse:
+        return super().form_invalid(form)
+
+requisition_person_form_view = RequisitionPersonFormView.as_view()

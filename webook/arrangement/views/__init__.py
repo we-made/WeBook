@@ -107,6 +107,10 @@ from .planner_views import (
     plan_order_service_view,
     plan_create_events,
     get_collision_analysis_view,
+    plan_get_loose_service_requisitions,
+    plan_loose_service_requisitions_component_view,
+    plan_people_requisitions_component_view,
+    plan_people_to_requisition_component_view,
 )
 
 from .note_views import (
@@ -123,6 +127,7 @@ from .requisition_views import (
     remove_event_from_requisition_view,
     delete_requisition_view,
     requisition_service_form_view,
+    requisition_person_form_view,
 )
 
 from .confirmation_views import (

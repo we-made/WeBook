@@ -92,6 +92,16 @@
   .stageIsDone {
     color:white;
   }
+
+  #plannerTab > li.nav-item > button.nav-link {
+    padding: 0.8rem;
+    /* border: initial; */
+  }
+  #plannerTab > li.nav-item > button.nav-link.active {
+    padding: 0.8rem;
+    /* border: initial; */
+  }
+
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -99,16 +109,7 @@
 <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
 
 
-<div class="clearfix">
-  <div class="float-end">
-    <button class="btn btn-success" onclick="planner.collision_analyzer.requestCollisionAnalysis()">
-      Kjør kollisjonsanalyse
-    </button>
-    <button class="btn btn-success" onclick="requisitioningDialog.open()">
-      Begynn rekvirering
-    </button>
-  </div>
-</div>
+
 
 <div id="collisionAnalysisWrapper" style="display: none;">
   <div class="mt-2 p-2" style="border: 3px dotted black; background-color: ghostwhite;">
@@ -125,280 +126,266 @@
   </div>
 </div>
 
-
-
-<ul class="stepper" data-mdb-stepper="stepper">
-  <li class="stepper-step stepper-active">
-    <div class="stepper-head">
-      <span class="stepper-head-icon"> <i class="fas fa-calendar"></i> </span>
-      <span class="stepper-head-text"> Planlegging </span>
-    </div>
-    <div class="stepper-content py-3">
-      <div style=" overflow: hidden;">
-        <div style="background-color: #386080; color:white" class="p-2">
-      
-          
+<div class="p-2 border" style="background-color: ghostwhite;">
+  <div class="row">
+    <div class="col-9">
+      <div class="input-group">
+        <div class="input-group-prepend">
         </div>
-        <div style="background-color: #386080;" class="p-2">
-        </div>
-        <div class="row g-0" style=" background-color: #21384B;">
-          <div class="col-2">
-            <ul class="nav nav-tabs wemade-tabs mb-3" id="tabs" role="tablist">
-              <li class="nav-item" role="presentation">
-                <a
-                  class="nav-link active"
-                  id="arrangement-tab-planner"
-                  data-mdb-toggle="tab"
-                  href="#arrangement-tabs-planner"
-                  role="tab"
-                  aria-controls="arrangement-tabs-planner"
-                  aria-selected="true"
-                  ><i class="fas fa-calendar"></i>&nbsp; {% trans "Planner" %}</a
-                >
-              </li>
-              <li class="nav-item" role="presentation">
-                <a
-                  class="nav-link"
-                  id="arrangement-tab-notes"
-                  data-mdb-toggle="tab"
-                  href="#arrangement-tabs-notes"
-                  role="tab"
-                  aria-controls="arrangement-tabs-notes"
-                  aria-selected="false"
-                  ><i class="fas fa-comment"></i>&nbsp; {% trans "Notes" %}</a
-                >
-              </li>
-              <li class="nav-item" role="presentation">
-                <a
-                  class="nav-link"
-                  id="arrangement-tab-orders"
-                  data-mdb-toggle="tab"
-                  href="#arrangement-tabs-orders"
-                  role="tab"
-                  aria-controls="arrangement-tabs-orders"
-                  aria-selected="false"
-                  ><i class="fas fa-dollar-sign"></i>&nbsp; {% trans "Orders" %}</a
-                >
-              </li>
-              <li class="nav-item" role="presentation">
-                <a
-                  class="nav-link"
-                  id="arrangement-tab-planners"
-                  data-mdb-toggle="tab"
-                  href="#arrangement-tabs-planners"
-                  role="tab"
-                  aria-controls="arrangement-tabs-planners"
-                  aria-selected="false"
-                  ><i class="fas fa-users"></i>&nbsp; {% trans "Planners" %}</a
-                >
-              </li>
-              <li class="nav-item" role="presentation">
-                <a
-                  class="nav-link"
-                  id="arrangement-tab-details"
-                  data-mdb-toggle="tab"
-                  href="#arrangement-tabs-details"
-                  role="tab"
-                  aria-controls="arrangement-tabs-details"
-                  aria-selected="false"
-                  ><i class="fas fa-info"></i>&nbsp; {% trans "Details" %}</a>
-              </li>
-              
-            </ul>
-          </div>
-      
-          <div class="col-10 bg-white p-3 tabContent">
-            <div class="tab-content" id="arrangement-content">
-              <div
-                class="tab-pane fade show active"
-                id="arrangement-tabs-planner"
-                role="tabpanel"
-                aria-labelledby="arrangement-tab-planner">
-      
-                  <div class="clearfix mb-2">
-                    <div class="float-end">
-                      <div class="float-end ms-4">
-                        <label><em class="small fw-bolder">{% trans "Month" %}:</em></label>
-                        
-                        <select class="form-control"
-                              style="display: inline!important; width: 100px; border-left:0;border-top:0;border-right:0;border-radius: 0;" placeholder=""
-                              id="monthNavigationSelect">
-                        </select>
-                      </div>
-                  
-                      <div class="float-end">
-                        <label><em class="small fw-bolder">{% trans "Year" %}:</em></label>
-                        <select class="form-control d-inline" 
-                                style="display: inline!important; width: 100px; border-left:0;border-top:0;border-right:0;border-radius: 0;"
-                                id="yearNavigationSelect">
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-      
-                  <div class="btn-group float-start" style="box-shadow: none;">
-                    <button class="btn btn-info mb-2" onclick="iconsDialog.open()"><i class="fas fa-info"></i>&nbsp; {% trans "Icons" %}</button>
-                    <button class="btn btn-info mb-2"><i class="fas fa-info-circle"></i>&nbsp; {% trans "User guide" %}</button>
-                  </div>
-                  <div class="clearfix">
-                    <div class="btn-group float-end" style="box-shadow: none;">
-                      <button class="btn btn-success mb-2" onclick="newEventDialog()"><i class="fas fa-plus"></i>&nbsp; {% trans "New event" %}</button>
-                      <button class="btn btn-success mb-2" onclick="loadNewSerieDialog()"><i class="fas fa-plus"></i>&nbsp; {% trans "New repeating event" %}</button>
-                    </div>
-                  </div>
-      
-                  <div id="designerCalendar" class="bg-white"></div>
-              </div>
-      
-              <!-- Notes tab -->
-              <div
-                class="tab-pane fade"
-                id="arrangement-tabs-notes"
-                role="tabpanel"
-                aria-labelledby="arrangement-tab-notes">
-              <span id="arrrangementNotesWrapper"></span>
-      
-              </div>
-      
-              <!-- Orders tab -->
-              <div
-                class="tab-pane fade"
-                id="arrangement-tabs-orders"
-                role="tabpanel"
-                aria-labelledby="arrangement-tab-orders">
-      
-                <span id="arrangement_ordersWrapper">
-              </div>
-      
-              <!-- Planners tab -->
-              <div
-                class="tab-pane fade"
-                id="arrangement-tabs-planners"
-                role="tabpanel"
-                aria-labelledby="arrangement-tab-planners">
-      
-                <span id="arrangement_plannersWrapper"></span>
-              </div>
-      
-              <!-- Details tab -->
-              <div
-                class="tab-pane fade"
-                id="arrangement-tabs-details"
-                role="tabpanel"
-                aria-labelledby="arrangement-tab-details">
-      
-                <form>
-                  <div>
-                    <label>Navn på arrangement</label>
-                    <input type="text" class="form-control" />
-                  </div>
-      
-                  <div class="mt-2">
-                    <label>Målgruppe</label>
-                    <select class="form-control"></select>
-                  </div>
-                </form>
-      
-              </div>
-            </div>
-          </div>
+        <input type="search" class=" form-control" value="{{object.name}}">
+        <div class="input-group-append">
+          <button class="mr-0"><i class="fas fa-chevron-down"></i></button><button class="ml-0"><i class="fas fa-search"></i></button>
         </div>
       </div>
     </div>
-  </li>
-  <li class="stepper-step">
-    <div class="stepper-head">
-      <span class="stepper-head-icon">  <i class="fas fa-envelope"></i>  </span>
-      <span class="stepper-head-text"> Rekvirering </span>
-    </div>
-    <div class="stepper-content py-3">
-    </div>
-  </li>
-  <li class="stepper-step">
-    <div class="stepper-head">
-      <span class="stepper-head-icon"> <i class="fas fa-flask"></i> </span>
-      <span class="stepper-head-text"> Analyser </span>
-    </div>
-    <div class="stepper-content py-3">
-      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-      fugiat nulla pariatur
-    </div>
-  </li>
-</ul>
 
-
-<div class="row">
-  <div class="col-6">
-    <h3><i class="fas fa-envelope"></i>&nbsp; Ventende forespørsler</h3>
-    <div class="alert alert-info">
-      Lorem ipsum dolor sit amet
-    </div>
-    <div class="table-responsive">
-      <table class="table table-bordered table-sm">
-        <thead>
-          <tr>
-            <th>Person</th>
-            <th>Status</th>
-            <th>Svar</th>
-            <th>Valg</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <a href="#">Ola Nordmann</a>
-            </td>
-            <td>
-              <div class="badge badge-light">Sendt</div>
-            </td>
-            <td>
-              <div class="badge badge-light">Ikke svart ennå</div>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-danger">
-                <i class="fas fa-times"></i>&nbsp;
-                Kanseller forespørsel
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="col-3">
+      <div class="clearfix">
+        <div class="float-end">
+          <button class="">
+            <i class="fas fa-plus"></i>
+          </button>
+          <button class="">
+            <i class="fas fa-list"></i>
+          </button>
+          <button class="">
+            <i class="fas fa-trash"></i>
+          </button>
+          <button class="">
+            <i class="fas fa-lock"></i>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="col-6">
-    <h3><i class="fas fa-dollar-sign"></i>&nbsp; Bestillinger som må gjennomføres</h3>
-    <div class="alert alert-info">
-      Lorem ipsum dolor sit amet
+  <div class="mt-2">
+    <ul class="nav nav-tabs" id="plannerTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button  class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Oversikt</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Planlegger</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button  class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Ordre</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false"><i class="fas fa-users"></i>&nbsp; Planleggere</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Detaljer</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Notater</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Kvitteringer & Rekvirering</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">...</div>
+      <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+      <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
     </div>
-    <div class="table-responsive">
-      <table class="table table-bordered table-sm">
-        <thead>
-          <tr>
-            <th>Tjenestetype</th>
-            <th>Kommentar</th>
-            <th>Status</th>
-            <th>Valg</th>
-          </tr>
-        </thead>
+  
+  </div>
+</div>
 
-        <tbody>
-          <tr>
-            <td>Vask</td>
-            <td>Rommene må vaskes</td>
-            <td>
-              <div class="badge badge-light">Ikke bestilt</div>
-            </td>
-            <td>
-              <a href="#" class="btn btn-sm btn-success">
-                <!-- <i class="fas fa-arrow-right"></i>&nbsp;  -->
-                Gjennomfør bestilling
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+<div style="background-color: #386080; color:white" class="p-2">
+  <h3 class="text-white text-center fw-bolder"> {{object.name}} </h3>
+</div>
+<div style="background-color: #386080; color:white" class="p-2">
+  <div class="float-start">
+    <span class="badge badge-success badge-md"><strong>Hovedplanlegger: </strong>{{ object.responsible.full_name }}</span>
+    <span class="badge badge-info badge-md"><strong>Målgruppe: </strong>{{ object.audience }}</span>
+  </div>
+
+  <div class="clearfix">
+    <div class="float-end">
+      <button class="btn btn-light" onclick="planner.collision_analyzer.requestCollisionAnalysis()">
+        Kjør kollisjonsanalyse
+      </button>
+      <button class="btn btn-light" onclick="requisitioningDialog.open()">
+        Begynn rekvirering
+      </button>
     </div>
+  </div>
+          
+</div>
+<div class="row g-0" style=" background-color: #21384B;">
+  <div class="col-2">
+    <ul class="nav nav-tabs wemade-tabs mb-3" id="tabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <a
+          class="nav-link active"
+          id="arrangement-tab-planner"
+          data-mdb-toggle="tab"
+          href="#arrangement-tabs-planner"
+          role="tab"
+          aria-controls="arrangement-tabs-planner"
+          aria-selected="true"
+          ><i class="fas fa-calendar"></i>&nbsp; {% trans "Planner" %}</a
+        >
+      </li>
+      <li class="nav-item" role="presentation">
+        <a
+          class="nav-link"
+          id="arrangement-tab-notes"
+          data-mdb-toggle="tab"
+          href="#arrangement-tabs-notes"
+          role="tab"
+          aria-controls="arrangement-tabs-notes"
+          aria-selected="false"
+          ><i class="fas fa-comment"></i>&nbsp; {% trans "Notes" %}</a
+        >
+      </li>
+      <li class="nav-item" role="presentation">
+        <a
+          class="nav-link"
+          id="arrangement-tab-orders"
+          data-mdb-toggle="tab"
+          href="#arrangement-tabs-orders"
+          role="tab"
+          aria-controls="arrangement-tabs-orders"
+          aria-selected="false"
+          ><i class="fas fa-dollar-sign"></i>&nbsp; {% trans "Orders" %}</a
+        >
+      </li>
+      <li class="nav-item" role="presentation">
+        <a
+          class="nav-link"
+          id="arrangement-tab-planners"
+          data-mdb-toggle="tab"
+          href="#arrangement-tabs-planners"
+          role="tab"
+          aria-controls="arrangement-tabs-planners"
+          aria-selected="false"
+          ><i class="fas fa-users"></i>&nbsp; {% trans "Planners" %}</a
+        >
+      </li>
+      <li class="nav-item" role="presentation">
+        <a
+          class="nav-link"
+          id="arrangement-tab-details"
+          data-mdb-toggle="tab"
+          href="#arrangement-tabs-details"
+          role="tab"
+          aria-controls="arrangement-tabs-details"
+          aria-selected="false"
+          ><i class="fas fa-info"></i>&nbsp; {% trans "Details" %}</a>
+      </li>
+      
+    </ul>
+  </div>
+
+  <div class="col-10 bg-white p-3 tabContent">
+    <div class="tab-content" id="arrangement-content">
+      <div
+        class="tab-pane fade show active"
+        id="arrangement-tabs-planner"
+        role="tabpanel"
+        aria-labelledby="arrangement-tab-planner">
+
+          <div class="clearfix mb-2">
+            <div class="float-end">
+              <div class="float-end ms-4">
+                <label><em class="small fw-bolder">{% trans "Month" %}:</em></label>
+                
+                <select class="form-control"
+                      style="display: inline!important; width: 100px; border-left:0;border-top:0;border-right:0;border-radius: 0;" placeholder=""
+                      id="monthNavigationSelect">
+                </select>
+              </div>
+          
+              <div class="float-end">
+                <label><em class="small fw-bolder">{% trans "Year" %}:</em></label>
+                <select class="form-control d-inline" 
+                        style="display: inline!important; width: 100px; border-left:0;border-top:0;border-right:0;border-radius: 0;"
+                        id="yearNavigationSelect">
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-group float-start" style="box-shadow: none;">
+            <button class="btn btn-info mb-2" onclick="iconsDialog.open()"><i class="fas fa-info"></i>&nbsp; {% trans "Icons" %}</button>
+            <button class="btn btn-info mb-2"><i class="fas fa-info-circle"></i>&nbsp; {% trans "User guide" %}</button>
+          </div>
+          <div class="clearfix">
+            <div class="btn-group float-end" style="box-shadow: none;">
+              <button class="btn btn-success mb-2" onclick="newEventDialog()"><i class="fas fa-plus"></i>&nbsp; {% trans "New event" %}</button>
+              <button class="btn btn-success mb-2" onclick="loadNewSerieDialog()"><i class="fas fa-plus"></i>&nbsp; {% trans "New repeating event" %}</button>
+            </div>
+          </div>
+
+          <div id="designerCalendar" class="bg-white"></div>
+      </div>
+
+      <!-- Notes tab -->
+      <div
+        class="tab-pane fade"
+        id="arrangement-tabs-notes"
+        role="tabpanel"
+        aria-labelledby="arrangement-tab-notes">
+      <span id="arrrangementNotesWrapper"></span>
+
+      </div>
+
+      <!-- Orders tab -->
+      <div
+        class="tab-pane fade"
+        id="arrangement-tabs-orders"
+        role="tabpanel"
+        aria-labelledby="arrangement-tab-orders">
+
+        <span id="arrangement_ordersWrapper">
+      </div>
+
+      <!-- Planners tab -->
+      <div
+        class="tab-pane fade"
+        id="arrangement-tabs-planners"
+        role="tabpanel"
+        aria-labelledby="arrangement-tab-planners">
+
+        <span id="arrangement_plannersWrapper"></span>
+      </div>
+
+      <!-- Details tab -->
+      <div
+        class="tab-pane fade"
+        id="arrangement-tabs-details"
+        role="tabpanel"
+        aria-labelledby="arrangement-tab-details">
+
+        <form>
+          <div>
+            <label>Navn på arrangement</label>
+            <input type="text" class="form-control" />
+          </div>
+
+          <div class="mt-2">
+            <label>Målgruppe</label>
+            <select class="form-control"></select>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row mt-5">
+  <div class="col-6">
+    <span id="peopleRequisitionsWrapper"></span>
+    <br>
+    <span id="peopleToRequisitionWrapper"></span>
+  </div>
+
+  <div class="col-6">
+    <span id="serviceRequisitionsWrapper"></span>
   </div>
 </div>
 
@@ -576,8 +563,12 @@
         })
       },
       csrf_token: '{% csrf_token %}',
+      csrf_token2: '{{ csrf_token }}',
       texts: translatedTextsMap,
       arrangement_id: {{ object.id }},
+      $serviceRequisitionsWrapperEl: $('#serviceRequisitionsWrapper'),
+      $peopleRequisitionsWrapperEl: $('#peopleRequisitionsWrapper'),
+      $peopleToRequisitionWrapperEl: $('#peopleToRequisitionWrapper'),
     });
 
     var calendarManager = new CalendarManager(

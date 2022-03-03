@@ -12,6 +12,10 @@ from webook.arrangement.views import (
     plan_order_service_view,
     plan_create_events,
     get_collision_analysis_view,
+    plan_get_loose_service_requisitions,
+    plan_loose_service_requisitions_component_view,
+    plan_people_requisitions_component_view,
+    plan_people_to_requisition_component_view,
 )
 
 
@@ -65,5 +69,25 @@ planner_urls = [
         route="planner/get_collision_analysis/",
         view=get_collision_analysis_view,
         name="get_collision_analysis",
+    ),
+    path(
+        route="planner/loose_service_requisitions",
+        view=plan_get_loose_service_requisitions,
+        name="get_loose_service_requisitions",
+    ),
+    path(
+        route="planner/loose_service_requisitions_table",
+        view=plan_loose_service_requisitions_component_view,
+        name="loose_service_requisitions_table_component",
+    ),
+    path(
+        route="planner/people_requisitions_table",
+        view=plan_people_requisitions_component_view,
+        name="people_requisitions_table_component",
+    ),
+    path(
+        route="planner/people_to_requisition_table",
+        view=plan_people_to_requisition_component_view,
+        name="people_to_requisition_table_component"
     ),
 ]

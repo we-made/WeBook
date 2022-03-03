@@ -24,7 +24,7 @@ from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
-from webook.arrangement.models import Arrangement, Event, Location, Person, Room, LooseServiceRequisition
+from webook.arrangement.models import Arrangement, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -253,6 +253,56 @@ class PlanOrderService(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 plan_order_service_view = PlanOrderService.as_view()
+
+
+class PlanGetLooseServiceRequisitions(LoginRequiredMixin, View):
+    def get(self, request):
+        arrangement_id = request.GET.get("arrangement_id", None)
+        if arrangement_id is None:
+            return Http404()
+
+        requisitions = Arrangement.objects.get(id=arrangement_id).loose_service_requisitions.all()
+
+        response = serializers.serialize("json", requisitions)
+        return JsonResponse(response, safe=False)
+
+plan_get_loose_service_requisitions = PlanGetLooseServiceRequisitions.as_view()
+
+class PlanLooseServiceRequisitionsTableComponent(LoginRequiredMixin, ListView):
+    template_name = "arrangement/planner/components/service_requisitions_table_component.html"
+
+    def get_queryset(self):
+        arrangement_id = self.request.GET.get("arrangement_id")
+        return Arrangement.objects.get(id=arrangement_id).loose_service_requisitions.all()
+
+plan_loose_service_requisitions_component_view = PlanLooseServiceRequisitionsTableComponent.as_view()
+
+
+class PlanPeopleRequisitionsTableComponent(LoginRequiredMixin, ListView):
+    template_name = "arrangement/planner/components/people_requisitions_table_component.html"
+
+    def get_queryset(self):
+        arrangement_id = self.request.GET.get("arrangement_id")
+        arrangement = Arrangement.objects.get(id=arrangement_id)
+        people_requisitions = arrangement.requisitions.filter(type_of_requisition=RequisitionRecord.REQUISITION_PEOPLE)
+        return people_requisitions
+
+plan_people_requisitions_component_view = PlanPeopleRequisitionsTableComponent.as_view()
+
+
+class PlanPeopleToRequisitionTableComponent(LoginRequiredMixin, ListView):
+    template_name = "arrangement/planner/components/people_to_requisition_component.html"
+
+    def get_queryset(self):
+        arrangement_id = self.request.GET.get("arrangement_id")
+        arrangement = Arrangement.objects.get(id=arrangement_id)
+
+        distinct_people = arrangement.event_set.all().values('people').distinct()
+        unique_people_to_requisition = Person.objects.filter(id__in=distinct_people)
+
+        return unique_people_to_requisition
+
+plan_people_to_requisition_component_view = PlanPeopleToRequisitionTableComponent.as_view()
 
 
 class PlanDeleteEvent (LoginRequiredMixin, DeleteView):

@@ -59,7 +59,19 @@ Date.prototype.addDays = function(days) {
     Top level.
 */
 class Planner {
-    constructor({ onClickEditButton, onClickInfoButton, onClickOrderServiceButton, onSelectionCopied, csrf_token, arrangement_id, texts = undefined } = {}) {
+    constructor({ 
+        onClickEditButton, 
+        onClickInfoButton, 
+        onClickOrderServiceButton, 
+        onSelectionCopied, 
+        csrf_token,
+        csrf_token2, // TODO: remove this
+        arrangement_id, 
+        $serviceRequisitionsWrapperEl=undefined,
+        $peopleRequisitionsWrapperEl=undefined,
+        $peopleToRequisitionWrapperEl=undefined,
+        texts = undefined } = {}) {
+
         this.local_context = new LocalPlannerContext(this)
         
         this.renderer_manager = new RendererManager({
@@ -72,6 +84,29 @@ class Planner {
         });
 
         this.arrangement_id = arrangement_id;
+        this.csrf_token = csrf_token;
+        this.csrf_token2 = csrf_token2;
+
+        if ($serviceRequisitionsWrapperEl !== undefined) {
+            this.loose_requisitions_component = new LooseRequisitionsComponentManager(
+                $serviceRequisitionsWrapperEl,
+                this
+            );
+        }
+        if ($peopleRequisitionsWrapperEl !== undefined) {
+            this.people_requisitions_component = new PeopleRequisitionsComponentManager(
+                $peopleRequisitionsWrapperEl,
+                this
+            );
+        }
+        if ($peopleToRequisitionWrapperEl !== undefined) {
+            this.people_to_requisition_component = new PeopleToRequisitionComponentManager(
+                $peopleToRequisitionWrapperEl,
+                this
+            );
+        }
+
+
         this.collision_analyzer = new CollisionAnalyzer(this);
         
         this.clipboard = new EventClipboard(onSelectionCopied);
@@ -87,10 +122,10 @@ class Planner {
             this.textLib = new Map([...this.textLib, ...texts ]);
         }
 
-        this.csrf_token = csrf_token
         this.synchronizer = new ContextSynchronicityManager(csrf_token, arrangement_id, this)
         this.synchronizer.getEventsOnSource();
         
+
         this.local_context.onSeriesChanged = function ({ planner, eventsAffected, changeType } = {}) {
             console.log("=> Serie added")
         }
@@ -107,11 +142,7 @@ class Planner {
 
         this.local_context.onEventsCreated = function ({eventsCreated, planner} = {}) {
             console.log("=> Events created")
-            // for (let i = 0; i < eventsCreated.length; i++) {
-            //     planner.synchronizer.pushEvent(eventsCreated[i]);
-            // }
             planner.synchronizer.pushEvents(eventsCreated);
-            
             planner.init();
         }
 
@@ -143,6 +174,77 @@ class Planner {
 
     init() {
         this.renderer_manager.render(Array.from(this.local_context.events.values()));
+    }
+}
+
+class LooseRequisitionsComponentManager {
+    constructor($tbodyElement, planner) {
+        this._planner = planner;
+        this._$element = $tbodyElement;
+        this._load();
+    }
+
+    _load() {
+        this._$element.load('/arrangement/planner/loose_service_requisitions_table?arrangement_id=' + this._planner.arrangement_id);
+    }
+
+    refresh() {
+        this._load();
+    }
+}
+
+class PeopleRequisitionsComponentManager {
+    constructor ($element, planner) {
+        this._planner = planner;
+        this._$element = $element;
+        this._load();
+    }
+
+    _load() {
+        this._$element.load('/arrangement/planner/people_requisitions_table?arrangement_id=' + this._planner.arrangement_id)
+    }
+
+    refresh() {
+        this._load();
+    }
+}
+
+class PeopleToRequisitionComponentManager {
+    constructor ($element, planner) {
+        this._planner = planner;
+        this._$element = $element;
+        this._load();
+    }
+
+    _bind() {
+        $('#initiatePersonRequisitionBtn').on("click", () => {
+            var pk =  $('#initiatePersonRequisitionBtn').attr("value");
+            
+            var formData = new FormData();
+            formData.append("person_id", pk)
+            formData.append("arrangement_id", this._planner.arrangement_id);
+            console.log(">> " + this._planner.arrangement_id)
+            console.log(">> " + this._planner.csrf_token)
+
+            fetch("/arrangement/requisition/requisition_person", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    "X-CSRFToken": this._planner.csrf_token2
+                }
+            }).then(this.refresh());
+        });
+    }
+
+    _load() {
+        let _this = this;
+        this._$element.load("/arrangement/planner/people_to_requisition_table?arrangement_id=" + this._planner.arrangement_id, function () {
+            _this._bind()
+        });
+    }
+
+    refresh() {
+        this._load();
     }
 }
 
