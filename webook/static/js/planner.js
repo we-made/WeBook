@@ -1,5 +1,3 @@
-
-
 class DateExtensions {
     /* Overwrite the time values for one Date instance with the value of a time field (as a str) */
     static OverwriteDateTimeWithTimeInputValue(date_to_write_time_to, time_input_val_as_str) {
@@ -184,8 +182,18 @@ class LooseRequisitionsComponentManager {
         this._load();
     }
 
+    _bind() {
+        $('.requisitionServiceBtn').on("click", function () {
+            var pk =  $(this).attr("value");
+            location.href="/arrangement/requisition/" + pk + "/order?lreq_id=" + pk
+        });
+    }
+
     _load() {
-        this._$element.load('/arrangement/planner/loose_service_requisitions_table?arrangement_id=' + this._planner.arrangement_id);
+        let _this = this;
+        this._$element.load('/arrangement/planner/loose_service_requisitions_table?arrangement_id=' + this._planner.arrangement_id, function () {
+           _this._bind(); 
+        });
     }
 
     refresh() {
@@ -217,22 +225,20 @@ class PeopleToRequisitionComponentManager {
     }
 
     _bind() {
-        $('#initiatePersonRequisitionBtn').on("click", () => {
-            var pk =  $('#initiatePersonRequisitionBtn').attr("value");
-            
+        let _this = this;
+        $('.initiatePersonRequisitionBtn').on("click", function () {
+            var pk =  $(this).attr("value");
             var formData = new FormData();
             formData.append("person_id", pk)
-            formData.append("arrangement_id", this._planner.arrangement_id);
-            console.log(">> " + this._planner.arrangement_id)
-            console.log(">> " + this._planner.csrf_token)
+            formData.append("arrangement_id", _this._planner.arrangement_id);
 
             fetch("/arrangement/requisition/requisition_person", {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    "X-CSRFToken": this._planner.csrf_token2
+                    "X-CSRFToken": _this._planner.csrf_token2
                 }
-            }).then(this.refresh());
+            }).then(_this.refresh());
         });
     }
 
@@ -280,7 +286,6 @@ class CollisionAnalyzer {
             .then(obj => {
                 calendarManager.ds.removeSelectables(document.querySelectorAll(".collision_analysis_shadow_event"))
             })
-
     }
 
     reset () {
@@ -333,7 +338,6 @@ class EventClipboard {
 
     setClipboard (events, startTime, operationType) {
         this.clearClipboard();
-        console.log(events);
         
         let baseStartTime = new Date(startTime.getTime())
         baseStartTime.setHours(1)
@@ -526,8 +530,6 @@ class ContextSynchronicityManager {
 
     deleteEvents(events) {
         let data = new FormData();
-        console.log(events);
-        
         let eventIds = events.map((event) => this.uuid_to_id_map.get(event.id));
 
         data.append("eventIds", eventIds);
@@ -586,12 +588,13 @@ class LocalPlannerContext {
 
     remove_shadowed_events() {
         var _events = this.events;
+        
         this.events.forEach(function (value, key, map) {
             if (value.is_shadow === true) {
-                console.log(value + " - " + key);
                 _events.delete(key);
             }
         })
+
         this.planner.init();
     }
 
@@ -684,15 +687,13 @@ class LocalPlannerContext {
      * @param {string} uuid - The UUID of the event which to remove
      */
     remove_event(uuid) {
-        console.log(uuid)
         let delete_event = this.events.get(uuid);
+
         this.events.delete(uuid);
         this.onEventDeleted({ deletedEvent: delete_event, planner: this.planner });
     }
 
     remove_events(events) {
-        console.log(events)
-        
         for (let i = 0; i < events.length; i++) {
             this.events.delete(events[i].id);
         }
@@ -1151,29 +1152,8 @@ class CalendarManager extends RendererBase {
         this._serie_is_marked = false;
 
         let self = this;
-        this.cellSel = new this.CellSelect({
-            onCellSelected: (cellEl) => {
-                console.log("on cell selected---")
-
-                cellEl.addEventListener('contextmenu', (jsEvent) => {
-                    jsEvent.preventDefault();
     
-                    $.contextMenu({
-                        className: "",
-                        selector: '.focused-cell',
-                        items: {
-                            paste: {
-                                name: "<i class='fas fa-paste'></i>&nbsp; Lim inn",
-                                isHtmlName: true,
-                                callback: function () {
-                                    self.handle_hotkey("ctrl+v");
-                                }
-                            }
-                        }
-                    })
-                })
-            }}
-        );
+        this.setup_cell_select(fc_options.initialView)
         
         hotkeys('ctrl+c, ctrl+x, ctrl+v, del', function (event, handler) {
             event.preventDefault();
@@ -1207,20 +1187,18 @@ class CalendarManager extends RendererBase {
 
         this.fc_options.selectAllow = (info) => {
             let selected = document.querySelectorAll('.ds-selected');
-
             return false;
         }
 
         this.fc_options.eventDragStart = (info) => {
-            let selected = document.querySelectorAll('.ds-selected');
-            if (selected.length === 1) {
+            if (document.querySelectorAll('.ds-selected').length === 1) {
                 this.ds.stop();
                 this.dsIsGood=false;
             }
         }
 
         this.fc_options.eventDragStop = (info) => {
-            if (this.dsIsGood===false) {
+            if (this.dsIsGood === false) {
                 this.setup_dragselect();
             }
         }
@@ -1230,8 +1208,9 @@ class CalendarManager extends RendererBase {
             
             let addDelta = function ({delta, add_to}) {
                 add_to = add_to.addDays(delta.days);
-                add_to = new Date(add_to.setMonth(add_to.getMonth()+delta.months))
-                add_to = new Date(add_to.setFullYear(add_to.getFullYear()+delta.years))
+                add_to = new Date(add_to.setMonth(add_to.getMonth() + delta.months))
+                add_to = new Date(add_to.setFullYear(add_to.getFullYear() + delta.years))
+
                 return add_to;
             }
 
@@ -1261,11 +1240,9 @@ class CalendarManager extends RendererBase {
         }
 
         this.fc_options.eventDidMount = (arg) => {
-            console.log(arg.el);
             let selSeq = this.select_sequence;
             let onClickEditButton = this.onClickEditButton;
             let onClickDeleteButton = this.onClickDeleteButton;
-            let $argEl = $(arg.el);
             let uuid = getUuidFromEventDomNode(arg.el);
 
             let splitOutUuid = function (str) {
@@ -1321,12 +1298,63 @@ class CalendarManager extends RendererBase {
         }
     }
 
+    setup_cell_select (view) {
+        let self = this;
+
+        console.log(">> View: " + view)
+        if (view === "dayGridMonth") {
+            this.cellSel = new this.MonthGridCellSelect({
+                onCellSelected: (cellEl) => {
+                    cellEl.addEventListener('contextmenu', (jsEvent) => {
+                        jsEvent.preventDefault();
+        
+                        $.contextMenu({
+                            className: "",
+                            selector: '.focused-cell',
+                            items: {
+                                paste: {
+                                    name: "<i class='fas fa-paste'></i>&nbsp; Lim inn",
+                                    isHtmlName: true,
+                                    callback: function () {
+                                        self.handle_hotkey("ctrl+v");
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }}
+            );
+        }
+        if (view === "timeGridWeek" || view === "timeGridDay") {
+            this.cellSel = new this.TimeGridCellSelect({
+                onCellSelected: (cellEl) => {
+                    cellEl.addEventListener('contextmenu', (jsEvent) => {
+                        jsEvent.preventDefault();
+        
+                        $.contextMenu({
+                            className: "",
+                            selector: '.focused-cell',
+                            items: {
+                                paste: {
+                                    name: "<i class='fas fa-paste'></i>&nbsp; Lim inn",
+                                    isHtmlName: true,
+                                    callback: function () {
+                                        self.handle_hotkey("ctrl+v");
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
+            });
+        }
+    }
+
     select_sequence(sequence_guid) {
         document.querySelectorAll(".seq_" + sequence_guid).forEach(function (el) {
             el.style="background-color: #acacff; color:white; border:solid 1px;";
             el.classList.add("ds-selected");
         });
-        // this._serie_is_marked = true;
     }
 
     allocate_people_to_selection (peopleIds) {
@@ -1353,15 +1381,18 @@ class CalendarManager extends RendererBase {
         let selectedEvents = [];
         let selectedEventsDomNodes = document.querySelectorAll(".ds-selected");
         let newEvs = [];
+
         for (let i = 0; i < selectedEventsDomNodes.length; i++) {
             if (!selectedEventsDomNodes[i].classList.contains("collision_analysis_shadow_event")) {
                 newEvs.push(selectedEventsDomNodes[i]);
             }
         }
+
         selectedEventsDomNodes = newEvs;
 
         for (let i = 0; i < selectedEventsDomNodes.length; i++) {
             let selectedEvent = this.planner.local_context.events.get(getUuidFromEventDomNode(selectedEventsDomNodes[i]));
+
             if (selectedEvent !== undefined) {
                 selectedEvent.el = selectedEventsDomNodes[i];
                 selectedEvents.push(selectedEvent);
@@ -1372,7 +1403,6 @@ class CalendarManager extends RendererBase {
             let startTime = 0;
 
             for (let i = 0; i < selectedEvents.length; i++) {
-                console.log(selectedEvents[i].from + " < " + startTime)
                 if (selectedEvents[i].from.getTime() > startTime) {
                     startTime = selectedEvents[i].from;
                 }
@@ -1389,6 +1419,7 @@ class CalendarManager extends RendererBase {
             case 'ctrl+c': 
                 console.log("ctrl+c")
                 this.planner.clipboard.setClipboard(selectedEvents, getStartTime("dayGridMonth"), "copy")
+
                 for (let i = 0; i < selectedEventsDomNodes.length; i++) {
                     let ev = selectedEventsDomNodes[i];
                     $(ev).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
@@ -1437,7 +1468,8 @@ class CalendarManager extends RendererBase {
         static get_icons_html(info) {
             let icons_wrapper = document.createElement('span');
 
-            if (info.event.extendedProps.sequence_guid !== undefined) {
+            if (info.event.extendedProps.sequence_guid !== undefined && info.event.extendedProps.sequence_guid !== null) {
+                console.log(info.event.extendedProps.sequence_guid)
                 let icon = document.createElement('i');
                 icon.classList.add('fas', 'fa-link', 'text-success');
                 icons_wrapper.appendChild(icon);
@@ -1671,8 +1703,50 @@ class CalendarManager extends RendererBase {
         return fc_events;
     }
 
-    CellSelect = class CellSelect {
-        constructor ({onCellSelected=undefined} = {}) {
+    TimeGridCellSelect = class CellSelect {
+        constructor ({ onCellSelected=undefined } = {}) {
+            this.currentlySelectedCell = undefined;
+            this.currentlySelectedCellTextWrapper = undefined;
+            this.onCellSelected = onCellSelected;
+        }
+
+        getSelectedDate() {
+            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+            console.log(this.currentlySelectedCell)
+            console.log(this.currentlySelectedCell.attr("data-date"))
+            return this.currentlySelectedCell.attr("data-date");
+        }
+
+        generateHintTextElement() {
+            let hintEl = document.createElement("span");
+            hintEl.innerText = "CTRL-V for å lime inn kopierte hendelser her"
+            
+            return hintEl;
+        }
+
+        selectCell(el) {
+            this.unselectCell();
+
+            el.addClass('focused-cell ');
+            this.currentlySelectedCell = el;
+            let textContainer = el[0].querySelectorAll(".fc-daygrid-day-bg");
+            this.currentlySelectedCellTextWrapper = textContainer[0];
+
+            this.onCellSelected(el[0])
+        }
+
+        unselectCell() {
+            $(this.currentlySelectedCell).removeClass("focused-cell ");
+            if (this.currentlySelectedCell !== undefined) {
+                this.currentlySelectedCell = undefined;
+                this.currentlySelectedCellTextWrapper.innerHTML = "";
+                this.currentlySelectedCellTextWrapper = undefined;
+            }
+        }
+    }
+
+    MonthGridCellSelect = class CellSelect {
+        constructor ({ onCellSelected=undefined } = {}) {
             this.currentlySelectedCell = undefined;
             this.currentlySelectedCellTextWrapper = undefined;
             this.onCellSelected = onCellSelected;
@@ -1685,11 +1759,13 @@ class CalendarManager extends RendererBase {
         generateHintTextElement() {
             let hintEl = document.createElement("span");
             hintEl.innerText = "CTRL-V for å lime inn kopierte hendelser her"
+
             return hintEl;
         }
 
         selectCell(el) {
             this.unselectCell();
+
             el.addClass('focused-cell ');
             this.currentlySelectedCell = el;
             let textContainer = el[0].querySelectorAll(".fc-daygrid-day-bg");

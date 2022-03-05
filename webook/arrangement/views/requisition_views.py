@@ -130,9 +130,12 @@ class RequisitionServiceFormView (LoginRequiredMixin, FormView):
         if loose_requisition_id is None or loose_requisition_id == 0:
             return HttpResponseBadRequest()
 
+        print(loose_requisition_id)
+
         loose_service_requisition = LooseServiceRequisition.objects.get(id=loose_requisition_id)
-        if (loose_service_requisition is None):
-            return Http404()
+        print(loose_service_requisition)
+        # if (loose_service_requisition is None):
+        #     return Http404()
 
         service_type = loose_service_requisition.type_to_order
         context["PROVIDERS"] = service_type.providers

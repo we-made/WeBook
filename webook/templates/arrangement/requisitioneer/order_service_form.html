@@ -7,8 +7,8 @@
 <h3><i class="fas fa-dollar-sign"></i>&nbsp; Bestill tjeneste</h3>
 
 <div class="clearfix">
-    <a class="btn btn-light"
-       href="{% url 'arrangement:' %}">
+    <a class="btn btn-link"
+       href="{% url 'arrangement:arrangement_detail' slug=LREQ.arrangement.slug %}">
         Tilbake til arrangement
     </a>
 </div>
@@ -16,9 +16,8 @@
 {% endblock %}
 
 {% block content %}
+
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-
-
 
 <div>
     <form method="post" id="serviceRequisitioningForm" onsubmit="handleQuill()">

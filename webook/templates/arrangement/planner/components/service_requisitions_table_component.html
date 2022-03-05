@@ -32,7 +32,21 @@
                 <td>{{ object.type_to_order.name }}</td>
                 <td>{{ object.comment }}</td>
                 <td>
-                    <button class="btn btn-sm btn-success">Utfør</button>
+                    <div class="dropdown">
+                        <button
+                            class="btn btn-link dropdown-toggle" style="box-shadow: none;"
+                            type="button"
+                            id="dropdownMenuButton"
+                            data-mdb-toggle="dropdown"
+                            aria-expanded="false">
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            {% if object.generated_requisition_record is None %}
+                                <li><a class="dropdown-item requisitionServiceBtn" value="{{object.pk}}">Utfør bestilling</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <!-- <button class="btn btn-sm btn-success requisitionServiceBtn" value="{{object.pk}}">Utfør</button> -->
                 </td>
             </tr>
         {% endfor %}

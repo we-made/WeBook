@@ -12,19 +12,75 @@
 <h6>Ingen aktive kvitteringer</h6>
 
 {% else %}
+
+<div class="input-group">
+    <span class="input-group-text">
+        <i class="fas fa-ellipsis-v"></i>
+    </span>
+
+    <select class="form-control">
+        <option>Vis alle</option>
+        <option>Pending</option>
+        <option>Confirmed</option>
+    </select>
+</div>
+
 <table class="table">
     <thead>
         <tr>
-
+            <th>Status</th>
+            <th>Mottager</th>
+            <th>Sendt</th>
+            <th>Valg</th>
         </tr>
     </thead>
 
     <tbody>
-
+        {% for item in object_list.all %}
+            <tr>
+                <td>
+                    {% if item.confirmation_receipt.state == "pending" %}
+                        <div class="badge badge-md badge-warning">
+                            {{ item.confirmation_receipt.state }}
+                        </div>
+                    {% elif item.confirmation_receipt.state == "confirmed" %}
+                        <div class="badge badge-md badge-success">
+                            <i class="fas fa-check"></i>
+                            {{ item.confirmation_receipt.state }}
+                        </div>
+                    {% elif item.confirmation_receipt.state == "denied" %}
+                        <div class="badge badge-md badge-danger">
+                            <i class="fas fa-user-times"></i>
+                            {{ item.confirmation_receipt.state }}
+                        </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {{item.confirmation_receipt.sent_to}}
+                </td>
+                <td>
+                    {{item.confirmation_receipt.sent_when}}
+                </td>
+                <td>
+                    <div class="dropdown">
+                        <button
+                            class="btn btn-link dropdown-toggle" style="box-shadow: none;"
+                            type="button"
+                            id="dropdownMenuButton"
+                            data-mdb-toggle="dropdown"
+                            aria-expanded="false">
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            {% if  item.confirmation_receipt.state == "pending" %}
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i>&nbsp; Test</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-times"></i>&nbsp; Kanseller</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
     </tbody>
 </table>
 {% endif %}
 
-{% for item in object_list.all %}
-<span>{{item}}</span>
-{% endfor %}

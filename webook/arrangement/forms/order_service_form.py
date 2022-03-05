@@ -14,7 +14,8 @@ class OrderServiceForm (forms.Form):
         (send_mail_is_success, receipt) = confirmation_request_facility.make_request(
             provider.service_contact, 
             requested_by=Person.objects.first(), 
-            request_type=ConfirmationReceipt.TYPE_REQUISITION_SERVICE)
+            request_type=ConfirmationReceipt.TYPE_REQUISITION_SERVICE,
+            requisition_record=loose_requisition.generated_requisition_record)
 
         service_requisition = ServiceRequisition()
         service_requisition.parent_record = loose_requisition.generated_requisition_record

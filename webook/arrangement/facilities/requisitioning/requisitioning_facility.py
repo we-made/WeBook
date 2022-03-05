@@ -1,3 +1,4 @@
+from webook.arrangement.models import PersonRequisition
 from webook.arrangement.models import Arrangement, Event, LooseServiceRequisition, Person, RequisitionRecord
 from webook.arrangement.facilities.confirmation_request import confirmation_request_facility
 
@@ -21,19 +22,32 @@ def move_arrangement_to_requisitioning (arrangement: Arrangement, requisitoneer:
 
 def requisition_person(requisitioned_person, requisitioneer, arrangement):
     events_i_am_assigned_to = arrangement.event_set.filter(people__in=[requisitioned_person])
-    (was_mail_sent_successfully, confirmation_receipt) = confirmation_request_facility.make_request(
-        recipient_email=requisitioned_person.personal_email, 
-        requested_by=requisitioneer,
-        request_type=RequisitionRecord.REQUISITION_PEOPLE)
 
     # create a requisition record so that we can track the changes optimally
     record = RequisitionRecord()
-    record.affected_events = events_i_am_assigned_to
-    record.associated_confirmation_receipt = confirmation_receipt
+    record.arrangement = arrangement
     record.type_of_requisition = RequisitionRecord.REQUISITION_PEOPLE
-    record.save()
-    return record
 
+    person_requisition = PersonRequisition()
+    person_requisition.email = requisitioned_person.personal_email
+    person_requisition.save()
+
+    record.person_requisition = person_requisition
+
+    record.save()
+    record.affected_events.set(events_i_am_assigned_to)
+    record.save()
+
+    (was_mail_sent_successfully, confirmation_receipt) = confirmation_request_facility.make_request(
+        recipient_email=requisitioned_person.personal_email, 
+        requested_by=requisitioneer,
+        request_type=RequisitionRecord.REQUISITION_PEOPLE,
+        requisition_record=record)
+
+    record.confirmation_receipt = confirmation_receipt
+    record.save()
+
+    return record
 
 def setup_service_requisition(service: LooseServiceRequisition):
     """ Make service requisition fulfillable """
@@ -46,6 +60,7 @@ def setup_service_requisition(service: LooseServiceRequisition):
     record.save()
 
     service.generated_requisition_record = record
+    service.save()
 
     return record
 

@@ -33,7 +33,8 @@ class MailMessageFactory():
             return {
                 "ORIGINATOR_FRIENDLY_NAME": settings.APP_TITLE,
                 "recipient": confirmation_receipt.sent_to,
-                "URL": 'https://' + Site.objects.get_current().domain + (reverse("arrangement:view_confirmation_request") + "?token=" + confirmation_receipt.code)
+                # "URL": 'https://' + Site.objects.get_current().domain + (reverse("arrangement:view_confirmation_request") + "?token=" + confirmation_receipt.code)
+                "URL": 'http://127.0.0.1:8000' + (reverse("arrangement:view_confirmation_request") + "?token=" + confirmation_receipt.code)
             }
 
     def fabricate_email_message(self, routine: ROUTINES, confirmation_receipt: ConfirmationReceipt):
@@ -101,7 +102,7 @@ def is_request_token_valid(token:str):
     return True
 
 
-def make_request (recipient_email: str, requested_by: Person, request_type):
+def make_request (recipient_email: str, requested_by: Person, request_type, requisition_record):
     """
         Make a new confirmation request
 
@@ -114,9 +115,14 @@ def make_request (recipient_email: str, requested_by: Person, request_type):
     request.sent_to = recipient_email
     request.requested_by = requested_by
     request.type = request_type
-
     request.save()
-    request.requisition.on_make()
+    requisition_record.confirmation_receipt = request
+    requisition_record.save()
+
+    print(requisition_record)
+    print(request.requisition_record)
+
+    requisition_record.get_requisition_data().on_made()
 
     email_message = MailMessageFactory().fabricate_email_message(
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_MADE,
@@ -140,7 +146,7 @@ def cancel_request(code:str):
     request.state = ConfirmationReceipt.CANCELLED
     request.save()
 
-    request.requisition.on_cancelled()
+    request.requisition_record.first().get_requisition_data().on_cancelled()
 
     email_message = MailMessageFactory().fabricate_email_message(
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_CANCELLED,
@@ -165,7 +171,7 @@ def deny_request(code:str, denial_reason:str=None):
         request.denial_reasoning = denial_reason
     request.save()
 
-    request.requisition.on_denied()
+    request.requisition_record.first().get_requisition_data().on_denied()
 
     email_message = MailMessageFactory().fabricate_email_message(
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_DENIED,
@@ -188,7 +194,7 @@ def confirm_request(code:str):
     request.state = ConfirmationReceipt.CONFIRMED
     request.save()
 
-    request.requisition.on_confirm()
+    request.requisition_record.first().get_requisition_data().on_confirm()
 
     email_message = MailMessageFactory().fabricate_email_message(
         routine=MailMessageFactory.ROUTINES.NOTIFY_REQUEST_CONFIRMED,

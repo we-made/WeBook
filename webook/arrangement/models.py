@@ -16,12 +16,7 @@ class ModelHistoricallyConfirmableMixin():
         Serves as a mixin to facilitate and standardize the business logic that comes after a ConfirmationReceipt state
         has changed.
     """
-    confirmation_receipt = models.ForeignKey(
-        to="ConfirmationReceipt", 
-        on_delete=models.RESTRICT, 
-        related_name='%(app_label)s_%(class)s_related', 
-        null=True)
-    historic_confirmation_receipts = models.ManyToManyField(to="ConfirmationReceipt")
+
 
     def on_reset(self) -> None:
         self.historic_confirmation_receipts.add(self.confirmation_receipt)
@@ -445,6 +440,7 @@ class ConfirmationReceipt (TimeStampedModel):
     requested_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT, verbose_name=_("Requested By"))
     sent_to = models.EmailField(verbose_name=_("SentTo"), max_length=255)
     sent_when = models.DateTimeField(verbose_name=_("SentWhen"), null=True)
+    
     """
         Reasoning supplied by the user when denying the request
     """
@@ -727,6 +723,13 @@ class RequisitionRecord (TimeStampedModel):
         (REQUISITION_SERVICES, REQUISITION_SERVICES),
     )
 
+    confirmation_receipt = models.ForeignKey(
+        to="ConfirmationReceipt", 
+        on_delete=models.RESTRICT, 
+        related_name='requisition_record',
+        null=True)
+    historic_confirmation_receipts = models.ManyToManyField(to="ConfirmationReceipt")
+
     arrangement = models.ForeignKey(to="Arrangement", related_name="requisitions", on_delete=models.RESTRICT)
 
     """ Indicates wether there are locked events in wait for this requisition """
@@ -769,36 +772,46 @@ class LooseServiceRequisition(TimeStampedModel):
         """ Return a bool indicating if the loose requisition has been fulfilled and completed """
         return self.ordered_service is not None
 
-class ServiceRequisition(ModelHistoricallyConfirmableMixin, TimeStampedModel):
+
+class ServiceRequisition(TimeStampedModel, ModelHistoricallyConfirmableMixin):
     order_information = models.TextField(blank=True)
     provider = models.ForeignKey(to=ServiceProvidable, related_name="ordered_services", on_delete=models.RESTRICT)
     originating_loose_requisition = models.ForeignKey(to="LooseServiceRequisition", related_name="actual_requisition", on_delete=models.RESTRICT)
 
     def on_made(self) -> None:
+        print(">> SREQ -> MADE")
         return super().on_made()
 
     def on_confirm(self) -> None:
+        print(">> SREQ -> CONFIRMED")
         self.parent_record.is_fulfilled = True
         return super().on_confirm()
 
     def on_cancelled(self) -> None:
+        print(">> SREQ -> CANCELLED")
         return super().on_cancel()
 
     def on_denied(self) -> None:
+        print(">> SREQ -> DENIED")
         return super().on_denied()
 
 
-class PersonRequisition(ModelHistoricallyConfirmableMixin, TimeStampedModel):
+class PersonRequisition(TimeStampedModel, ModelHistoricallyConfirmableMixin):
     email = models.EmailField()
 
     def on_made(self) -> None:
+        print(">> PREQ -> MADE")
+
         return super().on_made()
 
     def on_confirm(self) -> None:
+        print(">> PREQ -> CONFIRMED")
         return super().on_confirm()
 
     def on_cancelled(self) -> None:
+        print(">> PREQ -> CANCELLED")
         return super().on_cancel()
 
     def on_denied(self) -> None:
+        print(">> PREQ -> DENIED")
         return super().on_denied()
