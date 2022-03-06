@@ -32,7 +32,7 @@
                 {% trans "Setting up order" %}
             </div>
         {% else %}
-            {% if ORDER.confirmation_receipt.state == 'pending' %}
+            {% if ORDER.originating_loose_requisition.generated_requisition_record.confirmation_receipt.state == 'pending' %}
                 <div class="badge d-block badge-light rounded-0 rounded-top border border-bottom-0"
                         data-toggle="tooltip"
                         title="{% trans 'We are waiting for the provider to respond to the request we have sent to them by mail.' %}">
@@ -41,10 +41,11 @@
                 <div class="border border-top-0 text-center small rounded-bottom">
                     <em>{% trans 'We are waiting for the provider to respond to the request we have sent to them by mail.' %}</em>
                 </div>
-                <button class="btn d-block mt-4 btn-success">
+                <!-- <button class="btn d-block mt-4 btn-success"
+                    onclick="resetServiceRequisition({{object.pk}})">
                     Kanseller forespørsel, og åpne for redigering
-                </button>
-            {% elif ORDER.confirmation_receipt.state == 'denied' %}
+                </button> -->
+            {% elif ORDER.originating_loose_requisition.generated_requisition_record.confirmation_receipt.state  == 'denied' %}
                 <span class="badge d-block badge-danger mb-3"
                         data-toggle="tooltip"
                         title="{% trans 'The provider has denied this request.' %}">
@@ -54,14 +55,14 @@
                     <em>{% trans 'The provider has denied this request.' %}</em>
                 </div>
                 <center>
-                    <button class="btn btn-sm mt-4 btn-outline-success"
-                            onclick="$('#openForEditDialog').modal('show')"
+                    <!-- <button class="btn mt-4 btn-success"
+                            onclick="resetServiceRequisition({{object.pk}})"
                             type="button">
                         <i class="fas fa-edit"></i>
-                        Åpne for redigering
-                    </button>
+                        Åpne bestilling for endring
+                    </button> -->
                 </center>
-            {% elif ORDER.confirmation_receipt.state == 'confirmed' %}
+            {% elif ORDER.originating_loose_requisition.generated_requisition_record.confirmation_receipt.state == 'confirmed' %}
                 <span class="badge d-block badge-success mb-3"
                         data-toggle="tooltip"
                         title="{% trans 'The provider has accepted this request' %}">
@@ -73,19 +74,19 @@
                         {% trans 'The provider has accepted this request' %}
                     </em>
                 </div>
-                <button class="btn btn-success"
-                        onclick="$('#openForEditDialog').modal('show')"
+                <!-- <button class="btn btn-success"
+                        onclick="resetServiceRequisition({{object.pk}})"
                         type="button">
                     <i class="fas fa-edit"></i>
                     Åpne for redigering
                 </button>
                 <button class="btn d-block mt-2 btn-danger"
-                        onclick="$('#cancelOrderDialog').modal('show');"
+                        onclick="cancelServiceRequisition({{object.pk}})
                         type="button">
                     <i class="fas fa-edit"></i>
                     Kanseller bestilling
-                </button>
-            {% elif ORDER.confirmation_receipt.state == 'cancelled' %}
+                </button> -->
+            {% elif ORDER.originating_loose_requisition.generated_requisition_record.confirmation_receipt.state == 'cancelled' %}
                 <span class="badge d-block badge-warning mb-3"
                         data-toggle="tooltip"
                         title="{% trans 'This order has been cancelled' %}">
@@ -171,7 +172,7 @@
         <ul>
             {% for event in LREQ.events.all %}
                 <li>
-                    <strong>{{event.title}}</strong> - <em class="small">{{event.start}} - {{event.end}}</em> <span class="badge badge-danger" data-toggle="tooltip" title="Fjern hendelsen fra bestillingen"><i class="fas fa-times"></i></span> 
+                    <strong>{{event.title}}</strong> - <em class="small">{{event.start}} - {{event.end}}</em>
                     <ul>
                         {% for room in event.rooms.all %}
                             <li><strong>Sted: </strong> <em class="small"> {{room.location.name}} / {{room.name}}</em></li>
@@ -186,6 +187,7 @@
             <div class="alert alert-info">
                 Beskriv ordren. Denne informasjonen vil sendes videre til tilbydderen i rekvireringen.
             </div>
+
             <div id="editor">
             </div>
 
@@ -204,47 +206,6 @@
     </form>
 </div>
 
-<div class="modal" tabindex="-1" role="dialog" id="cancelOrderDialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Er du sikker?</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <p>Modal body text goes here.</p>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-primary">Save changes</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="modal" tabindex="-1" role="dialog" id="openForEditDialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Er du sikker?</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <p>Modal body text goes here.</p>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-primary">Save changes</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-        </div>
-    </div>
-</div>
-
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
 <script>
@@ -255,6 +216,44 @@ var quill = new Quill('#editor', {
   function handleQuill() {
       $('#serviceRequisitioningForm').append("<input type='hidden' name='order_information' value='" + quill.root.innerHTML + "' />")
   }
+
+  function resetServiceRequisition(id) {
+        let formData = new FormData();
+        formData.append("loose_service_requisition_id", id)
+
+        fetch('{% url "arrangement:reset_requisition_form" %}', {
+            method: 'POST',
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}',
+            },
+            body: formData,
+        })
+        // .then(() => location.reload());
+    }
+
+    function cancelServiceRequisition(id) {
+        let formData = new FormData();
+        formData.append("loose_service_requisition_id", id)
+
+        fetch('{% url "arrangement:cancel_requisition_form" %}', {
+            method: 'POST',
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        // .then(() => location.reload());
+    }
+
+    function deleteServiceRequisition(id) {
+        fetch('/arrangement/requisition/delete_service_requisition/' + id, {
+            method: 'DELETE',
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            },
+            credentials: "same-origin"
+        });
+    }
 </script>
 
 {% endblock %}

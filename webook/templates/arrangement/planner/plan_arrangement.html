@@ -2,256 +2,196 @@
 {% load static i18n %}
 
 {% block content %}
-<style>
-  #designerCalendar .fc-day-sun, #designerCalendar .fc-day-sat {
-    background-color: #f4f5d7;
-}
-* { user-select: none; }
 
-  .shadow-event {
-    pointer-events: none;
-  }
-
-  .stepper {
-    border: solid 1px;
-  }
-
-  .stepper-active .stepper-head-icon {
-    background-color: green;
-  }
-
-  .stepper-completed {
-    background-color: lightgreen;
-  }
-
-  .stepper-active {
-    background-color: whitesmoke;
-  }
-
-  .stepper-active#last_step {
-    background-color: lightgreen;
-  }
-
-  .focused-cell {
-    border: solid 1px blue!important;
-    background-color: ghostwhite;
-    color:black
-  }
-
-  .collision_analysis_shadow_event {
-    color: red;
-    background-color: smokewhite;
-    border: dotted 3px red!important;
-  }
-
-  .popover {
-    border: solid 1px black;
-  }
-
-  .cut-highlight-daygrid-event {
-    border: dotted 1px red!important;
-    background-color: ghostwhite!important;
-    color: black!important;;
-  }
-
-   /* menu header */
-   .css-title:before {
-        content: "some CSS title";
-        display: block;
-        position: absolute;
-        top: 0;
-        right: 0;
-        left: 0;
-        background: #DDD;
-        padding: 2px;
-
-        font-family: Verdana, Arial, Helvetica, sans-serif;
-        font-size: 11px;
-        font-weight: bold;
-    }
-    .css-title :first-child {
-        margin-top: 20px;
-    }
-
-    .ds-selected * {
-      /* position: absolute!important; */
-      pointer-events: none;
-    }
-
-    /* menu header via data attribute */
-    .data-title:before {
-        content: attr(data-menutitle);
-        display: block;
-        position: absolute;
-        top: 0;
-        right: 0;
-        left: 0;
-        background: #DDD;
-        padding: 2px;
-
-        font-family: Verdana, Arial, Helvetica, sans-serif;
-        font-size: 11px;
-        font-weight: bold;
-    }
-    .data-title :first-child {
-        margin-top: 20px;
-    }
-
-    .wemade-tabs > .nav-item {
-    background-color: #21384B;
-    width: 100%;
-  }
-
-  .wemade-tabs > .nav-item > .nav-link {
-    color:white;
-  }
-  .wemade-tabs > .nav-item > .active {
-    background-color:#386080;;
-  }
-
-  .stageIsDone {
-    color:white;
-  }
-
-  #plannerTab > li.nav-item > button.nav-link {
-    padding: 0.8rem;
-    /* border: initial; */
-  }
-  #plannerTab > li.nav-item > button.nav-link.active {
-    padding: 0.8rem;
-    /* border: initial; */
-  }
-
-</style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{% static 'css/planner.css' %}">
+<link rel="stylesheet" href="{% static 'css/loadingHint.css' %}">
+
 <script src="https://dragselect.com/v2/ds.min.js"></script>
 <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
 
 <h3>Arrangementsplanlegger</h3>
-<button class="btn btn-sm btn-light mb-2" style="box-shadow: none;"><i class="fas fa-list"></i>&nbsp; Gå til arrangementslisten</button>
-<button class="btn btn-sm btn-light mb-2" style="box-shadow: none;"><i class="fas fa-plus"></i>&nbsp; Opprett nytt arrangement</button>
+<a class="btn btn-lg btn-wemade mb-2" style="box-shadow: none;" href="{% url 'arrangement:arrangement_list' %}"><i class="fas fa-list"></i>&nbsp; Til arrangementslisten</a>
+<a class="btn btn-lg btn-wemade mb-2" style="box-shadow: none;" href="{% url 'arrangement:arrangement_create' %}"><i class="fas fa-plus"></i>&nbsp; Nytt arrangement</a>
 
 <div class="row">
   <div class="col-10">
     <div class="input-group mb-3">
-      <span class="input-group-text">
-        <i class="fas fa-suitcase"></i>
-      </span>
-      <input type="text" class="form-control form-control-lg" />
-
-      <span class="input-group-text">
-        <i class="fas fa-folder"></i>
-      </span>
-      <span class="input-group-text">
-        <i class="fas fa-chevron-down"></i>
-      </span>
     </div>
   </div>
   <div class="col-2">
     <div class="clearfix">
-      <div class="float-end">
-        <button class="btn btn-warning" style="box-shadow: none;"><i class="fas fa-lock"></i></button>
-        <button class="btn btn-danger" style="box-shadow: none;"><i class="fas fa-trash"></i></button>
-        <button class="btn btn-success" style="box-shadow: none;"><i class="fas fa-copy"></i></button>
-      </div>
     </div>
   </div>
 </div>
-<span class="badge badge-success badge-md"><strong>Hovedplanlegger: </strong>{{ object.responsible.full_name }}</span>
-<span class="badge badge-info badge-md"><strong>Målgruppe: </strong>{{ object.audience }}</span>
+  
+<div class="row">
+  <div class="col-12">
+  <div class="form-outline w-100" id="arrangementSearch">
+    <input type="text"  class="form-control form-control-lg" />
+    <label class="form-label" for="formControlLg">{{ object.name }}</label>
 
-<div id="collisionAnalysisWrapper" style="display: none;">
-  <div class="mt-2 p-2" style="border: 3px dotted black; background-color: ghostwhite;">
-    <legend class="fw-bolder">Kollisjonsanalyse</legend>
-
-    <div id="collisionAnalysisLoader">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div> Analysis is being calculated...
-    </div>
-
-    <div id="collisionAnalysisBody">
+    <div class="autocomplete-custom-content">
     </div>
   </div>
 </div>
-<ul class="stepper mt-2" data-mdb-stepper="stepper">
-  <li class="stepper-step stepper-active">
-    <div class="stepper-head">
-      <span class="stepper-head-icon"> <i class="fas fa-calendar"></i> </span>
-      <span class="stepper-head-text"> Planlegging </span>
-    </div>
-    <div class="stepper-content">
-    </div>
-  </li>
-  <li class="stepper-step">
-    <div class="stepper-head">
-      <span class="stepper-head-icon"> <i class="fas fa-envelope"></i> </span>
-      <span class="stepper-head-text"> Rekvirering </span>
-    </div>
-    <div class="stepper-content">
-    </div>
-  </li>
-  <li class="stepper-step" id="last_step">
-    <div class="stepper-head">
-      <span class="stepper-head-icon"> <i class="fas fa-check"></i> </span>
-      <span class="stepper-head-text"> I produksjon </span>
-    </div>
-    <div class="stepper-content">
-    </div>
-  </li>
-</ul>
-<div class="clearfix mt-0 mb-2">
-  <button class="btn btn-success float-end border-squared rounded-0 rounded-bottom" onclick="requisitioningDialog.open()" style="box-shadow: none;">
-    <i class="fas fa-arrow-right"></i>&nbsp; 
-    Begynn rekvirering
-  </button>
 </div>
-<!-- /.Horizontal Steppers -->
-
-<div class="clearfix">
-
-    <ul class="nav nav-tabs nav-fill" id="navTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button  class="nav-link" id="overview-tab" data-mdb-toggle="tab" href="#overview" role="tab" aria-controls="overview" aria-selected="false"><i class="fas fa-eye"></i>&nbsp; Oversikt</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="planner-tab" data-mdb-toggle="tab" href="#planner" role="tab" aria-controls="planner" aria-selected="true"><i class="fas fa-calendar"></i>&nbsp; Planlegging</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="planners-tab" data-mdb-toggle="tab" href="#planners" role="tab" aria-controls="planners" aria-selected="false"><i class="fas fa-users"></i>&nbsp; Planleggere</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="details-tab" data-mdb-toggle="tab" href="#details" role="tab" aria-controls="details" aria-selected="false"><i class="fas fa-info"></i>&nbsp; Detaljer</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="notes-tab" data-mdb-toggle="tab" href="#notes" role="tab" aria-controls="notes" aria-selected="false"><i class="fas fa-comments"></i>&nbsp; Notater</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="receipts-tab" data-mdb-toggle="tab" href="#receipts" role="tab" aria-controls="receipts" aria-selected="false">
-          <i class="fas fa-receipt"></i>&nbsp; Kvitteringer & Rekvirering
-          <span class="badge  badge-info">0</span>
-        </button>
-      </li>
-    </ul>
-    <div class="p-2 border" style="background-color: ghostwhite;">
-    </div>
-    
-    <div style="background-color: #386080; color:white" class="p-2">
-      <div class="float-start">
-    
+    <div class="col-12 mb-4 card p-3 mt-5"  style="box-shadow: none;">
+      <div class="text-center">
+        <h2 class="h1 mb-0 fw-bolder">{{ object.name }}</h2>
+        <div class="">
+          <div class="btn-group mt-3 mb-3" style="box-shadow:none;">
+            <!-- <button class="btn btn-md btn-warning" disabled style="box-shadow: none;" data-mdb-toggle="tooltip" title="Lås dette arrangementet"><span class="h6 text-white"><i class="fas fa-lock"></i>&nbsp; Lås arrangement</span></button> -->
+            <!-- <button class="btn btn-md btn-white" style="box-shadow: none;" data-mdb-toggle="tooltip" title="Arkiver dette arrangementet"><span class="h6 text-danger"><i class="fas fa-archive"></i>&nbsp; Arkiver</span></button> -->
+            <a href="{% url 'arrangement:arrangement_edit' slug=object.slug %}" class="btn btn-md btn-white" style="box-shadow: none;" data-mdb-toggle="tooltip" title="Rediger dette arrangementet"><span class="h6 text-success"><i class="fas fa-edit"></i>&nbsp; Rediger</a>
+            <!-- <button class="btn btn-md btn-white" style="box-shadow: none;" data-mdb-toggle="tooltip" title="Kopier dette arrangementet"><span class="h6 text-success"><i class="fas fa-copy"></i>&nbsp; Kopier</span></button> -->
+          </div>
+        </div>
       </div>
-              
+      
     </div>
-    <div class="tab-content" id="myTabContent">
-      <div class="tab-pane" id="overview" role="tabpanel" aria-labelledby="overview-tab">aa</div>
+      <ul class="nav light-tabs nav-tabs rounded-top" id="navTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link text-center" id="overview-tab" data-mdb-toggle="tab" href="#overview" role="tab" aria-controls="overview" aria-selected="true">
+            <span class="h6 mb-0"><i class="fas fa-eye"></i></span>
+            &nbsp; <span class="h6">Oversikt</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active text-center" id="planner-tab" data-mdb-toggle="tab" href="#planner" role="tab" aria-controls="planner" aria-selected="true"
+              onclick="calendarManager.redraw();">
+            <span class="h6 mb-0"><i class="fas fa-calendar"></i></span>
+            &nbsp; <span class="h6">Planlegging</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="planners-tab" data-mdb-toggle="tab" href="#planners" role="tab" aria-controls="planners" aria-selected="false">
+            <span class="h6 mb-0"><i class="fas fa-users"></i></span>
+            &nbsp; <span class="h6">Planleggere</span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="notes-tab" data-mdb-toggle="tab" href="#notes" role="tab" aria-controls="notes" aria-selected="false">
+            <span class="h6 mb-0"><i class="fas fa-comments"></i></span>
+            &nbsp; <span class="h6">Notater</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="receipts-tab" data-mdb-toggle="tab" href="#receipts" role="tab" aria-controls="receipts" aria-selected="false">
+            <span class="h6 mb-0"><i class="fas fa-receipt"></i></span>
+            &nbsp; <span class="h6">Kvitteringer & Bestillinger</span>
+          </button>
+        </li>
+      </ul>
+      <hr>
+
+    <div class="clearfix card p-0" style="box-shadow: none;">
+    <div class="tab-content p-3" id="myTabContent">
+      <div class="tab-pane" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+      <div class="row mt-0">
+        <div class="col-lg-12 col-md-6 mb-4">
+          <div class="text-center card border" style="box-shadow: none;">
+            
+            <div class="p-2 text-center">
+              <h2 class="h3 mb-0 text-muted fw-bolder">Stadie</h2>
+            </div>
+            
+            <div class="progress mb-3">
+              <div class="progress-bar bg-success" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            
+            <div class="p-2">
+              <h2 class="h1 mb-0 text-success">PLANLEGGING</h2>
+              <em class="small">Arrangementet er i planleggingsstadiet</em>
+            </div>
+            
+            <!-- <button class="btn btn-lg btn-white rounded-0 rounded-bottom" style="box-shadow: none;">
+              <i class="fas fa-cogs"></i>
+              Administrer status
+            </button> -->
+          </div>
+        </div>
+
+        <div class="col-lg-6 col-md-12 mb-4">
+          <div class="text-center card border"  style="box-shadow: none;">
+            <div class="p-2 text-center">
+              <h2 class="h3 mb-0 text-muted fw-bolder">Bestillinger</h2>
+            </div>
+            
+            <div class="progress mb-3">
+              <div class="progress-bar bg-success" role="progressbar" style="width: {{COMPLETED_SERVICE_PERCENTAGE}}%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            
+            <h2 class="h1 mb-0">{{COMPLETED_SERVICE_REQUISITIONS}}/{{TOTAL_SERVICE_REQUISITIONS}}</h2>
+            <em class="small"><strong>X</strong> av <strong>Y</strong> bestillinger er gjennomført, hvor <strong>Y</strong> er <abbr title="Løse bestillinger er bestillinger som har blitt satt opp i planleggeren, men bestillingen ikke gjennomført. De er derav i et ventestadie på utførelse.">løse bestillinger</abbr></em>
+
+            <div class="btn group mb-0" style="box-shadow: none;">
+              <a class="btn btn-lg btn-white rounded-0" style="box-shadow: none;"
+                onclick="triggerTabClick('receipts-tab')">
+                <i class="fas fa-list"></i>
+                Vis bestillinger
+              </a>
+              <!-- <button class="btn btn-lg btn-white rounded-0 rounded-bottom" style="box-shadow: none;">
+                <i class="fas fa-cogs"></i>
+                Behandle
+              </button> -->
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6 mb-4">
+          <div class="text-center card border" style="box-shadow: none;">
+            <div class="p-2 text-center">
+              <h2 class="h3 mb-0 text-muted fw-bolder">Kvitteringer</h2>
+            </div>
+            <div class="progress mb-3">
+              <div class="progress-bar bg-success" role="progressbar" style="width: {{COMPLETED_PEOPLE_PERCENTAGE}}%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <h2 class="h1 mb-0">{{ COMPLETED_PEOPLE_REQUISITIONS }}/{{ TOTAL_PEOPLE_REQUISITIONS }}</h2>
+            <em class="small"><strong>X</strong> av <strong>Y</strong> kvitteringer, hvor <strong>Y</strong> er <abbr title="Løse bestillinger er bestillinger som har blitt satt opp i planleggeren, men bestillingen ikke gjennomført. De er derav i et ventestadie på utførelse.">løse bestillinger</abbr></em>
+            <div>
+              <div class="btn-group" style="box-shadow: none;">
+                <button class="btn btn-lg btn-white rounded-0 " style="box-shadow: none;"
+                    onclick="triggerTabClick('receipts-tab')">
+                  <i class="fas fa-list"></i>
+                  Vis kvitteringer
+                </button>
+                <!-- <button class="btn btn-lg btn-white rounded-0 rounded-bottom" style="box-shadow: none;">
+                  <i class="fas fa-cogs"></i>
+                  Behandle
+                </button> -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6 mb-4">
+          <div class="text-center card border" style="box-shadow: none;">
+            <div class="p-2 text-center">
+              <h2 class="h3 mb-0 text-muted fw-bolder">Målgruppe</h2>
+            </div>
+
+            <h2 class="h1 mb-0">{{ object.audience.name }}</h2>
+          
+            <div>
+              <div class="btn-group" style="box-shadow: none;">
+                <a class="btn btn-lg btn-white rounded-0" href="{% url 'arrangement:audience_detail' slug=object.audience.slug %}" style="box-shadow: none;">
+                  <i class="fas fa-arrow-right"></i>
+                  Gå til
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      </div>
       <div class="tab-pane fade show active" id="planner" role="tabpanel" aria-labelledby="planner-tab">
         <br>
+
         <div class="clearfix">
           <div class="float-end">
             <div class="mb-1 mt-1">
               <div>
-                <button class="btn btn-info" onclick="planner.collision_analyzer.requestCollisionAnalysis()" style="box-shadow: none;">
+                <button class="btn btn-lg btn-info" onclick="planner.collision_analyzer.requestCollisionAnalysis()" style="box-shadow: none;">
                   <i class="fas fa-flask"></i>&nbsp;
                   Kjør kollisjonsanalyse
                 </button>
@@ -270,28 +210,31 @@
           </div>
         </div>
 
+        <div id="collisionAnalysisWrapper" style="display: none;">
+          <div class="mt-2 p-2" style="border: 3px dotted black; background-color: ghostwhite;">
+            <legend class="fw-bolder">Kollisjonsanalyse</legend>
+        
+            <div id="collisionAnalysisLoader">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Analysis is being calculated...
+            </div>
+        
+            <div id="collisionAnalysisBody">
+            </div>
+          </div>
+        </div>
+        
         <div id="designerCalendar" class="bg-white"></div>
 
       </div>
       <div class="tab-pane fade" id="planners" role="tabpanel" aria-labelledby="planners-tab"><br><span id="arrangement_plannersWrapper"></span></div>
       <div class="tab-pane fade" id="details" role="tabpanel" aria-labelledby="details-tab">
-        <br>
-        <form>
-          <div>
-            <label>Navn på arrangement</label>
-            <input type="text" class="form-control" />
-          </div>
-
-          <div class="mt-2">
-            <label>Målgruppe</label>
-            <select class="form-control"></select>
-          </div>
-        </form>
+        <span id="arrangementDetailsWrapper"></span>
       </div>
       <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab"> <span id="arrrangementNotesWrapper"></span>
       </div>
-      <div class="tab-pane fade" id="receipts" role="tabpanel" aria-labelledby="receipts-tab">
-        
+      <div class="tab-pane fade" id="receipts" role="tabpanel" aria-labelledby="receipts-tab">    
         <div class="row mt-5">
           <div class="col-6">
             <span id="peopleRequisitionsWrapper"></span>
@@ -305,65 +248,71 @@
         </div>
       </div>
     </div>
-  
   </div>
 
-<div class="row g-0" style=" background-color: #21384B;">
-
-  <div class="col-12 bg-white p-3 tabContent">
-    <div class="tab-content" id="arrangement-content">
-
+  <div class="row g-0" style=" background-color: #21384B;">
+    <div class="col-12 bg-white p-3 tabContent">
+      <div class="tab-content" id="arrangement-content">
+      </div>
     </div>
   </div>
 </div>
 
+<span class="loadingHint" id="loaderHint" style="display: none;">
+  <div class="spinner-grow text-success hinterSpinner" style="width: 1rem; height: 1rem;" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <em class="small hinterMessage">Laster inn hendelser...</em>
+</span>
 
 
   <script src="{% static 'fullcalendar-scheduler/main.min.js' %}"></script>
   <script src="{% static 'fullcalendar-scheduler/locales-all.min.js' %}"></script>
   <script src="{% static 'js/planner.js' %}"></script>
-  <script src="{% static 'js/notes.js' %}"></script>
+  <script src="{% static 'js/loadingHint.js' %}"></script>
   <script src="{% static 'js/inputGroupManager.js' %}"></script>
   
-
 <script>
     let selectAllow = true;
+    let arrangementAutoComplete = undefined;
+    let optionsTab = undefined;
+
+    function triggerTabClick(tabId) {
+      let element = document.getElementById(tabId);
+      
+      var clickEvent = new MouseEvent("click", {
+        "view": window,
+        "bubbles": true,
+        "cancelable": false,
+      });
+
+      element.dispatchEvent(clickEvent);
+    }
 
     window.addEventListener('DOMContentLoaded', (event) => {
       bind_global_hotkeys();
+
+      /** 
+       * This is necessary due to FC losing "itself" on tab navigation and resizes.
+       * **/
+      const plannerTabEl = document.querySelector('#planner-tab');
+      plannerTabEl.addEventListener('shown.mdb.tab', (event) => {
+          calendarManager.redraw();
+      })
+      
+      const receiptsAndOrdersTabEl = document.querySelector('#receipts-tab');
+      receiptsAndOrdersTabEl.addEventListener('shown.mdb.tab', (event) => {
+          planner.loose_requisitions_component.refresh();
+          planner.people_requisitions_component.refresh();
+          planner.people_to_requisition_component.refresh();
+      })
+      
+      arrangementAutoComplete = new ArrangementAutoCompleteSearchComponent($('#arrangementSearch'))
+
       $('#arrrangementNotesWrapper').load('{% url "arrangement:notes_on_entity_component" %}?entityType=arrangement&entityPk={{object.pk}}');
       $('#arrangement_ordersWrapper').load('{% url "arrangement:requisitions_on_arrangement" %}?arrangementId={{object.pk}}');
       $('#arrangement_plannersWrapper').load('{% url "arrangement:planners_on_arrangement" %}?arrangementId={{object.pk}}');
-
-      new ExtendedSelect({
-        jqElement: $('#arrangement_audienceSelect'),
-        getUrl: '{% url "arrangement:audience_search" %}',
-        extraHeaders: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        initialSearchValue: '',
-        dataParser: function (item) {
-          return {
-              value: item.pk,
-              text: item.fields.name,
-              secondary_text: ""
-          }
-        }
-      })
-      new MonthSelectComponent("monthNavigationSelect");
-      new YearSelectComponent({ 
-        element_id: "yearNavigationSelect", 
-        breadth: 20, 
-        focusYear: (new Date().getFullYear()) 
-      });
-
-      document.getElementById('yearNavigationSelect').addEventListener("change", function () {
-        calendarManager.go_to_year(document.getElementById('yearNavigationSelect').value);
-      });
-
-      document.getElementById('monthNavigationSelect').addEventListener("change", function () {
-        calendarManager.go_to_month(document.getElementById('monthNavigationSelect').value - 1);
-      });
+      // $('#arrangementDetailsWrapper').load('{% url "arrangement:arrangement_edit" slug=object.slug %}')
     });
 
     function bind_global_hotkeys() {
@@ -378,6 +327,57 @@
             break;
         }
       });
+    }
+    
+    class ArrangementAutoCompleteSearchComponent {
+      constructor ($search_element) {
+        this.$search_element = $search_element
+
+        this._arrangementAsyncFilter = async (query) => {
+          const url = `{% url "arrangement:arrangement_search" %}?term=${encodeURI(query)}`;
+          const response = await fetch(url);
+          const data = JSON.parse(await response.json());
+
+          let arrangements = []
+          for (let i = 0; i < data.length; i++) {
+            let arrangement = data[i];
+
+            if (arrangement.fields.slug !== "{{ object.slug }}") {
+              arrangements.push(arrangement);
+            }
+          }
+
+          return arrangements;
+        }
+
+        this._mdbAutocomplete = new mdb.Autocomplete(this.$search_element[0], {
+          filter: this._arrangementAsyncFilter,
+          displayValue: (value) => value.fields.name,
+          customContent: `
+            <div class="autocomplete-custom-content"></div>
+          `
+        });
+
+        this._listen_to_select();
+        this._listen_to_update();
+      }
+
+      _listen_to_update() {
+        this.$search_element[0].addEventListener("update.mdb.autocomplete", (event) => {
+          const resultsLength = event.results.length;
+
+          setTimeout(() => {
+            customContentContainer = document.querySelector('.autocomplete-custom-content');
+            customContentContainer.innerHTML = `Search results: ${resultsLength}`
+          }, 0)
+        })
+      }
+
+      _listen_to_select() {
+          this.$search_element[0].addEventListener('itemSelect.mdb.autocomplete', (event) => {
+            location.href = "/arrangement/arrangement/" + event.value.fields.slug;
+          })
+      }
     }
 
     class SelectComponent {
@@ -399,7 +399,7 @@
           $("#" + this.element_id).val(value).change();
         }
     }
-    
+
     class MonthSelectComponent extends SelectComponent {
         constructor (element_id) {
             let options = new Map([
@@ -474,23 +474,10 @@
       onClickEditButton: function (eventId) { updateEventDialog(eventId); },
       onClickOrderServiceButton: function (events) { openOrderServiceDialog(events); },
       onSelectionCopied: function (clipboard) {
-        console.log("==> onSelectionCopied")
-        console.log(clipboard);
-
         let rootNode = $("<span></span>")
         clipboard.events.forEach(function (event) {
           rootNode.append($('<p>'+event.title+'</p>'))
         });
-
-        $('#clipboardCounter').text(clipboard.events.length);
-
-        console.log(document.getElementById('clipboardPopover'))
-        let popover = new mdb.Popover(document.getElementById('clipboardPopover'), { 
-          html: true,
-          title: "Utklippstavle",
-          content: rootNode.html(),
-          container: 'body',
-        })
       },
       csrf_token: '{% csrf_token %}',
       csrf_token2: '{{ csrf_token }}',

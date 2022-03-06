@@ -11,6 +11,24 @@ from django.urls import reverse
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 
 
+class ModelArchiveableMixin():
+    is_archived = models.BooleanField(
+        verbose_name=_("Is archived"),
+        default=False
+    )
+
+    archived_by = models.ForeignKey(
+        verbose_name=_("Archived by"),
+        to="Person",
+        null=True,
+        on_delete=models.RESTRICT
+    )
+
+    archived_when = models.DateTimeField(
+        verbose_name=_("Archived when"),
+        null=True
+    )
+
 class ModelHistoricallyConfirmableMixin():
     """
         Serves as a mixin to facilitate and standardize the business logic that comes after a ConfirmationReceipt state
@@ -439,7 +457,7 @@ class ConfirmationReceipt (TimeStampedModel):
     code = models.CharField(verbose_name=_("Code"), max_length=200, unique=True, db_index=True)
     requested_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT, verbose_name=_("Requested By"))
     sent_to = models.EmailField(verbose_name=_("SentTo"), max_length=255)
-    sent_when = models.DateTimeField(verbose_name=_("SentWhen"), null=True)
+    sent_when = models.DateTimeField(verbose_name=_("SentWhen"), null=True, auto_now_add=True)
     
     """
         Reasoning supplied by the user when denying the request
@@ -618,12 +636,14 @@ class Event(TimeStampedModel):
     ANALYSIS_SILO = 'analysis_silo'
     REQUISITIONING_SILO = 'requisitioning_silo'
     PRODUCTION_SILO = 'production_silo'
+    ARCHIVE_SILO = 'archive_silo'
 
     SILO_CHOICES = (
         (PLANNING_SILO, PLANNING_SILO),
         (REQUISITIONING_SILO, REQUISITIONING_SILO),
         (ANALYSIS_SILO, ANALYSIS_SILO),
         (PRODUCTION_SILO, PRODUCTION_SILO),
+        (ARCHIVE_SILO, ARCHIVE_SILO),
     )
 
     silo = models.CharField(max_length=255, choices=SILO_CHOICES, default=PLANNING_SILO)
@@ -789,7 +809,7 @@ class ServiceRequisition(TimeStampedModel, ModelHistoricallyConfirmableMixin):
 
     def on_cancelled(self) -> None:
         print(">> SREQ -> CANCELLED")
-        return super().on_cancel()
+        return super().on_cancelled()
 
     def on_denied(self) -> None:
         print(">> SREQ -> DENIED")
@@ -810,7 +830,7 @@ class PersonRequisition(TimeStampedModel, ModelHistoricallyConfirmableMixin):
 
     def on_cancelled(self) -> None:
         print(">> PREQ -> CANCELLED")
-        return super().on_cancel()
+        return super().on_cancelled()
 
     def on_denied(self) -> None:
         print(">> PREQ -> DENIED")

@@ -11,6 +11,7 @@ from webook.arrangement.views import (
     arrangement_add_planner_form_view,
     arrangement_remove_planner_form_view,
     arrangement_promote_planner_to_main_view,
+    arrangement_search_view
 )
 
 
@@ -64,5 +65,10 @@ arrangement_urls = [
         route="arrangement/promote_to_main",
         view=arrangement_promote_planner_to_main_view,
         name="arrangement_promote_planner_to_main",
+    ),
+    path(
+        route="arramgement/search",
+        view=arrangement_search_view,
+        name="arrangement_search",
     ),
 ]

@@ -9,6 +9,9 @@ from webook.arrangement.views import (
     delete_requisition_view,
     requisition_service_form_view,
     requisition_person_form_view,
+    reset_requisition_form_view,
+    cancel_service_requisition_form_view,
+    delete_service_requisition_view,
 )
 
 
@@ -47,5 +50,20 @@ requisition_urls = [
         route="requisition/requisition_person",
         view=requisition_person_form_view,
         name="requisition_person_form",
-    )
+    ),
+    path(
+        route="requisition/reset",
+        view=reset_requisition_form_view,
+        name="reset_requisition_form",
+    ),
+    path(
+        route="requisition/cancel",
+        view=cancel_service_requisition_form_view,
+        name="cancel_requisition_form",
+    ),
+    path(
+        route="requisition/delete_service_requisition/<int:pk>",
+        view=delete_service_requisition_view,
+        name="delete_service_requisition",
+    ),
 ]

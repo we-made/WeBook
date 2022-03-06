@@ -181,7 +181,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             created_event_ids.append(event.pk)
             counter += 1
 
-        return JsonResponse({"created_x_events": len(created_event_ids)})
+        return JsonResponse( {"created_x_events": len(created_event_ids)} )
 
 plan_create_events = PlanCreateEvents.as_view()
 

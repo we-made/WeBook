@@ -2,8 +2,7 @@
 <h3>Personer for rekvirering</h3>
 <div class="alert alert-light p-0">
     <em class="small">
-        Merk at når en ber om kvittering så vil de respektive hendelsene en person er knyttet til bli 
-        låst. For å oppheve låsen må rekvireringen kanselleres.
+        Trykk på <strong>'Send Forespørsel'</strong> for å sende ut en forespørsel til denne personen.
     </em>
 </div>
 <table class="table table-sm">
@@ -19,7 +18,7 @@
             <tr>
                 <td>{{ person }}</td>
                 <td>
-                    <button class="initiatePersonRequisitionBtn" value="{{ person.pk }}" type="button">Rekvirer</button>
+                    <button class="initiatePersonRequisitionBtn btn btn-wemade" value="{{ person.pk }}" type="button">Send forespørsel</button>
                 </td>
             </tr>
         {% endfor %}

@@ -37,7 +37,7 @@
     src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
     crossorigin="anonymous"></script>	
-    <script src="http://127.0.0.1:8000/static/js/mdbSelectExt.js"></script>
+    <script src="{% static 'js/mdbSelectExt.js' %}"></script>
     <script src="{% static 'vis-timeline/standalone/umd/vis-timeline-graph2d.js' %}"></script>
     <script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -69,6 +69,12 @@
             <a class="sidenav-link ripple-surface" href="{% url "arrangement:sample_overview" %}" tabindex="-1">
               <i class="fa fa-calendar fa-fw me-3" aria-hidden="true"></i><span>{% trans "Calendars" %}</span></a>
           </li>
+
+
+          <!-- <li class="sidenav-item">
+            <a class="sidenav-link ripple-surface" href="{% url "arrangement:drill_calendar" %}" tabindex="-1">
+              <i class="fa fa-calendar fa-fw me-3" aria-hidden="true"></i><span>{% trans "Universal Calendar" %}</span></a>
+          </li> -->
 
           <li>
             <a class="sidenav-link ripple-surface" href="{% url "arrangement:arrangement_list" %}" tabindex="-1">
@@ -115,27 +121,7 @@
           <div class="container-fluid">
             <hr>
           </div>
-          <li class="sidenav-item">
-            <a class="sidenav-link ripple-surface" data-mdb-toggle="collapse" href="#sidenav-collapse-1-0-1" role="button" tabindex="-1" aria-expanded="false">
-                <i class="fas fa-lock fa-fw me-3" aria-hidden="true"></i>
-                <span>{% trans "My Profile" %}</span>
-                <i class="fas fa-angle-down rotate-icon" aria-hidden="true"></i>
-            </a>
-            <ul class="sidenav-collapse collapse" id="sidenav-collapse-1-0-1">
-              <li class="sidenav-item">
-                <a class="sidenav-link ripple-surface" href="{% url 'users:detail' request.user.slug %}" tabindex="-1">{% trans "My Page" %}</a>
-              </li>
-              <li class="sidenav-item">
-                <a class="sidenav-link ripple-surface" href="{% url 'users:update' %}" tabindex="-1">{% trans "My Info" %}</a>
-              </li>
-              <li class="sidenav-item">
-                <a class="sidenav-link ripple-surface"  href="{% url 'account_email' %}" tabindex="-1">{% trans "E-Mail" %}</a>
-              </li>
-              <li class="sidenav-item">
-                <a class="sidenav-link ripple-surface" href="{% url 'account_reset_password' %}" tabindex="-1">{% trans "Reset Password" %}</a>
-              </li>
-            </ul>
-          </li>
+
   
           <li class="sidenav-item">
             <a class="sidenav-link ripple-surface" href="{% url 'account_logout' %}" tabindex="-1">
@@ -143,7 +129,7 @@
             </a>
           </li>
 
-          <em class="text-center fw-bold d-block mt-4 text-uppercase">VERSION</em>
+          <!-- <em class="text-center fw-bold d-block mt-4 text-uppercase">VERSION</em> -->
         </ul>
       <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div></div><div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div></div></nav>
       <!-- Sidenav -->
@@ -153,14 +139,14 @@
         <!-- Container wrapper -->
         <div class="container-fluid">
           <!-- Toggler -->
-          <button data-mdb-toggle="sidenav" data-mdb-target="#sidenav-1" class="btn shadow-0 p-0 me-3 d-block d-xxl-none" aria-controls="#sidenav-1" aria-haspopup="true" aria-expanded="false">
+          <button data-mdb-toggle="sidenav" data-mdb-target="#sidenav-1" class="btn shadow-0 p-0 me-3 d-block text-white" aria-controls="#sidenav-1" aria-haspopup="true" aria-expanded="false">
             <i class="fas fa-bars fa-lg" aria-hidden="true"></i>
           </button>
   
           <!-- Search form -->
           <form class="d-none d-md-flex input-group w-auto my-auto">
             <input autocomplete="off" type="search" class="form-control rounded" placeholder="{% blocktrans %}Search (ctrl + &quot;/&quot; to focus){% endblocktrans %}" style="min-width: 225px">
-            <span class="input-group-text border-0"><i class="fas fa-search" aria-hidden="true"></i></span>
+            <span class="input-group-text border-0"><i class="fas fa-search text-white" aria-hidden="true"></i></span>
           </form>
   
           <!-- Right links -->

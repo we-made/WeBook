@@ -66,6 +66,19 @@ class ViewConfirmationRequestView(ValidateTokenMixin, TokenInContextMixin, Templ
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        confirmation_request = ConfirmationReceipt.objects.get(code=self.request.GET.get("token", None))
+        
+        requisition_record = confirmation_request.requisition_record.first()
+        if (requisition_record.type_of_requisition == "services"):
+            context["ORDER_INFORMATION"] = requisition_record.service_requisition.order_information
+
+        context["AFFECTED_EVENTS"] = requisition_record.affected_events
+        context["CONFIRMATION_REQUEST"] = confirmation_request
+
+        return context
+
 view_confirmation_request_view = ViewConfirmationRequestView.as_view()
 
 

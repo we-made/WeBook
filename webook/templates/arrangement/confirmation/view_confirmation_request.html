@@ -8,19 +8,35 @@
             <h1 class="text-center">
                 <i class="fas fa-question-circle text-info"></i>
             </h1>
-            <h2 class="text-center fw-bold">{% trans "Request for confirmation" %}</h2>
+            <h2 class="text-center fw-bold">{% trans "Service Order" %}</h2>
     
        
-            <h4 class="text-center">{% trans "Your presence has been requested" %}</h4>
+            <h4 class="text-center">{% trans "A service has been requested" %}</h4>
             <hr>
 
             <h4 class="text-center mt-5">
                 <i class="fas fa-comment"></i>
-                {% trans "Additional information provided by booking personnel:" %}
+                {% trans "Events this request concerns:" %}
             </h4>
             <div class="border-3 border-info mb-3 p-3" style="background-color: whitesmoke;">
-                Lorem ipsum dolor sit amet
+                <ul>
+                    {% for ev in AFFECTED_EVENTS.all %}
+                        <li>
+                            <strong>{{ev.title}}</strong> - <em class="small">{{ev.start}} - {{ev.end}}</em>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
+
+            {% if ORDER_INFORMATION %}
+                <h4 class="text-center mt-5">
+                    <i class="fas fa-comment"></i>
+                    {% trans "Order information" %}
+                </h4>
+                <div class="border-3 border-info mb-3 p-3" style="background-color: whitesmoke;">
+                    {{ORDER_INFORMATION|safe}}
+                </div>
+            {% endif %}
 
             <hr>
             <a class="btn btn-success mb-0 box-shadow-0 rounded-0 rounded-top btn-block btn-lg" href="{% url 'arrangement:accept_confirmation_request' %}?token={{TOKEN}}">

@@ -14,8 +14,8 @@
                     <div class="alert alert-light">
                         <strong>Obs!</strong><br>
                         Tjenester du bestiller i denne fasen av planleggingen er til dels abstrakte. Det vil bety at du anmerker
-                        denne hendelsen med det som praktisk sett blir et notat om at tjeneste av type X må bestilles. Denne bestillingen
-                        vil du måtte gjennomføre praktisk senere i rekvireringsfasen.
+                        denne hendelsen med det som praktisk sett blir et notat om at tjeneste av type X må bestilles. Du kan gjennomføre 
+                        bestillingen praktisk under <strong class="small">Kvitteringer & Bestillinger</strong> fanen.
                     </div>
 
                     <div class="form-group p-4 pt-1">
@@ -67,9 +67,18 @@
         let events = [];
         let selectedNodes = document.querySelectorAll(".ds-selected");
         for (let i = 0; i < selectedNodes.length; i++) {
-            events.push(planner.local_context.events.get(getUuidFromEventDomNode(selectedNodes[i])))
+            var uuid = getUuidFromEventDomNode(selectedNodes[i])
+            var event = planner.local_context.events.get(uuid);
+            console.log(planner.synchronizer.uuid_to_id_map.get(uuid));
+            events.push(planner.local_context.events.get(uuid));
         }
-        let eventIds = events.map(a => a.pk).join(",")
+
+        console.log(events)
+        // TODO: Rewrite this to follow the patterns of other allocation dialogs. This is not a good long-term solution.
+        
+        // planner.local_context
+
+        let eventIds = events.map(a => planner.synchronizer.uuid_to_id_map.get(a.id)).join(",")
 
         formData.append("events", eventIds)
         formData.append("csrfmiddlewaretoken", "{{ csrf_token }}")

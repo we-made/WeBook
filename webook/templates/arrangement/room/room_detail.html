@@ -3,12 +3,12 @@
 
 
 {% block beneath_breadcrumbs_block %}
-    <a class="btn btn-success"
-        href="{% url 'arrangement:room_edit' object.slug %}">
-        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
-    </a>
     <a class="btn btn-danger">
         <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
+    </a>
+    <a class="btn btn-success"
+    href="{% url 'arrangement:room_edit' object.slug %}">
+        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
     </a>
 {% endblock %}
 

@@ -29,6 +29,7 @@ def requisition_person(requisitioned_person, requisitioneer, arrangement):
     record.type_of_requisition = RequisitionRecord.REQUISITION_PEOPLE
 
     person_requisition = PersonRequisition()
+    print("Email >> " + requisitioned_person.personal_email)
     person_requisition.email = requisitioned_person.personal_email
     person_requisition.save()
 
@@ -55,10 +56,11 @@ def setup_service_requisition(service: LooseServiceRequisition):
     service.save()
 
     record = RequisitionRecord()
-    record.affected_events = service.events.all()
     record.type_of_requisition = RequisitionRecord.REQUISITION_SERVICES
+    record.arrangement = service.arrangement
     record.save()
 
+    record.affected_events.set(service.events.all())
     service.generated_requisition_record = record
     service.save()
 

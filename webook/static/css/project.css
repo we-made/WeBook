@@ -47,3 +47,37 @@ div.modal-body > .bootbox-close-button {
   position: -webkit-sticky; /* Safari */
   position: sticky;
 }
+
+.btn-wemade {
+  background-color: #5f7f99;
+  color:white
+}
+
+.btn-wemade:hover {
+  background-color: #386080;
+  color: white;
+}
+
+.light-tabs {
+  /* background-color: aqua; */
+}
+
+.light-tabs .nav-link.active {
+  background-color: #5f7f99;
+  border: none;
+  color:white;
+}
+
+.noBoxShadow {
+  box-shadow: none;
+}
+
+.sidenav-primary .sidenav-link.active {
+  color:#5f7f99;
+  background-color: white;
+}
+
+.sidenav-primary .sidenav-link#hover {
+  color:#5f7f99;
+  background-color: white;
+}

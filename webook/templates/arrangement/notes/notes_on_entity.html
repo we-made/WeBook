@@ -2,8 +2,9 @@
 
 <style>
     .comment {
-        border-radius: 10px;
-        border: none;
+        /* border-radius: 10px; */
+        background-color: gold!important;
+        border: solid 1px #5f7f99;
         box-shadow: 0 1px 15px 1px rgba(62,57,107,.07);
     }
 
@@ -27,37 +28,50 @@
     }
 </style>
 
-<div class="commentWrapperToolbar">
-    <div class="row g-0">
-        <div class="col-12">
-            <h4 class="mb-0 pt-2 pb-2 text-center">
-                Kommentarer & Notater
-            </h4>
-
-            <input type="text" placeholder="Søk gjennom notatene..." class="form-control text-center" style="border-radius: 0; border:none; border-bottom: 1px solid">
-        </div>
+<!-- <div class="row">
+    <div class="col-5">
+        <i class="fas fa-search"></i>
+        <label>Søk:</label>
+        <input type="search" class="form-control" placeholder="Søk gjennom notatene..." />
     </div>
-</div>
-<div style="background-color:ghostwhite; border:solid 1px black; border-top: 3px black;" class="p-4 commentWrapper">
-    {% for comment in object_list %}
 
+    <div class="col-4">
+        <label>
+            <i class="fas fa-users"></i>
+            Forfatter(e):
+        </label>
+        <select class="select" multiple>
+        </select>
+    </div>
+
+    <div class="col-3">
+        <label>
+            <i class="fas fa-filter"></i>
+            Sortering:
+        </label>
+        <select class="select">
+            <option value="0">Nyeste først</option>
+            <option value="1">Eldst først</option>
+        </select>
+    </div>
+</div> -->
+
+
+<div class="commentWrapper mt-4">
+    {% for comment in object_list %}
     {% endfor %}      
 </div>
 
-<div style="border-left: 1px solid black; border-bottom: 0px; border-right: 1px solid black; background-color:whitesmoke"
-    class="text-center mt-0">
-    <h4 class="mb-0 pt-2 pb-2">
-        <i class="fa fa-comment"></i> Nytt notat
-    </h4>
+
+<h4 class="mt-5">Nytt notat</h4>
+<textarea class="wysiwyg mb-0" id="noteContent" data-mdb-wysiwyg="wysiwyg" style="height: 10em" placeholder="Nytt notat..."></textarea>
+
+
+<div class="clearfix">
+    <button class="btn btn-lg btn-wemade float-end mt-2" id="submitCommentBtn">
+        Lagre notat
+    </button>
 </div>
-<textarea class="wysiwyg mb-0" id="noteContent" data-mdb-wysiwyg="wysiwyg" style="border:solid 0.7px; height: 10em; margin-bottom: 0px; border-top: 0px; vertical-align: top;"
-    placeholder="Nytt notat...">
-</textarea>
-
-
-<button class="btn btn-block btn-lg btn-success mt-0" id="submitCommentBtn" style="border-top-left-radius: 0px; border-top-right-radius: 0px;"><i class="fas fa-comment"></i>&nbsp; Kommenter</button>
-
-<script src="{% static 'js/notes.js' %}"></script>
 
 <script>
     $(document).ready(function () {
@@ -78,6 +92,7 @@
         $contentTextAreaInput: $('#noteContent'),
         $submitCommentBtn: $('#submitCommentBtn'),
 
+
         setup: function () {
             let _this = this;
             this.fetchNotes();
@@ -87,7 +102,7 @@
         },
 
         onFocused() {
-            this.$commentWrapper.children().last()[0].scrollIntoView();
+            //this.$commentWrapper.children().last()[0].scrollIntoView();
         },
 
         hashNoteContent: function (note) {
@@ -104,14 +119,14 @@
 
         _generateNoteHtml: function (note) {
             return '' +
-            '<div class="comment bg-white p-3 border-danger">' 
+            '<div class="comment bg-white p-3">' 
                     + " <div>" +
-                            "<span><i class='fas fa-exclamation text-warning'></i>&nbsp;&nbsp;<i class='fas fa-envelope text-info'></i></span>" +
+                            // "<span><i class='fas fa-exclamation text-warning'></i>&nbsp;&nbsp;<i class='fas fa-envelope text-info'></i></span>" +
                             "<i class='fas fa-trash text-danger float-end' onclick='notesComponent.deleteNote(" + note.pk + ")'></i>" +
                         "</div> " 
                     + "<div style='overflow:hidden; overflow-wrap:normal;'>" + note.content + "</div>" +
                 '<div class="text-end">' +
-                    '<em class="text-muted text-small">' + note.postedWhen + ' av ' + note.author + '</em>' +
+                    '<em class="text-muted small">' + note.postedWhen + ' av <a href="#">' + note.author + '</a></em>' +
                 '</div>' +
             '</div>' +
             '';
@@ -195,15 +210,18 @@
                     })
                     .then(a => {
                         this.onFocused();
-                        $contentTextAreaInput.html("");
+                        this.$contentTextAreaInput.html("");
                     })
         },
 
         postComment: function () {
+            // let instance = WYSIWYG.getInstance(document.getElementById('noteContent'));
+            // let content = instance.getCode();
+
             let data = new FormData();
             data.append("entityPk", this._entityPk);
             data.append("entityType", this._entityType);
-            data.append("content", this.$contentTextAreaInput.val())
+            data.append("content", this.$contentTextAreaInput[0].value);
             data.append('csrfmiddlewaretoken', this._csrf_token);
 
             fetch('{% url "arrangement:post_comment" %}', {

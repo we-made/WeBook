@@ -53,6 +53,18 @@ Date.prototype.addDays = function(days) {
     date.setDate(date.getDate() + days);
     return date;
 }
+
+
+class LoadingHintComponent {
+    constructor() {
+
+    }
+}
+
+class EventsLoadingHintComponent {
+
+}
+
 /*
     Top level.
 */
@@ -70,7 +82,8 @@ class Planner {
         $peopleToRequisitionWrapperEl=undefined,
         texts = undefined } = {}) {
 
-        this.local_context = new LocalPlannerContext(this)
+        this.local_context = new LocalPlannerContext(this);
+        this._isLoading = false;
         
         this.renderer_manager = new RendererManager({
             context: this.local_context,
@@ -81,6 +94,8 @@ class Planner {
             planner:this,
         });
 
+        this.loaderHint = new LoadingHint(document.getElementById('loaderHint'))
+        
         this.arrangement_id = arrangement_id;
         this.csrf_token = csrf_token;
         this.csrf_token2 = csrf_token2;
@@ -168,6 +183,22 @@ class Planner {
             planner.synchronizer.deleteEvent(deletedEvent);
             planner.init();
         }
+    }
+
+    /**
+     * Activates the loading hin
+     */
+    _isLoading() {
+        this._isLoading = true;
+
+
+    }
+
+    /**
+     * Removes the loading hint
+     */
+    _isDoneLoading() {
+
     }
 
     init() {
@@ -403,8 +434,12 @@ class ContextSynchronicityManager {
     getEventsOnSource () {
         let planner = this.planner;
         let id_map = this.uuid_to_id_map;
+        planner.loaderHint.startHinting({
+            hintMessage: "Loading events...",
+            hintType: "success"
+        });
         fetch('/arrangement/planner/get_events?arrangement_id=' + this.arrangement_id)
-            .then(response => response.json())
+            .then(response => response.json() )
             .then(data => {
                 let events = JSON.parse(data);
                 events.forEach(function (ev) {
@@ -423,7 +458,7 @@ class ContextSynchronicityManager {
                     id_map.set(uuid, ev.pk);
                 });
             })
-            .then(a => planner.init())
+            .then(a => { planner.init(); planner.loaderHint.finishHinting(); })
     }
 
     /** Convert a given event to a legally upsertable object */
@@ -458,6 +493,7 @@ class ContextSynchronicityManager {
             }
         }
 
+        planner.local_context.events.clear();
         fetch("/arrangement/planner/create_events/", {
             method:"POST",
             body: formData,
@@ -465,7 +501,7 @@ class ContextSynchronicityManager {
                 "X-CSRFToken": this.csrf_token
             },
             credentials: 'same-origin',
-        });
+        }).then(a => { this.getEventsOnSource() });
     }
 
     pushEvent (event) {
@@ -531,9 +567,15 @@ class ContextSynchronicityManager {
     deleteEvents(events) {
         let data = new FormData();
         let eventIds = events.map((event) => this.uuid_to_id_map.get(event.id));
+        let planner = this.planner;
 
         data.append("eventIds", eventIds);
         data.append("csrfmiddlewaretoken", this.csrf_token);
+
+        planner.loaderHint.startHinting({ 
+            hintMessage: "Deleting events...",
+            hintType: 'danger',
+        })
 
         fetch("/arrangement/planner/delete_events/", {
             method: 'POST',
@@ -542,7 +584,7 @@ class ContextSynchronicityManager {
             },
             credentials: 'same-origin',
             body: data
-        });
+        }).then(response => { planner.loaderHint.finishHinting(); });
     }
 }
 
@@ -1362,7 +1404,7 @@ class CalendarManager extends RendererBase {
 
         for (let i = 0; i < selectedNodes.length; i++) {
             let event = this.planner.local_context.events.get(getUuidFromEventDomNode(selectedNodes[i]));
-            event.people = event.people.concat(peopleIds);
+            event.people = Array.isArray(event.people) ? event.people.concat(peopleIds) : peopleIds;
             this.planner.local_context.update_event(event, event.id);
         }
     }
@@ -1372,7 +1414,7 @@ class CalendarManager extends RendererBase {
         
         for (let i = 0; i < selectedNodes.length; i++) {
             let event = this.planner.local_context.events.get(getUuidFromEventDomNode(selectedNodes[i]));
-            event.rooms = event.rooms.concat(roomIds);
+            event.rooms = Array.isArray(event.rooms) ? event.rooms.concat(roomIds) : roomIds;
             this.planner.local_context.update_event(event, event.id);
         }
     }
@@ -1711,7 +1753,6 @@ class CalendarManager extends RendererBase {
         }
 
         getSelectedDate() {
-            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
             console.log(this.currentlySelectedCell)
             console.log(this.currentlySelectedCell.attr("data-date"))
             return this.currentlySelectedCell.attr("data-date");
@@ -1782,6 +1823,10 @@ class CalendarManager extends RendererBase {
                 this.currentlySelectedCellTextWrapper = undefined;
             }
         }
+    }
+
+    redraw() {
+        this.calendar.render();
     }
 
     render(events) {

@@ -68,6 +68,7 @@ from .insights_views import (
 from .calendar_views import (
     arrangement_calendar_view,
     calendar_samples_overview,
+    drill_calendar_view,
 )
 
 from .arrangement_views import (
@@ -76,6 +77,7 @@ from .arrangement_views import (
     arrangement_list_view,
     arrangement_update_view,
     arrangement_delete_view,
+    arrangement_search_view,
     planners_on_arrangement_view,
     planners_on_arrangement_table_view,
     arrangement_add_planner_form_view,
@@ -128,6 +130,9 @@ from .requisition_views import (
     delete_requisition_view,
     requisition_service_form_view,
     requisition_person_form_view,
+    reset_requisition_form_view,
+    cancel_service_requisition_form_view,
+    delete_service_requisition_view,
 )
 
 from .confirmation_views import (

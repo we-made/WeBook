@@ -23,10 +23,12 @@ from django.views.generic import (
 from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
+from webook.arrangement.forms.cancel_service_requisition_form import CancelServiceRequisitionForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.requisition_person_form import RequisitionPersonForm
 from webook.arrangement.forms.order_service_form import OrderServiceForm
-from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition
+from webook.arrangement.forms.reset_service_requisition_form import ResetRequisitionForm
+from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition, ServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from django.http import HttpResponseBadRequest, Http404
@@ -66,6 +68,7 @@ class RequisitionsOnEventComponentView (LoginRequiredMixin, ListView):
         date_structured_ev_dict = {}
         for requisition in self.object_list.all():
             date_structured_ev_dict[requisition.pk] = set(map(lambda ev: ev.start.date(), requisition.events.all()))
+
         context["unique_dates_for_requisition_map"] = date_structured_ev_dict
         context["reference_frame"] = "event"
 
@@ -130,12 +133,7 @@ class RequisitionServiceFormView (LoginRequiredMixin, FormView):
         if loose_requisition_id is None or loose_requisition_id == 0:
             return HttpResponseBadRequest()
 
-        print(loose_requisition_id)
-
         loose_service_requisition = LooseServiceRequisition.objects.get(id=loose_requisition_id)
-        print(loose_service_requisition)
-        # if (loose_service_requisition is None):
-        #     return Http404()
 
         service_type = loose_service_requisition.type_to_order
         context["PROVIDERS"] = service_type.providers
@@ -176,3 +174,52 @@ class RequisitionPersonFormView (LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 requisition_person_form_view = RequisitionPersonFormView.as_view()
+
+
+class ResetRequisitionFormView (LoginRequiredMixin, FormView):
+    form_class = ResetRequisitionForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form) -> HttpResponse:
+        form.reset()
+        return super().form_valid(form)
+
+    def form_invalid(self, form) -> HttpResponse:
+        return super().form_invalid(form)
+
+reset_requisition_form_view = ResetRequisitionFormView.as_view()
+
+
+class CancelServiceRequisitionFormView(LoginRequiredMixin, FormView):
+    form_class = CancelServiceRequisitionForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form) -> HttpResponse:
+        form.cancel_service_requisition()
+        return super().form_valid(form)
+
+    def form_invalid(self, form) -> HttpResponse:
+        return super().form_invalid(form)
+
+cancel_service_requisition_form_view = CancelServiceRequisitionFormView.as_view()
+
+
+class DeleteServiceRequisition(LoginRequiredMixin, DeleteView):
+    template_name = "_blank.html"
+    model= ServiceRequisition
+    pk_url_kwarg = 'pk'
+
+    def delete(self, request, *args, **kwargs):
+        service_requisition = ServiceRequisition.objects.get(id=kwargs["pk"])
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+delete_service_requisition_view = DeleteServiceRequisition.as_view()

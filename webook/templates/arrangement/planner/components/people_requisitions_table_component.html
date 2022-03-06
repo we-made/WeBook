@@ -13,25 +13,12 @@
 
 {% else %}
 
-<div class="input-group">
-    <span class="input-group-text">
-        <i class="fas fa-ellipsis-v"></i>
-    </span>
-
-    <select class="form-control">
-        <option>Vis alle</option>
-        <option>Pending</option>
-        <option>Confirmed</option>
-    </select>
-</div>
-
 <table class="table">
     <thead>
         <tr>
-            <th>Status</th>
-            <th>Mottager</th>
-            <th>Sendt</th>
-            <th>Valg</th>
+            <th class="fw-bold">Status</th>
+            <th class="fw-bold">Mottager</th>
+            <th class="fw-bold">Sendt</th>
         </tr>
     </thead>
 
@@ -56,27 +43,10 @@
                     {% endif %}
                 </td>
                 <td>
-                    {{item.confirmation_receipt.sent_to}}
+                    {{ item.confirmation_receipt.requisition_record.first.person_requisition.email }}
                 </td>
                 <td>
                     {{item.confirmation_receipt.sent_when}}
-                </td>
-                <td>
-                    <div class="dropdown">
-                        <button
-                            class="btn btn-link dropdown-toggle" style="box-shadow: none;"
-                            type="button"
-                            id="dropdownMenuButton"
-                            data-mdb-toggle="dropdown"
-                            aria-expanded="false">
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            {% if  item.confirmation_receipt.state == "pending" %}
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-edit"></i>&nbsp; Test</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-times"></i>&nbsp; Kanseller</a></li>
-                            {% endif %}
-                        </ul>
-                    </div>
                 </td>
             </tr>
         {% endfor %}

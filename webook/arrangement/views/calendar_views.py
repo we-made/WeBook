@@ -52,3 +52,13 @@ class ArrangementCalendarView (LoginRequiredMixin, CalendarSectionManifestMixin,
         return context
 
 arrangement_calendar_view = ArrangementCalendarView.as_view()
+
+
+class DrillCalendarView(LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView):
+    template_name = "arrangement/calendar/drill_calendar.html"
+    view_meta = ViewMeta(
+        subtitle=_("Drill Calendar"),
+        current_crumb_title=_("Drill Calendar")
+    )
+
+drill_calendar_view = DrillCalendarView.as_view()

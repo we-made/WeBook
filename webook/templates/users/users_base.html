@@ -14,7 +14,7 @@
 {% url "account_email" as emails_url %}
 {% url "account_reset_password" as account_reset_password_url %}
 
-<div style="padding-top: 100px; background-color: #21384a; border-bottom: 10px solid #21384a;" class=" shadow-3">
+<div style="padding-top: 100px;">
   <div class="container pb-0 mb-0">
     {% if request.user.profile_picture %}
     <div class=" d-inline">
@@ -23,14 +23,13 @@
     {% endif %}
   
 
-    <h1 class="fw-bold text-white ps-0 pb-1 pt-1 mb-0" 
-      >
+    <h1 class="fw-bold ps-0 pb-1 pt-1 mb-0">
       <i class="fa fa-home"></i>&nbsp; {% trans "Welcome" %}, {{ request.user.person.full_name }}
     </h1>
     <div class="d-inline-block h5 mb-0">
     </div>
 
-    <ul class="nav  shadow-3 text-white nav-tabs mb-3 mt-0 bg-white" id="myTab0" role="tablist">
+    <ul class="nav light-tabs text-white nav-tabs mb-3 mt-0 bg-white" id="myTab0" role="tablist">
       <a class="nav-link {% if request.get_full_path == overview_url %}active{% endif %}"
           id="v-tabs-overview-tab"
           href="{% url 'users:detail' request.user.slug  %}"
