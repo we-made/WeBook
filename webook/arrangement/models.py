@@ -93,6 +93,15 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
+class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
+    class Meta:
+        verbose_name = _("Arrangement")
+        verbose_name_plural = _("Arrangements")
+
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
+    slug = AutoSlugField(populate_from="name", unique=True)
+
+
 class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
      that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
@@ -151,7 +160,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
     name = models.CharField(verbose_name=_("Name"), max_length=255)
 
     audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE, related_name="arrangements")
-
+    arrangement_type = models.ForeignKey(to=ArrangementType, verbose_name=_("Arrangement Type"), on_delete=models.CASCADE, related_name="arrangements", null=True)
+    
     starts = models.DateField(verbose_name=_("Starts"))
     ends = models.DateField(verbose_name=_("Ends"))
 
@@ -178,15 +188,6 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
     def __str__(self):
         """Return arrangement name"""
         return self.name
-
-
-class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
-    class Meta:
-        verbose_name = _("Arrangement")
-        verbose_name_plural = _("Arrangements")
-
-    name = models.CharField(verbose_name=_("Name"), max_length=255)
-    slug = AutoSlugField(populate_from="name", unique=True)
 
 
 class Location (TimeStampedModel, ModelNamingMetaMixin):
