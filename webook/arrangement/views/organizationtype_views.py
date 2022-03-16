@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+from typing import List
+from django.contrib.auth.mixins import LoginRequiredMixin
+=======
+>>>>>>> development
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
@@ -6,12 +11,23 @@ from django.views.generic import (
     UpdateView,
     ListView,
     CreateView,
+<<<<<<< HEAD
+)
+from django.views.generic.edit import DeleteView
+from webook.utils.meta_utils.section_manifest import SectionManifest
+from webook.arrangement.models import OrganizationType
+from webook.utils.meta_utils.meta_mixin import MetaMixin
+from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+=======
     TemplateView
 )
 from webook.arrangement.models import OrganizationType
 from django.views.generic.edit import DeleteView
 from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
 from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
+>>>>>>> development
 
 
 def get_section_manifest():

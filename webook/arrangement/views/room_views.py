@@ -1,17 +1,39 @@
+<<<<<<< HEAD
+from typing import Any
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.core import serializers
+=======
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+>>>>>>> development
 from django.views.generic import (
     DetailView,
     RedirectView,
     UpdateView,
     ListView,
     CreateView,
+<<<<<<< HEAD
+)
+from django.core import serializers
+from django.views.generic.edit import DeleteView
+from webook.arrangement.models import Location, Room
+from webook.arrangement.views.search_view import SearchView
+from webook.utils.meta_utils.meta_mixin import MetaMixin
+import json
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+=======
     TemplateView
 )
 from webook.arrangement.models import Room, Location
 from django.views.generic.edit import DeleteView
 from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
 from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
+>>>>>>> development
 
 
 def get_section_manifest():
@@ -28,6 +50,17 @@ class RoomSectionManifestMixin:
         self.section = get_section_manifest()
 
 
+<<<<<<< HEAD
+class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, ListView):
+    queryset = Room.objects.all()
+    template_name = "arrangement/room/room_list.html"
+    view_meta = ViewMeta.Preset.table(Room)
+
+room_list_view = RoomListView.as_view()
+
+
+=======
+>>>>>>> development
 class RoomDetailView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, DetailView):
     model = Room
     slug_field = "slug"
@@ -38,6 +71,8 @@ class RoomDetailView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, De
 room_detail_view = RoomDetailView.as_view()
 
 
+<<<<<<< HEAD
+=======
 class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, ListView):
     queryset = Room.objects.all()
     template_name = "arrangement/room/room_list.html"
@@ -46,6 +81,7 @@ class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, List
 room_list_view = RoomListView.as_view()
 
 
+>>>>>>> development
 class RoomUpdateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, UpdateView):
     fields = [
         "location",
@@ -85,6 +121,24 @@ class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, De
 
 room_delete_view = RoomDeleteView.as_view()
 
+<<<<<<< HEAD
+class SearchRoomsAjax (LoginRequiredMixin, SearchView):
+    model = Room
+
+    def search(self, search_term):
+        rooms = []
+
+        if (search_term == ""):
+            rooms = Room.objects.all()
+        else:
+            rooms = Room.objects.filter(name__contains=search_term)
+
+        return rooms
+        
+
+search_room_ajax_view = SearchRoomsAjax.as_view();
+=======
+>>>>>>> development
 
 class LocationRoomListView (LoginRequiredMixin, ListView):
     model = Location
@@ -93,4 +147,28 @@ class LocationRoomListView (LoginRequiredMixin, ListView):
     slug_url_kwarg = "slug"
     template_name="arrangement/room/partials/_location_room_list.html"
 
+<<<<<<< HEAD
 location_room_list_view = LocationRoomListView.as_view()
+
+
+class SearchRoomsAjax (LoginRequiredMixin, ListView):
+
+    def post (self, request):
+        body_data = json.loads(request.body.decode('utf-8'))
+        search_term = body_data["term"]
+
+        rooms = []
+
+        if (search_term == ""):
+            rooms = Room.objects.all()
+        else:
+            rooms = Room.objects.filter(name__contains=search_term)
+
+        response = serializers.serialize("json", rooms)
+
+        return JsonResponse(response, safe=False)
+
+search_rooms_ajax_view = SearchRoomsAjax.as_view()
+=======
+location_room_list_view = LocationRoomListView.as_view()
+>>>>>>> development

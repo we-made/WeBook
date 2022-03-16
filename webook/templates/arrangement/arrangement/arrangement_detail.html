@@ -1,6 +1,20 @@
 {% extends "arrangement/meta_base.html" %}
 {% load static i18n %}
 
+<<<<<<< HEAD
+{% block noheader %}
+
+{% endblock %}
+
+{% block beneath_breadcrumbs_block %}
+
+{% endblock %}
+
+{% block content %}
+
+    {% include 'arrangement/planner/plan_arrangement.html' %}
+
+=======
 {% block beneath_breadcrumbs_block %}
     <a class="btn btn-success"
         href="{% url 'arrangement:arrangement_edit' object.slug %}">
@@ -498,4 +512,5 @@
         calendar.render();
     });
     </script>
+>>>>>>> development
 {% endblock %}

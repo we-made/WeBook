@@ -27,7 +27,8 @@
 
   <body>
     <div class=" text-center p-2 pb-0">
-      <img src="{{ APP_LOGO }}">
+      <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" width="150px" draggable="false">
+
       <h1 class="mt-2 font-weight-bold">{{ APP_TITLE }}</h1>
 
       <div class="container">
@@ -48,6 +49,12 @@
 
     </div> <!-- /container -->
 
+    <footer class="mt-5 text-center text-uppercase">
+      <hr>
+      <p class=" fw-bold text-muted">
+        Preview 01-091221
+      </p>
+    </footer>
 
     {% block modal %}{% endblock modal %}
 

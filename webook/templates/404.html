@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends request.user.is_authenticated|yesno:"base.html,public_base.html" %}
+
 {% load static i18n %}
 
 {% block title %}{% trans "Page not found" %}{% endblock %}

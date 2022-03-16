@@ -7,12 +7,25 @@ from django.views.generic import (
     UpdateView,
     ListView,
     CreateView,
+<<<<<<< HEAD
+)
+from django.views.generic.base import View
+from django.views.generic.edit import DeleteView
+from webook.arrangement.forms.register_service_providable_form import RegisterServiceProvidableForm
+from webook.arrangement.models import Organization, ServiceType
+from webook.utils.meta_utils.meta_mixin import MetaMixin
+from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
+from django.views.generic.edit import FormView
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+=======
     TemplateView
 )
 from webook.arrangement.models import Organization
 from django.views.generic.edit import DeleteView
 from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
 from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
+>>>>>>> development
 
 
 def get_section_manifest():
@@ -50,6 +63,19 @@ class OrganizationListView(LoginRequiredMixin, OrganizationSectionManifestMixin,
 organization_list_view = OrganizationListView.as_view()
 
 
+<<<<<<< HEAD
+class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, DetailView):
+    model = Organization
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    view_meta = ViewMeta.Preset.detail(Organization)
+    template_name = "arrangement/organization/organization_detail.html"
+
+organization_detail_view = OrganizationDetailView.as_view()
+
+
+=======
+>>>>>>> development
 class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, UpdateView):
     fields = [
         "organization_number",
@@ -88,4 +114,38 @@ class OrganizationDeleteView(LoginRequiredMixin, OrganizationSectionManifestMixi
             "arrangement:organization_list"
         )
 
+<<<<<<< HEAD
 organization_delete_view = OrganizationDeleteView.as_view()
+
+
+class OrganizationRegisterServiceProvidableFormView(LoginRequiredMixin, FormView):
+    form_class = RegisterServiceProvidableForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:organization_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        print(">> Form Invalid")
+        print(form.errors)
+        print (form)
+        return super().form_invalid(form)
+
+organization_register_service_providable_form_view = OrganizationRegisterServiceProvidableFormView.as_view()
+
+
+class OrganizationServicesProvidableListView(LoginRequiredMixin, ListView):
+    template_name = "arrangement/organization/services_overview.html"
+    context_object_name = "services_providable"
+
+    def get_queryset(self):
+        return Organization.objects.get(slug=self.kwargs["slug"]).services_providable
+
+organization_services_providable_view = OrganizationServicesProvidableListView.as_view()
+=======
+organization_delete_view = OrganizationDeleteView.as_view()
+>>>>>>> development

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
+=======
 
+>>>>>>> development
 from typing import Any, Dict
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
@@ -9,6 +12,17 @@ from django.views.generic import (
     UpdateView,
     ListView,
     CreateView,
+<<<<<<< HEAD
+)
+from django.views.generic.edit import DeleteView
+from webook.arrangement.models import Location
+from webook.utils.meta_utils.meta_mixin import MetaMixin
+import json
+
+from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+=======
     TemplateView
 )
 import json
@@ -16,6 +30,7 @@ from webook.arrangement.models import Location
 from django.views.generic.edit import DeleteView
 from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
 from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
+>>>>>>> development
 
 
 def get_section_manifest():
@@ -89,6 +104,20 @@ class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
 location_update_view = LocationUpdateView.as_view()
 
 
+<<<<<<< HEAD
+class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, CreateView):
+    fields = [
+        "name"
+    ]
+    view_meta = ViewMeta.Preset.create(Location)
+    template_name = "arrangement/location/location_form.html" 
+    model = Location
+
+location_create_view = LocationCreateView.as_view()
+
+
+=======
+>>>>>>> development
 class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, DeleteView):
     model = Location
     slug_field = "slug"
@@ -101,6 +130,9 @@ class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
             "arrangement:location_list"
         )
 
+<<<<<<< HEAD
+location_delete_view = LocationDeleteView.as_view()
+=======
 location_delete_view = LocationDeleteView.as_view()
 
 
@@ -113,3 +145,4 @@ class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
     model = Location
 
 location_create_view = LocationCreateView.as_view()
+>>>>>>> development

@@ -31,3 +31,53 @@ div.modal-body > .bootbox-close-button {
 .close {
   float:right;
 }
+
+
+.status_overlay {
+  background-color: ghostwhite;
+  text-align: center;
+  /* color:white; */
+  position: absolute !important;; 
+  padding: 10px;
+  width: 500px;
+  border-left: solid 3px black;
+  border-top: solid 3px black;
+  bottom:0; 
+  right:0; 
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+}
+
+.btn-wemade {
+  background-color: #5f7f99;
+  color:white
+}
+
+.btn-wemade:hover {
+  background-color: #386080;
+  color: white;
+}
+
+.light-tabs {
+  /* background-color: aqua; */
+}
+
+.light-tabs .nav-link.active {
+  background-color: #5f7f99;
+  border: none;
+  color:white;
+}
+
+.noBoxShadow {
+  box-shadow: none;
+}
+
+.sidenav-primary .sidenav-link.active {
+  color:#5f7f99;
+  background-color: white;
+}
+
+.sidenav-primary .sidenav-link#hover {
+  color:#5f7f99;
+  background-color: white;
+}
