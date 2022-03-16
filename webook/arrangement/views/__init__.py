@@ -1,6 +1,10 @@
 # Arrangement Views
 
 # Example:
+#from .arrangement_views import (
+#   arrangement_create_view
+#)
+
 from .arrangement_views import (
   arrangement_detail_view,
   arrangement_list_view,
@@ -8,4 +12,10 @@ from .arrangement_views import (
   arrangement_update_view,
   arrangement_delete_view,
 )
-
+from .audience_views import (
+    audience_detail_view,
+    audience_list_view,
+    audience_create_view,
+    audience_update_view,
+    audience_delete_view,
+)
