@@ -78,7 +78,7 @@ class PlannerCalendar {
                         open: {
                             name: "{% trans 'Open arrangement' %}",
                             isHtmlName: false,
-                            callback: function (key, opt) {
+                            callback: (key, opt) => {
                                 location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
                             }
                         },
