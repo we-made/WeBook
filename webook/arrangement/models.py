@@ -106,6 +106,9 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
             "arrangement:arrangement_type_detail", kwargs={"slug": self.slug}
         )
 
+    def __str__(self):
+        """ Return arrangement type name """ 
+        return self.name
 
 
 class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
