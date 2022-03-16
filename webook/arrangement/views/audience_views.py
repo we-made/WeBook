@@ -80,7 +80,8 @@ audience_search_view = AudienceSearchView.as_view()
 class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, CreateView):
     model = Audience
     fields = [
-        "name"
+        "name",
+        "icon_class",
     ]
     template_name = "arrangement/audience/audience_form.html"
     view_meta = ViewMeta.Preset.create(Audience)
@@ -91,7 +92,8 @@ audience_create_view = AudienceCreateView.as_view()
 class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, UpdateView):
     model = Audience
     fields = [
-        "name"
+        "name",
+        "icon_class",
     ]
     view_meta = ViewMeta.Preset.edit(Audience)
     template_name = "arrangement/audience/audience_form.html"
