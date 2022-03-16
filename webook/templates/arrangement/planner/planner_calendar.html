@@ -17,9 +17,10 @@
 </div>
 
 <div class="btn-group">
-    <button class="btn btn-wemade">
+    <a class="btn btn-wemade"
+        href="{% url 'arrangement:arrangement_create' %}">
         Planlegg nytt arrangement
-    </button>
+    </a>
     <!-- <button class="btn btn-wemade">
         Planlegg enkelt nytt arrangement
     </button> -->
@@ -80,6 +81,42 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script>
+        /**
+         * Get the slug from a calendar dom element node
+         * Returns undefined if no slug was found
+         * */
+        function findSlugFromEl(el) {
+            var slug = undefined;
+
+            el.classList.forEach((classToEvaluate) => {
+                var classSplit = classToEvaluate.split(":");
+            
+                if (classSplit.length > 1 && classSplit[0] == "slug") {
+                    slug = classSplit[1];
+                }
+            });
+
+            if (slug === undefined) {
+                console.error("Tried to execute open method for arrangement but could not acquire slug.")
+                return undefined;
+            }
+
+            return slug
+        }
+
+        function bindPopover (elementToBindWith) {
+
+            var info = {
+                slug: findSlugFromEl(elementToBindWith)
+            }
+
+            new mdb.Popover(elementToBindWith, {
+                trigger: "hover focus",
+                content: `<h5>${info.slug}</h5>`,
+                html: true,
+            })
+        }
+
         var plannerCalendarEl = undefined;
         document.addEventListener('DOMContentLoaded', function() {
             plannerCalendarEl = document.getElementById('arrangementPlannerCalendar');
@@ -89,21 +126,26 @@
                 events: "{% url 'arrangement:arrangement_events' %}",
                 eventContent: (arg) => {
                     var icon_class = arg.event.extendedProps.icon;
-                    let html = `<span class="h6"><span class='text-white ms-2'><i class='${icon_class}'></i></span> ${arg.event.title}</span>`
+                    let html = `<span class="h6">
+                                    <span class='text-white ms-2'>
+                                        <i class='${icon_class}'></i>
+                                    </span> 
+                                    ${arg.event.title}
+                                </span>`
                     return { html: html }
                 },
                 eventDidMount: (arg) => {
+                    bindPopover(arg.el)
+
                     $.contextMenu({
                         className: "",
                         selector: ".fc-event",
                         items: {
                             open: {
-                                name: "Åpne",
+                                name: "{% trans 'Open arrangement' %}",
                                 isHtmlName: false,
                                 callback: function (key, opt) {
-                                    console.log(key)
-                                    console.log(opt)
-                                    // location.href = '/arrangement/arrangement/'
+                                    location.href = "/arrangement/arrangement/" + findSlugFromEl(opt.$trigger[0]);
                                 }
                             },
                         }

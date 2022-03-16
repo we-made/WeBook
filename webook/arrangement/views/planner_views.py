@@ -367,6 +367,7 @@ class PlannerArrangementEvents (LoginRequiredMixin, ListView):
                 "start": arrangement.starts,
                 "end": arrangement.ends,
                 "id": arrangement.slug,
+                "className": f"slug:{arrangement.slug}",
                 "extendedProps": {
                     "icon": arrangement.audience.icon_class
                 }
