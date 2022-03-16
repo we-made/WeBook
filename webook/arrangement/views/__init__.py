@@ -141,3 +141,12 @@ from .confirmation_views import (
     confirmation_request_deny_view,
     thanks_after_response_view,
 )
+
+
+from .arrangementtype_views import (
+    arrangement_type_detail_view,
+    arrangement_type_list_view,
+    arrangement_type_create_view,
+    arrangement_type_update_view,
+    arrangement_type_delete_view,
+)
