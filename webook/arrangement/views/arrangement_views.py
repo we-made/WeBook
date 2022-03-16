@@ -69,6 +69,9 @@ class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin
             Q(confirmation_receipt__state="confirmed") | Q(confirmation_receipt__state="cancelled") | Q(confirmation_receipt__state="denied")
         ))
 
+        people_requisitions_completion_percentage = 0
+        service_requisitions_completion_percentage = 0
+
         #TODO: Rewrite this when i'm not so stupidly tired..
         if completed_people_requisitions_length != 0 and total_people_requisitions_length != 0:
             people_requisitions_completion_percentage = round(completed_people_requisitions_length / (total_people_requisitions_length / 100))
