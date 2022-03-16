@@ -39,3 +39,10 @@ from .organization_views import (
     organization_create_view,
     organization_delete_view,
 )
+from .organizationtype_views import (
+    organization_type_detail_view,
+    organization_type_list_view,
+    organization_type_create_view,
+    organization_type_update_view,
+    organization_type_delete_view,
+)
