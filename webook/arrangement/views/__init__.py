@@ -26,3 +26,10 @@ from .calendar_views import (
 from .insight_views import (
     GlobalTimelineView,
 )
+from .location_views import (
+    location_detail_view,
+    location_list_view,
+    location_create_view,
+    location_update_view,
+    location_delete_view,
+)
