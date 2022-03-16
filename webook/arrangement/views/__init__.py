@@ -23,3 +23,6 @@ from .calendar_views import (
     CalendarSamplesOverview,
     ArrangementCalendarView,
 )
+from .insight_views import (
+    GlobalTimelineView,
+)
