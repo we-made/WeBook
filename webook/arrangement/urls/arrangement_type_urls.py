@@ -9,7 +9,7 @@ from webook.arrangement.views import (
 )
 
 
-audience_urls = [
+arrangement_type_urls = [
     path(
         route="arrangementtype/list/",
         view = arrangement_type_list_view,
