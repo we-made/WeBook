@@ -86,7 +86,8 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "webook.users.apps.UsersConfig",
     # Your stuff: custom apps go here
-    "webook.arrangement.apps.ArrangementConfig"
+    "webook.arrangement.apps.ArrangementConfig",
+    "webook.crumbinator.apps.CrumbinatorConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -168,6 +169,7 @@ STATICFILES_DIRS = [str(APPS_DIR / "static")]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "npm.finders.NpmFinder",
 ]
 
 # MEDIA
@@ -213,7 +215,7 @@ TEMPLATES = [
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 # http://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "form_layout_material"
 
 # FIXTURES
 # ------------------------------------------------------------------------------
@@ -308,4 +310,14 @@ APP_LOGO = env(
 APP_TITLE = env(
     "APP_TITLE",
     default="WeBook"
+)
+
+FULLCALENDAR_LICENSE_KEY = env(
+    "FULLCALENDAR_LICENSE_KEY",
+    default="CC-Attribution-NonCommercial-NoDerivatives"
+)
+
+ASSET_SERVER_URL = env(
+    "ASSET_SERVER_URL",
+    default="localhost/static"
 )

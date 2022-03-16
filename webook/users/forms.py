@@ -15,6 +15,7 @@ class UserChangeForm(forms.UserChangeForm):
         fields = ()
         field_classes = {}
         model = User
+        fields = ["profile_picture"]
 
 class UserCreationForm(SignupForm):
 

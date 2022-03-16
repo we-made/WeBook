@@ -42,7 +42,6 @@ class CustomUserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
-
 class User(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
@@ -54,6 +53,13 @@ class User(AbstractUser):
     slug = AutoSlugField(populate_from="_get_slug", blank=True, unique=True)
 
     objects = CustomUserManager()
+
+    profile_picture = models.ImageField(
+        name="profile_picture",
+        verbose_name=_("Profile Picture"),
+        upload_to=media_path.profile_picture_path,
+        blank=True,
+    )
 
     def get_absolute_url(self):
         return reverse(

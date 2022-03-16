@@ -1,0 +1,39 @@
+{% load static i18n %}
+
+<div class="table-responsive">
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th class="h6">{% trans "Name" %}</th>
+                <th class="h6">{% trans "Maximum Occupants" %}</th>
+                <th class="h6">{% trans "Options" %}</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in object_list %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.max_capacity }}</td>
+                    <td>
+                        <a
+                            class="btn btn-sm btn-info"
+                            href="{% url 'arrangement:room_detail' item.slug %}">
+                            {% trans "Show" %}
+                        </a>
+                        <a
+                            class="btn btn-sm btn-success"
+                            href="{% url 'arrangement:room_edit' item.slug %}">
+                            {% trans "Edit" %}
+                        </a>
+                        <a
+                            class="btn btn-sm btn-danger"
+                            href="">
+                            {% trans "Delete" %}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div> 

@@ -2,17 +2,11 @@
 {% load crispy_forms_tags %}
 {% load static i18n %}
 
-
 {% block title %}{{ user.get_representative_name }}{% endblock %}
 
 {% block inner %}
-  <h2 class="mb-0 mt-lg-0 mt-sm-3">
-     {% trans "User Information" %}
-  </h2>
-  <hr class="mt-1">
   <form class="form-horizontal" method="post" action="{% url 'users:update' %}">
     {% csrf_token %}
-
       <div class="row">
         <div class="col-lg-4 mt-lg-0 col-sm-12 mt-sm-4">
           <div class="form-group">
@@ -55,7 +49,7 @@
           </div>
         </div>
       </div>
-
+    
       <div class="clearfix">
         <div class="col-sm-12 col-lg-2 float-end">
           <button class="btn btn-success btn-block mb-sm-3 mb-lg-0 mt-lg-3 mt-sm-4 form-control-sm float-end"
