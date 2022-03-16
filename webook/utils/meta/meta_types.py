@@ -57,7 +57,6 @@ class ViewMeta:
 		self.subtitle_prefix = subtitle_prefix
 		self.current_crumb_icon = current_crumb_icon
 		self.current_crumb_title = current_crumb_title
-		self.entity_name_attribute = entity_name_attribute
 		self.subtitle_mode = subtitle_mode
 	
 	def get_crumb_node(self):
@@ -70,15 +69,6 @@ class ViewMeta:
 
 	class Preset:
 		@staticmethod
-		def _sanity_check_entity_class(entity_class):
-			""" 
-				Runs a sanity check on the entity class, and asserts if it is proper
-			"""
-			assert getattr(entity_class, "entity_name_plural")
-			assert getattr(entity_class, "entity_name_singular")
-			assert getattr(entity_class, "instance_name_attribute_name")
-
-		@staticmethod
 		def detail(entity_class):
 			"""
 				Get a view meta preset for the detail view, using application standards
@@ -87,13 +77,11 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			ViewMeta.Preset._sanity_check_entity_class(entity_class)
-			name = f"{_('View')} {entity_class.entity_name_singular}"
+			name = f"{_('View')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-eye",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 				subtitle_mode=SUBTITLE_MODE.ENTITY_NAME_AS_SUBTITLE
 			)
 		
@@ -106,13 +94,11 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			ViewMeta.Preset._sanity_check_entity_class(entity_class)
-			name = f"{_('Create')} {entity_class.entity_name_singular}"
+			name = f"{_('Create')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-plus",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 			)
 			
 		@staticmethod
@@ -124,13 +110,11 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			ViewMeta.Preset._sanity_check_entity_class(entity_class)
-			name = f"{_('Delete')} {entity_class.entity_name_singular}"
+			name = f"{_('Delete')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-trash",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 			)
 			
 		@staticmethod
@@ -142,13 +126,11 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			ViewMeta.Preset._sanity_check_entity_class(entity_class)
-			name = f"{_('Edit')} {entity_class.entity_name_singular}"
+			name = f"{_('Edit')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-edit",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 			)
 			
 		@staticmethod
@@ -160,12 +142,10 @@ class ViewMeta:
 				:param entity_class: The class of the model the view is concerned with
 				:type entity_class: The model.
 			"""
-			ViewMeta.Preset._sanity_check_entity_class(entity_class)
-			name = f"{_('All')} {entity_class.entity_name_plural}"
+			name = f"{_('All')} {entity_class.Meta.verbose_name}"
 			return ViewMeta(
 				current_crumb_icon="fas fa-list",
 				subtitle=name,
 				current_crumb_title=name,
-				entity_name_attribute=getattr(entity_class, "instance_name_attribute_name"),
 			)
 			
