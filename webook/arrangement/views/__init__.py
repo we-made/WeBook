@@ -19,3 +19,7 @@ from .audience_views import (
     audience_update_view,
     audience_delete_view,
 )
+from .calendar_views import (
+    CalendarSamplesOverview,
+    ArrangementCalendarView,
+)
