@@ -27,7 +27,9 @@
     <link rel="stylesheet" href="{% static 'vis-timeline/styles/vis-timeline-graph2d.min.css' %}" />
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <link rel="stylesheet" href="{% static 'fullcalendar-scheduler/main.min.css' %}">
-
+    <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/base/jquery.fonticonpicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/themes/bootstrap-theme/jquery.fonticonpicker.bootstrap.min.css' %}">
+    
     <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/wysiwyg.min.js"></script>
 
     <!-- This file stores project-specific CSS -->
@@ -240,16 +242,12 @@
           {% endfor %}
       {% endif %}
     </section>
-    <div class="mt-1">
-      {% block beneath_breadcrumbs_block %}
-      {% endblock %}
-    </div>
-    <hr>
-    {% endblock %}
+
 
     <div class="mb-4"></div>
 
-
+    {% block content %}
+    {% endblock %}
 
     </div> <!-- /container -->
     
@@ -280,6 +278,7 @@
       <script src="{% static 'js/entityMeta.js' %}"></script>
       <script src="{% static 'js/project.js' %}"></script>
       <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+      <script src="{% static '@fonticonpicker/fonticonpicker/dist/js/jquery.fonticonpicker.min.js' %}"></script>
 
 <!-- Latest compiled and minified JavaScript -->
 
