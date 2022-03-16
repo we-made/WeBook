@@ -1,0 +1,182 @@
+{% extends "arrangement/meta_base.html" %}
+{% load static i18n %}
+
+
+{% block beneath_breadcrumbs_block %}
+    <a class="btn btn-success"
+        href="{% url 'arrangement:organization_edit' object.slug %}">
+        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
+    </a>
+    <a class="btn  btn-danger">
+        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
+    </a>
+{% endblock %}
+
+{% block content %}
+
+<section>
+    <div class="row">
+        <div class="col-3">
+            <div class="border">
+                <div class="p-3">
+                    <div>
+                        <h5 class="fw-bold">
+                            {% trans "Organization Number" %}
+                        </h5>
+                        <span class=" d-block">{{ object.organization_number }}</span>
+                    </div>
+
+                    <div class="mt-3">
+                        <h5 class="fw-bold">
+                            {% trans "Name" %}
+                        </h5>
+                        <span class=" d-block">{{ object.name }}</span>
+                    </div>
+
+                    <div class="mt-3">
+                        <h5 class="fw-bold">
+                            {% trans "Organization Type" %}
+                        </h5>
+                        <span class=" d-block">
+                            <span class="badge badge-md badge-success">
+                                <a href="{% url 'arrangement:organizationtype_detail' object.organization_type.slug %}">
+                                    {{ object.organization_type }} 
+                                    <i class="fas fa-link"></i>
+                                </a>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-9">
+            <h4>
+                <i class="fas fa-users"></i>
+                {% trans "Members" %}
+            </h4>
+            
+            <div class="btn-group" style="box-shadow:none!important;">
+                <a class="btn btn-success" style="background-color: #66a880;"
+                        data-mdb-toggle="modal"
+                        data-mdb-target="#registerMemberModal">
+                    <i class="fas fa-user-plus"></i>&nbsp; 
+                    {% trans "Register a new member" %}
+                </a>
+            </div>
+
+            <span id="personTableLoaderWrapper">
+
+            </span>
+        </div>
+    </div>
+</section>
+
+<div
+class="modal fade"
+id="registerMemberModal"
+tabindex="-1"
+aria-labelledby="exampleModalLabel"
+aria-hidden="true"
+>
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">
+          <span class="badge badge-success">
+              <i class="fas fa-user-plus"></i>
+          </span>
+          {% trans "Register Member" %}
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        data-mdb-dismiss="modal"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="modal-body">
+      <form id="registerNewMemberDialogForm">
+          <input type="hidden" name="organization" value="{{ object.id }}" />
+
+          <div class="form-group">
+              <label>{% trans "First Name" %}</label>
+              <input type="text" class="form-control" name="first_name"/>
+          </div>
+          <div class="form-group mt-3">
+                <label>{% trans "Middle Name" %}</label>
+                <input type="text" class="form-control" name="middle_name"/>
+          </div>
+          <div class="form-group mt-3">
+                <label>{% trans "Last Name" %}</label>
+                <input type="text" class="form-control" name="last_name"/>
+          </div>
+
+          <div class="form-group mt-3">
+                <label>{% trans "Personal Email" %}</label>
+                <input type="email" class="form-control" name="personal_email"/>
+          </div>
+
+          <div class="form-group mt-3">
+                <label>{% trans "Birth Date" %}</label>
+                <input type="date" class="form-control" name="birth_date"/>
+          </div>
+
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-success" onclick="registerANewOrganizationMember()">{% trans "Register" %}</button>
+      <button type="button" class="btn btn-success" onclick="registerANewOrganizationMember(false /* dont close after save*/)">{% trans "Register, and new" %}</button>
+      <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">
+        <i class="fa fas-times"></i>&nbsp; {% trans "Cancel" %}
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadMembersTableForOrganization()
+    });
+
+    function loadMembersTableForOrganization () {
+        $('#personTableLoaderWrapper').load('{% url "arrangement:organizationmemberlist" object.id %}?organization={{object.id}}')
+    }
+
+    async function registerANewOrganizationMember (closeModalOnDone=true) {
+        let dataForm = new FormData(document.getElementById("registerNewMemberDialogForm"))
+        let url = "{% url 'arrangement:person_create' %}"
+
+        fetch(url, {
+            method: 'POST',
+            body: dataForm,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(function(response) {
+            console.log(response);
+            if (response.ok) {
+                console.log("Response after member register is OK")
+                loadMembersTableForOrganization() // refresh rooms table to include our newly created room
+            }
+            else {
+                console.log(response)
+                throw "Response not OK."
+            }
+        }).catch(function(err) {
+            console.log(err)
+        }).then(function(response) {
+            console.log(closeModalOnDone)
+            $('#registerNewMemberDialogForm').trigger("reset");
+
+            if (closeModalOnDone) {
+                $('#registerMemberModal').modal('hide');
+            }
+        })
+    }
+
+</script>
+
+{% endblock %}
