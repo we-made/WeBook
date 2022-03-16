@@ -3,22 +3,14 @@
 
 {% block content %}
 
-<<<<<<< HEAD
 <!-- <h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; {% trans "All" %} {{ENTITY_NAME_PLURAL}}</h4> -->
 {% if SHOW_CREATE_BUTTON %}
 <div class="clearfix">
     <a class="btn btn-wemade btn-lg mb-2 float-end"
-=======
-<h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; {% trans "All" %} {{ENTITY_NAME_PLURAL}}</h4>
-
-{% if SHOW_CREATE_BUTTON %}
-    <a class="btn btn-success mb-2"
->>>>>>> development
         href="{% url CRUDL_MAP.create_url %}">
         <i class="fas fa-plus"></i>&nbsp; 
         {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
     </a>
-<<<<<<< HEAD
 </div>
 {% endif %}
 <div class="row">
@@ -33,9 +25,6 @@
 </div>
 
 
-=======
-{% endif %}
->>>>>>> development
 
 {% if object_list|length == 0 %}
 <div class="alert alert-info">
@@ -50,31 +39,19 @@
 {% else %}
 
 <div class="table-responsive">
-<<<<<<< HEAD
     <table class="table">
-=======
-    <table class="table table-sm table-striped">
->>>>>>> development
         <thead>
             <tr>
                 {% for attr_name, column_name, show in COLUMN_DEFINITION %}
                     {% if show %}
-<<<<<<< HEAD
                         <th class="h5">
-=======
-                        <th class="h6">
->>>>>>> development
                             {{ column_name }}
                         </th>
                     {% endif %}
                 {% endfor %}
 
                 {% if SHOW_OPTIONS and CRUDL_MAP is not None %}
-<<<<<<< HEAD
                     <th class="h5">
-=======
-                    <th class="h6">
->>>>>>> development
                         {% trans "Options" %}
                     </th>
                 {% endif %}
@@ -94,31 +71,19 @@
                 {% if SHOW_OPTIONS and CRUDL_MAP is not None %}
                 <td>
                     {% if CRUDL_MAP.detail_url %}
-<<<<<<< HEAD
                         <a class="btn btn-link text-info noBoxShadow" href="{% url CRUDL_MAP.detail_url row.slug %}">
-=======
-                        <a class="btn btn-info btn-sm" href="{% url CRUDL_MAP.detail_url row.slug %}">
->>>>>>> development
                             <i class="fa fa-eye"></i>&nbsp;
                             {% trans "Show" %}
                         </a>
                     {% endif %}
                     {% if CRUDL_MAP.edit_url %}
-<<<<<<< HEAD
                         <a class="btn btn-link text-success noBoxShadow" href="{% url CRUDL_MAP.edit_url row.slug %}">
-=======
-                        <a class="btn btn-success btn-sm" href="{% url CRUDL_MAP.edit_url row.slug %}">
->>>>>>> development
                             <i class="fa fa-edit"></i>&nbsp;
                             {% trans "Edit" %}
                         </a>
                     {% endif %}
                     {% if CRUDL_MAP.delete_url %}
-<<<<<<< HEAD
                         <a class="btn btn-link text-danger noBoxShadow" href="{% url CRUDL_MAP.delete_url row.slug %}">
-=======
-                        <a class="btn btn-danger btn-sm" href="{% url CRUDL_MAP.delete_url row.slug %}">
->>>>>>> development
                             <i class="fa fa-trash"></i>&nbsp;
                             {% trans "Delete" %}
                         </a>

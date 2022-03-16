@@ -1,13 +1,9 @@
-<<<<<<< HEAD
 import json
 from typing import List
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse
 from django.core import serializers
-=======
-from django.urls import reverse
->>>>>>> development
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     DetailView,
@@ -15,7 +11,6 @@ from django.views.generic import (
     UpdateView,
     ListView,
     CreateView,
-<<<<<<< HEAD
 )
 from django.views.generic.edit import DeleteView
 from webook.utils.meta_utils.section_manifest import SectionManifest
@@ -25,14 +20,6 @@ from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils.section_manifest import ViewMeta
 from webook.arrangement.views.search_view import SearchView
-=======
-    TemplateView
-)
-from webook.arrangement.models import ServiceType
-from django.views.generic.edit import DeleteView
-from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
-from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
->>>>>>> development
 
 
 def get_section_manifest():
@@ -102,7 +89,6 @@ class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin
 service_type_create_view = ServiceTypeCreateView.as_view()
 
 
-<<<<<<< HEAD
 class SearchServiceTypes (LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, SearchView):
     def search(self, search_term):
         service_types = []
@@ -117,8 +103,6 @@ class SearchServiceTypes (LoginRequiredMixin, ServiceTypeSectionManifestMixin, M
 search_service_types = SearchServiceTypes.as_view()
 
 
-=======
->>>>>>> development
 class ServiceTypeDeleteView(LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, DeleteView):
     model = ServiceType 
     slug_field = "slug"

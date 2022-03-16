@@ -2,7 +2,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
-<<<<<<< HEAD
     DetailView,
     RedirectView,
     UpdateView,
@@ -13,13 +12,6 @@ from django.views.generic import (
 from webook.arrangement.models import Event, Location, Person, Room
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
-=======
-    TemplateView
-)
-from webook.arrangement.models import Person, Location
-from webook.utils.meta.meta_view_mixins import MetaMixin
-from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
->>>>>>> development
 
 
 def get_section_manifest():
@@ -59,7 +51,6 @@ class ArrangementCalendarView (LoginRequiredMixin, CalendarSectionManifestMixin,
         context["people"] = Person.objects.all()
         return context
 
-<<<<<<< HEAD
 arrangement_calendar_view = ArrangementCalendarView.as_view()
 
 
@@ -71,6 +62,3 @@ class DrillCalendarView(LoginRequiredMixin, CalendarSectionManifestMixin, MetaMi
     )
 
 drill_calendar_view = DrillCalendarView.as_view()
-=======
-arrangement_calendar_view = ArrangementCalendarView.as_view()
->>>>>>> development

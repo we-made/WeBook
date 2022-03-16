@@ -30,21 +30,11 @@ class UserDetailView(LoginRequiredMixin, DetailView):
 user_detail_view = UserDetailView.as_view()
 
 
-<<<<<<< HEAD
 class UserUpdateView(LoginRequiredMixin, FormView):
 
     profile_picture = dj_forms.ImageField(max_length=512, label=_("Profile Picture"))
 
     form_class = ComplexUserUpdateForm
-=======
-class UserUpdateView(LoginRequiredMixin, UpdateView):
-    fields = [
-        "first_name",
-        "middle_name",
-        "last_name",
-        "birth_date",
-    ]
->>>>>>> development
     template_name = "users/user_form.html"
     model = Person
     # Send the User Back to Their Own Page after a

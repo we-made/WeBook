@@ -10,17 +10,11 @@ from django.views.generic import (
     TemplateView
 )
 from django.views.generic.edit import DeleteView
-<<<<<<< HEAD
 from webook.arrangement.models import Arrangement, Audience
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
-=======
-from webook.arrangement.models import Audience
-from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
->>>>>>> development
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
@@ -39,10 +33,6 @@ def get_section_manifest():
         )
     )
 
-<<<<<<< HEAD
-=======
-
->>>>>>> development
 class AudienceSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()
@@ -73,7 +63,6 @@ class AudienceDetailView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
 audience_detail_view = AudienceDetailView.as_view()
 
 
-<<<<<<< HEAD
 class AudienceSearchView(LoginRequiredMixin, SearchView):
     def search(self, search_term):
         audiences = []
@@ -88,8 +77,6 @@ class AudienceSearchView(LoginRequiredMixin, SearchView):
 audience_search_view = AudienceSearchView.as_view()
 
 
-=======
->>>>>>> development
 class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, CreateView):
     model = Audience
     fields = [
@@ -117,8 +104,4 @@ class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
     view_meta = ViewMeta.Preset.delete(Audience)
     template_name = "arrangement/delete_view.html"
 
-<<<<<<< HEAD
 audience_delete_view = AudienceDeleteView.as_view()
-=======
-audience_delete_view = AudienceDeleteView.as_view()
->>>>>>> development

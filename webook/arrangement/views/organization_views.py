@@ -7,7 +7,6 @@ from django.views.generic import (
     UpdateView,
     ListView,
     CreateView,
-<<<<<<< HEAD
 )
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
@@ -18,14 +17,6 @@ from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from django.views.generic.edit import FormView
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
-=======
-    TemplateView
-)
-from webook.arrangement.models import Organization
-from django.views.generic.edit import DeleteView
-from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
-from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
->>>>>>> development
 
 
 def get_section_manifest():
@@ -63,7 +54,6 @@ class OrganizationListView(LoginRequiredMixin, OrganizationSectionManifestMixin,
 organization_list_view = OrganizationListView.as_view()
 
 
-<<<<<<< HEAD
 class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, DetailView):
     model = Organization
     slug_field = "slug"
@@ -74,8 +64,6 @@ class OrganizationDetailView(LoginRequiredMixin, OrganizationSectionManifestMixi
 organization_detail_view = OrganizationDetailView.as_view()
 
 
-=======
->>>>>>> development
 class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, UpdateView):
     fields = [
         "organization_number",
@@ -114,7 +102,6 @@ class OrganizationDeleteView(LoginRequiredMixin, OrganizationSectionManifestMixi
             "arrangement:organization_list"
         )
 
-<<<<<<< HEAD
 organization_delete_view = OrganizationDeleteView.as_view()
 
 
@@ -146,6 +133,3 @@ class OrganizationServicesProvidableListView(LoginRequiredMixin, ListView):
         return Organization.objects.get(slug=self.kwargs["slug"]).services_providable
 
 organization_services_providable_view = OrganizationServicesProvidableListView.as_view()
-=======
-organization_delete_view = OrganizationDeleteView.as_view()
->>>>>>> development

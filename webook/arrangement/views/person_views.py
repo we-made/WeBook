@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import json
 from re import search
 from typing import Any, Dict, List
@@ -7,10 +6,6 @@ from django.db.models.query import QuerySet
 from django.http import JsonResponse
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-=======
-
-from typing import Any, Dict
->>>>>>> development
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
@@ -19,7 +14,6 @@ from django.views.generic import (
     UpdateView,
     ListView,
     CreateView,
-<<<<<<< HEAD
 )
 from django.core import serializers
 from django.views.generic.base import View
@@ -33,14 +27,6 @@ from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from django.db.models.functions import Concat
 from django.db.models import Q, F
-=======
-    TemplateView
-)
-from webook.arrangement.models import Person, Organization
-from django.views.generic.edit import DeleteView
-from webook.utils.meta.meta_view_mixins import MetaMixin, GenericListTemplateMixin
-from webook.utils.meta.meta_types import SectionManifest, ViewMeta, SectionCrudlPathMap
->>>>>>> development
 
 
 def get_section_manifest():
@@ -109,12 +95,8 @@ class PersonCreateView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
         success_url = super().get_success_url()
         organization = self.request.POST.get("organization")
         created_user = self.object
-<<<<<<< HEAD
         if organization is not None:
             created_user.organizations.add(organization)
-=======
-        created_user.organizations.add(organization)
->>>>>>> development
         created_user.save()
         return success_url
 
@@ -162,7 +144,6 @@ class OrganizationPersonMemberListView (LoginRequiredMixin, OrganizationSectionM
         context["organization"] = self.request.GET.get('organization')
         return context
 
-<<<<<<< HEAD
 organization_person_member_list_view = OrganizationPersonMemberListView.as_view()
 
 
@@ -187,6 +168,3 @@ class SearchPeopleAjax (LoginRequiredMixin, SearchView):
         return people        
 
 search_people_ajax_view = SearchPeopleAjax.as_view()
-=======
-organization_person_member_list_view = OrganizationPersonMemberListView.as_view()
->>>>>>> development

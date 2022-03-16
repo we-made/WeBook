@@ -3,7 +3,6 @@
 
 
 {% block beneath_breadcrumbs_block %}
-<<<<<<< HEAD
     <a class="btn btn-danger">
         <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
     </a>
@@ -11,15 +10,6 @@
         href="{% url 'arrangement:person_edit' object.slug %}">
         <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
     </a>
-=======
-    <a class="btn btn-outline-success"
-        href="{% url 'arrangement:person_edit' object.slug %}">
-        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
-    </a>
-    <a class="btn  btn-outline-danger">
-        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
-    </a>
->>>>>>> development
 {% endblock %}
 
 {% block content %}

@@ -3,10 +3,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-<<<<<<< HEAD
 import webook.users.media_pathing as media_path
-=======
->>>>>>> development
 from webook.arrangement.models import Person
 from autoslug import AutoSlugField
 
@@ -46,10 +43,6 @@ class CustomUserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> development
 class User(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)

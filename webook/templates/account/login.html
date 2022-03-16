@@ -34,10 +34,6 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
 
 <form class="login" method="POST" action="{% url 'account_login' %}">
   {% csrf_token %}
-<<<<<<< HEAD
-
-=======
->>>>>>> development
   <div class="form-group">
     <div class="form-outline">
       <input type="text" class="form-control form-control-lg" id="{{ form.login.id_for_label }}" name="{{ form.login.name}}"
@@ -56,12 +52,8 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
     </div>
     {{ form.password.errors }}
   </div>
-<<<<<<< HEAD
 
 
-=======
-  
->>>>>>> development
   <div class="clearfix float-right">
     <a class="button secondaryAction float-end" href="{% url 'account_reset_password' %}">
     <i class="la la-lock"></i>

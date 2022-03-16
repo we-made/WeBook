@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from .arrangement_urls import arrangement_urls
 from .audience_urls import audience_urls
 from .calendar_urls import calendar_urls
@@ -36,10 +35,3 @@ urlpatterns.extend(planner_urls)
 urlpatterns.extend(note_urls)
 urlpatterns.extend(requisition_urls)
 urlpatterns.extend(confirmation_urls)
-=======
-from django.urls import path
-
-app_name = "arrangement"
-
-urlpatterns = []
->>>>>>> development
