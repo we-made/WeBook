@@ -22,7 +22,7 @@ from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathM
 def get_section_manifest():
     return SectionManifest(
         section_title=_("Arrangement Type"),
-        section_icon="fas fa-user",
+        section_icon="fas fa-suitcase",
         section_crumb_url=reverse("arrangement:arrangement_type_list"),
         crudl_map=SectionCrudlPathMap(
             detail_url="arrangement:arrangement_type_detail",

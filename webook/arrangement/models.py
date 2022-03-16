@@ -101,6 +101,12 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
 
+    def get_absolute_url(self):
+        return reverse(
+            "arrangement:arrangement_type_detail", kwargs={"slug": self.slug}
+        )
+
+
 
 class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
