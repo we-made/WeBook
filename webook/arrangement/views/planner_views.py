@@ -1,6 +1,6 @@
-from calendar import c
 from datetime import datetime
 from typing import Any
+from datetime import date, datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import query
 from django.db.models.query import QuerySet
@@ -54,6 +54,7 @@ class PlannerView (LoginRequiredMixin, PlannerSectionManifestMixin, MetaMixin, T
 
 planner_view = PlannerView.as_view()
 
+
 class PlanArrangementView(LoginRequiredMixin, PlannerSectionManifestMixin, MetaMixin, TemplateView):
     template_name = "arrangement/planner/plan_arrangement.html"
 
@@ -80,6 +81,7 @@ class GetCollisionAnalysisView(LoginRequiredMixin, View):
         return JsonResponse(response, safe=False)
 
 get_collision_analysis_view = GetCollisionAnalysisView.as_view()
+
 
 class PlanCreateEvent (LoginRequiredMixin, CreateView):
     model = Event
@@ -185,6 +187,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
 
 plan_create_events = PlanCreateEvents.as_view()
 
+
 class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
     model = Event
     template_name="arrangement/event/event_form.html"
@@ -268,6 +271,7 @@ class PlanGetLooseServiceRequisitions(LoginRequiredMixin, View):
 
 plan_get_loose_service_requisitions = PlanGetLooseServiceRequisitions.as_view()
 
+
 class PlanLooseServiceRequisitionsTableComponent(LoginRequiredMixin, ListView):
     template_name = "arrangement/planner/components/service_requisitions_table_component.html"
 
@@ -330,3 +334,44 @@ class PlanDeleteEvents (LoginRequiredMixin, View):
         return JsonResponse({ 'affected': len(eventIds) })
             
 plan_delete_events = PlanDeleteEvents.as_view()
+
+
+class PlannerCalendarView (LoginRequiredMixin, PlannerSectionManifestMixin, MetaMixin, TemplateView):
+    template_name = "arrangement/planner/planner_calendar.html"
+    view_meta = ViewMeta(
+        subtitle="Planning Calendar",
+        current_crumb_title="Planning Calendar",
+    )
+
+planner_calendar_view = PlannerCalendarView.as_view()
+
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
+
+
+class PlannerArrangementEvents (LoginRequiredMixin, ListView):
+    """ List view for getting arrangements in FC event format, in JSON. """ 
+
+    def get(self, request, *args, **kwargs):
+        arrangements = Arrangement.objects.all().only("name", "starts", "ends")
+        events = []
+        for arrangement in arrangements:
+            events.append({
+                "title": arrangement.name,
+                "start": arrangement.starts,
+                "end": arrangement.ends,
+                "id": arrangement.slug,
+                "extendedProps": {
+                    "icon": arrangement.audience.icon_class
+                }
+            })
+
+        return HttpResponse(json.dumps(events, default=json_serial), content_type="application/json")
+
+planner_arrangement_events_view =  PlannerArrangementEvents.as_view()
