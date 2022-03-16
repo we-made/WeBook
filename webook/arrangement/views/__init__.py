@@ -19,6 +19,14 @@ from .audience_views import (
     audience_update_view,
     audience_delete_view,
 )
+from .person_views import (
+    person_detail_view,
+    person_list_view,
+    person_create_view,
+    person_update_view,
+    person_delete_view,
+    organization_person_member_list_view,
+)
 from .calendar_views import (
     CalendarSamplesOverview,
     ArrangementCalendarView,
