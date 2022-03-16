@@ -62,3 +62,10 @@ from .room_views import (
     room_delete_view,
     location_room_list_view,
 )
+from .servicetype_views import (
+    service_type_detail_view,
+    service_type_list_view,
+    service_type_create_view,
+    service_type_update_view,
+    service_type_delete_view,
+)
