@@ -3,28 +3,17 @@
 
 
 {% block content %}
-  {% url "users:detail" request.user.username as overview_url %}
-  {% url "users:update" as my_info_url %}
-  {% url "account_email" as emails_url %}
-  {% url "account_reset_password" as account_reset_password_url %}
-
-  <p class="h2 mb-0">{% trans "Good day" %}, {{ request.user.name }}</p>
-  <hr class="mb-4">
+  <h1>{% trans "Good day" %}, {{ request.user.get_representative_name }}</h1>
+  <br>
   <div class="row">
     <div class="col-sm-12 col-lg-3">
-    <div
-      class="nav flex-column nav-tabs text-center"
-      id="v-tabs-tab"
-      role="tablist"
-      aria-orientation="vertical"
-    >
-      <a class="nav-link {% if request.get_full_path == overview_url %}active{% endif %}"
-          id="v-tabs-overview-tab"
-          href="{% url 'users:detail' request.user.username  %}"
-          aria-controls="v-tabs-overview"
-          aria-selected="{% if request.get_full_path == overview_url %}true{% else %}false{% endif %}">
-          {% trans "Overview" %}
-      </a>
+      <ul class="list-group">
+
+        <li class="list-group-item text-center">
+          <a class="text-muted font-weight-bold" href="{% url 'users:detail' request.user.slug  %}">
+            My Dashboard
+          </a>
+        </li>
 
       <a
         class="nav-link {% if request.get_full_path == my_info_url %}active{% endif %}"

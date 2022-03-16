@@ -2,8 +2,7 @@
 {% load static %}
 {% load static i18n %}
 
-{% block title %}User: {{ object.username }}{% endblock %}
-{% block section_title %}<span>{% trans "Overview" %}</span>{% endblock %}
+{% block title %}User: {{ object.get_representative_name }}{% endblock %}
 
 {% block inner %}
 {% endblock inner %}

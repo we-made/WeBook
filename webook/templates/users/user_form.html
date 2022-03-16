@@ -2,37 +2,61 @@
 {% load crispy_forms_tags %}
 {% load static i18n %}
 
-
-{% block title %}{{ user.username }}{% endblock %}
-{% block section_title %}{% trans "My Info" %}{% endblock %}
+{% block title %}{{ user.get_representative_name }}{% endblock %}
 
 {% block inner %}
   <form class="form-horizontal" method="post" action="{% url 'users:update' %}">
     {% csrf_token %}
-    <div class="row">
-      <div class="col-12">
+      <div class="row">
+        <div class="col-lg-4 mt-lg-0 col-sm-12 mt-sm-4">
+          <div class="form-group">
+            <div class="form-outline">
+              <input type="text" class="form-control form-control-lg" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name}}"
+                     placeholder="{{ form.first_name.placeholder }}" value="{{ form.first_name.value }}"/>
+              <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+            </div>
+            {{ form.first_name.errors }}
+          </div>
+        </div>
+        <div class="col-lg-4 mt-lg-0 col-sm-12 mt-sm-4">
+          <div class="form-group">
+            <div class="form-outline">
+              <input type="text" class="form-control form-control-lg" id="{{ form.middle_name.id_for_label }}" name="{{ form.middle_name.name}}"
+                     placeholder="{{ form.middle_name.placeholder }}" value="{{ form.middle_name.value }}"/>
+              <label class="form-label" for="{{ form.middle_name.id_for_label }}">{{ form.middle_name.label }}</label>
+            </div>
+            {{ form.middle_name.errors }}
+          </div>
+        </div>
+        <div class="col-lg-4 mt-lg-0 col-sm-12 mt-sm-4">
+          <div class="form-group">
+            <div class="form-outline">
+              <input type="text" class="form-control form-control-lg" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name}}"
+                     placeholder="{{ form.last_name.placeholder }}" value="{{ form.last_name.value }}"/>
+              <label class="form-label" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+            </div>
+            {{ form.last_name.errors }}
+          </div>
+        </div>
 
-        <div class="form-outline mt-4"> 
-          <input type="text" name="{{ form.name.name }}" maxlength="255" 
-                  class="textinput textInput form-control form-control-lg" id="{{ form.name.id_for_label }}" 
-                  value="{{ form.name.value }}"/> 
-          <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-        </div>
-        
-        <div class="form-outline mt-2">
-          <label class="border-bottom border-1 border-dark p-2 font-weight-bold bg-light"
-                 style="width: 100%">{{ form.profile_picture.label}}</label>
-          <input type="file" name="{{ form.profile_picture.name }}" id="{{ form.profile_picture.id_for_label }}"
-                 class="form-control form-control-lg" />
-        </div>
-        
-        <div class="control-group mt-2">
-          <div class="controls">
-            <button type="submit" class="btn float-end btn-primary">Update</button>
+        <div class="col-lg-4 col-sm-12 mt-sm-4">
+          <div class="form-group">
+            <div class="form-outline">
+              <input type="date" class="form-control form-control-lg" id="{{ form.birth_date.id_for_label }}" name="{{ form.birth_date.name}}"
+                     placeholder="{{ form.birth_date.placeholder }}" value="{{ form.birth_date.value | date:'Y-m-d' }}"/>
+              <label class="form-label" for="{{ form.birth_date.id_for_label }}">{{ form.birth_date.label }}</label>
+            </div>
           </div>
         </div>
       </div>
-
-    </div>
+    
+      <div class="clearfix">
+        <div class="col-sm-12 col-lg-2 float-end">
+          <button class="btn btn-success btn-block mb-sm-3 mb-lg-0 mt-lg-3 mt-sm-4 form-control-sm float-end"
+                  type="submit">
+            <i class="la la-save"></i>&nbsp; Lagre
+          </button>
+        </div>
+      </div>
   </form>
 {% endblock %}

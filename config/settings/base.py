@@ -108,6 +108,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
+# To comply with AllAuth
+USER_MODEL_USERNAME_FIELD = "email"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
 LOGIN_REDIRECT_URL = "users:redirect"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
@@ -280,13 +282,19 @@ ACCOUNT_ALLOW_REGISTRATION = env.bool(
     "DJANGO_ACCOUNT_ALLOW_REGISTRATION", True
 )
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_ADAPTER = "webook.users.adapters.AccountAdapter"
+ACCOUNT_FORMS = {
+    'signup': 'webook.users.forms.UserCreationForm'
+}
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 SOCIALACCOUNT_ADAPTER = (
     "webook.users.adapters.SocialAccountAdapter"

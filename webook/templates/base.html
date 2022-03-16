@@ -29,15 +29,41 @@
   </head>
 
   <body>
-    <header>
-      <!-- Sidenav -->
-      <nav id="sidenav-1" class="sidenav ps sidenav-primary" data-mdb-mode="side" data-mdb-hidden="false" data-mdb-accordion="true" style="width: 240px; height: 100vh; position: fixed; transition: all 0.3s linear 0s; ">
-        <a class="ripple d-flex justify-content-center py-4" href="#!" data-mdb-ripple-color="primary">
-          <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" draggable="false">
-        </a>
-  
-        <div class="text-center p-2 h3">
-          {{ APP_TITLE }}
+    <div class="mb-4">
+      <nav class="navbar navbar-expand-md navbar-light bg-light container-fluid">
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="{% url 'home' %}">{{ APP_TITLE }}</a>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'about' %}">About</a>
+            </li>
+          </ul>
+
+
+        {% if request.user.is_authenticated %}
+        <div class="btn-group shadow-0">
+          <button
+            type="button"
+            class="btn btn-link dropdown-toggle"
+            data-mdb-toggle="dropdown"
+            aria-expanded="false"
+          >
+            {% trans "Hi" %}, {{ request.user.get_representative_name }}
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'users:detail' request.user.slug  %}"><i class="la la-user"></i>&nbsp; {% trans "My Profile" %}</a></li>
+            <li>
+              <hr class="dropdown-divider" />
+            </li>
+            <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="la la-times-circle"></i>&nbsp; {% trans "Sign Out" %}</a></li>
+          </ul>
         </div>
   
         <ul class="sidenav-menu">
