@@ -143,7 +143,7 @@ from .confirmation_views import (
 )
 
 
-from .arrangmenttype_views import (
+from .arrangementtype_views import (
     arrangement_type_detail_view,
     arrangement_type_list_view,
     arrangement_type_create_view,
