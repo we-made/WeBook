@@ -2,9 +2,13 @@
 {% load crispy_forms_tags %}
 {% load static i18n %}
 
+<<<<<<< HEAD
 
 {% block title %}{{ user.username }}{% endblock %}
 {% block section_title %}{% trans "My Info" %}{% endblock %}
+=======
+{% block title %}{{ user.get_representative_name }}{% endblock %}
+>>>>>>> development
 
 {% block inner %}
   <h4 class="mb-0">
@@ -14,11 +18,14 @@
   <form class="form-horizontal" method="post" action="{% url 'users:update' %}"
     enctype="multipart/form-data">
     {% csrf_token %}
+<<<<<<< HEAD
 
       {% if form.profile_picture %}
         {{ form.profile_picture }}
       {% endif %}
 
+=======
+>>>>>>> development
       <div class="row">
         <div class="col-lg-4 col-md-12 col-sm-12">
           <div class="form-group mt-3">
@@ -28,6 +35,7 @@
           </div>
         </div>
 
+<<<<<<< HEAD
         <div class="col-lg-4 col-md-12 col-sm-12">
           <div class="form-group mt-3">
             <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.middle_name.label }}</label>
@@ -51,6 +59,19 @@
                 placeholder="{{ form.birth_date.placeholder }}" value="{{ form.birth_date.value | date:'Y-m-d' }}"/>
       </div>
 
+=======
+        <div class="col-lg-4 col-sm-12 mt-sm-4">
+          <div class="form-group">
+            <div class="form-outline">
+              <input type="date" class="form-control form-control-lg" id="{{ form.birth_date.id_for_label }}" name="{{ form.birth_date.name}}"
+                     placeholder="{{ form.birth_date.placeholder }}" value="{{ form.birth_date.value | date:'Y-m-d' }}"/>
+              <label class="form-label" for="{{ form.birth_date.id_for_label }}">{{ form.birth_date.label }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+>>>>>>> development
       <div class="clearfix">
         <div class="col-sm-12 col-lg-2 float-end">
           <button class="btn btn-success btn-block mb-sm-3 mb-lg-0 mt-lg-3 mt-sm-4 form-control-sm float-end"

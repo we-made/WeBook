@@ -1,8 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+<<<<<<< HEAD
 from django.views import View
 from django.db.models import Q
+=======
+>>>>>>> development
 from django.views.generic import (
     DetailView,
     RedirectView,
@@ -12,6 +15,7 @@ from django.views.generic import (
     TemplateView
 )
 from django.views.generic.edit import DeleteView
+<<<<<<< HEAD
 from webook.arrangement.forms.promote_planner_to_main_form import PromotePlannerToMainForm
 from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
 from webook.arrangement.forms.add_planner_form import AddPlannerForm
@@ -22,6 +26,12 @@ from django.views.generic.edit import FormView
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+=======
+from webook.arrangement.models import Arrangement
+from webook.utils.meta.meta_view_mixins import MetaMixin
+from webook.utils.meta.meta_types import SectionCrudlPathMap, SectionManifest, ViewMeta
+from webook.utils.meta.meta_view_mixins import GenericListTemplateMixin
+>>>>>>> development
 
 
 def get_section_manifest():
@@ -52,6 +62,7 @@ class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin
     view_meta = ViewMeta.Preset.detail(Arrangement)
     template_name = "arrangement/arrangement/arrangement_detail.html"
 
+<<<<<<< HEAD
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         arrangement = self.get_object()
@@ -95,6 +106,8 @@ class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin
         return context
 
 
+=======
+>>>>>>> development
 arrangement_detail_view = ArrangementDetailView.as_view()
 
 
@@ -151,6 +164,7 @@ class ArrangementDeleteView(LoginRequiredMixin, ArrangementSectionManifestMixin,
     template_name = "arrangement/delete_view.html"
     view_meta = ViewMeta.Preset.delete(Arrangement)
 
+<<<<<<< HEAD
 arrangement_delete_view = ArrangementDeleteView.as_view()
 
 
@@ -253,3 +267,6 @@ class ArrangementRemovePlannerFormView(LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 arrangement_remove_planner_form_view = ArrangementRemovePlannerFormView.as_view()
+=======
+arrangement_delete_view = ArrangementDeleteView.as_view()
+>>>>>>> development

@@ -3,19 +3,30 @@
 
 
 {% block beneath_breadcrumbs_block %}
+<<<<<<< HEAD
     <a class="btn btn-danger"
         href="{% url 'arrangement:location_delete' object.slug %}">
         <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
     </a>
+=======
+>>>>>>> development
     <a class="btn btn-success"
         href="{% url 'arrangement:location_edit' object.slug %}">
         <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
     </a>
+<<<<<<< HEAD
+=======
+    <a class="btn btn-danger"
+        href="{% url 'arrangement:location_delete' object.slug %}">
+        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
+    </a>
+>>>>>>> development
 {% endblock %}
 
 {% block content %}
 
 <h4><i class="fas fa-table"></i>&nbsp; {% trans "Rooms" %}</h3>
+<<<<<<< HEAD
 
 <div class="clearfix">
     <button class="btn btn-lg btn-wemade float-end"
@@ -27,6 +38,17 @@
 
 
 <span id="roomsTableLoaderWrapper">
+=======
+        
+<button class="btn btn-success"
+        data-mdb-toggle="modal"
+        data-mdb-target="#createRoomModal">
+    <i class="fa fa-plus"></i>&nbsp; {% trans "New Room" %}
+</button>
+
+<span id="roomsTableLoaderWrapper">
+
+>>>>>>> development
 </span>
 
 
@@ -112,13 +134,20 @@
         let dataForm = new FormData(document.getElementById("createNewRoomDialogForm"))
         let url = "{% url 'arrangement:room_create' %}"
 
+<<<<<<< HEAD
         dataForm.append("csrfmiddlewaretoken", "{{ csrf_token }}");
 
+=======
+>>>>>>> development
         fetch(url, {
             method: 'POST',
             body: dataForm,
             headers: {
+<<<<<<< HEAD
                 'X-CSRFToken': '{% csrf_token %}'
+=======
+                'X-CSRFToken': '{{ csrf_token }}'
+>>>>>>> development
             }
         }).then(function(response) {
             console.log(response);

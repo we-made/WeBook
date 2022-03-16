@@ -4,6 +4,7 @@
 {% block section_title %}
 {% endblock %}
 
+<<<<<<< HEAD
 {%block noheader%}
 {%endblock%}
 
@@ -38,6 +39,21 @@
           <i class="fas fa-user"></i>&nbsp; 
           {% trans "My Page" %}
       </a>
+=======
+{% block content %}
+  <h1>{% trans "Good day" %}, {{ request.user.get_representative_name }}</h1>
+  <br>
+  <div class="row">
+    <div class="col-sm-12 col-lg-3">
+      <ul class="list-group">
+
+        <li class="list-group-item text-center">
+          <a class="text-muted font-weight-bold" href="{% url 'users:detail' request.user.slug  %}">
+            My Dashboard
+          </a>
+        </li>
+
+>>>>>>> development
       <a
         class="nav-link {% if request.get_full_path == my_info_url %}active{% endif %}"
         id="v-tabs-my-info-tab"
@@ -65,7 +81,11 @@
         <i class="fas fa-lock"></i>&nbsp; 
         {% trans "Reset Password" %}
       </a>
+<<<<<<< HEAD
     </ul>
+=======
+    </div>
+>>>>>>> development
   </div>
 </div>
 {% endblock %}

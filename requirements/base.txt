@@ -16,3 +16,4 @@ django-autoslug==1.9.8  # https://github.com/justinmayer/django-autoslug/
 django-extensions
 sphinx
 django-npm
+anytree

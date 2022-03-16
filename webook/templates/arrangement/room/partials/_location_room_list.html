@@ -1,12 +1,21 @@
 {% load static i18n %}
 
 <div class="table-responsive">
+<<<<<<< HEAD
     <table class="table">
         <thead>
             <tr>
                 <th class="h5">{% trans "Name" %}</th>
                 <th class="h5">{% trans "Maximum Occupants" %}</th>
                 <th class="h5">{% trans "Options" %}</th>
+=======
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th class="h6">{% trans "Name" %}</th>
+                <th class="h6">{% trans "Maximum Occupants" %}</th>
+                <th class="h6">{% trans "Options" %}</th>
+>>>>>>> development
             </tr>
         </thead>
 
@@ -17,6 +26,7 @@
                     <td>{{ item.max_capacity }}</td>
                     <td>
                         <a
+<<<<<<< HEAD
                             class="btn btn-link text-info"
                             href="{% url 'arrangement:room_detail' item.slug %}">
                             <i class="fas fa-eye"></i>&nbsp;
@@ -32,6 +42,20 @@
                             class="btn btn-link text-danger"
                             href="">
                             <i class="fas fa-trash"></i>&nbsp;
+=======
+                            class="btn btn-sm btn-info"
+                            href="{% url 'arrangement:room_detail' item.slug %}">
+                            {% trans "Show" %}
+                        </a>
+                        <a
+                            class="btn btn-sm btn-success"
+                            href="{% url 'arrangement:room_edit' item.slug %}">
+                            {% trans "Edit" %}
+                        </a>
+                        <a
+                            class="btn btn-sm btn-danger"
+                            href="">
+>>>>>>> development
                             {% trans "Delete" %}
                         </a>
                     </td>
