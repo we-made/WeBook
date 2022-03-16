@@ -89,5 +89,4 @@ class PlannerCalendar {
 
         this._fcCalendar.render();
     }
-
 }
