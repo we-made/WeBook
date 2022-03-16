@@ -180,6 +180,15 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
+class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
+    class Meta:
+        verbose_name = _("Arrangement")
+        verbose_name_plural = _("Arrangements")
+
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
+    slug = AutoSlugField(populate_from="name", unique=True)
+
+
 class Location (TimeStampedModel, ModelNamingMetaMixin):
     """Location represents a physical location, for instance a building.
     In practice a location is a group of rooms, primarily helpful in contextualization and filtering
