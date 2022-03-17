@@ -13,28 +13,39 @@ export class PlannerCalendar {
 
         this._colorProviders = new Map();
         this._colorProviders.set("DEFAULT", new this.StandardColorProvider())
+
         colorProviders.forEach( (bundle) => {
             this._colorProviders.set(bundle.key, bundle.provider)
         })
-        this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : "DEFAULT";
 
-        console.log(">> Active Color Provider: " + this.activeColorProvider)
-        console.log(this._colorProviders)
+        // If user has not supplied an active color provider key we use default color provider as active.
+        this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : "DEFAULT";
 
         this._ARRANGEMENT_STORE = new this.ArrangementStore(this);
         this._initCalendar();
     }
 
+    /**
+     * Refresh the calendar view.
+     */
     refresh() {
         this._initCalendar();
     }
 
+    /**
+     * The standard calendar color provider
+     */
     StandardColorProvider = class StandardColorProvider {
         getColor(arrangement) {
             return "green";
         }
     }
 
+    /**
+     * Set a new active color provider, identified by the given key. 
+     * Set color provider must have been registered on initialization of planner calendar.
+     * @param {*} key 
+     */
     setActiveColorProvider(key) {
         if (this._colorProviders.has(key)) {
             this.activeColorProvider = key;
@@ -44,6 +55,10 @@ export class PlannerCalendar {
         }
     }
 
+    /**
+     * Get the currently active color provider instance
+     * @returns active color provider
+     */
     _getColorProvider() {
         return this._colorProviders.get(this.activeColorProvider);
     }
@@ -120,6 +135,11 @@ export class PlannerCalendar {
             }
         }
 
+        /**
+         * Get all arrangements in the form designated by get_as param.
+         * @param {*} param0 
+         * @returns An array of arrangements, whose form depends on get_as param.
+         */
         get_all({ get_as } = {}) {
             console.log(this._store);
             var arrangements = Array.from(this._store.values());
@@ -187,7 +207,7 @@ export class PlannerCalendar {
         });
 
         new mdb.Popover(elementToBindWith, {
-            trigger: "hover focus",
+            trigger: "click",
             content: `
                 <span class='badge badge-lg badge-info'>
                     <i class='${arrangement.audience_icon}'></i>&nbsp;
@@ -211,10 +231,8 @@ export class PlannerCalendar {
         this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
             initialView: 'dayGridMonth',
             events: async (start, end, startStr, endStr, timezone) => {
-                var events = await _this._ARRANGEMENT_STORE._refreshStore(start, end)
+                return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
                         .then(a => _this._ARRANGEMENT_STORE.get_all({ get_as: _FC_EVENT }));
-                console.log(events);
-                return events;
             },
             eventContent: (arg) => {
                 var icon_class = arg.event.extendedProps.icon;
