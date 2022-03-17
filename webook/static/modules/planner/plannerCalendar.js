@@ -9,7 +9,7 @@ export class PlannerCalendar {
     constructor( { calendarElement, eventsSrcUrl, colorProviders=[], initialColorProvider="" } = {}) {
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
-        this._eventsSrcUrl = eventsSrcUrl; /*"{% url 'arrangement:arrangement_events' %}"*/
+        this._eventsSrcUrl = eventsSrcUrl;
 
         this._colorProviders = new Map();
         this._colorProviders.set("DEFAULT", new this.StandardColorProvider())
