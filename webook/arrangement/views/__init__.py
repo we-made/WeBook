@@ -113,6 +113,9 @@ from .planner_views import (
     plan_loose_service_requisitions_component_view,
     plan_people_requisitions_component_view,
     plan_people_to_requisition_component_view,
+    planner_calendar_view,
+    planner_arrangement_events_view,
+    get_arrangements_in_period_view,
 )
 
 from .note_views import (

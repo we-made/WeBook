@@ -1,0 +1,229 @@
+{% extends "arrangement/meta_base.html" %}
+{% load static i18n %}
+
+{% block noheader %}
+
+<style>
+    .stampGroove {
+     border: dashed;   
+    }
+</style>
+
+<div class="clearfix">
+    
+    <div class="float-start">
+        <h2>Planleggingskalender</h2>
+    </div>
+</div>
+
+
+
+<div class="clearfix">
+    <div class="float-end">
+        <div class="btn-group">
+            <a class="btn btn-wemade"
+                href="{% url 'arrangement:arrangement_create' %}">
+                Planlegg nytt arrangement
+            </a>
+            <!-- <button class="btn btn-wemade">
+                Planlegg enkelt nytt arrangement
+            </button> -->
+        </div>
+    </div>
+
+    <div class="float-start">
+        <div class="text-center text-uppercase text-muted"><i class="fas fa-eye"></i>&nbsp; Fokuser på</div>
+        <select name="" id="calendarFocusSelect" class="form-control">
+            <option value="audience">Audiens</option>
+            <option value="planner">Planlegger</option>
+            <option value="arrangement_type">Arrangementstype</option>
+        </select>
+
+        <!-- <div class="text-center text-uppercase text-muted"><i class="fas fa-filter"></i>
+            &nbsp;
+            Filter
+        </div>
+        <button class="btn btn-light btn-block shadow-0"
+                data-mdb-container="body"
+                data-mdb-toggle="popover"
+                data-mdb-placement="bottom"
+                data-mdb-content=" <div><strong>Arrangementstyper:</strong></div> <div><strong>Audiens: </strong></div> <div><strong>Planlegger: </strong></div>"
+                data-mdb-html="true">
+        <i class="fas fa-chevron-down"></i>
+            &nbsp;
+            Filtrer
+        </button>
+        <div class="text-center text-uppercase text-muted"><i class="fas fa-eye"></i>&nbsp; Fokuser på</div>
+        <div class="btn-group shadow-0">
+            <button class="btn btn-light"
+                data-toggle="tooltip"
+                title="Endre visningen til å fokusere på utheving av audiens">
+                Audiens
+            </button>
+            <button class="btn btn-light"
+                data-toggle="tooltip"
+                title="Endre visningen til å fokusere på utheving av arrangementstype">
+                Arrangementstype
+            </button>
+            <button class="btn btn-light"
+                data-toggle="tooltip"
+                title="Endre visningen til å fokusere på utheving av hovedplanleggere">
+                Hovedplanlegger
+            </button>
+        </div> -->
+    </div>
+</div>
+
+
+<!-- <div class="btn-group">
+    <button class="btn btn-success">
+        <i class="fas fa-plus"></i>
+        Ny enkelthendelse
+    </button>
+    <button class="btn btn-success">
+        <i class="fas fa-plus"></i>
+        Ny repeterende hendelse
+    </button>
+</div> -->
+
+<!-- <div class="float-end">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
+        <label class="form-check-label" for="flexSwitchCheckDefault">Multi-select</label>
+    </div>      
+</div> -->
+
+
+<!-- <ul class="nav light-tabs nav-tabs rounded-top mt-4" id="navTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link text-center" id="overview-tab" data-mdb-toggle="tab" href="#overview" role="tab" aria-controls="overview" aria-selected="true">
+        <span class="h6 mb-0"><i class="fas fa-eye"></i></span>
+        &nbsp; <span class="h6">Arrangementer</span></button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active text-center" id="planner-tab" data-mdb-toggle="tab" href="#planner" role="tab" aria-controls="planner" aria-selected="true"
+          onclick="calendarManager.redraw();">
+        <span class="h6 mb-0"><i class="fas fa-calendar"></i></span>
+        &nbsp; <span class="h6">Lokasjoner</span></button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="planners-tab" data-mdb-toggle="tab" href="#planners" role="tab" aria-controls="planners" aria-selected="false">
+        <span class="h6 mb-0"><i class="fas fa-users"></i></span>
+        &nbsp; <span class="h6">Personer</span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="planners-tab" data-mdb-toggle="tab" href="#planners" role="tab" aria-controls="planners" aria-selected="false">
+          <span class="h6 mb-0"><i class="fas fa-calendar"></i></span>
+          &nbsp; <span class="h6">Mine kalendere</span>
+        </button>
+      </li>
+  </ul> -->
+
+
+{% endblock %}
+
+{% block content %}
+
+    <div id="arrangementPlannerCalendar"></div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- <script src="{% static 'modules/planner/plannerCalendar.js' %}" type="module"></script> -->
+
+    <script type="module">
+        import { PlannerCalendar } from "{% static 'modules/planner/plannerCalendar.js' %}";
+
+
+
+        var colorSwatch = [
+            "#ffc2c2", 
+            "#3a0846",
+            "#062664",
+            "#9470bd",
+            "#e1ceff",
+            "#9291cb",
+            "#6668a1",
+            "#937638",
+            "#b90209",
+            "#17222b",
+        ]
+
+        class ColorByMainPlannerColorProvider {
+            constructor () {
+                this._seenPlanners = new Map();
+                this._pickedColors = new Map();
+            }
+
+            _pickUniqueColor() {
+                for (let i = 0; i < colorSwatch.length; i++) {
+                    var color = colorSwatch[i];
+                    if (this._pickedColors.has(color) === false) {
+                        this._pickedColors.set(color, true);
+                        return color;
+                    }
+                }
+
+                return "green";
+            }
+
+            getColor(arrangement) {
+                if (this._seenPlanners.has(arrangement.mainPlannerName)) {
+                    return this._seenPlanners.get(arrangement.mainPlannerName);
+                }
+
+                var color = this._pickUniqueColor();
+
+                this._seenPlanners.set(arrangement.mainPlannerName, color);
+                return color;
+            }
+        }
+
+        class ColorByAudienceColorProvider {
+            constructor () {
+                this._seenAudiences = new Map();
+                this._pickedColors = new Map();
+            }
+
+            _pickUniqueColor() {
+                for (let i = 0; i < colorSwatch.length; i++) {
+                    var color = colorSwatch[i];
+                    if (this._pickedColors.has(color) === false) {
+                        this._pickedColors.set(color, true);
+                        return color;
+                    }
+                }
+
+                return "green";
+            }
+
+            getColor(arrangement) {
+               if (this._seenAudiences.has(arrangement.audience)) {
+                    return this._seenAudiences.get(arrangement.audience);
+                }
+
+                var color = this._pickUniqueColor();
+
+                this._seenAudiences.set(arrangement.audience, color);
+                return color;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var plannerCalendar = new PlannerCalendar({
+                calendarElement: document.getElementById('arrangementPlannerCalendar'),
+                eventsSrcUrl: "{% url 'arrangement:arrangement_events' %}",
+                colorProviders: [ 
+                    { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
+                    { key: "audience", provider: new ColorByAudienceColorProvider() },
+                ],
+                initialColorProvider: "audience",
+            });
+            $('#calendarFocusSelect').on("change", function () {
+                plannerCalendar.setActiveColorProvider(this.value);
+                plannerCalendar.refresh();
+            })
+        });
+    </script>
+
+{% endblock %}
