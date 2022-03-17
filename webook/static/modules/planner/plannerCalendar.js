@@ -1,35 +1,27 @@
-import { FullCalendarEvent, FullCalendarResource } from "./commonLib.js";
-
-var _FC_EVENT = Symbol('EVENT');
-var _NATIVE_ARRANGEMENT = Symbol("NATIVE_ARRANGEMENT");
+import { FullCalendarEvent, FullCalendarResource, FullCalendarBased, writeSlugClass, ArrangementStore, _FC_EVENT, _NATIVE_ARRANGEMENT } from "./commonLib.js";
 
 
-export class PlannerCalendar {
+export class PlannerCalendar extends FullCalendarBased {
 
     constructor( { calendarElement, eventsSrcUrl, colorProviders=[], initialColorProvider="" } = {}) {
+        super();
+
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
         this._eventsSrcUrl = eventsSrcUrl;
 
         this._colorProviders = new Map();
-        this._colorProviders.set("DEFAULT", new this.StandardColorProvider())
+        this._colorProviders.set("DEFAULT", new this.StandardColorProvider());
 
         colorProviders.forEach( (bundle) => {
             this._colorProviders.set(bundle.key, bundle.provider)
-        })
+        });
 
         // If user has not supplied an active color provider key we use default color provider as active.
         this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : "DEFAULT";
 
-        this._ARRANGEMENT_STORE = new this.ArrangementStore(this);
-        this._initCalendar();
-    }
-
-    /**
-     * Refresh the calendar view.
-     */
-    refresh() {
-        this._initCalendar();
+        this._ARRANGEMENT_STORE = new ArrangementStore(this);
+        this.init();
     }
 
     /**
@@ -64,138 +56,6 @@ export class PlannerCalendar {
     }
 
     /**
-     * Stores, fetches, and provides an easy interface from which to retrieve arrangements
-     */
-    ArrangementStore = class ArrangementStore {
-        constructor (plannerCalendar) {
-            this._store = new Map();
-            this._refreshStore();
-            this.plannerCalendar = plannerCalendar;
-        }
-
-        /**
-         * Refreshes the store and returns this so you can chain in a get.
-         */
-        _refreshStore(start, end) {
-            this._flushStore();
-            return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}`)
-                .then(response => response.json())
-                .then(obj => { obj.forEach((arrangement) => {
-                    console.log(arrangement)
-                    this._store.set(arrangement.slug, arrangement);
-                })});
-        }
-
-        /**
-         * Flush the store
-         */
-        _flushStore() {
-            this._store = new Map();
-        }
-
-        /**
-         * Converts a 'native' arrangement to a fullcalendar event
-         * @param {*} arrangement 
-         * @returns 
-         */
-        _mapArrangementToFullCalendarEvent(arrangement) {
-            let _this = this;
-            return new FullCalendarEvent({
-                title: arrangement.name,
-                start: arrangement.starts,
-                end: arrangement.ends,
-                color: _this.plannerCalendar._getColorProvider().getColor(arrangement),
-                classNames: [ `slug:${arrangement.slug}` ],
-                extendedProps: { 
-                    icon: arrangement.audience_icon, 
-                    starts: arrangement.starts, 
-                    ends: arrangement.ends,
-                    arrangementType: arrangement.arrangement_type
-                },
-            });
-        }
-
-        /**
-         * Get arrangement by the given slug
-         * @param {*} slug 
-         */
-        get({ slug, get_as } = {}) {
-            if (this._store.has(slug) === false) {
-                console.error(`Can not get arrangement with slug '${slug}' as slug is not known.`)
-                return;
-            }
-
-            var arrangement = this._store.get(slug);
-
-            if (get_as === _FC_EVENT) {
-                return this._mapArrangementToFullCalendarEvent(arrangement);
-            }
-            else if (get_as === _NATIVE_ARRANGEMENT) {
-                return arrangement;
-            }
-        }
-
-        /**
-         * Get all arrangements in the form designated by get_as param.
-         * @param {*} param0 
-         * @returns An array of arrangements, whose form depends on get_as param.
-         */
-        get_all({ get_as } = {}) {
-            console.log(this._store);
-            var arrangements = Array.from(this._store.values());
-
-            if (get_as === _FC_EVENT) {
-                // var mappedEvents = arrangements.map( (arrangement) => { this._mapArrangementToFullCalendarEvent(arrangement) });
-                var mappedEvents = [];
-                arrangements.forEach( (arrangement) => {
-                    mappedEvents.push( this._mapArrangementToFullCalendarEvent(arrangement) );
-                });
-                return mappedEvents;
-            }
-            else if (get_as === _NATIVE_ARRANGEMENT) {
-                return arrangements;
-            }
-        }
-
-        /**
-         * Remove arrangement from the local store. Does not affect upstream.
-         * @param {*} slug 
-         */
-        remove(slug) {
-            if (this._store.has(slug)) {
-
-            }
-            else {
-                console.error(`Can not remove arrangement with slug '${slug}', as slug is not known.`)
-            }
-        }
-    }
-
-    /**
-     * Find the slug value from the given element el
-     * @param {*} el 
-     * @returns A slug, or undefined if none was found
-     */
-    _findSlugFromEl(el) {
-        var slug = undefined;
-
-        el.classList.forEach((classToEvaluate) => {
-            var classSplit = classToEvaluate.split(":");
-        
-            if (classSplit.length > 1 && classSplit[0] == "slug") {
-                slug = classSplit[1];
-            }
-        });
-
-        if (slug === undefined) {
-            console.error("Tried to execute open method for arrangement but could not acquire slug.")
-            return undefined;
-        }
-
-        return slug;
-    }
-
-    /**
      * Bind popover with arrangement info to elementToBindWith
      * @param {*} elementToBindWith 
      */
@@ -226,7 +86,7 @@ export class PlannerCalendar {
     /**
      * First-time initialize the calendar
      */
-    async _initCalendar () {
+    async init () {
         let _this = this;
         this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
             initialView: 'dayGridMonth',
