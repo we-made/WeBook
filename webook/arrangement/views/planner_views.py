@@ -376,3 +376,30 @@ class PlannerArrangementEvents (LoginRequiredMixin, ListView):
         return HttpResponse(json.dumps(events, default=json_serial), content_type="application/json")
 
 planner_arrangement_events_view =  PlannerArrangementEvents.as_view()
+
+
+class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
+    """ Get all arrangements happening in a given period """
+
+    def get(self, request, *args, **kwargs):
+        arrangements = Arrangement.objects.all()
+        serializable_arrangements = []
+
+        for arrangement in arrangements:
+            serializable_arrangements.append({
+                "slug": arrangement.slug,
+                "name": arrangement.name,
+                "starts": arrangement.starts,
+                "ends": arrangement.ends,
+                "mainPlannerName": arrangement.responsible.full_name,
+                "audience": arrangement.audience.name,
+                "audience_icon": arrangement.audience.icon_class,
+                "arrangement_type": arrangement.arrangement_type.name,
+            })
+
+        return HttpResponse(
+            json.dumps(serializable_arrangements, default=json_serial),
+            content_type="application/json",
+        )
+
+get_arrangements_in_period_view = GetArrangementsInPeriod.as_view()

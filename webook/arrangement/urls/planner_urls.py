@@ -18,6 +18,7 @@ from webook.arrangement.views import (
     plan_people_to_requisition_component_view,
     planner_calendar_view,
     planner_arrangement_events_view,
+    get_arrangements_in_period_view
 )
 
 
@@ -101,5 +102,10 @@ planner_urls = [
         route="planner/arrangements_as_events",
         view=planner_arrangement_events_view,
         name="arrangement_events",
+    ),
+    path(
+        route="planner/arrangements_in_period",
+        view=get_arrangements_in_period_view,
+        name="arrangements_in_period"
     )
 ]
