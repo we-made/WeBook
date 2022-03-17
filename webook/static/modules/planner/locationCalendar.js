@@ -1,7 +1,7 @@
-import { FullCalendarEvent, FullCalendarResource } from "./commonLib.js";
+import { FullCalendarEvent, FullCalendarResource, FullCalendarBased, LocationStore } from "./commonLib.js";
 
 
-export class PlannerLocationCalendar {
+export class LocationCalendar extends FullCalendarBased {
 
     constructor ( {calendarElement } = {} ) {
         super();
@@ -9,7 +9,14 @@ export class PlannerLocationCalendar {
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
         
-        this._initCalendar()
+        this._LOCATIONS_STORE = new LocationStore(this);
+
+        this.init()
+    }
+
+    refresh() {
+        console.info("HIT REFRESH")
+        this.init()
     }
 
     _bindPopover() {
@@ -18,8 +25,12 @@ export class PlannerLocationCalendar {
 
     init() {
         let _this = this;
-        this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
+        this._fcCalendar = new FullCalendar.Calendar(_this._calendarElement, {
             initialView: 'timeGridWeek',
+            resources: async (start, end) => {
+                return await _this._LOCATIONS_STORE._refreshStore(start,end)
+                    .then(a => _this._LOCATIONS_STORE.getAll());
+            }
         });
 
         this._fcCalendar.render();

@@ -11,6 +11,7 @@ from .location_views import (
     location_list_view,
     location_create_view,
     location_delete_view,
+    locations_calendar_resources_list_view,
 )
 
 from .room_views import (

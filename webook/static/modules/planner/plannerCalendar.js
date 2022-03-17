@@ -1,5 +1,5 @@
 import { FullCalendarEvent, FullCalendarResource, FullCalendarBased, writeSlugClass, ArrangementStore, _FC_EVENT, _NATIVE_ARRANGEMENT } from "./commonLib.js";
-
+import { ArrangementInspector } from "./arrangementInspector.js";
 
 export class PlannerCalendar extends FullCalendarBased {
 
@@ -22,6 +22,8 @@ export class PlannerCalendar extends FullCalendarBased {
 
         this._ARRANGEMENT_STORE = new ArrangementStore(this);
         this.init();
+
+        this.inspectorUtility = new ArrangementInspector();
     }
 
     /**
@@ -83,6 +85,22 @@ export class PlannerCalendar extends FullCalendarBased {
         })
     }
 
+    _bindInspectorTrigger (elementToBindWith) {
+        let _this = this;
+        $(elementToBindWith).on('click', (ev) => {
+            var slug = _this._findSlugFromEl(ev.currentTarget);
+            console.log(">> Slug: " + slug)
+            var arrangement = _this._ARRANGEMENT_STORE.get({
+                slug: slug,
+                get_as: _NATIVE_ARRANGEMENT
+            });
+            console.log(arrangement)
+
+    
+            this.inspectorUtility.inspectArrangement(arrangement);
+        })
+    }
+
     /**
      * First-time initialize the calendar
      */
@@ -90,6 +108,7 @@ export class PlannerCalendar extends FullCalendarBased {
         let _this = this;
         this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
             initialView: 'dayGridMonth',
+            headerToolbar: { center: 'dayGridMonth,timeGridWeek,listMonth' },
             events: async (start, end, startStr, endStr, timezone) => {
                 return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
                         .then(a => _this._ARRANGEMENT_STORE.get_all({ get_as: _FC_EVENT }));
@@ -109,7 +128,8 @@ export class PlannerCalendar extends FullCalendarBased {
                 return { html: html }
             },
             eventDidMount: (arg) => {
-                this._bindPopover(arg.el)
+                //this._bindPopover(arg.el)
+                this._bindInspectorTrigger(arg.el);
 
                 $.contextMenu({
                     className: "",

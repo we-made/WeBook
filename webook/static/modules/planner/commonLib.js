@@ -32,6 +32,34 @@ export class CalendarDataStore {
     remove()    {}
 }
 
+
+export class LocationStore {
+    constructor (calendarBase) {
+        this._store = new Map();
+        this._refreshStore();
+        this._calendar = calendarBase;
+    }
+
+    _refreshStore(start, end) {
+        this._flushStore();
+        return fetch("/arrangement/location/calendar_resources")
+            .then(response => response.json())
+            .then(obj => { obj.forEach((location) => {
+                this._store.set(location.slug, location);
+            })});
+    }
+
+    _flushStore() {
+        this._store = new Map();
+    }
+
+    getAll() {
+        var resources = Array.from(this._store.values());
+        console.log(resources);
+        return resources;
+    }
+}
+
 /**
  * Stores, fetches, and provides an easy interface from which to retrieve arrangements
  */
@@ -50,7 +78,6 @@ export class ArrangementStore {
         return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}`)
             .then(response => response.json())
             .then(obj => { obj.forEach((arrangement) => {
-                console.log(arrangement)
                 this._store.set(arrangement.slug, arrangement);
             })});
     }
@@ -111,7 +138,6 @@ export class ArrangementStore {
      * @returns An array of arrangements, whose form depends on get_as param.
      */
     get_all({ get_as } = {}) {
-        console.log(this._store);
         var arrangements = Array.from(this._store.values());
 
         if (get_as === _FC_EVENT) {

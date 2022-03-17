@@ -7,6 +7,10 @@
     .stampGroove {
      border: dashed;   
     }
+
+    .fc-event:hover {
+        border: solid 1px red;
+    }
 </style>
 
 <div class="clearfix">
@@ -96,29 +100,45 @@
 
 <ul class="nav light-tabs nav-tabs rounded-top mt-4" id="navTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link text-center" id="overview-tab" data-mdb-toggle="tab" href="#universe" role="tab" aria-controls="universe" aria-selected="true">
+        <button class="nav-link active text-center" id="overview-tab" data-mdb-toggle="tab" href="#universeCalendar" role="tab" aria-controls="universe" aria-selected="true">
         <span class="h6 mb-0"><i class="fas fa-eye"></i></span>
         &nbsp; <span class="h6">Arrangementer</span></button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link active text-center" id="planner-tab" data-mdb-toggle="tab" href="#locations" role="tab" aria-controls="locations" aria-selected="true">
+        <button class="nav-link text-center" id="locations-tab" data-mdb-toggle="tab" href="#locationsCalendar" role="tab" aria-controls="locations" aria-selected="true">
         <span class="h6 mb-0"><i class="fas fa-building"></i></span>
         &nbsp; <span class="h6">Lokasjoner</span></button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="planners-tab" data-mdb-toggle="tab" href="#people" role="tab" aria-controls="people" aria-selected="false">
+        <button class="nav-link" id="people-tab" data-mdb-toggle="tab" href="#peopleCalendar" role="tab" aria-controls="people" aria-selected="false">
         <span class="h6 mb-0"><i class="fas fa-users"></i></span>
         &nbsp; <span class="h6">Personer</span>
-      </button>
+        </button>
     </li>
-  </ul>
+</ul>
 
 
 {% endblock %}
 
 {% block content %}
+    <div class="tab-content" id="calendars">
+      <div class="tab-pane show active" id="universeCalendar" role="tabpanel" aria-labelledby="universeCalendar-tab">
+        <div id="arrangementPlannerCalendar"></div>
+      </div>
+      <div class="tab-pane" id="locationsCalendar" role="tabpanel" aria-labelledby="locationsCalendar-tab">
+        <div id="locationsPlannerCalendar"></div>
+      </div>
+      <div class="tab-pane" id="peopleCalendar" role="tabpanel" aria-labelledby="peopleCalendar-tab">
+        <div id="peoplePlannerCalendar"></div>
+      </div>
+    </div>
 
-    <div id="arrangementPlannerCalendar"></div>
+    <div id="dialog" title="Hjelpeverktøy">
+        <p>
+            Trykk på et arrangement for å fokusere på det! 
+            Da vil nyttige verktøy og informasjon komme opp her!
+        </p>
+    </div>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -126,9 +146,8 @@
     <!-- <script src="{% static 'modules/planner/plannerCalendar.js' %}" type="module"></script> -->
 
     <script type="module">
-        import { PlannerCalendar } from "{% static 'modules/planner/plannerCalendar.js' %}";
-
-
+        import { PlannerCalendar } from "{% static 'modules/planner/plannerCalendar.js' %}";
+        import { LocationCalendar } from "{% static 'modules/planner/locationCalendar.js' %}";
 
         var colorSwatch = [
             "#ffc2c2", 
@@ -212,9 +231,22 @@
                 ],
                 initialColorProvider: "audience",
             });
+
+            var locationsCalendar = new LocationCalendar({
+                calendarElement: document.getElementById('locationsPlannerCalendar')
+            })
+
             $('#calendarFocusSelect').on("change", function () {
                 plannerCalendar.setActiveColorProvider(this.value);
                 plannerCalendar.refresh();
+            })
+
+            $('#overview-tab').on("click", function () {
+                plannerCalendar.refresh();
+            })
+            $('#locations-tab').on("click", function () {
+                console.info(">> Locations calendar refresh")
+                locationsCalendar.refresh();
             })
         });
     </script>
