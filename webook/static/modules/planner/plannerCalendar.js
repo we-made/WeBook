@@ -1,4 +1,15 @@
-import { FullCalendarEvent, FullCalendarResource, FullCalendarBased, writeSlugClass, ArrangementStore, _FC_EVENT, _NATIVE_ARRANGEMENT } from "./commonLib.js";
+import { 
+    FullCalendarEvent, 
+    FullCalendarResource, 
+    FullCalendarBased, 
+    writeSlugClass, 
+    ArrangementStore, 
+    _FC_EVENT, 
+    _NATIVE_ARRANGEMENT, 
+    LocationStore,
+    _FC_RESOURCE,
+} from "./commonLib.js";
+
 import { ArrangementInspector } from "./arrangementInspector.js";
 
 export class PlannerCalendar extends FullCalendarBased {
@@ -21,6 +32,8 @@ export class PlannerCalendar extends FullCalendarBased {
         this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : "DEFAULT";
 
         this._ARRANGEMENT_STORE = new ArrangementStore(this);
+        this._LOCATIONS_STORE = new LocationStore(this);
+
         this.init();
 
         this.inspectorUtility = new ArrangementInspector();
@@ -69,7 +82,7 @@ export class PlannerCalendar extends FullCalendarBased {
         });
 
         new mdb.Popover(elementToBindWith, {
-            trigger: "click",
+            trigger: "hover",
             content: `
                 <span class='badge badge-lg badge-info'>
                     <i class='${arrangement.audience_icon}'></i>&nbsp;
@@ -108,11 +121,15 @@ export class PlannerCalendar extends FullCalendarBased {
         let _this = this;
         this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
             initialView: 'dayGridMonth',
-            headerToolbar: { center: 'dayGridMonth,timeGridWeek,listMonth' },
+            weekNumbers: true,
+            navLinks: true,
+            locale: 'nb',
+            headerToolbar: { center: 'listDay,timelineMonth,dayGridMonth,timeGridWeek,listMonth,resourceTimelineMonth' },
             events: async (start, end, startStr, endStr, timezone) => {
                 return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
                         .then(a => _this._ARRANGEMENT_STORE.get_all({ get_as: _FC_EVENT }));
             },
+
             eventContent: (arg) => {
                 var icon_class = arg.event.extendedProps.icon;
                 let html = `<span class="h6"
@@ -128,7 +145,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 return { html: html }
             },
             eventDidMount: (arg) => {
-                //this._bindPopover(arg.el)
+                this._bindPopover(arg.el);
                 this._bindInspectorTrigger(arg.el);
 
                 $.contextMenu({

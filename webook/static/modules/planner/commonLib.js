@@ -1,5 +1,8 @@
 export const _FC_EVENT = Symbol('EVENT');
+export const _FC_RESOURCE = Symbol("RESOURCE");
 export const _NATIVE_ARRANGEMENT = Symbol("NATIVE_ARRANGEMENT");
+export const _NATIVE_LOCATION = Symbol("NATIVE_LOCATION");
+export const _NATIVE_PERSON = Symbol("NATIVE_PERSON");
 
 export class FullCalendarEvent {
     constructor ({title,
@@ -19,8 +22,17 @@ export class FullCalendarEvent {
 }
 
 export class FullCalendarResource {
-    constructor () {
-        
+    constructor ({ title,
+                   id,
+                   slug,
+                   parentId,
+                   children = []}) {
+        this.title = title;
+        this.id = id;
+        this.parentId = parentId;
+        this.extendedProps = {
+            slug: slug
+        };
     }
 }
 
@@ -40,25 +52,95 @@ export class LocationStore {
         this._calendar = calendarBase;
     }
 
-    _refreshStore(start, end) {
+    async _refreshStore() {
         this._flushStore();
-        return fetch("/arrangement/location/calendar_resources")
+        return await fetch("/arrangement/location/calendar_resources")
             .then(response => response.json())
             .then(obj => { obj.forEach((location) => {
                 this._store.set(location.slug, location);
+                console.log("add to store.")
             })});
+    }
+
+    _mapToFullCalendarResource (nativeLocation) {
+        return new FullCalendarResource({
+            title: nativeLocation.title,
+            id: nativeLocation.id,
+            slug: nativeLocation.slug,
+            children: nativeLocation.children,
+            parentId: nativeLocation.parentId
+        });
     }
 
     _flushStore() {
         this._store = new Map();
     }
 
-    getAll() {
+    getAll({ get_as } = {}) {
         var resources = Array.from(this._store.values());
-        console.log(resources);
-        return resources;
+        console.log(resources)
+        
+        if (get_as === _FC_RESOURCE) {
+            let fcResources = [];
+            for (let i = 0; i < resources.length; i++) {
+                fcResources.push(this._mapToFullCalendarResource(resources[i]));
+            }
+            return fcResources;
+        }
+        else if (get_as === _NATIVE_LOCATION) {
+            return resources;
+        }
     }
 }
+
+export class PersonStore {
+    constructor (calendarBase) {
+        this._store = new Map();
+        this._refreshStore();
+        this._calendar = calendarBase;
+    }
+
+    async _refreshStore() {
+        this._flushStore();
+        return await fetch("/arrangement/location/calendar_resources")
+            .then(response => response.json())
+            .then(obj => { obj.forEach((location) => {
+                this._store.set(location.slug, location);
+                console.log("add to store.")
+            })});
+    }
+
+    _mapToFullCalendarResource (nativeLocation) {
+        return new FullCalendarResource({
+            title: nativeLocation.title,
+            id: nativeLocation.id,
+            slug: nativeLocation.slug,
+            children: nativeLocation.children,
+            parentId: nativeLocation.parentId
+        });
+    }
+
+    _flushStore() {
+        this._store = new Map();
+    }
+
+    getAll({ get_as } = {}) {
+        var resources = Array.from(this._store.values());
+        console.log(resources)
+        
+        if (get_as === _FC_RESOURCE) {
+            let fcResources = [];
+            for (let i = 0; i < resources.length; i++) {
+                fcResources.push(this._mapToFullCalendarResource(resources[i]));
+            }
+            return fcResources;
+        }
+        else if (get_as === _NATIVE_LOCATION) {
+            return resources;
+        }
+    }
+}
+
 
 /**
  * Stores, fetches, and provides an easy interface from which to retrieve arrangements
@@ -127,7 +209,7 @@ export class ArrangementStore {
         if (get_as === _FC_EVENT) {
             return this._mapArrangementToFullCalendarEvent(arrangement);
         }
-        else if (get_as === _NATIVE_ARRANGEMENT) {
+        else if (get_as === _NATIVE_PERSON) {
             return arrangement;
         }
     }

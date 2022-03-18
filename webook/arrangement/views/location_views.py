@@ -135,7 +135,15 @@ class LocationsCalendarResourcesListView (LoginRequiredMixin, ListView):
                 "id": location.slug,
                 "slug": location.slug,
                 "title": location.name,
+                "parentId": ""
             })
+            for room in location.rooms.all():
+                serializable_locations.append({
+                    "id": room.slug,
+                    "slug": room.slug,
+                    "title": room.name,
+                    "parentId": room.location.slug,
+                })
 
         return HttpResponse(
             json.dumps(serializable_locations, default=json_serial),

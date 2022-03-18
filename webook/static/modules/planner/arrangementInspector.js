@@ -84,7 +84,6 @@ export class ArrangementInspector {
                                     <td>
                                         <strong>Målgruppe:</strong>
                                         <select class='form-control'>
-                                            
                                         </select>
                                     </td>
                                 </tr>
@@ -95,7 +94,18 @@ export class ArrangementInspector {
                         </table>
                     </div>
                     <div id="tabs-2">
-                        <div id='innerCalendar'></div>
+                        <table class='table table-striped'>
+                            <thead>
+                                <tr>
+                                    <th class='h6'>Aktivitet</th>
+                                    <th class='h6'>Start - Slutt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div id="tabs-3">
                         

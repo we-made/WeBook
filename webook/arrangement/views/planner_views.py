@@ -394,7 +394,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                 "mainPlannerName": arrangement.responsible.full_name,
                 "audience": arrangement.audience.name,
                 "audience_icon": arrangement.audience.icon_class,
-                "arrangement_type": arrangement.arrangement_type.name,
+                "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined"
             })
 
         return HttpResponse(
