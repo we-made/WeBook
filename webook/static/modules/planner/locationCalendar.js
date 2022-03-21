@@ -28,7 +28,10 @@ export class LocationCalendar extends FullCalendarBased {
 
         if (this._fcCalendar === undefined) {
             this._fcCalendar = new FullCalendar.Calendar(_this._calendarElement, {
-                initialView: 'listYear',
+                initialView: 'resourceTimelineMonth',
+                headerToolbar: { center: 'resourceTimelineMonth,resourceTimelineWeek' },
+                themeSystem: 'bootstrap',
+                selectable: true,
                 views: {
                     resourceTimelineMonth: {
                       type: 'resourceTimeline',
@@ -45,6 +48,32 @@ export class LocationCalendar extends FullCalendarBased {
                     await _this._LOCATIONS_STORE._refreshStore();
                     successCallback(_this._LOCATIONS_STORE.getAll({ get_as: _FC_RESOURCE }));
                 },
+                resourceLabelContent: function (arg) {
+                    var domNodes = [];
+
+                    console.log(arg)
+
+                    var name = document.createElement("span");
+                    name.innerText = arg.resource.title;
+
+                    if (arg.resource.extendedProps.resourceType === "location") {
+                        name.classList.add("fw-bolder");
+                    }
+                    else {
+                        
+                        name.innerHTML = `${name.innerText} <abbr title="Maks kapasitet på dette rommet"><em class='small text-muted'>(${arg.resource.extendedProps.maxCapacity})</em></abbr>`;
+                    }
+
+                    domNodes.push(name);
+
+                    if (arg.resource.extendedProps.resourceType === "location") {
+                        var linkWrapper = document.createElement("span")
+                        linkWrapper.innerHTML=`<a href='/arrangement/location/${arg.resource.id}' class='ms-3'><i class='fas fa-arrow-right'></i></a>`;
+                        domNodes.push(linkWrapper);
+                    }
+
+                    return { domNodes: domNodes };
+                }
             });
         }
 

@@ -26,13 +26,13 @@ export class FullCalendarResource {
                    id,
                    slug,
                    parentId,
+                   extendedProps,
                    children = []}) {
         this.title = title;
         this.id = id;
         this.parentId = parentId;
-        this.extendedProps = {
-            slug: slug
-        };
+        this.extendedProps = extendedProps;
+        this.extendedProps.slug = slug;
     }
 }
 
@@ -44,6 +44,29 @@ export class CalendarDataStore {
     remove()    {}
 }
 
+
+export class CalendarFilter {
+    constructor () {
+        this._filteredEntities = new Map();
+    }
+
+
+    isFiltered () {
+
+    }
+
+    add() {
+
+    }
+
+    remove() {
+
+    }
+
+    clear() {
+
+    }
+}
 
 export class LocationStore {
     constructor (calendarBase) {
@@ -68,7 +91,8 @@ export class LocationStore {
             id: nativeLocation.id,
             slug: nativeLocation.slug,
             children: nativeLocation.children,
-            parentId: nativeLocation.parentId
+            parentId: nativeLocation.parentId,
+            extendedProps: nativeLocation.extendedProps,
         });
     }
 
@@ -102,21 +126,21 @@ export class PersonStore {
 
     async _refreshStore() {
         this._flushStore();
-        return await fetch("/arrangement/location/calendar_resources")
+        return await fetch("/arrangement/person/calendar_resources")
             .then(response => response.json())
-            .then(obj => { obj.forEach((location) => {
-                this._store.set(location.slug, location);
-                console.log("add to store.")
+            .then(obj => { obj.forEach((person) => {
+                this._store.set(person.slug, person);
             })});
     }
 
-    _mapToFullCalendarResource (nativeLocation) {
+    _mapToFullCalendarResource (nativePerson) {
         return new FullCalendarResource({
-            title: nativeLocation.title,
-            id: nativeLocation.id,
-            slug: nativeLocation.slug,
-            children: nativeLocation.children,
-            parentId: nativeLocation.parentId
+            title: nativePerson.title,
+            id: nativePerson.id,
+            slug: nativePerson.slug,
+            children: nativePerson.children,
+            parentId: nativePerson.parentId,
+            extendedProps: nativePerson.extendedProps,
         });
     }
 
@@ -126,7 +150,6 @@ export class PersonStore {
 
     getAll({ get_as } = {}) {
         var resources = Array.from(this._store.values());
-        console.log(resources)
         
         if (get_as === _FC_RESOURCE) {
             let fcResources = [];
@@ -147,7 +170,7 @@ export class PersonStore {
  */
 export class ArrangementStore {
     constructor (plannerCalendar) {
-        this._store = new Map();
+        this._store = new Map(); 
         this._refreshStore();
         this.plannerCalendar = plannerCalendar;
     }
@@ -205,11 +228,11 @@ export class ArrangementStore {
         }
 
         var arrangement = this._store.get(slug);
-
+        console.log(arrangement)
         if (get_as === _FC_EVENT) {
             return this._mapArrangementToFullCalendarEvent(arrangement);
         }
-        else if (get_as === _NATIVE_PERSON) {
+        else if (get_as === _NATIVE_ARRANGEMENT) {
             return arrangement;
         }
     }
@@ -228,9 +251,11 @@ export class ArrangementStore {
             arrangements.forEach( (arrangement) => {
                 mappedEvents.push( this._mapArrangementToFullCalendarEvent(arrangement) );
             });
+            console.log(mappedEvents);
             return mappedEvents;
         }
         else if (get_as === _NATIVE_ARRANGEMENT) {
+            console.log(arrangements);
             return arrangements;
         }
     }

@@ -59,12 +59,6 @@
     </div>
 
     <div class="float-start">
-        <div class="text-center text-uppercase text-muted"><i class="fas fa-eye"></i>&nbsp; Fokuser på</div>
-        <select name="" id="calendarFocusSelect" class="form-control">
-            <option value="audience">Audiens</option>
-            <option value="planner">Planlegger</option>
-            <option value="arrangement_type">Arrangementstype</option>
-        </select>
 
         <!-- <div class="text-center text-uppercase text-muted"><i class="fas fa-filter"></i>
             &nbsp;
@@ -146,6 +140,13 @@
 {% block content %}
     <div class="tab-content" id="calendars">
       <div class="tab-pane show active" id="universeCalendar" role="tabpanel" aria-labelledby="universeCalendar-tab">
+        <div class="text-center text-uppercase text-muted"><i class="fas fa-eye"></i>&nbsp; Fokuser på</div>
+        <select name="" id="calendarFocusSelect" class="form-control mb-3">
+            <option value="audience">Audiens</option>
+            <option value="planner">Planlegger</option>
+            <option value="arrangement_type">Arrangementstype</option>
+        </select>
+
         <div id="arrangementPlannerCalendar"></div>
       </div>
       <div class="tab-pane" id="locationsCalendar" role="tabpanel" aria-labelledby="locationsCalendar-tab">
@@ -163,6 +164,7 @@
     <script type="module">
         import { PlannerCalendar } from "{% static 'modules/planner/plannerCalendar.js' %}";
         import { LocationCalendar } from "{% static 'modules/planner/locationCalendar.js' %}";
+        import { PersonCalendar } from "{% static 'modules/planner/personCalendar.js' %}";
 
         var colorSwatch = [
             "#ffc2c2", 
@@ -251,6 +253,10 @@
                 calendarElement: document.getElementById('locationsPlannerCalendar')
             })
 
+            var peopleCalendar = new PersonCalendar({
+                calendarElement: document.getElementById('peoplePlannerCalendar')
+            })
+
             $('#calendarFocusSelect').on("change", function () {
                 plannerCalendar.setActiveColorProvider(this.value);
                 plannerCalendar.refresh();
@@ -263,6 +269,9 @@
                 console.info(">> Locations calendar refresh")
                 locationsCalendar.refresh();
             })
+            $('#people-tab').on("click", function () {
+                peopleCalendar.refresh();
+            });
         });
     </script>
 

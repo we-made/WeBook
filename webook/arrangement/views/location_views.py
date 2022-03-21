@@ -135,7 +135,10 @@ class LocationsCalendarResourcesListView (LoginRequiredMixin, ListView):
                 "id": location.slug,
                 "slug": location.slug,
                 "title": location.name,
-                "parentId": ""
+                "parentId": "",
+                "extendedProps": {
+                    "resourceType": "location"
+                }
             })
             for room in location.rooms.all():
                 serializable_locations.append({
@@ -143,6 +146,10 @@ class LocationsCalendarResourcesListView (LoginRequiredMixin, ListView):
                     "slug": room.slug,
                     "title": room.name,
                     "parentId": room.location.slug,
+                    "extendedProps": {
+                        "resourceType": "room",
+                        "maxCapacity": room.max_capacity,
+                    }
                 })
 
         return HttpResponse(

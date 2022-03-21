@@ -7,10 +7,12 @@ import {
     _FC_EVENT, 
     _NATIVE_ARRANGEMENT, 
     LocationStore,
+    PersonStore,
     _FC_RESOURCE,
 } from "./commonLib.js";
 
 import { ArrangementInspector } from "./arrangementInspector.js";
+import { FilterDialog } from "./filterDialog.js";
 
 export class PlannerCalendar extends FullCalendarBased {
 
@@ -33,10 +35,12 @@ export class PlannerCalendar extends FullCalendarBased {
 
         this._ARRANGEMENT_STORE = new ArrangementStore(this);
         this._LOCATIONS_STORE = new LocationStore(this);
+        this._PEOPLE_STORE = new PersonStore(this);
 
         this.init();
 
         this.inspectorUtility = new ArrangementInspector();
+        this.filterDialog = new FilterDialog();
     }
 
     /**
@@ -81,6 +85,11 @@ export class PlannerCalendar extends FullCalendarBased {
             get_as: _NATIVE_ARRANGEMENT
         });
 
+        if (arrangement === undefined) {
+            console.error(`Could not bind popover for arrangement with slug ${slug}`);
+            return;
+        }
+
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
             content: `
@@ -107,8 +116,6 @@ export class PlannerCalendar extends FullCalendarBased {
                 slug: slug,
                 get_as: _NATIVE_ARRANGEMENT
             });
-            console.log(arrangement)
-
     
             this.inspectorUtility.inspectArrangement(arrangement);
         })
@@ -120,15 +127,26 @@ export class PlannerCalendar extends FullCalendarBased {
     async init () {
         let _this = this;
         this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
-            initialView: 'dayGridMonth',
+            initialView: 'timelineMonth',
+            selectable: true,
+            themeSystem: 'bootstrap',
             weekNumbers: true,
-            navLinks: true,
+            // navLinks: true,
             locale: 'nb',
-            headerToolbar: { center: 'listDay,timelineMonth,dayGridMonth,timeGridWeek,listMonth,resourceTimelineMonth' },
+            customButtons: {
+                myCustomButton: {
+                    text: 'Filtrering',
+                    click: () => {
+                        this.filterDialog.openFilterDialog();
+                    }
+                }
+            },
+            headerToolbar: { center: 'myCustomButton,listYear', },
             events: async (start, end, startStr, endStr, timezone) => {
                 return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
                         .then(a => _this._ARRANGEMENT_STORE.get_all({ get_as: _FC_EVENT }));
             },
+
 
             eventContent: (arg) => {
                 var icon_class = arg.event.extendedProps.icon;
@@ -161,6 +179,13 @@ export class PlannerCalendar extends FullCalendarBased {
                         },
                         edit: {
                             name: "Edit",
+                            isHtmlName: false,
+                            callback: (key, opt) => {
+                                location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
+                            }
+                        },
+                        changePlanner: {
+                            name: "Change Planner",
                             isHtmlName: false,
                             callback: (key, opt) => {
                                 location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);

@@ -1,3 +1,4 @@
+import datetime
 import json
 from re import search
 from typing import Any, Dict, List
@@ -168,3 +169,33 @@ class SearchPeopleAjax (LoginRequiredMixin, SearchView):
         return people        
 
 search_people_ajax_view = SearchPeopleAjax.as_view()
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, datetime.date)):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
+
+class PeopleCalendarResourcesListView (LoginRequiredMixin, ListView):
+
+    def get(self, request, *args, **kwargs):
+        people = Person.objects.all()
+        serializable_people = []
+
+        for person in people:
+            serializable_people.append({
+                "id": person.slug,
+                "slug": person.slug,
+                "title": person.full_name,
+                "parentId": "",
+                "extendedProps": {},
+            })
+
+        return HttpResponse(
+            json.dumps(serializable_people, default=json_serial),
+            content_type="application/json"
+        )
+
+people_calendar_resources_list_view = PeopleCalendarResourcesListView.as_view()
