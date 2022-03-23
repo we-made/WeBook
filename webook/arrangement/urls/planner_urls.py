@@ -18,7 +18,14 @@ from webook.arrangement.views import (
     plan_people_to_requisition_component_view,
     planner_calendar_view,
     planner_arrangement_events_view,
-    get_arrangements_in_period_view
+    get_arrangements_in_period_view,
+    arrangement_information_dialog_view,
+    arrangement_calendar_planner_dialog_view,
+    arrangement_create_simple_event_dialog_view,
+    arrangement_create_serie_dialog_view,
+    arrangement_promote_planner_dialog_view,
+    arrangement_new_note_dialog_view,
+    arrangement_add_planner_dialog_view,
 )
 
 
@@ -107,5 +114,40 @@ planner_urls = [
         route="planner/arrangements_in_period",
         view=get_arrangements_in_period_view,
         name="arrangements_in_period"
-    )
+    ),
+    path(
+        route="planner/dialogs/arrangement_information/<slug:slug>",
+        view=arrangement_information_dialog_view,
+        name="arrangement_dialog",
+    ),
+    path(
+        route="planner/dialogs/arrangement_calendar_planner/<slug:slug>",
+        view=arrangement_calendar_planner_dialog_view,
+        name="arrangement_planner_dialog",
+    ),
+    path(
+        route="planner/dialogs/create_simple_event",
+        view=arrangement_create_simple_event_dialog_view,
+        name="arrangement_create_event_dialog"
+    ),
+    path(
+        route="planner/dialogs/create_serie",
+        view=arrangement_create_serie_dialog_view,
+        name="arrangement_create_serie_dialog",
+    ),
+    path(
+        route="planner/dialogs/promote_main_planner",
+        view=arrangement_promote_planner_dialog_view,
+        name="arrangement_promote_main_planner_dialog",
+    ),
+    path(
+        route="planner/dialogs/new_note",
+        view=arrangement_new_note_dialog_view,
+        name="arrangement_new_note_dialog",
+    ),
+    path(
+        route="planner/dialogs/add_planner",
+        view=arrangement_add_planner_dialog_view,
+        name="arrangement_add_planner_dialog",
+    ),
 ]

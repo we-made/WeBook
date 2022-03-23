@@ -28,10 +28,36 @@ export class PersonCalendar extends FullCalendarBased {
 
         if (this._fcCalendar === undefined) {
             this._fcCalendar = new FullCalendar.Calendar(_this._calendarElement, {
-                headerToolbar: { center: 'resourceTimelineMonth,resourceTimelineWeek' },
+                headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'resourceTimelineMonth,resourceTimelineWeek' },
                 initialView: 'resourceTimelineMonth',
                 selectable: true,
-                themeSystem: 'bootstrap',
+                customButtons: {
+                    filterButton: {
+                        text: 'Filtrering',
+                        click: () => {
+                            this.filterDialog.openFilterDialog();
+                        }
+                    },
+                    arrangementsCalendarButton: {
+                        text: 'Arrangementer',
+                        click: () => {
+                            $('#overview-tab').trigger('click');
+                        }
+                    },
+                    locationsCalendarButton: {
+                        text: 'Lokasjoner',
+                        click: () => {
+                            $('#locations-tab').trigger('click');
+                        }
+                    },
+                    peopleCalendarButton: {
+                        text: 'Personer',
+                        click: () => {
+                            $('#people-tab').trigger('click');
+                        }
+                    }
+                },
+                // themeSystem: 'bootstrap',
                 views: {
                     resourceTimelineMonth: {
                       type: 'resourceTimeline',

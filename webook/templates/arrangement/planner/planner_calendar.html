@@ -15,20 +15,21 @@
     }
 
     .ui-widget-header {
-        background-color: #386080!important;
+        /* background-color: #2C3E50!important; */
         color:white;
     }
 
     .ui-dialog-title {
-        color:white;
+        /* color:white; */
     }
 
     .ui-dialog {
         box-shadow: 0 1px 15px 1px rgb(62 57 107 / 7%);
+        background-color: aliceblue!important;
     }
 
     .ui-tabs-active {
-        background-color: rgb(33, 56, 75)!important;
+        /* background-color: rgb(33, 56, 75)!important; */
     }
 
     .fc-event:hover {
@@ -36,22 +37,39 @@
     }
 </style>
 
-<div class="clearfix">
-    
-    <div class="float-start">
-        <h2>Planleggingskalender</h2>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{% static 'css/planner.css' %}">
+<link rel="stylesheet" href="{% static 'css/loadingHint.css' %}">
+
+<script src="https://dragselect.com/v2/ds.min.js"></script>
+<script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+
+
+<div class="fc mb-0 p-0">
+    <div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr mb-0">
+        <div class="fc-button-group">
+            <button class="fc-button fc-button-primary fc-arrangementsCalendarButton-button "> 
+                Nytt arrangement
+            </button>
+            <button class="fc-button fc-button-primary fc-arrangementsCalendarButton-button "> 
+                Enkelt nytt arrangement
+            </button>
+        </div>
     </div>
 </div>
+
+
 
 
 
 <div class="clearfix">
     <div class="float-end">
         <div class="btn-group">
-            <a class="btn btn-wemade"
+            <!-- <a class="btn btn-wemade"
                 href="{% url 'arrangement:arrangement_create' %}">
                 Planlegg nytt arrangement
-            </a>
+            </a> -->
             <!-- <button class="btn btn-wemade">
                 Planlegg enkelt nytt arrangement
             </button> -->
@@ -114,25 +132,32 @@
     </div>      
 </div> -->
 
+<div class="clearfix">
+    <div class="float-start">
+        <ul class="nav nav-tabs rounded-top mt-4 fc-tabs" style="display: none;" id="navTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active text-center" id="overview-tab" data-mdb-toggle="tab" href="#universeCalendar" role="tab" aria-controls="universe" aria-selected="true">
+                <span class="mb-0"><i class="fas fa-eye"></i></span>
+                &nbsp; <span>Arrangementer</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-center" id="locations-tab" data-mdb-toggle="tab" href="#locationsCalendar" role="tab" aria-controls="locations" aria-selected="true">
+                <span class="mb-0"><i class="fas fa-building"></i></span>
+                &nbsp; <span>Lokasjoner</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="people-tab" data-mdb-toggle="tab" href="#peopleCalendar" role="tab" aria-controls="people" aria-selected="false">
+                <span class="mb-0"><i class="fas fa-users"></i></span>
+                &nbsp; <span>Personer</span>
+                </button>
+            </li>
+        </ul>
+    </div>
+    <div class="float-end">
 
-<ul class="nav light-tabs nav-tabs rounded-top mt-4" id="navTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active text-center" id="overview-tab" data-mdb-toggle="tab" href="#universeCalendar" role="tab" aria-controls="universe" aria-selected="true">
-        <span class="h6 mb-0"><i class="fas fa-eye"></i></span>
-        &nbsp; <span class="h6">Arrangementer</span></button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link text-center" id="locations-tab" data-mdb-toggle="tab" href="#locationsCalendar" role="tab" aria-controls="locations" aria-selected="true">
-        <span class="h6 mb-0"><i class="fas fa-building"></i></span>
-        &nbsp; <span class="h6">Lokasjoner</span></button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="people-tab" data-mdb-toggle="tab" href="#peopleCalendar" role="tab" aria-controls="people" aria-selected="false">
-        <span class="h6 mb-0"><i class="fas fa-users"></i></span>
-        &nbsp; <span class="h6">Personer</span>
-        </button>
-    </li>
-</ul>
+    </div>
+</div>
+
 
 
 {% endblock %}
@@ -140,13 +165,6 @@
 {% block content %}
     <div class="tab-content" id="calendars">
       <div class="tab-pane show active" id="universeCalendar" role="tabpanel" aria-labelledby="universeCalendar-tab">
-        <div class="text-center text-uppercase text-muted"><i class="fas fa-eye"></i>&nbsp; Fokuser på</div>
-        <select name="" id="calendarFocusSelect" class="form-control mb-3">
-            <option value="audience">Audiens</option>
-            <option value="planner">Planlegger</option>
-            <option value="arrangement_type">Arrangementstype</option>
-        </select>
-
         <div id="arrangementPlannerCalendar"></div>
       </div>
       <div class="tab-pane" id="locationsCalendar" role="tabpanel" aria-labelledby="locationsCalendar-tab">
@@ -256,22 +274,21 @@
             var peopleCalendar = new PersonCalendar({
                 calendarElement: document.getElementById('peoplePlannerCalendar')
             })
-
+            
             $('#calendarFocusSelect').on("change", function () {
                 plannerCalendar.setActiveColorProvider(this.value);
                 plannerCalendar.refresh();
             })
 
-            $('#overview-tab').on("click", function () {
+            $('#overview-tab')[0].addEventListener('shown.mdb.tab', (event) => {
                 plannerCalendar.refresh();
             })
-            $('#locations-tab').on("click", function () {
-                console.info(">> Locations calendar refresh")
+            $('#locations-tab')[0].addEventListener('shown.mdb.tab', (event) => {
                 locationsCalendar.refresh();
             })
-            $('#people-tab').on("click", function () {
+            $('#people-tab')[0].addEventListener('shown.mdb.tab', (event) => {
                 peopleCalendar.refresh();
-            });
+            })
         });
     </script>
 

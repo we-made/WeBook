@@ -118,6 +118,13 @@ from .planner_views import (
     planner_calendar_view,
     planner_arrangement_events_view,
     get_arrangements_in_period_view,
+    arrangement_information_dialog_view,
+    arrangement_calendar_planner_dialog_view,
+    arrangement_create_simple_event_dialog_view,
+    arrangement_create_serie_dialog_view,
+    arrangement_promote_planner_dialog_view,
+    arrangement_new_note_dialog_view,
+    arrangement_add_planner_dialog_view,
 )
 
 from .note_views import (

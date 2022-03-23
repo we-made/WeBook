@@ -82,6 +82,28 @@ div.modal-body > .bootbox-close-button {
   background-color: white;
 }
 
+.fc-tabs {
+  border-radius: 10px!important;
+}
+
+.fc-tabs .nav-link {
+  background-color: #2C3E50;
+  border:none;
+  color:white;
+}
+
+.fc-tabs .nav-link:hover {
+  background-color: #1e2b37;
+  border:none;
+  color:white;
+}
+
+.fc-tabs .nav-link.active {
+  background-color: #1e2b37;
+  border:none;
+  color:white;
+}
+
 /* .context-menu-root {
   background-color: #386080!important;
 }
