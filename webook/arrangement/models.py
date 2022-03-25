@@ -1,6 +1,7 @@
 from argparse import ArgumentError
 from email.policy import default
 from enum import Enum
+from tabnanny import verbose
 from tkinter.messagebox import NO
 from django.db import models
 from django.db.models.deletion import RESTRICT
@@ -165,6 +166,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
     )
 
     stages = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PLANNING)
+
+    location = models.ForeignKey(to="Location", verbose_name=_("Location"), on_delete=models.CASCADE, related_name="arrangements")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
 

@@ -1,35 +1,68 @@
-import { FullCalendarEvent, FullCalendarResource } from "./commonLib.js";
+import { 
+    FullCalendarEvent, 
+    FullCalendarResource, 
+    FullCalendarBased, 
+    writeSlugClass, 
+    ArrangementStore, 
+    _FC_EVENT, 
+    _NATIVE_ARRANGEMENT, 
+    LocationStore,
+    PersonStore,
+    _FC_RESOURCE,
+} from "./commonLib.js";
 
-var _FC_EVENT = Symbol('EVENT');
-var _NATIVE_ARRANGEMENT = Symbol("NATIVE_ARRANGEMENT");
+import { ArrangementInspector } from "./arrangementInspector.js";
+import { FilterDialog } from "./filterDialog.js";
 
 
-export class PlannerCalendar {
+export class PlannerCalendar extends FullCalendarBased {
 
-    constructor( { calendarElement, eventsSrcUrl, colorProviders=[], initialColorProvider="" } = {}) {
+    constructor({ 
+        calendarElement, 
+        eventsSrcUrl, 
+        colorProviders=[], 
+        initialColorProvider="",
+        $locationFilterSelectEl=undefined,
+        $arrangementTypeFilterSelectEl=undefined,
+        $audienceTypeFilterSelectEl=undefined } = {}) {
+
+        super();
+
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
         this._eventsSrcUrl = eventsSrcUrl;
 
         this._colorProviders = new Map();
-        this._colorProviders.set("DEFAULT", new this.StandardColorProvider())
+        this._colorProviders.set("DEFAULT", new this.StandardColorProvider());
 
         colorProviders.forEach( (bundle) => {
             this._colorProviders.set(bundle.key, bundle.provider)
-        })
+        });
 
         // If user has not supplied an active color provider key we use default color provider as active.
         this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : "DEFAULT";
 
-        this._ARRANGEMENT_STORE = new this.ArrangementStore(this);
-        this._initCalendar();
-    }
+        this._ARRANGEMENT_STORE = new ArrangementStore(this);
+        this._LOCATIONS_STORE = new LocationStore(this);
+        this._PEOPLE_STORE = new PersonStore(this);
 
-    /**
-     * Refresh the calendar view.
-     */
-    refresh() {
-        this._initCalendar();
+        this.init();
+
+        this.inspectorUtility = new ArrangementInspector();
+        this.filterDialog = new FilterDialog();
+
+        this.$locationFilterSelectEl = $locationFilterSelectEl;
+        $locationFilterSelectEl.on('change', () => {
+            this.init();
+        });
+        this.$arrangementTypeFilterSelectEl = $arrangementTypeFilterSelectEl;
+        $arrangementTypeFilterSelectEl.on('change', () => {
+            this.init();
+        })
+        this.$audienceTypeFilterSelectEl = $audienceTypeFilterSelectEl;
+        $audienceTypeFilterSelectEl.on('change', () => {
+            this.init();
+        })
     }
 
     /**
@@ -64,138 +97,6 @@ export class PlannerCalendar {
     }
 
     /**
-     * Stores, fetches, and provides an easy interface from which to retrieve arrangements
-     */
-    ArrangementStore = class ArrangementStore {
-        constructor (plannerCalendar) {
-            this._store = new Map();
-            this._refreshStore();
-            this.plannerCalendar = plannerCalendar;
-        }
-
-        /**
-         * Refreshes the store and returns this so you can chain in a get.
-         */
-        _refreshStore(start, end) {
-            this._flushStore();
-            return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}`)
-                .then(response => response.json())
-                .then(obj => { obj.forEach((arrangement) => {
-                    console.log(arrangement)
-                    this._store.set(arrangement.slug, arrangement);
-                })});
-        }
-
-        /**
-         * Flush the store
-         */
-        _flushStore() {
-            this._store = new Map();
-        }
-
-        /**
-         * Converts a 'native' arrangement to a fullcalendar event
-         * @param {*} arrangement 
-         * @returns 
-         */
-        _mapArrangementToFullCalendarEvent(arrangement) {
-            let _this = this;
-            return new FullCalendarEvent({
-                title: arrangement.name,
-                start: arrangement.starts,
-                end: arrangement.ends,
-                color: _this.plannerCalendar._getColorProvider().getColor(arrangement),
-                classNames: [ `slug:${arrangement.slug}` ],
-                extendedProps: { 
-                    icon: arrangement.audience_icon, 
-                    starts: arrangement.starts, 
-                    ends: arrangement.ends,
-                    arrangementType: arrangement.arrangement_type
-                },
-            });
-        }
-
-        /**
-         * Get arrangement by the given slug
-         * @param {*} slug 
-         */
-        get({ slug, get_as } = {}) {
-            if (this._store.has(slug) === false) {
-                console.error(`Can not get arrangement with slug '${slug}' as slug is not known.`)
-                return;
-            }
-
-            var arrangement = this._store.get(slug);
-
-            if (get_as === _FC_EVENT) {
-                return this._mapArrangementToFullCalendarEvent(arrangement);
-            }
-            else if (get_as === _NATIVE_ARRANGEMENT) {
-                return arrangement;
-            }
-        }
-
-        /**
-         * Get all arrangements in the form designated by get_as param.
-         * @param {*} param0 
-         * @returns An array of arrangements, whose form depends on get_as param.
-         */
-        get_all({ get_as } = {}) {
-            console.log(this._store);
-            var arrangements = Array.from(this._store.values());
-
-            if (get_as === _FC_EVENT) {
-                // var mappedEvents = arrangements.map( (arrangement) => { this._mapArrangementToFullCalendarEvent(arrangement) });
-                var mappedEvents = [];
-                arrangements.forEach( (arrangement) => {
-                    mappedEvents.push( this._mapArrangementToFullCalendarEvent(arrangement) );
-                });
-                return mappedEvents;
-            }
-            else if (get_as === _NATIVE_ARRANGEMENT) {
-                return arrangements;
-            }
-        }
-
-        /**
-         * Remove arrangement from the local store. Does not affect upstream.
-         * @param {*} slug 
-         */
-        remove(slug) {
-            if (this._store.has(slug)) {
-
-            }
-            else {
-                console.error(`Can not remove arrangement with slug '${slug}', as slug is not known.`)
-            }
-        }
-    }
-
-    /**
-     * Find the slug value from the given element el
-     * @param {*} el 
-     * @returns A slug, or undefined if none was found
-     */
-    _findSlugFromEl(el) {
-        var slug = undefined;
-
-        el.classList.forEach((classToEvaluate) => {
-            var classSplit = classToEvaluate.split(":");
-        
-            if (classSplit.length > 1 && classSplit[0] == "slug") {
-                slug = classSplit[1];
-            }
-        });
-
-        if (slug === undefined) {
-            console.error("Tried to execute open method for arrangement but could not acquire slug.")
-            return undefined;
-        }
-
-        return slug;
-    }
-
-    /**
      * Bind popover with arrangement info to elementToBindWith
      * @param {*} elementToBindWith 
      */
@@ -206,8 +107,13 @@ export class PlannerCalendar {
             get_as: _NATIVE_ARRANGEMENT
         });
 
+        if (arrangement === undefined) {
+            console.error(`Could not bind popover for arrangement with slug ${slug}`);
+            return;
+        }
+
         new mdb.Popover(elementToBindWith, {
-            trigger: "click",
+            trigger: "hover",
             content: `
                 <span class='badge badge-lg badge-info'>
                     <i class='${arrangement.audience_icon}'></i>&nbsp;
@@ -223,17 +129,90 @@ export class PlannerCalendar {
         })
     }
 
+    _bindInspectorTrigger (elementToBindWith) {
+        let _this = this;
+        $(elementToBindWith).on('click', (ev) => {
+            var slug = _this._findSlugFromEl(ev.currentTarget);
+            console.log(">> Slug: " + slug)
+            var arrangement = _this._ARRANGEMENT_STORE.get({
+                slug: slug,
+                get_as: _NATIVE_ARRANGEMENT
+            });
+    
+            this.inspectorUtility.inspectArrangement(arrangement);
+        })
+    }
+
     /**
      * First-time initialize the calendar
      */
-    async _initCalendar () {
+    async init () {
         let _this = this;
+
+        var initialView = 'dayGridMonth';
+        if (this._fcCalendar !== undefined) {
+            initialView = this._fcCalendar.view.type;
+        }
+
         this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
-            initialView: 'dayGridMonth',
+            initialView: initialView,
+            selectable: true,
+            weekNumbers: true,
+            navLinks: true,
+            locale: 'nb',
+            views: {
+                calendarDayGridMonth: {
+                    type: 'dayGridMonth',
+                    buttonText: 'Kalender'
+                },
+                customTimelineMonth: {
+                    type: 'timelineMonth',
+                    buttonText: 'Tidslinje - Måned'
+                },
+                customTimelineYear: {
+                    type: 'timelineYear',
+                    buttonText: 'Tidslinje - År'
+                }
+            },
+            customButtons: {
+                filterButton: {
+                    text: 'Filtrering',
+                    click: () => {
+                        this.filterDialog.openFilterDialog();
+                    }
+                },
+                arrangementsCalendarButton: {
+                    text: 'Arrangementer',
+                    click: () => {
+                        $('#overview-tab').trigger('click');
+                    }
+                },
+                locationsCalendarButton: {
+                    text: 'Lokasjoner',
+                    click: () => {
+                        $('#locations-tab').trigger('click');
+                    }
+                },
+                peopleCalendarButton: {
+                    text: 'Personer',
+                    click: () => {
+                        $('#people-tab').trigger('click');
+                    }
+                }
+            },
+            headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'calendarDayGridMonth,customTimelineMonth,customTimelineYear', },
             events: async (start, end, startStr, endStr, timezone) => {
                 return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
-                        .then(a => _this._ARRANGEMENT_STORE.get_all({ get_as: _FC_EVENT }));
+                    .then(a => _this._ARRANGEMENT_STORE.get_all(
+                        { 
+                            get_as: _FC_EVENT, 
+                            locations: this.$locationFilterSelectEl.val(),
+                            arrangement_types: this.$arrangementTypeFilterSelectEl.val(),
+                            audience_types: this.$audienceTypeFilterSelectEl.val(),
+                        }
+                    ));
             },
+
             eventContent: (arg) => {
                 var icon_class = arg.event.extendedProps.icon;
                 let html = `<span class="h6"
@@ -249,7 +228,8 @@ export class PlannerCalendar {
                 return { html: html }
             },
             eventDidMount: (arg) => {
-                this._bindPopover(arg.el)
+                this._bindPopover(arg.el);
+                this._bindInspectorTrigger(arg.el);
 
                 $.contextMenu({
                     className: "",
@@ -257,6 +237,7 @@ export class PlannerCalendar {
                     items: {
                         open: {
                             name: "Open",
+                            icon: "",
                             isHtmlName: false,
                             callback: (key, opt) => {
                                 location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
@@ -264,11 +245,17 @@ export class PlannerCalendar {
                         },
                         edit: {
                             name: "Edit",
+                            icon: "edit",
                             isHtmlName: false,
                             callback: (key, opt) => {
                                 location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
                             }
                         },
+                        audience: {
+                            name: "Status",
+                            type: "select",
+                            options: { 1: "Planlegges", 2: "Venter kvittering", 3: "Ferdig" }
+                        }
                     }
                 });
             }

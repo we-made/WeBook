@@ -6,6 +6,7 @@ from webook.arrangement.views import (
     person_detail_view,
     person_delete_view,
     search_people_ajax_view,
+    people_calendar_resources_list_view,
 )
 
 
@@ -45,4 +46,10 @@ person_urls = [
         view=search_people_ajax_view,
         name="search_people_ajax_view",
     ),
+
+    path(
+        route="person/calendar_resources",
+        view=people_calendar_resources_list_view,
+        name="people_calendar_resources"
+    )
 ]

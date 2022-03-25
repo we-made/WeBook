@@ -5,6 +5,7 @@ from webook.arrangement.views import (
     location_update_view,
     location_detail_view,
     location_delete_view,
+    locations_calendar_resources_list_view,
 )
 
 
@@ -34,4 +35,9 @@ location_urls = [
         view=location_delete_view,
         name="location_delete"
     ),
+    path(
+        route="location/calendar_resources",
+        view=locations_calendar_resources_list_view,
+        name="location_calendar_resources",
+    )
 ]

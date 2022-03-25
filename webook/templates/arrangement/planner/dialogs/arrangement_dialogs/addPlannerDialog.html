@@ -1,0 +1,21 @@
+<div id="addPlannerDialog" title="Add planners">
+    <div class='bg-white p-2 border border-1'>
+
+        <div>
+            <select multiple>
+                {% for person in people %}
+                    {% if person.is_already_planner == True %}
+                        <option value="{{person.pk}}" disabled>{{person}}</option>
+                    {% else %}
+                        <option value="{{person.pk}}">{{person}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div><label class="text-muted small">Føringer i grå er personer som allerede er planleggere.</label></div>
+
+        <button>
+            Add chosen planners
+        </button>
+    </div>
+</div>

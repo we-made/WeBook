@@ -24,7 +24,7 @@ from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
-from webook.arrangement.models import Arrangement, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
+from webook.arrangement.models import Arrangement, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -343,6 +343,13 @@ class PlannerCalendarView (LoginRequiredMixin, PlannerSectionManifestMixin, Meta
         current_crumb_title="Planning Calendar",
     )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["LOCATIONS"] = Location.objects.all()
+        context["ARRANGEMENT_TYPES"] = ArrangementType.objects.all()
+        context["AUDIENCES"] = Audience.objects.all()
+        return context
+
 planner_calendar_view = PlannerCalendarView.as_view()
 
 
@@ -393,8 +400,12 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                 "ends": arrangement.ends,
                 "mainPlannerName": arrangement.responsible.full_name,
                 "audience": arrangement.audience.name,
+                "audience_slug": arrangement.audience.slug,
                 "audience_icon": arrangement.audience.icon_class,
-                "arrangement_type": arrangement.arrangement_type.name,
+                "location": arrangement.location.name,
+                "location_slug": arrangement.location.slug,
+                "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined",
+                "arrangement_type_slug": arrangement.arrangement_type.slug if arrangement.arrangement_type is not None else ""
             })
 
         return HttpResponse(
@@ -403,3 +414,130 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         )
 
 get_arrangements_in_period_view = GetArrangementsInPeriod.as_view()
+
+
+class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
+    fields = [
+        "name",
+        "audience",
+        "arrangement_type",
+        "location",
+        "starts",
+        "ends",
+        "responsible",
+    ]
+    model = Arrangement
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/arrangementInfoDialog.html"
+
+arrangement_information_dialog_view = PlannerArrangementInformationDialogView.as_view()
+
+
+class PlannerArrangementCalendarPlannerDialogView (LoginRequiredMixin, DetailView):
+    model = Arrangement
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/dialog_plan_arrangement.html"
+
+arrangement_calendar_planner_dialog_view = PlannerArrangementCalendarPlannerDialogView.as_view()
+
+
+class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateView):
+    model = Event
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/dialog_create_event_arrangement.html"
+    fields = [
+        "id",
+        "title",
+        "start",
+        "end",
+        "arrangement",
+        "color",
+        "sequence_guid",
+    ]
+
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        return super().post(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        people = self.request.POST.get("people")
+        rooms = self.request.POST.get("rooms")
+
+        if ((people is None or people == "undefined") and (rooms is None or rooms == "undefined")):
+            return
+
+        obj = self.object
+        obj.people.clear()
+        obj.rooms.clear()
+
+        if (people is not None and len(people) > 0 and people != "undefined"):
+            people = people.split(',')
+            for personId in people:
+                obj.people.add(Person.objects.get(id=personId))
+        
+        if (rooms is not None and len(rooms) > 0 and rooms != "undefined"):
+            rooms = rooms.split(',')
+            for roomId in rooms:
+                obj.rooms.add(Room.objects.get(id=roomId))
+
+        obj.save()
+
+arrangement_create_simple_event_dialog_view = PlannerArrangementCreateSimpleEventDialogView.as_view()
+
+
+class PlannerArrangementCreateSerieDialog(LoginRequiredMixin, TemplateView):
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
+
+arrangement_create_serie_dialog_view = PlannerArrangementCreateSerieDialog.as_view()
+
+
+class PlannerArrangementPromotePlannerDialog(LoginRequiredMixin, TemplateView):
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/promotePlannerDialog.html"
+
+    def get_context_data(self, **kwargs):
+        arrangement_slug = self.request.GET.get("slug")
+        context = super().get_context_data(**kwargs)
+        arrangement = Arrangement.objects.get(slug=arrangement_slug)
+        context["planners"] = arrangement.planners.all()
+        context["main_planner"] = arrangement.responsible
+        context["arrangementPk"] = arrangement.pk
+        return context
+
+arrangement_promote_planner_dialog_view = PlannerArrangementPromotePlannerDialog.as_view()
+
+
+class PlannerArrangementNewNoteDialog(LoginRequiredMixin, TemplateView):
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/newNoteDialog.html"
+
+    def get_context_data(self, **kwargs):
+        arrangement_slug = self.request.GET.get("slug")
+        context = super().get_context_data(**kwargs)
+        arrangement = Arrangement.objects.get(slug=arrangement_slug)
+        context["arrangementPk"] = arrangement.pk
+        return context
+
+arrangement_new_note_dialog_view = PlannerArrangementNewNoteDialog.as_view()
+
+
+class PlannerArrangementAddPlannerDialog(LoginRequiredMixin, TemplateView):
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/addPlannerDialog.html"
+
+    def get_context_data(self, **kwargs):
+        arrangement_slug = self.request.GET.get("slug")
+        context = super().get_context_data(**kwargs)
+        arrangement = Arrangement.objects.get(slug=arrangement_slug)
+
+        people = Person.objects.all()
+        current_planners = arrangement.planners.all()
+
+        for person in people:
+            for current_planner in current_planners:
+                if person.pk == current_planner.pk or person.pk == arrangement.responsible.pk:
+                    person.is_already_planner = True
+                else:
+                    person.is_already_planner = False
+
+        context["people"] = people
+        return context
+
+arrangement_add_planner_dialog_view = PlannerArrangementAddPlannerDialog.as_view()

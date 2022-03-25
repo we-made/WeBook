@@ -120,6 +120,7 @@ class ArrangementCreateView (LoginRequiredMixin, ArrangementSectionManifestMixin
     fields = [
         "name",
         "audience",
+        "location",
         "arrangement_type",
         "starts",
         "ends",
@@ -136,6 +137,7 @@ class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin,
     fields = [
         "name",
         "audience",
+        "location",
         "arrangement_type",
         "starts",
         "ends",

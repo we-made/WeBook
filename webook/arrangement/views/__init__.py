@@ -11,6 +11,7 @@ from .location_views import (
     location_list_view,
     location_create_view,
     location_delete_view,
+    locations_calendar_resources_list_view,
 )
 
 from .room_views import (
@@ -42,6 +43,7 @@ from .person_views import (
     person_delete_view,
     organization_person_member_list_view,
     search_people_ajax_view,
+    people_calendar_resources_list_view,
 )
 
 from .servicetype_views import (
@@ -116,6 +118,13 @@ from .planner_views import (
     planner_calendar_view,
     planner_arrangement_events_view,
     get_arrangements_in_period_view,
+    arrangement_information_dialog_view,
+    arrangement_calendar_planner_dialog_view,
+    arrangement_create_simple_event_dialog_view,
+    arrangement_create_serie_dialog_view,
+    arrangement_promote_planner_dialog_view,
+    arrangement_new_note_dialog_view,
+    arrangement_add_planner_dialog_view,
 )
 
 from .note_views import (

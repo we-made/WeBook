@@ -9,6 +9,7 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.http.response import HttpResponse
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -114,3 +115,46 @@ class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
         )
 
 location_delete_view = LocationDeleteView.as_view()
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError ("Type %s not serializable" % type(obj))
+
+
+class LocationsCalendarResourcesListView (LoginRequiredMixin, ListView):
+
+    def get(self, request, *args, **kwargs):
+        locations = Location.objects.all()
+        serializable_locations = []
+
+        for location in locations:
+            serializable_locations.append({
+                "id": location.slug,
+                "slug": location.slug,
+                "title": location.name,
+                "parentId": "",
+                "extendedProps": {
+                    "resourceType": "location"
+                }
+            })
+            for room in location.rooms.all():
+                serializable_locations.append({
+                    "id": room.slug,
+                    "slug": room.slug,
+                    "title": room.name,
+                    "parentId": room.location.slug,
+                    "extendedProps": {
+                        "resourceType": "room",
+                        "maxCapacity": room.max_capacity,
+                    }
+                })
+
+        return HttpResponse(
+            json.dumps(serializable_locations, default=json_serial),
+            content_type="application/json",
+        )
+
+locations_calendar_resources_list_view = LocationsCalendarResourcesListView.as_view()
