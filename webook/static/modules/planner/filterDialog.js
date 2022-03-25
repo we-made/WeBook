@@ -30,18 +30,6 @@ export class FilterDialog {
     }
 
     _fabricateDialog() {
-        // <div id="filterTabs">
-        //     <ul>
-        //         <li><a href="#tabs-1">Lokasjoner</a></li>
-        //         <li><a href="#tabs-2">Personer</a></li>
-        //     </ul>
-        //     <div id="tabs-1">
-        //         Lokasjoner
-        //     </div>
-        //     <div id="tabs-2">
-        //         Personer
-        //     </div>
-        // </div>
         return `
             <div id="filterDialog" title="Filtrering">
                 <span class='text-muted small'>

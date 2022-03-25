@@ -14,9 +14,18 @@ import {
 import { ArrangementInspector } from "./arrangementInspector.js";
 import { FilterDialog } from "./filterDialog.js";
 
+
 export class PlannerCalendar extends FullCalendarBased {
 
-    constructor( { calendarElement, eventsSrcUrl, colorProviders=[], initialColorProvider="" } = {}) {
+    constructor({ 
+        calendarElement, 
+        eventsSrcUrl, 
+        colorProviders=[], 
+        initialColorProvider="",
+        $locationFilterSelectEl=undefined,
+        $arrangementTypeFilterSelectEl=undefined,
+        $audienceTypeFilterSelectEl=undefined } = {}) {
+
         super();
 
         this._fcCalendar = undefined;
@@ -41,6 +50,19 @@ export class PlannerCalendar extends FullCalendarBased {
 
         this.inspectorUtility = new ArrangementInspector();
         this.filterDialog = new FilterDialog();
+
+        this.$locationFilterSelectEl = $locationFilterSelectEl;
+        $locationFilterSelectEl.on('change', () => {
+            this.init();
+        });
+        this.$arrangementTypeFilterSelectEl = $arrangementTypeFilterSelectEl;
+        $arrangementTypeFilterSelectEl.on('change', () => {
+            this.init();
+        })
+        this.$audienceTypeFilterSelectEl = $audienceTypeFilterSelectEl;
+        $audienceTypeFilterSelectEl.on('change', () => {
+            this.init();
+        })
     }
 
     /**
@@ -126,10 +148,15 @@ export class PlannerCalendar extends FullCalendarBased {
      */
     async init () {
         let _this = this;
+
+        var initialView = 'dayGridMonth';
+        if (this._fcCalendar !== undefined) {
+            initialView = this._fcCalendar.view.type;
+        }
+
         this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
-            initialView: 'dayGridMonth',
+            initialView: initialView,
             selectable: true,
-            // themeSystem: 'bootstrap',
             weekNumbers: true,
             navLinks: true,
             locale: 'nb',
@@ -176,9 +203,15 @@ export class PlannerCalendar extends FullCalendarBased {
             headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'calendarDayGridMonth,customTimelineMonth,customTimelineYear', },
             events: async (start, end, startStr, endStr, timezone) => {
                 return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
-                        .then(a => _this._ARRANGEMENT_STORE.get_all({ get_as: _FC_EVENT }));
+                    .then(a => _this._ARRANGEMENT_STORE.get_all(
+                        { 
+                            get_as: _FC_EVENT, 
+                            locations: this.$locationFilterSelectEl.val(),
+                            arrangement_types: this.$arrangementTypeFilterSelectEl.val(),
+                            audience_types: this.$audienceTypeFilterSelectEl.val(),
+                        }
+                    ));
             },
-
 
             eventContent: (arg) => {
                 var icon_class = arg.event.extendedProps.icon;

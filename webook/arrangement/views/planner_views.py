@@ -24,7 +24,7 @@ from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
-from webook.arrangement.models import Arrangement, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
+from webook.arrangement.models import Arrangement, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -343,6 +343,13 @@ class PlannerCalendarView (LoginRequiredMixin, PlannerSectionManifestMixin, Meta
         current_crumb_title="Planning Calendar",
     )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["LOCATIONS"] = Location.objects.all()
+        context["ARRANGEMENT_TYPES"] = ArrangementType.objects.all()
+        context["AUDIENCES"] = Audience.objects.all()
+        return context
+
 planner_calendar_view = PlannerCalendarView.as_view()
 
 
@@ -393,8 +400,12 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                 "ends": arrangement.ends,
                 "mainPlannerName": arrangement.responsible.full_name,
                 "audience": arrangement.audience.name,
+                "audience_slug": arrangement.audience.slug,
                 "audience_icon": arrangement.audience.icon_class,
-                "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined"
+                "location": arrangement.location.name,
+                "location_slug": arrangement.location.slug,
+                "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined",
+                "arrangement_type_slug": arrangement.arrangement_type.slug if arrangement.arrangement_type is not None else ""
             })
 
         return HttpResponse(
@@ -410,6 +421,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "name",
         "audience",
         "arrangement_type",
+        "location",
         "starts",
         "ends",
         "responsible",

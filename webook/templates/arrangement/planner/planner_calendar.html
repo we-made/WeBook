@@ -49,36 +49,47 @@
 <div class="fc mb-0 p-0">
     <div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr mb-0">
         <div class="fc-button-group">
-            <button class="fc-button fc-button-primary fc-arrangementsCalendarButton-button "> 
+            <a class="fc-button fc-button-primary fc-arrangementsCalendarButton-button"
+               href="{% url 'arrangement:arrangement_create' %}"> 
                 Nytt arrangement
-            </button>
-            <button class="fc-button fc-button-primary fc-arrangementsCalendarButton-button "> 
-                Enkelt nytt arrangement
-            </button>
+            </a>
         </div>
     </div>
 </div>
 
-
-
-
-
-<div class="clearfix">
-    <div class="float-end">
-        <div class="btn-group">
-            <!-- <a class="btn btn-wemade"
-                href="{% url 'arrangement:arrangement_create' %}">
-                Planlegg nytt arrangement
-            </a> -->
-            <!-- <button class="btn btn-wemade">
-                Planlegg enkelt nytt arrangement
-            </button> -->
+<div class="mt-4" id="plannerCalendarFilter">
+    <div class="row">
+        <div class="col-lg-2 col-md-4 col-sm-12">
+            <label for="">Lokasjoner</label>
+            <select class="select" id="plannerCalendarFilter_locationFilter" multiple>
+                {% for location in LOCATIONS %}
+                    <option value="{{location.slug}}">{{location}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-12">
+            <label for="">Arrangementstyper</label>
+            <select class="select" id="plannerCalendarFilter_arrangementTypes" multiple>
+                {% for arrangement_type in ARRANGEMENT_TYPES %}
+                    <option value="{{arrangement_type.slug}}">{{arrangement_type}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-12">
+            <label for="">Målgrupper</label>
+            <select class="select" id="plannerCalendarFilter_audiences" multiple>
+                {% for audience in AUDIENCES %}
+                    <option value="{{audience.slug}}">{{audience}}</option>
+                {% endfor %}
+            </select>
         </div>
     </div>
+</div>
 
+<div class="clearfix">
     <div class="float-start">
-
-        <!-- <div class="text-center text-uppercase text-muted"><i class="fas fa-filter"></i>
+<!-- 
+        <div class="text-center text-uppercase text-muted"><i class="fas fa-filter"></i>
             &nbsp;
             Filter
         </div>
@@ -112,25 +123,6 @@
         </div> -->
     </div>
 </div>
-
-
-<!-- <div class="btn-group">
-    <button class="btn btn-success">
-        <i class="fas fa-plus"></i>
-        Ny enkelthendelse
-    </button>
-    <button class="btn btn-success">
-        <i class="fas fa-plus"></i>
-        Ny repeterende hendelse
-    </button>
-</div> -->
-
-<!-- <div class="float-end">
-    <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
-        <label class="form-check-label" for="flexSwitchCheckDefault">Multi-select</label>
-    </div>      
-</div> -->
 
 <div class="clearfix">
     <div class="float-start">
@@ -265,28 +257,34 @@
                     { key: "audience", provider: new ColorByAudienceColorProvider() },
                 ],
                 initialColorProvider: "audience",
+                $locationFilterSelectEl: $("#plannerCalendarFilter_locationFilter"),
+                $arrangementTypeFilterSelectEl: $("#plannerCalendarFilter_arrangementTypes"),
+                $audienceTypeFilterSelectEl: $("#plannerCalendarFilter_audiences"),
+            });
+            var locationsCalendar = new LocationCalendar({
+                calendarElement: document.getElementById('locationsPlannerCalendar'),
+            });
+            var peopleCalendar = new PersonCalendar({
+                calendarElement: document.getElementById('peoplePlannerCalendar'),
             });
 
-            var locationsCalendar = new LocationCalendar({
-                calendarElement: document.getElementById('locationsPlannerCalendar')
-            })
-
-            var peopleCalendar = new PersonCalendar({
-                calendarElement: document.getElementById('peoplePlannerCalendar')
-            })
+            var mainCalendarFilterWrapper = $('#plannerCalendarFilter');
             
             $('#calendarFocusSelect').on("change", function () {
                 plannerCalendar.setActiveColorProvider(this.value);
                 plannerCalendar.refresh();
-            })
+            });
 
             $('#overview-tab')[0].addEventListener('shown.mdb.tab', (event) => {
+                mainCalendarFilterWrapper.show();
                 plannerCalendar.refresh();
             })
             $('#locations-tab')[0].addEventListener('shown.mdb.tab', (event) => {
+                mainCalendarFilterWrapper.hide();
                 locationsCalendar.refresh();
             })
             $('#people-tab')[0].addEventListener('shown.mdb.tab', (event) => {
+                mainCalendarFilterWrapper.hide();
                 peopleCalendar.refresh();
             })
         });

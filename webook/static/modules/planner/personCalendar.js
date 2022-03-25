@@ -15,7 +15,6 @@ export class PersonCalendar extends FullCalendarBased {
     }
 
     refresh() {
-        console.info("HIT REFRESH")
         this.init()
     }
 
@@ -57,7 +56,6 @@ export class PersonCalendar extends FullCalendarBased {
                         }
                     }
                 },
-                // themeSystem: 'bootstrap',
                 views: {
                     resourceTimelineMonth: {
                       type: 'resourceTimeline',

@@ -45,31 +45,19 @@ export class CalendarDataStore {
 }
 
 
-export class CalendarFilter {
+class BaseStore {
     constructor () {
-        this._filteredEntities = new Map();
+        this._store = new Map();
     }
-
-
-    isFiltered () {
-
-    }
-
-    add() {
-
-    }
-
-    remove() {
-
-    }
-
-    clear() {
-
+    _getStoreAsArray() {
+        return Array.from(this._store.values());
     }
 }
 
-export class LocationStore {
+export class LocationStore extends BaseStore {
     constructor (calendarBase) {
+        super();
+
         this._store = new Map();
         this._refreshStore();
         this._calendar = calendarBase;
@@ -81,7 +69,6 @@ export class LocationStore {
             .then(response => response.json())
             .then(obj => { obj.forEach((location) => {
                 this._store.set(location.slug, location);
-                console.log("add to store.")
             })});
     }
 
@@ -99,11 +86,10 @@ export class LocationStore {
     _flushStore() {
         this._store = new Map();
     }
-
+    
     getAll({ get_as } = {}) {
-        var resources = Array.from(this._store.values());
-        console.log(resources)
-        
+        var resources = _getStoreAsArray();
+
         if (get_as === _FC_RESOURCE) {
             let fcResources = [];
             for (let i = 0; i < resources.length; i++) {
@@ -117,8 +103,10 @@ export class LocationStore {
     }
 }
 
-export class PersonStore {
+export class PersonStore extends BaseStore {
     constructor (calendarBase) {
+        super();
+
         this._store = new Map();
         this._refreshStore();
         this._calendar = calendarBase;
@@ -149,7 +137,7 @@ export class PersonStore {
     }
 
     getAll({ get_as } = {}) {
-        var resources = Array.from(this._store.values());
+        var resources = _getStoreAsArray();
         
         if (get_as === _FC_RESOURCE) {
             let fcResources = [];
@@ -168,8 +156,10 @@ export class PersonStore {
 /**
  * Stores, fetches, and provides an easy interface from which to retrieve arrangements
  */
-export class ArrangementStore {
+export class ArrangementStore extends BaseStore {
     constructor (plannerCalendar) {
+        super();
+
         this._store = new Map(); 
         this._refreshStore();
         this.plannerCalendar = plannerCalendar;
@@ -208,11 +198,13 @@ export class ArrangementStore {
             end: arrangement.ends,
             color: _this.plannerCalendar._getColorProvider().getColor(arrangement),
             classNames: [ slugClass ],
-            extendedProps: { 
+            extendedProps: {
+                location_name: arrangement.location,
+                location_slug: arrangement.location_slug,
                 icon: arrangement.audience_icon, 
                 starts: arrangement.starts, 
                 ends: arrangement.ends,
-                arrangementType: arrangement.arrangement_type
+                arrangementType: arrangement.arrangement_type,
             },
         });
     }
@@ -228,7 +220,6 @@ export class ArrangementStore {
         }
 
         var arrangement = this._store.get(slug);
-        console.log(arrangement)
         if (get_as === _FC_EVENT) {
             return this._mapArrangementToFullCalendarEvent(arrangement);
         }
@@ -242,20 +233,35 @@ export class ArrangementStore {
      * @param {*} param0 
      * @returns An array of arrangements, whose form depends on get_as param.
      */
-    get_all({ get_as } = {}) {
-        var arrangements = Array.from(this._store.values());
+    get_all({ get_as, locations=undefined, arrangement_types=undefined, audience_types=undefined } = {}) {
+        var arrangements = this._getStoreAsArray();
+        var filteredArrangements = [];
+
+        var locationsMap =          locations !== undefined && locations.length > 0 ? new Map(locations.map(i => [i, true])) : undefined;
+        var arrangementTypesMap =   arrangement_types !== undefined && arrangement_types.length > 0 ? new Map(arrangement_types.map(i => [i, true])) : undefined;
+        var audienceTypesMap =      audience_types !== undefined && audience_types.length > 0 ? new Map(audience_types.map(i => [i, true])) : undefined;
+
+        arrangements.forEach ( (arrangement) => {
+            var isWithinFilter =
+                (locationsMap === undefined         || locationsMap.has(arrangement.location_slug) === true) &&
+                (arrangementTypesMap === undefined  || arrangementTypesMap.has(arrangement.arrangement_type_slug) === true) &&
+                (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true);
+            if (isWithinFilter === true) {
+                filteredArrangements.push(arrangement);
+            }
+        });
+        
+        arrangements = filteredArrangements;
 
         if (get_as === _FC_EVENT) {
-            // var mappedEvents = arrangements.map( (arrangement) => { this._mapArrangementToFullCalendarEvent(arrangement) });
             var mappedEvents = [];
             arrangements.forEach( (arrangement) => {
                 mappedEvents.push( this._mapArrangementToFullCalendarEvent(arrangement) );
             });
-            console.log(mappedEvents);
+
             return mappedEvents;
         }
         else if (get_as === _NATIVE_ARRANGEMENT) {
-            console.log(arrangements);
             return arrangements;
         }
     }
@@ -275,9 +281,6 @@ export class ArrangementStore {
 }
 
 export class FullCalendarBased {
-
-    constructor () {
-    }
 
     _findSlugFromEl(el) { 
         var slug = undefined;
