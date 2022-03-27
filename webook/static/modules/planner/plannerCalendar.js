@@ -236,7 +236,7 @@ export class PlannerCalendar extends FullCalendarBased {
                     selector: ".fc-event",
                     items: {
                         open: {
-                            name: "Open",
+                            name: "Åpne",
                             icon: "",
                             isHtmlName: false,
                             callback: (key, opt) => {
@@ -244,18 +244,11 @@ export class PlannerCalendar extends FullCalendarBased {
                             }
                         },
                         edit: {
-                            name: "Edit",
-                            icon: "edit",
-                            isHtmlName: false,
+                            name: "Rediger",
                             callback: (key, opt) => {
                                 location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
                             }
                         },
-                        audience: {
-                            name: "Status",
-                            type: "select",
-                            options: { 1: "Planlegges", 2: "Venter kvittering", 3: "Ferdig" }
-                        }
                     }
                 });
             }

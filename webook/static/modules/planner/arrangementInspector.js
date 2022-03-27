@@ -10,10 +10,6 @@ class Dialog {
         return $("#" + this.dialogElementId);
     }
 
-    _loadHtml() {
-        
-    }
-
     async render(arrangement) {
         this.prepareDOM();
 
