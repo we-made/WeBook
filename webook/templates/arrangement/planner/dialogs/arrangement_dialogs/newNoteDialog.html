@@ -23,8 +23,12 @@
             method: 'POST',
             body: data,
             credentials: 'same-origin',
+        }).then( _ => { 
+            document.dispatchEvent(
+                new CustomEvent("arrangementPlannerDialogs.hasBeenUpdated", {'detail': {
+                    dialog: "newNoteDialog",
+                }})
+            )
         });
-
-        document.dispatchEvent(new Event("arrangementPlannerDialogs.repop"));
     }
 </script>

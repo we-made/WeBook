@@ -1,17 +1,25 @@
+/**
+ * arrangementInspector.js
+ * 
+ * This should, when time allows, be split into a more re-usable component. The business logic
+ * is too integrated with dialog management and dialog concerns. I think the best solution is to
+ * split this up into a dialog manager, and then a consumer of said manager. Allows us to use the dialog approach
+ * in more than just the main calendar -- which may be neat.
+ */
+
 class Dialog {
-    constructor ({ dialogElementId, htmlFabricator, onRenderedCallback, dialogOptions } = {}) {
+    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onPreRefresh, dialogOptions } = {}) {
         this.dialogElementId = dialogElementId;
+        this.triggerElementId = triggerElementId;
         this.htmlFabricator = htmlFabricator;
         this.onRenderedCallback = onRenderedCallback;
+        this.onUpdatedCallback = onUpdatedCallback;
+        this.onPreRefresh = onPreRefresh;
         this.dialogOptions = dialogOptions;
     }
 
     _$getDialogEl() {
         return $("#" + this.dialogElementId);
-    }
-
-    _loadHtml() {
-        
     }
 
     async render(arrangement) {
@@ -21,9 +29,35 @@ class Dialog {
             $('body')
                 .append(await this.htmlFabricator(arrangement))
                 .ready( () => {
-                    this.onRenderedCallback();
+                    this.onRenderedCallback(this);
                     this._$getDialogEl().dialog( this.dialogOptions );       
                 });
+        }
+    }
+
+    async refresh(arrangement) {
+        if (this.isOpen() === true) {
+            if (this.onPreRefresh !== undefined) {
+                await this.onPreRefresh(this);
+            }
+
+            var html = await this.htmlFabricator(arrangement);
+            var holderEl = document.createElement("span");
+            holderEl.innerHTML = html;
+            var realHtml = holderEl.querySelector("#" + this.dialogElementId).innerHTML;
+            document.querySelector("#" + this.dialogElementId).innerHTML = realHtml;
+
+            this.onRenderedCallback(this);
+
+            return;
+        }
+
+        console.warn("Tried refreshing a non-open dialog.")
+    }
+
+    close() {
+        if (this.isOpen() === true) {
+            this._$getDialogEl().dialog("close");
         }
     }
 
@@ -49,86 +83,136 @@ class Dialog {
 export class ArrangementInspector {
     constructor () {
         this._listenForRepopRequest();
+        this._listenForUpdatedRequest();
+
         this._dialogRepository = new Map([
             [ 
-                "_mainDialog", 
-                new Dialog({ 
+                "mainDialog", 
+                new Dialog({
                     dialogElementId: "mainDialog",
+                    triggerElementId: "_mainDialog",
                     htmlFabricator: this._fabricateMainDialog,
-                    onRenderedCallback: () => { $('#tabs').tabs(); this._makeAware(); },
+                    onPreRefresh: (dialog) => {
+                        var active = $('#tabs').tabs ( "option", "active" );
+                        dialog._active_tab = active;
+                    },
+                    onRenderedCallback: (dialog) => {
+                        $('#tabs').tabs(); 
+
+                        if (dialog._active_tab !== undefined) {
+                            $('#tabs').tabs("option", "active", dialog._active_tab);
+                            dialog._active_tab = undefined;
+                        }
+
+                        this._makeAware(); 
+                    },
+                    onUpdatedCallback: () => { return false; },
                     dialogOptions: { width: 600 }
                 }) 
             ],
             [
-                "mainDialog__addPlannerBtn",
+                "addPlannerDialog",
                 new Dialog({
                     dialogElementId: "addPlannerDialog",
+                    triggerElementId: "mainDialog__addPlannerBtn",
                     htmlFabricator: this._fabricateAddPlannerDialog,
                     onRenderedCallback: () => { console.info("Rendered"); },
+                    onUpdatedCallback: ( ) => { this.reloadDialog("mainDialog"); this.closeDialog("addPlannerDialog"); },
                     dialogOptions: { width: 700 }
                 })
             ],
             [
-                "mainPlannerDialog__newTimePlan",
+                "newTimePlanDialog",
                 new Dialog({
                     dialogElementId: "newTimePlanDialog",
+                    triggerElementId: "mainPlannerDialog__newTimePlan",
                     htmlFabricator: this._fabricateNewTimePlanDialog,
                     onRenderedCallback: () => { console.info("Rendered"); },
+                    onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
                     dialogOptions: { width: 700 }
                 })
             ],
             [
-                "mainPlannerDialog__newSimpleActivity",
+                "newSimpleActivityDialog",
                 new Dialog({
                     dialogElementId: "newSimpleActivityDialog",
+                    triggerElementId: "mainPlannerDialog__newSimpleActivity",
                     htmlFabricator: this._fabricateNewSimpleActivityDialog,
                     onRenderedCallback: () => { console.info("Rendered") },
+                    onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newSimpleActivityDialog"); },
                     dialogOptions: { width: 500 }
                 })
             ],
             [
-                "mainPlannerDialog__showInCalendarForm",
+                "calendarFormDialog",
                 new Dialog({
                     dialogElementId: "calendarFormDialog",
+                    triggerElementId: "mainPlannerDialog__showInCalendarForm",
                     htmlFabricator: this._fabricateCalendarFormDialog,
                     onRenderedCallback: () => { console.info("Rendered") },
+                    onUpdatedCallback: () => { return false; },
                     dialogOptions: { width: 1200, height: 700 }
                 })
             ],
             [
-                "mainPlannerDialog__promotePlannerBtn",
+                "promotePlannerDialog",
                 new Dialog({
                     dialogElementId: "promotePlannerDialog",
+                    triggerElementId: "mainPlannerDialog__promotePlannerBtn",
                     htmlFabricator: this._fabricatePromotePlannerDialog,
                     onRenderedCallback: () => { console.info("Rendered") },
+                    onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("promotePlannerDialog"); },
                     dialogOptions: { width: 500 },
                 })
             ],
             [
-                "mainPlannerDialog__newNoteBtn",
+                "newNoteDialog",
                 new Dialog({
                     dialogElementId: "newNoteDialog",
+                    triggerElementId: "mainPlannerDialog__newNoteBtn",
                     htmlFabricator: this._fabricateNewNoteDialog,
                     onRenderedCallback: () => { console.info("Rendered") },
+                    onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newNoteDialog");  },
                     dialogOptions: { width: 500 },
                 })
             ],
             [
-                "mainPlannerDialog__addPlannerBtn",
+                "addPlannerDialog",
                 new Dialog({
                     dialogElementId: "addPlannerDialog",
+                    triggerElementId: "mainPlannerDialog__addPlannerBtn",
                     htmlFabricator: this._fabricateAddPlannerDialog,
                     onRenderedCallback: () => { console.info("Rendered") },
-                    dialogOptions: { width: 500 }
+                    onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("addPlannerDialog");  },
+                    dialogOptions: { width: 500 },  
                 })
             ],
-        ])
+        ]);
+
+        this.dialogElIdToDialogTriggerKey = new Map();
+        this._dialogRepository.forEach((value, key) => {
+            this.dialogElIdToDialogTriggerKey.set(value.dialogElementId, key);
+        });
+    }
+
+    reloadDialog(dialogId) {
+        this._dialogRepository.get(dialogId).refresh(this.arrangement);
+    }
+
+    closeDialog(dialogId) {
+        this._dialogRepository.get(dialogId).close();
     }
 
     _listenForRepopRequest() {
         document.addEventListener("arrangementPlannerDialogs.repop", () => {
             this.repop();
         })
+    }
+    _listenForUpdatedRequest() {
+        document.addEventListener("arrangementPlannerDialogs.hasBeenUpdated", (e) => {
+            console.log(">> UPDATED HANDLER!!")
+            this._dialogRepository.get(e.detail.dialog).onUpdatedCallback();
+        });
     }
 
     repop() {
@@ -145,7 +229,7 @@ export class ArrangementInspector {
 
     inspectArrangement( arrangement ) {
         this.arrangement = arrangement;
-        this._dialogRepository.get("_mainDialog").render(arrangement);
+        this._dialogRepository.get("mainDialog").render(arrangement);
 
         this.$nameField = undefined;
         this.$targetAudienceField = undefined;
@@ -164,7 +248,9 @@ export class ArrangementInspector {
 
     _setTriggers() {
         this._dialogRepository.forEach( (value, key, map) => {
-            $("#" + key).on('click', () => {
+            console.log(" >> Binding to " + value.triggerElementId)
+            console.log(value);
+            $("#" + value.triggerElementId).on('click', () => {
                 value.render(this.arrangement);
             });
         })
