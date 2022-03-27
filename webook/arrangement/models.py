@@ -186,6 +186,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
 
     people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
+    show_on_multimedia_screen = models.BooleanField(verbose_name=_("Show on multimedia screen"), default=False)
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
