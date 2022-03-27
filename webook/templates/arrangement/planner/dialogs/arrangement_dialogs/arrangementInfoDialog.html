@@ -62,7 +62,11 @@
                     <tr>
                         <td colspan='2'>
                             <strong>Starter:</strong>
-                            {{form.starts}}
+                            <!-- {{form.starts}} -->
+                            <input type="date"
+                                id="{{ form.starts.id_for_label }}"
+                                name="{{ form.starts.name }}"
+                                value="{{ form.starts.value|date:'Y-m-d'|default:'' }}">
 
                             <span>( <a href='#' class='text-primary'>I dag</a> )</span>
                         </td>
@@ -72,7 +76,10 @@
                     <tr>
                         <td colspan='2'>
                             <strong>Slutter:</strong>
-                            {{form.ends}}
+                            <input type="date"
+                                id="{{ form.ends.id_for_label }}"
+                                name="{{ form.ends.name }}"
+                                value="{{ form.ends.value|date:'Y-m-d'|default:'' }}">
                             <span>( <a href='#' class='text-primary'>I dag</a> )</span>
                         </td>
                         <td><i class='fas fa-question-circle text-muted'></i></td>

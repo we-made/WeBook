@@ -25,7 +25,6 @@
         let formData = new FormData();
         formData.append("arrangement_id", "{{arrangementPk}}");
         formData.append("promotee", $("input[name='plannerToPromoteRadio']:checked").val())
-
         
         fetch("{% url 'arrangement:arrangement_promote_planner_to_main' %}", {
             method: 'POST',
@@ -34,8 +33,11 @@
                 'X-CSRFToken': '{{csrf_token}}'
             },
             credentials: 'same-origin'
-        })
-
-        document.dispatchEvent(new Event("arrangementPlannerDialogs.repop"));
+        }).then(_ => { document.dispatchEvent(
+                new CustomEvent("arrangementPlannerDialogs.hasBeenUpdated", { "detail": {
+                    dialog: "promotePlannerDialog",
+                }})
+            )}
+        )
     }
 </script>
