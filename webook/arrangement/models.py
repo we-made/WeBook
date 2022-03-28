@@ -882,7 +882,7 @@ class ScreenResource(TimeStampedModel):
     location = models.ForeignKey(to=Location, verbose_name=_("Location"), on_delete=models.RESTRICT,
                                        null=True, blank=True)
 
-    groups = models.ManyToManyField(to="ScreenGroup", verbose_name=_("Screen Groups"), related_name="screens")
+    screen_groups = models.ManyToManyField(to="ScreenGroup", verbose_name=_("Screen Groups"))
 
     slug = AutoSlugField(populate_from="name", unique=True)
     entity_name_singular = _("ScreenResource")
@@ -897,7 +897,7 @@ class ScreenGroup(TimeStampedModel):
     group_name = models.CharField(verbose_name=_("Group Name"), max_length=255, blank=False, null=False)
     description = models.CharField(verbose_name=_("Description"), max_length=255, blank=True)
     quantity = models.IntegerField(verbose_name=_("Quantity"), null=False, default=10)
-    screens = models.ManyToManyField(to=ScreenResource, verbose_name=_("Screen Resources"), related_name="groups")
+    screens = models.ManyToManyField(to=ScreenResource, verbose_name=_("Screen Resources"))
 
     slug = AutoSlugField(populate_from="group_name", unique=True)
     entity_name_singular = _("ScreenGroup")
