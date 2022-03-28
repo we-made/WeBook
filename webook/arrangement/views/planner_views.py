@@ -23,7 +23,9 @@ from django.views.generic import (
 from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
+from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
+from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
 from webook.arrangement.models import Arrangement, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -424,12 +426,14 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "location",
         "starts",
         "ends",
-        "responsible",
     ]
     model = Arrangement
     slug_field = "slug"
     slug_url_kwarg = "slug"
     template_name="arrangement/planner/dialogs/arrangement_dialogs/arrangementInfoDialog.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_dialog", kwargs={ "slug": self.get_object().slug })
 
 arrangement_information_dialog_view = PlannerArrangementInformationDialogView.as_view()
 
@@ -531,13 +535,53 @@ class PlannerArrangementAddPlannerDialog(LoginRequiredMixin, TemplateView):
         current_planners = arrangement.planners.all()
 
         for person in people:
+            if person.pk == arrangement.responsible.pk: 
+                person.is_already_planner = True
+                continue
             for current_planner in current_planners:
-                if person.pk == current_planner.pk or person.pk == arrangement.responsible.pk:
+                print(arrangement.responsible.pk)
+                if person.pk == current_planner.pk:
                     person.is_already_planner = True
-                else:
-                    person.is_already_planner = False
+                    break
 
         context["people"] = people
+        context["arrangement"] = arrangement
         return context
 
 arrangement_add_planner_dialog_view = PlannerArrangementAddPlannerDialog.as_view()
+
+
+class PlannerArrangementAddPlannersFormView (LoginRequiredMixin, FormView):
+    form_class=AddPlannersForm
+    template_name="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementAddPlannersView | Form Invalid")
+        return super().form_invalid(form)
+
+arrangement_add_planners_form_view = PlannerArrangementAddPlannersFormView.as_view()
+
+
+class PlannerArrangementRemovePlannersFormView(LoginRequiredMixin, FormView):
+    form_class=RemovePlannersForm
+    template_name="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannersView | Form Invalid")
+        return super().form_invalid(form)
+
+arrangement_remove_planners_form_view = PlannerArrangementRemovePlannersFormView.as_view()

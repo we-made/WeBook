@@ -8,12 +8,13 @@
  */
 
 class Dialog {
-    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onPreRefresh, dialogOptions } = {}) {
+    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onSubmit, onPreRefresh, dialogOptions } = {}) {
         this.dialogElementId = dialogElementId;
         this.triggerElementId = triggerElementId;
         this.htmlFabricator = htmlFabricator;
         this.onRenderedCallback = onRenderedCallback;
         this.onUpdatedCallback = onUpdatedCallback;
+        this.onSubmit = onSubmit;
         this.onPreRefresh = onPreRefresh;
         this.dialogOptions = dialogOptions;
     }
@@ -35,17 +36,23 @@ class Dialog {
         }
     }
 
-    async refresh(arrangement) {
+    async refresh(arrangement, html) {
+        console.log(html);
         if (this.isOpen() === true) {
             if (this.onPreRefresh !== undefined) {
                 await this.onPreRefresh(this);
             }
 
-            var html = await this.htmlFabricator(arrangement);
+            if (html === undefined) {
+                html = await this.htmlFabricator(arrangement);
+            }
+            else { console.log(html); }
+
             var holderEl = document.createElement("span");
             holderEl.innerHTML = html;
-            var realHtml = holderEl.querySelector("#" + this.dialogElementId).innerHTML;
-            document.querySelector("#" + this.dialogElementId).innerHTML = realHtml;
+
+            document.querySelector("#" + this.dialogElementId).innerHTML 
+                = holderEl.querySelector("#" + this.dialogElementId).innerHTML;
 
             this.onRenderedCallback(this);
 
@@ -81,9 +88,11 @@ class Dialog {
 
 
 export class ArrangementInspector {
-    constructor () {
+    constructor (csrf_token) {
         this._listenForRepopRequest();
         this._listenForUpdatedRequest();
+        this._listenForSubmitRequest();
+        this.csrf_token = csrf_token;
 
         this._dialogRepository = new Map([
             [ 
@@ -91,7 +100,10 @@ export class ArrangementInspector {
                 new Dialog({
                     dialogElementId: "mainDialog",
                     triggerElementId: "_mainDialog",
-                    htmlFabricator: this._fabricateMainDialog,
+                    htmlFabricator: async (arrangement) => {
+                        return await fetch('/arrangement/planner/dialogs/arrangement_information/' + arrangement.slug)
+                                .then(response => response.text());
+                    },
                     onPreRefresh: (dialog) => {
                         var active = $('#tabs').tabs ( "option", "active" );
                         dialog._active_tab = active;
@@ -106,7 +118,25 @@ export class ArrangementInspector {
 
                         this._makeAware(); 
                     },
-                    onUpdatedCallback: () => { return false; },
+                    onSubmit: async (arrangement, formData) => { 
+                        var getArrangementHtml = async function (slug, formData, csrf_token) {
+                            var response = await fetch("/arrangement/planner/dialogs/arrangement_information/" + slug, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    "X-CSRFToken": csrf_token
+                                },
+                                credentials: 'same-origin',
+                            });
+                            return await response.text();
+                        }
+
+                        var somehtml = await getArrangementHtml(arrangement.slug, formData, this.csrf_token);
+                        this.reloadDialog("mainDialog", somehtml);
+
+                        document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                    },
+                    onUpdatedCallback: () => { this.reloadDialog("mainDialog"); },
                     dialogOptions: { width: 600 }
                 }) 
             ],
@@ -115,7 +145,10 @@ export class ArrangementInspector {
                 new Dialog({
                     dialogElementId: "addPlannerDialog",
                     triggerElementId: "mainDialog__addPlannerBtn",
-                    htmlFabricator: this._fabricateAddPlannerDialog,
+                    htmlFabricator: async (arrangement) => {
+                        return await fetch("/arrangement/planner/dialogs/add_planner?slug=" + arrangement.slug)
+                            .then(response => response.text());
+                    },
                     onRenderedCallback: () => { console.info("Rendered"); },
                     onUpdatedCallback: ( ) => { this.reloadDialog("mainDialog"); this.closeDialog("addPlannerDialog"); },
                     dialogOptions: { width: 700 }
@@ -126,7 +159,10 @@ export class ArrangementInspector {
                 new Dialog({
                     dialogElementId: "newTimePlanDialog",
                     triggerElementId: "mainPlannerDialog__newTimePlan",
-                    htmlFabricator: this._fabricateNewTimePlanDialog,
+                    htmlFabricator: async (arrangement) => {
+                        return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + arrangement.slug)
+                            .then(response => response.text());
+                    },
                     onRenderedCallback: () => { console.info("Rendered"); },
                     onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
                     dialogOptions: { width: 700 }
@@ -137,7 +173,10 @@ export class ArrangementInspector {
                 new Dialog({
                     dialogElementId: "newSimpleActivityDialog",
                     triggerElementId: "mainPlannerDialog__newSimpleActivity",
-                    htmlFabricator: this._fabricateNewSimpleActivityDialog,
+                    htmlFabricator: async (arrangement) => {
+                        return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + arrangement.slug)
+                            .then(response => response.text());
+                    },
                     onRenderedCallback: () => { console.info("Rendered") },
                     onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newSimpleActivityDialog"); },
                     dialogOptions: { width: 500 }
@@ -148,7 +187,10 @@ export class ArrangementInspector {
                 new Dialog({
                     dialogElementId: "calendarFormDialog",
                     triggerElementId: "mainPlannerDialog__showInCalendarForm",
-                    htmlFabricator: this._fabricateCalendarFormDialog,
+                    htmlFabricator: async (arrangement) => {
+                        return await fetch('/arrangement/planner/dialogs/arrangement_calendar_planner/' + arrangement.slug)
+                                .then(response => response.text())
+                    },
                     onRenderedCallback: () => { console.info("Rendered") },
                     onUpdatedCallback: () => { return false; },
                     dialogOptions: { width: 1200, height: 700 }
@@ -159,7 +201,10 @@ export class ArrangementInspector {
                 new Dialog({
                     dialogElementId: "promotePlannerDialog",
                     triggerElementId: "mainPlannerDialog__promotePlannerBtn",
-                    htmlFabricator: this._fabricatePromotePlannerDialog,
+                    htmlFabricator: async (arrangement) => {
+                        return await fetch("/arrangement/planner/dialogs/promote_main_planner?slug=" + arrangement.slug)
+                            .then(response => response.text());
+                    },
                     onRenderedCallback: () => { console.info("Rendered") },
                     onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("promotePlannerDialog"); },
                     dialogOptions: { width: 500 },
@@ -170,21 +215,13 @@ export class ArrangementInspector {
                 new Dialog({
                     dialogElementId: "newNoteDialog",
                     triggerElementId: "mainPlannerDialog__newNoteBtn",
-                    htmlFabricator: this._fabricateNewNoteDialog,
+                    htmlFabricator: async (arrangement) => {
+                        return await fetch("/arrangement/planner/dialogs/new_note?slug=" + arrangement.slug)
+                            .then(response => response.text());
+                    },
                     onRenderedCallback: () => { console.info("Rendered") },
                     onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newNoteDialog");  },
                     dialogOptions: { width: 500 },
-                })
-            ],
-            [
-                "addPlannerDialog",
-                new Dialog({
-                    dialogElementId: "addPlannerDialog",
-                    triggerElementId: "mainPlannerDialog__addPlannerBtn",
-                    htmlFabricator: this._fabricateAddPlannerDialog,
-                    onRenderedCallback: () => { console.info("Rendered") },
-                    onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("addPlannerDialog");  },
-                    dialogOptions: { width: 500 },  
                 })
             ],
         ]);
@@ -195,8 +232,8 @@ export class ArrangementInspector {
         });
     }
 
-    reloadDialog(dialogId) {
-        this._dialogRepository.get(dialogId).refresh(this.arrangement);
+    reloadDialog(dialogId, customHtml=undefined) {
+        this._dialogRepository.get(dialogId).refresh(this.arrangement, customHtml);
     }
 
     closeDialog(dialogId) {
@@ -210,16 +247,19 @@ export class ArrangementInspector {
     }
     _listenForUpdatedRequest() {
         document.addEventListener("arrangementPlannerDialogs.hasBeenUpdated", (e) => {
-            console.log(">> UPDATED HANDLER!!")
             this._dialogRepository.get(e.detail.dialog).onUpdatedCallback();
         });
+    }
+    _listenForSubmitRequest() {
+        document.addEventListener("arrangementPlannerDialogs.submit", (e) => {
+            this._dialogRepository.get(e.detail.dialog).onSubmit(this.arrangement, e.detail.formData);
+        })
     }
 
     repop() {
         this._dialogRepository.forEach( (value, key, map) => {
             var dialogEl = $("#" + value.dialogElementId);
             if (dialogEl !== undefined) {
-                console.log("DESTROY " + value.dialogElementId)
                 dialogEl.dialog("destroy");
             }
 
@@ -265,40 +305,5 @@ export class ArrangementInspector {
         this.$promoteNewPlannerBtn = $('#mainPlannerDialog__promotePlannerBtn');
 
         this._setTriggers();
-    }
-
-    async _fabricateAddPlannerDialog(arrangement) {
-        return await fetch("/arrangement/planner/dialogs/add_planner?slug=" + arrangement.slug)
-            .then(response => response.text());
-    }
-
-    async _fabricateNewNoteDialog(arrangement) {
-        return await fetch("/arrangement/planner/dialogs/new_note?slug=" + arrangement.slug)
-            .then(response => response.text());
-    }
-
-    async _fabricatePromotePlannerDialog(arrangement) {
-        return await fetch("/arrangement/planner/dialogs/promote_main_planner?slug=" + arrangement.slug)
-            .then(response => response.text());
-    }
-
-    async _fabricateNewTimePlanDialog(arrangement) {
-        return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + arrangement.slug)
-            .then(response => response.text());
-    }
-
-    async _fabricateNewSimpleActivityDialog(arrangement) {
-        return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + arrangement.slug)
-            .then(response => response.text());
-    }
-
-    async _fabricateCalendarFormDialog(arrangement) {
-        return await fetch('/arrangement/planner/dialogs/arrangement_calendar_planner/' + arrangement.slug)
-                .then(response => response.text())
-    }
-
-    async _fabricateMainDialog(arrangement) {
-        return await fetch('/arrangement/planner/dialogs/arrangement_information/' + arrangement.slug)
-                .then(response => response.text());
     }
 }
