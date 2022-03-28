@@ -449,16 +449,10 @@ class Note(TimeStampedModel):
     :param content: The actual content of the note
     :type content: str.
 
-    :param confirmation: The confirmation, or receipt, associated with this note. Can be null if no receipt was
-                         requested.
-    :type confirmation: ConfirmationReceipt
-
     """
 
     author = models.ForeignKey(to='Person', on_delete=models.RESTRICT)
     content = models.TextField(verbose_name=_("Content"), max_length=1024)
-
-    confirmation = models.ForeignKey(to="ConfirmationReceipt", verbose_name=_("Confirmation Receipt"), on_delete=models.RESTRICT, null=True)
 
     def __str__(self):
         """Return contents of note"""
@@ -486,6 +480,9 @@ class ConfirmationReceipt (TimeStampedModel):
 
     :param confirmed_when: When the confirmation request was confirmed
     :type confirmed_when: datetime.
+
+    :param note: The confirmation, or receipt note. Can be null.
+    :type note: Note
 
     """
 
@@ -529,6 +526,8 @@ class ConfirmationReceipt (TimeStampedModel):
     sent_to = models.EmailField(verbose_name=_("SentTo"), max_length=255)
     sent_when = models.DateTimeField(verbose_name=_("SentWhen"), null=True, auto_now_add=True)
 
+    note = models.ForeignKey(to="Note", verbose_name=_("Note"),
+                                     on_delete=models.RESTRICT, null=True)
     """
         Reasoning supplied by the user when denying the request
     """

@@ -23,6 +23,7 @@ from django.views.generic import (
 from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
+from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
@@ -353,15 +354,6 @@ class PlannerCalendarView (LoginRequiredMixin, PlannerSectionManifestMixin, Meta
         return context
 
 planner_calendar_view = PlannerCalendarView.as_view()
-
-
-
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    raise TypeError ("Type %s not serializable" % type(obj))
 
 
 class PlannerArrangementEvents (LoginRequiredMixin, ListView):
