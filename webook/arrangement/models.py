@@ -78,6 +78,7 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin):
         verbose_name_plural = _("Audiences")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
+    name_en = models.CharField(verbose_name=_("Screen Name English"), max_length=255, blank=False, null=True)
     icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
     slug = AutoSlugField(populate_from="name", unique=True)
 
@@ -100,6 +101,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
         verbose_name_plural = _("Arrangements")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
+    name_en = models.CharField(verbose_name=_("Screen Name English"), max_length=255, blank=False, null=True)
     slug = AutoSlugField(populate_from="name", unique=True)
 
     def get_absolute_url(self):
@@ -164,6 +166,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
         (READY_TO_LAUNCH, READY_TO_LAUNCH),
         (IN_PRODUCTION, IN_PRODUCTION)
     )
+
+    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
 
     stages = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PLANNING)
 
@@ -876,6 +880,7 @@ class LooseServiceRequisition(TimeStampedModel):
 
 class ScreenResource(TimeStampedModel):
     name = models.CharField(verbose_name=_("Screen Name"), max_length=255, blank=False, null=False)
+    name_en = models.CharField(verbose_name=_("Screen Name English"), max_length=255, blank=False, null=True)
     description = models.CharField(verbose_name=_("Description"), max_length=255, blank=True)
     quantity = models.IntegerField(verbose_name=_("Quantity"), null=False, default=10)
     is_room_screen = models.BooleanField(verbose_name=_("Is Screen in Room"), default=True)
@@ -895,6 +900,7 @@ class ScreenResource(TimeStampedModel):
 
 class ScreenGroup(TimeStampedModel):
     group_name = models.CharField(verbose_name=_("Group Name"), max_length=255, blank=False, null=False)
+    group_name_en = models.CharField(verbose_name=_("Screen Group Name English"), max_length=255, blank=False, null=True)
     description = models.CharField(verbose_name=_("Description"), max_length=255, blank=True)
     quantity = models.IntegerField(verbose_name=_("Quantity"), null=False, default=10)
     screens = models.ManyToManyField(to=ScreenResource, verbose_name=_("Screen Resources"))
