@@ -19,10 +19,6 @@ export class LocationCalendar extends FullCalendarBased {
         this.init()
     }
 
-    _bindPopover() {
-
-    }
-
     init() {
         let _this = this;
 
@@ -30,7 +26,6 @@ export class LocationCalendar extends FullCalendarBased {
             this._fcCalendar = new FullCalendar.Calendar(_this._calendarElement, {
                 initialView: 'resourceTimelineMonth',
                 headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton', center: 'resourceTimelineMonth,resourceTimelineWeek' },
-                // themeSystem: 'bootstrap',
                 selectable: true,
                 customButtons: {
                     filterButton: {
@@ -86,7 +81,6 @@ export class LocationCalendar extends FullCalendarBased {
                         name.classList.add("fw-bolder");
                     }
                     else {
-                        
                         name.innerHTML = `${name.innerText} <abbr title="Maks kapasitet på dette rommet"><em class='small text-muted'>(${arg.resource.extendedProps.maxCapacity})</em></abbr>`;
                     }
 

@@ -89,7 +89,6 @@ export class LocationStore extends BaseStore {
     
     getAll({ get_as } = {}) {
         var resources = _getStoreAsArray();
-
         if (get_as === _FC_RESOURCE) {
             let fcResources = [];
             for (let i = 0; i < resources.length; i++) {
