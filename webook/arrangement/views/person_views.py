@@ -19,7 +19,7 @@ from django.views.generic import (
 from django.core import serializers
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
-from WeBook.webook.utils.json_serial import json_serial
+from webook.utils.json_serial import json_serial
 from webook.arrangement.views.organization_views import OrganizationSectionManifestMixin
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.section_manifest import SectionManifest

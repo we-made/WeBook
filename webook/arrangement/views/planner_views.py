@@ -23,7 +23,7 @@ from django.views.generic import (
 from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
-from WeBook.webook.utils.json_serial import json_serial
+from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
