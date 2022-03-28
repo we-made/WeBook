@@ -108,7 +108,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
         )
 
     def __str__(self):
-        """ Return arrangement type name """ 
+        """ Return arrangement type name """
         return self.name
 
 
@@ -173,7 +173,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
 
     audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE, related_name="arrangements")
     arrangement_type = models.ForeignKey(to=ArrangementType, verbose_name=_("Arrangement Type"), on_delete=models.CASCADE, related_name="arrangements", null=True)
-    
+
     starts = models.DateField(verbose_name=_("Starts"))
     ends = models.DateField(verbose_name=_("Ends"))
 
@@ -187,6 +187,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
     people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
     show_on_multimedia_screen = models.BooleanField(verbose_name=_("Show on multimedia screen"), default=False)
+
+    display_layouts = models.ManyToManyField(to="DisplayLayout", verbose_name=_("Display Layout"), related_name="arrangements")
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
@@ -246,8 +248,8 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
         verbose_name_plural = _("Rooms")
 
     location = models.ForeignKey(
-        Location, 
-        verbose_name=_("Location"), 
+        Location,
+        verbose_name=_("Location"),
         on_delete=models.CASCADE,
         related_name="rooms"
     )
@@ -350,7 +352,7 @@ class ServiceType(TimeStampedModel, ModelNamingMetaMixin):
     class Meta:
         verbose_name = _("Service Type")
         verbose_name_plural = _("Service Types")
-    
+
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)
 
@@ -506,22 +508,22 @@ class ConfirmationReceipt (TimeStampedModel):
         (TYPE_DEFAULT, TYPE_DEFAULT),
         (TYPE_REQUISITION_PERSON, TYPE_REQUISITION_PERSON),
         (TYPE_REQUISITION_SERVICE, TYPE_REQUISITION_SERVICE),
-        
+
     )
 
     type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_DEFAULT)
     state = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PENDING)
 
-    """ 
+    """
         Unique generated code that identifies this request. This allows for request confirmations to be
-        responded to without login (which may not always be possible - especially in the cases where a business 
+        responded to without login (which may not always be possible - especially in the cases where a business
         is the recipient)...
     """
     code = models.CharField(verbose_name=_("Code"), max_length=200, unique=True, db_index=True)
     requested_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT, verbose_name=_("Requested By"))
     sent_to = models.EmailField(verbose_name=_("SentTo"), max_length=255)
     sent_when = models.DateTimeField(verbose_name=_("SentWhen"), null=True, auto_now_add=True)
-    
+
     """
         Reasoning supplied by the user when denying the request
     """
@@ -574,7 +576,7 @@ class Person(TimeStampedModel, ModelNamingMetaMixin):
     notes = models.ManyToManyField(to=Note, verbose_name="Notes")
 
     slug = AutoSlugField(populate_from="full_name", unique=True)
-    
+
     instance_name_attribute_name = "full_name"
     entity_name_singular = _("Person")
     entity_name_plural = _("People")
@@ -731,7 +733,7 @@ class Event(TimeStampedModel):
     end = models.DateTimeField(verbose_name=_("End"), null=False)
     all_day = models.BooleanField(verbose_name=_("AllDay"), default=False)
     sequence_guid = models.CharField(verbose_name=_("SequenceGuid"), max_length=40, null=True, blank=True)
-    
+
     color = models.CharField(verbose_name=_("Primary Color"), max_length=40, null=True, blank=True)
 
     is_locked = models.BooleanField(verbose_name=_("Is Locked"), default=False)
@@ -743,7 +745,10 @@ class Event(TimeStampedModel):
     loose_requisitions = models.ManyToManyField(to="LooseServiceRequisition", verbose_name=_("Loose service requisitions"), related_name="events")
     articles = models.ManyToManyField(to=Article, verbose_name=_("Articles"))
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
-    
+
+    display_layouts = models.ManyToManyField(to="DisplayLayout", verbose_name=_("Display Layouts"),
+                                             related_name="events")
+
     def __str__(self):
         """Return title of event, with start and end times"""
         return f"{self.title} ({self.start} - {self.end})"
@@ -808,7 +813,7 @@ class EventService(TimeStampedModel):
     associated_people = models.ManyToManyField(to=Person, verbose_name=_("Associated People"))
 
 class RequisitionRecord (TimeStampedModel):
-    
+
     REQUISITION_UNDEFINED = 'undefined'
     REQUISITION_PEOPLE = 'people'
     REQUISITION_SERVICES = 'services'
@@ -820,8 +825,8 @@ class RequisitionRecord (TimeStampedModel):
     )
 
     confirmation_receipt = models.ForeignKey(
-        to="ConfirmationReceipt", 
-        on_delete=models.RESTRICT, 
+        to="ConfirmationReceipt",
+        on_delete=models.RESTRICT,
         related_name='requisition_record',
         null=True)
     historic_confirmation_receipts = models.ManyToManyField(to="ConfirmationReceipt")
@@ -836,9 +841,9 @@ class RequisitionRecord (TimeStampedModel):
 
     """ Set if requisition is of order """
     service_requisition = models.ForeignKey(to="ServiceRequisition", related_name="parent_record", on_delete=models.RESTRICT, null=True)
-    """ Set if requisition is of person """ 
+    """ Set if requisition is of person """
     person_requisition = models.ForeignKey(to="PersonRequisition", related_name="parent_record", on_delete=models.RESTRICT, null=True)
-    
+
     """ Which events are caught up in this requisition """
     affected_events = models.ManyToManyField(to=Event, verbose_name=_("Affected Events"))
 
@@ -867,6 +872,77 @@ class LooseServiceRequisition(TimeStampedModel):
     def is_complete(self):
         """ Return a bool indicating if the loose requisition has been fulfilled and completed """
         return self.ordered_service is not None
+
+
+class ScreenResource(TimeStampedModel):
+    name = models.CharField(verbose_name=_("Screen Name"), max_length=255, blank=False, null=False)
+    description = models.CharField(verbose_name=_("Description"), max_length=255, blank=True)
+    quantity = models.IntegerField(verbose_name=_("Quantity"), null=False, default=10)
+    is_room_screen = models.BooleanField(verbose_name=_("Is Screen in Room"), default=True)
+    location = models.ForeignKey(to=Location, verbose_name=_("Location"), on_delete=models.RESTRICT,
+                                       null=True, blank=True)
+
+    groups = models.ManyToManyField(to="ScreenGroup", verbose_name=_("Screen Groups"), related_name="screens")
+
+    slug = AutoSlugField(populate_from="name", unique=True)
+    entity_name_singular = _("ScreenResource")
+    entity_name_plural = _("ScreenResources")
+
+    def __str__(self):
+        """Return screen resource name"""
+        return self.name
+
+
+class ScreenGroup(TimeStampedModel):
+    group_name = models.CharField(verbose_name=_("Group Name"), max_length=255, blank=False, null=False)
+    description = models.CharField(verbose_name=_("Description"), max_length=255, blank=True)
+    quantity = models.IntegerField(verbose_name=_("Quantity"), null=False, default=10)
+    screens = models.ManyToManyField(to=ScreenResource, verbose_name=_("Screen Resources"), related_name="groups")
+
+    slug = AutoSlugField(populate_from="group_name", unique=True)
+    entity_name_singular = _("ScreenGroup")
+    entity_name_plural = _("ScreenGroups")
+
+    def __str__(self):
+        """Return screen group name"""
+        return self.group_name
+
+
+class DisplayLayout(TimeStampedModel):
+    name = models.CharField(verbose_name=_("Name"), max_length=255, blank=False, null=False)
+    description = models.CharField(verbose_name=_("Description"), max_length=255, blank=True)
+    quantity = models.IntegerField(verbose_name=_("Quantity"), null=False, default=10)
+    is_room_based = models.BooleanField(verbose_name=_("Is Room Based"), default=True)
+    is_active = models.BooleanField(verbose_name=_("Is Layout Active"), default=True)
+
+    screens = models.ManyToManyField(to=ScreenResource, verbose_name=_("Screen Resources"), related_name="layouts")
+    groups = models.ManyToManyField(to=ScreenGroup, verbose_name=_("Screen Groups"), related_name="layouts")
+
+    setting = models.ForeignKey(to="DisplayLayoutSetting", verbose_name=_("Display Layout Setting"), on_delete=models.RESTRICT,
+                                 null=True, blank=True)
+
+    slug = AutoSlugField(populate_from="name", unique=True)
+    entity_name_singular = _("DisplayLayout")
+    entity_name_plural = _("DisplayLayouts")
+
+    def __str__(self):
+        """Return display layout name"""
+        return self.name
+
+
+class DisplayLayoutSetting(TimeStampedModel):
+    name = models.CharField(verbose_name=_("Name"), max_length=255, blank=False, null=False)
+    html_template = models.TextField(verbose_name=_("HTML Template"))
+    css_template = models.TextField(verbose_name=_("CSS Template"))
+    file_output_path = models.TextField(verbose_name=_("File Output Path"), max_length=255, blank=True)
+
+    slug = AutoSlugField(populate_from="name", unique=True)
+    entity_name_singular = _("DisplayLayoutSetting")
+    entity_name_plural = _("DisplayLayoutSettings")
+
+    def __str__(self):
+        """Return display layout name"""
+        return self.name
 
 
 class ServiceRequisition(TimeStampedModel, ModelHistoricallyConfirmableMixin):
