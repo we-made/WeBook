@@ -19,6 +19,7 @@ from django.views.generic import (
 from django.core import serializers
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
+from WeBook.webook.utils.json_serial import json_serial
 from webook.arrangement.views.organization_views import OrganizationSectionManifestMixin
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.section_manifest import SectionManifest
@@ -169,14 +170,6 @@ class SearchPeopleAjax (LoginRequiredMixin, SearchView):
         return people        
 
 search_people_ajax_view = SearchPeopleAjax.as_view()
-
-
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-
-    if isinstance(obj, (datetime, datetime.date)):
-        return obj.isoformat()
-    raise TypeError ("Type %s not serializable" % type(obj))
 
 class PeopleCalendarResourcesListView (LoginRequiredMixin, ListView):
 
