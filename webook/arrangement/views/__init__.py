@@ -125,6 +125,8 @@ from .planner_views import (
     arrangement_promote_planner_dialog_view,
     arrangement_new_note_dialog_view,
     arrangement_add_planner_dialog_view,
+    arrangement_add_planners_form_view,
+    arrangement_remove_planners_form_view
 )
 
 from .note_views import (

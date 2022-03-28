@@ -1,3 +1,4 @@
+{% load static i18n %}
 
 
 <div id="mainDialog" title="{{object.name}}">
@@ -132,7 +133,7 @@
                     <tr>
                         <td>
                             <strong>Planleggere:</strong><br>
-                            <select multiple>
+                            <select multiple id="mainPlannerDialog_plannersSelect">
                                 <option value="MAIN" data-toggle="tooltip" title="Hovedplanlegger" disabled>{{object.responsible}}</option>
                                 {% for planner in object.planners.all %}
                                     <option value="{{planner.pk}}">{{planner}}</option>
@@ -147,7 +148,8 @@
                         </a>
                     </div>
                     <div>
-                        <a href='#' class='text-primary' id='mainDialog_removePlannerBtn'>
+                        <a href='#' class='text-primary' id='mainDialog_removePlannerBtn'
+                            onclick="mainPlannerDialog__removePlanners()">
                             <i class='fas fa-plus'></i>
                             Fjern valgte planleggere...
                         </a>
@@ -169,7 +171,9 @@
                     </tr>
                     <tr>
                         <td colspan='3'>
-                            <button class=" btn btn-sm shadow-0 btn-light btn-block text-success">
+                            <button class=" btn btn-sm shadow-0 btn-light btn-block text-success"
+                                    type="button"
+                                    onclick="mainPlannerDialog__updateArrangementInfo()">
                                 <i class='fas fa-check'></i>
                                 Lagre endringer
                             </button>
@@ -177,6 +181,9 @@
                     </tr>
                 </tbody>
             </table>
+
+        {{ form.errors }}
+
         </div>
         <div id="tabs-2">
             <div class="table-responsive" style="max-height: 280px;">
@@ -226,3 +233,45 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    function mainPlannerDialog__updateArrangementInfo() {
+        var formData = new FormData();
+        formData.append("name",             $('#id_name').val());
+        formData.append("audience",         $('#id_audience').val());
+        formData.append("location",         $('#id_location').val());
+        formData.append("arrangement_type", $('#id_arrangement_type').val());
+        formData.append("starts",           $('#id_starts').val());
+        formData.append("ends",             $('#id_ends').val());
+
+        document.dispatchEvent(
+            new CustomEvent("arrangementPlannerDialogs.submit", { "detail": {
+                dialog: "mainDialog",
+                formData: formData,
+            }})
+        );
+    }
+
+    function mainPlannerDialog__removePlanners() {
+        var planners = $('#mainPlannerDialog_plannersSelect').val().join(",");
+        console.log(planners)
+        var formData = new FormData()
+        formData.append("planner_ids", planners);
+        formData.append("arrangement_slug", "{{arrangement.slug}}")
+
+        fetch('{% url "arrangement:arrangement_remove_planners_form" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            }
+        }).then(_ => {
+            document.dispatchEvent(
+                new CustomEvent("arrangementPlannerDialogs.hasBeenUpdated", {'detail': {
+                    dialog: "mainDialog",
+                }})
+            )
+        })
+    }
+</script>

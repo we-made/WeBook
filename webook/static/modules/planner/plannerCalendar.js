@@ -24,9 +24,12 @@ export class PlannerCalendar extends FullCalendarBased {
         initialColorProvider="",
         $locationFilterSelectEl=undefined,
         $arrangementTypeFilterSelectEl=undefined,
-        $audienceTypeFilterSelectEl=undefined } = {}) {
+        $audienceTypeFilterSelectEl=undefined,
+        csrf_token=undefined } = {}) {
 
         super();
+
+        this.csrf_token = csrf_token;
 
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
@@ -48,7 +51,7 @@ export class PlannerCalendar extends FullCalendarBased {
 
         this.init();
 
-        this.inspectorUtility = new ArrangementInspector();
+        this.inspectorUtility = new ArrangementInspector(this.csrf_token);
         this.filterDialog = new FilterDialog();
 
         this.$locationFilterSelectEl = $locationFilterSelectEl;
@@ -58,11 +61,19 @@ export class PlannerCalendar extends FullCalendarBased {
         this.$arrangementTypeFilterSelectEl = $arrangementTypeFilterSelectEl;
         $arrangementTypeFilterSelectEl.on('change', () => {
             this.init();
-        })
+        });
         this.$audienceTypeFilterSelectEl = $audienceTypeFilterSelectEl;
         $audienceTypeFilterSelectEl.on('change', () => {
             this.init();
-        })
+        });
+        
+        this._listenToRefreshEvents();
+    }
+
+    _listenToRefreshEvents() {
+        document.addEventListener("plannerCalendar.refreshNeeded", () => {
+            this.init();
+        });
     }
 
     /**

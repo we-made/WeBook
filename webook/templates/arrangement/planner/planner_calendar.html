@@ -260,6 +260,7 @@
                 $locationFilterSelectEl: $("#plannerCalendarFilter_locationFilter"),
                 $arrangementTypeFilterSelectEl: $("#plannerCalendarFilter_arrangementTypes"),
                 $audienceTypeFilterSelectEl: $("#plannerCalendarFilter_audiences"),
+                csrf_token: '{{ csrf_token }}'
             });
             var locationsCalendar = new LocationCalendar({
                 calendarElement: document.getElementById('locationsPlannerCalendar'),
