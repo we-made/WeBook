@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('arrangement', '0049_auto_20220328_0854'),
+        ('arrangement', '0049_create_models_for_screen_display'),
     ]
 
     operations = [
