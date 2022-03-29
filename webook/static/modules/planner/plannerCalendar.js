@@ -99,10 +99,10 @@ export class PlannerCalendar extends FullCalendarBased {
         }
     }
 
-    /**
-     * Get the currently active color provider instance
-     * @returns active color provider
-     */
+    // /**
+    //  * Get the currently active color provider instance
+    //  * @returns active color provider
+    //  */
     _getColorProvider() {
         return this._colorProviders.get(this.activeColorProvider);
     }
@@ -170,8 +170,16 @@ export class PlannerCalendar extends FullCalendarBased {
             selectable: true,
             weekNumbers: true,
             navLinks: true,
+            minTime: "06:00",
+            maxTime: "23:00",
+            slotEventOverlap: false,
             locale: 'nb',
             views: {
+                customTimeGridMonth: {
+                    type: "timeGrid",
+                    duration: { month: 1 },
+                    buttonText: "Tidsgrid Måned"
+                },
                 calendarDayGridMonth: {
                     type: 'dayGridMonth',
                     buttonText: 'Kalender'
@@ -211,7 +219,7 @@ export class PlannerCalendar extends FullCalendarBased {
                     }
                 }
             },
-            headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'calendarDayGridMonth,customTimelineMonth,customTimelineYear', },
+            headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
             events: async (start, end, startStr, endStr, timezone) => {
                 return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
                     .then(a => _this._ARRANGEMENT_STORE.get_all(
@@ -224,44 +232,44 @@ export class PlannerCalendar extends FullCalendarBased {
                     ));
             },
 
-            eventContent: (arg) => {
-                var icon_class = arg.event.extendedProps.icon;
-                let html = `<span class="h6"
-                                    data-toggle='tooltip'
-                                    title='Right click me to get options'>
+            // eventContent: (arg) => {
+            //     var icon_class = arg.event.extendedProps.icon;
+            //     let html = `<span class="h6"
+            //                         data-toggle='tooltip'
+            //                         title='Right click me to get options'>
   
-                                <span class='text-white ms-2'>
-                                    <i class='${icon_class}'></i>
-                                </span>
-                                <em class='small'>${arg.event.extendedProps.starts} - ${arg.event.extendedProps.ends}</em>
-                                ${arg.event.title}
-                            </span>`
-                return { html: html }
-            },
+            //                     <span class='text-white ms-2'>
+            //                         <i class='${icon_class}'></i>
+            //                     </span>
+            //                     <em class='small'>${arg.event.extendedProps.starts} - ${arg.event.extendedProps.ends}</em>
+            //                     ${arg.event.title}
+            //                 </span>`
+            //     return { html: html }
+            // },
             eventDidMount: (arg) => {
                 this._bindPopover(arg.el);
-                this._bindInspectorTrigger(arg.el);
+                // this._bindInspectorTrigger(arg.el);
 
-                $.contextMenu({
-                    className: "",
-                    selector: ".fc-event",
-                    items: {
-                        open: {
-                            name: "Åpne",
-                            icon: "",
-                            isHtmlName: false,
-                            callback: (key, opt) => {
-                                location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
-                            }
-                        },
-                        edit: {
-                            name: "Rediger",
-                            callback: (key, opt) => {
-                                location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
-                            }
-                        },
-                    }
-                });
+                // $.contextMenu({
+                //     className: "",
+                //     selector: ".fc-event",
+                //     items: {
+                //         open: {
+                //             name: "Åpne",
+                //             icon: "",
+                //             isHtmlName: false,
+                //             callback: (key, opt) => {
+                //                 location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
+                //             }
+                //         },
+                //         edit: {
+                //             name: "Rediger",
+                //             callback: (key, opt) => {
+                //                 location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
+                //             }
+                //         },
+                //     }
+                // });
             }
         });
 

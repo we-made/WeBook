@@ -62,7 +62,7 @@
                         <td><i class='fas fa-question-circle text-muted'></i></td>
                     </tr>
                     <tr>
-                        <td colspan="2">
+                        <td colspan="3">
                             <strong>Lokasjon</strong>
                             {{ form.location }}
 
@@ -84,7 +84,7 @@
                                 </div>
                             {% endif %}
                         </td>
-                        <td><i class='fas fa-question-circle text-muted'></i></td>
+                        <!-- <td><i class='fas fa-question-circle text-muted'></i></td> -->
 
                     </tr>
                     <tr>
@@ -103,8 +103,7 @@
                                 </div>
                             {% endif %}
                         </td>
-                        <td><i class='fas fa-question-circle text-muted'></i></td>
-
+                        <!-- <td><i class='fas fa-question-circle text-muted'></i></td> -->
                     </tr>
                     <tr>
                         <td colspan='2'>
@@ -122,8 +121,7 @@
                                 </div>
                             {% endif %}
                         </td>
-                        <td><i class='fas fa-question-circle text-muted'></i></td>
-
+                        <!-- <td><i class='fas fa-question-circle text-muted'></i></td> -->
                     </tr>
                     <tr>
                         <td colspan='3'>
@@ -186,7 +184,7 @@
 
         </div>
         <div id="tabs-2">
-            <div class="table-responsive" style="max-height: 280px;">
+            <div class="table-responsive" style="max-height: 480px;">
                 <table class='table table-striped'>
                     <a href='#' class='text-primary' id='mainPlannerDialog__newTimePlan'><i class='fas fa-plus'></i>&nbsp; Ny tidsplan</a>
                     &nbsp;|&nbsp;
@@ -194,15 +192,22 @@
                     &nbsp;|&nbsp;
                     <a href='#' class='text-primary' id='mainPlannerDialog__showInCalendarForm'><i class='fas fa-calendar'></i>&nbsp; Vis i kalenderform</a>
                     <thead>
+                        {% for set in sets  %}
                         <tr>
-                            <th class='h6'>Tidsplan</th>
-                        </tr>
-                        {% for event in object.event_set.all %}
-                        <tr>
-                            <td>
-                                ({{event.start}} - {{event.end}})
-                                {{event.title}}
-                            </td>
+                            <th>
+                                <h6 class="fw-bolder">{{ set.title }} | <a href='#' class="text-primary">Bestill rom</a> | <a href='#' class="text-primary">Bestill tjenester</a> | <a href='#' class="text-primary">Bestill personer</a></h6>
+
+                                <table>
+                                    {% for event in set.events %}
+                                    <tr>
+                                        <td>
+                                            ({{event.start}} - {{event.end}})
+                                            {{event.title}}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </table>
+                            </th>
                         </tr>
                         {% endfor %}
                     </thead>
