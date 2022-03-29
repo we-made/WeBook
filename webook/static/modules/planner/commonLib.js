@@ -172,7 +172,7 @@ export class ArrangementStore extends BaseStore {
         return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}`)
             .then(response => response.json())
             .then(obj => { obj.forEach((arrangement) => {
-                this._store.set(arrangement.slug, arrangement);
+                this._store.set(arrangement.event_pk, arrangement);
             })});
     }
 
@@ -191,12 +191,13 @@ export class ArrangementStore extends BaseStore {
     _mapArrangementToFullCalendarEvent(arrangement) {
         let _this = this;
         let slugClass = writeSlugClass(arrangement.slug);
+        let pkClass = "pk:" + arrangement.pk;
         return new FullCalendarEvent({
             title: arrangement.name,
             start: arrangement.starts,
             end: arrangement.ends,
             color: _this.plannerCalendar._getColorProvider().getColor(arrangement),
-            classNames: [ slugClass ],
+            classNames: [ slugClass, pkClass ],
             extendedProps: {
                 location_name: arrangement.location,
                 location_slug: arrangement.location_slug,

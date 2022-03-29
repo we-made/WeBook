@@ -1,6 +1,8 @@
 from datetime import datetime
-from typing import Any
+from msilib import sequence
+from typing import Any, Dict
 from datetime import date, datetime
+import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import query
 from django.db.models.query import QuerySet
@@ -149,8 +151,10 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         querydict = self.request.POST
         get_post_value_or_none = lambda attr: querydict.get("events[" + str(counter) + "]." + attr, None)
         # parse a string of ids to a list of ids, '1,2,3 -> [1,2,3], and avoid default str.split() behaviour of '' = ['']
-        parse_ids_string_to_list = lambda str_to_parse, separator=",": [x for x in str_to_parse.split(separator) if x]
+        parse_ids_string_to_list = lambda str_to_parse, separator=",": [x for x in str_to_parse.split(separator) if x] if str_to_parse else []
         
+        sequence_guid = uuid.uuid4()
+
         while (True):
             event = Event()
 
@@ -163,6 +167,8 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             event.start = get_post_value_or_none("start")
             event.end = get_post_value_or_none("end")
             event.sequence_guid = get_post_value_or_none("sequence_guid")
+            if event.sequence_guid is None:
+                event.sequence_guid = sequence_guid
             event.color = get_post_value_or_none("color")
 
             # we need to save the event before setting up the many-to-many relationships,
@@ -363,16 +369,17 @@ class PlannerArrangementEvents (LoginRequiredMixin, ListView):
         arrangements = Arrangement.objects.all().only("name", "starts", "ends")
         events = []
         for arrangement in arrangements:
-            events.append({
-                "title": arrangement.name,
-                "start": arrangement.starts,
-                "end": arrangement.ends,
-                "id": arrangement.slug,
-                "className": f"slug:{arrangement.slug}",
-                "extendedProps": {
-                    "icon": arrangement.audience.icon_class
-                }
-            })
+            for event in arrangement.event_set:
+                events.append({
+                    "title": arrangement.name,
+                    "start": event.start,
+                    "end": event.end,
+                    "id": event.pk,
+                    "className": f"slug:{arrangement.slug}",
+                    "extendedProps": {
+                        "icon": arrangement.audience.icon_class
+                    }
+                })
 
         return HttpResponse(json.dumps(events, default=json_serial), content_type="application/json")
 
@@ -387,20 +394,22 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         serializable_arrangements = []
 
         for arrangement in arrangements:
-            serializable_arrangements.append({
-                "slug": arrangement.slug,
-                "name": arrangement.name,
-                "starts": arrangement.starts,
-                "ends": arrangement.ends,
-                "mainPlannerName": arrangement.responsible.full_name,
-                "audience": arrangement.audience.name,
-                "audience_slug": arrangement.audience.slug,
-                "audience_icon": arrangement.audience.icon_class,
-                "location": arrangement.location.name,
-                "location_slug": arrangement.location.slug,
-                "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined",
-                "arrangement_type_slug": arrangement.arrangement_type.slug if arrangement.arrangement_type is not None else ""
-            })
+            for event in arrangement.event_set.all():
+                serializable_arrangements.append({
+                    "event_pk": event.pk,
+                    "slug": arrangement.slug,
+                    "name": arrangement.name,
+                    "starts": event.start,
+                    "ends": event.end,
+                    "mainPlannerName": arrangement.responsible.full_name,
+                    "audience": arrangement.audience.name,
+                    "audience_slug": arrangement.audience.slug,
+                    "audience_icon": arrangement.audience.icon_class,
+                    "location": arrangement.location.name,
+                    "location_slug": arrangement.location.slug,
+                    "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined",
+                    "arrangement_type_slug": arrangement.arrangement_type.slug if arrangement.arrangement_type is not None else ""
+                })
 
         return HttpResponse(
             json.dumps(serializable_arrangements, default=json_serial),
@@ -423,6 +432,22 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
     slug_field = "slug"
     slug_url_kwarg = "slug"
     template_name="arrangement/planner/dialogs/arrangement_dialogs/arrangementInfoDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context =  super().get_context_data(**kwargs)
+
+        arrangement_in_focus = self.get_object()
+        sets = {}
+        
+        for event in arrangement_in_focus.event_set.all():
+            if event.sequence_guid not in sets:
+                sets[event.sequence_guid] = { "events": [], "title": "" }
+            sets[event.sequence_guid]["events"].append(event)
+            sets[event.sequence_guid]["title"] = event.title
+
+        context["sets"] = sets.values()
+
+        return context
 
     def get_success_url(self) -> str:
         return reverse("arrangement:arrangement_dialog", kwargs={ "slug": self.get_object().slug })
@@ -483,6 +508,13 @@ arrangement_create_simple_event_dialog_view = PlannerArrangementCreateSimpleEven
 
 class PlannerArrangementCreateSerieDialog(LoginRequiredMixin, TemplateView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        arrangement_slug = self.request.GET.get("slug")
+        arrangement = Arrangement.objects.get(slug=arrangement_slug)
+        context["arrangementPk"] = arrangement.pk
+        return context
 
 arrangement_create_serie_dialog_view = PlannerArrangementCreateSerieDialog.as_view()
 

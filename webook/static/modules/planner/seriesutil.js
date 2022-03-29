@@ -1,9 +1,60 @@
+
+class DateExtensions {
+    /* Overwrite the time values for one Date instance with the value of a time field (as a str) */
+    static OverwriteDateTimeWithTimeInputValue(date_to_write_time_to, time_input_val_as_str) {
+
+        let times = time_input_val_as_str.split(':');
+        let date = new Date(date_to_write_time_to);
+
+        date.setHours(times[0]);
+        date.setMinutes(times[1]);
+
+        return date;
+    }
+}
+
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
+
+/**
+ * Utility class primarily intended to wrap around the various strategies employed in the 
+ * series util, offering a far more succinct and consumable vector for executing the strategies, as well
+ * as constructing parameter bodies.
+ */
+ class StrategyExecutorAbstraction {
+    constructor ({function_to_run, parameter_obj}={}) {
+        this.function_to_run = function_to_run
+        
+        this.parameters = {}
+        if (parameter_obj !== undefined) {
+            this.add_object_keyvals_as_params(parameter_obj);
+        }
+    }
+
+    add_object_keyvals_as_params(obj) {
+        for (let [key, value] of Object.entries(obj)) {
+            this.parameters[key] = value;
+        }
+    }
+
+    run(extra_params=undefined) {
+        if (extra_params !== undefined) {
+            this.add_object_keyvals_as_params(extra_params);
+        }
+
+        return this.function_to_run(this.parameters);
+    }
+}
+
 /**
      * Series util logic for calculating series of events in given patterns. Dynamically extensible, and split up into three chief
      * components; the strategy, the recurrence pattern and the cycle.
      * @inner
      */
- class SeriesUtil {
+ export class SeriesUtil {
 
     static calculate_serie (serie) {
         const pattern_strategies = new Map();
