@@ -19,6 +19,7 @@ from webook.arrangement.models import Arrangement, Person
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from django.views.generic.edit import FormView
+from django.http import JsonResponse
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -43,6 +44,18 @@ class ArrangementSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
+
+
+class JSONResponseMixin:
+    """
+    A mixin that can be used to render a JSON response
+    """
+    def render_to_json_response(self, context, **response_kwargs):
+        return JsonResponse(self.get_data(context), **response_kwargs)
+
+    def get_data(self, context):
+        return context
+
 
 
 class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, DetailView):
@@ -122,14 +135,39 @@ class ArrangementCreateView (LoginRequiredMixin, ArrangementSectionManifestMixin
         "audience",
         "location",
         "arrangement_type",
-        "starts",
-        "ends",
         "responsible",
     ]
     template_name = "arrangement/arrangement/arrangement_form.html"
     view_meta = ViewMeta.Preset.create(Arrangement)
 
 arrangement_create_view = ArrangementCreateView.as_view()
+
+
+class ArrangementCreateJSONView (LoginRequiredMixin, JSONResponseMixin, CreateView):
+    model = Arrangement
+    fields = [
+        "name",
+        "audience",
+        "location",
+        "arrangement_type",
+        "responsible",
+    ]
+    template_name = "arrangement/arrangement/arrangement_form.html"
+    view_meta = ViewMeta.Preset.create(Arrangement)
+
+    def form_invalid(self, form):
+        print(form.errors)
+        return super().form_invalid(form)
+
+    def form_valid(self, form):
+        arrangement = form.save()
+        print(arrangement)
+        print(arrangement.pk)
+        return JsonResponse({ "arrangementPk": arrangement.pk })
+    # def get_success_url(self) -> str:
+    #     return super().get_success_url()
+
+arrangement_create_json_view = ArrangementCreateJSONView.as_view()
 
 
 class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, UpdateView):
@@ -163,8 +201,6 @@ arrangement_delete_view = ArrangementDeleteView.as_view()
 
 class ArrangementSearchView(LoginRequiredMixin, SearchView):
     def search(self, search_term):
-        print("search..")
-
         arrangements = []
 
         if (search_term == ""):

@@ -4,7 +4,9 @@
 {% block noheader %}
 
 <style>
-
+    .ui-dialog {
+        background-color: ghostwhite!important;
+    }
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -20,7 +22,7 @@
     <div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr mb-0">
         <div class="fc-button-group">
             <a class="fc-button fc-button-primary fc-arrangementsCalendarButton-button"
-               href="{% url 'arrangement:arrangement_create' %}"> 
+               id="newArrangementBtn"> 
                 Nytt arrangement
             </a>
         </div>
@@ -145,6 +147,7 @@
         import { PlannerCalendar } from "{% static 'modules/planner/plannerCalendar.js' %}";
         import { LocationCalendar } from "{% static 'modules/planner/locationCalendar.js' %}";
         import { PersonCalendar } from "{% static 'modules/planner/personCalendar.js' %}";
+        import { ArrangementCreator } from "{% static 'modules/planner/arrangementCreator.js' %}";
 
         var colorSwatch = [
             "#ffc2c2", 
@@ -248,13 +251,25 @@
                 return color;
             }
         }
+
+        var arrangementCreator;
+
         document.addEventListener('DOMContentLoaded', function() {
+
+
+            arrangementCreator = new ArrangementCreator();
+
+            $('#newArrangementBtn').on('click', () => {
+                arrangementCreator.open();
+            })
+
+
             var plannerCalendar = new PlannerCalendar({
                 calendarElement: document.getElementById('arrangementPlannerCalendar'),
                 eventsSrcUrl: "{% url 'arrangement:arrangement_events' %}",
                 colorProviders: [ 
-                    // { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
-                    // { key: "audience", provider: new ColorByAudienceColorProvider() },
+                    { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
+                    { key: "audience", provider: new ColorByAudienceColorProvider() },
                     { key: "arrangement", provider: new ColorByArrangementProvider() },
                 ],
                 initialColorProvider: "arrangement",

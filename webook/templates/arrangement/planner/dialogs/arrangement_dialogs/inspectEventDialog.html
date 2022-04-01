@@ -1,0 +1,209 @@
+<div id="inspectEventDialog" title="Inspiser tidspunkt">
+
+    <div class="border border-1 bg-secondary shadow-4 rounded-4 mb-2 p-3">
+        <div>
+            <h5 class="mb-0 d-inline fw-bolder text-white">{{ object.arrangement.name }}</h5>
+            <h6 class="fw-bold  d-inline text-white">| På {{ object.arrangement.location }}</h6>
+            
+            <button class="btn btn-sm btn-white shadow-0 float-end"
+                onclick="triggerFocusTo('{{object.arrangement.slug}}', '{{object.pk}}')">
+                Inspiser
+            </button>
+        </div>
+    </div>
+
+    <div style="max-height: 300px;">
+        <div class='bg-white p-3 mb-3 rounded-4 shadow-3'>
+            <h4>Informasjon</h4>
+            <div>
+                <label for="title" form="{{form.title.id_for_label}}">
+                    Tittel
+                </label>
+                <input type="text" class="form-control"
+                    name="{{form.title.name}}" id="{{form.title.id_for_label}}"
+                    value="{{form.title.value}}">
+            </div>
+
+            <div class="mt-2">
+                <h6>Fra</h6>
+                <div class="row">
+                    <div class="col-8">
+                        <input type="date" class="form-control" 
+                                name="{{form.start.name}}_date" id="{{form.start.id_for_label}}_date"
+                                value="{{ form.start.value|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-4">
+                        <input type="time" class="form-control" 
+                                name="{{ form.start.name }}_time" id="{{ form.start.name }}_time" 
+                                value="{{ form.start.value|date:'H:i' }}">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-2">
+                <h6>Til</h6>
+                <div class="row">
+                    <div class="col-8">
+                        <input type="date" class="form-control" 
+                                name="{{ form.end.name }}_date" id="{{ form.end.id_for_label }}_date"
+                                value="{{ form.end.value|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-4">
+                        <input type="time" class="form-control" 
+                                name="{{form.end.name}}_time" id="{{ form.end.name }}_time"
+                                value="{{ form.end.value|date:'H:i' }}" >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="mb-2 mt-4">People</h4>
+            <div id="personAutocomplete" class="form-outline">
+                <input type="text" id="personAutocompleteInput" name="personAutocompleteInput" class="form-control">
+                <label for="personAutocompleteInput" class="form-label">
+                    <i class="fas fa-search"></i>&nbsp;
+                    Søk etter person
+                </label>
+            </div>    
+            <hr>
+            <div class="table-responsive">
+                <table class="table table-sm table-borderless">
+                    <tbody id="peopleTableBody"></tbody>
+                </table>
+            </div>
+
+            <h4 class="mb-2 mt-4">Rom</h4>
+
+            <div id="roomAutoComplete" class="form-outline">
+                <input type="text" id="roomAutoCompleteInput" class="form-control" placeholder="Søk etter rom...">
+                <label for="roomAutoCompleteInput" class="form-label">
+                    <i class="fas fa-search"></i>&nbsp;
+                    Søk etter rom
+                </label>
+            </div>
+            <hr>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-borderless">
+                    <tbody id="roomsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class='bg-white p-3 mb-3 rounded-4 shadow-4'>
+            <div class="clearfix">
+                <div class="float-end">
+                    <button class="btn btn-sm btn-dark">Avbryt</button>
+                    <button class="btn btn-sm btn-success" onclick="inspectEventDialog__save()">Lagre</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var peopleMap = new Map();
+    var roomsMap = new Map();
+
+    function inspectEventDialog__save() {
+        let formData = new FormData();
+        var start = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
+        var end = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
+
+        formData.append("id",           '{{object.pk}}');
+        formData.append("title",        $('#id_title').val());
+        formData.append("start",        start);
+        formData.append("end",          end);
+        formData.append("arrangement", '{{object.arrangement.pk}}');
+        formData.append("people",       Array.from( peopleMap.keys() ));
+        formData.append("rooms",        Array.from( roomsMap.keys() ));
+        formData.append("csrf_token",   "{{ csrf_token }}");
+
+        document.dispatchEvent(
+            new CustomEvent("eventInspector.submit", { "detail": {
+                dialog: "inspectEventDialog",
+                formData: formData,
+                event_pk: '{{ object.pk }}',
+                csrf_token: '{{ csrf_token }}',
+            }})
+        );
+
+    }
+
+    function triggerFocusTo(slug, event_pk) {
+        document.dispatchEvent(
+            new CustomEvent(
+                "plannerCalendar.inspectThisArrangement",
+                { detail: { slug: slug, event_pk: event_pk } }
+            )
+        )
+    }
+
+    function removePerson(el) {
+      let key = $(el).attr("person-key");
+      peopleMap.delete(parseInt(key));
+      el.remove();
+    }
+
+    function removeRoom(el) {
+      let key = $(el).attr("room-key");
+      roomsMap.delete(parseInt(key));
+      el.remove();
+    }
+
+    $(document).ready(function () {
+        const personAsyncFilter = async (query) => {
+        const url = `{% url "arrangement:search_people_ajax_view" %}?term=${encodeURI(query)}`;
+        const response = await fetch(url);
+        const data = JSON.parse(await response.json());
+        
+        let people = []
+        for (let i = 0; i < data.length; i++) {
+          let entry = data[i]
+          entry.fields.id = entry.pk;
+          if (peopleMap.has(entry.fields.id) !== true) {
+            people.push(entry.fields)
+          }
+        }
+
+        return people;
+      };
+
+      const roomAsyncFilter = async (query) => {
+        const url = `{% url "arrangement:search_room_ajax_view" %}?term=${encodeURI(query)}`;
+        const response = await fetch(url);
+        const data = JSON.parse(await response.json());
+
+        let rooms = [];
+        for (let i = 0; i < data.length; i++) {
+          let entry = data[i]
+          entry.fields.id = entry.pk;
+          if (roomsMap.has(entry.fields.id) !== true) {
+            rooms.push(entry.fields);
+          }
+        }
+
+        return rooms;
+      };
+
+      var personAutocomplete = new mdb.Autocomplete(document.getElementById('personAutocomplete'), {
+        filter: personAsyncFilter,
+        displayValue: (value) => [value.first_name, value.middle_name, value.last_name].join(" ")
+      });
+      var roomAutocomplete = new mdb.Autocomplete(document.getElementById('roomAutoComplete'), {
+        filter: roomAsyncFilter,
+        displayValue: (value) => value.name
+      });
+
+      $("#personAutocomplete").on("itemSelect.mdb.autocomplete", function (ev) {
+          peopleMap.set(ev.value.id, ev.value);
+          $('#peopleTableBody').append("<tr person-key='" + ev.value.id  + "'><td>" + [ev.value.first_name, ev.value.middle_name, ev.value.last_name].join(" ") + "</td><td><a href='#' onclick='removePerson(this.parentElement.parentElement)'><i class='fas fa-minus text-danger'></i></td>");
+          personAutoCompleteEl.children[0].value = ""
+      })
+      $("#roomAutoComplete").on("itemSelect.mdb.autocomplete", function (ev) {
+          roomsMap.set(ev.value.id, ev.value);
+          $('#roomsTableBody').append("<tr room-key='" + ev.value.id  + "'><td>" + ev.value.name + "</td><td><a href='#' onclick='removeRoom(this.parentElement.parentElement)'><i class='fas fa-minus text-danger'></i></td>");
+      })
+    })
+</script>

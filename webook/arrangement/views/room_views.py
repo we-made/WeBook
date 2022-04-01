@@ -119,11 +119,12 @@ class LocationRoomListView (LoginRequiredMixin, ListView):
 location_room_list_view = LocationRoomListView.as_view()
 
 
-class SearchRoomsAjax (LoginRequiredMixin, ListView):
+class SearchRoomsAjax (LoginRequiredMixin, SearchView):
 
-    def post (self, request):
-        body_data = json.loads(request.body.decode('utf-8'))
-        search_term = body_data["term"]
+    model = Room
+
+    def search (self, search_term):
+        search_term.replace(' ', "")
 
         rooms = []
 
@@ -132,8 +133,6 @@ class SearchRoomsAjax (LoginRequiredMixin, ListView):
         else:
             rooms = Room.objects.filter(name__contains=search_term)
 
-        response = serializers.serialize("json", rooms)
-
-        return JsonResponse(response, safe=False)
+        return rooms
 
 search_rooms_ajax_view = SearchRoomsAjax.as_view()
