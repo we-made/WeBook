@@ -190,8 +190,10 @@ export class ArrangementStore extends BaseStore {
      */
     _mapArrangementToFullCalendarEvent(arrangement) {
         let _this = this;
+        
         let slugClass = writeSlugClass(arrangement.slug);
-        let pkClass = "pk:" + arrangement.pk;
+        let pkClass = "pk:" + arrangement.event_pk;
+
         return new FullCalendarEvent({
             title: arrangement.name,
             start: arrangement.starts,
@@ -213,13 +215,15 @@ export class ArrangementStore extends BaseStore {
      * Get arrangement by the given slug
      * @param {*} slug 
      */
-    get({ slug, get_as } = {}) {
-        if (this._store.has(slug) === false) {
-            console.error(`Can not get arrangement with slug '${slug}' as slug is not known.`)
+    get({pk, get_as } = {}) {
+        if (this._store.has(parseInt(pk)) === false) {
+            console.error(`Can not get arrangement with pk '${pk}' as pk is not known.`)
+            console.log(this._store)
             return;
         }
 
-        var arrangement = this._store.get(slug);
+        var arrangement = this._store.get(parseInt(pk));
+        
         if (get_as === _FC_EVENT) {
             return this._mapArrangementToFullCalendarEvent(arrangement);
         }
@@ -300,6 +304,25 @@ export class FullCalendarBased {
         }
 
         return slug;
+    }
+
+    _findEventPkFromEl(el) {
+        var pk = undefined;
+
+        el.classList.forEach((classToEvaluate) => {
+            var classSplit = classToEvaluate.split(":");
+            if (classSplit.length > 1 && classSplit[0] == "pk") {
+                pk = classSplit[1];
+            }
+        });
+
+        if (pk === undefined) {
+            console.error("Element does not have a valid pk.")
+            console.error(el);
+            return undefined;
+        }
+
+        return pk;
     }
 
     refresh() { 

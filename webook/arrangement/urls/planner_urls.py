@@ -27,7 +27,9 @@ from webook.arrangement.views import (
     arrangement_new_note_dialog_view,
     arrangement_add_planner_dialog_view,
     arrangement_add_planners_form_view,
-    arrangement_remove_planners_form_view
+    arrangement_remove_planners_form_view,
+    create_arrangement_dialog_view,
+    planner_event_inspector_dialog_view,
 )
 
 
@@ -161,5 +163,15 @@ planner_urls = [
         route="planner/remove_planners",
         view=arrangement_remove_planners_form_view,
         name="arrangement_remove_planners_form"
-    )
+    ),
+    path(
+        route="planner/dialogs/create_arrangement",
+        view=create_arrangement_dialog_view,
+        name="create_arrangement_dialog"
+    ),
+    path(
+        route="planner/dialogs/event_inspector/<int:pk>",
+        view=planner_event_inspector_dialog_view,
+        name="event_inspector_dialog",
+    ),
 ]

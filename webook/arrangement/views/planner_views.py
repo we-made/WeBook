@@ -205,12 +205,15 @@ class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
         "start",
         "end",
         "arrangement",
-        "color",
-        "sequence_guid",
     ]
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         return super().post(request, *args, **kwargs)
+
+    def form_invalid(self, form) -> HttpResponse:
+        print(" >> UpdateEventForm invalid")
+        print(form.errors)
+        return super().form_invalid(form)
 
     def get_success_url(self) -> str:
         people = self.request.POST.get("people")
@@ -418,6 +421,20 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
 get_arrangements_in_period_view = GetArrangementsInPeriod.as_view()
 
 
+class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
+    fields = [
+        "title",
+        "start",
+        "end"
+    ]
+    model = Event
+    pk_field="pk"
+    pk_url_kwarg="pk"
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/inspectEventDialog.html"
+
+planner_event_inspector_dialog_view = PlannerEventInspectorDialogView.as_view()
+
+
 class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
     fields = [
         "name",
@@ -425,7 +442,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "arrangement_type",
         "location",
         "starts",
-        "ends",
+        "ends", 
     ]
     model = Arrangement
     slug_field = "slug"
@@ -452,6 +469,33 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         return reverse("arrangement:arrangement_dialog", kwargs={ "slug": self.get_object().slug })
 
 arrangement_information_dialog_view = PlannerArrangementInformationDialogView.as_view()
+
+
+class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, CreateView):
+    fields = [
+        "name",
+        "audience",
+        "arrangement_type",
+        "location",
+        "starts",
+        "ends",
+        "responsible",
+    ]
+    model = Arrangement
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/createArrangementDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        if "managerName" in self.request.GET:
+            context["managerName"] = self.request.GET.get("managerName")
+        else: print("No manager name.")
+        
+        return context 
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_dialog", kwargs={ "slug": self.get_object().slug })
+
+create_arrangement_dialog_view = PlannerCreateArrangementInformatioDialogView.as_view()
 
 
 class PlannerArrangementCalendarPlannerDialogView (LoginRequiredMixin, DetailView):
@@ -510,9 +554,16 @@ class PlannerArrangementCreateSerieDialog(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        arrangement_slug = self.request.GET.get("slug")
-        arrangement = Arrangement.objects.get(slug=arrangement_slug)
-        context["arrangementPk"] = arrangement.pk
+        if "slug" in self.request.GET:
+            arrangement_slug = self.request.GET.get("slug")
+            arrangement = Arrangement.objects.get(slug=arrangement_slug)
+            context["arrangementPk"] = arrangement.pk
+        else: context["arrangementPk"] = 0
+
+        if "managerName" in self.request.GET:
+            context["managerName"] = self.request.GET.get("managerName")
+        else: print("No manager name.")
+
         return context
 
 arrangement_create_serie_dialog_view = PlannerArrangementCreateSerieDialog.as_view()

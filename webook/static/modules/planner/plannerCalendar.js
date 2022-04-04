@@ -12,7 +12,9 @@ import {
 } from "./commonLib.js";
 
 import { ArrangementInspector } from "./arrangementInspector.js";
+import { EventInspector } from "./eventInspector.js";
 import { FilterDialog } from "./filterDialog.js";
+import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
 
 
 export class PlannerCalendar extends FullCalendarBased {
@@ -51,7 +53,9 @@ export class PlannerCalendar extends FullCalendarBased {
 
         this.init();
 
-        this.inspectorUtility = new ArrangementInspector(this.csrf_token);
+        this.arrangementInspectorUtility = new ArrangementInspector();
+        this.eventInspectorUtility = new EventInspector();
+
         this.filterDialog = new FilterDialog();
 
         this.$locationFilterSelectEl = $locationFilterSelectEl;
@@ -68,12 +72,24 @@ export class PlannerCalendar extends FullCalendarBased {
         });
         
         this._listenToRefreshEvents();
+        this._listenToInspectArrangementEvents();
     }
 
     _listenToRefreshEvents() {
         document.addEventListener("plannerCalendar.refreshNeeded", () => {
             this.init();
         });
+    }
+
+    _listenToInspectArrangementEvents() {
+        document.addEventListener("plannerCalendar.inspectThisArrangement", (e) => {
+            var arrangement = this._ARRANGEMENT_STORE.get({
+                pk: e.detail.event_pk,
+                get_as: _NATIVE_ARRANGEMENT
+            });
+    
+            this.arrangementInspectorUtility.inspect(arrangement);
+        })
     }
 
     /**
@@ -112,14 +128,14 @@ export class PlannerCalendar extends FullCalendarBased {
      * @param {*} elementToBindWith 
      */
     _bindPopover (elementToBindWith) {
-        var slug = this._findSlugFromEl(elementToBindWith);        
+        var pk = this._findEventPkFromEl(elementToBindWith);        
         var arrangement = this._ARRANGEMENT_STORE.get({
-            slug: slug,
+            pk: pk,
             get_as: _NATIVE_ARRANGEMENT
         });
 
         if (arrangement === undefined) {
-            console.error(`Could not bind popover for arrangement with slug ${slug}`);
+            console.error(`Could not bind popover for arrangement with pk ${pk}`);
             return;
         }
 
@@ -143,14 +159,13 @@ export class PlannerCalendar extends FullCalendarBased {
     _bindInspectorTrigger (elementToBindWith) {
         let _this = this;
         $(elementToBindWith).on('click', (ev) => {
-            var slug = _this._findSlugFromEl(ev.currentTarget);
-            console.log(">> Slug: " + slug)
-            var arrangement = _this._ARRANGEMENT_STORE.get({
-                slug: slug,
-                get_as: _NATIVE_ARRANGEMENT
-            });
+            var pk = _this._findEventPkFromEl(ev.currentTarget);
+            // var arrangement = _this._ARRANGEMENT_STORE.get({
+            //     pk: pk,
+            //     get_as: _NATIVE_ARRANGEMENT
+            // });
     
-            this.inspectorUtility.inspectArrangement(arrangement);
+            this.eventInspectorUtility.inspect(pk);
         })
     }
 
@@ -248,28 +263,48 @@ export class PlannerCalendar extends FullCalendarBased {
             // },
             eventDidMount: (arg) => {
                 this._bindPopover(arg.el);
-                // this._bindInspectorTrigger(arg.el);
+                this._bindInspectorTrigger(arg.el);
 
-                // $.contextMenu({
-                //     className: "",
-                //     selector: ".fc-event",
-                //     items: {
-                //         open: {
-                //             name: "Åpne",
-                //             icon: "",
-                //             isHtmlName: false,
-                //             callback: (key, opt) => {
-                //                 location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
-                //             }
-                //         },
-                //         edit: {
-                //             name: "Rediger",
-                //             callback: (key, opt) => {
-                //                 location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
-                //             }
-                //         },
-                //     }
-                // });
+                $.contextMenu({
+                    className: "",
+                    selector: ".fc-event",
+                    items: {
+                        open: {
+                            name: "Åpne arrangement",
+                            icon: "",
+                            isHtmlName: false,
+                            callback: (key, opt) => {
+                                location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
+                            }
+                        },
+                        edit: {
+                            name: "Rediger arrangement",
+                            callback: (key, opt) => {
+                                location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
+                            }
+                        },
+                        separator: { "type": "cm_separator" },
+                        arrangement_inspector: {
+                            name: "Inspiser arrangement",
+                            callback: (key, opt) => {
+                                var pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                var arrangement = _this._ARRANGEMENT_STORE.get({
+                                    pk: pk,
+                                    get_as: _NATIVE_ARRANGEMENT
+                                });
+                        
+                                this.arrangementInspectorUtility.inspect(arrangement);
+                            }
+                        },
+                        event_inspector: {
+                            name: "Inspiser tidspunkt",
+                            callback: (key, opt) => {
+                                var pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                this.eventInspectorUtility.inspect(pk);
+                            }
+                        }
+                    }
+                });
             }
         });
 

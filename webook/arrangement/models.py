@@ -178,8 +178,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
     audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE, related_name="arrangements")
     arrangement_type = models.ForeignKey(to=ArrangementType, verbose_name=_("Arrangement Type"), on_delete=models.CASCADE, related_name="arrangements", null=True)
 
-    starts = models.DateField(verbose_name=_("Starts"))
-    ends = models.DateField(verbose_name=_("Ends"))
+    starts = models.DateField(verbose_name=_("Starts"), null=True)
+    ends = models.DateField(verbose_name=_("Ends"), null=True)
 
     timeline_events = models.ManyToManyField(to="TimelineEvent", verbose_name=_("Timeline Events"))
 

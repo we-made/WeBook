@@ -84,7 +84,8 @@ from .arrangement_views import (
     planners_on_arrangement_table_view,
     arrangement_add_planner_form_view,
     arrangement_remove_planner_form_view,
-    arrangement_promote_planner_to_main_view
+    arrangement_promote_planner_to_main_view,
+    arrangement_create_json_view,
 )
 
 from .audience_views import (
@@ -126,7 +127,9 @@ from .planner_views import (
     arrangement_new_note_dialog_view,
     arrangement_add_planner_dialog_view,
     arrangement_add_planners_form_view,
-    arrangement_remove_planners_form_view
+    arrangement_remove_planners_form_view,
+    create_arrangement_dialog_view,
+    planner_event_inspector_dialog_view,
 )
 
 from .note_views import (

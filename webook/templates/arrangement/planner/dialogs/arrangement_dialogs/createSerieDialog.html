@@ -9,9 +9,10 @@
                   <tr>
                     <td>
                       <label>{% trans "Title" %}</label>
+
                     </td>
                     <td>
-                      <input type="text" id="serie_title" required />
+                      <input type="text" id="serie_title" autocomplete="off" required />
                     </td>
                   </tr>
                   <tr>
@@ -172,6 +173,7 @@
     import { SelectComponent, MonthSelectComponent, YearSelectComponent } from "{% static 'modules/planner/selectcomponent.js' %}";
 
     $('#submitBtn').on('click', () => {
+        console.log(">> submitBtn")
         submit_serie();
     })
 
@@ -571,7 +573,6 @@
         for (let i = 0; i < events.length; i++) {
             var event = events[i];
             event.arrangement = '{{arrangementPk}}';
-            console.log(event);
             event.start = event.from.toISOString();
             event.end=event.to.toISOString();
             
@@ -580,23 +581,16 @@
             }
         }
 
-        fetch("/arrangement/planner/create_events/", {
-            method:"POST",
-            body: formData,
-            headers: {
-                "X-CSRFToken": '{{csrf_token}}'
-            },
-            credentials: 'same-origin',
-        }).then(_ => 
-            document.dispatchEvent(
-            new CustomEvent("arrangementPlannerDialogs.hasBeenUpdated", {'detail': {
-                dialog: "newNoteDialog",
-            }})
-        ))
-
-        // planner.local_context.add_serie(serie);
-        // $("#newSerieDialog").modal('hide');
-        // toastr["success"]('{% trans "Recurring event created!" %}');
+        console.log(">> dispatch serie")
+        console.log(serie)
+        document.dispatchEvent(
+            new CustomEvent(
+                "{{managerName}}.submit", 
+                {
+                    'detail': { 'dialog': "newTimePlanDialog", 'serie': serie }
+                }
+            )
+        )
     }
 
 
