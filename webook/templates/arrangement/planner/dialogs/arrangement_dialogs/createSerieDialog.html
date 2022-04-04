@@ -12,7 +12,7 @@
 
                     </td>
                     <td>
-                      <input type="text" id="serie_title" required />
+                      <input type="text" id="serie_title" autocomplete="off" required />
                     </td>
                   </tr>
                   <tr>
@@ -173,6 +173,7 @@
     import { SelectComponent, MonthSelectComponent, YearSelectComponent } from "{% static 'modules/planner/selectcomponent.js' %}";
 
     $('#submitBtn').on('click', () => {
+        console.log(">> submitBtn")
         submit_serie();
     })
 
@@ -580,6 +581,8 @@
             }
         }
 
+        console.log(">> dispatch serie")
+        console.log(serie)
         document.dispatchEvent(
             new CustomEvent(
                 "{{managerName}}.submit", 

@@ -16,6 +16,7 @@
                                 id="{{ form.name.id_for_label }}" 
                                 value="{{ form.name.value|default:'' }}"
                                 name="{{ form.name.name }}"
+                                autocomplete="off"
                                 placeholder="{% trans 'Name of the arrangement' %}..."/>
 
                             {% if form.name.errors|length > 0 %}

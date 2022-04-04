@@ -5,7 +5,7 @@ import { SeriesUtil } from "./seriesutil.js"
 export class ArrangementCreator {
     constructor () {
         this.dialogManager = new DialogManager({
-            managerName: "  ",  
+            managerName: "arrangementCreator",  
             dialogs: [
                 [
                     "createArrangementDialog",
@@ -96,11 +96,13 @@ export class ArrangementCreator {
                         onRenderedCallback: () => { console.info("Rendered"); },
                         onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
                         onSubmit: async (context, details) => {
+                            console.log("newTimePlanDialog >> onSubmit")
                             if (context.series === undefined) {
                                 context.series = []
                             }
                             context.series.push(details.serie);
                             console.log(this.dialogManager.managerName + ".contextUpdated")
+                            console.log(context);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
                         dialogOptions: { width: 700 }
