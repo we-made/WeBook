@@ -142,20 +142,37 @@
                     <thead>
                         {% for set in sets  %}
                         <tr>
-                            <th>
-                                <h6 class="fw-bolder">{{ set.title }} | <a href='#' class="text-primary">Bestill rom</a> | <a href='#' class="text-primary">Bestill tjenester</a> | <a href='#' class="text-primary">Bestill personer</a></h6>
-
-                                <table>
+                            <th class="bg-light">
+                                <h6 class="fw-bolder">Tidsplan: <em>{{ set.title }}</em>
+                                <div>
+                                    <a href='#' class="btn btn-sm btn-success text-white shadow-0">Bestill rom</a> 
+                                    <a href='#' class="btn btn-sm btn-success text-white shadow-0">Bestill person</a> 
+                                    <!-- | <a href='#' class="text-primary">Bestill tjenester</a> | <a href='#' class="text-primary">Bestill personer</a></h6> -->
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table class="table table-sm">
                                     {% for event in set.events %}
                                     <tr>
                                         <td>
                                             ({{event.start}} - {{event.end}})
                                             {{event.title}}
+
+                                            <ul>
+                                                <li>
+                                                    <em>Rom A</em>
+                                                </li>
+                                                <li>
+                                                    <em>Rom B</em>
+                                                </li>
+                                            </ul>
                                         </td>
                                     </tr>
                                     {% endfor %}
                                 </table>
-                            </th>
+                            </td>
                         </tr>
                         {% endfor %}
                     </thead>

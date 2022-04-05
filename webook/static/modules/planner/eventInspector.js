@@ -17,12 +17,6 @@ export class EventInspector {
                         onRenderedCallback: () => { this.dialogManager._makeAware(); },
                         dialogOptions: { width: 600 },
                         onSubmit: async (context, details) => {
-                            console.log("Context", context)
-                            console.log("Details", details)
-                            var pk = details.event_pk;
-
-                            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOOOOOOOO")
-
                             await fetch('/arrangement/planner/update_event/113', {
                                 method: "POST",
                                 body: details.formData,

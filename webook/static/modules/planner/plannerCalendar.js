@@ -175,7 +175,7 @@ export class PlannerCalendar extends FullCalendarBased {
     async init () {
         let _this = this;
 
-        var initialView = 'dayGridMonth';
+        var initialView = 'timelineMonth';
         if (this._fcCalendar !== undefined) {
             initialView = this._fcCalendar.view.type;
         }

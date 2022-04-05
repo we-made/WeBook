@@ -357,6 +357,7 @@ class PlannerCalendarView (LoginRequiredMixin, PlannerSectionManifestMixin, Meta
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["LOCATIONS"] = Location.objects.all()
+        context["PEOPLE"] = Person.objects.all()
         context["ARRANGEMENT_TYPES"] = ArrangementType.objects.all()
         context["AUDIENCES"] = Audience.objects.all()
         return context
@@ -659,3 +660,16 @@ class PlannerArrangementRemovePlannersFormView(LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 arrangement_remove_planners_form_view = PlannerArrangementRemovePlannersFormView.as_view()
+
+
+class PlannerCalendarFilterRoomsDialogView (LoginRequiredMixin, TemplateView):
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/roomFilterDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        location_slug = self.request.GET.get("slug")
+        location=Location.objects.get(slug=location_slug)
+        context["location"] = location
+        return context
+
+planner_calendar_filter_rooms_dialog_view = PlannerCalendarFilterRoomsDialogView.as_view()

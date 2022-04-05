@@ -17,7 +17,26 @@
 <script src="https://dragselect.com/v2/ds.min.js"></script>
 <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
 
+<style>
+    legend.group-border {
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.2em !important;
+        font-weight: bold !important;
+        text-align: left !important;
+        width: auto;
+        padding: 0 10px;
+        border-bottom: none;
+    }
+    fieldset.group-border {
+        border: 1px groove #ddd !important;
+        padding: 0 1.4em 1.4em 1.4em !important;
+        margin: 0 0 1.5em 0 !important;
+        -webkit-box-shadow: 0px 0px 0px 0px #000;
+        box-shadow: 0px 0px 0px 0px #000;
+    }
+</style>
 
+<h1>Planlegger</h1>
 <div class="fc mb-0 p-0">
     <div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr mb-0">
         <div class="fc-button-group">
@@ -29,115 +48,197 @@
     </div>
 </div>
 
-<div class="mt-4" id="plannerCalendarFilter">
-    <div class="row">
-        <div class="col-lg-2 col-md-4 col-sm-12">
-            <label for="">Lokasjoner</label>
-            <select class="select" id="plannerCalendarFilter_locationFilter" multiple>
-                {% for location in LOCATIONS %}
-                    <option value="{{location.slug}}">{{location}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-lg-2 col-md-4 col-sm-12">
-            <label for="">Arrangementstyper</label>
-            <select class="select" id="plannerCalendarFilter_arrangementTypes" multiple>
-                {% for arrangement_type in ARRANGEMENT_TYPES %}
-                    <option value="{{arrangement_type.slug}}">{{arrangement_type}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-lg-2 col-md-4 col-sm-12">
-            <label for="">Målgrupper</label>
-            <select class="select" id="plannerCalendarFilter_audiences" multiple>
-                {% for audience in AUDIENCES %}
-                    <option value="{{audience.slug}}">{{audience}}</option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
-</div>
-
-<div class="clearfix">
-    <div class="float-start">
-<!-- 
-        <div class="text-center text-uppercase text-muted"><i class="fas fa-filter"></i>
-            &nbsp;
-            Filter
-        </div>
-        <button class="btn btn-light btn-block shadow-0"
-                data-mdb-container="body"
-                data-mdb-toggle="popover"
-                data-mdb-placement="bottom"
-                data-mdb-content=" <div><strong>Arrangementstyper:</strong></div> <div><strong>Audiens: </strong></div> <div><strong>Planlegger: </strong></div>"
-                data-mdb-html="true">
-        <i class="fas fa-chevron-down"></i>
-            &nbsp;
-            Filtrer
-        </button>
-        <div class="text-center text-uppercase text-muted"><i class="fas fa-eye"></i>&nbsp; Fokuser på</div>
-        <div class="btn-group shadow-0">
-            <button class="btn btn-light"
-                data-toggle="tooltip"
-                title="Endre visningen til å fokusere på utheving av audiens">
-                Audiens
-            </button>
-            <button class="btn btn-light"
-                data-toggle="tooltip"
-                title="Endre visningen til å fokusere på utheving av arrangementstype">
-                Arrangementstype
-            </button>
-            <button class="btn btn-light"
-                data-toggle="tooltip"
-                title="Endre visningen til å fokusere på utheving av hovedplanleggere">
-                Hovedplanlegger
-            </button>
-        </div> -->
-    </div>
-</div>
-
-<div class="clearfix">
-    <div class="float-start">
-        <ul class="nav nav-tabs rounded-top mt-4 fc-tabs" style="display: none;" id="navTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active text-center" id="overview-tab" data-mdb-toggle="tab" href="#universeCalendar" role="tab" aria-controls="universe" aria-selected="true">
-                <span class="mb-0"><i class="fas fa-eye"></i></span>
-                &nbsp; <span>Arrangementer</span></button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link text-center" id="locations-tab" data-mdb-toggle="tab" href="#locationsCalendar" role="tab" aria-controls="locations" aria-selected="true">
-                <span class="mb-0"><i class="fas fa-building"></i></span>
-                &nbsp; <span>Lokasjoner</span></button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="people-tab" data-mdb-toggle="tab" href="#peopleCalendar" role="tab" aria-controls="people" aria-selected="false">
-                <span class="mb-0"><i class="fas fa-users"></i></span>
-                &nbsp; <span>Personer</span>
-                </button>
-            </li>
-        </ul>
-    </div>
-    <div class="float-end">
-
-    </div>
-</div>
-
-
 
 {% endblock %}
 
 {% block content %}
-    <div class="tab-content" id="calendars">
-      <div class="tab-pane show active" id="universeCalendar" role="tabpanel" aria-labelledby="universeCalendar-tab">
-        <div id="arrangementPlannerCalendar"></div>
-      </div>
-      <div class="tab-pane" id="locationsCalendar" role="tabpanel" aria-labelledby="locationsCalendar-tab">
-        <div id="locationsPlannerCalendar"></div>
-      </div>
-      <div class="tab-pane" id="peopleCalendar" role="tabpanel" aria-labelledby="peopleCalendar-tab">
-        <div id="peoplePlannerCalendar"></div>
-      </div>
+
+<div class="row">
+    <div class="col-2">
+        <div  id="plannerCalendarFilter">
+            <div class="form-outline datepicker">
+                <input type="text" class="form-control form-control-lg" id="exampleDatepicker11" />
+                <label for="exampleDatepicker11" class="form-label">Dato</label>
+              </div>
+        </div>
+
+        <div class="mt-4" id="plannerCalendarFilter">
+            <h4>Typer</h4>
+            <div>
+                <label for="">Arrangementstyper</label>
+                <select class="select" id="plannerCalendarFilter_arrangementTypes" multiple>
+                    {% for arrangement_type in ARRANGEMENT_TYPES %}
+                        <option value="{{arrangement_type.slug}}">{{arrangement_type}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="">Målgrupper</label>
+                <select class="select" id="plannerCalendarFilter_audiences" multiple>
+                    {% for audience in AUDIENCES %}
+                        <option value="{{audience.slug}}">{{audience}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="mt-4" id="plannerCalendarFilter">
+            <h4>Lokasjoner</h4>
+            <!-- <fieldset class="group-border"> -->
+                <!-- <legend class="group-border">Rapporter</legend> -->
+                <!-- <div class="fc mb-0 p-0">
+                    <div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr mb-0">
+                        <div class="fc-button-group">
+                            <a class="fc-button fc-button-primary fc-arrangementsCalendarButton-button"
+                               id=""> 
+                                Vis alle lokasjoner
+                            </a>
+                        </div>
+                    </div>
+                </div> -->
+                <div class="mt-2">
+                        <table class="table table-sm" id="filter_locationsTable">
+                            <tbody>
+                                {% for location in LOCATIONS %}
+                                    <tr>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked/>
+                                                <label class="form-check-label" for="flexCheckChecked">{{location}}</label>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <button class="btn shadow-0 btn-success btn-sm filterLocationBtn" value="{{location.slug}}"
+                                                data-mdb-toggle="tooltip" type="button"
+                                                title="Filtrer rom under denne lokasjonen.">
+                                                Filtrer rom
+                                        </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            <!-- </fieldset> -->
+        
+        <!-- <div class="mt-4">
+            <h4>Planleggere</h4> -->
+            <!-- <div class="fc mb-0 p-0">
+                <div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr mb-2">
+                    <div class="fc-button-group">
+                        <a class="fc-button fc-button-primary fc-arrangementsCalendarButton-button"
+                           id=""> 
+                            Bare mine tidspunkter/arrangement
+                        </a>
+                    </div>
+                </div>
+            </div> -->
+            <!-- {% for planner in PEOPLE %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked/>
+                    <label class="form-check-label" for="flexCheckChecked">{{planner}}</label>
+                </div>
+            {% endfor %} -->
+
+        <!-- </div> -->
+
+        <div class="mt-4">
+            <h4>Fargefokus</h4>
+            <div>
+                <table class="table-sm">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                        Arrangement
+                                        <strong class="fw-bolder" data-mdb-toggle="tooltip" title="Fargelegg tidspunkter basert på hvilken arrangement de tilhører - dvs at hvert respektive arrangement representeres med en farge."> (?) </strong>
+                                    </label>
+                                  </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                        Arrangementstype
+                                        <strong class="fw-bolder" data-mdb-toggle="tooltip" title="Fargelegg tidspunktene i kalenderen basert på hvilken arrangementstype forelderarrangementet de tilhører"> (?) </strong>
+                                    </label>
+                                  </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                        Målgruppe
+                                        <strong class="fw-bolder" data-mdb-toggle="tooltip" title="Fargelegg tidspunktene i kalenderen basert på hvilken målgruppe forelderarrangementet de tilhører"> (?) </strong>
+                                    </label>
+                                  </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"/>
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                        Hovedplanlegger
+                                        <strong class="fw-bolder" data-mdb-toggle="tooltip" title="Fargelegg tidspunktene i kalenderen basert på hvilken målgruppe forelderarrangementet de tilhører"> (?) </strong>
+                                    </label>
+                                  </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+    <div class="col-10">
+        <div class="clearfix">
+            <div class="float-start">
+                <ul class="nav nav-tabs rounded-top mt-4 fc-tabs" style="display: none;" id="navTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active text-center" id="overview-tab" data-mdb-toggle="tab" href="#universeCalendar" role="tab" aria-controls="universe" aria-selected="true">
+                        <span class="mb-0"><i class="fas fa-eye"></i></span>
+                        &nbsp; <span>Arrangementer</span></button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-center" id="locations-tab" data-mdb-toggle="tab" href="#locationsCalendar" role="tab" aria-controls="locations" aria-selected="true">
+                        <span class="mb-0"><i class="fas fa-building"></i></span>
+                        &nbsp; <span>Lokasjoner</span></button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="people-tab" data-mdb-toggle="tab" href="#peopleCalendar" role="tab" aria-controls="people" aria-selected="false">
+                        <span class="mb-0"><i class="fas fa-users"></i></span>
+                        &nbsp; <span>Personer</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="float-end">
+        
+            </div>
+        </div>
+        
+        <div class="tab-content" id="calendars">
+            <div class="tab-pane show active" id="universeCalendar" role="tabpanel" aria-labelledby="universeCalendar-tab">
+            <div id="arrangementPlannerCalendar"></div>
+            </div>
+            <div class="tab-pane" id="locationsCalendar" role="tabpanel" aria-labelledby="locationsCalendar-tab">
+            <div id="locationsPlannerCalendar"></div>
+            </div>
+            <div class="tab-pane" id="peopleCalendar" role="tabpanel" aria-labelledby="peopleCalendar-tab">
+            <div id="peoplePlannerCalendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -148,6 +249,7 @@
         import { LocationCalendar } from "{% static 'modules/planner/locationCalendar.js' %}";
         import { PersonCalendar } from "{% static 'modules/planner/personCalendar.js' %}";
         import { ArrangementCreator } from "{% static 'modules/planner/arrangementCreator.js' %}";
+        import { PlannerCalendarFilter } from "{% static 'modules/planner/plannerCalendarFilter.js' %}";
 
         var colorSwatch = [
             "#ffc2c2", 
@@ -278,6 +380,9 @@
                 $audienceTypeFilterSelectEl: $("#plannerCalendarFilter_audiences"),
                 csrf_token: '{{ csrf_token }}'
             });
+
+            var filter = new PlannerCalendarFilter();
+
             var locationsCalendar = new LocationCalendar({
                 calendarElement: document.getElementById('locationsPlannerCalendar'),
             });
