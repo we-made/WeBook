@@ -398,6 +398,9 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
 
         for arrangement in arrangements:
             for event in arrangement.event_set.all():
+                slug_list = [ arrangement.location.slug ]
+                for room in event.rooms.all():
+                    slug_list.append(room.slug)
                 serializable_arrangements.append({
                     "event_pk": event.pk,
                     "slug": arrangement.slug,
@@ -407,6 +410,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                     "mainPlannerName": arrangement.responsible.full_name,
                     "audience": arrangement.audience.name,
                     "audience_slug": arrangement.audience.slug,
+                    "slug_list": slug_list,
                     "audience_icon": arrangement.audience.icon_class,
                     "location": arrangement.location.name,
                     "location_slug": arrangement.location.slug,

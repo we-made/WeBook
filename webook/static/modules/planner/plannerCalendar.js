@@ -15,6 +15,7 @@ import { ArrangementInspector } from "./arrangementInspector.js";
 import { EventInspector } from "./eventInspector.js";
 import { FilterDialog } from "./filterDialog.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
+import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
 
 
 export class PlannerCalendar extends FullCalendarBased {
@@ -50,6 +51,7 @@ export class PlannerCalendar extends FullCalendarBased {
         this._ARRANGEMENT_STORE = new ArrangementStore(this);
         this._LOCATIONS_STORE = new LocationStore(this);
         this._PEOPLE_STORE = new PersonStore(this);
+        this.calendarFilter = new PlannerCalendarFilter();
 
         this.init();
 
@@ -237,12 +239,14 @@ export class PlannerCalendar extends FullCalendarBased {
             headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
             events: async (start, end, startStr, endStr, timezone) => {
                 return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
-                    .then(a => _this._ARRANGEMENT_STORE.get_all(
+                    .then(_ => this.calendarFilter.getFilteredSlugs().map( function (slug) { return { id: slug, name: "" } }))
+                    .then(filterSet => _this._ARRANGEMENT_STORE.get_all(
                         { 
                             get_as: _FC_EVENT, 
                             locations: this.$locationFilterSelectEl.val(),
                             arrangement_types: this.$arrangementTypeFilterSelectEl.val(),
                             audience_types: this.$audienceTypeFilterSelectEl.val(),
+                            filterSet: filterSet
                         }
                     ));
             },

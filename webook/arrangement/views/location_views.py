@@ -130,11 +130,17 @@ class LocationsCalendarResourcesListView (LoginRequiredMixin, ListView):
         locations = Location.objects.all()
         serializable_locations = []
 
+
+
         for location in locations:
+            room_slugs = []
+            for room in location.rooms.all():
+                room_slugs.append(room.slug)
             serializable_locations.append({
                 "id": location.slug,
                 "slug": location.slug,
                 "title": location.name,
+                "slugList": [location.slug] + room_slugs,
                 "parentId": "",
                 "extendedProps": {
                     "resourceType": "location"

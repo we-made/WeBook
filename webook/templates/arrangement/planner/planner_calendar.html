@@ -62,6 +62,18 @@
               </div>
         </div>
 
+        <div class="mt-4">
+            <label for="">Vis dager:</label>
+            <span class=" rounded-4 p-2 bg-info fw-bold hover-overlay ripple" data-mdb-ripple-color="light">M</span>
+            <span class="bg-info rounded-4 p-2 text-white fw-bold">T</span>
+            <span class="bg-info rounded-4 p-2 text-white fw-bold">O</span>
+            <span class="bg-info rounded-4 p-2 text-white fw-bold">T</span>
+            <span class="bg-info rounded-4 p-2 text-white fw-bold">F</span>
+            <span class="bg-info rounded-4 p-2 text-white fw-bold">L</span>
+            <span class="bg-info rounded-4 p-2 text-white fw-bold">S</span>
+
+        </div>
+
         <div class="mt-4" id="plannerCalendarFilter">
             <h4>Typer</h4>
             <div>
@@ -83,18 +95,17 @@
         </div>
         <div class="mt-4" id="plannerCalendarFilter">
             <h4>Lokasjoner</h4>
-            <!-- <fieldset class="group-border"> -->
-                <!-- <legend class="group-border">Rapporter</legend> -->
-                <!-- <div class="fc mb-0 p-0">
+
+                <div class="fc mb-0 p-0">
                     <div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr mb-0">
                         <div class="fc-button-group">
                             <a class="fc-button fc-button-primary fc-arrangementsCalendarButton-button"
                                id=""> 
-                                Vis alle lokasjoner
+                                Vis aktive filtreringer
                             </a>
                         </div>
                     </div>
-                </div> -->
+                </div>
                 <div class="mt-2">
                         <table class="table table-sm" id="filter_locationsTable">
                             <tbody>
@@ -102,8 +113,8 @@
                                     <tr>
                                         <td>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked/>
-                                                <label class="form-check-label" for="flexCheckChecked">{{location}}</label>
+                                                <input class="form-check-input" name="filterLocationsCheckboxArray" type="checkbox" value="{{location.slug}}" id="locationFilterCheckBox_{{location_slug}}" checked/>
+                                                <label class="form-check-label" for="locationFilterCheckBox_{{location_slug}}">{{location}}</label>
                                             </div>
                                         </td>
 
@@ -264,6 +275,22 @@
             "#17222b",
         ]
 
+        function _listenToLocationCheckboxes () {
+            var checkboxes = document.querySelectorAll("input[type=checkbox][name=filterLocationsCheckboxArray]");
+
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    var slugs = Array.from(checkboxes)
+                        .map(i => i.checked + "|" + i.value)
+                    document.dispatchEvent(
+                        new CustomEvent("plannerCalendar.filter.updateLocationFilter", { "detail": {
+                            slugs: slugs 
+                        }})
+                    )
+                });
+            })
+        }
+
         class ColorByArrangementProvider {
             constructor () {
                 this._seenArrangements = new Map();
@@ -360,7 +387,7 @@
 
 
             arrangementCreator = new ArrangementCreator();
-
+            _listenToLocationCheckboxes();
             $('#newArrangementBtn').on('click', () => {
                 arrangementCreator.open();
             })
@@ -381,7 +408,7 @@
                 csrf_token: '{{ csrf_token }}'
             });
 
-            var filter = new PlannerCalendarFilter();
+            // var filter = new PlannerCalendarFilter();
 
             var locationsCalendar = new LocationCalendar({
                 calendarElement: document.getElementById('locationsPlannerCalendar'),

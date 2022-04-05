@@ -237,19 +237,33 @@ export class ArrangementStore extends BaseStore {
      * @param {*} param0 
      * @returns An array of arrangements, whose form depends on get_as param.
      */
-    get_all({ get_as, locations=undefined, arrangement_types=undefined, audience_types=undefined } = {}) {
+    get_all({ get_as, locations=undefined, arrangement_types=undefined, audience_types=undefined, filterSet=undefined } = {}) {
         var arrangements = this._getStoreAsArray();
         var filteredArrangements = [];
 
-        var locationsMap =          locations !== undefined && locations.length > 0 ? new Map(locations.map(i => [i, true])) : undefined;
+        var filterMap = new Map();
+        if (filterSet !== undefined) {
+            filterSet.forEach( (slug) => {
+                filterMap.set(slug.id, true);
+            } )
+        }
+
+        // var locationsMap =          locations !== undefined && locations.length > 0 ? new Map(locations.map(i => [i, true])) : undefined;
         var arrangementTypesMap =   arrangement_types !== undefined && arrangement_types.length > 0 ? new Map(arrangement_types.map(i => [i, true])) : undefined;
         var audienceTypesMap =      audience_types !== undefined && audience_types.length > 0 ? new Map(audience_types.map(i => [i, true])) : undefined;
 
         arrangements.forEach ( (arrangement) => {
             var isWithinFilter =
-                (locationsMap === undefined         || locationsMap.has(arrangement.location_slug) === true) &&
                 (arrangementTypesMap === undefined  || arrangementTypesMap.has(arrangement.arrangement_type_slug) === true) &&
                 (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true);
+
+            arrangement.slug_list.forEach( (slug) => {
+                if (filterMap.has(slug) === true) {
+                    console.log("Triggered.")
+                    isWithinFilter = false;
+                }
+            })
+
             if (isWithinFilter === true) {
                 filteredArrangements.push(arrangement);
             }

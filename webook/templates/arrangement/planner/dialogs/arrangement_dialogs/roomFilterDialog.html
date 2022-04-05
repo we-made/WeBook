@@ -7,6 +7,13 @@
 </style>
 
 <div id="roomFilterDialog" title="Romfiltrering på lokasjon {{location}}" class="bg-white">
+
+    <div class="alert alert-info">
+        <p class="small mb-0">
+            Rom flyttet til venstre kolonne vil ikke vises i kalendervisningen.
+        </p>
+    </div>
+
     <div id="transfer-basic" class="transfer shadow-0"></div>
 
     <div class="clearfix">
@@ -21,10 +28,16 @@
 </div>
 
 <script>
+    var slugMap;
     $(document).ready(function () {
-        // if (instanceTransfer !== undefined) {
-        //     instanceTransfer.dispose();
-        // }
+        slugMap = new Map([
+            {% for room in location.rooms.all %}
+                [
+                    "{{room}}",
+                    "{{location.slug}}|{{room.slug}}"
+                ],
+            {% endfor %}
+        ])
 
         let transferEl = document.getElementById('transfer-basic');
         let data1 = [
@@ -43,7 +56,19 @@
     });
 
     function roomFilterDialog__notifyChange() {
-        console.log("test")
+
+        var slugs = []
+        let transferInstance = Transfer.getInstance(document.getElementById('transfer-basic'));
+        
+        transferInstance._dataSource.forEach( (item) => {
+            slugs.push(slugMap.get(item.data))
+        } )
+
+        document.dispatchEvent(
+            new CustomEvent("plannerCalendar.filter.updateRoomFilter", { "detail": {
+                slugs: slugs 
+            }})
+        );
     }
 
 </script>
