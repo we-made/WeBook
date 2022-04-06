@@ -24,6 +24,21 @@
                                     {{ form.name.errors }}
                                 </div>
                             {% endif %}
+
+                            <strong>Navn <em>(engelsk)</em>:</strong>
+                            <input type="text"
+                                class="form-control"
+                                id="{{ form.name.id_for_label }}" 
+                                value="{{ form.name.value|default:'' }}"
+                                name="{{ form.name.name }}"
+                                autocomplete="off"
+                                placeholder="{% trans 'Name of the arrangement' %}..."/>
+
+                            {% if form.name.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.name.errors }}
+                                </div>
+                            {% endif %}
                         </td>
                     </tr>
 
@@ -84,7 +99,7 @@
                         <td>
                             <strong>Tidspunkter:</strong>
                             
-                            <a href="#" class="text-primary">Nytt tidspunkt</a>
+                            <a href="#" id="createArrangementDialog_createSimpleActivity" class="text-primary">Nytt tidspunkt</a>
                             |
                             <a href="#" id="createArrangementDialog_createSerie" class="text-primary">Nytt repeterende tidspunkt</a>
 
@@ -152,12 +167,13 @@
             seriesMap.set(uuid, element);
             
             tbody.append(
-                $(`<tr id='${uuid}'> <td> ${element.time.title} --  ${element.pattern.pattern_type} (${element.pattern.pattern_routine}) - ${element.time.start} - ${element.time.end} </td> <td> <button class='btn btn-sm btn-danger shadow-0' data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' onclick='createArrangementDialog_removeSerie(${uuid})'><i class='fas fa-trash'></i></button> </td> </tr>`)
+                $(`<tr id='${uuid}'> <td> ${element.time.title} --  ${element.pattern.pattern_type} (${element.pattern.pattern_routine}) - ${element.time.start} - ${element.time.end} </td> <td> <button class='btn btn-sm btn-danger shadow-0' data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' onclick='createArrangementDialog_removeSerie("${uuid}")'><i class='fas fa-trash'></i></button> </td> </tr>`)
             )
         });
     }
 
     function createArrangementDialog_removeSerie(uuid) {
+        console.log("remove serie")
         $('#' + uuid).remove();
         seriesMap.delete(uuid);
     }

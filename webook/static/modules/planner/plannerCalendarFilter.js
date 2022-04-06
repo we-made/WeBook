@@ -53,6 +53,8 @@ export class PlannerCalendarFilter {
             slugs.push(...value.rooms);
         }
 
+        console.log(slugs)
+
         return slugs;
     }
 

@@ -13,9 +13,12 @@
             </div>
         {% endfor %}
 
-        <button onclick="promotePlanner()">
-            Gjør valgt planlegger til hovedplanlegger
-        </button>
+        <div class="clearfix">
+            <button onclick="promotePlanner()"
+                class="btn btn-sm btn-success float-end">
+                Gjør valgt planlegger til hovedplanlegger
+            </button>
+        </div>
     </div>
 </div>
 
@@ -34,7 +37,7 @@
             },
             credentials: 'same-origin'
         }).then(_ => { document.dispatchEvent(
-                new CustomEvent("arrangementPlannerDialogs.hasBeenUpdated", { "detail": {
+                new CustomEvent("arrangementInspector.hasBeenUpdated", { "detail": {
                     dialog: "promotePlannerDialog",
                 }})
             )}

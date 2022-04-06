@@ -25,7 +25,7 @@
             credentials: 'same-origin',
         }).then( _ => { 
             document.dispatchEvent(
-                new CustomEvent("arrangementPlannerDialogs.hasBeenUpdated", {'detail': {
+                new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
                     dialog: "newNoteDialog",
                 }})
             )

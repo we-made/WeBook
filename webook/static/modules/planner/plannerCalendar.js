@@ -169,8 +169,15 @@ export class PlannerCalendar extends FullCalendarBased {
                 <span class='badge h6 badge-success'>
                     ${arrangement.mainPlannerName}
                 </span>
+                <span class='badge h6 badge-secondary'>
+                    ${arrangement.location}
+                </span>
                 <h5 class='mb-0 mt-2'>${arrangement.name}</h5>
                 <em class='small'>${start} - ${end}</em>
+
+                <ul>
+                    <li>${arrangement.slug_list}</li>
+                </ul>
                 `,
             html: true,
         })
@@ -296,21 +303,21 @@ export class PlannerCalendar extends FullCalendarBased {
                     className: "",
                     selector: ".fc-event",
                     items: {
-                        open: {
-                            name: "Åpne arrangement",
-                            icon: "",
-                            isHtmlName: false,
-                            callback: (key, opt) => {
-                                location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
-                            }
-                        },
-                        edit: {
-                            name: "Rediger arrangement",
-                            callback: (key, opt) => {
-                                location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
-                            }
-                        },
-                        separator: { "type": "cm_separator" },
+                        // open: {
+                        //     name: "Åpne arrangement",
+                        //     icon: "",
+                        //     isHtmlName: false,
+                        //     callback: (key, opt) => {
+                        //         location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
+                        //     }
+                        // },
+                        // edit: {
+                        //     name: "Rediger arrangement",
+                        //     callback: (key, opt) => {
+                        //         location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
+                        //     }
+                        // },
+                        // separator: { "type": "cm_separator" },
                         arrangement_inspector: {
                             name: "Inspiser arrangement",
                             callback: (key, opt) => {

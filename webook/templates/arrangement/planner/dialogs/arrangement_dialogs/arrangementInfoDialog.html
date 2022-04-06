@@ -22,6 +22,14 @@
                                 value="{{ form.name.value|default:'' }}"
                                 name="{{ form.name.name }}"
                                 placeholder="{% trans 'Name of the arrangement' %}..."/>
+                            <br>
+                            <strong class="mt-3">Navn (<em class="small">Engelsk</em>):</strong>
+                            <input type="text"
+                                class="form-control"
+                                id="{{ form.name.id_for_label }}" 
+                                value="{{ form.name.value|default:'' }}"
+                                name="{{ form.name.name }}"
+                                placeholder="{% trans 'Name of the arrangement' %}..."/>
 
                             {% if form.name.errors|length > 0 %}
                                 <div class="alert alert-danger">
@@ -29,7 +37,6 @@
                                 </div>
                             {% endif %}
                         </td>
-                        <td><i class='fas fa-question-circle text-muted'></i></td>
                     </tr>
 
                     <tr>
@@ -43,7 +50,6 @@
                                 </div>
                             {% endif %}
                         </td>
-                        <td><i class='fas fa-question-circle text-muted'></i></td>
                     </tr>
                     <tr>
                         <td colspan="3">
@@ -68,8 +74,6 @@
                                 </div>
                             {% endif %}
                         </td>
-                        <!-- <td><i class='fas fa-question-circle text-muted'></i></td> -->
-
                     </tr>
                     <tr>
                         <td colspan='3'>
@@ -88,32 +92,33 @@
                         </td>
                         <td>
                         <div>
-                        <a href='#' class='text-primary' id='mainDialog__addPlannerBtn'>
+                        <a href='#' class='shadow-0 text-white btn btn-success btn-block mb-2 btn-sm' id='mainDialog__addPlannerBtn'>
                             <i class='fas fa-plus'></i>
-                            Legg til planlegger...
+                            Legg til planlegger
                         </a>
                     </div>
                     <div>
-                        <a href='#' class='text-primary' id='mainDialog_removePlannerBtn'
+                        <a href='#' class='shadow-0 text-white btn btn-danger btn-block btn-sm' id='mainDialog_removePlannerBtn'
                             onclick="mainPlannerDialog__removePlanners()">
-                            <i class='fas fa-plus'></i>
-                            Fjern valgte planleggere...
+                            <i class='fas fa-trash'></i>
+                            Fjern valgte
                         </a>
                     </div>
                     <div>
-                    </div></td>
-                        <td><i class='fas fa-question-circle text-muted'></i></td>
+                    </div>
+                </td>
 
                     </tr>
                     <tr>
                         <th colspan='2'>
                             <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked />
-                            <label class="form-check-label" for="flexSwitchCheckChecked">Vises i multimedia guide</label>
-                        </div>
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked />
+                                <label class="form-check-label" for="flexSwitchCheckChecked">Vises i multimedia guide</label>
+                            </div>
                         </th>
-                        <td><i class='fas fa-question-circle text-muted' data-toggle='tooltip' title='Skal dette arrangementet vises i multimedia guiden?'></i></td>
-
+                        <!-- <th>
+                            <div>{{form.display_layouts}}</div>
+                        </th> -->
                     </tr>
                     <tr>
                         <td colspan='3'>
@@ -134,38 +139,62 @@
         <div id="tabs-2">
             <div class="table-responsive" style="max-height: 480px;">
                 <table class='table table-striped'>
-                    <a href='#' class='text-primary' id='mainPlannerDialog__newTimePlan'><i class='fas fa-plus'></i>&nbsp; Ny tidsplan</a>
-                    &nbsp;|&nbsp;
-                    <a href='#' class='text-primary' id='mainPlannerDialog__newSimpleActivity'><i class='fas fa-plus'></i>&nbsp; Ny enkel aktivitet</a>
-                    &nbsp;|&nbsp;
-                    <a href='#' class='text-primary' id='mainPlannerDialog__showInCalendarForm'><i class='fas fa-calendar'></i>&nbsp; Vis i kalenderform</a>
+                    <div class="btn-group margin-auto shadow-0">
+                        <button class='shadow-0 text-white btn btn-sm btn-success' id='mainPlannerDialog__newTimePlan'><i class='fas fa-plus'></i>&nbsp; Ny tidsplan</button>
+                        <!-- &nbsp;|&nbsp; -->
+                        <button class='shadow-0 text-white btn btn-sm btn-success' id='mainPlannerDialog__newSimpleActivity'><i class='fas fa-plus'></i>&nbsp; Ny enkel aktivitet</button>
+                    </div>
+                    <hr>
+                    <!-- &nbsp;|&nbsp;
+                    <a href='#' class='text-primary' id='mainPlannerDialog__showInCalendarForm'><i class='fas fa-calendar'></i>&nbsp; Vis i kalenderform</a> -->
                     <thead>
                         {% for set in sets  %}
                         <tr>
-                            <th class="bg-light">
-                                <h6 class="fw-bolder">  
-                                    <i class="fas fa-chevron-down"></i>
-                                    Tidsplan: <em>{{ set.title }}</em>
-                                </h6>
+                            <th>
                                 <div>
-                                    <button type="button" class="btn btn-sm btn-success text-white shadow-0 orderRoomBtn" value="">Bestill rom</button> 
-                                    <button type="button" class="btn btn-sm btn-success text-white shadow-0 orderPersonBtn" value="">Bestill person</button> 
-                                    <!-- | <a href='#' class="text-primary">Bestill tjenester</a> | <a href='#' class="text-primary">Bestill personer</a></h6> -->
+                                    <h6 class="fw-bolder">  
+                                        <!-- <i class="fas fa-chevron-down"></i> -->
+                                        Tidsplan: <em>{{ set.title }}</em>
+                                    </h6>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-success text-white shadow-0 orderRoomBtn" value="{{set.guid}}">Bestill rom</button> 
+                                        <button type="button" class="btn btn-sm btn-success text-white shadow-0 orderPersonBtn" value="{{set.guid}}">Bestill person</button> 
+                                    </div>
                                 </div>
+                                <hr>
                                 <table class="table table-sm">
                                     {% for event in set.events %}
                                     <tr>
                                         <td>
-                                            ({{event.start}} - {{event.end}})
+                                            <em>({{event.start}} - {{event.end}})</em>
                                             {{event.title}}
+                                            
+                                            <div>
+                                                <button href="#" class="orderRoomForSingleEventBtn" value="{{event.pk}}">
+                                                    Legg til rom
+                                                </button>
+                                                <!-- &nbsp;|&nbsp; -->
+                                                <button href="#" class="orderPersonForSingleEventBtn" value="{{event.pk}}">
+                                                    Legg til personer
+                                                </button>
+                                            </div>
 
+                                            <div class="mt-2 fw-bolder"><strong>Rom: </strong></div>
                                             <ul>
-                                                <li>
-                                                    <em>Rom A</em>
-                                                </li>
-                                                <li>
-                                                    <em>Rom B</em>
-                                                </li>
+                                                {% for room in event.rooms.all %}
+                                                    <li>{{room}} 
+                                                        <a href="" class="text-danger"><i class="fas fa-trash"></i></a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+
+                                            <div class="mt-2 fw-bolder"><strong>Personer: </strong></div>
+                                            <ul>
+                                                {% for person in event.people.all %}
+                                                    <li>{{person}} 
+                                                        <a href="" class="text-danger"><i class="fas fa-trash"></i></a>
+                                                    </li>
+                                                {% endfor %}
                                             </ul>
                                         </td>
                                     </tr>
@@ -185,7 +214,7 @@
         </div>
         <div id="tabs-3">
             <div class="clearfix">
-                <a href="#" class="text-primary float-end" id="mainPlannerDialog__newNoteBtn">Nytt notat</a>
+                <button class="text-white btn btn-sm btn-success shadow-0 mb-2 float-end" id="mainPlannerDialog__newNoteBtn">Nytt notat</button>
             </div>
 
             {% for note in object.notes.all %}
@@ -240,7 +269,7 @@
             }
         }).then(_ => {
             document.dispatchEvent(
-                new CustomEvent("arrangementPlannerDialogs.hasBeenUpdated", {'detail': {
+                new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
                     dialog: "mainDialog",
                 }})
             )

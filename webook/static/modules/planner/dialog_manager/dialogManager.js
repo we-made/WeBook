@@ -94,6 +94,7 @@ export class DialogManager {
     }
 
     reloadDialog(dialogId, customHtml=undefined) {
+        console.log("reloadDialog " + dialogId)
         this._dialogRepository.get(dialogId).refresh(this.context, customHtml);
     }
 
@@ -127,7 +128,7 @@ export class DialogManager {
     _listenForSubmitEvent() {
         console.log(`${this.managerName}.submit`)
         document.addEventListener(`${this.managerName}.submit`, (e) => {
-            console.info("==> Submit caught.")
+            console.log("ONSUBMIT >> ", e)
             this._dialogRepository.get(e.detail.dialog)
                 .onSubmit(this.context, e.detail);
         })
@@ -135,11 +136,8 @@ export class DialogManager {
 
     _setTriggers() {
         this._dialogRepository.forEach( (value, key, map) => {
-            console.log(value)
             if (value.triggerByEvent === true) {
-                console.log(`${this.managerName}.${value.dialogId}.trigger`)
                 document.addEventListener(`${this.managerName}.${value.dialogId}.trigger`, (detail) => {
-                    console.log("triggerByEvent")
                     value.render(this.context);
                 });
             }

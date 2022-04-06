@@ -33,6 +33,10 @@ from webook.arrangement.views import (
     planner_calendar_filter_rooms_dialog_view,
     planner_calendar_order_room_dialog_view,
     planner_calendar_order_person_dialog_view,
+    planner_calendar_order_person_for_series_form_view,
+    planner_calendar_order_rooms_for_series_form_view,
+    planner_calendar_order_room_for_event_form_view,
+    planner_calendar_order_people_for_event_form_view,
 )
 
 
@@ -191,5 +195,25 @@ planner_urls = [
         route="planner/dialogs/order_room",
         view=planner_calendar_order_room_dialog_view,
         name="order_room_dialog",
+    ),
+    path(
+        route="planner/dialogs/order_people_form",
+        view=planner_calendar_order_person_for_series_form_view,
+        name="order_people_form"
+    ),
+    path(
+        route="planner/dialogs/order_rooms_form",
+        view=planner_calendar_order_rooms_for_series_form_view,
+        name="order_rooms_form",
+    ),
+    path(
+        route="planner/dialogs/order_rooms_for_event_form",
+        view = planner_calendar_order_room_for_event_form_view,
+        name="order_room_for_event_form"
+    ),
+    path(
+        route="planner/dialogs/order_people_for_event_form",
+        view=planner_calendar_order_people_for_event_form_view,
+        name="order_people_for_event_form",
     ),
 ]

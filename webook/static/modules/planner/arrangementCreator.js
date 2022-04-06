@@ -108,6 +108,27 @@ export class ArrangementCreator {
                         dialogOptions: { width: 700 }
                     })
                 ],
+                [
+                    "newSimpleActivityDialog",
+                    new Dialog({
+                        dialogElementId: "newSimpleActivityDialog",
+                        triggerElementId: "createArrangementDialog_createSimpleActivity",
+                        htmlFabricator: async (context) => {
+                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=0&managerName=arrangementCreator')
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { console.info("Rendered"); },
+                        onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
+                        onSubmit: async (context, details) => {
+                            if (context.simpleActivities === undefined) {
+                                context.simpleActivities = [];
+                            }
+                            context.simpleActivities.push(details.event);
+                            document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
+                        },
+                        dialogOptions: { width: 700 }
+                    })
+                ]
             ]            
         })
     }

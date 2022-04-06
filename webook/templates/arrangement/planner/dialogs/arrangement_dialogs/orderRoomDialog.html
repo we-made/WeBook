@@ -1,13 +1,10 @@
-<div id="orderRoomDialog" title="Bestill rom">
+<div id="orderRoomDialog" title="{% if mode == 'serie' %}Bestill rom{% else %}Bestill rom for '{{event.title}}'{% endif %}">
     <div class='bg-white p-2 border border-1'>
-
-        <div class="form-outline mb-3">
-            <i class="fas fa-search trailing"></i>
-            <input type="search" id="form1" class="form-control form-icon-trailing" />
-            <label class="form-label" for="form1">Trykk her for å søke gjennom rom...</label>
+        {% if mode == "serie" %}
+        <div class="alert alert-danger">
+            <strong>Merk: </strong> du bestiller rom for hele serien.
         </div>
-        
-        <!-- <input type="search" name="" class="form-control mb-3" id=""> -->
+        {% endif %}
 
         <table class="table table-sm table-striped">
             <tbody>
@@ -15,7 +12,7 @@
                     <tr>
                         <td>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="personCheck__{{room.slug}}" 
+                                <input class="form-check-input" type="checkbox" value="{{room.pk}}" id="personCheck__{{room.slug}}" 
                                     name="orderRoomDialog__checkboxArray"/>
                                 <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
                             </div>
@@ -26,7 +23,7 @@
         </table>
 
         <div class="clearfix">
-            <button class="btn btn-sm btn-success float-end shadow-0" type="button" onclick="order()">
+            <button class="btn btn-sm btn-success float-end shadow-0" type="button" onclick="orderRoomDialog__order()">
                 Bestill valgte rom
             </button>
         </div>
@@ -34,16 +31,47 @@
 </div>
 
 <script>
+    {% if mode == 'serie' %}
     function orderRoomDialog__order() {
         var checkboxes = $("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked");
-        var values = checkboxes.map( function (chk) { return chk.value; });
+        var roomIds = []
+        for (let i = 0; i < checkboxes.length; i++) {
+            roomIds.push(checkboxes[i].value)
+        }
 
+        var data = new FormData();
+        data.set("room_ids", roomIds.join(","));
+        data.set("serie_guid", "{{serie_guid}}");
+        
         document.dispatchEvent(
-            new CustomEvent("arrangementPlannerDialogs.submit", { "detail": {
+            new CustomEvent("arrangementInspector.submit", { "detail": {
                 dialog: "orderRoomDialog",
+                mode: 'serie',
                 formData: data,
                 csrf_token: '{{csrf_token}}',
             }})
         );
     }
+    {% else %}
+    function orderRoomDialog__order() {
+        var checkboxes = $("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked");
+        var roomIds = []
+        for (let i = 0; i < checkboxes.length; i++) {
+            roomIds.push(checkboxes[i].value)
+        }
+
+        var data = new FormData();
+        data.set("room_ids", roomIds.join(","));
+        data.set("event_pk", "{{event.pk}}");
+        
+        document.dispatchEvent(
+            new CustomEvent("arrangementInspector.submit", { "detail": {
+                dialog: "orderRoomForOneEventDialog",
+                mode: 'event',
+                formData: data,
+                csrf_token: '{{csrf_token}}',
+            }})
+        );
+    }
+    {% endif %}
 </script>
