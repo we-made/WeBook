@@ -39,14 +39,6 @@
                       <input type="time" id="serie_end" required />
                     </td>
                   </tr>
-                  <tr>
-                    <td>
-                      <label>{% trans "Color" %}</label>
-                    </td>
-                    <td>
-                      <input type="color" id="serie_color" />
-                    </td>
-                  </tr>
                 </tbody>
               </table>
         </fieldset>
@@ -481,7 +473,6 @@
             title: document.getElementById('serie_title').value,
             start: document.getElementById('serie_start').value,
             end: document.getElementById('serie_end').value,
-            color: document.getElementById('serie_color').value,
         }
 
         let pattern = {}
