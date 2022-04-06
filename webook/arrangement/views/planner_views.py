@@ -399,8 +399,8 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         for arrangement in arrangements:
             for event in arrangement.event_set.all():
                 slug_list = [ arrangement.location.slug ]
-                for room in event.rooms.all():
-                    slug_list.append(room.slug)
+                # for room in event.rooms.all():
+                #     slug_list.append(room.slug)
                 serializable_arrangements.append({
                     "event_pk": event.pk,
                     "slug": arrangement.slug,
@@ -410,7 +410,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                     "mainPlannerName": arrangement.responsible.full_name,
                     "audience": arrangement.audience.name,
                     "audience_slug": arrangement.audience.slug,
-                    "slug_list": slug_list,
+                    "slug_list": [],
                     "audience_icon": arrangement.audience.icon_class,
                     "location": arrangement.location.name,
                     "location_slug": arrangement.location.slug,
@@ -677,3 +677,25 @@ class PlannerCalendarFilterRoomsDialogView (LoginRequiredMixin, TemplateView):
         return context
 
 planner_calendar_filter_rooms_dialog_view = PlannerCalendarFilterRoomsDialogView.as_view()
+
+
+class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/orderRoomDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["rooms"] = Room.objects.all()
+        return context
+
+planner_calendar_order_room_dialog_view = PlannerCalendarOrderRoomDialogView.as_view()
+
+
+class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, TemplateView):
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/orderPersonDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["people"] = Person.objects.all()
+        return context
+
+planner_calendar_order_person_dialog_view = PlannerCalendarOrderPersonDialogView.as_view()

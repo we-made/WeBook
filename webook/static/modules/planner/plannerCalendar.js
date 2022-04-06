@@ -141,6 +141,24 @@ export class PlannerCalendar extends FullCalendarBased {
             return;
         }
 
+        var start = new Date(arrangement.starts)
+        var end = new Date(arrangement.ends)
+        start = `${
+            (start.getMonth()+1).toString().padStart(2, '0')}/${
+            start.getDate().toString().padStart(2, '0')}/${
+            start.getFullYear().toString().padStart(4, '0')} ${
+            start.getHours().toString().padStart(2, '0')}:${
+            start.getMinutes().toString().padStart(2, '0')}:${
+            start.getSeconds().toString().padStart(2, '0')}`
+        end = `${
+            (end.getMonth()+1).toString().padStart(2, '0')}/${
+            end.getDate().toString().padStart(2, '0')}/${
+            end.getFullYear().toString().padStart(4, '0')} ${
+            end.getHours().toString().padStart(2, '0')}:${
+            end.getMinutes().toString().padStart(2, '0')}:${
+            end.getSeconds().toString().padStart(2, '0')}`
+
+
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
             content: `
@@ -152,7 +170,7 @@ export class PlannerCalendar extends FullCalendarBased {
                     ${arrangement.mainPlannerName}
                 </span>
                 <h5 class='mb-0 mt-2'>${arrangement.name}</h5>
-                <em class='small'>${arrangement.starts} - ${arrangement.ends}</em>
+                <em class='small'>${start} - ${end}</em>
                 `,
             html: true,
         })
@@ -237,19 +255,24 @@ export class PlannerCalendar extends FullCalendarBased {
                 }
             },
             headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
-            events: async (start, end, startStr, endStr, timezone) => {
-                return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
-                    .then(_ => this.calendarFilter.getFilteredSlugs().map( function (slug) { return { id: slug, name: "" } }))
-                    .then(filterSet => _this._ARRANGEMENT_STORE.get_all(
-                        { 
-                            get_as: _FC_EVENT, 
-                            locations: this.$locationFilterSelectEl.val(),
-                            arrangement_types: this.$arrangementTypeFilterSelectEl.val(),
-                            audience_types: this.$audienceTypeFilterSelectEl.val(),
-                            filterSet: filterSet
-                        }
-                    ));
-            },
+            eventSources: [
+                {
+                    events: async (start, end, startStr, endStr, timezone) => {
+                        return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
+                            .then(_ => this.calendarFilter.getFilteredSlugs().map( function (slug) { return { id: slug, name: "" } }))
+                            .then(filterSet => _this._ARRANGEMENT_STORE.get_all(
+                                { 
+                                    get_as: _FC_EVENT, 
+                                    locations: this.$locationFilterSelectEl.val(),
+                                    arrangement_types: this.$arrangementTypeFilterSelectEl.val(),
+                                    audience_types: this.$audienceTypeFilterSelectEl.val(),
+                                    filterSet: filterSet
+                                }
+                            ));
+                    },
+                }
+            ],
+
 
             // eventContent: (arg) => {
             //     var icon_class = arg.event.extendedProps.icon;

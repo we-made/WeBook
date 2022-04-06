@@ -18,6 +18,22 @@ export class ArrangementInspector {
         this.dialogManager.openDialog( "mainDialog" );
     }
 
+    _listenToOrderRoomForSerieBtnClick() {
+        $('.orderRoomBtn').on('click', (e) => {
+            // this.openRoomFilterDialog(e.currentTarget.value);
+            // this.dialogManager.setContext({ serie: { guid: e.currentTarget.value } });
+            this.dialogManager.openDialog( "orderRoomDialog" );
+        })
+    }
+
+    _listenToOrderPersonForSerieBtnClick() {
+        $('.orderPersonBtn').on('click', (e) => {
+            // this.openRoomFilterDialog(e.currentTarget.value);
+            // this.dialogManager.setContext({ serie: { guid: e.currentTarget.value } });
+            this.dialogManager.openDialog( "orderPersonDialog" );
+        })
+    }
+
     _createDialogManager () {
         return new DialogManager({
             managerName: MANAGER_NAME,
@@ -44,6 +60,8 @@ export class ArrangementInspector {
                             }
 
                             this.dialogManager._makeAware();
+                            this._listenToOrderPersonForSerieBtnClick();
+                            this._listenToOrderRoomForSerieBtnClick();
                         },
                         onSubmit: async (context, formData) => { 
                             var getArrangementHtml = async function (slug, formData, csrf_token) {
@@ -151,6 +169,38 @@ export class ArrangementInspector {
                         dialogOptions: { width: 500 },
                     })
                 ],
+                [
+                    "orderPersonDialog",
+                    new Dialog({
+                        dialogElementId: "orderPersonDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/order_person")
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { this.dialogManager._makeAware(); },
+                        dialogOptions: { width: 500 },
+                        onSubmit: async (context, details) => {
+                        }
+                    })
+                ],
+                [
+                    "orderRoomDialog",
+                    new Dialog({
+                        dialogElementId: "orderRoomDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/order_room")
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { this.dialogManager._makeAware(); },
+                        dialogOptions: { width: 500 },
+                        onSubmit: async (context, details) => {
+                        }
+                    })
+                ]
             ]}
         )
     }

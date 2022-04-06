@@ -31,6 +31,8 @@ from webook.arrangement.views import (
     create_arrangement_dialog_view,
     planner_event_inspector_dialog_view,
     planner_calendar_filter_rooms_dialog_view,
+    planner_calendar_order_room_dialog_view,
+    planner_calendar_order_person_dialog_view,
 )
 
 
@@ -179,5 +181,15 @@ planner_urls = [
         route="planner/dialogs/room_filter",
         view=planner_calendar_filter_rooms_dialog_view,
         name="filter_room_dialog",
-    )
+    ),
+    path(
+        route="planner/dialogs/order_person",
+        view=planner_calendar_order_person_dialog_view,
+        name="order_person_dialog",
+    ),
+    path(
+        route="planner/dialogs/order_room",
+        view=planner_calendar_order_room_dialog_view,
+        name="order_room_dialog",
+    ),
 ]

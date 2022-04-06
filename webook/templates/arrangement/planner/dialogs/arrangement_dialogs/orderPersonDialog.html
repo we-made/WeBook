@@ -1,0 +1,51 @@
+<div id="orderPersonDialog" title="Bestill person">
+    <div class='bg-white p-2 border border-1'>
+
+        <div class="form-outline mb-3">
+            <i class="fas fa-search trailing"></i>
+            <input type="search" id="form1" class="form-control form-icon-trailing bg-light" />
+            <label class="form-label" for="form1">Trykk her for å søke gjennom personer...</label>
+        </div>
+
+        <table class="table table-sm table-striped">
+            <tbody>
+                {% for person in people %}
+                    <tr>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="personCheck__{{person.slug}}" 
+                                    name="orderPersonDialog__checkboxArray"/>
+                                <label class="form-check-label" for="personCheck__{{person.slug}}">{{person}}</label>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="small text-right">
+            {{people|length}} elementer
+        </div>
+
+        <div class="clearfix">
+            <button class="btn btn-sm btn-success shadow-0 float-end">Bestill valgte personer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function orderPersonDialog__order() {
+        var checkboxes = $("input[type=checkbox][name=orderPersonDialog__checkboxArray]:checked");
+        
+        var data = new FormData();
+        data.set("room_ids", (checkboxes.map( function (chk) { return chk.value; })).join(","));
+        data.set("serie_guid", "{{serie_guid}}");
+
+        document.dispatchEvent(
+            new CustomEvent("arrangementPlannerDialogs.submit", { "detail": {
+                dialog: "orderPersonDialog",
+                formData: data,
+                csrf_token: '{{csrf_token}}',
+            }})
+        );
+    }
+</script>

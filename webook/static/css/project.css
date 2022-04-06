@@ -104,6 +104,29 @@ div.modal-body > .bootbox-close-button {
   color:white;
 }
 
+.dayCircle {
+  border-radius: 50%;
+  padding: 10px;
+  color: #666;
+  text-align: center;
+  font: 16px 'Lato', sans-serif;
+}
+
+.dayCircle:hover {
+  background: skyblue;
+  color: white;
+}
+
+.dayCircle.active:hover {
+  border: red;
+  color:#666;
+}
+
+.dayCircle.active {
+  background: skyblue;
+  color: white;
+}
+
 /* .context-menu-root {
   background-color: #386080!important;
 }

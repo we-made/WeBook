@@ -1,0 +1,49 @@
+<div id="orderRoomDialog" title="Bestill rom">
+    <div class='bg-white p-2 border border-1'>
+
+        <div class="form-outline mb-3">
+            <i class="fas fa-search trailing"></i>
+            <input type="search" id="form1" class="form-control form-icon-trailing" />
+            <label class="form-label" for="form1">Trykk her for å søke gjennom rom...</label>
+        </div>
+        
+        <!-- <input type="search" name="" class="form-control mb-3" id=""> -->
+
+        <table class="table table-sm table-striped">
+            <tbody>
+                {% for room in rooms %}
+                    <tr>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="personCheck__{{room.slug}}" 
+                                    name="orderRoomDialog__checkboxArray"/>
+                                <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="clearfix">
+            <button class="btn btn-sm btn-success float-end shadow-0" type="button" onclick="order()">
+                Bestill valgte rom
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function orderRoomDialog__order() {
+        var checkboxes = $("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked");
+        var values = checkboxes.map( function (chk) { return chk.value; });
+
+        document.dispatchEvent(
+            new CustomEvent("arrangementPlannerDialogs.submit", { "detail": {
+                dialog: "orderRoomDialog",
+                formData: data,
+                csrf_token: '{{csrf_token}}',
+            }})
+        );
+    }
+</script>

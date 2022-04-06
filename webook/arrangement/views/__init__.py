@@ -131,6 +131,8 @@ from .planner_views import (
     create_arrangement_dialog_view,
     planner_event_inspector_dialog_view,
     planner_calendar_filter_rooms_dialog_view,
+    planner_calendar_order_room_dialog_view,
+    planner_calendar_order_person_dialog_view,
 )
 
 from .note_views import (

@@ -9,6 +9,8 @@ export class FullCalendarEvent {
                  start,
                  end,
                  color="",
+                 display="",
+                 textColor="",
                  classNames=[],
                  extendedProps={}} = {}) 
     {
@@ -16,6 +18,8 @@ export class FullCalendarEvent {
         this.start = start;
         this.end = end;
         this.color = color;
+        this.display = display;
+        this.textColor = textColor;
         this.classNames = classNames;
         this.extendedProps = extendedProps;
     }

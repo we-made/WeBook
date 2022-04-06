@@ -143,16 +143,15 @@
                         {% for set in sets  %}
                         <tr>
                             <th class="bg-light">
-                                <h6 class="fw-bolder">Tidsplan: <em>{{ set.title }}</em>
+                                <h6 class="fw-bolder">  
+                                    <i class="fas fa-chevron-down"></i>
+                                    Tidsplan: <em>{{ set.title }}</em>
+                                </h6>
                                 <div>
-                                    <a href='#' class="btn btn-sm btn-success text-white shadow-0">Bestill rom</a> 
-                                    <a href='#' class="btn btn-sm btn-success text-white shadow-0">Bestill person</a> 
+                                    <button type="button" class="btn btn-sm btn-success text-white shadow-0 orderRoomBtn" value="">Bestill rom</button> 
+                                    <button type="button" class="btn btn-sm btn-success text-white shadow-0 orderPersonBtn" value="">Bestill person</button> 
                                     <!-- | <a href='#' class="text-primary">Bestill tjenester</a> | <a href='#' class="text-primary">Bestill personer</a></h6> -->
                                 </div>
-                            </th>
-                        </tr>
-                        <tr>
-                            <td>
                                 <table class="table table-sm">
                                     {% for event in set.events %}
                                     <tr>
@@ -172,7 +171,8 @@
                                     </tr>
                                     {% endfor %}
                                 </table>
-                            </td>
+                            </th>
+                            
                         </tr>
                         {% endfor %}
                     </thead>
