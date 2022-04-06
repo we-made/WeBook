@@ -484,6 +484,7 @@ arrangement_information_dialog_view = PlannerArrangementInformationDialogView.as
 class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, CreateView):
     fields = [
         "name",
+        "name_en",
         "audience",
         "arrangement_type",
         "location",

@@ -2,7 +2,7 @@
 
 
 <div id="createArrangementDialog"
-     title="{% trans 'Create Arrangement' %}">
+     title="Planlegg nytt arrangement">
 
     <div class='p-2 border border-1'  style="background-color: white; color: white!important;">
         <fieldset>
@@ -28,15 +28,15 @@
                             <strong>Navn <em>(engelsk)</em>:</strong>
                             <input type="text"
                                 class="form-control"
-                                id="{{ form.name.id_for_label }}" 
-                                value="{{ form.name.value|default:'' }}"
-                                name="{{ form.name.name }}"
+                                id="{{ form.name_en.id_for_label }}" 
+                                value="{{ form.name_en.value|default:'' }}"
+                                name="{{ form.name_en.name }}"
                                 autocomplete="off"
-                                placeholder="{% trans 'Name of the arrangement' %}..."/>
+                                placeholder="{% trans 'Name of the arrangement in english' %}..."/>
 
-                            {% if form.name.errors|length > 0 %}
+                            {% if form.name_en.errors|length > 0 %}
                                 <div class="alert alert-danger">
-                                    {{ form.name.errors }}
+                                    {{ form.name_en.errors }}
                                 </div>
                             {% endif %}
                         </td>

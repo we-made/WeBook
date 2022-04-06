@@ -733,6 +733,8 @@ class Event(TimeStampedModel):
     serie = models.ForeignKey(to="EventSerie", on_delete=models.RESTRICT, null=True, blank=True, related_name="events")
 
     title = models.CharField(verbose_name=_("Title"), max_length=255)
+    title_en = models.CharField(verbose_name=_("Title (English)"), max_length=255)
+
     start = models.DateTimeField(verbose_name=_("Start"), null=False)
     end = models.DateTimeField(verbose_name=_("End"), null=False)
     all_day = models.BooleanField(verbose_name=_("AllDay"), default=False)
