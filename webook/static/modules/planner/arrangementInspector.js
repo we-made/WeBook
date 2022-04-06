@@ -74,20 +74,21 @@ export class ArrangementInspector {
                             this._listenToOrderRoomForSingleEventBtnClick();
                             this._listenToOrderPersonForSingleEventeBtnClick();
                         },
-                        onSubmit: async (context, formData) => { 
-                            var getArrangementHtml = async function (slug, formData, csrf_token) {
+                        onSubmit: async (context, details) => { 
+                            
+                            var getArrangementHtml = async function (slug, formData) {
                                 var response = await fetch("/arrangement/planner/dialogs/arrangement_information/" + slug, {
                                     method: 'POST',
                                     body: formData,
-                                    headers: {
-                                        "X-CSRFToken": csrf_token
-                                    },
                                     credentials: 'same-origin',
+                                    headers: {
+                                        "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+                                    }
                                 });
                                 return await response.text();
                             }
     
-                            var somehtml = await getArrangementHtml(context.arrangement.slug, formData, this.csrf_token);
+                            var somehtml = await getArrangementHtml(context.arrangement.slug, details.formData);
                             this.dialogManager.reloadDialog("mainDialog", somehtml);
     
                             document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
@@ -119,7 +120,10 @@ export class ArrangementInspector {
                             return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&managerName=" + MANAGER_NAME)
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => { console.info("Rendered"); },
+                        onRenderedCallback: () => { 
+                            $('#serie_title').attr('value', $('#id_name').val() );
+                            $('#serie_title_en').attr('value', $('#id_name_en').val() );
+                        },
                         onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("newTimePlanDialog"); },
                         dialogOptions: { width: 700 },
                         onSubmit: () => { }

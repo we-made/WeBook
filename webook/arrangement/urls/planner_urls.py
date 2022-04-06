@@ -37,6 +37,8 @@ from webook.arrangement.views import (
     planner_calendar_order_rooms_for_series_form_view,
     planner_calendar_order_room_for_event_form_view,
     planner_calendar_order_people_for_event_form_view,
+    planner_calendar_remove_person_from_event_form_view,
+    planner_calendar_remove_room_from_event_form_view,
 )
 
 
@@ -216,4 +218,14 @@ planner_urls = [
         view=planner_calendar_order_people_for_event_form_view,
         name="order_people_for_event_form",
     ),
+    path(
+        route="planner/remove_person_from_event",
+        view=planner_calendar_remove_person_from_event_form_view,
+        name="remove_person_from_event"
+    ),
+    path(
+        route="planner/remove_room_from_event",
+        view=planner_calendar_remove_room_from_event_form_view,
+        name="remove_room_from_event",
+    )
 ]

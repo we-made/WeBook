@@ -110,7 +110,14 @@
         </div>
         <div class="mt-4" id="plannerCalendarFilter">
             <h4>Lokasjoner</h4>
-
+        <!-- Checked switch -->
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="useFilterCheckbox" />
+                <label class="form-check-label" for="useFilterCheckbox">Skal filter kjøres?</label>
+                <em class="small d-block text-warning">
+                    Nåværende iterasjon av filter er særdeles tregt og affekterer brukeropplevelsen av verktøyet, men tilgjengelig for testing. Aktiver/deaktiver med switch over for å teste.
+                </em>
+            </div>
                 <!-- <div class="fc mb-0 p-0">
                     <div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr mb-0">
                         <div class="fc-button-group">

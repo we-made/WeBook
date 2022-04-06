@@ -261,7 +261,7 @@ export class PlannerCalendar extends FullCalendarBased {
                     }
                 }
             },
-            headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
+            headerToolbar: { left: '' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
             eventSources: [
                 {
                     events: async (start, end, startStr, endStr, timezone) => {

@@ -26,14 +26,14 @@
                             <strong class="mt-3">Navn (<em class="small">Engelsk</em>):</strong>
                             <input type="text"
                                 class="form-control"
-                                id="{{ form.name.id_for_label }}" 
-                                value="{{ form.name.value|default:'' }}"
-                                name="{{ form.name.name }}"
-                                placeholder="{% trans 'Name of the arrangement' %}..."/>
+                                id="{{ form.name_en.id_for_label }}" 
+                                value="{{ form.name_en.value|default:'' }}"
+                                name="{{ form.name_en.name }}"
+                                placeholder="{% trans 'Name of the arrangement (in english)' %}..."/>
 
                             {% if form.name.errors|length > 0 %}
                                 <div class="alert alert-danger">
-                                    {{ form.name.errors }}
+                                    {{ form.name_en.errors }}
                                 </div>
                             {% endif %}
                         </td>
@@ -142,7 +142,7 @@
                     <div class="btn-group margin-auto shadow-0">
                         <button class='shadow-0 text-white btn btn-sm btn-success' id='mainPlannerDialog__newTimePlan'><i class='fas fa-plus'></i>&nbsp; Ny tidsplan</button>
                         <!-- &nbsp;|&nbsp; -->
-                        <button class='shadow-0 text-white btn btn-sm btn-success' id='mainPlannerDialog__newSimpleActivity'><i class='fas fa-plus'></i>&nbsp; Ny enkel aktivitet</button>
+                        <!-- <button class='shadow-0 text-white btn btn-sm btn-success' id='mainPlannerDialog__newSimpleActivity'><i class='fas fa-plus'></i>&nbsp; Ny enkel aktivitet</button> -->
                     </div>
                     <hr>
                     <!-- &nbsp;|&nbsp;
@@ -166,14 +166,15 @@
                                     {% for event in set.events %}
                                     <tr>
                                         <td>
-                                            <em>({{event.start}} - {{event.end}})</em>
-                                            {{event.title}}
+                                            <h5>
+                                                <em>({{event.start}} - {{event.end}})</em>
+                                                {{event.title}}
+                                            </h5>
                                             
-                                            <div>
+                                            <div class="btn-group shadow-0">
                                                 <button href="#" class="orderRoomForSingleEventBtn" value="{{event.pk}}">
                                                     Legg til rom
                                                 </button>
-                                                <!-- &nbsp;|&nbsp; -->
                                                 <button href="#" class="orderPersonForSingleEventBtn" value="{{event.pk}}">
                                                     Legg til personer
                                                 </button>
@@ -183,7 +184,10 @@
                                             <ul>
                                                 {% for room in event.rooms.all %}
                                                     <li>{{room}} 
-                                                        <a href="" class="text-danger"><i class="fas fa-trash"></i></a>
+                                                        <a href="#" class="text-danger">
+                                                            <i class="fas fa-trash" data-mdb-toggle="tooltip" title="Fjern dette rommet fra aktiviteten"
+                                                                onclick="mainPlannerDialog__removeRoomFromEvent('{{event.pk}}', '{{room.pk}}')"></i>
+                                                        </a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
@@ -192,7 +196,10 @@
                                             <ul>
                                                 {% for person in event.people.all %}
                                                     <li>{{person}} 
-                                                        <a href="" class="text-danger"><i class="fas fa-trash"></i></a>
+                                                        <a href="#" class="text-danger">
+                                                            <i class="fas fa-trash" data-mdb-toggle="tooltip" title="Fjern denne personen fra aktiviteten"
+                                                                onclick="mainPlannerDialog__removePersonFromEvent('{{event.pk}}', '{{person.pk}}')"></i>
+                                                        </a>
                                                     </li>
                                                 {% endfor %}
                                             </ul>
@@ -236,6 +243,8 @@
 
 <script>
     function mainPlannerDialog__updateArrangementInfo() {
+        var csrf_token="{{csrf_token}}"
+
         var formData = new FormData();
         formData.append("name",             $('#id_name').val());
         formData.append("audience",         $('#id_audience').val());
@@ -243,15 +252,58 @@
         formData.append("arrangement_type", $('#id_arrangement_type').val());
         formData.append("starts",           $('#id_starts').val());
         formData.append("ends",             $('#id_ends').val());
-        formData.append("csrf_token",       "{{csrf_token}}");
+        formData.append("csrfmiddlewaretoken","{{ csrf_token }}");
+
+        console.log("{{csrf_token}}")
 
         document.dispatchEvent(
-            new CustomEvent("arrangementPlannerDialogs.submit", { "detail": {
+            new CustomEvent("arrangementInspector.submit", { "detail": {
                 dialog: "mainDialog",
                 formData: formData,
-                csrf_token: '{{csrf_token}}'
             }})
         );
+    }
+
+    function mainPlannerDialog__removeRoomFromEvent(event_pk, room_pk) {
+        var formData = new FormData();
+        formData.set("event_pk", event_pk);
+        formData.set("room_pk", room_pk)
+
+        fetch('/arrangement/planner/remove_room_from_event', {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{csrf_token}}"
+            }
+        })
+        .then(_ => {
+            document.dispatchEvent(
+                new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
+                    dialog: "mainDialog",
+                }})
+            )
+        })
+    }
+
+    function mainPlannerDialog__removePersonFromEvent(event_pk, person_pk) {
+        var formData = new FormData();
+        formData.set("event_pk", event_pk);
+        formData.set("person_pk", person_pk)
+
+        fetch('/arrangement/planner/remove_person_from_event', {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{csrf_token}}"
+            }
+        })
+        .then(_ => {
+            document.dispatchEvent(
+                new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
+                    dialog: "mainDialog",
+                }})
+            )
+        })
     }
 
     function mainPlannerDialog__removePlanners() {

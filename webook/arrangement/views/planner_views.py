@@ -28,6 +28,8 @@ from webook.arrangement.forms.order_person_form import OrderPersonForEventForm
 from webook.arrangement.forms.order_room_form import OrderRoomForEventForm
 from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerieForm
 from webook.arrangement.forms.order_person_for_serie_form import OrderPersonForSerieForm
+from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
+from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
@@ -400,11 +402,16 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         arrangements = Arrangement.objects.all()
         serializable_arrangements = []
 
+        assemble_slugs = self.request.GET.get("assembleSlugs", False)
+        print("ASSEMBLE SLUGS? " + assemble_slugs)
+
         for arrangement in arrangements:
             for event in arrangement.event_set.all():
-                # slug_list = [ arrangement.location.slug ]
-                # for room in event.rooms.all():
-                #     slug_list.append(room.slug)
+                slug_list = []
+                if assemble_slugs:
+                    slug_list = [ arrangement.location.slug ]
+                    for room in event.rooms.all():
+                        slug_list.append(room.slug)
                 serializable_arrangements.append({
                     "event_pk": event.pk,
                     "slug": arrangement.slug,
@@ -414,7 +421,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                     "mainPlannerName": arrangement.responsible.full_name,
                     "audience": arrangement.audience.name,
                     "audience_slug": arrangement.audience.slug,
-                    "slug_list": [],
+                    "slug_list": slug_list,
                     "audience_icon": arrangement.audience.icon_class,
                     "location": arrangement.location.name,
                     "location_slug": arrangement.location.slug,
@@ -450,9 +457,9 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "audience",
         "arrangement_type",
         "location",
-        "starts",
-        "ends",
-        "display_layouts",
+        # "starts",
+        # "ends",
+        # "display_layouts",
     ]
     model = Arrangement
     slug_field = "slug"
@@ -800,3 +807,41 @@ class PlannerCalendarOrderPeopleForEventFormView(LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 planner_calendar_order_people_for_event_form_view = PlannerCalendarOrderPeopleForEventFormView.as_view()
+
+
+class PlannerCalendarRemovePersonFromEventFormView(LoginRequiredMixin, FormView):
+    form_class = RemovePersonFromEventForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.remove()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannersView | Form Invalid")
+        print(form.errors)
+        return super().form_invalid(form)
+
+planner_calendar_remove_person_from_event_form_view = PlannerCalendarRemovePersonFromEventFormView.as_view()
+
+
+class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, FormView):
+    form_class = RemoveRoomFromEventForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.remove()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannersView | Form Invalid")
+        print(form.errors)
+        return super().form_invalid(form)
+
+planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFromEventFormView.as_view()

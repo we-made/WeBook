@@ -172,8 +172,11 @@ export class ArrangementStore extends BaseStore {
      * Refreshes the store and returns this so you can chain in a get.
      */
     _refreshStore(start, end) {
+
+        var assembleSlugs = document.getElementById('useFilterCheckbox').checked;
+
         this._flushStore();
-        return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}`)
+        return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}&assembleSlugs=` + assembleSlugs)
             .then(response => response.json())
             .then(obj => { obj.forEach((arrangement) => {
                 this._store.set(arrangement.event_pk, arrangement);
