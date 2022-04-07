@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 import environ
 
 # webook/
+import webook.screenshow.apps
+
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = BASE_DIR / "webook"
 
@@ -88,6 +90,7 @@ LOCAL_APPS = [
     # Your stuff: custom apps go here
     "webook.arrangement.apps.ArrangementConfig",
     "webook.crumbinator.apps.CrumbinatorConfig",
+    "webook.screenshow.apps.ScreenshowConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

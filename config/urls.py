@@ -26,7 +26,7 @@ class HomeView(LoginRequiredMixin, RedirectView):
 urlpatterns = [
     path(
         "",
-        HomeView.as_view(), 
+        HomeView.as_view(),
         # HomeView.as_view(),
         name="home",
     ),
@@ -39,8 +39,12 @@ urlpatterns = [
     ),
     path("accounts/", include("allauth.urls")),
     path(
-        "arrangement/", 
+        "arrangement/",
         include("webook.arrangement.urls", namespace="arrangement"),
+    ),
+    path(
+        "screenshow/",
+        include("webook.screenshow.urls", namespace="screenshow"),
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
