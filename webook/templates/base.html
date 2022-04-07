@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="{% static 'fullcalendar-scheduler/main.min.css' %}">
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/base/jquery.fonticonpicker.min.css' %}">
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/themes/bootstrap-theme/jquery.fonticonpicker.bootstrap.min.css' %}">
-    
+
     <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/wysiwyg.min.js"></script>
 
     <!-- This file stores project-specific CSS -->
@@ -39,7 +39,7 @@
     <script
     src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-    crossorigin="anonymous"></script>	
+    crossorigin="anonymous"></script>
     <script src="{% static 'js/mdbSelectExt.js' %}"></script>
     <script src="{% static 'vis-timeline/standalone/umd/vis-timeline-graph2d.js' %}"></script>
     <script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
@@ -57,11 +57,11 @@
         <a class="ripple d-flex justify-content-center py-4" href="#!" data-mdb-ripple-color="primary">
           <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" width="150px" draggable="false">
         </a>
-  
+
         <div class="text-center p-2 fw-bold h3">
           {{ APP_TITLE }}
         </div>
-  
+
         <ul class="sidenav-menu">
           <li class="sidenav-item">
             <a class="sidenav-link ripple-surface" href="{% url 'users:detail' request.user.slug %}" tabindex="-1">
@@ -129,10 +129,14 @@
               </li>
             </ul>
           </li>
+           <li>
+            <a class="sidenav-link ripple-surface" href="{% url "screenshow:layout_list" %}" tabindex="-1">
+              <i class="fa fa-television fa-fw me-3" aria-hidden="true"></i><span>{% trans "Screen Show Display" %}</span></a>
+          </li>
           <div class="container-fluid">
             <hr>
           </div>
-  
+
           <li class="sidenav-item">
             <a class="sidenav-link ripple-surface" href="{% url 'account_logout' %}" tabindex="-1">
               <i class="fas fa-door-closed fa-fw me-3"></i><span>{% trans "Sign Out" %}</span>
@@ -143,7 +147,7 @@
         </ul>
         <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div></div><div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div></div></nav>
         <!-- Sidenav -->
-  
+
       <!-- Navbar -->
       <nav id="main-navbar" class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #386080;">
         <!-- Container wrapper -->
@@ -152,13 +156,13 @@
           <button data-mdb-toggle="sidenav" data-mdb-target="#sidenav-1" class="btn shadow-0 p-0 me-3 d-block text-white" aria-controls="#sidenav-1" aria-haspopup="true" aria-expanded="false">
             <i class="fas fa-bars fa-lg" aria-hidden="true"></i>
           </button>
-  
+
           <!-- Search form -->
           <form class="d-none d-md-flex input-group w-auto my-auto">
             <input autocomplete="off" type="search" class="form-control rounded" placeholder="{% blocktrans %}Search (ctrl + &quot;/&quot; to focus){% endblocktrans %}" style="min-width: 225px">
             <span class="input-group-text border-0"><i class="fas fa-search text-white" aria-hidden="true"></i></span>
           </form>
-  
+
           <!-- Right links -->
           <ul class="navbar-nav ms-auto d-flex flex-row">
             <!-- Notification dropdown -->
@@ -185,7 +189,7 @@
                 data-mdb-toggle="dropdown"
                 aria-expanded="false"
               >
-              <i class="fa fa-user"></i>&nbsp; 
+              <i class="fa fa-user"></i>&nbsp;
                 {% trans "Hi" %}, {{ request.user.person.first_name }}
               </button>
               <ul class="dropdown-menu">
@@ -227,9 +231,9 @@
       <section class="bg-white">
         <h1 class="h1 fw-bolder">
           <i class="{% block section_icon_class %}{% endblock %}"></i>
-          
+
           {% block section_title %}
-          {% endblock section_title%} 
+          {% endblock section_title%}
           | <small class="text-muted h4">{% block section_subtitle %}{% endblock %}</small>
         </h1>
         {% if CRUMBS  %}
@@ -258,7 +262,7 @@
     {% endblock %}
 
     </div> <!-- /container -->
-    
+
     {% block modal %}{% endblock modal %}
 
     <!-- Le javascript

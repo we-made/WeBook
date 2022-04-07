@@ -37,3 +37,4 @@ urlpatterns.extend(note_urls)
 urlpatterns.extend(requisition_urls)
 urlpatterns.extend(confirmation_urls)
 urlpatterns.extend(arrangement_type_urls)
+

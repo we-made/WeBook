@@ -2,6 +2,7 @@ from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 
 class ScreenResource(TimeStampedModel):
@@ -54,8 +55,21 @@ class DisplayLayout(TimeStampedModel):
                                 on_delete=models.RESTRICT, null=True, blank=True)
 
     slug = AutoSlugField(populate_from="name", unique=True)
+
+    instance_name_attribute_name = "name"
     entity_name_singular = _("DisplayLayout")
     entity_name_plural = _("DisplayLayouts")
+
+
+    def get_absolute_url(self):
+        return reverse(
+            "screenshow:layout_detail", kwargs={"slug": self.slug}
+        )
+
+    @property
+    def resolved_name(self):
+        # override template name mixin, as it relies on "name" attribute which is no good in this context. We want to use full_name instead.
+        return self.name
 
     def __str__(self):
         """Return display layout name"""

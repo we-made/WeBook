@@ -73,7 +73,7 @@ class PersonUpdateView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
         "first_name",
         "middle_name",
         "last_name",
-        "birth_date",        
+        "birth_date",
     ]
     template_name = "arrangement/person/person_form.html"
     view_meta = ViewMeta.Preset.edit(Person)
@@ -85,10 +85,10 @@ class PersonCreateView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
     model = Person
     fields = [
         "personal_email",
-        "first_name",   
+        "first_name",
         "middle_name",
         "last_name",
-        "birth_date",        
+        "birth_date",
     ]
     template_name = "arrangement/person/person_form.html"
     view_meta = ViewMeta.Preset.create(Person)
@@ -126,7 +126,7 @@ class PersonDeleteView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
         return reverse(
             "arrangement:person_list"
         )
-    
+
 person_delete_view = PersonDeleteView.as_view()
 
 
@@ -157,7 +157,7 @@ class SearchPeopleAjax (LoginRequiredMixin, SearchView):
         # This avoids concatenation issues. Working with the full name may be difficult, should middle_name be unspecified
         # One could for instance end up with a string like this in the comparison: "John  Smith" as opposed to the intended "John Smith"
         # The best solution seems to be to just remove spaces from the user input, and the concatenation, and the issue is eliminated.
-        search_term.replace(' ', "") 
+        search_term.replace(' ', "")
 
         people = []
         if (search_term == ""):
@@ -166,8 +166,8 @@ class SearchPeopleAjax (LoginRequiredMixin, SearchView):
             people = Person.objects\
                 .annotate(afull_name=Concat('first_name', 'middle_name', 'last_name'))\
                 .filter(afull_name__contains=search_term)
-        
-        return people        
+
+        return people
 
 search_people_ajax_view = SearchPeopleAjax.as_view()
 
