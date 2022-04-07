@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('arrangement', '0050_switch_note_confirmation_foreign_key'),
+        ('arrangement', '0049_auto_20220401_0259'),
     ]
 
     operations = [
