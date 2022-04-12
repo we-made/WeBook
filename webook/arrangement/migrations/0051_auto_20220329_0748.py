@@ -30,14 +30,5 @@ class Migration(migrations.Migration):
             name='name_en',
             field=models.CharField(max_length=255, null=True, verbose_name='Name English'),
         ),
-        migrations.AddField(
-            model_name='screengroup',
-            name='group_name_en',
-            field=models.CharField(max_length=255, null=True, verbose_name='Screen Group Name English'),
-        ),
-        migrations.AddField(
-            model_name='screenresource',
-            name='name_en',
-            field=models.CharField(max_length=255, null=True, verbose_name='Screen Name English'),
-        ),
+
     ]
