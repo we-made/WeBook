@@ -13,11 +13,22 @@ class ScreenResource(TimeStampedModel):
     is_room_screen = models.BooleanField(verbose_name=_("Is Screen in Room"), default=True)
     #location = models.ForeignKey(to=Location, verbose_name=_("Location"), on_delete=models.RESTRICT,null=True, blank=True)
 
-    screen_groups = models.ManyToManyField(to="ScreenGroup", verbose_name=_("Screen Groups"))
+    screen_groups = models.ManyToManyField(to="ScreenGroup", verbose_name=_("Screen Groups"), blank=True)
 
     slug = AutoSlugField(populate_from="name", unique=True)
+    instance_name_attribute_name = "name"
     entity_name_singular = _("ScreenResource")
     entity_name_plural = _("ScreenResources")
+
+    @property
+    def resolved_name(self):
+        # override template name mixin, as it relies on "name" attribute which is no good in this context. We want to use full_name instead.
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse(
+            "screenshow:screen_detail", kwargs={'slug': self.slug}
+        )
 
     def __str__(self):
         """Return screen resource name"""
@@ -32,8 +43,19 @@ class ScreenGroup(TimeStampedModel):
     screens = models.ManyToManyField(to=ScreenResource, verbose_name=_("Screen Resources"))
 
     slug = AutoSlugField(populate_from="group_name", unique=True)
+    instance_name_attribute_name = "group_name"
     entity_name_singular = _("ScreenGroup")
     entity_name_plural = _("ScreenGroups")
+
+    @property
+    def resolved_name(self):
+        # override template name mixin, as it relies on "name" attribute which is no good in this context. We want to use full_name instead.
+        return self.group_name
+
+    def get_absolute_url(self):
+        return reverse(
+            "screenshow:screen_group_detail", kwargs={'slug': self.slug}
+        )
 
     def __str__(self):
         """Return screen group name"""

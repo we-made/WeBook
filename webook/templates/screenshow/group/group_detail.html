@@ -1,0 +1,84 @@
+{% extends "screenshow/meta_base.html" %}
+{% load static i18n %}
+
+
+{% block beneath_breadcrumbs_block %}
+    <a class="btn btn-danger">
+        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
+    </a>
+    <a class="btn btn-success"
+        href="{% url 'screenshow:screen_group_edit' object.slug %}">
+        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
+    </a>
+{% endblock %}
+
+{% block content %}
+
+<section>
+    <div class="row">
+
+        <div class="col-5 ps-5">
+
+              <div>
+               <h4 class="mb-4">
+                    <i class="fa fa-television"></i>&nbsp;
+                 <i class="fa fa-television"></i>&nbsp;
+                    {% trans "Screen Group" %}
+                </h4>
+            </div>
+
+            <div>
+                <h5>
+                    {% trans "ScreenGroup Name:" %}
+                  <span>{{ object.group_name }}</span>
+                </h5>
+
+            </div>
+
+            <div class="mt-4">
+                <h5>
+                    {% trans "ScreenGroup Name (English):" %}
+                   <span>{{ object.group_name_en }}</span>
+                </h5>
+
+            </div>
+
+            <div class="mt-5">
+                <h5>
+                    {% trans "Number of items showing: " %}
+                   <span>{{ object.quantity }}</span>
+                </h5>
+
+            </div>
+
+        </div>
+
+       <div class="col-6">
+            <h4 class="mb-4">
+                <i class="fa fa-television"></i>&nbsp;
+                {% trans "Screens" %}
+            </h4>
+
+            {% if object.screens.all|length %}
+                <em>{% trans "This screen group has these screens as members" %}</em>
+                {% for screen in object.screens.all %}
+                    <ul class="mt-3">
+                        <li>
+                            <a href="{% url 'screenshow:screen_detail' screen.slug %}">
+                                <i class="fa fa-link"></i>
+                                {{screen.name }}
+                            </a>
+                        </li>
+                    </ul>
+                {% endfor %}
+
+            {% else %}
+                <div class="alert alert-warning">
+                    {% trans "This screen group doesn't have any screen as member" %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

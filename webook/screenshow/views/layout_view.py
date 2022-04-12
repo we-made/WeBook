@@ -1,15 +1,15 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     DetailView,
-    RedirectView,
     UpdateView,
     ListView,
     CreateView,
 )
 from django.views.generic.edit import DeleteView
-from webook.screenshow.models import DisplayLayout
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from webook.screenshow.models import DisplayLayout, ScreenResource, ScreenGroup
+from webook.screenshow.forms import DisplayLayoutForm
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -30,10 +30,21 @@ def get_section_manifest():
     )
 
 
-class LayoutSectionManifestMixin:
+class LayoutSectionManifestMixin(UserPassesTestMixin):
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
+
+    def _is_member(self):
+        return self.request.user.groups.filter(name='display_organizer').exists()
+
+    def test_func(self):
+        return self._is_member()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_display_organizer"] = self._is_member()
+        return context
 
 
 class LayoutListView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, GenericListTemplateMixin, ListView):
@@ -53,25 +64,15 @@ layout_list_view = LayoutListView.as_view()
 
 class LayoutCreateView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, CreateView):
     model = DisplayLayout
-    fields = [
-        "name",
-        "description",
-        "quantity",
-        "is_room_based",
-        "all_events",
-        "is_active",
-    ]
-    template_name = "screenshow/layout_form.html"
+    form_class = DisplayLayoutForm
+    template_name = "screenshow/layout/layout_form.html"
     view_meta = ViewMeta.Preset.create(DisplayLayout)
 
-    def get_success_url(self) -> str:
-        success_url = super().get_success_url()
-        organization = self.request.POST.get("organization")
-        created_layout = self.object
-        #if organization is not None:
-        #    created_user.organizations.add(organization)
-        created_layout.save()
-        return success_url
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['screen_list'] = ScreenResource.objects.order_by('name')
+        context['group_list'] = ScreenGroup.objects.order_by('group_name')
+        return context
 
 
 layout_create_view = LayoutCreateView.as_view()
@@ -79,16 +80,15 @@ layout_create_view = LayoutCreateView.as_view()
 
 class LayoutUpdateView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, UpdateView):
     model = DisplayLayout
-    fields = [
-        "name",
-        "description",
-        "quantity",
-        "is_room_based",
-        "all_events",
-        "is_active",
-    ]
-    template_name = "screenshow/layout_form.html"
+    form_class = DisplayLayoutForm
+    template_name = "screenshow/layout/layout_form.html"
     view_meta = ViewMeta.Preset.create(DisplayLayout)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['screen_list'] = ScreenResource.objects.order_by('name')
+        context['group_list'] = ScreenGroup.objects.order_by('group_name')
+        return context
 
 
 layout_update_view = LayoutUpdateView.as_view()
@@ -98,7 +98,7 @@ class LayoutDetailView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
     model = DisplayLayout
     slug_field = "slug"
     slug_url_kwarg = "slug"
-    template_name = "screenshow/layout_detail.html"
+    template_name = "screenshow/layout/layout_detail.html"
     view_meta = ViewMeta.Preset.detail(DisplayLayout)
 
 

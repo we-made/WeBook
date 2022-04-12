@@ -7,7 +7,7 @@
         <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
     </a>
     <a class="btn btn-success"
-        href="{% url 'screenshow:layout_edit' object.slug %}">
+        href="{% url 'screenshow:screen_edit' object.slug %}">
         <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
     </a>
 {% endblock %}
@@ -18,10 +18,15 @@
     <div class="row">
 
         <div class="col-5 ps-5">
-
+            <div>
+               <h4 class="mb-4">
+                    <i class="fa fa-television"></i>&nbsp;
+                    {% trans "Screen" %}
+                </h4>
+            </div>
             <div>
                 <h5>
-                    {% trans "Layout Name:" %}
+                    {% trans "Screen Name:" %}
                   <span>{{ object.name }}</span>
                 </h5>
 
@@ -29,8 +34,8 @@
 
             <div class="mt-4">
                 <h5>
-                    {% trans "Layout Description:" %}
-                   <span>{{ object.description }}</span>
+                    {% trans "Screen Name (English):" %}
+                   <span>{{ object.name_en }}</span>
                 </h5>
 
             </div>
@@ -45,26 +50,13 @@
 
            <div class="mt-4">
                 <h5>
-                    {% trans "Is Room screen based: " %}
-                  <span>{{ object.is_room_based }}</span>
+                    {% trans "Is room screen: " %}
+                  <span>{{ object.is_room_screen }}</span>
                 </h5>
 
             </div>
 
-           <div class="mt-4">
-                <h5>
-                    {% trans "Showing all events: " %}
-                  <span>{{ object.all_events }}</span>
-                </h5>
 
-            </div>
-           <div class="mt-4">
-                <h5>
-                    {% trans "Is Active: " %}
-                  <span>{{ object.is_active }}</span>
-                </h5>
-
-            </div>
         </div>
 
     </div>
