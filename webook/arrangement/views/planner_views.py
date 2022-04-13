@@ -464,6 +464,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "ticket_code",
         "meeting_place",
         "expected_visitors",
+        "actual_visitors",
         # "starts",
         # "ends",
         # "display_layouts",
