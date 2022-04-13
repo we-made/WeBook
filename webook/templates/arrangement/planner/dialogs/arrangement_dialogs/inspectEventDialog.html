@@ -46,8 +46,17 @@
                     Forventet antall besøkende
                 </label>
                 <input type="text" class="form-control"
-                    name="{{ form.expected_visitors.name }}" id="{{ form.ticket_cexpected_visitorsde.id_for_label }}"
+                    name="{{ form.expected_visitors.name }}" id="{{ form.expected_visitors.id_for_label }}"
                     value="{{ form.expected_visitors.value|default:'0' }}">
+            </div>
+
+            <div class="mt-2">
+                <label for="title" form="{{form.actual_visitors.id_for_label}}">
+                    Faktisk antall besøkende
+                </label>
+                <input type="text" class="form-control"
+                    name="{{ form.actual_visitors.name }}" id="{{ form.actual_visitors.id_for_label }}"
+                    value="{{ form.actual_visitors.value|default:'0' }}">
             </div>
 
             <div class="mt-2">
