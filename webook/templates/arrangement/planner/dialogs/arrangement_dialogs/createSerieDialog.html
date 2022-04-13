@@ -39,6 +39,14 @@
                       <input type="color" id="serie_color" />
                     </td>
                   </tr>
+                  <tr>
+                    <td>
+                      <label>{% trans "Ticket Code" %}</label>
+                    </td>
+                    <td>
+                      <input type="text" id="ticket_code" />
+                    </td>
+                  </tr>
                 </tbody>
               </table>
         </fieldset>
@@ -474,6 +482,7 @@
             start: document.getElementById('serie_start').value,
             end: document.getElementById('serie_end').value,
             color: document.getElementById('serie_color').value,
+            ticket_code: document.getElementById('ticket_code').value,
         }
 
         let pattern = {}
@@ -492,7 +501,6 @@
         if (headResult === false || patternResult === false || patternRouteResult === false || areaRecurrenceResult === false) {
             return;
         }
-
 
         // since weekly doesnt have any subroutings (only one option) we cant use the normal method
         if (active_pattern_key !== "2") { 
@@ -562,7 +570,7 @@
         let serie = {
             time: time,
             pattern: pattern,
-            time_area: area
+            time_area: area,
         }
 
         var events = SeriesUtil.calculate_serie(serie);
@@ -575,6 +583,7 @@
             event.arrangement = '{{arrangementPk}}';
             event.start = event.from.toISOString();
             event.end=event.to.toISOString();
+            event.ticket_code = event.ticket_code;
             
             for (var key in event) {
                 formData.append("events[" + i + "]." + key, event[key]);
