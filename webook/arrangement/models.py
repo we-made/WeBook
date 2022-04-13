@@ -31,13 +31,20 @@ class ModelArchiveableMixin():
         null=True
     )
 
+
+class ModelTicketCodeMixin(models.Model):
+    ticket_code = models.CharField(verbose_name=_("Ticket Code"), max_length=255, blank=False, null=True)
+
+    class Meta:
+        abstract = True
+
+
 class ModelHistoricallyConfirmableMixin():
     """
         Serves as a mixin to facilitate and standardize the business logic that comes after a ConfirmationReceipt state
         has changed.
     """
-
-
+    
     def on_reset(self) -> None:
         self.historic_confirmation_receipts.add(self.confirmation_receipt)
         self.confirmation_receipt = None
@@ -115,7 +122,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
+class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
      that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
      could be an exhibition, which may have events stretching over a large timespan, but which have a shared nature,
@@ -169,6 +176,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin):
     )
 
     name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
+
 
     stages = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PLANNING)
 
@@ -674,7 +682,7 @@ class ServiceProvidable(TimeStampedModel):
         return f"{self.service_name} of type {self.service_type} provided by {self.organization.name}"
 
 
-class Event(TimeStampedModel):
+class Event(TimeStampedModel, ModelTicketCodeMixin):
     """The event model represents an event, or happening that takes place in a set span of time, and which may
     reserve certain resources for use in that span of time (such as a room, or a person etc..).
 

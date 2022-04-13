@@ -171,6 +171,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             event.title = get_post_value_or_none("title")
             event.start = get_post_value_or_none("start")
             event.end = get_post_value_or_none("end")
+            event.ticket_code = get_post_value_or_none("ticket_code")
             event.sequence_guid = get_post_value_or_none("sequence_guid")
             if event.sequence_guid is None:
                 event.sequence_guid = sequence_guid
@@ -441,7 +442,8 @@ class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
     fields = [
         "title",
         "start",
-        "end"
+        "end",
+        "ticket_code",
     ]
     model = Event
     pk_field="pk"
@@ -457,6 +459,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "audience",
         "arrangement_type",
         "location",
+        "ticket_code",
         # "starts",
         # "ends",
         # "display_layouts",
@@ -498,6 +501,7 @@ class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, CreateVie
         "starts",
         "ends",
         "responsible",
+        "ticket_code",
     ]
     model = Arrangement
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createArrangementDialog.html"

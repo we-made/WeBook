@@ -136,6 +136,7 @@ class ArrangementCreateView (LoginRequiredMixin, ArrangementSectionManifestMixin
         "location",
         "arrangement_type",
         "responsible",
+        "ticket_code",
     ]
     template_name = "arrangement/arrangement/arrangement_form.html"
     view_meta = ViewMeta.Preset.create(Arrangement)
@@ -151,6 +152,7 @@ class ArrangementCreateJSONView (LoginRequiredMixin, JSONResponseMixin, CreateVi
         "location",
         "arrangement_type",
         "responsible",
+        "ticket_code",
     ]
     template_name = "arrangement/arrangement/arrangement_form.html"
     view_meta = ViewMeta.Preset.create(Arrangement)
@@ -180,6 +182,7 @@ class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin,
         "starts",
         "ends",
         "responsible",
+        "ticket_code",
     ]
     current_crumb_title = _("Edit Arrangement")
     section_subtitle = _("Edit Arrangement")

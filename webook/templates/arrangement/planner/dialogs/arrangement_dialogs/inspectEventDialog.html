@@ -23,6 +23,23 @@
                     name="{{form.title.name}}" id="{{form.title.id_for_label}}"
                     value="{{form.title.value}}">
             </div>
+            <div class="mt-2">
+                <label for="title" form="{{form.title_en.id_for_label}}">
+                    Tittel (Engelsk)
+                </label>
+                <input type="text" class="form-control"
+                    name="{{form.title_en.name}}" id="{{form.title_en.id_for_label}}"
+                    value="{{form.title_en.value}}">
+            </div>
+
+            <div class="mt-2">
+                <label for="title" form="{{form.ticket_code.id_for_label}}">
+                    Billetkode
+                </label>
+                <input type="text" class="form-control"
+                    name="{{ form.ticket_code.name }}" id="{{ form.ticket_code.id_for_label }}"
+                    value="{{ form.ticket_code.value|default:'' }}">
+            </div>
 
             <div class="mt-2">
                 <h6>Fra</h6>
@@ -38,7 +55,6 @@
                                 value="{{ form.start.value|date:'H:i' }}">
                     </div>
                 </div>
-
             </div>
 
             <div class="mt-2">
