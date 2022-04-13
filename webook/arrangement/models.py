@@ -33,7 +33,7 @@ class ModelArchiveableMixin():
 
 
 class ModelTicketCodeMixin(models.Model):
-    ticket_code = models.CharField(verbose_name=_("Ticket Code"), max_length=255, blank=False, null=True)
+    ticket_code = models.CharField(verbose_name=_("Ticket Code"), max_length=255, blank=True, null=True)
 
     class Meta:
         abstract = True
