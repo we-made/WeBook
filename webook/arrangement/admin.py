@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import (Arrangement, DisplayLayout, Location, Room, Person, Event, Organization, OrganizationType, Article, Audience,
-                     BusinessHour, TimelineEvent, ServiceProvidable, ServiceType, Calendar, Note, ConfirmationReceipt, 
-                     DisplayLayout, ScreenResource, ScreenGroup)
+from .models import (Arrangement, Location, Room, Person, Event, Organization, OrganizationType, Article, Audience,
+                     BusinessHour, TimelineEvent, ServiceProvidable, ServiceType, Calendar, Note, ConfirmationReceipt)
 
 
 admin.site.register([
@@ -21,7 +20,4 @@ admin.site.register([
     Calendar,
     Note,
     ConfirmationReceipt,
-    DisplayLayout,
-    ScreenResource, 
-    ScreenGroup
 ])
