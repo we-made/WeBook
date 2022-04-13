@@ -139,6 +139,7 @@ from .planner_views import (
     planner_calendar_order_people_for_event_form_view,
     planner_calendar_remove_person_from_event_form_view,
     planner_calendar_remove_room_from_event_form_view,
+    planner_calendar_upload_file_to_arrangement_dialog_view,
 )
 
 from .note_views import (

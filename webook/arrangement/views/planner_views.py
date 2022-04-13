@@ -30,6 +30,7 @@ from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerie
 from webook.arrangement.forms.order_person_for_serie_form import OrderPersonForSerieForm
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
+from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
 from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
@@ -863,3 +864,10 @@ class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFromEventFormView.as_view()
+
+
+class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, FormView):
+    form_class = UploadFilesToArrangementForm
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToArrangementDialog.html"
+
+planner_calendar_upload_file_to_arrangement_dialog_view = PlannerCalendarUploadFileToArrangementDialog.as_view()

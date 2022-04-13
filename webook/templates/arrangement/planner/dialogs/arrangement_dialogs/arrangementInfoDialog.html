@@ -5,10 +5,36 @@
 
     <div id="tabs">
         <ul>
-            <li><a href="#tabs-1">Informasjon</a></li>
-            <li><a href="#tabs-2">Tidspunkter</a></li>
-            <li><a href="#tabs-3">Notater</a></li>
-            <li><a href="#tabs-4">Kvitteringer</a></li>
+            <li>
+                <a href="#tabs-1">
+                    <i class="fas fa-info-circle"></i>&nbsp; 
+                    Informasjon
+                </a>
+            </li>
+            <li>
+                <a href="#tabs-2">
+                    <i class="fas fa-calendar"></i>&nbsp; 
+                    Tidspunkter
+                </a>
+            </li>
+            <li>
+                <a href="#tabs-3">
+                    <i class="fas fa-comment"></i>&nbsp; 
+                    Notater
+                </a>
+            </li>
+            <li>
+                <a href="#tabs-4">
+                    <i class="fas fa-receipt"></i>&nbsp; 
+                    Kvitteringer
+                </a>
+            </li>
+            <li>
+                <a href="#tabs-5">
+                    <i class="fas fa-file"></i>&nbsp; 
+                    Filer
+                </a>
+            </li>
         </ul>
         <div id="tabs-1">
             <table class='table table-sm'>
@@ -246,10 +272,10 @@
                                             </h5>
                                             
                                             <div class="btn-group shadow-0">
-                                                <button href="#" class="orderRoomForSingleEventBtn" value="{{event.pk}}">
+                                                <button href="#" class="orderRoomForSingleEventBtn btn btn-sm btn-outline-success" value="{{event.pk}}">
                                                     Legg til rom
                                                 </button>
-                                                <button href="#" class="orderPersonForSingleEventBtn" value="{{event.pk}}">
+                                                <button href="#" class="orderPersonForSingleEventBtn btn btn-sm btn-outline-success" value="{{event.pk}}">
                                                     Legg til personer
                                                 </button>
                                             </div>
@@ -310,6 +336,29 @@
         </div>
         <div id="tabs-4">
             Kvitteringer...
+        </div>
+        <div id="tabs-5">
+            <div class="clearfix">
+                <button class="btn btn-success btn-sm shadow-0 float-end"
+                        id="mainDialog__uploadFilesBtn">
+                    <i class="fas fa-upload"></i>
+                    Upload file(s)
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Uploader</th>
+                            <th>Uploaded when</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
         </div>
     </div>
 </div>
