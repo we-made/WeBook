@@ -184,6 +184,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin):
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
 
+    meeting_place = models.CharField(verbose_name=_("Meeting Place"), max_length=255, blank=True, null=True)
+
     audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE, related_name="arrangements")
     arrangement_type = models.ForeignKey(to=ArrangementType, verbose_name=_("Arrangement Type"), on_delete=models.CASCADE, related_name="arrangements", null=True)
 
