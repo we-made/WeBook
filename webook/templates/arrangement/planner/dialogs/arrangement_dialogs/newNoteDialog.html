@@ -5,7 +5,7 @@
             placeholder="Tast inn..">
         </textarea>
 
-        <button class="btn-block" onclick="submitNote()" type="button">
+        <button class="btn-block btn btn-success btn-sm" onclick="submitNote()" type="button">
             Lagre
         </button>
     </div>
@@ -25,7 +25,7 @@
             credentials: 'same-origin',
         }).then( _ => { 
             document.dispatchEvent(
-                new CustomEvent("arrangementPlannerDialogs.hasBeenUpdated", {'detail': {
+                new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
                     dialog: "newNoteDialog",
                 }})
             )

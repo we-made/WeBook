@@ -1,7 +1,8 @@
  export class Dialog {
-    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onSubmit, onPreRefresh, dialogOptions } = {}) {
+    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onSubmit, onPreRefresh, dialogOptions, triggerByEvent=false } = {}) {
         this.dialogElementId = dialogElementId;
         this.triggerElementId = triggerElementId;
+        this.triggerByEvent = triggerByEvent,
         this.htmlFabricator = htmlFabricator;
         this.onRenderedCallback = onRenderedCallback;
         this.onUpdatedCallback = onUpdatedCallback;
@@ -93,6 +94,7 @@ export class DialogManager {
     }
 
     reloadDialog(dialogId, customHtml=undefined) {
+        console.log("reloadDialog " + dialogId)
         this._dialogRepository.get(dialogId).refresh(this.context, customHtml);
     }
 
@@ -126,7 +128,7 @@ export class DialogManager {
     _listenForSubmitEvent() {
         console.log(`${this.managerName}.submit`)
         document.addEventListener(`${this.managerName}.submit`, (e) => {
-            console.info("==> Submit caught.")
+            console.log("ONSUBMIT >> ", e)
             this._dialogRepository.get(e.detail.dialog)
                 .onSubmit(this.context, e.detail);
         })
@@ -134,8 +136,13 @@ export class DialogManager {
 
     _setTriggers() {
         this._dialogRepository.forEach( (value, key, map) => {
+            if (value.triggerByEvent === true) {
+                document.addEventListener(`${this.managerName}.${value.dialogId}.trigger`, (detail) => {
+                    value.render(this.context);
+                });
+            }
+
             if (value.triggerElementId !== undefined) {
-                console.log(value.triggerElementId)
                 $("#" + value.triggerElementId).on('click', () => {
                     value.render(this.context);
                 });

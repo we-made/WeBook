@@ -17,6 +17,14 @@
                   </tr>
                   <tr>
                     <td>
+                      <label>{% trans "Title" %} <em>(engelsk)</em></label>
+                    </td>
+                    <td>
+                      <input type="text" id="serie_title_en" autocomplete="off" required />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
                       <label>{% trans "Start" %}</label>
                     </td>
                     <td>
@@ -29,14 +37,6 @@
                     </td>
                     <td>
                       <input type="time" id="serie_end" required />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label>{% trans "Color" %}</label>
-                    </td>
-                    <td>
-                      <input type="color" id="serie_color" />
                     </td>
                   </tr>
                 </tbody>
@@ -161,9 +161,9 @@
             </div>
         </fieldset>
 
-        <fieldset>
-            <button type="button" id="submitBtn">Lagre</button>
-        </fieldset>
+        <div class="clearfix">
+            <button class="btn btn-success btn-sm float-end" type="button" id="submitBtn">Lagre</button>
+        </div>
     </div>
 </div>
 
@@ -473,7 +473,6 @@
             title: document.getElementById('serie_title').value,
             start: document.getElementById('serie_start').value,
             end: document.getElementById('serie_end').value,
-            color: document.getElementById('serie_color').value,
         }
 
         let pattern = {}
