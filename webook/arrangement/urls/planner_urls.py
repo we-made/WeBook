@@ -30,6 +30,15 @@ from webook.arrangement.views import (
     arrangement_remove_planners_form_view,
     create_arrangement_dialog_view,
     planner_event_inspector_dialog_view,
+    planner_calendar_filter_rooms_dialog_view,
+    planner_calendar_order_room_dialog_view,
+    planner_calendar_order_person_dialog_view,
+    planner_calendar_order_person_for_series_form_view,
+    planner_calendar_order_rooms_for_series_form_view,
+    planner_calendar_order_room_for_event_form_view,
+    planner_calendar_order_people_for_event_form_view,
+    planner_calendar_remove_person_from_event_form_view,
+    planner_calendar_remove_room_from_event_form_view,
 )
 
 
@@ -174,4 +183,49 @@ planner_urls = [
         view=planner_event_inspector_dialog_view,
         name="event_inspector_dialog",
     ),
+    path(
+        route="planner/dialogs/room_filter",
+        view=planner_calendar_filter_rooms_dialog_view,
+        name="filter_room_dialog",
+    ),
+    path(
+        route="planner/dialogs/order_person",
+        view=planner_calendar_order_person_dialog_view,
+        name="order_person_dialog",
+    ),
+    path(
+        route="planner/dialogs/order_room",
+        view=planner_calendar_order_room_dialog_view,
+        name="order_room_dialog",
+    ),
+    path(
+        route="planner/dialogs/order_people_form",
+        view=planner_calendar_order_person_for_series_form_view,
+        name="order_people_form"
+    ),
+    path(
+        route="planner/dialogs/order_rooms_form",
+        view=planner_calendar_order_rooms_for_series_form_view,
+        name="order_rooms_form",
+    ),
+    path(
+        route="planner/dialogs/order_rooms_for_event_form",
+        view = planner_calendar_order_room_for_event_form_view,
+        name="order_room_for_event_form"
+    ),
+    path(
+        route="planner/dialogs/order_people_for_event_form",
+        view=planner_calendar_order_people_for_event_form_view,
+        name="order_people_for_event_form",
+    ),
+    path(
+        route="planner/remove_person_from_event",
+        view=planner_calendar_remove_person_from_event_form_view,
+        name="remove_person_from_event"
+    ),
+    path(
+        route="planner/remove_room_from_event",
+        view=planner_calendar_remove_room_from_event_form_view,
+        name="remove_room_from_event",
+    )
 ]

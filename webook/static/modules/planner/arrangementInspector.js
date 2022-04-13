@@ -11,11 +11,36 @@ export class ArrangementInspector {
     }
 
     inspect( arrangement ) {
-        console.log("Here we are: ", arrangement)
-        this.dialogManager.setContext(arrangement);
-        console.log(this.dialogManager.context)
-
+        this.dialogManager.setContext({ arrangement: arrangement });
         this.dialogManager.openDialog( "mainDialog" );
+    }
+
+    _listenToOrderRoomForSingleEventBtnClick() {
+        $('.orderRoomForSingleEventBtn').on('click', (e) => {
+            this.dialogManager.setContext({ arrangement: this.dialogManager.context.arrangement, event: { pk: e.currentTarget.value } });
+            this.dialogManager.openDialog( "orderRoomForOneEventDialog" );
+        })
+    }
+
+    _listenToOrderPersonForSingleEventeBtnClick() {
+        $('.orderPersonForSingleEventBtn').on('click', (e) => {
+            this.dialogManager.setContext({ arrangement: this.dialogManager.context.arrangement, event: { pk: e.currentTarget.value } });
+            this.dialogManager.openDialog( "orderPersonForOneEventDialog" );
+        })
+    }
+
+    _listenToOrderRoomForSerieBtnClick() {
+        $('.orderRoomBtn').on('click', (e) => {
+            this.dialogManager.setContext({ arrangement: this.dialogManager.context.arrangement, serie: { guid: e.currentTarget.value } });
+            this.dialogManager.openDialog( "orderRoomDialog" );
+        })
+    }
+
+    _listenToOrderPersonForSerieBtnClick() {
+        $('.orderPersonBtn').on('click', (e) => {
+            this.dialogManager.setContext({ arrangement: this.dialogManager.context.arrangement, serie: { guid: e.currentTarget.value } });
+            this.dialogManager.openDialog( "orderPersonDialog" );
+        })
     }
 
     _createDialogManager () {
@@ -28,7 +53,7 @@ export class ArrangementInspector {
                         dialogElementId: "mainDialog",
                         triggerElementId: "_mainDialog",
                         htmlFabricator: async (context) => {
-                            return await fetch('/arrangement/planner/dialogs/arrangement_information/' + context.slug + "?managerName=" + MANAGER_NAME)
+                            return await fetch('/arrangement/planner/dialogs/arrangement_information/' + context.arrangement.slug + "?managerName=" + MANAGER_NAME)
                                     .then(response => response.text());
                         },
                         onPreRefresh: (dialog) => {
@@ -44,26 +69,31 @@ export class ArrangementInspector {
                             }
 
                             this.dialogManager._makeAware();
+                            this._listenToOrderPersonForSerieBtnClick();
+                            this._listenToOrderRoomForSerieBtnClick();
+                            this._listenToOrderRoomForSingleEventBtnClick();
+                            this._listenToOrderPersonForSingleEventeBtnClick();
                         },
-                        onSubmit: async (context, formData) => { 
-                            var getArrangementHtml = async function (slug, formData, csrf_token) {
+                        onSubmit: async (context, details) => { 
+                            
+                            var getArrangementHtml = async function (slug, formData) {
                                 var response = await fetch("/arrangement/planner/dialogs/arrangement_information/" + slug, {
                                     method: 'POST',
                                     body: formData,
-                                    headers: {
-                                        "X-CSRFToken": csrf_token
-                                    },
                                     credentials: 'same-origin',
+                                    headers: {
+                                        "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+                                    }
                                 });
                                 return await response.text();
                             }
     
-                            var somehtml = await getArrangementHtml(context.slug, formData, this.csrf_token);
-                            this.reloadDialog("mainDialog", somehtml);
+                            var somehtml = await getArrangementHtml(context.arrangement.slug, details.formData);
+                            this.dialogManager.reloadDialog("mainDialog", somehtml);
     
                             document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                         },
-                        onUpdatedCallback: () => { this.reloadDialog("mainDialog"); },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
                         dialogOptions: { width: 600 }
                     }),
                 ],
@@ -73,11 +103,11 @@ export class ArrangementInspector {
                         dialogElementId: "addPlannerDialog",
                         triggerElementId: "mainDialog__addPlannerBtn",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/add_planner?slug=" + context.slug + "&managerName=" + MANAGER_NAME)
+                            return await fetch("/arrangement/planner/dialogs/add_planner?slug=" + context.arrangement.slug + "&managerName=" + MANAGER_NAME)
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered"); },
-                        onUpdatedCallback: ( ) => { this.reloadDialog("mainDialog"); this.closeDialog("addPlannerDialog"); },
+                        onUpdatedCallback: ( ) => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("addPlannerDialog"); },
                         dialogOptions: { width: 700 }
                     })
                 ],
@@ -87,12 +117,16 @@ export class ArrangementInspector {
                         dialogElementId: "newTimePlanDialog",
                         triggerElementId: "mainPlannerDialog__newTimePlan",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.slug + "&managerName=" + MANAGER_NAME)
+                            return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&managerName=" + MANAGER_NAME)
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => { console.info("Rendered"); },
-                        onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
-                        dialogOptions: { width: 700 }
+                        onRenderedCallback: () => { 
+                            $('#serie_title').attr('value', $('#id_name').val() );
+                            $('#serie_title_en').attr('value', $('#id_name_en').val() );
+                        },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("newTimePlanDialog"); },
+                        dialogOptions: { width: 700 },
+                        onSubmit: () => { }
                     })
                 ],
                 [
@@ -101,11 +135,11 @@ export class ArrangementInspector {
                         dialogElementId: "newSimpleActivityDialog",
                         triggerElementId: "mainPlannerDialog__newSimpleActivity",
                         htmlFabricator: async (context) => {
-                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + context.slug + "&managerName=" + MANAGER_NAME)
+                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + context.arrangement.slug + "&managerName=" + MANAGER_NAME)
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newSimpleActivityDialog"); },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("newSimpleActivityDialog"); },
                         dialogOptions: { width: 500 }
                     })
                 ],
@@ -114,8 +148,8 @@ export class ArrangementInspector {
                     new Dialog({
                         dialogElementId: "calendarFormDialog",
                         triggerElementId: "mainPlannerDialog__showInCalendarForm",
-                        htmlFabricator: async (arrangement) => {
-                            return await fetch('/arrangement/planner/dialogs/arrangement_calendar_planner/' + arrangement.slug + "&managerName=" + MANAGER_NAME)
+                        htmlFabricator: async (context) => {
+                            return await fetch('/arrangement/planner/dialogs/arrangement_calendar_planner/' + context.arrangement.slug + "&managerName=" + MANAGER_NAME)
                                     .then(response => response.text())
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
@@ -129,11 +163,11 @@ export class ArrangementInspector {
                         dialogElementId: "promotePlannerDialog",
                         triggerElementId: "mainPlannerDialog__promotePlannerBtn",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/promote_main_planner?slug=" + context.slug + "&managerName=" + MANAGER_NAME)
+                            return await fetch("/arrangement/planner/dialogs/promote_main_planner?slug=" + context.arrangement.slug + "&managerName=" + MANAGER_NAME)
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("promotePlannerDialog"); },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("promotePlannerDialog"); },
                         dialogOptions: { width: 500 },
                     })
                 ],
@@ -142,15 +176,115 @@ export class ArrangementInspector {
                     new Dialog({
                         dialogElementId: "newNoteDialog",
                         triggerElementId: "mainPlannerDialog__newNoteBtn",
-                        htmlFabricator: async (arrangement) => {
-                            return await fetch("/arrangement/planner/dialogs/new_note?slug=" + arrangement.slug + "&managerName=" + MANAGER_NAME)
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/new_note?slug=" + context.arrangement.slug + "&managerName=" + MANAGER_NAME)
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newNoteDialog");  },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("newNoteDialog");  },
                         dialogOptions: { width: 500 },
                     })
                 ],
+                [
+                    "orderPersonDialog",
+                    new Dialog({
+                        dialogElementId: "orderPersonDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/order_person?serie_guid=" + context.serie.guid)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { this.dialogManager._makeAware(); },
+                        dialogOptions: { width: 500 },
+                        onSubmit: async (context, details) => {
+                            console.log(">> OnSubmit ", details);
+
+                            fetch("/arrangement/planner/dialogs/order_people_form", {
+                                method: "POST",
+                                body: details.formData,
+                                headers: {
+                                    "X-CSRFToken": details.csrf_token
+                                }
+                            }).then(_ => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderPersonDialog"); });
+                        }
+                    })
+                ],
+                [
+                    "orderRoomDialog",
+                    new Dialog({
+                        dialogElementId: "orderRoomDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/order_room?serie_guid=" + context.serie.guid)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { this.dialogManager._makeAware(); },
+                        dialogOptions: { width: 500 },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderRoomDialog");  },
+                        onSubmit: async (context, details) => {
+                            console.log("OnSubmit", details)
+                            fetch("/arrangement/planner/dialogs/order_rooms_form", {
+                                method: "POST",
+                                body: details.formData,
+                                headers: {
+                                    "X-CSRFToken": details.csrf_token
+                                }
+                            }).then(_ => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderRoomDialog"); });
+
+                        }
+                    })
+                ],
+                [
+                    "orderRoomForOneEventDialog",
+                    new Dialog({
+                        dialogElementId: "orderRoomDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/order_room?event_pk=" + context.event.pk)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { this.dialogManager._makeAware(); },
+                        onUpdatedCallback: () => { console.log("seville"); this.dialogManager.reloadDialog("mainDialog"); },
+                        dialogOptions: { width: 500 },
+                        onSubmit: async (context, details) => {
+                            fetch("/arrangement/planner/dialogs/order_rooms_for_event_form", {
+                                method: "POST",
+                                body: details.formData,
+                                headers: {
+                                    "X-CSRFToken": details.csrf_token
+                                }
+                            }).then(_ => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderRoomForOneEventDialog"); });;
+                        }
+                    })
+                ],
+                [
+                    "orderPersonForOneEventDialog",
+                    new Dialog({
+                        dialogElementId: "orderPersonDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/order_person?event_pk=" + context.event.pk)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { this.dialogManager._makeAware(); },
+                        dialogOptions: { width: 500 },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
+                        onSubmit: async (context, details) => {
+                            console.log("OnSubmit", details)
+                            fetch("/arrangement/planner/dialogs/order_people_for_event_form", {
+                                method: "POST",
+                                body: details.formData,
+                                headers: {
+                                    "X-CSRFToken": details.csrf_token
+                                }
+                            }).then(_ => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderPersonForOneEventDialog"); });;
+                        }
+                    })
+                ]
             ]}
         )
     }

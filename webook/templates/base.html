@@ -46,6 +46,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet"> 
     {% endblock %}
 
   </head>
@@ -68,25 +71,19 @@
               <i class="fa fa-chart-area fa-fw me-3" aria-hidden="true"></i><span>{% trans "My Page" %}</span></a>
           </li>
 
-          <li class="sidenav-item">
+          <!-- <li class="sidenav-item">
             <a class="sidenav-link ripple-surface" href="{% url "arrangement:sample_overview" %}" tabindex="-1">
               <i class="fa fa-calendar fa-fw me-3" aria-hidden="true"></i><span>{% trans "Calendars" %}</span></a>
-          </li>
+          </li> -->
 
-
-          <!-- <li class="sidenav-item">
-            <a class="sidenav-link ripple-surface" href="{% url "arrangement:drill_calendar" %}" tabindex="-1">
-              <i class="fa fa-calendar fa-fw me-3" aria-hidden="true"></i><span>{% trans "Universal Calendar" %}</span></a>
+          <!-- <li>
+            <a class="sidenav-link ripple-surface" href="{% url "arrangement:arrangement_list" %}" tabindex="-1">
+              <i class="fa fa-suitcase fa-fw me-3" aria-hidden="true"></i><span>{% trans "Arrangements" %}</span></a>
           </li> -->
 
           <li>
-            <a class="sidenav-link ripple-surface" href="{% url "arrangement:arrangement_list" %}" tabindex="-1">
-              <i class="fa fa-suitcase fa-fw me-3" aria-hidden="true"></i><span>{% trans "Arrangements" %}</span></a>
-          </li>
-
-          <li>
             <a class="sidenav-link ripple-surface" href="{% url "arrangement:planner_calendar" %}" tabindex="-1">
-              <i class="fa fa-suitcase fa-fw me-3" aria-hidden="true"></i><span>{% trans "Planner" %}</span></a>
+              <i class="fa fa-calendar-week fa-fw me-3" aria-hidden="true"></i><span>Planlegging</span></a>
           </li>
 
           <li>
@@ -99,10 +96,10 @@
               <i class="fa fa-dollar-sign fa-fw me-3" aria-hidden="true"></i><span>{% trans "Organizations" %}</span></a>
           </li>
 
-          <li>
+          <!-- <li>
             <a class="sidenav-link ripple-surface" href="{% url "arrangement:global_timeline" %}" tabindex="-1">
               <i class="fa fa-globe-europe fa-fw me-3" aria-hidden="true"></i><span>{% trans "Timeline" %}</span></a>
-          </li>
+          </li> -->
 
           <li>
             <a class="sidenav-link ripple-surface" href="{% url "arrangement:person_list" %}" tabindex="-1">
@@ -278,6 +275,8 @@
       <!-- Your stuff: Third-party javascript libraries go here -->
       <script src="{{ ASSET_SERVER_URL }}mdb/js/mdb.min.js"></script>
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/color-picker.min.js"></script>
+      <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/transfer.min.js"></script>
+      
 
       <script src="{% static 'js/bootbox.min.js' %}"></script>
       <script src="{% static 'js/bootbox.locales.min.js' %}"></script>

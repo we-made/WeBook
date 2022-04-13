@@ -1,0 +1,75 @@
+<link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/transfer.min.css">
+
+<style>
+    .transfer-container {
+        box-shadow: none;
+    }
+</style>
+
+<div id="roomFilterDialog" title="Romfiltrering på lokasjon {{location}}" class="bg-white">
+
+    <div class="alert alert-info">
+        <p class="small mb-0">
+            Rom flyttet til venstre kolonne vil ikke vises i kalendervisningen.
+        </p>
+    </div>
+
+    <div id="transfer-basic" class="transfer shadow-0"></div>
+
+    <div class="clearfix">
+        <div class="float-end">
+            <button onclick="roomFilterDialog__notifyChange()"
+                class="btn btn-sm btn-success">
+                Oppdater filter
+            </button>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    var slugMap;
+    $(document).ready(function () {
+        slugMap = new Map([
+            {% for room in location.rooms.all %}
+                [
+                    "{{room}}",
+                    "{{location.slug}}|{{room.slug}}"
+                ],
+            {% endfor %}
+        ])
+
+        let transferEl = document.getElementById('transfer-basic');
+        let data1 = [
+            {% for room in location.rooms.all %}
+                { data: '{{room}}' },
+            {% endfor %}
+        ];
+
+        let instanceTransfer = new Transfer(transferEl, {
+            dataTarget: data1,
+            search:true,
+            selectAll: true,
+            titleSource: "Skal ikke vises",
+            titleTarget: "Skal vises",
+        });
+    });
+
+    function roomFilterDialog__notifyChange() {
+
+        var slugs = []
+        let transferInstance = Transfer.getInstance(document.getElementById('transfer-basic'));
+        
+        transferInstance._dataSource.forEach( (item) => {
+            slugs.push(slugMap.get(item.data))
+        } )
+
+        document.dispatchEvent(
+            new CustomEvent("plannerCalendar.filter.updateRoomFilter", { "detail": {
+                slugs: slugs 
+            }})
+        );
+    }
+
+</script>

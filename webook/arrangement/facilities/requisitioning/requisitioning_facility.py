@@ -29,7 +29,6 @@ def requisition_person(requisitioned_person, requisitioneer, arrangement):
     record.type_of_requisition = RequisitionRecord.REQUISITION_PEOPLE
 
     person_requisition = PersonRequisition()
-    print("Email >> " + requisitioned_person.personal_email)
     person_requisition.email = requisitioned_person.personal_email
     person_requisition.save()
 

@@ -13,12 +13,15 @@
             </select>
         </div>
         <div><label class="text-muted small">Føringer i grå er personer som allerede er planleggere.</label></div>
-
-        <button
-            type="button"
-            onclick="addPlannerDialog__addPlanners()">
-            Add chosen planners
-        </button>
+        
+        <div class="clearfix">
+            <button
+                type="button"
+                class="btn btn-sm btn-success float-end"
+                onclick="addPlannerDialog__addPlanners()">
+                Legg til valgte planleggere
+            </button>
+        </div>
     </div>
 </div>
 
@@ -40,7 +43,7 @@
             }
         }).then(_ => {
             document.dispatchEvent(
-                new CustomEvent("arrangementPlannerDialogs.hasBeenUpdated", {'detail': {
+                new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
                     dialog: "addPlannerDialog",
                 }})
             )

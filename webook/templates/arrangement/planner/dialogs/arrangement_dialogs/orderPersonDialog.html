@@ -1,0 +1,84 @@
+<div id="orderPersonDialog" title="{% if mode == 'serie' %}Bestill person{% else %}Bestill person for '{{event.title}}'{% endif %}">
+    <div class='bg-white p-2 border border-1'>
+        {% if mode == 'serie' %}
+        <div class="alert alert-danger">
+            <strong>Merk: </strong> du bestiller personer for hele serien.
+        </div>
+        {% endif %}
+
+        <table class="table table-sm table-striped">
+            <tbody>
+                {% for person in people %}
+                    <tr>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{person.pk}}" id="personCheck__{{person.slug}}" 
+                                    name="orderPersonDialog__checkboxArray"/>
+                                <label class="form-check-label" for="personCheck__{{person.slug}}">{{person}}</label>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="small text-right">
+            {{people|length}} elementer
+        </div>
+
+        <div class="clearfix">
+            <button class="btn btn-sm btn-success shadow-0 float-end" onclick="orderPersonDialog__order()">Bestill valgte personer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    {% if mode == 'serie' %}
+        function orderPersonDialog__order() {
+            var checkboxes = $("input[type=checkbox][name=orderPersonDialog__checkboxArray]:checked");
+
+            var peopleIds = []
+            for (let i = 0; i < checkboxes.length; i++) {
+                peopleIds.push(checkboxes[i].value)
+            }
+
+            var data = new FormData();
+            data.set("people_ids", peopleIds.join(","));
+            data.set("serie_guid", "{{serie_guid}}");
+
+            console.log("modeSerie submit")
+
+            document.dispatchEvent(
+                new CustomEvent("arrangementInspector.submit", { "detail": {
+                    dialog: "orderPersonDialog",
+                    mode: "serie",
+                    formData: data,
+                    csrf_token: '{{csrf_token}}',
+                }})
+            );
+        }
+    {% else %}
+        function orderPersonDialog__order() {
+            var checkboxes = $("input[type=checkbox][name=orderPersonDialog__checkboxArray]:checked");
+
+            var peopleIds = []
+            for (let i = 0; i < checkboxes.length; i++) {
+                peopleIds.push(checkboxes[i].value)
+            }
+
+            var data = new FormData();
+            data.set("people_ids", peopleIds.join(","));
+            data.set("event_pk", "{{event.pk}}");
+
+            console.log("modeEvent submit")
+
+            document.dispatchEvent(
+                new CustomEvent("arrangementInspector.submit", { "detail": {
+                    dialog: "orderPersonForOneEventDialog",
+                    mode: "event",
+                    formData: data,
+                    csrf_token: '{{csrf_token}}',
+                }})
+            );
+        }
+    {% endif %}
+</script>

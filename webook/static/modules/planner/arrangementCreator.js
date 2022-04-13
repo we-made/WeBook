@@ -39,9 +39,7 @@ export class ArrangementCreator {
                                 });
 
                                 var json = await response.text();
-                                console.log(json)
                                 var obj = JSON.parse(json);
-                                console.log(obj);
                                 return obj.arrangementPk;
                             };
                             var registerSerie = async function (serie, arrangementId, csrf_token) {
@@ -93,21 +91,42 @@ export class ArrangementCreator {
                             return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementCreator")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => { console.info("Rendered"); },
+                        onRenderedCallback: () => { 
+                            $('#serie_title').attr('value', $('#id_name').val() );
+                            $('#serie_title_en').attr('value', $('#id_name_en').val() );
+                        },
                         onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
                         onSubmit: async (context, details) => {
-                            console.log("newTimePlanDialog >> onSubmit")
                             if (context.series === undefined) {
                                 context.series = []
                             }
                             context.series.push(details.serie);
-                            console.log(this.dialogManager.managerName + ".contextUpdated")
-                            console.log(context);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
                         dialogOptions: { width: 700 }
                     })
                 ],
+                [
+                    "newSimpleActivityDialog",
+                    new Dialog({
+                        dialogElementId: "newSimpleActivityDialog",
+                        triggerElementId: "createArrangementDialog_createSimpleActivity",
+                        htmlFabricator: async (context) => {
+                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=0&managerName=arrangementCreator')
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { console.info("Rendered"); },
+                        onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
+                        onSubmit: async (context, details) => {
+                            if (context.simpleActivities === undefined) {
+                                context.simpleActivities = [];
+                            }
+                            context.simpleActivities.push(details.event);
+                            document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
+                        },
+                        dialogOptions: { width: 700 }
+                    })
+                ]
             ]            
         })
     }

@@ -24,6 +24,12 @@ from django.views.generic import (
 from django.views.decorators.http import require_http_methods
 import json
 from django.views.generic.edit import DeleteView
+from webook.arrangement.forms.order_person_form import OrderPersonForEventForm
+from webook.arrangement.forms.order_room_form import OrderRoomForEventForm
+from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerieForm
+from webook.arrangement.forms.order_person_for_serie_form import OrderPersonForSerieForm
+from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
+from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
@@ -357,6 +363,7 @@ class PlannerCalendarView (LoginRequiredMixin, PlannerSectionManifestMixin, Meta
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["LOCATIONS"] = Location.objects.all()
+        context["PEOPLE"] = Person.objects.all()
         context["ARRANGEMENT_TYPES"] = ArrangementType.objects.all()
         context["AUDIENCES"] = Audience.objects.all()
         return context
@@ -395,8 +402,16 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         arrangements = Arrangement.objects.all()
         serializable_arrangements = []
 
+        assemble_slugs = self.request.GET.get("assembleSlugs", False)
+        print("ASSEMBLE SLUGS? " + assemble_slugs)
+
         for arrangement in arrangements:
             for event in arrangement.event_set.all():
+                slug_list = []
+                if assemble_slugs:
+                    slug_list = [ arrangement.location.slug ]
+                    for room in event.rooms.all():
+                        slug_list.append(room.slug)
                 serializable_arrangements.append({
                     "event_pk": event.pk,
                     "slug": arrangement.slug,
@@ -406,6 +421,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                     "mainPlannerName": arrangement.responsible.full_name,
                     "audience": arrangement.audience.name,
                     "audience_slug": arrangement.audience.slug,
+                    "slug_list": slug_list,
                     "audience_icon": arrangement.audience.icon_class,
                     "location": arrangement.location.name,
                     "location_slug": arrangement.location.slug,
@@ -441,9 +457,10 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "audience",
         "arrangement_type",
         "location",
-        "starts",
-        "ends",
         "ticket_code",
+        # "starts",
+        # "ends",
+        # "display_layouts",
     ]
     model = Arrangement
     slug_field = "slug"
@@ -458,7 +475,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         
         for event in arrangement_in_focus.event_set.all():
             if event.sequence_guid not in sets:
-                sets[event.sequence_guid] = { "events": [], "title": "" }
+                sets[event.sequence_guid] = { "events": [], "title": "", "guid": event.sequence_guid }
             sets[event.sequence_guid]["events"].append(event)
             sets[event.sequence_guid]["title"] = event.title
 
@@ -475,6 +492,7 @@ arrangement_information_dialog_view = PlannerArrangementInformationDialogView.as
 class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, CreateView):
     fields = [
         "name",
+        "name_en",
         "audience",
         "arrangement_type",
         "location",
@@ -661,3 +679,171 @@ class PlannerArrangementRemovePlannersFormView(LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 arrangement_remove_planners_form_view = PlannerArrangementRemovePlannersFormView.as_view()
+
+
+class PlannerCalendarFilterRoomsDialogView (LoginRequiredMixin, TemplateView):
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/roomFilterDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        location_slug = self.request.GET.get("slug")
+        location=Location.objects.get(slug=location_slug)
+        context["location"] = location
+        return context
+
+planner_calendar_filter_rooms_dialog_view = PlannerCalendarFilterRoomsDialogView.as_view()
+
+
+class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/orderRoomDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context["serie_guid"] = self.request.GET.get("serie_guid", None)
+        context["event_pk"] = self.request.GET.get("event_pk", None)
+
+        if (context["serie_guid"] is None):
+            context["mode"] = "event"
+            context["event"] = Event.objects.get(id=context["event_pk"])
+        else:
+            context["mode"] = "serie"
+
+        context["rooms"] = Room.objects.all()
+
+        return context
+
+planner_calendar_order_room_dialog_view = PlannerCalendarOrderRoomDialogView.as_view()
+
+
+class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, TemplateView):
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/orderPersonDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["people"] = Person.objects.all()
+
+        context["serie_guid"] = self.request.GET.get("serie_guid", None)
+        context["event_pk"] = self.request.GET.get("event_pk", None)
+
+        if (context["serie_guid"] is None):
+            context["mode"] = "event"
+            context["event"] = Event.objects.get(id=context["event_pk"])
+        else:
+            context["mode"] = "serie"
+
+        return context
+
+planner_calendar_order_person_dialog_view = PlannerCalendarOrderPersonDialogView.as_view()
+
+
+class PlannerCalendarOrderPersonForSeriesFormView (LoginRequiredMixin, FormView):
+    form_class = OrderPersonForSerieForm
+    template_name="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannersView | Form Invalid")
+        return super().form_invalid(form)
+
+planner_calendar_order_person_for_series_form_view = PlannerCalendarOrderPersonForSeriesFormView.as_view()
+
+
+class PlannerCalendarOrderRoomsForSeriesFormView (LoginRequiredMixin, FormView):
+    form_class = OrderRoomForSerieForm
+    template_name="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannersView | Form Invalid")
+        print(form.errors)
+        return super().form_invalid(form)
+
+planner_calendar_order_rooms_for_series_form_view = PlannerCalendarOrderRoomsForSeriesFormView.as_view()
+
+
+class PlannerCalendarOrderRoomForEventFormView(LoginRequiredMixin, FormView):
+    form_class = OrderRoomForEventForm
+    template_name= "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannersView | Form Invalid")
+        print(form.errors)
+        return super().form_invalid(form)
+
+planner_calendar_order_room_for_event_form_view = PlannerCalendarOrderRoomForEventFormView.as_view()
+
+class PlannerCalendarOrderPeopleForEventFormView(LoginRequiredMixin, FormView):
+    form_class = OrderPersonForEventForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannersView | Form Invalid")
+        print(form.errors)
+        return super().form_invalid(form)
+
+planner_calendar_order_people_for_event_form_view = PlannerCalendarOrderPeopleForEventFormView.as_view()
+
+
+class PlannerCalendarRemovePersonFromEventFormView(LoginRequiredMixin, FormView):
+    form_class = RemovePersonFromEventForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.remove()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannersView | Form Invalid")
+        print(form.errors)
+        return super().form_invalid(form)
+
+planner_calendar_remove_person_from_event_form_view = PlannerCalendarRemovePersonFromEventFormView.as_view()
+
+
+class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, FormView):
+    form_class = RemoveRoomFromEventForm
+    template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def form_valid(self, form):
+        form.remove()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> ArrangementRemovePlannersView | Form Invalid")
+        print(form.errors)
+        return super().form_invalid(form)
+
+planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFromEventFormView.as_view()
