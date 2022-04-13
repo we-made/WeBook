@@ -56,6 +56,7 @@ export class ArrangementCreator {
                                     event.start = event.from.toISOString();
                                     event.end=event.to.toISOString();
                                     event.ticket_code = ticket_code;
+                                    event.expected_visitors = serie.time.expected_visitors;
                                     
                                     for (var key in event) {
                                         formData.append("events[" + i + "]." + key, event[key]);

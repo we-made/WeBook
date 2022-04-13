@@ -171,6 +171,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             event.title = get_post_value_or_none("title")
             event.start = get_post_value_or_none("start")
             event.end = get_post_value_or_none("end")
+            event.expected_visitors = get_post_value_or_none("expected_visitors")
             event.ticket_code = get_post_value_or_none("ticket_code")
             event.sequence_guid = get_post_value_or_none("sequence_guid")
             if event.sequence_guid is None:
@@ -461,6 +462,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "location",
         "ticket_code",
         "meeting_place",
+        "expected_visitors",
         # "starts",
         # "ends",
         # "display_layouts",

@@ -110,6 +110,23 @@
                         </td>
                     </tr>
                     <tr>
+                        <td colspan='2'>
+                            <strong>Forventet antall besøkende:</strong>
+                            <input type="text"
+                                class="form-control"
+                                id="{{ form.expected_visitors.id_for_label }}" 
+                                value="{{ form.expected_visitors.value|default:'' }}"
+                                name="{{ form.expected_visitors.name }}"
+                                placeholder="{% trans 'Forventet antall besøkende' %}..."/>
+                            
+                            {% if form.expected_visitors.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.expected_visitors.errors }}
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <td colspan='3'>
                             <span class='fw-bolder'>Hovedplanlegger:</span> <em>{{ object.responsible.full_name }}</em> <a href='#' id="mainPlannerDialog__promotePlannerBtn" class='text-primary'>(Endre...)</a>
                         </td>
@@ -287,6 +304,8 @@
         formData.append("starts",           $('#id_starts').val());
         formData.append("ends",             $('#id_ends').val());
         formData.append("ticket_code",      $('#id_ticket_code').val());
+        formData.append("meeting_place",    $('#id_meeting_place').val());
+        formData.append("expected_visitors",$('#id_expected_visitors').val());
         formData.append("csrfmiddlewaretoken","{{ csrf_token }}");
 
         document.dispatchEvent(

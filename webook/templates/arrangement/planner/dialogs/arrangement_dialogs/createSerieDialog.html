@@ -41,10 +41,20 @@
                   </tr>
                   <tr>
                     <td>
-                      <label>{% trans "Ticket Code" %}</label>
+                      <label>
+                          {% trans "Ticket Code" %}
+                        </label>
                     </td>
                     <td>
                       <input type="text" id="serie_ticket_code" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label>{% trans "Expected visitors" %}</label>
+                    </td>
+                    <td>
+                      <input type="number" id="serie_expected_visitors" />
                     </td>
                   </tr>
                 </tbody>
@@ -482,6 +492,7 @@
             start: document.getElementById('serie_start').value,
             end: document.getElementById('serie_end').value,
             ticket_code: document.getElementById('serie_ticket_code').value,
+            expected_visitors: document.getElementById('serie_expected_visitors').value,
         }
 
         let pattern = {}
@@ -577,12 +588,16 @@
         for(var pair of formData.entries()) {
             console.log(pair[0]+ ', '+ pair[1]);
         }
+
+        var expected_visitors =  document.getElementById('serie_expected_visitors').value;
+
         for (let i = 0; i < events.length; i++) {
             var event = events[i];
             event.arrangement = '{{arrangementPk}}';
             event.start = event.from.toISOString();
             event.end=event.to.toISOString();
             event.ticket_code = event.ticket_code;
+            event.expected_visitors = expected_visitors;
             
             for (var key in event) {
                 formData.append("events[" + i + "]." + key, event[key]);
