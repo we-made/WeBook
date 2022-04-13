@@ -182,7 +182,11 @@
                     <tr>
                         <th colspan='2'>
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked />
+                                {% if object.show_on_multimedia_screen %}
+                                    <input class="form-check-input" type="checkbox" role="switch" id="showInMultimediaGuide" checked />
+                                {% else %}
+                                    <input class="form-check-input" type="checkbox" role="switch" id="showInMultimediaGuide" />
+                                {% endif %}
                                 <label class="form-check-label" for="flexSwitchCheckChecked">Vises i multimedia guide</label>
                             </div>
                         </th>
@@ -326,6 +330,7 @@
         formData.append("meeting_place",    $('#id_meeting_place').val());
         formData.append("expected_visitors",$('#id_expected_visitors').val());
         formData.append("actual_visitors",  $('#id_actual_visitors').val());
+        formData.append("show_on_multimedia_screen", $('#showInMultimediaGuide'));
         formData.append("csrfmiddlewaretoken","{{ csrf_token }}");
 
         document.dispatchEvent(

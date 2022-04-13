@@ -183,14 +183,12 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
         (IN_PRODUCTION, IN_PRODUCTION)
     )
 
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
     name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
-
 
     stages = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PLANNING)
 
     location = models.ForeignKey(to="Location", verbose_name=_("Location"), on_delete=models.CASCADE, related_name="arrangements")
-
-    name = models.CharField(verbose_name=_("Name"), max_length=255)
 
     meeting_place = models.CharField(verbose_name=_("Meeting Place"), max_length=255, blank=True, null=True)
 
