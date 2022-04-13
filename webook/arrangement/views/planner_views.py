@@ -405,15 +405,19 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         serializable_arrangements = []
 
         assemble_slugs = self.request.GET.get("assembleSlugs", False)
-        print("ASSEMBLE SLUGS? " + assemble_slugs)
-
         for arrangement in arrangements:
             for event in arrangement.event_set.all():
                 slug_list = []
                 if assemble_slugs:
                     slug_list = [ arrangement.location.slug ]
+                    room_names = [ ]
+                    people_names = [ ]
                     for room in event.rooms.all():
                         slug_list.append(room.slug)
+                        room_names.append(room.name)
+                    for person in event.people.all():
+                        people_names.append(person.full_name)
+                    
                 serializable_arrangements.append({
                     "event_pk": event.pk,
                     "slug": arrangement.slug,
@@ -424,6 +428,8 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                     "audience": arrangement.audience.name,
                     "audience_slug": arrangement.audience.slug,
                     "slug_list": slug_list,
+                    "room_names": room_names,
+                    "people_names": people_names,
                     "audience_icon": arrangement.audience.icon_class,
                     "location": arrangement.location.name,
                     "location_slug": arrangement.location.slug,

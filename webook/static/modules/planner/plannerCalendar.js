@@ -159,6 +159,18 @@ export class PlannerCalendar extends FullCalendarBased {
             end.getSeconds().toString().padStart(2, '0')}`
 
 
+        var roomsListHtml = "<ul>";
+        arrangement.room_names.forEach( (roomName) => {
+            roomsListHtml += "<li>" + roomName + "</li>";
+        });
+        roomsListHtml += "</ul>";
+
+        var peopleListHtml = "<ul>";
+        arrangement.people_names.forEach( (personName) => {
+            peopleListHtml += "<li>" + personName + "</li>";
+        })
+        peopleListHtml += "</ul>";
+
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
             content: `
@@ -175,9 +187,11 @@ export class PlannerCalendar extends FullCalendarBased {
                 <h5 class='mb-0 mt-2'>${arrangement.name}</h5>
                 <em class='small'>${start} - ${end}</em>
 
-                <ul>
-                    <li>${arrangement.slug_list}</li>
-                </ul>
+                <h6>Rom:</h6>
+                ${roomsListHtml}
+                
+                <h6>Personer:</h6>
+                ${peopleListHtml}
                 `,
             html: true,
         })
