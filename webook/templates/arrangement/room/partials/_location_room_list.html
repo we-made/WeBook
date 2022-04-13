@@ -6,6 +6,7 @@
             <tr>
                 <th class="h5">{% trans "Name" %}</th>
                 <th class="h5">{% trans "Maximum Occupants" %}</th>
+                <th class="h5">{% trans "Is Exclusive?" %}</th>
                 <th class="h5">{% trans "Options" %}</th>
             </tr>
         </thead>
@@ -15,6 +16,19 @@
                 <tr>
                     <td>{{ item.name }}</td>
                     <td>{{ item.max_capacity }}</td>
+                    <td>
+                        {% if item.is_exclusive %}
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckCheckedDisabled" checked disabled />
+                                <label class="form-check-label" for="flexSwitchCheckCheckedDisabled"></label>
+                            </div>
+                        {% else %}
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckCheckedDisabled" disabled />
+                                <label class="form-check-label" for="flexSwitchCheckCheckedDisabled"></label>
+                            </div>
+                        {% endif %}
+                    </td>
                     <td>
                         <a
                             class="btn btn-link text-info"
