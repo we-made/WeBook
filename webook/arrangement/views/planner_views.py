@@ -460,6 +460,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "arrangement_type",
         "location",
         "ticket_code",
+        "meeting_place",
         # "starts",
         # "ends",
         # "display_layouts",
@@ -502,6 +503,7 @@ class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, CreateVie
         "ends",
         "responsible",
         "ticket_code",
+        "meeting_place",
     ]
     model = Arrangement
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createArrangementDialog.html"

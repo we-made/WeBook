@@ -48,6 +48,7 @@ export class ArrangementCreator {
 
                                 console.log(arrangementId)
                                 console.log("Ticket Code", ticket_code)
+                                console.log("Serie: ", serie);
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
@@ -94,9 +95,9 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { 
-                            $('#serie_ticket_code').attr('value', $('#id_ticket_code').val() );
-                            $('#serie_title').attr('value', $('#id_name').val() );
-                            $('#serie_title_en').attr('value', $('#id_name_en').val() );
+                            $('#serie_ticket_code').attr('value', $('#id_ticket_code')[0].value );
+                            $('#serie_title').attr('value', $('#id_name')[0].value );
+                            $('#serie_title_en').attr('value', $('#id_name_en')[0].value );
                         },
                         onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
                         onSubmit: async (context, details) => {
