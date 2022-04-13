@@ -92,6 +92,7 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { 
+                            $('#serie_ticket_code').attr('value', $('#id_ticket_code').val() );
                             $('#serie_title').attr('value', $('#id_name').val() );
                             $('#serie_title_en').attr('value', $('#id_name_en').val() );
                         },
