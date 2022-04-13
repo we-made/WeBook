@@ -466,6 +466,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "meeting_place",
         "expected_visitors",
         "actual_visitors",
+        "show_on_multimedia_screen",
         # "starts",
         # "ends",
         # "display_layouts",
