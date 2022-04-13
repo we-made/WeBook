@@ -74,14 +74,22 @@
                 <label>{% trans "Room Name" %}</label>
                 <input type="text" class="form-control" name="name" id="roomNameInput"/>
             </div>
+
+            <div class="form-group mt-3">
+                <div class="form-check form-switch">
+                    <label>Is Exclusive?</label>
+                    <input class="form-check-input" name="is_exclusive" type="checkbox" role="switch" id="roomIsExclusive" />
+                </div>
+            </div>
         </form>
       </div>
       <div class="modal-footer">
+
+        <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">
+            {% trans "Cancel" %}
+        </button>
         <button type="button" class="btn btn-success" onclick="createNewRoom()">{% trans "Create room" %}</button>
         <button type="button" class="btn btn-success" onclick="createNewRoom(false /* dont close after save*/)">{% trans "Create room, and new" %}</button>
-        <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">
-          <i class="fa fas-times"></i>&nbsp; {% trans "Cancel" %}
-        </button>
       </div>
     </div>
   </div>

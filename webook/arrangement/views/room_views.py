@@ -58,6 +58,8 @@ class RoomUpdateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Up
     fields = [
         "location",
         "name",
+        "is_exclusive",
+        "max_capacity",
     ]
     view_meta = ViewMeta.Preset.edit(Room)
     template_name = "arrangement/room/room_form.html"
@@ -71,6 +73,7 @@ class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Cr
         "location",
         "name",
         "max_capacity",
+        "is_exclusive",
     ]
     view_meta = ViewMeta.Preset.create(Room)
     template_name = "arrangement/room/room_form.html"
