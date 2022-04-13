@@ -132,6 +132,24 @@
                     </tr>
 
                     <tr>
+                        <td colspan="2">
+                            <strong>Expected amount of visitors</strong>
+                            <input type="number"
+                                min="0"
+                                class="form-control"
+                                id="{{ form.expected_visitors.id_for_label }}" 
+                                value="{{ form.expected_visitors.value|default:'' }}"
+                                name="{{ form.expected_visitors.name }}" />
+
+                            {% if form.expected_visitors.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.expected_visitors.errors }}
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <tr>
                         <td>
                             <strong>Tidspunkter:</strong>
                             
@@ -182,6 +200,7 @@
         formData.append("responsible",      $('#id_responsible').val());
         formData.append("ticket_code",      $('#id_ticket_code').val());
         formData.append("meeting_place",    $('#id_meeting_place').val());
+        formData.append("expected_visitors",$('#serie_expected_visitors').val());
         formData.append("csrf_token",       "{{csrf_token}}");
 
         var seriesArray = Array.from(seriesMap.values());
