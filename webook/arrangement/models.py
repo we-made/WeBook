@@ -39,6 +39,14 @@ class ModelTicketCodeMixin(models.Model):
         abstract = True
 
 
+class ModelVisitorsMixin(models.Model):
+    expected_visitors = models.IntegerField(verbose_name=_("Expected visitors"), default=0)
+    actual_visitors = models.IntegerField(verbose_name=_("Actual visitors"), default=0)
+    
+    class Meta:
+        abstract = True
+
+
 class ModelHistoricallyConfirmableMixin():
     """
         Serves as a mixin to facilitate and standardize the business logic that comes after a ConfirmationReceipt state
@@ -122,7 +130,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin):
+class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, ModelVisitorsMixin):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
      that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
      could be an exhibition, which may have events stretching over a large timespan, but which have a shared nature,
@@ -684,7 +692,7 @@ class ServiceProvidable(TimeStampedModel):
         return f"{self.service_name} of type {self.service_type} provided by {self.organization.name}"
 
 
-class Event(TimeStampedModel, ModelTicketCodeMixin):
+class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin):
     """The event model represents an event, or happening that takes place in a set span of time, and which may
     reserve certain resources for use in that span of time (such as a room, or a person etc..).
 
