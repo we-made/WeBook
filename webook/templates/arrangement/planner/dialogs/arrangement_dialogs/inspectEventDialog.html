@@ -37,8 +37,8 @@
                     Billetkode
                 </label>
                 <input type="text" class="form-control"
-                    name="{{form.ticket_code.name}}" id="{{form.ticket_code.id_for_label}}"
-                    value="{{form.ticket_code.value}}">
+                    name="{{ form.ticket_code.name }}" id="{{ form.ticket_code.id_for_label }}"
+                    value="{{ form.ticket_code.value|default:'' }}">
             </div>
 
             <div class="mt-2">

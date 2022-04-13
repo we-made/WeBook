@@ -42,18 +42,20 @@ export class ArrangementCreator {
                                 var obj = JSON.parse(json);
                                 return obj.arrangementPk;
                             };
-                            var registerSerie = async function (serie, arrangementId, csrf_token) {
+                            var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
                                 var events = SeriesUtil.calculate_serie(serie);
                                 var formData = new FormData();
 
                                 console.log(arrangementId)
+                                console.log("Ticket Code", ticket_code)
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
                                     event.arrangement=arrangementId;
                                     event.start = event.from.toISOString();
                                     event.end=event.to.toISOString();
-
+                                    event.ticket_code = ticket_code;
+                                    
                                     for (var key in event) {
                                         formData.append("events[" + i + "]." + key, event[key]);
                                     }
@@ -74,7 +76,7 @@ export class ArrangementCreator {
                             createArrangement(details.formData, csrf_token)
                                 .then(arrId => {
                                     details.series.forEach(async (serie) => {
-                                        await registerSerie(serie, arrId, csrf_token);
+                                        await registerSerie(serie, arrId, csrf_token, details.formData.get("ticket_code"));
                                     });
                                 });
                         },
