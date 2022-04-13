@@ -277,6 +277,8 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
     )
     max_capacity = models.IntegerField(verbose_name="Maximum Occupants")
 
+    is_exclusive = models.BooleanField(verbose_name=_("Is Exclusive"), default=False)
+
     name = models.CharField(verbose_name=_("Name"), max_length=128)
     slug = AutoSlugField(populate_from="name", unique=True)
 
