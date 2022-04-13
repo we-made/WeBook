@@ -445,6 +445,7 @@ class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
         "start",
         "end",
         "ticket_code",
+        "expected_visitors",
     ]
     model = Event
     pk_field="pk"
