@@ -162,6 +162,18 @@
 
           <!-- Right links -->
           <ul class="navbar-nav ms-auto d-flex flex-row">
+
+            <form class="d-none d-md-flex me-5 input-group w-auto my-auto">
+              <div class="form-check form-switch" data-mdb-toggle="tooltip"
+                  title="Activate Zen Mode, which will hide sidebars and increase the width of the current view">
+                <input class="form-check-input" type="checkbox" role="switch" id="zenModeCheckbox" />
+                <label class="form-check-label text-white" for="zenModeCheckbox">
+                  <i class="fas fa-user-ninja"></i>
+                  Zen Mode
+                </label>
+              </div>
+            </form>
+
             <!-- Notification dropdown -->
             <li class="nav-item dropdown">
               <a class="nav-link me-4 me-lg-0 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
@@ -222,7 +234,7 @@
     <div style="margin-top:100px"></div>
     {% endblock %}
 
-    <div class="container-fluid">
+    <div class="container" id="mainBodyContainer">
       {% block noheader %}
 
       <section class="bg-white">
@@ -294,6 +306,24 @@
 
             <!-- Handle window resizing, and automatic hiding/showing of the sidenav to correspond. -->
       <script>
+        $(document).ready(function() {
+          $('#zenModeCheckbox').change(function () {
+            if (this.checked) {
+              console.log("<< Zen Mode Activated >>")
+              $('#mainBodyContainer').addClass("container-fluid");
+              $('#mainBodyContainer').removeClass("container");
+              instance.hide();
+            }
+            else {
+              console.log("<< Zen Mode Deactivated >>")
+              $('#mainBodyContainer').addClass("container");
+              $('#mainBodyContainer').removeClass("container-fluid");
+              instance.show();
+            }
+          })
+        })
+
+
           const sidenav = document.getElementById("sidenav-1");
           const instance = mdb.Sidenav.getInstance(sidenav);
 
