@@ -68,8 +68,18 @@
                                 </div>
                             {% endif %}
                         </td>
-                        <!-- <td><i class='fas fa-question-circle text-muted'></i></td> -->
-
+                    </tr>
+                    <tr>
+                        <td colspan='2'>
+                            <strong>Billettkode:</strong>
+                            {{ form.ticket_code }}
+                            
+                            {% if form.ticket_code.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.ticket_code.errors }}
+                                </div>
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <td colspan='3'>
@@ -197,6 +207,7 @@
         formData.append("arrangement_type", $('#id_arrangement_type').val());
         formData.append("starts",           $('#id_starts').val());
         formData.append("ends",             $('#id_ends').val());
+        formData.append("ticket_code",      $('#id_ticket_code').val());
         formData.append("csrf_token",       "{{csrf_token}}");
 
         document.dispatchEvent(

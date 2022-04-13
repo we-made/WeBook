@@ -442,7 +442,8 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
         "arrangement_type",
         "location",
         "starts",
-        "ends", 
+        "ends",
+        "ticket_code",
     ]
     model = Arrangement
     slug_field = "slug"
@@ -480,6 +481,7 @@ class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, CreateVie
         "starts",
         "ends",
         "responsible",
+        "ticket_code",
     ]
     model = Arrangement
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createArrangementDialog.html"
