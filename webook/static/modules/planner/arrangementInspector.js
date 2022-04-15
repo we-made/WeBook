@@ -117,7 +117,8 @@ export class ArrangementInspector {
                         dialogElementId: "uploadFilesToArrangementDialog",
                         triggerElementId: "mainDialog__uploadFilesBtn",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/upload_files_to_arrangement")
+                            console.log("context", context)
+                            return await fetch("/arrangement/planner/dialogs/upload_files_to_arrangement?arrangement_slug=" + context.arrangement.slug)
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered"); },

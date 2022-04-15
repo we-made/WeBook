@@ -86,6 +86,7 @@ from .arrangement_views import (
     arrangement_remove_planner_form_view,
     arrangement_promote_planner_to_main_view,
     arrangement_create_json_view,
+    arrangement_delete_file_view,
 )
 
 from .audience_views import (

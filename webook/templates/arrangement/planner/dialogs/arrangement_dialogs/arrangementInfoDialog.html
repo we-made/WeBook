@@ -350,12 +350,36 @@
                 <table class="table table-sm">
                     <thead>
                         <tr>
+                            <th></th>
                             <th>Filename</th>
-                            <th>Uploader</th>
-                            <th>Uploaded when</th>
-                            <th>Options</th>
+                            <!-- <th>Uploader</th> -->
                         </tr>
                     </thead>
+
+                    <tbody>
+                        {% for file in arrangement.files.all %}
+
+                            <tr>
+                                <td>
+
+                                    <button class="btn btn-danger btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
+                                        data-mdb-toggle="tooltip"
+                                        title="{% trans 'Delete this file' %}"
+                                        onclick="mainPlannerDialog__deleteFile( {{ file.pk }} )"> 
+                                        <i class="fas fa-trash"></i> 
+                                    </button>
+                                    <a class="btn btn-success btn-sm text-white" style="border-radius: 50%!important; padding: 0.7rem;"
+                                        data-mdb-toggle="tooltip"
+                                        title="{% trans 'Download this file' %}"
+                                        href="/media/{{file.file}}" download>
+                                        <i class="fas fa-download"></i> 
+                                </a>
+                                </td>
+                                <td>{{ file.filename }}</td>
+                            </tr>
+
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
 
@@ -388,6 +412,26 @@
                 formData: formData,
             }})
         );
+    }
+
+    function mainPlannerDialog__deleteFile(file_id) {
+        fetch('/arrangement/arrangement/files/delete/' + file_id, {
+            method: 'DELETE',
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            }
+        })
+        .then(_ => {
+            document.dispatchEvent(
+                new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
+                    dialog: "mainDialog",
+                }})
+            )
+        })
+    }
+
+    function mainPlannerDialog__downloadFile(file_id) {
+
     }
 
     function mainPlannerDialog__removeRoomFromEvent(event_pk, room_pk) {

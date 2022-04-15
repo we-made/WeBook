@@ -12,10 +12,12 @@ from django.views.generic import (
     TemplateView
 )
 from django.views.generic.edit import DeleteView
+from requests import delete
+from webook.arrangement.forms.delete_arrangement_file_form import DeleteArrangementFileForm
 from webook.arrangement.forms.promote_planner_to_main_form import PromotePlannerToMainForm
 from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
 from webook.arrangement.forms.add_planner_form import AddPlannerForm
-from webook.arrangement.models import Arrangement, Person
+from webook.arrangement.models import Arrangement, ArrangementFile, Person
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from django.views.generic.edit import FormView
@@ -305,3 +307,15 @@ class ArrangementRemovePlannerFormView(LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 arrangement_remove_planner_form_view = ArrangementRemovePlannerFormView.as_view()
+
+
+class ArrangementDeleteFileView(LoginRequiredMixin, DeleteView):
+    model = ArrangementFile
+    template_name = "_blank.html"
+
+    def delete(self, request, *args, **kwargs):
+        self.get_object().delete()
+        payload = { 'delete': 'ok' }
+        return JsonResponse(payload)
+
+arrangement_delete_file_view = ArrangementDeleteFileView.as_view()

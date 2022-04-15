@@ -35,7 +35,7 @@ from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
-from webook.arrangement.models import Arrangement, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
+from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -496,6 +496,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
             sets[event.sequence_guid]["title"] = event.title
 
         context["sets"] = sets.values()
+        context["arrangement"] = arrangement_in_focus
 
         return context
 
@@ -869,5 +870,39 @@ planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFro
 class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, FormView):
     form_class = UploadFilesToArrangementForm
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToArrangementDialog.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        arrangement_slug = self.request.GET.get("arrangement_slug")
+        if (arrangement_slug == False or arrangement_slug is None):
+            arrangement_slug = self.request.POST.get("arrangement_slug")
+        context["arrangement_slug"] = arrangement_slug
+        arrangement = Arrangement.objects.get(slug=arrangement_slug)
+        context["arrangement"] = arrangement
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+
+        arrangement_slug = request.POST.get("arrangement_slug")
+        arrangement = Arrangement.objects.filter(slug=arrangement_slug).first()
+
+        files = request.FILES.getlist('file_field')
+
+        if form.is_valid():
+            for f in files:
+                arrangement_file = ArrangementFile(
+                    arrangement = arrangement,
+                    uploader = request.user.person,
+                    file = f
+                )
+                arrangement_file.save()
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 planner_calendar_upload_file_to_arrangement_dialog_view = PlannerCalendarUploadFileToArrangementDialog.as_view()
