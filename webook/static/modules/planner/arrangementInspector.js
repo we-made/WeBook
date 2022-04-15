@@ -94,7 +94,7 @@ export class ArrangementInspector {
                             document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                         },
                         onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
-                        dialogOptions: { width: 600 }
+                        dialogOptions: { width: 800, height: 800 }
                     }),
                 ],
                 [
@@ -109,6 +109,21 @@ export class ArrangementInspector {
                         onRenderedCallback: () => { console.info("Rendered"); },
                         onUpdatedCallback: ( ) => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("addPlannerDialog"); },
                         dialogOptions: { width: 700 }
+                    })
+                ],
+                [
+                    "uploadFilesToArrangementDialog",
+                    new Dialog({
+                        dialogElementId: "uploadFilesToArrangementDialog",
+                        triggerElementId: "mainDialog__uploadFilesBtn",
+                        htmlFabricator: async (context) => {
+                            console.log("context", context)
+                            return await fetch("/arrangement/planner/dialogs/upload_files_to_arrangement?arrangement_slug=" + context.arrangement.slug)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { console.info("Rendered"); },
+                        onUpdatedCallback: ( ) => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("addPlannerDialog"); },
+                        dialogOptions: { width: 400 }
                     })
                 ],
                 [

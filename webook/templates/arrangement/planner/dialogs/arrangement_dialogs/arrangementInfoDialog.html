@@ -5,10 +5,36 @@
 
     <div id="tabs">
         <ul>
-            <li><a href="#tabs-1">Informasjon</a></li>
-            <li><a href="#tabs-2">Tidspunkter</a></li>
-            <li><a href="#tabs-3">Notater</a></li>
-            <li><a href="#tabs-4">Kvitteringer</a></li>
+            <li>
+                <a href="#tabs-1">
+                    <i class="fas fa-info-circle"></i>&nbsp; 
+                    Informasjon
+                </a>
+            </li>
+            <li>
+                <a href="#tabs-2">
+                    <i class="fas fa-calendar"></i>&nbsp; 
+                    Tidspunkter
+                </a>
+            </li>
+            <li>
+                <a href="#tabs-3">
+                    <i class="fas fa-comment"></i>&nbsp; 
+                    Notater
+                </a>
+            </li>
+            <li>
+                <a href="#tabs-4">
+                    <i class="fas fa-receipt"></i>&nbsp; 
+                    Kvitteringer
+                </a>
+            </li>
+            <li>
+                <a href="#tabs-5">
+                    <i class="fas fa-file"></i>&nbsp; 
+                    Filer
+                </a>
+            </li>
         </ul>
         <div id="tabs-1">
             <table class='table table-sm'>
@@ -246,10 +272,10 @@
                                             </h5>
                                             
                                             <div class="btn-group shadow-0">
-                                                <button href="#" class="orderRoomForSingleEventBtn" value="{{event.pk}}">
+                                                <button href="#" class="orderRoomForSingleEventBtn btn btn-sm btn-outline-success" value="{{event.pk}}">
                                                     Legg til rom
                                                 </button>
-                                                <button href="#" class="orderPersonForSingleEventBtn" value="{{event.pk}}">
+                                                <button href="#" class="orderPersonForSingleEventBtn btn btn-sm btn-outline-success" value="{{event.pk}}">
                                                     Legg til personer
                                                 </button>
                                             </div>
@@ -311,6 +337,53 @@
         <div id="tabs-4">
             Kvitteringer...
         </div>
+        <div id="tabs-5">
+            <div class="clearfix">
+                <button class="btn btn-success btn-sm shadow-0 float-end"
+                        id="mainDialog__uploadFilesBtn">
+                    <i class="fas fa-upload"></i>
+                    Upload file(s)
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Filename</th>
+                            <!-- <th>Uploader</th> -->
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for file in arrangement.files.all %}
+
+                            <tr>
+                                <td>
+
+                                    <button class="btn btn-danger btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
+                                        data-mdb-toggle="tooltip"
+                                        title="{% trans 'Delete this file' %}"
+                                        onclick="mainPlannerDialog__deleteFile( {{ file.pk }} )"> 
+                                        <i class="fas fa-trash"></i> 
+                                    </button>
+                                    <a class="btn btn-success btn-sm text-white" style="border-radius: 50%!important; padding: 0.7rem;"
+                                        data-mdb-toggle="tooltip"
+                                        title="{% trans 'Download this file' %}"
+                                        href="/media/{{file.file}}" download>
+                                        <i class="fas fa-download"></i> 
+                                </a>
+                                </td>
+                                <td>{{ file.filename }}</td>
+                            </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
 </div>
 
@@ -339,6 +412,26 @@
                 formData: formData,
             }})
         );
+    }
+
+    function mainPlannerDialog__deleteFile(file_id) {
+        fetch('/arrangement/arrangement/files/delete/' + file_id, {
+            method: 'DELETE',
+            headers: {
+                "X-CSRFToken": '{{ csrf_token }}'
+            }
+        })
+        .then(_ => {
+            document.dispatchEvent(
+                new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
+                    dialog: "mainDialog",
+                }})
+            )
+        })
+    }
+
+    function mainPlannerDialog__downloadFile(file_id) {
+
     }
 
     function mainPlannerDialog__removeRoomFromEvent(event_pk, room_pk) {

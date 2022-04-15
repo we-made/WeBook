@@ -1,9 +1,11 @@
 from argparse import ArgumentError
 from email.policy import default
 from enum import Enum
+import os
 from tabnanny import verbose
 from tkinter.messagebox import NO
 from django.db import models
+from django.db.models import FileField
 from django.db.models.deletion import RESTRICT
 from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
@@ -224,6 +226,16 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     def __str__(self):
         """Return arrangement name"""
         return self.name
+
+
+class ArrangementFile(TimeStampedModel):
+    arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT, related_name="files")
+    uploader = models.ForeignKey(to="Person", on_delete=models.RESTRICT, related_name="files_uploaded_to_arrangements")
+    file = FileField(upload_to="arrangementFiles/")
+
+    @property
+    def filename(self):
+        return os.path.basename(self.file.name)
 
 
 class Location (TimeStampedModel, ModelNamingMetaMixin):

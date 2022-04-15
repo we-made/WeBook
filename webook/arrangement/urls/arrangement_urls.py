@@ -12,7 +12,8 @@ from webook.arrangement.views import (
     arrangement_remove_planner_form_view,
     arrangement_promote_planner_to_main_view,
     arrangement_search_view,
-    arrangement_create_json_view
+    arrangement_create_json_view,
+    arrangement_delete_file_view,
 )
 
 
@@ -77,4 +78,9 @@ arrangement_urls = [
         view=arrangement_create_json_view,
         name="arrangement_ajax_create",
     ),
+    path(
+        route="arrangement/files/delete/<int:pk>",
+        view=arrangement_delete_file_view,
+        name="arrangement_file_delete",
+    )
 ]
