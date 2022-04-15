@@ -262,7 +262,7 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { this.dialogManager._makeAware(); },
-                        onUpdatedCallback: () => { console.log("seville"); this.dialogManager.reloadDialog("mainDialog"); },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
                         dialogOptions: { width: 500 },
                         onSubmit: async (context, details) => {
                             fetch("/arrangement/planner/dialogs/order_rooms_for_event_form", {

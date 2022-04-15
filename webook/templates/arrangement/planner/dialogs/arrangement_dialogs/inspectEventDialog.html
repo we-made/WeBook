@@ -16,7 +16,7 @@
         <div class='p-3 border rounded-2 border-1 bg-white'>
             <h4>Informasjon</h4>
             <div>
-                <label for="title" form="{{form.title.id_for_label}}">
+                <label for="{{form.title.id_for_label}}">
                     Tittel
                 </label>
                 <input type="text" class="form-control"
@@ -24,7 +24,7 @@
                     value="{{form.title.value}}">
             </div>
             <div class="mt-2">
-                <label for="title" form="{{form.title_en.id_for_label}}">
+                <label for="{{form.title_en.id_for_label}}">
                     Tittel (Engelsk)
                 </label>
                 <input type="text" class="form-control"
@@ -93,7 +93,8 @@
 
             <div class="clearfix mb-2 mt-4">
                 <h4 class=" float-start">People</h4>
-                <button class="float-end btn btn-sm btn-success">
+                <button class="float-end btn btn-sm btn-success"
+                    id="inspectEventDialog_addPeopleBtn">
                     + Legg til nye personer
                 </button>
             </div>
@@ -101,21 +102,37 @@
             <hr>
             <div class="table-responsive">
                 <table class="table table-sm table-borderless">
-                    <tbody id="peopleTableBody"></tbody>
+                    <tbody id="peopleTableBody">
+                        {% for person in object.people.all %}
+                            <tr>
+                                <td>{{person}}</td>
+                                <td> <a href="#" class="text-danger"><i class="fas fa-trash"></i></a> </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
+            
 
             <div class="clearfix mb-2 mt-4">
                 <h4 class=" float-start">Rom</h4>
-                <button class="float-end btn btn-sm btn-success">
-                    + Legg til nye personer
+                <button class="float-end btn btn-sm btn-success"
+                    id="inspectEventDialog_addRoomsBtn">
+                    + Legg til nye rom
                 </button>
             </div>
             <hr>
 
             <div class="table-responsive">
                 <table class="table table-sm table-borderless">
-                    <tbody id="roomsTableBody"></tbody>
+                    <tbody id="roomsTableBody">
+                        {% for room in object.rooms.all %}
+                        <tr>
+                            <td>{{room}}</td>
+                            <td> <a href="#" class="text-danger"><i class="fas fa-trash"></i></a> </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
                 </table>
             </div>
 
