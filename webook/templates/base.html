@@ -126,10 +126,28 @@
               </li>
             </ul>
           </li>
-           <li>
-            <a class="sidenav-link ripple-surface" href="{% url "screenshow:layout_list" %}" tabindex="-1">
-              <i class="fa fa-television fa-fw me-3" aria-hidden="true"></i><span>{% trans "Screen Show Display" %}</span></a>
+
+          {% if is_display_organizer %}
+          <li class="sidenav-item">
+            <a class="sidenav-link ripple-surface" data-mdb-toggle="collapse" href="#sidenav-collapse-1-0-1" role="button" tabindex="-1" aria-expanded="false">
+              <i class="fa fa-cog fa-fw me-3" aria-hidden="true"></i>
+              <span>{% trans "Screen Display" %}</span>
+              <i class="fa fa-angle-down rotate-icon" aria-hidden="true"></i>
+            </a>
+            <ul class="sidenav-collapse collapse" id="sidenav-collapse-1-0-1">
+              <li class="sidenav-item">
+                <a class="sidenav-link ripple-surface" href="{% url 'screenshow:screen_list' %}" tabindex="-1">{% trans "Screen Resource" %}</a>
+              </li>
+              <li class="sidenav-item">
+                <a class="sidenav-link ripple-surface" href="{% url 'screenshow:screen_group_list' %}" tabindex="-1">{% trans "Screen Group" %}</a>
+              </li>
+              <li class="sidenav-item">
+                <a class="sidenav-link ripple-surface" href="{% url 'screenshow:layout_list' %}" tabindex="-1">{% trans "Display Layout" %}</a>
+              </li>
+              </ul>
           </li>
+
+          {% endif %}
           <div class="container-fluid">
             <hr>
           </div>
