@@ -131,6 +131,14 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
+class RoomPreset (TimeStampedModel):
+    """
+        A room preset is a group, or collection, or set, of rooms. 
+    """
+    name = models.CharField(verbose_name=_("Name"), max_length=256, null=False, blank=False)
+    rooms = models.ManyToManyField(to="Room")
+
+
 class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, ModelVisitorsMixin):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
      that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
