@@ -35,14 +35,13 @@ class ScreenSectionManifestMixin(UserPassesTestMixin):
         self.section = get_section_manifest()
 
     def _is_member(self):
-        return self.request.user.groups.filter(name='display_organizer').exists()
+        return self.request.user.groups.filter(name='display_organizer').exists() or self.request.user.is_superuser
 
     def test_func(self):
         return self._is_member()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_display_organizer"] = self._is_member()
         return context
 
 

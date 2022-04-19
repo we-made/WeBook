@@ -1,5 +1,6 @@
 {% load static i18n %}
 {% load crumbinator_filters %}
+{% load custom_tags %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -50,11 +51,11 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet"> 
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Akshar:wght@600&family=Lato:wght@300;400&display=swap" rel="stylesheet"> 
+<link href="https://fonts.googleapis.com/css2?family=Akshar:wght@600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
     {% endblock %}
 
   </head>
@@ -132,8 +133,7 @@
               </li>
             </ul>
           </li>
-
-          {% if is_display_organizer %}
+          {% if  user.is_superuser or user|has_group:"display_organizer" %}
           <li class="sidenav-item">
             <a class="sidenav-link ripple-surface" data-mdb-toggle="collapse" href="#sidenav-collapse-1-0-1" role="button" tabindex="-1" aria-expanded="false">
               <i class="fa fa-cog fa-fw me-3" aria-hidden="true"></i>
@@ -318,7 +318,7 @@
 
 
       <!-- <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/file-upload.min.css"> -->
-      
+
 
       <script src="{% static 'js/bootbox.min.js' %}"></script>
       <script src="{% static 'js/bootbox.locales.min.js' %}"></script>
