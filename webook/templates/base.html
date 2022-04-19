@@ -226,7 +226,7 @@
                 {% trans "Hi" %}, {{ request.user.person.first_name }}
               </button>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href=""><i class="la la-user"></i>&nbsp; {% trans "My Profile" %}</a></li>
+                <li><a class="dropdown-item" href="{% url 'users:detail' slug=request.user.slug %}"><i class="la la-user"></i>&nbsp; {% trans "My Profile" %}</a></li>
                 <li>
                   <hr class="dropdown-divider" />
                 </li>
