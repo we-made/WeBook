@@ -1,3 +1,4 @@
+import datetime
 from argparse import ArgumentError
 from email.policy import default
 from enum import Enum
@@ -456,8 +457,8 @@ class BusinessHour(TimeStampedModel):
     start_of_business_hours = models.TimeField(verbose_name=_("Start Of Business Hours"))
     end_of_business_hours = models.TimeField(verbose_name=_("End Of Business Hours"))
 
-    valid_from = models.DateTimeField(verbose_name=_("Valid From"))
-    valid_through = models.DateTimeField(verbose_name=_("Valid Through"))
+    valid_from = models.DateTimeField(verbose_name=_("Valid From"), default=datetime.datetime.min)
+    valid_through = models.DateTimeField(verbose_name=_("Valid Through"), default=datetime.datetime.max)
 
     note = models.ForeignKey(to="Note", verbose_name=_("Note"),
                              on_delete=models.RESTRICT, null=True)
