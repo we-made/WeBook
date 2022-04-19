@@ -44,7 +44,7 @@ class ModelTicketCodeMixin(models.Model):
 class ModelVisitorsMixin(models.Model):
     expected_visitors = models.IntegerField(verbose_name=_("Expected visitors"), default=0)
     actual_visitors = models.IntegerField(verbose_name=_("Actual visitors"), default=0)
-    
+
     class Meta:
         abstract = True
 
@@ -54,7 +54,7 @@ class ModelHistoricallyConfirmableMixin():
         Serves as a mixin to facilitate and standardize the business logic that comes after a ConfirmationReceipt state
         has changed.
     """
-    
+
     def on_reset(self) -> None:
         self.historic_confirmation_receipts.add(self.confirmation_receipt)
         self.confirmation_receipt = None
@@ -274,6 +274,9 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
 
     :param name: The name of the room
     :type name: str.
+
+    :param business_hours: The business hours of room available (working hours)
+    :type business_hours: BusinessHour.
     """
 
     class Meta:
@@ -290,6 +293,8 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
     max_capacity = models.IntegerField(verbose_name="Maximum Occupants")
 
     is_exclusive = models.BooleanField(verbose_name=_("Is Exclusive"), default=False)
+
+    business_hours = models.ManyToManyField(to="BusinessHour", verbose_name=_("Business Hours"))
 
     name = models.CharField(verbose_name=_("Name"), max_length=128)
     slug = AutoSlugField(populate_from="name", unique=True)
@@ -416,14 +421,46 @@ class BusinessHour(TimeStampedModel):
     :param end_of_business_hours: When business hours end
     :type end_of_business_hours: Time.
 
+    :param day_of_week: The day of the week for which these opening hours are valid.
+    :type end_of_business_hours: Enum.
+
+    :param valid_from: The date when the item becomes valid.
+    :type end_of_business_hours: DateTime.
+
+    :param valid_through: The date after when the item is not valid. For example the end of an offer,
+                            salary period, or a period of opening hours.
+    :type end_of_business_hours: DateTime.
+
+    :param note: Note about bussiness hours. Reason why is some hour closed or open. Can be null.
+    :type note: Note
+
     """
+
+    class Days(models.IntegerChoices):
+        MONDAY = 0, _('Monday')
+        TUESDAY = 1, _('Tuesday')
+        WEDNESDAY = 2, _('Wednesday')
+        THURSDAY = 3, _('Thursday')
+        FRIDAY = 4, _('Friday')
+        SATURDAY = 5, _('Saturday')
+        SUNDAY = 6, _('Sunday')
+        HOLIDAY = 7, _('Holiday')
+
 
     class Meta:
         verbose_name = _("Business Hour")
         verbose_name_plural = _("Business Hours")
 
+    day_of_week = models.IntegerField(verbose_name=_("Day Of Week"), choices=Days.choices,
+        default=Days.MONDAY)
     start_of_business_hours = models.TimeField(verbose_name=_("Start Of Business Hours"))
     end_of_business_hours = models.TimeField(verbose_name=_("End Of Business Hours"))
+
+    valid_from = models.DateTimeField(verbose_name=_("Valid From"))
+    valid_through = models.DateTimeField(verbose_name=_("Valid Through"))
+
+    note = models.ForeignKey(to="Note", verbose_name=_("Note"),
+                             on_delete=models.RESTRICT, null=True)
 
     def __str__(self):
         """Return from and to business hours"""
@@ -607,7 +644,7 @@ class Person(TimeStampedModel, ModelNamingMetaMixin):
     last_name = models.CharField(verbose_name=_("Last Name"), max_length=255)
     birth_date = models.DateField(verbose_name=_("Birth Date"), null=True, blank=True)
 
-    business_hours = models.ForeignKey(to=BusinessHour, verbose_name=_("Business Hours"), on_delete=models.RESTRICT, null=True, blank=True)
+    business_hours = models.ManyToManyField(to=BusinessHour, verbose_name=_("Business Hours"))
     notes = models.ManyToManyField(to=Note, verbose_name="Notes")
 
     slug = AutoSlugField(populate_from="full_name", unique=True)
@@ -652,6 +689,10 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin):
 
     :param members: The members of this organization
     :type name: Person
+
+    :param business_hours: The business hours of this organization (working hours)
+    :type business_hours: BusinessHour.
+
     """
 
     class Meta:
@@ -664,6 +705,7 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin):
 
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     members = models.ManyToManyField(to=Person, verbose_name=_("Members"), related_name="organizations")
+    business_hours = models.ManyToManyField(to=BusinessHour, verbose_name=_("Business Hours"))
 
     slug = AutoSlugField(populate_from="name", unique=True)
 
