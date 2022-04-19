@@ -1,5 +1,9 @@
 /* These styles are generated from project.scss. */
 
+body {
+  font-family: 'Lato', sans-serif;
+}
+
 .alert-debug {
   color: black;
   background-color: white;
@@ -58,12 +62,20 @@ div.modal-body > .bootbox-close-button {
   color: white;
 }
 
+.application-title {
+  font-family: 'Akshar', sans-serif!important;
+}
+
+.header-fonted {
+  font-family: 'Akshar', sans-serif!important;
+}
+
 .light-tabs {
   /* background-color: aqua; */
 }
 
 .light-tabs .nav-link.active {
-  background-color: #386080;
+  background-color: #4b6f8c;
   border: none;
   color:white;
 }
@@ -72,14 +84,64 @@ div.modal-body > .bootbox-close-button {
   box-shadow: none;
 }
 
-.sidenav-primary .sidenav-link.active {
-  color:#5f7f99;
+.dialogBodyWrapper {
   background-color: white;
+}
+
+.ui-dialog {
+  background-color: white!important;
+}
+
+.ui-widget.ui-widget-content {
+  border: 0 1px 15px 1px rgba(62,57,107,.07)!important;
+}
+.ui-widget-content {
+  border: 0 1px 15px 1px rgba(62,57,107,.07)!important;
+}
+
+.playfulButton {
+  width: 100%;
+  border: 0.2rem dotted;
+  border-radius: 0.6rem;
+  /* background-color: rgb(255, 236, 128); */
+  padding: 0.7rem;
+  text-align: center;
+}
+
+.playfulButton-green {
+  background-color: #CAEEC2;
+}
+
+.playfulButton-green:hover{
+  background-color: #90EE91;
+}
+
+.ui-dialog-title {
+  font-family: 'Akshar', sans-serif!important;
+
+  font-size: 24px;
+  font-weight: lighter;
+}
+
+.ui-widget-header {
+  background: white!important;
+  color:black!important;
+  border: none!important;
+}
+
+sidenav-primary .sidenav-link {
+  font-size: 18px!important;
+}
+
+.sidenav-primary .sidenav-link.active {
+  color:white;
+  background-color: #6A5DB8;
 }
 
 .sidenav-primary .sidenav-link#hover {
   color:#5f7f99;
-  background-color: white;
+  background-color: #4b6f8c;
+
 }
 
 .fc-tabs {

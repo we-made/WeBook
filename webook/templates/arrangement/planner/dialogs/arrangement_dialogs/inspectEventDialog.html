@@ -1,6 +1,18 @@
-<div id="inspectEventDialog" title="Inspiser tidspunkt">
+{% load static i18n %}
 
-    <div class="border border-1 bg-secondary shadow-4 rounded-4 mb-2 p-3">
+
+<div id="inspectEventDialog" title="Inspiser tidspunkt">
+    <!-- <div class="clearfix mb-3">
+        <button class="float-start btn btn-sm shadow-0 btn-dark">
+            <i class="fas fa-clipboard"></i>
+            Notater&nbsp;
+            <div class="badge badge-info">0</div>
+        </button>
+        <button class="btn btn-sm shadow-0 btn-danger float-end"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-sm shadow-0 btn-info float-end me-2"><i class="fas fa-copy"></i></button>
+    </div> -->
+
+    <div class="border border-1 bg-secondary rounded-4 mb-2 p-3">
         <div>
             <h5 class="mb-0 d-inline fw-bolder text-white">{{ object.arrangement.name }}</h5>
             <h6 class="fw-bold  d-inline text-white">| På {{ object.arrangement.location }}</h6>
@@ -13,7 +25,7 @@
     </div>
 
     <div style="max-height: 300px;">
-        <div class='p-3 border rounded-2 border-1 bg-white'>
+        <div>
             <h4>Informasjon</h4>
             <div>
                 <label for="{{form.title.id_for_label}}">
@@ -93,7 +105,7 @@
 
             <div class="clearfix mb-2 mt-4">
                 <h4 class=" float-start">People</h4>
-                <button class="float-end btn btn-sm btn-success"
+                <button class="float-end btn btn-sm btn-success shadow-0"
                     id="inspectEventDialog_addPeopleBtn">
                     + Legg til nye personer
                 </button>
@@ -104,9 +116,16 @@
                 <table class="table table-sm table-borderless">
                     <tbody id="peopleTableBody">
                         {% for person in object.people.all %}
-                            <tr>
+                            <tr rowid="{{person.pk}}">
                                 <td>{{person}}</td>
-                                <td> <a href="#" class="text-danger"><i class="fas fa-trash"></i></a> </td>
+                                <td> 
+                                    <a href="#" class="text-danger"
+                                        data-mdb-toggle="tooltip"
+                                        onclick="inspectEventDialog__removeAssociation(this)"
+                                        title="{% trans 'Remove this person from the activity' %}">
+                                        <i class="fas fa-trash"></i>
+                                    </a> 
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -116,7 +135,7 @@
 
             <div class="clearfix mb-2 mt-4">
                 <h4 class=" float-start">Rom</h4>
-                <button class="float-end btn btn-sm btn-success"
+                <button class="float-end btn btn-sm btn-success shadow-0"
                     id="inspectEventDialog_addRoomsBtn">
                     + Legg til nye rom
                 </button>
@@ -127,9 +146,16 @@
                 <table class="table table-sm table-borderless">
                     <tbody id="roomsTableBody">
                         {% for room in object.rooms.all %}
-                        <tr>
+                        <tr rowid="{{room.pk}}">
                             <td>{{room}}</td>
-                            <td> <a href="#" class="text-danger"><i class="fas fa-trash"></i></a> </td>
+                            <td>
+                                <a href="#" class="text-danger"
+                                    data-mdb-toggle="tooltip"
+                                    onclick="inspectEventDialog__removeAssociation(this)"
+                                    title="{% trans 'Remove this room from the activity' %}">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -151,6 +177,78 @@
     var peopleMap = new Map();
     var roomsMap = new Map();
 
+    $(document).ready(function () {
+        document.addEventListener("eventInspector.roomsUpdated", (e) => {
+            roomsMap = e.detail.context.room_name_map;
+            inspectEventDialog__setRooms(e.detail.context.rooms);
+        })
+        document.addEventListener("eventInspector.peopleUpdated", (e) => { 
+            peopleMap = e.detail.context.people_name_map;
+            inspectEventDialog__setPeople(e.detail.context.people);
+        });
+    })
+
+    function inspectEventDialog__removeAssociation(a) {
+        var row = $(a).closest("tr");
+        row.remove();
+    }
+
+    function inspectEventDialog__setRooms(rooms) {
+        console.log("rooms", rooms)
+
+        var tbody = $('#roomsTableBody');
+        tbody.empty(); // remove child elements
+
+        var ids = rooms.split(",");
+
+        ids.forEach(id => {
+            tbody.append( 
+                $(`<tr rowid='${id}'>
+                    <td>${roomsMap.get(id)}</td>
+                    <td>
+                        <a href="#" class="text-danger"
+                                    data-mdb-toggle="tooltip"
+                                    onclick="inspectEventDialog__removeAssociation(this)"
+                                    title="{% trans 'Remove this room from the activity' %}">
+                                    <i class="fas fa-trash"></i>    
+                    </td>
+                   </tr>`) );
+        });
+    }
+
+    function inspectEventDialog__setPeople(people) {
+        var tbody = $('#peopleTableBody');
+        tbody.empty(); // remove child elements
+
+        var ids = people.split(",");
+
+        ids.forEach(id => {
+            tbody.append( 
+                $(`<tr rowid='${id}'>
+                    <td>${peopleMap.get(id)}</td>
+                    <td>
+                        <a href="#" class="text-danger"
+                                    data-mdb-toggle="tooltip"
+                                    onclick="inspectEventDialog__removeAssociation(this)"
+                                    title="{% trans 'Remove this person from the activity' %}">
+                                    <i class="fas fa-trash"></i>    
+                    </td>
+                   </tr>`) );
+        });
+    }
+
+    function inspectEventDialog__getSelectedRoomIds() {
+        var room_ids = Array.from($("#roomsTableBody")[0].children).map(row => row.getAttribute("rowid"));
+        console.log("Rooms", room_ids);
+        return room_ids;
+    }
+
+    function inspectEventDialog__getSelectedPeopleIds() {
+        var people_ids = Array.from($("#peopleTableBody")[0].children).map(row => row.getAttribute("rowid"));
+        console.log("People", people_ids)
+        return people_ids;
+    }
+
     function inspectEventDialog__save() {
         let formData = new FormData();
         var start = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
@@ -158,11 +256,12 @@
 
         formData.append("id",           '{{object.pk}}');
         formData.append("title",        $('#id_title').val());
+        formData.append("title_en",     $('#id_title_en').val());
         formData.append("start",        start);
         formData.append("end",          end);
         formData.append("arrangement", '{{object.arrangement.pk}}');
-        formData.append("people",       Array.from( peopleMap.keys() ));
-        formData.append("rooms",        Array.from( roomsMap.keys() ));
+        formData.append("people",       inspectEventDialog__getSelectedPeopleIds());
+        formData.append("rooms",        inspectEventDialog__getSelectedRoomIds());
         formData.append("csrf_token",   "{{ csrf_token }}");
 
         document.dispatchEvent(
@@ -173,7 +272,6 @@
                 csrf_token: '{{ csrf_token }}',
             }})
         );
-
     }
 
     function triggerFocusTo(slug, event_pk) {

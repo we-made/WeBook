@@ -18,6 +18,8 @@
     async render(context) {
         this.prepareDOM();
 
+        $('#' + this.dialogElementId).remove();
+
         if (this.isOpen() === false) {
             $('body')
                 .append(await this.htmlFabricator(context))
@@ -128,7 +130,6 @@ export class DialogManager {
     _listenForSubmitEvent() {
         console.log(`${this.managerName}.submit`)
         document.addEventListener(`${this.managerName}.submit`, (e) => {
-            console.log("ONSUBMIT >> ", e)
             this._dialogRepository.get(e.detail.dialog)
                 .onSubmit(this.context, e.detail);
         })
@@ -137,7 +138,9 @@ export class DialogManager {
     _setTriggers() {
         this._dialogRepository.forEach( (value, key, map) => {
             if (value.triggerByEvent === true) {
-                document.addEventListener(`${this.managerName}.${value.dialogId}.trigger`, (detail) => {
+                console.log(`${this.managerName}.${value.dialogElementId}.trigger`)
+                document.addEventListener(`${this.managerName}.${value.dialogElementId}.trigger`, (detail) => {
+                    console.log("trigger by triggered")
                     value.render(this.context);
                 });
             }

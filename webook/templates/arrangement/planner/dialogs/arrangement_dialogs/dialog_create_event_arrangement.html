@@ -1,22 +1,52 @@
-<div id="newSimpleActivityDialog" title="Ny enkel aktivitet">
-    <div class='bg-white p-2 border border-1'>
+{% load static i18n %}
+
+
+
+<div id="newSimpleActivityDialog" title="<span class='badge badge-success'><i class='fas fa-calendar'></i></span>&nbsp; Ny enkel aktivitet">
+    <div>
         <div class="form-group">
             <label class="d-block">Tittel <small class="text-muted float-end"> * Required</small></label>
             <input type="text" class="form-control" id="title" code-qualified-name="title" required/>
         </div>
-        <div class="form-group">
+        <div class="form-group mt-2">
             <label class="d-block">Tittel <em class="small">(engelsk)</em> <small class="text-muted float-end"> * Required</small></label>
-            <input type="text" class="form-control" id="title" code-qualified-name="title" required/>
+            <input type="text" class="form-control" id="title_en" code-qualified-name="title" required/>
+        </div>
+
+        <div class="form-group mt-2">
+            <label class="d-block">Ticket Code</label>
+            <div class="input-group flex-nowrap">
+                <span class="input-group-text"><i class="fas fa-receipt"></i></span>
+                <input type="text" class="form-control" id="ticket_code" code-qualified-name="title"/>
+            </div>
+        </div>
+
+        <div class="form-group mt-2">
+            <label class="d-block">Expected amount of visitors</label>
+            <div class="input-group flex-nowrap">
+                <span class="input-group-text"><i class="fas fa-users"></i></span>
+                <input type="text" class="form-control" id="expected_visitors" code-qualified-name="title" value="0"/>
+            </div>
         </div>
 
         <div class="form-group mt-2">
             <label class="d-block">Fra <small class="text-muted float-end"> * Required</small></label>
             <div class="row">
             <div class="col-6">
-                <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate" required>
+                <div class="input-group flex-nowrap">
+                    <div class="input-group-text">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate" required>
+                </div>
             </div>
             <div class="col-6">
-                <input type="time" class="form-control" id="fromTime" code-qualified-name="fromTime" required>
+                <div class="input-group flex-nowrap">
+                    <div class="input-group-text">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <input type="time" class="form-control" id="fromTime" code-qualified-name="fromTime" required>
+                </div>
             </div>
             </div>
         </div>
@@ -25,21 +55,172 @@
             <label class="d-block">Til <small class="text-muted float-end"> * Required</small></label>
             <div class="row">
             <div class="col-6">
-                <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
+                <div class="input-group flex-nowrap">
+                    <div class="input-group-text">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
+                </div>
             </div>
             <div class="col-6">
-                <input type="time" class="form-control" id="toTime" code-qualified-name="toTime" required>
+                <div class="input-group flex-nowrap">
+                    <div class="input-group-text">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <input type="time" class="form-control" id="toTime" code-qualified-name="toTime" required>
+                </div>
             </div>
             </div>
         </div>
 
+        <div class="row mt-4">
+            <div class="col-6">
+                <button class="playfulButton playfulButton-green"
+                    onclick="dialogCreateEvent__openAddRooms()">
+                    <div class="icon"><i class="fas fa-plus"></i></div>
+                    Legg til rom
+                </button>
+
+                <div class="mt-2 table-responsive">
+                    <table class="table-sm table">
+                        <tbody id="roomsTbody__d1">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-6">
+                <button class="playfulButton  playfulButton-green"
+                    onclick="dialogCreateEvent_openAddPeople()">
+                    <div class="icon"><i class="fas fa-plus"></i></div>
+                    Legg til personer
+                </button>
+
+                <div class="mt-2 table-responsive">
+                    <table class="table-sm table">
+                        <tbody id="peopleTbody__d1">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="clearfix">
-            <button class="mt-2 float-end btn btn-sm btn-success">Lagre</button>
+            <button class="mt-2 float-end btn btn-sm btn-success" onclick="dialogCreateEvent__submit()">Lagre</button>
         </div>
     </div>
 </div>
 
 
 <script>
+    var peopleNameMap = new Map();
+    var roomsNameMap = new Map();
 
+    document.addEventListener("{{managerName}}.d1_peopleSelected", (e) => {
+        console.log("People have been selected", e)
+        peopleNameMap = e.detail.context.people_name_map;
+        dialogCreateEvent__setPeople(e.detail.context.people);
+        // event.stopImmediatePropagation();
+    }) 
+    document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
+        console.log("rooms have been selected", e);
+        roomsNameMap = e.detail.context.room_name_map;
+        dialogCreateEvent__setRooms(e.detail.context.rooms);
+        // event.stopImmediatePropagation();
+    })
+
+    function dialogCreateEvent__setRooms(rooms) {
+
+        var tbody = $('#roomsTbody__d1');
+        tbody.empty();
+
+        var ids = rooms.split(",");
+
+        ids.forEach(id => {
+            tbody.append(
+                $(`<tr rowid='${id}'>
+                    <td>${roomsNameMap.get(id)}</td>
+                    <td> <a href='#' class='text-danger'
+                            data-mdb-toggle='tooltip'
+                            title='{% trans "Remove this room from the activity" %}'
+                            onclick='dialogCreateEvent__removeAssociation(this)'>
+                                <i class='fas fa-trash'></i>
+                            </a> 
+                    </td>
+                   </tr>`)
+            )
+        });
+    }
+
+    function dialogCreateEvent__setPeople(people) {
+        var tbody = $('#peopleTbody__d1');
+        tbody.empty();
+        var ids = people.split(",");
+
+        ids.forEach(id => {
+            tbody.append(
+                $(`<tr rowid='${id}'>
+                    <td>${peopleNameMap.get(id)}</td>
+                    <td> <a href='#' class='text-danger'
+                            data-mdb-toggle='tooltip'
+                            title='{% trans "Remove this person from the activity" %}'
+                            onclick='dialogCreateEvent__removeAssociation(this)'>
+                                <i class='fas fa-trash'></i>
+                            </a> 
+                    </td>
+                   </tr>`)
+            )
+        });
+    }
+
+    function dialogCreateEvent__removeAssociation(a) {
+        var row = $(a).closest("tr")[0];
+        console.log(row);
+        var rowid = row.getAttribute("rowid");
+        row.remove();
+    }
+
+    function dialogCreateEvent__openAddRooms() {
+        document.dispatchEvent(new Event("{{managerName}}.{{orderRoomDialog}}.trigger"));
+    }
+
+    function dialogCreateEvent_openAddPeople() {
+        document.dispatchEvent(new Event("{{managerName}}.{{orderPersonDialog}}.trigger"));
+    }
+
+    function dialogCreateEvent__getSelectedRoomIds() {
+        var room_ids = Array.from($("#roomsTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+        console.log("Rooms", room_ids);
+        return room_ids;
+    }
+
+    function dialogCreateEvent__getSelectedPeopleIds() {
+        var people_ids = Array.from($("#peopleTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+        console.log("People", people_ids)
+        return people_ids;
+    }
+
+    function dialogCreateEvent__submit() {
+        var qualifiedEvent = {
+            title: $('#title').val(),
+            title_en: $('#title_en').val(),
+            ticket_code: $('#ticket_code').val(),
+            expected_visitors: $('#expected_visitors').val(),
+            start: new Date( $('#fromDate').val() + "T" + $('#fromTime').val() ).toISOString(),
+            end: new Date( $('#toDate').val() + "T" + $('#toTime').val() ).toISOString(),
+            arrangement: 0,
+            rooms: dialogCreateEvent__getSelectedRoomIds(),
+            people: dialogCreateEvent__getSelectedPeopleIds(),
+        }
+
+        console.log(qualifiedEvent)
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "{{managerName}}.submit", 
+                {
+                    'detail': { 'dialog': "newSimpleActivityDialog", 'event': qualifiedEvent, 'csrf_token': '{{ csrf_token }}' }
+                }
+            )
+        );
+    }
 </script>

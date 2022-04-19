@@ -1,10 +1,10 @@
 {% load static i18n %}
 
 
-<div id="createArrangementDialog"
-     title="Planlegg nytt arrangement">
+<div id="createArrangementDialog" class="uiDialog"
+     title="<span class='badge badge-success'><i class='fas fa-plus'></i></span>&nbsp; Planlegg nytt arrangement">
 
-    <div class='p-2 border border-1'  style="background-color: white; color: white!important;">
+    <div class="dialogBodyWrapper">
         <fieldset>
             <table class="table table-sm">
                 <tbody>
@@ -12,7 +12,7 @@
                         <td>
                             <strong>Navn:</strong>
                             <input type="text"
-                                class="form-control"
+                                class="form-control mb-2"
                                 id="{{ form.name.id_for_label }}" 
                                 value="{{ form.name.value|default:'' }}"
                                 name="{{ form.name.name }}"
@@ -97,13 +97,19 @@
 
                     <tr>
                         <td colspan="2">
-                            <strong>Møtested</strong>
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.ticket_code.id_for_label }}" 
-                                value="{{ form.ticket_code.value|default:'' }}"
-                                name="{{ form.ticket_code.name }}"
-                                placeholder="{% trans 'Ticket code' %}..."/>
+                            <strong>Billetkode</strong>
+
+                            <div class="input-group flex-nowrap">
+                                <span class="input-group-text">
+                                    <i class="fas fa-receipt"></i>
+                                </span>
+                                <input type="text"
+                                    class="form-control"
+                                    id="{{ form.ticket_code.id_for_label }}" 
+                                    value="{{ form.ticket_code.value|default:'' }}"
+                                    name="{{ form.ticket_code.name }}"
+                                    placeholder="{% trans 'Ticket code' %}..."/>
+                            </div>
 
                             {% if form.ticket_code.errors|length > 0 %}
                                 <div class="alert alert-danger">
@@ -116,12 +122,22 @@
                     <tr>
                         <td colspan="2">
                             <strong>Møtested</strong>
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.meeting_place.id_for_label }}" 
-                                value="{{ form.meeting_place.value|default:'' }}"
-                                name="{{ form.meeting_place.name }}"
-                                placeholder="{% trans 'Meeting place' %}..."/>
+
+                            <div class="input-group flex-nowrap">
+                                <span class="input-group-text">
+                                    <i class="fas fa-building"></i>
+                                </span>
+                                <input type="text"
+                                    class="form-control"
+                                    id="{{ form.meeting_place.id_for_label }}" 
+                                    value="{{ form.meeting_place.value|default:'' }}"
+                                    name="{{ form.meeting_place.name }}"
+                                    placeholder="{% trans 'Meeting place' %}..."/>
+                            </div>
+                            <div id="textExample1" class="form-text">
+                                <i class="fas fa-exclamation-circle"></i>&nbsp;
+                                Vil overskrive sted/rom vist på skjermer.
+                            </div>
 
                             {% if form.meeting_place.errors|length > 0 %}
                                 <div class="alert alert-danger">
@@ -134,12 +150,18 @@
                     <tr>
                         <td colspan="2">
                             <strong>Expected amount of visitors</strong>
-                            <input type="number"
-                                min="0"
-                                class="form-control"
-                                id="{{ form.expected_visitors.id_for_label }}" 
-                                value="{{ form.expected_visitors.value|default:'' }}"
-                                name="{{ form.expected_visitors.name }}" />
+
+                            <div class="input-group flex-nowrap">
+                                <span class="input-group-text">
+                                    <i class="fas fa-users"></i>
+                                </span>
+                                <input type="number"
+                                    min="0"
+                                    class="form-control"
+                                    id="{{ form.expected_visitors.id_for_label }}" 
+                                    value="{{ form.expected_visitors.value|default:'' }}"
+                                    name="{{ form.expected_visitors.name }}" />
+                            </div>
 
                             {% if form.expected_visitors.errors|length > 0 %}
                                 <div class="alert alert-danger">
@@ -151,14 +173,28 @@
 
                     <tr>
                         <td>
-                            <strong>Tidspunkter:</strong>
-                            
-                            <!-- <a href="#" id="createArrangementDialog_createSimpleActivity" class="text-primary">Nytt tidspunkt</a> -->
-                            <!-- | -->
-                            <a href="#" id="createArrangementDialog_createSerie" class="text-primary">Nytt repeterende tidspunkt</a>
+                            <div class="row mt-4">
+                                <div class="col-6">
+                                    <button class="playfulButton playfulButton-green" id="createArrangementDialog_createSimpleActivity">
+                                        <div class="icon"><i class="fas fa-plus"></i></div>
+                                        Ny enkel aktivitet
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button class="playfulButton  playfulButton-green" id="createArrangementDialog_createSerie">
+                                        <div class="icon"><i class="fas fa-plus"></i></div>
+                                        Nytt repeterende tidspunkt
+                                    </button>
+                                </div>
+                            </div>
 
                             <table class="table-sm table">
                                 <tbody id="seriesTbody">
+                                </tbody>
+                            </table>
+
+                            <table class="table-sm table">
+                                <tbody id="eventsTbody">
                                 </tbody>
                             </table>
                         </td>
@@ -182,10 +218,16 @@
 <script>
 
     var seriesMap;
+    var eventsMap;
 
     $(document).ready(function () {
         document.addEventListener("{{managerName}}.contextUpdated", (e) => {
-            setSeries(e.detail.context.series);
+            if (e.detail.context.series !== undefined) {
+                setSeries(e.detail.context.series);
+            }
+            if (e.detail.context.events !== undefined) {
+                setEvents(e.detail.context.events);
+            }
         })
     })
 
@@ -200,19 +242,37 @@
         formData.append("responsible",      $('#id_responsible').val());
         formData.append("ticket_code",      $('#id_ticket_code').val());
         formData.append("meeting_place",    $('#id_meeting_place').val());
-        formData.append("expected_visitors",$('#serie_expected_visitors').val());
+        formData.append("expected_visitors",$('#id_expected_visitors').val());
         formData.append("csrf_token",       "{{csrf_token}}");
 
-        var seriesArray = Array.from(seriesMap.values());
+        var seriesArray = seriesMap !== undefined ? Array.from(seriesMap.values()) : [];
+        var eventsArray = eventsMap !== undefined ? Array.from(eventsMap.values()) : [];
 
         document.dispatchEvent(
             new CustomEvent("{{managerName}}.submit", { "detail": {
                 dialog: "createArrangementDialog",
                 formData: formData,
                 series: seriesArray,
+                events: eventsArray,
             }})
         );
     }
+
+    function setEvents(events) {
+        eventsMap = new Map();
+
+        var tbody = $('#eventsTbody');
+        tbody.html("");
+
+        events.forEach(element => {
+            var uuid = crypto.randomUUID();
+            eventsMap.set(uuid, element);
+            console.log(element)
+            tbody.append(
+                $(`<tr id='${uuid}'> <td> ${element.title} (${element.start} - ${element.end}) </td> </tr>`)
+            )
+        })
+    } 
 
     function setSeries(series) {
         seriesMap = new Map();

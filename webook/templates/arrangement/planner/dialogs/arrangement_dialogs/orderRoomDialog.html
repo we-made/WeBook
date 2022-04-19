@@ -1,4 +1,4 @@
-<div id="orderRoomDialog" title="{% if mode == 'serie' %}Bestill rom{% else %}Bestill rom for '{{event.title}}'{% endif %}">
+<div id="{{dialog}}" title="{% if mode == 'serie' %}Bestill rom{% else %}Bestill rom for '{{event.title}}'{% endif %}">
     <div class='bg-white p-2 border border-1'>
         {% if mode == "serie" %}
         <div class="alert alert-danger">
@@ -11,11 +11,19 @@
                 {% for room in rooms %}
                     <tr>
                         <td>
+                            {% if room.is_selected %}
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="{{room.pk}}" id="personCheck__{{room.slug}}" 
-                                    name="orderRoomDialog__checkboxArray"/>
+                                    room_name="{{room}}" name="orderRoomDialog__checkboxArray" checked/>
                                 <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
                             </div>
+                            {% else %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{room.pk}}" id="personCheck__{{room.slug}}" 
+                                    room_name="{{room}}" name="orderRoomDialog__checkboxArray"/>
+                                <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
+                            </div>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -31,21 +39,26 @@
 </div>
 
 <script>
-    {% if mode == 'serie' %}
-    function orderRoomDialog__order() {
+    function orderRoomDialog__getSelectedRoomIds() {
         var checkboxes = $("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked");
         var roomIds = []
         for (let i = 0; i < checkboxes.length; i++) {
-            roomIds.push(checkboxes[i].value)
+            roomIds.push( {  id: checkboxes[i].value, text: checkboxes[i].getAttribute("room_name") })
         }
+        return roomIds;
+    }
 
+    {% if mode == 'serie' %}
+    function orderRoomDialog__order() {
         var data = new FormData();
-        data.set("room_ids", roomIds.join(","));
+        data.set("room_ids", orderRoomDialog__getSelectedRoomIds()
+                                .map( x => x.id )
+                                .join(","));
         data.set("serie_guid", "{{serie_guid}}");
         
         document.dispatchEvent(
-            new CustomEvent("arrangementInspector.submit", { "detail": {
-                dialog: "orderRoomDialog",
+            new CustomEvent("{{manager}}.submit", { "detail": {
+                dialog: "{{dialog}}",
                 mode: 'serie',
                 formData: data,
                 csrf_token: '{{csrf_token}}',
@@ -54,22 +67,24 @@
     }
     {% else %}
     function orderRoomDialog__order() {
-        var checkboxes = $("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked");
-        var roomIds = []
-        for (let i = 0; i < checkboxes.length; i++) {
-            roomIds.push(checkboxes[i].value)
-        }
-
         var data = new FormData();
-        data.set("room_ids", roomIds.join(","));
+        var room_ids = orderRoomDialog__getSelectedRoomIds();
+
+        data.set("room_ids", room_ids.map( x => x.id ).join(","));
         data.set("event_pk", "{{event.pk}}");
+
+        room_name_map = new Map();
+        room_ids.forEach(element => {
+            room_name_map.set(element.id, element.text);
+        })
         
         document.dispatchEvent(
-            new CustomEvent("arrangementInspector.submit", { "detail": {
-                dialog: "orderRoomForOneEventDialog",
+            new CustomEvent("{{manager}}.submit", { "detail": {
+                dialog: "{{dialog}}",
                 mode: 'event',
                 formData: data,
                 csrf_token: '{{csrf_token}}',
+                room_name_map: room_name_map,
             }})
         );
     }
