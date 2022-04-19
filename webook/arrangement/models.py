@@ -3,8 +3,6 @@ from argparse import ArgumentError
 from email.policy import default
 from enum import Enum
 import os
-from tabnanny import verbose
-from tkinter.messagebox import NO
 from django.db import models
 from django.db.models import FileField
 from django.db.models.deletion import RESTRICT
