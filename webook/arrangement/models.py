@@ -274,6 +274,9 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
 
     :param name: The name of the room
     :type name: str.
+
+    :param business_hours: The business hours of room available (working hours)
+    :type business_hours: BusinessHour.
     """
 
     class Meta:
@@ -686,6 +689,10 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin):
 
     :param members: The members of this organization
     :type name: Person
+
+    :param business_hours: The business hours of this organization (working hours)
+    :type business_hours: BusinessHour.
+
     """
 
     class Meta:
