@@ -1,14 +1,27 @@
-import { FullCalendarEvent, FullCalendarResource, FullCalendarBased, LocationStore, _FC_RESOURCE, PersonStore } from "./commonLib.js";
+import { FullCalendarEvent, StandardColorProvider, ArrangementStore,  _FC_EVENT,  FullCalendarResource, FullCalendarBased, LocationStore, _FC_RESOURCE, PersonStore } from "./commonLib.js";
+import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
 
 
 export class PersonCalendar extends FullCalendarBased {
 
-    constructor ( {calendarElement } = {} ) {
+    constructor ( {calendarElement, initialColorProvider="", colorProviders=[], calendarFilter=undefined  } = {} ) {
         super();
 
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
         
+        this._colorProviders = new Map();
+        this._colorProviders.set("DEFAULT", new StandardColorProvider());
+
+        colorProviders.forEach( (bundle) => {
+            this._colorProviders.set(bundle.key, bundle.provider)
+        });
+
+        // If user has not supplied an active color provider key we use default color provider as active.
+        // this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : this._colorProviders.get("DEFAULT");
+
+        this.calendarFilter = calendarFilter;
+        this._ARRANGEMENT_STORE = new ArrangementStore(this._colorProviders.get("arrangement"));
         this._STORE = new PersonStore(this);
 
         this.init()
@@ -40,19 +53,19 @@ export class PersonCalendar extends FullCalendarBased {
                     arrangementsCalendarButton: {
                         text: 'Arrangementer',
                         click: () => {
-                            $('#overview-tab').trigger('click');
+                            $('#overview-tab')[0].click();
                         }
                     },
                     locationsCalendarButton: {
                         text: 'Lokasjoner',
                         click: () => {
-                            $('#locations-tab').trigger('click');
+                            $('#locations-tab')[0].click();
                         }
                     },
                     peopleCalendarButton: {
                         text: 'Personer',
                         click: () => {
-                            $('#people-tab').trigger('click');
+                            $('#people-tab')[0].click();
                         }
                     }
                 },
@@ -67,7 +80,23 @@ export class PersonCalendar extends FullCalendarBased {
                 },
                 navLinks: true,
                 locale: 'nb',
-                events: [ { title: "Test Arrangement", start: "2022-03-01", end: "2022-03-30", resourceId: 'lokasjon-3'  } ],
+                eventSources: [
+                    {
+                        events: async (start, end, startStr, endStr, timezone) => {
+                            return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
+                                .then(_ => this.calendarFilter.getFilteredSlugs().map( function (slug) { return { id: slug, name: "" } }))
+                                .then(filterSet => _this._ARRANGEMENT_STORE.get_all(
+                                    { 
+                                        get_as: _FC_EVENT, 
+                                        locations: undefined,
+                                        arrangement_types: undefined,
+                                        audience_types: undefined,
+                                        filterSet: undefined
+                                    }
+                                ));
+                        },
+                    }
+                ],
                 resources: async (fetchInfo, successCallback, failureCallback) => {
                     await _this._STORE._refreshStore();
                     successCallback(_this._STORE.getAll({ get_as: _FC_RESOURCE }));

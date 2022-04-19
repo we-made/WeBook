@@ -1,4 +1,4 @@
-<div id="orderPersonDialog" title="{% if mode == 'serie' %}Bestill person{% else %}Bestill person for '{{event.title}}'{% endif %}">
+<div id="{{dialog}}" title="{% if mode == 'serie' %}Bestill person{% else %}Bestill person for '{{event.title}}'{% endif %}">
     <div class='bg-white p-2 border border-1'>
         {% if mode == 'serie' %}
         <div class="alert alert-danger">
@@ -11,11 +11,19 @@
                 {% for person in people %}
                     <tr>
                         <td>
+                            {% if person.is_selected %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{person.pk}}" id="personCheck__{{person.slug}}" 
+                                <input class="form-check-input" type="checkbox" value="{{person.pk}}" person_name="{{person.full_name}}" id="personCheck__{{person.slug}}" 
+                                    name="orderPersonDialog__checkboxArray" checked/>
+                                <label class="form-check-label" for="personCheck__{{person.slug}}">{{person}}</label>
+                            </div>
+                            {% else %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{person.pk}}"  person_name="{{person.full_name}}" id="personCheck__{{person.slug}}" 
                                     name="orderPersonDialog__checkboxArray"/>
                                 <label class="form-check-label" for="personCheck__{{person.slug}}">{{person}}</label>
                             </div>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -32,24 +40,27 @@
 </div>
 
 <script>
+
+    function orderPersonDialog__getSelectedPeopleIds() {
+        var checkboxes = $("input[type=checkbox][name=orderPersonDialog__checkboxArray]:checked");
+        var peopleIds = []
+        for (let i = 0; i < checkboxes.length; i++) {
+            peopleIds.push( { id: checkboxes[i].value, text: checkboxes[i].getAttribute("person_name") } );
+        }
+        return peopleIds;
+    }
+
     {% if mode == 'serie' %}
         function orderPersonDialog__order() {
-            var checkboxes = $("input[type=checkbox][name=orderPersonDialog__checkboxArray]:checked");
-
-            var peopleIds = []
-            for (let i = 0; i < checkboxes.length; i++) {
-                peopleIds.push(checkboxes[i].value)
-            }
-
             var data = new FormData();
-            data.set("people_ids", peopleIds.join(","));
+            data.set("people_ids", orderPersonDialog__getSelectedPeopleIds()
+                                    .map( x => x.id )
+                                    .join(","));
             data.set("serie_guid", "{{serie_guid}}");
 
-            console.log("modeSerie submit")
-
             document.dispatchEvent(
-                new CustomEvent("arrangementInspector.submit", { "detail": {
-                    dialog: "orderPersonDialog",
+                new CustomEvent("{{manager}}.submit", { "detail": {
+                    dialog: "{{dialog}}",
                     mode: "serie",
                     formData: data,
                     csrf_token: '{{csrf_token}}',
@@ -58,25 +69,24 @@
         }
     {% else %}
         function orderPersonDialog__order() {
-            var checkboxes = $("input[type=checkbox][name=orderPersonDialog__checkboxArray]:checked");
-
-            var peopleIds = []
-            for (let i = 0; i < checkboxes.length; i++) {
-                peopleIds.push(checkboxes[i].value)
-            }
-
             var data = new FormData();
-            data.set("people_ids", peopleIds.join(","));
+            var people_ids = orderPersonDialog__getSelectedPeopleIds();
+
+            data.set("people_ids", people_ids.map( x => x.id ).join(","));
             data.set("event_pk", "{{event.pk}}");
 
-            console.log("modeEvent submit")
+            people_name_map = new Map();
+            people_ids.forEach(element => {
+                people_name_map.set(element.id, element.text)
+            });
 
             document.dispatchEvent(
-                new CustomEvent("arrangementInspector.submit", { "detail": {
-                    dialog: "orderPersonForOneEventDialog",
+                new CustomEvent("{{manager}}.submit", { "detail": {
+                    dialog: "{{dialog}}",
                     mode: "event",
                     formData: data,
                     csrf_token: '{{csrf_token}}',
+                    people_name_map: people_name_map,
                 }})
             );
         }

@@ -14,16 +14,64 @@ export class EventInspector {
                             return await fetch("/arrangement/planner/dialogs/event_inspector/" + context.event.pk)
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => { this.dialogManager._makeAware(); },
-                        dialogOptions: { width: 600 },
+                        onRenderedCallback: () => { 
+                            this.dialogManager._makeAware(); 
+                        },
+                        dialogOptions: { width: 600, height: 700 },
                         onSubmit: async (context, details) => {
-                            await fetch('/arrangement/planner/update_event/113', {
+                            await fetch('/arrangement/planner/update_event/' + context.event.pk, {
                                 method: "POST",
                                 body: details.formData,
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 }
-                            })
+                            }).then(_ => document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")));
+                        }
+                    }),
+                ],
+                [
+                    "orderPersonDialog",
+                    new Dialog({
+                        dialogElementId: "orderPersonDialog",
+                        triggerElementId: "inspectEventDialog_addPeopleBtn",
+                        htmlFabricator: async (context) => {
+                            return await fetch(`/arrangement/planner/dialogs/order_person?event_pk=${context.event.pk}&manager=eventInspector&dialog=orderPersonDialog`)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { },
+                        dialogOptions: { width: 500 },
+                        onUpdatedCallback: () => {  },
+                        onSubmit: (context, details) => {
+                            var people_ids = details.formData.get("people_ids");
+                            context.people = people_ids;
+                            context.people_name_map = details.people_name_map;
+                            
+                            document.dispatchEvent(new CustomEvent(
+                                "eventInspector.peopleUpdated",
+                                { detail: {
+                                    context: context
+                                } }
+                            ));
+                        }
+                    })
+                ],
+                [
+                    "orderRoomDialog",
+                    new Dialog({
+                        dialogElementId: "orderRoomDialog",
+                        triggerElementId: "inspectEventDialog_addRoomsBtn",
+                        htmlFabricator: async (context) => {
+                            return await fetch(`/arrangement/planner/dialogs/order_room?event_pk=${context.event.pk}&manager=eventInspector&dialog=orderRoomDialog`)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { },
+                        dialogOptions: { width: 500 },
+                        onUpdatedCallback: () => {  },
+                        onSubmit: (context, details) => { 
+                            context.rooms = details.formData.get("room_ids");
+                            context.room_name_map = details.room_name_map;
+                            
+                            document.dispatchEvent(new CustomEvent("eventInspector.roomsUpdated", { detail: { context: context } }))
                         }
                     })
                 ]

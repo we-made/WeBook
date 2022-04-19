@@ -51,6 +51,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet"> 
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Akshar:wght@600&family=Lato:wght@300;400&display=swap" rel="stylesheet"> 
     {% endblock %}
 
   </head>
@@ -58,12 +62,12 @@
   <body>
     <header>
       <!-- Sidenav -->
-      <nav id="sidenav-1" style="background-color: #21384B; color:white" class="sidenav ps sidenav-primary sidenav-dark" data-mdb-mode="side" data-mdb-hidden="false" data-mdb-accordion="true" style="width: 240px; height: 100vh; position: fixed; transition: all 0.3s linear 0s; ">
+      <nav id="sidenav-1" style="background-color:darkslateblue; color:white" class="sidenav ps sidenav-primary sidenav-dark" data-mdb-mode="side" data-mdb-hidden="false" data-mdb-accordion="true" style="width: 240px; height: 100vh; position: fixed; transition: all 0.3s linear 0s; ">
         <a class="ripple d-flex justify-content-center py-4" href="#!" data-mdb-ripple-color="primary">
-          <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" width="150px" draggable="false">
+          <!-- <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" width="150px" draggable="false"> -->
         </a>
 
-        <div class="text-center p-2 fw-bold h3">
+        <div class="text-center p-2 fw-bold h3 text-uppercase application-title">
           {{ APP_TITLE }}
         </div>
 
@@ -166,7 +170,7 @@
         <!-- Sidenav -->
 
       <!-- Navbar -->
-      <nav id="main-navbar" class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #386080;">
+      <nav id="main-navbar" class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #6A5DB8      ;">
         <!-- Container wrapper -->
         <div class="container-fluid">
           <!-- Toggler -->
@@ -187,9 +191,9 @@
               <div class="form-check form-switch" data-mdb-toggle="tooltip"
                   title="Activate Zen Mode, which will hide sidebars and increase the width of the current view">
                 <input class="form-check-input" type="checkbox" role="switch" id="zenModeCheckbox" />
-                <label class="form-check-label text-white" for="zenModeCheckbox">
+                <label class="form-check-label text-white header-fonted" for="zenModeCheckbox">
                   <i class="fas fa-user-ninja"></i>
-                  Zen Mode
+                  ZEN MODE
                 </label>
               </div>
             </form>
@@ -214,7 +218,7 @@
               <button
                 type="button"
                 class="btn ms-3 btn-primary text-white fw-bold dropdown-toggle"
-                style="border-radius: 0px; background-color: #21384a;"
+                style="border-radius: 0px; background-color: #4b6f8c;"
                 data-mdb-toggle="dropdown"
                 aria-expanded="false"
               >
@@ -257,14 +261,17 @@
     <div class="container" id="mainBodyContainer">
       {% block noheader %}
 
-      <section class="bg-white">
-        <h1 class="h1 fw-bolder">
+      <section class="bg-white  header-fonted">
+        <h1 class="h1 fw-bolder header-fonted">
           <i class="{% block section_icon_class %}{% endblock %}"></i>
 
+          <span class="header-fonted">
           {% block section_title %}
           {% endblock section_title%}
+          </span>
           | <small class="text-muted h4">{% block section_subtitle %}{% endblock %}</small>
         </h1>
+
         {% if CRUMBS  %}
           {{ CRUMBS|crumbinator }}
         {% endif %}
@@ -273,7 +280,7 @@
         {% block beneath_breadcrumbs_block %}
         {% endblock %}
       </div>
-      <hr>
+      <!-- <hr> -->
       {% endblock %}
 
       <div class="mb-4"></div>

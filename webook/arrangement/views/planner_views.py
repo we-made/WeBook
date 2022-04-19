@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.core import serializers, exceptions
 from django.views import View
+from django.db import connection
 from django.views.generic.edit import FormView
 from django.views.generic import (
     DetailView,
@@ -211,6 +212,7 @@ class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
     fields = [
         "id",
         "title",
+        "title_en",
         "start",
         "end",
         "arrangement",
@@ -405,38 +407,88 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         arrangements = Arrangement.objects.all()
         serializable_arrangements = []
 
+        results = []
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
+                        arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, arr.name as name, ev.start as starts,
+                        ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
+                        GROUP_CONCAT( DISTINCT room.name) as room_names, 
+                        GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
+                        (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
+                        from arrangement_arrangement as arr 
+                        JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
+                        JOIN arrangement_location as loc on loc.id = arr.location_id
+                        JOIN arrangement_person as resp on resp.id = arr.responsible_id
+                        JOIN arrangement_audience as audience on audience.id = arr.audience_id
+                        JOIN arrangement_event as ev on ev.arrangement_id = arr.id
+                        LEFT JOIN arrangement_event_people as evp on evp.event_id = ev.id
+                        LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
+                        LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
+                        LEFT JOIN arrangement_room as room on room.id = evr.room_id
+                        GROUP BY event_pk'''
+            )
+            columns = [column[0] for column in cursor.description]
+            for row in cursor.fetchall():
+                m = dict(zip(columns, row))
+                m["slug_list"] = m["slug_list"].split(",") if m["slug_list"] is not None else []
+                m["room_names"] = m["room_names"].split(",") if m["room_names"] is not None else []
+                m["people_names"] = m["people_names"].split(",") if m["people_names"] is not None else []
+                results.append(m)
+
+        for i in results:
+            serializable_arrangements.append(i)
+
         assemble_slugs = self.request.GET.get("assembleSlugs", False)
-        for arrangement in arrangements:
-            for event in arrangement.event_set.all():
-                slug_list = []
-                if assemble_slugs:
-                    slug_list = [ arrangement.location.slug ]
-                    room_names = [ ]
-                    people_names = [ ]
-                    for room in event.rooms.all():
-                        slug_list.append(room.slug)
-                        room_names.append(room.name)
-                    for person in event.people.all():
-                        people_names.append(person.full_name)
-                    
-                serializable_arrangements.append({
-                    "event_pk": event.pk,
-                    "slug": arrangement.slug,
-                    "name": arrangement.name,
-                    "starts": event.start,
-                    "ends": event.end,
-                    "mainPlannerName": arrangement.responsible.full_name,
-                    "audience": arrangement.audience.name,
-                    "audience_slug": arrangement.audience.slug,
-                    "slug_list": slug_list,
-                    "room_names": room_names,
-                    "people_names": people_names,
-                    "audience_icon": arrangement.audience.icon_class,
-                    "location": arrangement.location.name,
-                    "location_slug": arrangement.location.slug,
-                    "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined",
-                    "arrangement_type_slug": arrangement.arrangement_type.slug if arrangement.arrangement_type is not None else ""
-                })
+        # for arrangement in arrangements:
+
+        #     # GET ALL SLUGS
+        #     slug_list = [ arrangement.location.slug ]
+
+            # pslug_query = "SELECT DISTINCT(person.slug) FROM arrangement_arrangement as arr JOIN arrangement_event as ev on ev.arrangement_id = arr.id JOIN arrangement_event_people as aep on aep.event_id = ev.id JOIN arrangement_person as person on person.id = aep.person_id where arr.id = " + str(arrangement.pk)
+
+            # room_slugs_query_results = Arrangement.objects.raw( 
+            #     f''' SELECT DISTINCT(room.slug), 1 as id FROM arrangement_arrangement as arr 
+            #             JOIN arrangement_event as ev on ev.arrangement_id = arr.id 
+            #             JOIN arrangement_event_rooms as aer on aer.event_id = ev.id
+            #             JOIN arrangement_room as room on room.id = aer.room_id
+            #             WHERE arr.id = {arrangement.pk} ''', 
+            #     translations={"slug": "slug"} )
+            # person_slugs_query_results = Arrangement.objects.raw( 
+            #     f''' SELECT DISTINCT(person.slug), 1 as id FROM arrangement_arrangement as arr 
+            #             JOIN arrangement_event as ev on ev.arrangement_id = arr.id
+            #             JOIN arrangement_event_people as aep on aep.event_id = ev.id
+            #             JOIN arrangement_person as person on person.id = aep.person_id
+            #             WHERE arr.id = {arrangement.pk}''', 
+            #     translations={"slug": "slug" } )
+
+
+            # for s in room_slugs_query_results:
+            #     slug_list.append(s.slug)
+            # for p in person_slugs_query_results:
+            #     slug_list.append(p.slug)
+
+            # for event in arrangement.event_set.all():
+            #     serializable_arrangements.append({
+            #         "arrangement_pk": arrangement.pk,
+            #         "event_pk": event.pk,
+            #         "slug": arrangement.slug,
+            #         "name": arrangement.name,
+            #         "starts": event.start,
+            #         "ends": event.end,
+            #         "mainPlannerName": arrangement.responsible.full_name,
+            #         "audience": arrangement.audience.name,
+            #         "audience_slug": arrangement.audience.slug,
+            #         "slug_list": slug_list,
+            #         "room_names": [], #room_names,
+            #         "people_names": [], #people_names,
+            #         "audience_icon": arrangement.audience.icon_class,
+            #         "location": arrangement.location.name,
+            #         "location_slug": arrangement.location.slug,
+            #         "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined",
+            #         "arrangement_type_slug": arrangement.arrangement_type.slug if arrangement.arrangement_type is not None else ""
+            #     })
 
         return HttpResponse(
             json.dumps(serializable_arrangements, default=json_serial),
@@ -449,6 +501,7 @@ get_arrangements_in_period_view = GetArrangementsInPeriod.as_view()
 class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
     fields = [
         "title",
+        "title_en",
         "start",
         "end",
         "ticket_code",
@@ -518,6 +571,7 @@ class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, CreateVie
         "responsible",
         "ticket_code",
         "meeting_place",
+        "expected_visitors",
     ]
     model = Arrangement
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createArrangementDialog.html"
@@ -551,6 +605,8 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
     fields = [
         "id",
         "title",
+        "ticket_code",
+        "expected_visitors",
         "start",
         "end",
         "arrangement",
@@ -560,6 +616,16 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         return super().post(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        
+        context["managerName"] = self.request.GET.get("managerName")
+        context["dialog"] = self.request.GET.get("dialog")
+        context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
+        context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
+
+        return context
 
     def get_success_url(self) -> str:
         people = self.request.POST.get("people")
@@ -597,6 +663,9 @@ class PlannerArrangementCreateSerieDialog(LoginRequiredMixin, TemplateView):
             arrangement = Arrangement.objects.get(slug=arrangement_slug)
             context["arrangementPk"] = arrangement.pk
         else: context["arrangementPk"] = 0
+
+        context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
+        context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
 
         if "managerName" in self.request.GET:
             context["managerName"] = self.request.GET.get("managerName")
@@ -717,17 +786,29 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-
+        
+        rooms = Room.objects.all()
         context["serie_guid"] = self.request.GET.get("serie_guid", None)
-        context["event_pk"] = self.request.GET.get("event_pk", None)
+        event_pk = self.request.GET.get("event_pk", None)
+        context["event_pk"] = event_pk
+
+        event = None
+        if event_pk is not None and event_pk != 0 and event_pk != "0":
+            event = Event.objects.get(pk=event_pk)
+            for room in rooms:
+                if room in event.rooms.all():
+                    room.is_selected = True
+        context["rooms"] = rooms
 
         if (context["serie_guid"] is None):
             context["mode"] = "event"
-            context["event"] = Event.objects.get(id=context["event_pk"])
+            context["event"] = event
         else:
             context["mode"] = "serie"
 
-        context["rooms"] = Room.objects.all()
+
+        context["manager"] = self.request.GET.get("manager", None)
+        context["dialog"] = self.request.GET.get("dialog", None)
 
         return context
 
@@ -739,16 +820,27 @@ class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["people"] = Person.objects.all()
+        people = Person.objects.all()
 
         context["serie_guid"] = self.request.GET.get("serie_guid", None)
-        context["event_pk"] = self.request.GET.get("event_pk", None)
+        event_pk = self.request.GET.get("event_pk", None)
+        context["event_pk"] = event_pk
+        event = None
+        if event_pk is not None and event_pk != 0 and event_pk != "0":
+            event = Event.objects.get(pk=event_pk)
+            for person in people:
+                if person in event.people.all():
+                    person.is_selected = True
+        context["people"] = people
 
         if (context["serie_guid"] is None):
             context["mode"] = "event"
-            context["event"] = Event.objects.get(id=context["event_pk"])
+            context["event"] = event
         else:
             context["mode"] = "serie"
+
+        context["manager"] = self.request.GET.get("manager", None)
+        context["dialog"] = self.request.GET.get("dialog", None)
 
         return context
 

@@ -9,6 +9,7 @@ import {
     LocationStore,
     PersonStore,
     _FC_RESOURCE,
+    StandardColorProvider,
 } from "./commonLib.js";
 
 import { ArrangementInspector } from "./arrangementInspector.js";
@@ -28,7 +29,7 @@ export class PlannerCalendar extends FullCalendarBased {
         $locationFilterSelectEl=undefined,
         $arrangementTypeFilterSelectEl=undefined,
         $audienceTypeFilterSelectEl=undefined,
-        csrf_token=undefined } = {}) {
+        csrf_token=undefined, calendarFilter=undefined } = {}) {
 
         super();
 
@@ -39,19 +40,18 @@ export class PlannerCalendar extends FullCalendarBased {
         this._eventsSrcUrl = eventsSrcUrl;
 
         this._colorProviders = new Map();
-        this._colorProviders.set("DEFAULT", new this.StandardColorProvider());
+        this._colorProviders.set("DEFAULT", new StandardColorProvider());
 
         colorProviders.forEach( (bundle) => {
             this._colorProviders.set(bundle.key, bundle.provider)
         });
 
         // If user has not supplied an active color provider key we use default color provider as active.
-        this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : "DEFAULT";
-
-        this._ARRANGEMENT_STORE = new ArrangementStore(this);
+        this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? this._colorProviders.get(initialColorProvider) : this._colorProviders.get("DEFAULT");
+        this._ARRANGEMENT_STORE = new ArrangementStore(this.activeColorProvider);
         this._LOCATIONS_STORE = new LocationStore(this);
         this._PEOPLE_STORE = new PersonStore(this);
-        this.calendarFilter = new PlannerCalendarFilter();
+        this.calendarFilter = calendarFilter;
 
         this.init();
 
@@ -92,15 +92,6 @@ export class PlannerCalendar extends FullCalendarBased {
     
             this.arrangementInspectorUtility.inspect(arrangement);
         })
-    }
-
-    /**
-     * The standard calendar color provider
-     */
-    StandardColorProvider = class StandardColorProvider {
-        getColor(arrangement) {
-            return "green";
-        }
     }
 
     /**
@@ -259,23 +250,23 @@ export class PlannerCalendar extends FullCalendarBased {
                 arrangementsCalendarButton: {
                     text: 'Arrangementer',
                     click: () => {
-                        $('#overview-tab').trigger('click');
+                        $('#overview-tab')[0].click();
                     }
                 },
                 locationsCalendarButton: {
                     text: 'Lokasjoner',
                     click: () => {
-                        $('#locations-tab').trigger('click');
+                        $('#locations-tab')[0].click();
                     }
                 },
                 peopleCalendarButton: {
                     text: 'Personer',
                     click: () => {
-                        $('#people-tab').trigger('click');
+                        $('#people-tab')[0].click();
                     }
                 }
             },
-            headerToolbar: { left: '' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
+            headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
             eventSources: [
                 {
                     events: async (start, end, startStr, endStr, timezone) => {

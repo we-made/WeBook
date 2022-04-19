@@ -1,8 +1,8 @@
 {% load static i18n %}
 
 
-<div id="newTimePlanDialog" title="Ny tidsplan">
-    <div class='bg-white p-2 border border-1'>
+<div id="newTimePlanDialog" title="<span class='badge badge-success'><i class='fas fa-clock'></i></span>&nbsp; Ny tidsplan">
+    <div>
         <fieldset>
             <table>
                 <tbody>
@@ -59,6 +59,39 @@
                   </tr>
                 </tbody>
               </table>
+
+              <div class="row mt-4">
+                <div class="col-6">
+                    <h4>Rom</h4>
+                    <button class="playfulButton playfulButton-green"
+                        onclick="createSerieDialog__openAddRooms()">
+                        <div class="icon"><i class="fas fa-plus"></i></div>
+                        Legg til rom
+                    </button>
+
+                    <div class="table-responsive mt-2">
+                        <table class="table table-sm">
+                            <tbody id="roomsTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h4>Personer</h4>
+
+                    <button class="playfulButton  playfulButton-green"
+                        onclick="createSerieDialog__openAddPeople()">
+                        <div class="icon"><i class="fas fa-plus"></i></div>
+                        Legg til personer
+                    </button>
+
+
+                    <div class="table-responsive mt-2">
+                        <table class="table table-sm">
+                            <tbody id="peopleTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </fieldset>
 
         <fieldset>
@@ -185,10 +218,96 @@
     </div>
 </div>
 
+<script>
+    var peopleNameMap = new Map();
+    var roomsNameMap = new Map();
+
+    document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
+        console.log("People have been selected", e)
+        peopleNameMap = e.detail.context.people_name_map;
+        createSerieDialog__setPeople(e.detail.context.people);
+    }) 
+    document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
+        console.log("rooms have been selected", e);
+        roomsNameMap = e.detail.context.room_name_map;
+        createSerieDialog__setRooms(e.detail.context.rooms);
+    })
+
+    function createSerieDialog__openAddRooms() {
+        document.dispatchEvent(new Event("{{managerName}}.{{orderRoomDialog}}.trigger"));
+    }
+
+    function createSerieDialog__openAddPeople() {
+        document.dispatchEvent(new Event("{{managerName}}.{{orderPersonDialog}}.trigger"));
+    }
+
+    function createSerieDialog__setRooms(rooms) {
+        var tbody = $('#roomsTbody');
+        tbody.empty();
+
+        var ids = rooms.split(",");
+
+        ids.forEach(id => {
+            tbody.append(
+                $(`<tr rowid='${id}'>
+                    <td>${roomsNameMap.get(id)}</td>
+                    <td> <a href='#' class='text-danger'
+                            data-mdb-toggle='tooltip'
+                            title='{% trans "Remove this room from the activity" %}'
+                            onclick='createSerieDialog__removeAssociation(this)'>
+                                <i class='fas fa-trash'></i>
+                            </a> 
+                    </td>
+                   </tr>`)
+            )
+        });
+    }
+
+    function createSerieDialog__setPeople(people) {
+        var tbody = $('#peopleTbody');
+        tbody.empty();
+        var ids = people.split(",");
+
+        ids.forEach(id => {
+            tbody.append(
+                $(`<tr rowid='${id}'>
+                    <td>${peopleNameMap.get(id)}</td>
+                    <td> <a href='#' class='text-danger'
+                            data-mdb-toggle='tooltip'
+                            title='{% trans "Remove this person from the activity" %}'
+                            onclick='createSerieDialog__removeAssociation(this)'>
+                                <i class='fas fa-trash'></i>
+                            </a> 
+                    </td>
+                   </tr>`)
+            )
+        });
+    }
+
+    function createSerieDialog__removeAssociation(a) {
+        var row = $(a).closest("tr")[0];
+        var rowid = row.getAttribute("rowid");
+        row.remove();
+    }
+
+    function createSerieDialog__getSelectedRoomIds() {
+        var room_ids = Array.from($("#roomsTbody")[0].children).map(row => row.getAttribute("rowid"));
+        console.log("Rooms", room_ids);
+        return room_ids;
+    }
+
+    function dialogCreateEvent__getSelectedPeopleIds() {
+        var people_ids = Array.from($("#peopleTbody")[0].children).map(row => row.getAttribute("rowid"));
+        console.log("People", people_ids)
+        return people_ids;
+    }
+</script>
 
 <script type="module">
     import { SeriesUtil } from "{% static 'modules/planner/seriesutil.js' %}";
     import { SelectComponent, MonthSelectComponent, YearSelectComponent } from "{% static 'modules/planner/selectcomponent.js' %}";
+
+
 
     $('#submitBtn').on('click', () => {
         console.log(">> submitBtn")
@@ -604,13 +723,17 @@
             }
         }
 
-        console.log(">> dispatch serie")
-        console.log(serie)
+        var room_ids = Array.from($("#roomsTbody")[0].children).map(row => row.getAttribute("rowid"));
+        var people_ids = Array.from($("#peopleTbody")[0].children).map(row => row.getAttribute("rowid"));
+
+        serie.rooms = room_ids;
+        serie.people = people_ids;
+
         document.dispatchEvent(
             new CustomEvent(
                 "{{managerName}}.submit", 
                 {
-                    'detail': { 'dialog': "newTimePlanDialog", 'serie': serie }
+                    'detail': { 'dialog': "newTimePlanDialog", 'serie': serie, "csrf_token": "{{csrf_token}}" }
                 }
             )
         )

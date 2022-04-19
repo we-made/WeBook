@@ -1,17 +1,52 @@
-import { FullCalendarEvent, FullCalendarResource, FullCalendarBased, LocationStore, _FC_RESOURCE } from "./commonLib.js";
+import { FullCalendarEvent, StandardColorProvider, _FC_EVENT, ArrangementStore, FullCalendarResource, FullCalendarBased, LocationStore, _FC_RESOURCE } from "./commonLib.js";
 
+import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
 
 export class LocationCalendar extends FullCalendarBased {
 
-    constructor ( {calendarElement } = {} ) {
+    constructor ( {calendarElement,  colorProviders=[], initialColorProvider="", calendarFilter=undefined  } = {} ) {
         super();
 
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
-        
+        this.calendarFilter = calendarFilter;
+
+        this._colorProviders = new Map();
+        this._colorProviders.set("DEFAULT", new StandardColorProvider());
+
+        colorProviders.forEach( (bundle) => {
+            this._colorProviders.set(bundle.key, bundle.provider)
+        });
+
+        // // If user has not supplied an active color provider key we use default color provider as active.
+        // this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : this._colorProviders.get("DEFAULT");
+
+        this._ARRANGEMENT_STORE = new ArrangementStore(this._colorProviders.get("arrangement"));
         this._LOCATIONS_STORE = new LocationStore(this);
 
         this.init()
+    }
+
+    /**
+     * Set a new active color provider, identified by the given key. 
+     * Set color provider must have been registered on initialization of planner calendar.
+     * @param {*} key 
+     */
+    setActiveColorProvider(key) {
+        if (this._colorProviders.has(key)) {
+            this.activeColorProvider = key;
+        }
+        else {
+            console.error(`Color provider with the given key: '${this.key}' does not exist.`)
+        }
+    }
+
+    // /**
+    //  * Get the currently active color provider instance
+    //  * @returns active color provider
+    //  */
+    _getColorProvider() {
+        return this._colorProviders.get(this.activeColorProvider);
     }
 
     refresh() {
@@ -37,19 +72,19 @@ export class LocationCalendar extends FullCalendarBased {
                     arrangementsCalendarButton: {
                         text: 'Arrangementer',
                         click: () => {
-                            $('#overview-tab').trigger('click');
+                            $('#overview-tab')[0].click();
                         }
                     },
                     locationsCalendarButton: {
                         text: 'Lokasjoner',
                         click: () => {
-                            $('#locations-tab').trigger('click');
+                            $('#locations-tab')[0].click();
                         }
                     },
                     peopleCalendarButton: {
                         text: 'Personer',
                         click: () => {
-                            $('#people-tab').trigger('click');
+                            $('#people-tab')[0].click();
                         }
                     }
                 },
@@ -60,19 +95,33 @@ export class LocationCalendar extends FullCalendarBased {
                     }
                 },
                 eventRender: function (event, element, view) {
-                    $(element).find(".fc-list-item-title").append("<div>" + event.resourceId + "</div>");
+                    // $(element).find(".fc-list-item-title").append("<div>" + event.resourceId + "</div>");
                 },
                 navLinks: true,
                 locale: 'nb',
-                events: [ { title: "Test Arrangement", start: "2022-03-01", end: "2022-03-30", resourceId: 'lokasjon-3'  } ],
+                eventSources: [
+                    {
+                        events: async (start, end, startStr, endStr, timezone) => {
+                            return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
+                                .then(_ => this.calendarFilter.getFilteredSlugs().map( function (slug) { return { id: slug, name: "" } }))
+                                .then(filterSet => _this._ARRANGEMENT_STORE.get_all(
+                                    { 
+                                        get_as: _FC_EVENT, 
+                                        locations: undefined,
+                                        arrangement_types: undefined,
+                                        audience_types: undefined,
+                                        filterSet: undefined
+                                    }
+                                ));
+                        },
+                    }
+                ],
                 resources: async (fetchInfo, successCallback, failureCallback) => {
                     await _this._LOCATIONS_STORE._refreshStore();
                     successCallback(_this._LOCATIONS_STORE.getAll({ get_as: _FC_RESOURCE }));
                 },
                 resourceLabelContent: function (arg) {
                     var domNodes = [];
-
-                    console.log(arg)
 
                     var name = document.createElement("span");
                     name.innerText = arg.resource.title;

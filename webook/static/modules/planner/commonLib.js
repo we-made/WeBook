@@ -4,10 +4,22 @@ export const _NATIVE_ARRANGEMENT = Symbol("NATIVE_ARRANGEMENT");
 export const _NATIVE_LOCATION = Symbol("NATIVE_LOCATION");
 export const _NATIVE_PERSON = Symbol("NATIVE_PERSON");
 
+
+
+    /**
+     * The standard calendar color provider
+     */
+    export class StandardColorProvider {
+        getColor(arrangement) {
+            return "green";
+        }
+    }
+
 export class FullCalendarEvent {
     constructor ({title,
                  start,
                  end,
+                 resourceIds=[],
                  color="",
                  display="",
                  textColor="",
@@ -19,6 +31,7 @@ export class FullCalendarEvent {
         this.end = end;
         this.color = color;
         this.display = display;
+        this.resourceIds = resourceIds;
         this.textColor = textColor;
         this.classNames = classNames;
         this.extendedProps = extendedProps;
@@ -92,7 +105,7 @@ export class LocationStore extends BaseStore {
     }
     
     getAll({ get_as } = {}) {
-        var resources = _getStoreAsArray();
+        var resources = this._getStoreAsArray();
         if (get_as === _FC_RESOURCE) {
             let fcResources = [];
             for (let i = 0; i < resources.length; i++) {
@@ -125,6 +138,7 @@ export class PersonStore extends BaseStore {
     }
 
     _mapToFullCalendarResource (nativePerson) {
+        console.log(nativePerson)
         return new FullCalendarResource({
             title: nativePerson.title,
             id: nativePerson.id,
@@ -140,8 +154,7 @@ export class PersonStore extends BaseStore {
     }
 
     getAll({ get_as } = {}) {
-        var resources = _getStoreAsArray();
-        
+        var resources = this._getStoreAsArray();
         if (get_as === _FC_RESOURCE) {
             let fcResources = [];
             for (let i = 0; i < resources.length; i++) {
@@ -160,12 +173,12 @@ export class PersonStore extends BaseStore {
  * Stores, fetches, and provides an easy interface from which to retrieve arrangements
  */
 export class ArrangementStore extends BaseStore {
-    constructor (plannerCalendar) {
+    constructor (colorProvider) {
         super();
 
         this._store = new Map(); 
         this._refreshStore();
-        this.plannerCalendar = plannerCalendar;
+        this.colorProvider = colorProvider;
     }
 
     /**
@@ -173,10 +186,10 @@ export class ArrangementStore extends BaseStore {
      */
     _refreshStore(start, end) {
 
-        var assembleSlugs = document.getElementById('useFilterCheckbox').checked;
+        // var assembleSlugs = document.getElementById('useFilterCheckbox').checked;
 
         this._flushStore();
-        return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}&assembleSlugs=` + assembleSlugs)
+        return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}`)
             .then(response => response.json())
             .then(obj => { obj.forEach((arrangement) => {
                 this._store.set(arrangement.event_pk, arrangement);
@@ -200,12 +213,12 @@ export class ArrangementStore extends BaseStore {
         
         let slugClass = writeSlugClass(arrangement.slug);
         let pkClass = "pk:" + arrangement.event_pk;
-
         return new FullCalendarEvent({
             title: arrangement.name,
             start: arrangement.starts,
+            resourceIds: arrangement.slug_list,
             end: arrangement.ends,
-            color: _this.plannerCalendar._getColorProvider().getColor(arrangement),
+            color:this.colorProvider.getColor(arrangement), //_this.plannerCalendar._getColorProvider().getColor(arrangement), //
             classNames: [ slugClass, pkClass ],
             extendedProps: {
                 location_name: arrangement.location,
@@ -225,7 +238,6 @@ export class ArrangementStore extends BaseStore {
     get({pk, get_as } = {}) {
         if (this._store.has(parseInt(pk)) === false) {
             console.error(`Can not get arrangement with pk '${pk}' as pk is not known.`)
-            console.log(this._store)
             return;
         }
 
@@ -266,7 +278,6 @@ export class ArrangementStore extends BaseStore {
 
             arrangement.slug_list.forEach( (slug) => {
                 if (filterMap.has(slug) === true) {
-                    console.log("Triggered.")
                     isWithinFilter = false;
                 }
             })

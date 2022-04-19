@@ -2,8 +2,19 @@
 
 
 <div id="mainDialog" title="{{object.name}}">
+    <!-- <div class="clearfix mb-3">
+        <div class="float-start">
+            <button class="btn btn-sm shadow-0 btn-outline-warning"><i class="fas fa-star"></i></button>
+            <button class="btn btn-sm shadow-0 btn-outline-info"><i class="fas fa-eye"></i></button>
+        </div> 
+        <div class="float-end">
+            <button class="btn btn-sm shadow-0 btn-danger float-end"><i class="fas fa-trash"></i></button>
+            <button class="btn btn-sm shadow-0 btn-info float-end me-2"><i class="fas fa-copy"></i></button>
+        </div>
+    </div>
+     -->
 
-    <div id="tabs">
+    <div id="tabs" class="light-tabs">
         <ul>
             <li>
                 <a href="#tabs-1">
@@ -239,12 +250,23 @@
         <div id="tabs-2">
             <div class="table-responsive" style="max-height: 480px;">
                 <table class='table table-striped'>
-                    <div class="btn-group margin-auto shadow-0">
-                        <button class='shadow-0 text-white btn btn-sm btn-success' id='mainPlannerDialog__newTimePlan'><i class='fas fa-plus'></i>&nbsp; Ny tidsplan</button>
-                        <!-- &nbsp;|&nbsp; -->
-                        <!-- <button class='shadow-0 text-white btn btn-sm btn-success' id='mainPlannerDialog__newSimpleActivity'><i class='fas fa-plus'></i>&nbsp; Ny enkel aktivitet</button> -->
+                    
+                    <div class="row">
+                        <div class="col-6">
+                            <button class="playfulButton playfulButton-green" id='mainPlannerDialog__newTimePlan'>
+                                <div class="icon"><i class="fas fa-plus"></i></div>
+                                Ny tidsplan
+                            </button>
+
+                        </div>
+                        <div class="col-6">
+                            <button class="playfulButton playfulButton-green" id='mainPlannerDialog__newSimpleActivity'>
+                                <div class="icon"><i class="fas fa-plus"></i></div>
+                                Ny enkel aktivitet
+                            </button>
+                        </div>
                     </div>
-                    <hr>
+
                     <!-- &nbsp;|&nbsp;
                     <a href='#' class='text-primary' id='mainPlannerDialog__showInCalendarForm'><i class='fas fa-calendar'></i>&nbsp; Vis i kalenderform</a> -->
                     <thead>
