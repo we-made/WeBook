@@ -131,7 +131,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class RoomPreset (TimeStampedModel):
+class RoomPreset (TimeStampedModel, ModelNamingMetaMixin):
     """
         A room preset is a group, or collection, or set, of rooms. 
     """

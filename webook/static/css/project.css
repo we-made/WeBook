@@ -16,6 +16,12 @@ body {
   border-color: #eed3d7;
 }
 
+.alert-simple-info {
+  background-color: white;
+  border-radius: 0;
+  border-left: deepskyblue 4px solid;
+}
+
 /*
   Fix close button existing on the left side of the modal due to inconsistencies
   between mdbootstrap and bootbox.js. The button can exist in two states - one with a title present, and one

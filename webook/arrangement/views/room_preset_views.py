@@ -24,6 +24,7 @@ from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServ
 from webook.arrangement.forms.requisition_person_form import RequisitionPersonForm
 from webook.arrangement.forms.order_service_form import OrderServiceForm
 from webook.arrangement.forms.reset_service_requisition_form import ResetRequisitionForm
+from webook.arrangement.forms.room_presets.room_preset_create_form import RoomPresetCreateForm
 from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition, RoomPreset, ServiceRequisition
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -37,7 +38,7 @@ def get_section_manifest():
         section_icon="fas fa-layer-group",
         section_crumb_url=reverse("arrangement:room_preset_list"),
         crudl_map=SectionCrudlPathMap(
-            detail_url="arrangement:room_preset_list",
+            detail_url=None,
             create_url="arrangement:room_preset_create",
             edit_url="arrangement:room_preset_update",
             delete_url="arrangement:room_preset_delete",
@@ -76,25 +77,26 @@ room_preset_detail_view = RoomPresetDetailView.as_view()
 
 
 class RoomPresetCreateView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, CreateView):
+    form_class = RoomPresetCreateForm
     model = RoomPreset
-    fields = [
-        "name",
-        "rooms",
-    ]
     template_name="arrangement/room_presets/form.html"
     view_meta = ViewMeta.Preset.create(RoomPreset)
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:room_preset_list")
 
 room_preset_create_view = RoomPresetCreateView.as_view()
 
 
 class RoomPresetUpdateView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, UpdateView):
+    form_class = RoomPresetCreateForm
     model = RoomPreset
-    fields = [
-        "name",
-        "rooms",
-    ]
+
     template_name="arrangement/room_presets/form.html"
     view_meta = ViewMeta.Preset.edit(RoomPreset)
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:room_preset_list")
 
 room_preset_update_view = RoomPresetUpdateView.as_view()
 
