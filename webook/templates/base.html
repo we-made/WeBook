@@ -68,8 +68,17 @@
           <!-- <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" width="150px" draggable="false"> -->
         </a>
 
+
+
+        <div style="" class="text-center">
+          <i class="fas fa-gem h1 text-white"></i>
+        </div>
+
         <div class="text-center p-2 fw-bold h3 text-uppercase application-title">
           {{ APP_TITLE }}
+        </div>
+        <div style="background-color: #6A5DB8; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;" class="p-1 text-center text-uppercase">
+          Nasjonalmuseet
         </div>
 
         <ul class="sidenav-menu">
@@ -96,6 +105,11 @@
           <li>
             <a class="sidenav-link ripple-surface" href="{% url "arrangement:location_list" %}" tabindex="-1">
               <i class="fa fa-building fa-fw me-3" aria-hidden="true"></i><span>{% trans "Rooms & Locations" %}</span></a>
+          </li>
+
+          <li>
+            <a class="sidenav-link ripple-surface" href="{% url "arrangement:room_preset_list" %}" tabindex="-1">
+              <i class="fa fa-layer-group fa-fw me-3" aria-hidden="true"></i><span>{% trans "Room Presets" %}</span></a>
           </li>
 
           <li>

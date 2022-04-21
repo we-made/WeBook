@@ -3,16 +3,38 @@
 
 {% block content %}
 
+
 <!-- <h4 class="fw-bold"><i class="fas fa-list" aria-hidden="true"></i>&nbsp; {% trans "All" %} {{ENTITY_NAME_PLURAL}}</h4> -->
-{% if SHOW_CREATE_BUTTON %}
-<div class="clearfix">
-    <a class="btn btn-success btn-lg mb-2 float-end"
-        href="{% url CRUDL_MAP.create_url %}">
-        <i class="fas fa-plus"></i>&nbsp; 
-        {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
-    </a>
+
+<div class="row mb-3">
+    <div class="col-8">
+
+        <div class="input-group input-group-lg flex-nowrap">
+            <div class="input-group-text">
+                <i class="fas fa-search"></i>
+            </div>
+
+            <input type="search" name="" class="form-control form-control-lg" id=""
+                placeholder="Search for {{ ENTITY_NAME_PLURAL }}...">
+        </div>
+
+
+    </div>
+    
+    <div class="col-4">
+        {% if SHOW_CREATE_BUTTON %}
+        <div class="clearfix">
+            <a class="btn  btn-success shadow-0 btn-lg mb-2 float-end"
+                href="{% url CRUDL_MAP.create_url %}">
+                <i class="fas fa-plus"></i>&nbsp; 
+                {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
 </div>
-{% endif %}
+
+
 
 
 
@@ -30,7 +52,7 @@
 {% else %}
 
 <div class="table-responsive">
-    <table class="table">
+    <table class="table table-sm">
         <thead>
             <tr>
                 {% for attr_name, column_name, show in COLUMN_DEFINITION %}

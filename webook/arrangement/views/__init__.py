@@ -178,3 +178,12 @@ from .arrangementtype_views import (
     arrangement_type_update_view,
     arrangement_type_delete_view,
 )
+
+
+from .room_preset_views import (
+    room_presets_listview,
+    room_preset_detail_view,
+    room_preset_create_view,
+    room_preset_update_view,
+    room_preset_delete_view,
+)
