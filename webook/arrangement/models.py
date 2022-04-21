@@ -135,8 +135,13 @@ class RoomPreset (TimeStampedModel):
     """
         A room preset is a group, or collection, or set, of rooms. 
     """
-    name = models.CharField(verbose_name=_("Name"), max_length=256, null=False, blank=False)
+    slug = AutoSlugField(populate_from="name", unique=True)
+    name = models.CharField(verbose_name=_("Name"), max_length=256,     null=False, blank=False)
     rooms = models.ManyToManyField(to="Room")
+
+    instance_name_attribute_name = "name"
+    entity_name_singular = _("Room Preset")
+    entity_name_plural = _("Room Presets")
 
 
 class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, ModelVisitorsMixin):

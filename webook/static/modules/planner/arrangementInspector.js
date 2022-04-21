@@ -95,7 +95,7 @@ export class ArrangementInspector {
                             document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                         },
                         onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
-                        dialogOptions: { width: 800, height: 800 }
+                        dialogOptions: { width: 800, height: 800,  closeText: "haaaaaaa"  }
                     }),
                 ],
                 [
