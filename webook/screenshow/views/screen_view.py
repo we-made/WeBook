@@ -63,14 +63,14 @@ screen_list_view = ScreenListView.as_view()
 class ScreenCreateView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, CreateView):
     model = ScreenResource
     fields = [
-        "name",
-        "name_en",
-        "quantity",
-        "is_room_screen",
+        "screen_model",
+        "folder_path",
+        "items_shown",
+        "room",
+        "generated_name",
     ]
     template_name = "screenshow/screen/screen_form.html"
     view_meta = ViewMeta.Preset.create(ScreenResource)
-
 
 screen_create_view = ScreenCreateView.as_view()
 
@@ -78,10 +78,11 @@ screen_create_view = ScreenCreateView.as_view()
 class ScreenUpdateView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, UpdateView):
     model = ScreenResource
     fields = [
-        "name",
-        "name_en",
-        "quantity",
-        "is_room_screen",
+        "screen_model",
+        "folder_path",
+        "items_shown",
+        "room",
+        "generated_name",
     ]
     template_name = "screenshow/screen/screen_form.html"
     view_meta = ViewMeta.Preset.create(ScreenResource)

@@ -133,7 +133,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
 
 class RoomPreset (TimeStampedModel, ModelNamingMetaMixin):
     """
-        A room preset is a group, or collection, or set, of rooms. 
+        A room preset is a group, or collection, or set, of rooms.
     """
     slug = AutoSlugField(populate_from="name", unique=True)
     name = models.CharField(verbose_name=_("Name"), max_length=256,     null=False, blank=False)
@@ -303,9 +303,8 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
         related_name="rooms"
     )
     max_capacity = models.IntegerField(verbose_name="Maximum Occupants")
-
     is_exclusive = models.BooleanField(verbose_name=_("Is Exclusive"), default=False)
-
+    has_screen = models.BooleanField(verbose_name=_("Has Screen"), default=True)
     business_hours = models.ManyToManyField(to="BusinessHour", verbose_name=_("Business Hours"))
 
     name = models.CharField(verbose_name=_("Name"), max_length=128)

@@ -15,7 +15,7 @@ from django.views.generic import (
 )
 from django.core import serializers
 from django.views.generic.edit import DeleteView
-from webook.arrangement.models import Location, Room
+from webook.arrangement.models import Location, Room, BusinessHour
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 import json
@@ -41,6 +41,10 @@ class RoomListView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, List
     template_name = "arrangement/room/room_list.html"
     view_meta = ViewMeta.Preset.table(Room)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
 room_list_view = RoomListView.as_view()
 
 
@@ -51,6 +55,11 @@ class RoomDetailView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, De
     view_meta = ViewMeta.Preset.detail(Room)
     template_name = "arrangement/room/room_detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["Days"] = BusinessHour.Days._member_names_
+        return context
+
 room_detail_view = RoomDetailView.as_view()
 
 
@@ -59,6 +68,7 @@ class RoomUpdateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Up
         "location",
         "name",
         "is_exclusive",
+        "has_screen",
         "max_capacity",
     ]
     view_meta = ViewMeta.Preset.edit(Room)
@@ -73,6 +83,7 @@ class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Cr
         "location",
         "name",
         "max_capacity",
+        "has_screen",
         "is_exclusive",
     ]
     view_meta = ViewMeta.Preset.create(Room)
@@ -108,7 +119,7 @@ class SearchRoomsAjax (LoginRequiredMixin, SearchView):
             rooms = Room.objects.filter(name__contains=search_term)
 
         return rooms
-        
+
 
 search_room_ajax_view = SearchRoomsAjax.as_view();
 

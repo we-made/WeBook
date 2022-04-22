@@ -18,32 +18,16 @@
 
                         </label>
                         <input type="text" class="form-control form-control-lg"
-                            id="{{ form.name.id_for_label }}"
-                            name="{{ form.name.name }}"
-                            value="{{ form.name.value|default:'' }}"
-                            placeholder="{% trans 'Screen Name' %}..." />
+                            id="{{ form.screen_model.id_for_label }}"
+                            name="{{ form.screen_model.name }}"
+                            value="{{ form.screen_model.value|default:'' }}"
+                            placeholder="{% trans 'Screen Model Name' %}..." />
 
-                        {{ form.name.errors }}
+                        {{ form.screen_model.errors }}
                     </div>
 
                 </div>
-                <div class="row">
 
-                    <div class="col-lg-4 col-sm-12 mt-lg-0 mt-sm-2">
-                        <label class="d-block">
-                            {% trans "Screen Name (English)" %}
-
-                        </label>
-                        <input type="text" class="form-control form-control-lg"
-                            id="{{ form.name_en.id_for_label }}"
-                            name="{{ form.name_en.name }}"
-                            value="{{ form.name_en.value|default:'' }}"
-                            placeholder="{% trans 'Screen Name (English)' %}... ({% trans 'Optional' %})" />
-                    </div>
-
-
-
-                </div>
                <div class="row">
 
 

@@ -8,7 +8,7 @@
 <div class="clearfix">
     <a class="btn btn-wemade btn-lg mb-2 float-end"
         href="{% url CRUDL_MAP.create_url %}">
-        <i class="fas fa-plus"></i>&nbsp; 
+        <i class="fas fa-plus"></i>&nbsp;
         {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
     </a>
 </div>
@@ -21,9 +21,9 @@
 <div class="alert alert-info">
     <h4>{% blocktrans %} No <em>{{ENTITY_NAME_PLURAL}}</em> registered yet! {% endblocktrans %}</h4>
     <p class="mb-0">
-        {% blocktrans %} 
+        {% blocktrans %}
             After you have begun registering <em>{{ENTITY_NAME_PLURAL}}</em> they will be shown here! None have been registered yet,
-            but you can resolve this by clicking the button above! 
+            but you can resolve this by clicking the button above!
         {%endblocktrans%}
     </p>
 </div>

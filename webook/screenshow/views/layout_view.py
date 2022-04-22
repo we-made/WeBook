@@ -69,8 +69,8 @@ class LayoutCreateView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['screen_list'] = ScreenResource.objects.order_by('name')
-        context['group_list'] = ScreenGroup.objects.order_by('group_name')
+        #context['screen_list'] = ScreenResource.objects.order_by('name')
+        #context['group_list'] = ScreenGroup.objects.order_by('group_name')
         return context
 
 
@@ -85,8 +85,8 @@ class LayoutUpdateView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['screen_list'] = ScreenResource.objects.order_by('name')
-        context['group_list'] = ScreenGroup.objects.order_by('group_name')
+        #context['screen_list'] = ScreenResource.objects.order_by('name')
+        #context['group_list'] = ScreenGroup.objects.order_by('group_name')
         return context
 
 

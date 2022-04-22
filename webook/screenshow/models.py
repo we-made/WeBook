@@ -7,23 +7,29 @@ from django.urls import reverse
 
 class ScreenResource(TimeStampedModel):
 
-    name = models.CharField(verbose_name=_("Screen Name"), max_length=255, blank=False, null=False)
-    name_en = models.CharField(verbose_name=_("Screen Name English"), max_length=255, blank=False, null=True)
-    quantity = models.IntegerField(verbose_name=_("Quantity"), null=False, default=10)
-    is_room_screen = models.BooleanField(verbose_name=_("Is Screen in Room"), default=True)
-    #location = models.ForeignKey(to=Location, verbose_name=_("Location"), on_delete=models.RESTRICT,null=True, blank=True)
+    class ScreenStatus(models.IntegerChoices):
+        AVAILABLE = 0, _('Available')
+        UNAVAILABLE = 1, _('Unavailable')
+
+    screen_model = models.CharField(verbose_name=_("Screen Model"), max_length=255, blank=False, null=False)
+    items_shown = models.IntegerField(verbose_name=_("Items shown on screen"), null=False, default=10)
+    room = models.ForeignKey(to='arrangement.Room', verbose_name=_("Room"), on_delete=models.RESTRICT, null=True, blank=True)
+    status = models.IntegerField(default=ScreenStatus.AVAILABLE, choices=ScreenStatus.choices)
+
+    folder_path = models.CharField(verbose_name=_("Folder Path"), max_length=255, blank=False, null=True)
+    generated_name = models.CharField(verbose_name=_("Generated Name"), max_length=255, blank=False, null=True)
 
     screen_groups = models.ManyToManyField(to="ScreenGroup", verbose_name=_("Screen Groups"), blank=True)
 
-    slug = AutoSlugField(populate_from="name", unique=True)
-    instance_name_attribute_name = "name"
+    slug = AutoSlugField(populate_from="screen_model", unique=True)
+    instance_name_attribute_name = "screen_model"
     entity_name_singular = _("ScreenResource")
     entity_name_plural = _("ScreenResources")
 
     @property
     def resolved_name(self):
         # override template name mixin, as it relies on "name" attribute which is no good in this context. We want to use full_name instead.
-        return self.name
+        return self.screen_model
 
     def get_absolute_url(self):
         return reverse(
