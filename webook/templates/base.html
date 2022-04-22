@@ -31,7 +31,8 @@
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/base/jquery.fonticonpicker.min.css' %}">
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/themes/bootstrap-theme/jquery.fonticonpicker.bootstrap.min.css' %}">
 
-    <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/wysiwyg.min.js"></script>
+
+    <!-- <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/wysiwyg.min.js"></script> -->
 
     <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/file-upload.min.css">
 
@@ -77,9 +78,13 @@
         <div class="text-center p-2 fw-bold h3 text-uppercase application-title">
           {{ APP_TITLE }}
         </div>
+        <div class="text-center">
+          {% now "jS F Y" %}
+        </div>
         <div style="background-color: #6A5DB8; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;" class="p-1 text-center text-uppercase">
           Nasjonalmuseet
         </div>
+        
 
         <ul class="sidenav-menu">
           <li class="sidenav-item">
@@ -274,7 +279,6 @@
 
     <div class="container" id="mainBodyContainer">
       {% block noheader %}
-
       <section class="bg-white  header-fonted">
         <h1 class="h1 fw-bolder header-fonted">
           <i class="{% block section_icon_class %}{% endblock %}"></i>
@@ -327,8 +331,11 @@
 
       <!-- Your stuff: Third-party javascript libraries go here -->
       <script src="{{ ASSET_SERVER_URL }}mdb/js/mdb.min.js"></script>
+      
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/color-picker.min.js"></script>
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/transfer.min.js"></script>
+
+
 
 
       <!-- <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/file-upload.min.css"> -->
@@ -344,7 +351,9 @@
       <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
       <script src="{% static '@fonticonpicker/fonticonpicker/dist/js/jquery.fonticonpicker.min.js' %}"></script>
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/file-upload.min.js"></script>
-
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+      <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.11.5/af-2.3.7/b-2.2.2/b-colvis-2.2.2/b-html5-2.2.2/b-print-2.2.2/cr-1.5.5/date-1.1.2/fc-4.0.2/fh-3.2.2/kt-2.6.4/r-2.2.9/rg-1.1.4/rr-1.2.8/sc-2.0.5/sb-1.3.2/sp-2.0.0/sl-1.3.4/sr-1.1.0/datatables.min.js"></script>
 
 <!-- Latest compiled and minified JavaScript -->
 
