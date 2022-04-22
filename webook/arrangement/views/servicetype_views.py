@@ -12,6 +12,8 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.urls import reverse, reverse_lazy
+from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from django.views.generic.edit import DeleteView
 from webook.utils.meta_utils.section_manifest import SectionManifest
 from webook.arrangement.models import ServiceType
@@ -78,13 +80,24 @@ class ServiceTypeUpdateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin
 service_type_update_view = ServiceTypeUpdateView.as_view()
 
 
-class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, CreateView):
+class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView):
     model = ServiceType
     fields = [
         "name"
     ]
     template_name = "arrangement/servicetype/servicetype_form.html"
     view_meta = ViewMeta.Preset.create(ServiceType)
+
+    success_urls_and_messages = { 
+        "submitAndNew": { 
+            "url": reverse_lazy( "arrangement:servicetype_create" ),
+            "msg": _("Successfully created entity")
+        },
+        "submit": { 
+            "url": reverse_lazy("arrangement:servicetype_list"),
+        }
+    }
+
 
 service_type_create_view = ServiceTypeCreateView.as_view()
 

@@ -2,6 +2,10 @@
 {% load crumbinator_filters %}
 {% load custom_tags %}
 
+
+{{ MESSAGES_SERIALIZABLE | json_script:"queuedMessages" }}
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -302,11 +306,6 @@
       {% endblock %}
 
       <div class="mb-4"></div>
-      {% if messages %}
-          {% for message in messages %}
-              <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
-          {% endfor %}
-      {% endif %}
     </section>
 
 
@@ -374,7 +373,35 @@
               $('#mainBodyContainer').removeClass("container-fluid");
               instance.show();
             }
-          })
+          });
+
+          var queuedMessages = JSON.parse(document.getElementById('queuedMessages').textContent);
+          tagToToastrFuncMap = new Map([
+            [
+              "success",
+              toastr.success
+            ],
+            [
+              "info",
+              toastr.info
+            ],
+            [
+              "warning",
+              toastr.warning
+            ],
+            [
+              "danger",
+              toastr.danger
+            ]
+          ])
+          queuedMessages.forEach(element => {
+            var toastrFunc = toastr.info;
+            if (tagToToastrFuncMap.has(element.tag)) {
+              toastrFunc = tagToToastrFuncMap.get(element.tag);
+            }
+
+            toastrFunc(element.message);
+          });
         })
 
 
