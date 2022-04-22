@@ -42,6 +42,9 @@ div.modal-body > .bootbox-close-button {
   float:right;
 }
 
+.btn-weak {
+  background-color: #6A5DB8 ;
+}
 
 .status_overlay {
   background-color: ghostwhite;
