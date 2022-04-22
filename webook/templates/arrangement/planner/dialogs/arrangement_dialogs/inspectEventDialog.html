@@ -103,6 +103,13 @@
                 </div>
             </div>
 
+            <div class="mt-2">
+                <label for="title">
+                    Display layouts:
+                </label>
+                {{form.display_layouts}}
+            </div>
+
             <div class="clearfix mb-2 mt-4">
                 <h4 class=" float-start">People</h4>
                 <button class="float-end btn btn-sm btn-success shadow-0"
@@ -263,6 +270,12 @@
         formData.append("people",       inspectEventDialog__getSelectedPeopleIds());
         formData.append("rooms",        inspectEventDialog__getSelectedRoomIds());
         formData.append("csrf_token",   "{{ csrf_token }}");
+
+        let displayLayouts = [];
+        document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
+            displayLayouts.push(element.value)
+        })
+        formData.append('display_layouts', displayLayouts.join(","));
 
         document.dispatchEvent(
             new CustomEvent("eventInspector.submit", { "detail": {

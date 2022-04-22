@@ -14,6 +14,7 @@ from django.views.generic import (
 from django.views.generic.edit import DeleteView
 from requests import delete
 from webook.arrangement.forms.delete_arrangement_file_form import DeleteArrangementFileForm
+from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
 from webook.arrangement.forms.promote_planner_to_main_form import PromotePlannerToMainForm
 from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
 from webook.arrangement.forms.add_planner_form import AddPlannerForm
@@ -150,16 +151,7 @@ arrangement_create_view = ArrangementCreateView.as_view()
 
 class ArrangementCreateJSONView (LoginRequiredMixin, JSONResponseMixin, CreateView):
     model = Arrangement
-    fields = [
-        "name",
-        "audience",
-        "location",
-        "arrangement_type",
-        "responsible",
-        "ticket_code",
-        "meeting_place",
-        "expected_visitors",
-    ]
+    form_class = PlannerCreateArrangementModelForm
     template_name = "arrangement/arrangement/arrangement_form.html"
     view_meta = ViewMeta.Preset.create(Arrangement)
 
