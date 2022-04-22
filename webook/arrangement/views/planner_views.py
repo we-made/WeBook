@@ -29,6 +29,10 @@ from webook.arrangement.forms.order_person_form import OrderPersonForEventForm
 from webook.arrangement.forms.order_room_form import OrderRoomForEventForm
 from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerieForm
 from webook.arrangement.forms.order_person_for_serie_form import OrderPersonForSerieForm
+from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
+from webook.arrangement.forms.planner.planner_create_event_form import PlannerCreateEventForm
+from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
+from webook.arrangement.forms.planner.planner_update_event_form import PlannerUpdateEventForm
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
@@ -216,6 +220,7 @@ class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
         "start",
         "end",
         "arrangement",
+        "display_layouts"
     ]
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
@@ -499,15 +504,7 @@ get_arrangements_in_period_view = GetArrangementsInPeriod.as_view()
 
 
 class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
-    fields = [
-        "title",
-        "title_en",
-        "start",
-        "end",
-        "ticket_code",
-        "expected_visitors",
-        "actual_visitors",
-    ]
+    form_class = PlannerUpdateEventForm
     model = Event
     pk_field="pk"
     pk_url_kwarg="pk"
@@ -517,20 +514,7 @@ planner_event_inspector_dialog_view = PlannerEventInspectorDialogView.as_view()
 
 
 class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
-    fields = [
-        "name",
-        "audience",
-        "arrangement_type",
-        "location",
-        "ticket_code",
-        "meeting_place",
-        "expected_visitors",
-        "actual_visitors",
-        "show_on_multimedia_screen",
-        # "starts",
-        # "ends",
-        # "display_layouts",
-    ]
+    form_class = PlannerUpdateArrangementModelForm
     model = Arrangement
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -560,19 +544,7 @@ arrangement_information_dialog_view = PlannerArrangementInformationDialogView.as
 
 
 class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, CreateView):
-    fields = [
-        "name",
-        "name_en",
-        "audience",
-        "arrangement_type",
-        "location",
-        "starts",
-        "ends",
-        "responsible",
-        "ticket_code",
-        "meeting_place",
-        "expected_visitors",
-    ]
+    form_class = PlannerCreateArrangementModelForm
     model = Arrangement
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createArrangementDialog.html"
 
@@ -602,17 +574,7 @@ arrangement_calendar_planner_dialog_view = PlannerArrangementCalendarPlannerDial
 class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateView):
     model = Event
     template_name="arrangement/planner/dialogs/arrangement_dialogs/dialog_create_event_arrangement.html"
-    fields = [
-        "id",
-        "title",
-        "ticket_code",
-        "expected_visitors",
-        "start",
-        "end",
-        "arrangement",
-        "color",
-        "sequence_guid",
-    ]
+    form_class = PlannerCreateEventForm
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         return super().post(request, *args, **kwargs)

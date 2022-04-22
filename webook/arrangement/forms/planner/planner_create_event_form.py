@@ -1,0 +1,19 @@
+from django import forms
+from webook.arrangement.models import Arrangement, RoomPreset, Event
+from django.forms.widgets import CheckboxSelectMultiple
+
+
+class PlannerCreateEventForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = (  "id",
+                    "title",
+                    "ticket_code",
+                    "expected_visitors",
+                    "start",
+                    "end",
+                    "arrangement",
+                    "color",
+                    "sequence_guid", 
+                    "display_layouts")
+        widgets = { "display_layouts": CheckboxSelectMultiple(), }

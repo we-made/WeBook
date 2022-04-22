@@ -172,6 +172,13 @@
                     </tr>
 
                     <tr>
+                        <td colspan="2">
+                            <strong>Display Layouts</strong>
+                            {{form.display_layouts}}
+                        </td>
+                    </tr>
+
+                    <tr>
                         <td>
                             <div class="row mt-4">
                                 <div class="col-6">
@@ -234,15 +241,21 @@
     function createArrangementDialog_submit() {
         var formData = new FormData();
         formData.append("name",             $('#id_name').val());
+        formData.append("name_en",          $('#id_name_en').val());
         formData.append("audience",         $('#id_audience').val());
         formData.append("location",         $('#id_location').val());
         formData.append("arrangement_type", $('#id_arrangement_type').val());
-        formData.append("starts",           $('#id_starts').val());
-        formData.append("ends",             $('#id_ends').val());
         formData.append("responsible",      $('#id_responsible').val());
         formData.append("ticket_code",      $('#id_ticket_code').val());
         formData.append("meeting_place",    $('#id_meeting_place').val());
         formData.append("expected_visitors",$('#id_expected_visitors').val());
+        
+        let displayLayouts = [];
+        document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
+            displayLayouts.push(element.value)
+        })
+        formData.append('display_layouts', displayLayouts.join(","));
+
         formData.append("csrf_token",       "{{csrf_token}}");
 
         var seriesArray = seriesMap !== undefined ? Array.from(seriesMap.values()) : [];
