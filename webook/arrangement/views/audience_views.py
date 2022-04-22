@@ -9,12 +9,15 @@ from django.views.generic import (
     CreateView,
     TemplateView
 )
+from django.urls import reverse, reverse_lazy
+
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, Audience
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
+from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
@@ -77,7 +80,7 @@ class AudienceSearchView(LoginRequiredMixin, SearchView):
 audience_search_view = AudienceSearchView.as_view()
 
 
-class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, CreateView):
+class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView):
     model = Audience
     fields = [
         "name",
@@ -85,6 +88,16 @@ class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
     ]
     template_name = "arrangement/audience/audience_form.html"
     view_meta = ViewMeta.Preset.create(Audience)
+
+    success_urls_and_messages = { 
+        "submitAndNew": { 
+            "url": reverse_lazy( "arrangement:audience_create" ),
+            "msg": _("Successfully created entity")
+        },
+        "submit": { 
+            "url": reverse_lazy("arrangement:audience_list"),
+        }
+    }
 
 audience_create_view = AudienceCreateView.as_view()
 

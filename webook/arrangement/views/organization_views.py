@@ -8,6 +8,8 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.urls import reverse, reverse_lazy
+from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
 from webook.arrangement.forms.register_service_providable_form import RegisterServiceProvidableForm
@@ -77,7 +79,7 @@ class OrganizationUpdateView(LoginRequiredMixin, OrganizationSectionManifestMixi
 organization_update_view = OrganizationUpdateView.as_view()
 
 
-class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, CreateView):
+class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView):
     fields = [
         "organization_number",
         "name",
@@ -86,6 +88,16 @@ class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixi
     model = Organization
     view_meta = ViewMeta.Preset.create(Organization)
     template_name = "arrangement/organization/organization_form.html"
+
+    success_urls_and_messages = { 
+        "submitAndNew": { 
+            "url": reverse_lazy( "arrangement:organization_create" ),
+            "msg": _("Successfully created entity")
+        },
+        "submit": { 
+            "url": reverse_lazy("arrangement:organization_list"),
+        }
+    }
 
 organization_create_view = OrganizationCreateView.as_view()
 

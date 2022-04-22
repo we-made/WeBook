@@ -9,8 +9,10 @@ from django.views.generic import (
     CreateView,
     TemplateView
 )
+from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, ArrangementType
+from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
@@ -64,13 +66,23 @@ class ArrangementTypeDetailView(LoginRequiredMixin, ArrangementTypeSectionManife
 arrangement_type_detail_view = ArrangementTypeDetailView.as_view()
 
 
-class ArrangementTypeCreateView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, CreateView):
+class ArrangementTypeCreateView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView):
     model = ArrangementType
     fields = [
         "name"
     ]
     template_name = "arrangement/arrangementtype/arrangement_type_form.html"
     view_meta = ViewMeta.Preset.create(ArrangementType)
+
+    success_urls_and_messages = { 
+        "submitAndNew": { 
+            "url": reverse_lazy( "arrangement:audience_create" ),
+            "msg": _("Successfully created entity")
+        },
+        "submit": { 
+            "url": reverse_lazy("arrangement:audience_list"),
+        }
+    }
 
 arrangement_type_create_view = ArrangementTypeCreateView.as_view()
 
