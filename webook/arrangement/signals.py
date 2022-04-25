@@ -10,7 +10,7 @@ def on_room_create_handler(sender, instance, created, **kwargs):
     if created and instance.has_screen:
         screen_name = "Screen in  " + instance.name
         generated_name = _generate_name(instance.name)
-        ScreenResource.objects.create(screen_model=screen_name, generated_name=generated_name,  status=ScreenResource.ScreenStatus.AVAILABLE)
+        ScreenResource.objects.create(screen_model=screen_name, room_id=instance.id, generated_name=generated_name,  status=ScreenResource.ScreenStatus.AVAILABLE)
         print("Room Created in database")
 
 

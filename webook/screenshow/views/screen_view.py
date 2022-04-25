@@ -47,7 +47,7 @@ class ScreenSectionManifestMixin(UserPassesTestMixin):
 
 class ScreenListView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, GenericListTemplateMixin, ListView):
     queryset = ScreenResource.objects.all()
-    template_name = "screenshow/list_view.html"
+    template_name = "screenshow/screen/screen_list.html"
     model = ScreenResource
     view_meta = ViewMeta.Preset.table(ScreenResource)
 
