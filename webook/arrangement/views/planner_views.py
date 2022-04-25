@@ -31,6 +31,7 @@ from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerie
 from webook.arrangement.forms.order_person_for_serie_form import OrderPersonForSerieForm
 from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
 from webook.arrangement.forms.planner.planner_create_event_form import PlannerCreateEventForm
+from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
 from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
 from webook.arrangement.forms.planner.planner_update_event_form import PlannerUpdateEventForm
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
@@ -615,27 +616,27 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
 arrangement_create_simple_event_dialog_view = PlannerArrangementCreateSimpleEventDialogView.as_view()
 
 
-class PlannerArrangementCreateSerieDialog(LoginRequiredMixin, TemplateView):
-    template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
+# class PlannerArrangementCreateSerieDialog(LoginRequiredMixin, TemplateView):
+#     template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        if "slug" in self.request.GET:
-            arrangement_slug = self.request.GET.get("slug")
-            arrangement = Arrangement.objects.get(slug=arrangement_slug)
-            context["arrangementPk"] = arrangement.pk
-        else: context["arrangementPk"] = 0
+#     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+#         context = super().get_context_data(**kwargs)
+#         if "slug" in self.request.GET:
+#             arrangement_slug = self.request.GET.get("slug")
+#             arrangement = Arrangement.objects.get(slug=arrangement_slug)
+#             context["arrangementPk"] = arrangement.pk
+#         else: context["arrangementPk"] = 0
 
-        context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
-        context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
+#         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
+#         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
 
-        if "managerName" in self.request.GET:
-            context["managerName"] = self.request.GET.get("managerName")
-        else: print("No manager name.")
+#         if "managerName" in self.request.GET:
+#             context["managerName"] = self.request.GET.get("managerName")
+#         else: print("No manager name.")
 
-        return context
+#         return context
 
-arrangement_create_serie_dialog_view = PlannerArrangementCreateSerieDialog.as_view()
+# arrangement_create_serie_dialog_view = PlannerArrangementCreateSerieDialog.as_view()
 
 
 class PlannerArrangementPromotePlannerDialog(LoginRequiredMixin, TemplateView):
@@ -960,3 +961,27 @@ class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, FormView)
             return self.form_invalid(form)
 
 planner_calendar_upload_file_to_arrangement_dialog_view = PlannerCalendarUploadFileToArrangementDialog.as_view()
+
+
+class PlanSerieForm(LoginRequiredMixin, FormView):
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
+    form_class=PlannerPlanSerieForm
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        if "slug" in self.request.GET:
+            arrangement_slug = self.request.GET.get("slug")
+            arrangement = Arrangement.objects.get(slug=arrangement_slug)
+            context["arrangementPk"] = arrangement.pk
+        else: context["arrangementPk"] = 0
+
+        context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
+        context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
+
+        if "managerName" in self.request.GET:
+            context["managerName"] = self.request.GET.get("managerName")
+        else: print("No manager name.")
+
+        return context
+
+arrangement_create_serie_dialog_view = PlanSerieForm.as_view()
