@@ -13,7 +13,7 @@ class PlannerPlanSerieForm(forms.Form):
     ticket_code = forms.CharField()
     expected_visitors = forms.IntegerField()
     
-    display_layouts = forms.ModelMultipleChoiceField( 
+    display_layouts_serie_planner = forms.ModelMultipleChoiceField( 
         queryset=DisplayLayout.objects.all(),
         widget=CheckboxSelectMultiple
     )

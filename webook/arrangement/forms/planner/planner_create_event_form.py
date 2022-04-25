@@ -14,6 +14,8 @@ class PlannerCreateEventForm(forms.ModelForm):
                     "end",
                     "arrangement",
                     "color",
-                    "sequence_guid", 
+                    "sequence_guid",
                     "display_layouts")
-        widgets = { "display_layouts": CheckboxSelectMultiple(), }
+        widgets = { 
+            "display_layouts": CheckboxSelectMultiple( attrs={'id': 'display_layouts_create_event', 'name': 'display_layouts_create_event'} ), 
+        }
