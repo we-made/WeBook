@@ -17,6 +17,3 @@ class PlannerPlanSerieForm(forms.Form):
         queryset=DisplayLayout.objects.all(),
         widget=CheckboxSelectMultiple
     )
-
-    class Meta:
-        widgets = { "display_layouts": CheckboxSelectMultiple(), }
