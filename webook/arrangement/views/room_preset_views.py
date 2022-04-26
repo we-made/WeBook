@@ -2,9 +2,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import query
 from django.http import HttpResponseRedirect
 from django.http.request import HttpRequest
+from django.contrib import messages
 from django.http.response import HttpResponse, JsonResponse
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from django.core import serializers, exceptions
 from django.views import View
 from django.views.generic.edit import FormView
@@ -76,14 +78,21 @@ class RoomPresetDetailView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, 
 room_preset_detail_view = RoomPresetDetailView.as_view()
 
 
-class RoomPresetCreateView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, CreateView):
+class RoomPresetCreateView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, MultiRedirectMixin,  CreateView):
     form_class = RoomPresetCreateForm
     model = RoomPreset
     template_name="arrangement/room_presets/form.html"
     view_meta = ViewMeta.Preset.create(RoomPreset)
 
-    def get_success_url(self) -> str:
-        return reverse("arrangement:room_preset_list")
+    success_urls_and_messages = { 
+        "submitAndNew": { 
+            "url": reverse_lazy( "arrangement:room_preset_create" ),
+            "msg": _("Successfully created entity")
+        },
+        "submit": { 
+            "url": reverse_lazy("arrangement:room_preset_list"),
+        }
+    }
 
 room_preset_create_view = RoomPresetCreateView.as_view()
 

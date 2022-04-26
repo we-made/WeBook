@@ -9,6 +9,8 @@ from django.views.generic import (
     ListView,
     CreateView,
 )
+from django.urls import reverse, reverse_lazy
+from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from django.http.response import HttpResponse
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location
@@ -91,13 +93,23 @@ class LocationUpdateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
 location_update_view = LocationUpdateView.as_view()
 
 
-class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, CreateView):
+class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView):
     fields = [
         "name"
     ]
     view_meta = ViewMeta.Preset.create(Location)
     template_name = "arrangement/location/location_form.html" 
     model = Location
+
+    success_urls_and_messages = { 
+        "submitAndNew": { 
+            "url": reverse_lazy( "arrangement:location_create" ),
+            "msg": _("Successfully created entity")
+        },
+        "submit": { 
+            "url": reverse_lazy("arrangement:location_list"),
+        }
+    }
 
 location_create_view = LocationCreateView.as_view()
 

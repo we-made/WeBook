@@ -218,18 +218,9 @@
                     </tr>
                     <tr>
                         <th colspan='2'>
-                            <div class="form-check form-switch">
-                                {% if object.show_on_multimedia_screen %}
-                                    <input class="form-check-input" type="checkbox" role="switch" id="showInMultimediaGuide" checked />
-                                {% else %}
-                                    <input class="form-check-input" type="checkbox" role="switch" id="showInMultimediaGuide" />
-                                {% endif %}
-                                <label class="form-check-label" for="flexSwitchCheckChecked">Vises i multimedia guide</label>
-                            </div>
+                            <label for="">Display Layouts: </label>
+                            {{ form.display_layouts }}
                         </th>
-                        <!-- <th>
-                            <div>{{form.display_layouts}}</div>
-                        </th> -->
                     </tr>
                     <tr>
                         <td colspan='3'>
@@ -416,17 +407,21 @@
 
         var formData = new FormData();
         formData.append("name",             $('#id_name').val());
+        formData.append("name_en",          $('#id_name_en').val());
         formData.append("audience",         $('#id_audience').val());
         formData.append("location",         $('#id_location').val());
         formData.append("arrangement_type", $('#id_arrangement_type').val());
-        formData.append("starts",           $('#id_starts').val());
-        formData.append("ends",             $('#id_ends').val());
         formData.append("ticket_code",      $('#id_ticket_code').val());
         formData.append("meeting_place",    $('#id_meeting_place').val());
         formData.append("expected_visitors",$('#id_expected_visitors').val());
         formData.append("actual_visitors",  $('#id_actual_visitors').val());
-        formData.append("show_on_multimedia_screen", $('#showInMultimediaGuide'));
         formData.append("csrfmiddlewaretoken","{{ csrf_token }}");
+
+        let displayLayouts = [];
+        document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
+            displayLayouts.push(element.value)
+        })
+        formData.append('display_layouts', displayLayouts.join(","));
 
         document.dispatchEvent(
             new CustomEvent("arrangementInspector.submit", { "detail": {

@@ -19,7 +19,9 @@ export class EventInspector {
                         },
                         dialogOptions: { width: 600, height: 700 },
                         onSubmit: async (context, details) => {
-                            await fetch('/arrangement/planner/update_event/' + context.event.pk, {
+                            console.log("details", details)
+                            var url = '/arrangement/planner/update_event/' + context.event.pk;
+                            await fetch(url, {
                                 method: "POST",
                                 body: details.formData,
                                 headers: {
