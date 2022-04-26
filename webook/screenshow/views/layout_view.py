@@ -1,4 +1,4 @@
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     DetailView,
@@ -51,6 +51,11 @@ class LayoutListView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, 
     template_name = "screenshow/list_view.html"
     model = DisplayLayout
     view_meta = ViewMeta.Preset.table(DisplayLayout)
+    fields = [
+        "items_shown",
+        "is_room_based",
+        "is_active"
+    ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -69,25 +74,29 @@ class LayoutCreateView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        #context['screen_list'] = ScreenResource.objects.order_by('name')
-        #context['group_list'] = ScreenGroup.objects.order_by('group_name')
+        context['screen_list'] = ScreenResource.objects.order_by('screen_model')
+        context['group_list'] = ScreenGroup.objects.order_by('group_name')
         return context
+
+    def get_success_url(self) -> str:
+        return reverse("screenshow:layout_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> Form Invalid")
+        print(form.errors)
+        print(form)
+        return super().form_invalid(form)
 
 
 layout_create_view = LayoutCreateView.as_view()
 
 
-class LayoutUpdateView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, UpdateView):
-    model = DisplayLayout
-    form_class = DisplayLayoutForm
-    template_name = "screenshow/layout/layout_form.html"
-    view_meta = ViewMeta.Preset.create(DisplayLayout)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        #context['screen_list'] = ScreenResource.objects.order_by('name')
-        #context['group_list'] = ScreenGroup.objects.order_by('group_name')
-        return context
+class LayoutUpdateView(LayoutCreateView, UpdateView):
+    view_meta = ViewMeta.Preset.edit(DisplayLayout)
 
 
 layout_update_view = LayoutUpdateView.as_view()

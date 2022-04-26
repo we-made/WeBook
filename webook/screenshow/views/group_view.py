@@ -23,7 +23,7 @@ def get_section_manifest():
         section_crumb_url=reverse("screenshow:screen_group_list"),
         crudl_map=SectionCrudlPathMap(
             list_url="screenshow:screen_group_list",
-            detail_url="screenshow:screen_group_detail",
+            detail_url=None,
             create_url="screenshow:screen_group_create",
             edit_url="screenshow:screen_group_edit",
             delete_url="screenshow:screen_group_delete",
@@ -70,23 +70,28 @@ class ScreenGroupCreateView(LoginRequiredMixin, ScreenGroupSectionManifestMixin,
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['screen_list'] = ScreenResource.objects.order_by('name')
+        context['screen_list'] = ScreenResource.objects.order_by('screen_model')
         return context
+
+    def get_success_url(self) -> str:
+        return reverse("screenshow:screen_group_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> Form Invalid")
+        print(form.errors)
+        print(form)
+        return super().form_invalid(form)
 
 
 screen_group_create_view = ScreenGroupCreateView.as_view()
 
 
-class ScreenGroupUpdateView(LoginRequiredMixin, ScreenGroupSectionManifestMixin, MetaMixin, UpdateView):
-    model = ScreenGroup
-    form_class = ScreenGroupForm
-    template_name = "screenshow/group/group_form.html"
-    view_meta = ViewMeta.Preset.create(ScreenGroup)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['screen_list'] = ScreenResource.objects.order_by('name')
-        return context
+class ScreenGroupUpdateView(ScreenGroupCreateView, UpdateView):
+    view_meta = ViewMeta.Preset.edit(ScreenGroup)
 
 
 screen_group_update_view = ScreenGroupUpdateView.as_view()

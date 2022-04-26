@@ -34,9 +34,9 @@
                         <select class="select" multiple data-mdb-placeholder="Screen names" data-mdb-filter="true" name="{{ form.screens.name }}">
                            {% for screen in screen_list.all %}
                              {% if screen in displaylayout.screens.all %}
-                             <option value="{{ screen.id }}" selected>{{ screen.name }}</option>
+                             <option value="{{ screen.id }}" selected>{{ screen.screen_model }}</option>
                             {% else %}
-                             <option value="{{ screen.id }}">{{ screen.name }}</option>
+                             <option value="{{ screen.id }}">{{ screen.screen_model }}</option>
                              {% endif %}
                           {% endfor %}
                       </select>
@@ -87,9 +87,9 @@
 
                         </label>
                         <input type="number" class="form-control form-control-lg"
-                            id="{{ form.quantity.id_for_label }}"
-                            name="{{ form.quantity.name }}"
-                            value="{{ form.quantity.value|default:10 }}"
+                            id="{{ form.items_shown.id_for_label }}"
+                            name="{{ form.items_shown.name }}"
+                            value="{{ form.items_shown.value|default:10 }}"
                             placeholder="{% trans 'Number of items on screen' %}" />
                     </div>
 
@@ -106,7 +106,7 @@
                         <input type="checkbox" class="form-check-input"
                             id="{{ form.is_room_based.id_for_label }}"
                             name="{{ form.is_room_based.name }}"
-                            value="{{ form.is_room_based.value|default:"true"}}"
+                            value="{{ form.is_room_based.value }}"
                             placeholder="{% trans 'Is Room Based' %}"
                              {% if form.is_room_based.value %}
                                 checked
@@ -124,7 +124,7 @@
                         <input type="checkbox" class="form-check-input"
                             id="{{ form.all_events.id_for_label }}"
                             name="{{ form.all_events.name }}"
-                            value="{{ form.all_events.value|default:"true" }}"
+                            value="{{ form.all_events.value }}"
                             placeholder="{% trans 'All Events' %}"
                             {% if form.all_events.value %}
                                 checked
@@ -135,13 +135,13 @@
 
                  <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
-                            {% trans "Active" %}
+                            {% trans "Enabled" %}
 
                         </label>
                         <input type="checkbox" class="form-check-input"
                             id="{{ form.is_active.id_for_label }}"
                             name="{{ form.is_active.name }}"
-                            value="{{ form.is_active.value|default:"true" }}"
+                            value="{{ form.is_active.value }}"
                             placeholder="{% trans 'Active' %}"
                             {% if form.is_active.value %}
                                 checked

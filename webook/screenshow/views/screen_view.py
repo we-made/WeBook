@@ -21,7 +21,7 @@ def get_section_manifest():
         section_crumb_url=reverse("screenshow:screen_list"),
         crudl_map=SectionCrudlPathMap(
             list_url="screenshow:screen_list",
-            detail_url="screenshow:screen_detail",
+            detail_url=None,
             create_url="screenshow:screen_create",
             edit_url="screenshow:screen_edit",
             delete_url="screenshow:screen_delete",
@@ -47,7 +47,11 @@ class ScreenSectionManifestMixin(UserPassesTestMixin):
 
 class ScreenListView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, GenericListTemplateMixin, ListView):
     queryset = ScreenResource.objects.all()
-    template_name = "screenshow/screen/screen_list.html"
+    fields = [
+        "items_shown",
+        "room"
+    ]
+    template_name = "screenshow/list_view.html"
     model = ScreenResource
     view_meta = ViewMeta.Preset.table(ScreenResource)
 
@@ -72,20 +76,25 @@ class ScreenCreateView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin
     template_name = "screenshow/screen/screen_form.html"
     view_meta = ViewMeta.Preset.create(ScreenResource)
 
+    def get_success_url(self) -> str:
+        return reverse("screenshow:screen_list")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(">> Form Invalid")
+        print(form.errors)
+        print(form)
+        return super().form_invalid(form)
+
+
 screen_create_view = ScreenCreateView.as_view()
 
 
-class ScreenUpdateView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, UpdateView):
-    model = ScreenResource
-    fields = [
-        "screen_model",
-        "folder_path",
-        "items_shown",
-        "room",
-        "generated_name",
-    ]
-    template_name = "screenshow/screen/screen_form.html"
-    view_meta = ViewMeta.Preset.create(ScreenResource)
+class ScreenUpdateView(ScreenCreateView, UpdateView):
+    view_meta = ViewMeta.Preset.edit(ScreenResource)
 
 
 screen_update_view = ScreenUpdateView.as_view()
