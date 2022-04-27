@@ -419,9 +419,8 @@
 
         let displayLayouts = [];
         document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
-            displayLayouts.push(element.value)
+            formData.append("display_layouts", element.value);
         })
-        formData.append('display_layouts', displayLayouts.join(","));
 
         document.dispatchEvent(
             new CustomEvent("arrangementInspector.submit", { "detail": {

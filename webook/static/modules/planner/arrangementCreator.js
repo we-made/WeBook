@@ -23,6 +23,7 @@ export class ArrangementCreator {
                             if (this.dialogManager.context.series !== undefined) {
                                 this.dialogManager.context.series = [];
                             }
+                            console.log("calling _makeAware")
                             this.dialogManager._makeAware();
                         },
                         onSubmit: async (context, details) => { 
@@ -44,10 +45,23 @@ export class ArrangementCreator {
 
                             var registerEvents = async function (events, arrangementId, csrf_token, ticket_code) {
                                 var formData = new FormData();
+
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
+                                    var displayLayoutCounter = 0;
+                                    console.log("event", event)
+
+                                    event.display_layouts.split(",").forEach(displayLayoutId => {
+                                        console.log(displayLayoutId)
+                                        formData.append("events[" + i + "].display_layouts", displayLayoutId);
+                                    })
+
                                     event.arrangement = arrangementId;
                                     for (var key in event) {
+                                        if (key == 'display_layouts') {
+                                            console.log("skip", key)
+                                            continue;
+                                        }
                                         formData.append("events[" + i + "]." + key, event[key]);
                                     }
                                 }
@@ -77,6 +91,7 @@ export class ArrangementCreator {
                                     event.expected_visitors = serie.time.expected_visitors;
                                     event.rooms = serie.rooms;
                                     event.people = serie.people;
+                                    event.display_layouts = serie.display_layouts;
                                     
                                     for (var key in event) {
                                         formData.append("events[" + i + "]." + key, event[key]);
@@ -115,23 +130,42 @@ export class ArrangementCreator {
                     new Dialog({
                         dialogElementId: "newTimePlanDialog",
                         triggerElementId: "createArrangementDialog_createSerie",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementCreator&dialog=newTimePlanDialog&orderRoomDialog=orderRoomDialog&orderPersonDialog=orderPersonDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => { 
-                            $('#serie_ticket_code').attr('value', $('#id_ticket_code')[0].value );
-                            $('#serie_title').attr('value', $('#id_name')[0].value );
-                            $('#serie_title_en').attr('value', $('#id_name_en')[0].value );
-                            $('#serie_expected_visitors').attr('value', $('#id_expected_visitors')[0].value );
+                        onRenderedCallback: (dialogManager, context) => { 
+                            console.log("OnRendered Context -> ", context);
+
+                            if (context.lastTriggererDetails === undefined) {
+                                $('#serie_ticket_code').attr('value', $('#id_ticket_code')[0].value );
+                                $('#serie_title').attr('value', $('#id_name')[0].value );
+                                $('#serie_title_en').attr('value', $('#id_name_en')[0].value );
+                                $('#serie_expected_visitors').attr('value', $('#id_expected_visitors')[0].value );
+                                return;
+                            }
+                            
+                            var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
+                            console.log("serie", serie)
+                            console.log("test", $(`#${this.dialogElementId}`))
+
+                            $('#serie_title').val(serie.time.title);
+                            $('#serie_title_en').val(serie.time.title_en);
+                            $('#serie_start').val(serie.time.start);
+                            $('#serie_end').val(serie.time.end);
+                            $('#serie_ticket_code').val(serie.time.ticket_code);
+                            $('#serie_expected_visitors').val(serie.time.expected_visitors);
 
                         },
                         onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
                         onSubmit: async (context, details) => {
                             if (context.series === undefined) {
-                                context.series = []
+                                context.series = new Map();
                             }
-                            context.series.push(details.serie);
+                            var serieUUID = crypto.randomUUID();
+                            details.serie._uuid = serieUUID;
+                            context.series.set(serieUUID, details.serie);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
                         dialogOptions: { width: 700 }

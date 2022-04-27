@@ -252,9 +252,8 @@
         
         let displayLayouts = [];
         document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
-            displayLayouts.push(element.value)
+            formData.append("display_layouts", element.value);
         })
-        formData.append('display_layouts', displayLayouts.join(","));
 
         formData.append("csrf_token",       "{{csrf_token}}");
 
@@ -295,18 +294,44 @@
 
         series.forEach(element => {
             var uuid = crypto.randomUUID();
-            seriesMap.set(uuid, element);
+            seriesMap.set(element._uuid, element);
             
             tbody.append(
-                $(`<tr id='${uuid}'> <td> ${element.time.title} --  ${element.pattern.pattern_type} (${element.pattern.pattern_routine}) - ${element.time.start} - ${element.time.end} </td> <td> <button class='btn btn-sm btn-danger shadow-0' data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' onclick='createArrangementDialog_removeSerie("${uuid}")'><i class='fas fa-trash'></i></button> </td> </tr>`)
+                $(`
+                    <tr id='${element._uuid}'> 
+                        <td> 
+                            ${element.time.title} --  ${element.pattern.pattern_type} (${element.pattern.pattern_routine}) - ${element.time.start} - ${element.time.end} 
+                        </td> 
+                        <td> 
+                            <div class='btn-group'>
+                                <button class='btn btn-sm btn-danger shadow-0' 
+                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
+                                    onclick='createArrangementDialog_removeSerie("${element._uuid}")'>
+                                    <i class='fas fa-trash'></i>
+                                </button> 
+                                <button class='btn btn-sm btn-success shadow-0' 
+                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                                    onclick='createArrangementDialog_editSerie("${element._uuid}")'>
+                                    <i class='fas fa-edit'></i>
+                                </button> 
+                            </div>
+                        </td> 
+                    </tr>`)
             )
         });
     }
 
     function createArrangementDialog_removeSerie(uuid) {
-        console.log("remove serie")
         $('#' + uuid).remove();
         seriesMap.delete(uuid);
+    }
+
+    function createArrangementDialog_editSerie(uuid) {
+        document.dispatchEvent(
+            new CustomEvent("arrangementCreator.newTimePlanDialog.trigger", { "detail": {
+                "serie_uuid": uuid
+            } })
+        )
     }
 
 </script>

@@ -1,9 +1,11 @@
+from typing import Optional
 from django import forms
 from webook.arrangement.models import Arrangement, RoomPreset, Event
 from django.forms.widgets import CheckboxSelectMultiple
 
 
 class PlannerCreateEventForm(forms.ModelForm):
+
     class Meta:
         model = Event
         fields = (  "id",

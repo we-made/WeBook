@@ -60,7 +60,7 @@
                   <tr>
                       <td colspan="2">
                           <label for="">Display layouts:</label>
-                        {{ form.display_layouts_serie_planner }}
+                          {{ form.display_layouts_serie_planner }}
                       </td>
                   </tr>
                 </tbody>
@@ -108,16 +108,16 @@
                         <input type="submit" style="display:none;" />
 
                         <div>
-                            <input type="radio" name="pattern" value="1" checked required/><label>&nbsp; Daily</label>
+                            <input type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daily</label>
                         </div>
                         <div>
-                            <input type="radio" name="pattern" value="2"/><label>&nbsp; Weekly</label>
+                            <input type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Weekly</label>
                         </div>
                         <div>
-                            <input type="radio" name="pattern" value="3"/><label>&nbsp; Monthly</label>
+                            <input type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Monthly</label>
                         </div>
                         <div>
-                            <input type="radio" name="pattern" value="4"/><label>&nbsp; Yearly</label>
+                            <input type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Yearly</label>
                         </div>
                     </form>
                 </div>
@@ -240,6 +240,7 @@
     })
 
     function createSerieDialog__openAddRooms() {
+        console.log("openaddrooms")
         document.dispatchEvent(new Event("{{managerName}}.{{orderRoomDialog}}.trigger"));
     }
 
@@ -614,6 +615,7 @@
 
         let time = {
             title: document.getElementById('serie_title').value,
+            title_en: document.getElementById('serie_title_en').value,
             start: document.getElementById('serie_start').value,
             end: document.getElementById('serie_end').value,
             ticket_code: document.getElementById('serie_ticket_code').value,
@@ -713,6 +715,12 @@
         for(var pair of formData.entries()) {
             console.log(pair[0]+ ', '+ pair[1]);
         }
+
+        let displayLayouts = [];
+        document.querySelectorAll("input[name='display_layouts_for_event'][type='checkbox']:checked").forEach(element => {
+            displayLayouts.push(element.value)
+        })
+        serie.display_layouts = displayLayouts.join(",");
 
         var expected_visitors =  document.getElementById('serie_expected_visitors').value;
 

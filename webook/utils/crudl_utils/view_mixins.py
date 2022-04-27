@@ -1,6 +1,5 @@
 from django.utils.translation import gettext_lazy as _
 
-
 class GenericListTemplateMixin:
     """
 
@@ -45,7 +44,7 @@ class GenericListTemplateMixin:
         context["COLUMN_DEFINITION"] = self.columns
         context["LIST"] = self.construct_list()
         context["SHOW_OPTIONS"] = self.show_options
-        context["HIDDEN_KEYS"] = [f[0] for f in self.columns if f[2] == False]
+        context["HIDDEN_KEYS"] = [f[0] for f in self.columns if f[2] is False]
         context["SHOW_CREATE_BUTTON"] = self.show_create_button
 
         return context

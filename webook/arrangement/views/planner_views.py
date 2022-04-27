@@ -185,9 +185,13 @@ class PlanCreateEvents(LoginRequiredMixin, View):
                 event.sequence_guid = sequence_guid
             event.color = get_post_value_or_none("color")
 
+
             # we need to save the event before setting up the many-to-many relationships,
             # as they need a tangible id to use when establishing themselves
             event.save()
+            display_layouts = get_post_value_or_none("display_layouts")
+            print(display_layouts)
+            event.display_layouts.set(get_post_value_or_none("display_layouts"))
 
             rooms_post = get_post_value_or_none("rooms")
             for roomId in parse_ids_string_to_list(rooms_post):
@@ -412,35 +416,60 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
     def get(self, request, *args, **kwargs):
         arrangements = Arrangement.objects.all()
         serializable_arrangements = []
-
         results = []
 
+        db_vendor = connection.vendor
+
         with connection.cursor() as cursor:
-            cursor.execute(
-                f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
-                        arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, arr.name as name, ev.start as starts,
-                        ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
-                        GROUP_CONCAT( DISTINCT room.name) as room_names, 
-                        GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
-                        (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
-                        from arrangement_arrangement as arr 
-                        JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
-                        JOIN arrangement_location as loc on loc.id = arr.location_id
-                        JOIN arrangement_person as resp on resp.id = arr.responsible_id
-                        JOIN arrangement_audience as audience on audience.id = arr.audience_id
-                        JOIN arrangement_event as ev on ev.arrangement_id = arr.id
-                        LEFT JOIN arrangement_event_people as evp on evp.event_id = ev.id
-                        LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
-                        LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
-                        LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                        GROUP BY event_pk'''
-            )
+            if (db_vendor == 'postgresql'):
+                cursor.execute(
+                    f'''    SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, (resp.first_name || ' ' || resp.last_name) as mainPlannerName,
+                                arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, arr.name as name, ev.start as starts,
+                                ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
+                                array_agg( DISTINCT room.name) as room_names,
+                                array_agg( DISTINCT participants.first_name || ' ' || participants.last_name ) as people_names,
+                                (loc.slug || ',' || array_to_string(array_agg(DISTINCT room.slug ), ',') || ',' || array_to_string(array_agg(DISTINCT participants.slug), ',')) as slug_list
+                                from arrangement_arrangement as arr
+                                JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
+                                JOIN arrangement_location as loc on loc.id = arr.location_id
+                                JOIN arrangement_person as resp on resp.id = arr.responsible_id
+                                JOIN arrangement_audience as audience on audience.id = arr.audience_id
+                                JOIN arrangement_event as ev on ev.arrangement_id = arr.id
+                                LEFT JOIN arrangement_event_people as evp on evp.event_id = ev.id
+                                LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
+                                LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
+                                LEFT JOIN arrangement_room as room on room.id = evr.room_id
+                                GROUP BY event_pk, audience.icon_class, audience.name, audience.slug,
+                            resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
+                            loc.name, loc.slug, arrtype.name, arrtype.slug''')
+            elif (db_vendor == 'sqlite'):
+                cursor.execute(
+                    f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
+                            arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, arr.name as name, ev.start as starts,
+                            ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
+                            GROUP_CONCAT( DISTINCT room.name) as room_names, 
+                            GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
+                            (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
+                            from arrangement_arrangement as arr 
+                            JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
+                            JOIN arrangement_location as loc on loc.id = arr.location_id
+                            JOIN arrangement_person as resp on resp.id = arr.responsible_id
+                            JOIN arrangement_audience as audience on audience.id = arr.audience_id
+                            JOIN arrangement_event as ev on ev.arrangement_id = arr.id
+                            LEFT JOIN arrangement_event_people as evp on evp.event_id = ev.id
+                            LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
+                            LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
+                            LEFT JOIN arrangement_room as room on room.id = evr.room_id
+                            GROUP BY event_pk'''
+                )
             columns = [column[0] for column in cursor.description]
             for row in cursor.fetchall():
                 m = dict(zip(columns, row))
+                
                 m["slug_list"] = m["slug_list"].split(",") if m["slug_list"] is not None else []
-                m["room_names"] = m["room_names"].split(",") if m["room_names"] is not None else []
-                m["people_names"] = m["people_names"].split(",") if m["people_names"] is not None else []
+                if db_vendor == "sqlite":
+                    m["room_names"] = m["room_names"].split(",") if m["room_names"] is not None else []
+                    m["people_names"] = m["people_names"].split(",") if m["people_names"] is not None else []
                 results.append(m)
 
         for i in results:
@@ -578,6 +607,8 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
     form_class = PlannerCreateEventForm
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        print("DISPLAY::    ")
+        print(self.request.POST.get("display_layouts"))
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:

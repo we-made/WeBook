@@ -4,6 +4,10 @@ body {
   font-family: 'Lato', sans-serif;
 }
 
+.container {
+  max-width: 80% !important;/*Set your own width %; */
+}
+
 .alert-debug {
   color: black;
   background-color: white;
