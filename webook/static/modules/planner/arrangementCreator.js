@@ -49,19 +49,9 @@ export class ArrangementCreator {
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
                                     var displayLayoutCounter = 0;
-                                    console.log("event", event)
-
-                                    event.display_layouts.split(",").forEach(displayLayoutId => {
-                                        console.log(displayLayoutId)
-                                        formData.append("events[" + i + "].display_layouts", displayLayoutId);
-                                    })
-
+                                    
                                     event.arrangement = arrangementId;
                                     for (var key in event) {
-                                        if (key == 'display_layouts') {
-                                            console.log("skip", key)
-                                            continue;
-                                        }
                                         formData.append("events[" + i + "]." + key, event[key]);
                                     }
                                 }
@@ -92,7 +82,7 @@ export class ArrangementCreator {
                                     event.rooms = serie.rooms;
                                     event.people = serie.people;
                                     event.display_layouts = serie.display_layouts;
-                                    
+
                                     for (var key in event) {
                                         formData.append("events[" + i + "]." + key, event[key]);
                                     }

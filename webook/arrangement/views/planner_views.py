@@ -37,6 +37,7 @@ from webook.arrangement.forms.planner.planner_update_event_form import PlannerUp
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
+from webook.screenshow.models import DisplayLayout
 from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
@@ -162,6 +163,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         counter = 0;
         querydict = self.request.POST
         get_post_value_or_none = lambda attr: querydict.get("events[" + str(counter) + "]." + attr, None)
+        get_post_value_list_or_none = lambda attr: querydict.getlist("events[" + str(counter) + "]." + attr, None)
         # parse a string of ids to a list of ids, '1,2,3 -> [1,2,3], and avoid default str.split() behaviour of '' = ['']
         parse_ids_string_to_list = lambda str_to_parse, separator=",": [x for x in str_to_parse.split(separator) if x] if str_to_parse else []
         
@@ -190,8 +192,10 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             # as they need a tangible id to use when establishing themselves
             event.save()
             display_layouts = get_post_value_or_none("display_layouts")
+            print("Display Layouts:::")
             print(display_layouts)
-            event.display_layouts.set(get_post_value_or_none("display_layouts"))
+            for display_layout_id in parse_ids_string_to_list(display_layouts):
+                event.display_layouts.add(DisplayLayout.objects.get(id=display_layout_id))
 
             rooms_post = get_post_value_or_none("rooms")
             for roomId in parse_ids_string_to_list(rooms_post):

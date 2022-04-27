@@ -716,12 +716,6 @@
             console.log(pair[0]+ ', '+ pair[1]);
         }
 
-        let displayLayouts = [];
-        document.querySelectorAll("input[name='display_layouts_for_event'][type='checkbox']:checked").forEach(element => {
-            displayLayouts.push(element.value)
-        })
-        serie.display_layouts = displayLayouts.join(",");
-
         var expected_visitors =  document.getElementById('serie_expected_visitors').value;
 
         for (let i = 0; i < events.length; i++) {
@@ -731,6 +725,7 @@
             event.end=event.to.toISOString();
             event.ticket_code = event.ticket_code;
             event.expected_visitors = expected_visitors;
+
             
             for (var key in event) {
                 formData.append("events[" + i + "]." + key, event[key]);
@@ -740,8 +735,17 @@
         var room_ids = Array.from($("#roomsTbody")[0].children).map(row => row.getAttribute("rowid"));
         var people_ids = Array.from($("#peopleTbody")[0].children).map(row => row.getAttribute("rowid"));
 
+        var display_layouts = [];
+        document.querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
+                display_layouts.push(element.value)
+
+        })
+
         serie.rooms = room_ids;
         serie.people = people_ids;
+        serie.display_layouts = display_layouts.join(",");
+
+        console.log(display_layouts)
 
         document.dispatchEvent(
             new CustomEvent(
