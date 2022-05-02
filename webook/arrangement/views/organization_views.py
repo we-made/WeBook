@@ -9,6 +9,7 @@ from django.views.generic import (
     CreateView,
 )
 from django.urls import reverse, reverse_lazy
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
@@ -102,7 +103,7 @@ class OrganizationCreateView(LoginRequiredMixin, OrganizationSectionManifestMixi
 organization_create_view = OrganizationCreateView.as_view()
 
 
-class OrganizationDeleteView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, DeleteView):
+class OrganizationDeleteView(LoginRequiredMixin, OrganizationSectionManifestMixin, MetaMixin, ArchiveView):
     model = Organization
     slug_field = "slug"
     slug_url_kwarg = "slug"

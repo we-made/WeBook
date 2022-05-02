@@ -16,6 +16,7 @@ from django.views.generic import (
 from django.core import serializers
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location, Room, BusinessHour
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 import json
@@ -93,7 +94,7 @@ class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Cr
 room_create_view = RoomCreateView.as_view()
 
 
-class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, DeleteView):
+class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, ArchiveView):
     model = Room
     slug_field = "slug"
     slug_url_kwarg = "slug"

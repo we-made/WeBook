@@ -17,6 +17,7 @@ from django.views.generic import (
     CreateView,
 )
 from django.urls import reverse, reverse_lazy
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from django.core import serializers
 from django.views.generic.base import View
@@ -117,7 +118,7 @@ class PersonDetailView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin
 person_detail_view = PersonDetailView.as_view()
 
 
-class PersonDeleteView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin, DeleteView):
+class PersonDeleteView(LoginRequiredMixin, PersonSectionManifestMixin, MetaMixin, ArchiveView):
     model = Person
     slug_field = "slug"
     slug_url_kwarg = "slug"
