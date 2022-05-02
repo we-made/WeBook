@@ -10,12 +10,22 @@ from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from webook.arrangement.managers import ArchivedManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 import webook.screenshow.models as screen_models
 
 
 class ModelArchiveableMixin(models.Model):
     """ Mixin for making a model archivable """
+
+    objects = ArchivedManager()
+
+    def archive(self, person_archiving_this):
+        """ Archive this object """
+        self.is_archived = True
+        self.archived_by = person_archiving_this
+        self.archived_when = datetime.datetime.now()
+        self.save()
 
     is_archived = models.BooleanField(
         verbose_name=_("Is archived"),
@@ -140,7 +150,8 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMi
 class RoomPreset (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """
         A room preset is a group, or collection, or set, of rooms.
-    """
+    """ 
+
     slug = AutoSlugField(populate_from="name", unique=True)
     name = models.CharField(verbose_name=_("Name"), max_length=256,     null=False, blank=False)
     rooms = models.ManyToManyField(to="Room")
@@ -300,6 +311,8 @@ class Room(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     class Meta:
         verbose_name = _("Room")
         verbose_name_plural = _("Rooms")
+
+    objects = ArchivedManager()
 
     name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
     location = models.ForeignKey(

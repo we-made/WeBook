@@ -10,6 +10,7 @@ from django.views.generic import (
     CreateView,
 )
 from django.views.generic.edit import DeleteView
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.utils.meta_utils.section_manifest import SectionManifest
 from webook.arrangement.models import OrganizationType
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -85,7 +86,7 @@ class OrganizationTypeCreateView (LoginRequiredMixin, OrganizationTypeSectionMan
 organization_type_create_view = OrganizationTypeCreateView.as_view()
 
 
-class OrganizationTypeDeleteView(LoginRequiredMixin, OrganizationTypeSectionManifestMixin, MetaMixin, DeleteView):
+class OrganizationTypeDeleteView(LoginRequiredMixin, OrganizationTypeSectionManifestMixin, MetaMixin, ArchiveView):
     model = OrganizationType 
     slug_field = "slug"
     slug_url_kwarg = "slug"

@@ -10,6 +10,7 @@ from django.views.generic import (
     CreateView,
 )
 from django.urls import reverse, reverse_lazy
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from django.http.response import HttpResponse
 from django.views.generic.edit import DeleteView
@@ -114,7 +115,7 @@ class LocationCreateView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
 location_create_view = LocationCreateView.as_view()
 
 
-class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, DeleteView):
+class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaMixin, ArchiveView):
     model = Location
     slug_field = "slug"
     slug_url_kwarg = "slug"

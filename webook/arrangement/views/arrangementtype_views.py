@@ -12,6 +12,7 @@ from django.views.generic import (
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, ArrangementType
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -98,9 +99,14 @@ class ArrangementTypeUpdateView(LoginRequiredMixin, ArrangementTypeSectionManife
 arrangement_type_update_view = ArrangementTypeUpdateView.as_view()
 
 
-class ArrangementTypeDeleteView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, DeleteView):
+class ArrangementTypeDeleteView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, ArchiveView):
     model = ArrangementType
     view_meta = ViewMeta.Preset.delete(ArrangementType)
     template_name = "arrangement/delete_view.html"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:arrangement_type_list"
+        )
 
 arrangement_type_delete_view = ArrangementTypeDeleteView.as_view()

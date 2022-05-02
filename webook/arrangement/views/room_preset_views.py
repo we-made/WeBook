@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http.response import HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from django.core import serializers, exceptions
 from django.views import View
@@ -110,9 +111,14 @@ class RoomPresetUpdateView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, 
 room_preset_update_view = RoomPresetUpdateView.as_view()
 
 
-class RoomPresetDeleteView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, DeleteView):
+class RoomPresetDeleteView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, ArchiveView):
     model = RoomPreset
     view_meta = ViewMeta.Preset.delete(RoomPreset)
     template_name = "arrangement/delete_view.html"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:room_preset_list"
+        )
 
 room_preset_delete_view = RoomPresetDeleteView.as_view()
