@@ -157,6 +157,7 @@ typings/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
+!.vscode/launch.json
 !.vscode/extensions.json
 
 
@@ -332,5 +333,3 @@ webook/media/
 # ignore pycharm meta files
 .idea/
 .azure/
-
-.vscode/launch.json
