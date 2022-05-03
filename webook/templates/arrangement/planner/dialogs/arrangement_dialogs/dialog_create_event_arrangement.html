@@ -88,6 +88,17 @@
 
                 <div class="mt-2 table-responsive">
                     <table class="table-sm table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="a" id="a" name="a" checked/>
+                                        <!-- <label class="form-check-label" for="a"> Velg alle.. </label> -->
+                                    </div>
+                                </th>
+                                <th><i class="fas fa-trash text-danger"></i></th>
+                            </tr>
+                        </thead>
                         <tbody id="roomsTbody__d1">
                         </tbody>
                     </table>
@@ -143,6 +154,7 @@
         ids.forEach(id => {
             tbody.append(
                 $(`<tr rowid='${id}'>
+                    <td> <input type='checkbox' /> </td>
                     <td>${roomsNameMap.get(id)}</td>
                     <td> <a href='#' class='text-danger'
                             data-mdb-toggle='tooltip'
