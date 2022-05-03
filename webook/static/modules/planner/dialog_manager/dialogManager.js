@@ -18,7 +18,9 @@
     async render(context) {
         this.prepareDOM();
 
-        $('#' + this.dialogElementId).remove();
+        this.destroy();
+
+        console.log('#' + this.dialogElementId)
 
         this.dialogOptions.closeText = "hello";
 
@@ -66,16 +68,28 @@
     }
 
     prepareDOM() {
-        var $dialogElement = this._$getDialogEl();
-        if ($dialogElement[0] !== undefined) {
-            $dialogElement[0].remove();
-        }
+        var elements = document.querySelectorAll("#" + this.dialogElementId);
+        elements.forEach(element => {
+            element.remove();
+        })
+        // var $dialogElement = this._$getDialogEl();
+        // if ($dialogElement[0] !== undefined) {
+        //     $dialogElement[0].remove();
+        // }
+    }
+
+    getInstance() {
+        return $( `#${this.dialogElementId}` ).dialog( "instance" );
+    }
+
+    destroy() {
+        $( `#${this.dialogElementId}` ).dialog( "destroy" );
     }
 
     isOpen() {
         var $dialogElement = this._$getDialogEl();
 
-        if ($dialogElement[0] === undefined || $($dialogElement).dialog("isOpen") === false) {
+        if ($dialogElement[0] === undefined || this.getInstance() === false || $($dialogElement).dialog("isOpen") === false) {
             return false;
         }
 
@@ -132,7 +146,7 @@ export class DialogManager {
     }
 
     _listenForSubmitEvent() {
-        console.log(`${this.managerName}.submit`)
+        console.log(`${this.managerName}.submit`);
         document.addEventListener(`${this.managerName}.submit`, (e) => {
             this._dialogRepository.get(e.detail.dialog)
                 .onSubmit(this.context, e.detail);
@@ -141,16 +155,10 @@ export class DialogManager {
 
     _setTriggers() {
         this._dialogRepository.forEach( (value, key, map) => {
-            if (value.triggerByEvent === true) {
-                console.log(`${this.managerName}.${value.dialogElementId}.trigger`)
-                document.addEventListener(`${this.managerName}.${value.dialogElementId}.trigger`, (detail) => {
-                    console.log("trigger by triggered")
-                    value.render(this.context);
-                });
-            }
-
             if (value.triggerElementId !== undefined) {
                 $("#" + value.triggerElementId).on('click', () => {
+                    this.context.lastTriggererDetails = undefined;
+                    this.context.lastTriggererElement = document.querySelector(`#${value.triggerElementId}`);
                     value.render(this.context);
                 });
             }
@@ -159,5 +167,14 @@ export class DialogManager {
 
     _makeAware() {
         this._setTriggers();
+
+        this._dialogRepository.forEach(( value, key, map) => {
+            if (value.triggerByEvent === true) {
+                document.addEventListener(`${this.managerName}.${value.dialogElementId}.trigger`, (detail) => {
+                    this.context.lastTriggererDetails = detail.detail;
+                    value.render(this.context);
+                });
+            }
+        });
     }
 }

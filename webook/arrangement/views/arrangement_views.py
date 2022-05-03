@@ -161,11 +161,7 @@ class ArrangementCreateJSONView (LoginRequiredMixin, JSONResponseMixin, CreateVi
 
     def form_valid(self, form):
         arrangement = form.save()
-        print(arrangement)
-        print(arrangement.pk)
         return JsonResponse({ "arrangementPk": arrangement.pk })
-    # def get_success_url(self) -> str:
-    #     return super().get_success_url()
 
 arrangement_create_json_view = ArrangementCreateJSONView.as_view()
 

@@ -371,6 +371,9 @@
               console.log("<< Zen Mode Activated >>")
               $('#mainBodyContainer').addClass("container-fluid");
               $('#mainBodyContainer').removeClass("container");
+
+              document.dispatchEvent(new Event("zenmode.activated"))
+
               instance.hide();
             }
             else {

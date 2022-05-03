@@ -451,6 +451,10 @@
                 plannerCalendar.refresh();
             });
 
+            document.addEventListener('zenmode.activated', (event) => {
+                plannerCalendar.refresh();
+            })
+
             $('#overview-tab')[0].addEventListener('shown.mdb.tab', (event) => {
                 mainCalendarFilterWrapper.show();
                 plannerCalendar.refresh();

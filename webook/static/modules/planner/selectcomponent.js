@@ -1,15 +1,25 @@
 export class SelectComponent {
     constructor (element_id, options) {
+        this.$element = $('#' + element_id);
+        this.element = document.getElementById(this.element_id);
         this.element_id = element_id
         this.options = options
+
+        this.listenToChange();
     }
 
     insert_options () {
+        var carriedValue = this.$element.val();
+
         for (let [key, value] of this.options) {
             let option = document.createElement('option');
             option.setAttribute("value", key);
             option.innerText = value;
             document.getElementById(this.element_id).append(option);
+        }
+
+        if (carriedValue !== undefined) {
+          this.$element.val(carriedValue);
         }
     }
 
