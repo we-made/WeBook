@@ -3,63 +3,75 @@
 
 <div id="newTimePlanDialog" title="<span class='badge badge-success'><i class='fas fa-clock'></i></span>&nbsp; Ny tidsplan">
     <div>
+        <input type="hidden" name="uuid" id="serie_uuid">
+        
         <fieldset>
-            <table>
+            <table class="">
                 <tbody>
                   <tr>
                     <td>
-                      <label>{% trans "Title" %}</label>
-
+                      <label>{% trans "Title" %}: </label>
                     </td>
                     <td>
-                      <input type="text" id="serie_title" autocomplete="off" required />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label>{% trans "Title" %} <em>(engelsk)</em></label>
-                    </td>
-                    <td>
-                      <input type="text" id="serie_title_en" autocomplete="off" required />
+                      <input type="text" id="serie_title" class="form-control form-control-sm" tabindex="600" autocomplete="off" required />
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <label>{% trans "Start" %}</label>
+                      <label>{% trans "Title" %} <em>(engelsk): </em></label>
                     </td>
                     <td>
-                      <input type="time" id="serie_start" required />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label>{% trans "Slutt" %}</label>
-                    </td>
-                    <td>
-                      <input type="time" id="serie_end" required />
+                      <input type="text" id="serie_title_en" class="form-control form-control-sm" tabindex="601" autocomplete="off" required />
                     </td>
                   </tr>
                   <tr>
                     <td>
                       <label>
-                          {% trans "Ticket Code" %}
+                          <i class="fas fa-clock"></i>
+                          {% trans "Start" %}: 
+                       </label>
+                    </td>
+                    <td>
+                      <input type="time" id="serie_start" class="form-control form-control-sm" tabindex="602" required />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label>
+                          <i class="fas fa-clock"></i>
+                          {% trans "Slutt" %}: 
                         </label>
                     </td>
                     <td>
-                      <input type="text" id="serie_ticket_code" />
+                      <input type="time" id="serie_end" class="form-control form-control-sm" tabindex="603" required />
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <label>{% trans "Expected visitors" %}</label>
+                      <label>
+                          <i class="fas fa-receipt"></i>
+                          {% trans "Ticket Code" %}: 
+                        </label>
                     </td>
                     <td>
-                      <input type="number" id="serie_expected_visitors" />
+                      <input type="text" id="serie_ticket_code" class="form-control form-control-sm" tabindex="604" />
                     </td>
                   </tr>
                   <tr>
+                    <td>
+                      <label>
+                          <i class="fas fa-users"></i>
+                          {% trans "Expected visitors" %}: 
+                      </label>
+                    </td>
+                    <td>
+                      <input type="number" id="serie_expected_visitors" class="form-control form-control-sm" tabindex="605" />
+                    </td>
+                  </tr>
+                  <tr class="">
                       <td colspan="2">
-                          <label for="">Display layouts:</label>
+                          <br>
+                            <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}: </label>
                           {{ form.display_layouts_serie_planner }}
                       </td>
                   </tr>
@@ -125,12 +137,12 @@
                 <div class="col-9">
                     <div id="patternRoute_daily">
                         <div>
-                            <input type="radio" name="pattern_daily_subroute" value="0" required/>
-                            <label>Every <input type="number" min="1" id="every_x_day__interval" required/> day</label>
+                            <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
+                            <label>Every <input type="number" min="1"  id="every_x_day__interval" required /> day</label>
                         </div>
                         
                         <div>
-                            <input type="radio" name="pattern_daily_subroute" value="1"/>
+                            <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
                             <label>Every weekday</label>
                         </div>
                     </div>
@@ -150,14 +162,14 @@
 
                     <div id="patternRoute_monthly" style="display: none;">
                         <div>
-                            <input type="radio" name="pattern_monthly_subroute" value="0" required /> 
+                            <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
                             Day <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> every <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> month
                         </div>
                         <div>
-                            <input type="radio" name="pattern_monthly_subroute" value="1" /> The
-                            <select id="every_dynamic_date_of_month__arbitrator" required>
+                            <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> The
+                            <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
                             </select>
-                            <select id="every_dynamic_date_of_month__weekday" required>
+                            <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
                             </select>
                             every <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> months
                         </div>
@@ -168,20 +180,20 @@
                             Happens every <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> year
                         </div>
                         <div>
-                            <input type="radio" name="pattern_yearly_subroute" value="0" required> Dato:
+                            <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
                             <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
-                            <select id="every_x_of_month__month" required>
+                            <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
                             </select>
                         </div>
 
                         <div>
-                            <input type="radio" name="pattern_yearly_subroute" value="1"> Every:
-                            <select id="every_arbitrary_weekday_in_month__arbitrator" required>
+                            <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Every:
+                            <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
                             </select>
-                            <select id="every_arbitrary_weekday_in_month__weekday" required>
+                            <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
                             </select>
                             in
-                            <select id="every_arbitrary_weekday_in_month__month" required>
+                            <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
                             </select>
                         </div>
                     </div>
@@ -198,21 +210,21 @@
                 </div>
                 <div class="col-9" id="area_methods_wrapper">
                     <div>
-                    <input type="radio" name="timeAreaMethod" value="1">
-                    Stop within: <input type="date" id="area_stopWithin" required>
+                        <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
+                        Stop within: <input type="date" id="area_stopWithin" required>
                     </div>
 
                     <div>
-                    <input type="radio" name="timeAreaMethod" value="2">
-                    <fieldset>
-                        Stop after: <input type="number" min="1" id="area_stopAfterXInstances" required /> occurences
-                    </fieldset>
+                        <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
+                        <fieldset>
+                            Stop after: <input type="number" min="1" id="area_stopAfterXInstances" required /> occurences
+                        </fieldset>
                     </div>
 
                     <div>
-                    <input type="radio" name="timeAreaMethod" value="3">
-                    No stop date
-                    | Project <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> months into the future
+                        <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
+                        No stop date
+                        | Project <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> months into the future
                     </div>
                 </div>
             </div>
@@ -225,22 +237,21 @@
 </div>
 
 <script>
+
+
     var peopleNameMap = new Map();
     var roomsNameMap = new Map();
 
     document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
-        console.log("People have been selected", e)
         peopleNameMap = e.detail.context.people_name_map;
         createSerieDialog__setPeople(e.detail.context.people);
     }) 
     document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
-        console.log("rooms have been selected", e);
         roomsNameMap = e.detail.context.room_name_map;
         createSerieDialog__setRooms(e.detail.context.rooms);
     })
 
     function createSerieDialog__openAddRooms() {
-        console.log("openaddrooms")
         document.dispatchEvent(new Event("{{managerName}}.{{orderRoomDialog}}.trigger"));
     }
 
@@ -299,13 +310,11 @@
 
     function createSerieDialog__getSelectedRoomIds() {
         var room_ids = Array.from($("#roomsTbody")[0].children).map(row => row.getAttribute("rowid"));
-        console.log("Rooms", room_ids);
         return room_ids;
     }
 
     function dialogCreateEvent__getSelectedPeopleIds() {
         var people_ids = Array.from($("#peopleTbody")[0].children).map(row => row.getAttribute("rowid"));
-        console.log("People", people_ids)
         return people_ids;
     }
 </script>
@@ -314,10 +323,59 @@
     import { SeriesUtil } from "{% static 'modules/planner/seriesutil.js' %}";
     import { SelectComponent, MonthSelectComponent, YearSelectComponent } from "{% static 'modules/planner/selectcomponent.js' %}";
 
+    class DayOfWeekSelectComponent extends SelectComponent {
+        constructor (element_id) {
+            let options = new Map([
+                ["1", '{% trans "monday" %}'],
+                ["2", '{% trans "tuesday" %}'],
+                ["3", '{% trans "wednesday" %}'],
+                ["4", '{% trans "thursday" %}'],
+                ["5", '{% trans "friday" %}'],
+                ["6", '{% trans "saturday" %}'],
+                ["7", '{% trans "sunday" %}'],
+            ]);
 
+            super(element_id, options)
+
+            this.insert_options();
+        }
+    }
+
+    class ArbitratorSelectComponent extends SelectComponent {
+        constructor (element_id) {
+
+            let options = new Map([
+                ["0", '{% trans "first" %}'],
+                ["1", '{% trans "second" %}'],
+                ["2", '{% trans "third" %}'],
+                ["3", '{% trans "fourth" %}'],
+                ["4", '{% trans "last" %}']
+            ]);
+
+            super(element_id, options);
+
+            this.insert_options();
+        }
+    }
+
+    $(document).ready(function () {
+        new DayOfWeekSelectComponent('every_arbitrary_weekday_in_month__weekday');
+        new MonthSelectComponent('every_arbitrary_weekday_in_month__month');
+        new MonthSelectComponent('every_x_of_month__month');
+        new DayOfWeekSelectComponent('every_dynamic_date_of_month__weekday');
+        new ArbitratorSelectComponent('every_dynamic_date_of_month__arbitrator');
+        new ArbitratorSelectComponent('every_arbitrary_weekday_in_month__arbitrator');
+
+        var selects = $(".newTimePlanDialog_select");
+        for (let i = 0; i < selects.length; i++) {
+            var select = selects[i];
+            if (select.hasAttribute("init_value")) {
+                select.value = select.getAttribute("init_value");
+            }
+        }
+    })
 
     $('#submitBtn').on('click', () => {
-        console.log(">> submitBtn")
         submit_serie();
     })
 
@@ -623,10 +681,7 @@
         }
 
         let pattern = {}
-        let active_pattern_key = $('input:radio[name="pattern"]:checked').val();
-        for (key in patterns.key) {
-            console.log(key)
-        }                                                                                         
+        let active_pattern_key = $('input:radio[name="pattern"]:checked').val();                                                                                  
         let pattern_obj = patterns.get(`${active_pattern_key}`);
   
 
@@ -657,6 +712,7 @@
         }
         else {
             pattern["week_interval"] = $('#week_interval').val();
+            pattern.pattern_type = pattern_obj.name;
             
             let days = new Map([
                 [0, $('#sunday').is(':checked')],
@@ -712,9 +768,6 @@
 
         var events = SeriesUtil.calculate_serie(serie);
         let formData = new FormData();
-        for(var pair of formData.entries()) {
-            console.log(pair[0]+ ', '+ pair[1]);
-        }
 
         var expected_visitors =  document.getElementById('serie_expected_visitors').value;
 
@@ -737,15 +790,15 @@
 
         var display_layouts = [];
         document.querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
-                display_layouts.push(element.value)
-
+            display_layouts.push(element.value)
         })
 
+        serie._uuid = $('#serie_uuid').val();
         serie.rooms = room_ids;
         serie.people = people_ids;
+        serie.room_name_map = roomsNameMap;
+        serie.people_name_map = peopleNameMap;
         serie.display_layouts = display_layouts.join(",");
-
-        console.log(display_layouts)
 
         document.dispatchEvent(
             new CustomEvent(
@@ -757,56 +810,9 @@
         )
     }
 
-
-    class DayOfWeekSelectComponent extends SelectComponent {
-        constructor (element_id) {
-            let options = new Map([
-                ["1", '{% trans "monday" %}'],
-                ["2", '{% trans "tuesday" %}'],
-                ["3", '{% trans "wednesday" %}'],
-                ["4", '{% trans "thursday" %}'],
-                ["5", '{% trans "friday" %}'],
-                ["6", '{% trans "saturday" %}'],
-                ["7", '{% trans "sunday" %}'],
-            ]);
-
-            super(element_id, options)
-
-            this.insert_options();
-        }
-    }
-
-    class ArbitratorSelectComponent extends SelectComponent {
-        constructor (element_id) {
-
-            let options = new Map([
-                ["0", '{% trans "first" %}'],
-                ["1", '{% trans "second" %}'],
-                ["2", '{% trans "third" %}'],
-                ["3", '{% trans "fourth" %}'],
-                ["4", '{% trans "last" %}']
-            ]);
-
-            super(element_id, options);
-
-            this.insert_options();
-        }
-    }
-
-
-    new DayOfWeekSelectComponent('every_arbitrary_weekday_in_month__weekday')
-    new MonthSelectComponent('every_arbitrary_weekday_in_month__month')
-    new MonthSelectComponent('every_x_of_month__month')
-    new DayOfWeekSelectComponent('every_dynamic_date_of_month__weekday')
-    new ArbitratorSelectComponent('every_dynamic_date_of_month__arbitrator')
-    new ArbitratorSelectComponent('every_arbitrary_weekday_in_month__arbitrator');
-
     /* Ensure that the shown pattern matches the selected pattern in the radio menu. This will correct any such mismatches. */
     function match_pattern_state_to_radio () {
         let active_pattern_key = $('input:radio[name="pattern"]:checked').val();
-        console.log("Active Pattern Key: " + active_pattern_key)
-        console.log(patterns)
-        console.log(patterns.get(active_pattern_key))
 
         // Ensure that if the user closes the modal while working with it, they will 
         // come right back to the same pattern fieldset when re-opening it.
@@ -834,8 +840,7 @@
             ptrn.sub_routes.forEach(function (sub_route) {
                 deactivate_pattern_subroute(sub_route);
                 sub_route.fields.forEach(function (field_obj) {
-                let field = document.getElementById(field_obj.element_id);
-                field.value = "";
+                    let field = document.getElementById(field_obj.element_id);
                 })
             })
         }
@@ -848,7 +853,6 @@
     function activate_pattern_subroute(subroute) {
         for (let i = 0; i < subroute.fields.length; i++) {
             let field = document.getElementById(subroute.fields[i].element_id);
-            field.value="";
             field.removeAttribute("disabled");
         }
     }
@@ -858,7 +862,6 @@
     sub route.
     */
     function deactivate_pattern_subroute(subroute) {
-        console.log(subroute)
         for (let i = 0; i < subroute.fields.length; i++) {
             let field = document.getElementById(subroute.fields[i].element_id);
             field.setAttribute("disabled", "true");

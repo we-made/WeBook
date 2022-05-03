@@ -102,6 +102,21 @@ div.modal-body > .bootbox-close-button {
   background-color: white!important;
 }
 
+.ui-dialog.ui-widget.ui-widget-content {
+  background:none; /* and no special background for the dialog */
+}
+.ui-widget-overlay.ui-front { /* you want this */
+  opacity:.75;
+}
+
+.ui-widget-overlay
+{
+  opacity: .50 !important; /* Make sure to change both of these, as IE only sees the second one */
+  filter: Alpha(Opacity=50) !important;
+
+  background: rgb(50, 50, 50) !important; /* This will make it darker */
+}
+
 .ui-widget.ui-widget-content {
   border: 0 1px 15px 1px rgba(62,57,107,.07)!important;
 }

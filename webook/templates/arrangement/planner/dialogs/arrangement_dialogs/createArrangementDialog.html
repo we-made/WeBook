@@ -5,220 +5,237 @@
      title="<span class='badge badge-success'><i class='fas fa-plus'></i></span>&nbsp; Planlegg nytt arrangement">
 
     <div class="dialogBodyWrapper">
-        <fieldset>
-            <table class="table table-sm">
-                <tbody>
-                    <tr>
-                        <td>
-                            <strong>Navn:</strong>
-                            <input type="text"
-                                class="form-control mb-2"
-                                id="{{ form.name.id_for_label }}" 
-                                value="{{ form.name.value|default:'' }}"
-                                name="{{ form.name.name }}"
-                                autocomplete="off"
-                                placeholder="{% trans 'Name of the arrangement' %}..."/>
-
-                            {% if form.name.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.name.errors }}
-                                </div>
-                            {% endif %}
-
-                            <strong>Navn <em>(engelsk)</em>:</strong>
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.name_en.id_for_label }}" 
-                                value="{{ form.name_en.value|default:'' }}"
-                                name="{{ form.name_en.name }}"
-                                autocomplete="off"
-                                placeholder="{% trans 'Name of the arrangement in english' %}..."/>
-
-                            {% if form.name_en.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.name_en.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <strong>Målgruppe:</strong>
-                            {{ form.audience }}
-    
-                            {% if form.audience.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.audience.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td colspan="3">
-                            <strong>Lokasjon</strong>
-                            {{ form.location }}
-
-                            {% if form.location.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.location.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Arrangementstype:</strong>
-                            {{ form.arrangement_type }}
-                            
-                            {% if form.arrangement_type.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.arrangement_type.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Hovedplanlegger:</strong>
-
-                            {{ form.responsible }}
-
-                            {% if form.responsible.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.responsible.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td colspan="2">
-                            <strong>Billetkode</strong>
-
-                            <div class="input-group flex-nowrap">
-                                <span class="input-group-text">
-                                    <i class="fas fa-receipt"></i>
-                                </span>
-                                <input type="text"
-                                    class="form-control"
-                                    id="{{ form.ticket_code.id_for_label }}" 
-                                    value="{{ form.ticket_code.value|default:'' }}"
-                                    name="{{ form.ticket_code.name }}"
-                                    placeholder="{% trans 'Ticket code' %}..."/>
+        <div class="row">
+            <div class="col-6">
+                <fieldset>
+                    <h5 class="header-fonted">
+                        <i class="fas fa-clipboard"></i>
+                        Informasjon om arrangementet
+                    </h5>
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Navn:</strong>
+                                    <input type="text"
+                                        class="form-control mb-2"
+                                        id="{{ form.name.id_for_label }}" 
+                                        value="{{ form.name.value|default:'' }}"
+                                        name="{{ form.name.name }}"
+                                        autocomplete="off"
+                                        placeholder="{% trans 'Name of the arrangement' %}..."/>
+        
+                                    {% if form.name.errors|length > 0 %}
+                                        <div class="alert alert-danger">
+                                            {{ form.name.errors }}
+                                        </div>
+                                    {% endif %}
+        
+                                    <strong>Navn <em>(engelsk)</em>:</strong>
+                                    <input type="text"
+                                        class="form-control"
+                                        id="{{ form.name_en.id_for_label }}" 
+                                        value="{{ form.name_en.value|default:'' }}"
+                                        name="{{ form.name_en.name }}"
+                                        autocomplete="off"
+                                        placeholder="{% trans 'Name of the arrangement in english' %}..."/>
+        
+                                    {% if form.name_en.errors|length > 0 %}
+                                        <div class="alert alert-danger">
+                                            {{ form.name_en.errors }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <td>
+                                    <strong>Målgruppe:</strong>
+                                    <div>
+                                        {{ form.audience }}
+                                    </div>
+            
+                                    {% if form.audience.errors|length > 0 %}
+                                        <div class="alert alert-danger">
+                                            {{ form.audience.errors }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <td colspan="3">
+                                    <strong>Lokasjon</strong>
+                                    <div>
+                                        {{ form.location }}
+                                    </div>
+        
+                                    {% if form.location.errors|length > 0 %}
+                                        <div class="alert alert-danger">
+                                            {{ form.location.errors }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <td colspan='2'>
+                                    <strong>Arrangementstype:</strong>
+                                    <div>
+                                        {{ form.arrangement_type }}
+                                    </div>
+                                    
+                                    {% if form.arrangement_type.errors|length > 0 %}
+                                        <div class="alert alert-danger">
+                                            {{ form.arrangement_type.errors }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <td colspan='2'>
+                                    <strong>Hovedplanlegger:</strong>
+                                    <div>
+                                        {{ form.responsible }}
+                                    </div>
+        
+                                    {% if form.responsible.errors|length > 0 %}
+                                        <div class="alert alert-danger">
+                                            {{ form.responsible.errors }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <td colspan="2">
+                                    <strong>Billetkode</strong>
+        
+                                    <div class="input-group flex-nowrap">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-receipt"></i>
+                                        </span>
+                                        <input type="text"
+                                            class="form-control"
+                                            id="{{ form.ticket_code.id_for_label }}" 
+                                            value="{{ form.ticket_code.value|default:'' }}"
+                                            name="{{ form.ticket_code.name }}"
+                                            placeholder="{% trans 'Ticket code' %}..."/>
+                                    </div>
+        
+                                    {% if form.ticket_code.errors|length > 0 %}
+                                        <div class="alert alert-danger">
+                                            {{ form.ticket_code.errors }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <td colspan="2">
+                                    <strong>Møtested</strong>
+        
+                                    <div class="input-group flex-nowrap">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-building"></i>
+                                        </span>
+                                        <input type="text"
+                                            class="form-control"
+                                            id="{{ form.meeting_place.id_for_label }}" 
+                                            value="{{ form.meeting_place.value|default:'' }}"
+                                            name="{{ form.meeting_place.name }}"
+                                            placeholder="{% trans 'Meeting place' %}..."/>
+                                    </div>
+                                    <div id="textExample1" class="form-text">
+                                        <i class="fas fa-exclamation-circle"></i>&nbsp;
+                                        Vil overskrive sted/rom vist på skjermer.
+                                    </div>
+        
+                                    {% if form.meeting_place.errors|length > 0 %}
+                                        <div class="alert alert-danger">
+                                            {{ form.meeting_place.errors }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <td colspan="2">
+                                    <strong>Expected amount of visitors</strong>
+        
+                                    <div class="input-group flex-nowrap">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-users"></i>
+                                        </span>
+                                        <input type="number"
+                                            min="0"
+                                            class="form-control"
+                                            id="{{ form.expected_visitors.id_for_label }}" 
+                                            value="{{ form.expected_visitors.value|default:'' }}"
+                                            name="{{ form.expected_visitors.name }}" />
+                                    </div>
+        
+                                    {% if form.expected_visitors.errors|length > 0 %}
+                                        <div class="alert alert-danger">
+                                            {{ form.expected_visitors.errors }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <td colspan="2">
+                                    <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
+                                    {{form.display_layouts}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+            <div class="col-6">
+                <tr>
+                    <td>
+                        <h5 class="header-fonted">
+                            <i class="fas fa-clock"></i>
+                            Plan
+                        </h4>
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <button class="playfulButton playfulButton-green" id="createArrangementDialog_createSimpleActivity">
+                                    <!-- <div class="icon"><i class="fas fa-plus"></i></div> -->
+                                    Ny enkel aktivitet
+                                </button>
                             </div>
-
-                            {% if form.ticket_code.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.ticket_code.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td colspan="2">
-                            <strong>Møtested</strong>
-
-                            <div class="input-group flex-nowrap">
-                                <span class="input-group-text">
-                                    <i class="fas fa-building"></i>
-                                </span>
-                                <input type="text"
-                                    class="form-control"
-                                    id="{{ form.meeting_place.id_for_label }}" 
-                                    value="{{ form.meeting_place.value|default:'' }}"
-                                    name="{{ form.meeting_place.name }}"
-                                    placeholder="{% trans 'Meeting place' %}..."/>
+                            <div class="col-6">
+                                <button class="playfulButton  playfulButton-green" id="createArrangementDialog_createSerie">
+                                    <!-- <div class="icon"><i class="fas fa-plus"></i></div> -->
+                                    Ny tidsplan
+                                </button>
                             </div>
-                            <div id="textExample1" class="form-text">
-                                <i class="fas fa-exclamation-circle"></i>&nbsp;
-                                Vil overskrive sted/rom vist på skjermer.
-                            </div>
+                        </div>
 
-                            {% if form.meeting_place.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.meeting_place.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
+                        <h5 class="mt-3">Tidsplaner: </h5>
+                        <table class="table-sm table">
+                            <tbody id="seriesTbody">
+                            </tbody>
+                        </table>
 
-                    <tr>
-                        <td colspan="2">
-                            <strong>Expected amount of visitors</strong>
-
-                            <div class="input-group flex-nowrap">
-                                <span class="input-group-text">
-                                    <i class="fas fa-users"></i>
-                                </span>
-                                <input type="number"
-                                    min="0"
-                                    class="form-control"
-                                    id="{{ form.expected_visitors.id_for_label }}" 
-                                    value="{{ form.expected_visitors.value|default:'' }}"
-                                    name="{{ form.expected_visitors.name }}" />
-                            </div>
-
-                            {% if form.expected_visitors.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.expected_visitors.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td colspan="2">
-                            <strong>Display Layouts</strong>
-                            {{form.display_layouts}}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <div class="row mt-4">
-                                <div class="col-6">
-                                    <button class="playfulButton playfulButton-green" id="createArrangementDialog_createSimpleActivity">
-                                        <div class="icon"><i class="fas fa-plus"></i></div>
-                                        Ny enkel aktivitet
-                                    </button>
-                                </div>
-                                <div class="col-6">
-                                    <button class="playfulButton  playfulButton-green" id="createArrangementDialog_createSerie">
-                                        <div class="icon"><i class="fas fa-plus"></i></div>
-                                        Nytt repeterende tidspunkt
-                                    </button>
-                                </div>
-                            </div>
-
-                            <table class="table-sm table">
-                                <tbody id="seriesTbody">
-                                </tbody>
-                            </table>
-
-                            <table class="table-sm table">
-                                <tbody id="eventsTbody">
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <td colspan='3'>
-                            <button class=" btn btn-sm shadow-0 btn-success btn-block"
-                                    type="button"
-                                    onclick="createArrangementDialog_submit()">
-                                Opprett Arrangement
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </fieldset>
+                        <h5 class="mt-3">Enkle aktiviteter: </h5>
+                        <table class="table-sm table">
+                            <tbody id="eventsTbody">
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </div>
+        </div>
+        <button class=" btn btn-sm shadow-0 btn-success btn-block"
+        type="button"
+        onclick="createArrangementDialog_submit()">
+            Opprett Arrangement
+        </button>
     </div>
 </div>
 
@@ -277,11 +294,26 @@
         tbody.html("");
 
         events.forEach(element => {
-            var uuid = crypto.randomUUID();
-            eventsMap.set(uuid, element);
-            console.log(element)
+            eventsMap.set(element._uuid, element);
             tbody.append(
-                $(`<tr id='${uuid}'> <td> ${element.title} (${element.start} - ${element.end}) </td> </tr>`)
+                $(`
+                    <tr id='${element._uuid}'> 
+                        <td> ${element.title} (${element.start} - ${element.end}) </td> 
+                        <td> 
+                            <div class='btn-group'>
+                                <button class='btn btn-sm btn-danger shadow-0' 
+                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
+                                    onclick='createArrangementDialog_removeSimpleActivity("${element._uuid}")'>
+                                    <i class='fas fa-trash'></i>
+                                </button> 
+                                <button class='btn btn-sm btn-success shadow-0' 
+                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                                    onclick='createArrangementDialog_editSimpleActivity("${element._uuid}")'>
+                                    <i class='fas fa-edit'></i>
+                                </button> 
+                            </div>
+                        </td> 
+                    </tr>`)
             )
         })
     } 
@@ -324,6 +356,20 @@
     function createArrangementDialog_removeSerie(uuid) {
         $('#' + uuid).remove();
         seriesMap.delete(uuid);
+    }
+
+
+    function createArrangementDialog_removeSimpleActivity(uuid) {
+        $('#' + uuid).remove();
+        eventsMap.delete(uuid);
+    }
+
+    function createArrangementDialog_editSimpleActivity(uuid) {
+        document.dispatchEvent(
+            new CustomEvent("arrangementCreator.newSimpleActivityDialog.trigger", { "detail": {
+                "event_uuid": uuid
+            } })
+        )
     }
 
     function createArrangementDialog_editSerie(uuid) {
