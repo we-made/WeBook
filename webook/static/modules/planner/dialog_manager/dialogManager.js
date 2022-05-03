@@ -146,10 +146,10 @@ export class DialogManager {
     }
 
     _listenForSubmitEvent() {
-        console.log(`${this.managerName}.submit`);
         document.addEventListener(`${this.managerName}.submit`, (e) => {
-            this._dialogRepository.get(e.detail.dialog)
-                .onSubmit(this.context, e.detail);
+            var dialog = this._dialogRepository.get(e.detail.dialog);
+            dialog.onSubmit(this.context, e.detail); // Trigger the dialogs onSubmit handling
+            dialog.onUpdatedCallback();              // Trigger the dialogs on update handling
         })
     }
 
