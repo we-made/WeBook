@@ -4,8 +4,6 @@ export class SelectComponent {
         this.element = document.getElementById(this.element_id);
         this.element_id = element_id
         this.options = options
-
-        this.listenToChange();
     }
 
     insert_options () {
