@@ -6,9 +6,9 @@
 {% block content %}
     <form method="post">
         {% csrf_token %}
-        
+
         {{ form.location }}
-        
+
         <div class="form-group mt-2 pt-3 pb-2">
             <label for="{{ form.name.id_for_label }}" class="h5 d-block">
                 {{ form.name.label }}
@@ -20,7 +20,7 @@
 
 
             <input type="text" class="form-control"
-                id="{{ form.name.id_for_label }}" 
+                id="{{ form.name.id_for_label }}"
                 value="{{ form.name.value|default:'' }}"
                 name="{{ form.name.name }}"
                 placeholder="{% trans 'Room' %} A..."/>
@@ -38,7 +38,7 @@
 
             <input type="number" class="form-control"
                 min="0"
-                id="{{ form.max_capacity.id_for_label }}" 
+                id="{{ form.max_capacity.id_for_label }}"
                 value="{{ form.max_capacity.value|default:'0' }}"
                 name="{{ form.max_capacity.name }}"/>
         </div>
@@ -61,10 +61,19 @@
                 {% endif %}
                 <label class="form-check-label" for="{{form.is_exclusive.id_for_label}}">Is room exclusive?</label>
             </div>
+
+              <div class="form-check form-switch">
+                {% if object.has_screen %}
+                    <input class="form-check-input" name="{{form.has_screen.name}}" type="checkbox" role="switch" id="{{form.has_screen.id_for_label}}" checked />
+                {% else %}
+                    <input class="form-check-input" name="{{form.has_screen.name}}" type="checkbox" role="switch" id="{{form.has_screen.id_for_label}}" />
+                {% endif %}
+                <label class="form-check-label" for="{{form.has_screen.id_for_label}}">Room have screen?</label>
+            </div>
         </div>
 
 
-        
+
         <div class="mt-3">
             <button type="submit" class="btn btn-success">
                 {% trans "Save" %}

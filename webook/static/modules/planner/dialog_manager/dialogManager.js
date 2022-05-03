@@ -22,12 +22,16 @@
 
         console.log('#' + this.dialogElementId)
 
+        this.dialogOptions.closeText = "hello";
+
         if (this.isOpen() === false) {
             $('body')
                 .append(await this.htmlFabricator(context))
                 .ready( () => {
-                    this.onRenderedCallback(this, context);
-                    this._$getDialogEl().dialog( this.dialogOptions );       
+                    this.onRenderedCallback(this);
+                    this._$getDialogEl().dialog( this.dialogOptions );    
+                    this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
+                        .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>");
                 });
         }
     }

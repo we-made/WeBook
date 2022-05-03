@@ -27,15 +27,7 @@
             <div>
                 <h5>
                     {% trans "Screen Name:" %}
-                  <span>{{ object.name }}</span>
-                </h5>
-
-            </div>
-
-            <div class="mt-4">
-                <h5>
-                    {% trans "Screen Name (English):" %}
-                   <span>{{ object.name_en }}</span>
+                  <span>{{ object.screen_model }}</span>
                 </h5>
 
             </div>
@@ -43,18 +35,11 @@
             <div class="mt-5">
                 <h5>
                     {% trans "Number of items showing: " %}
-                   <span>{{ object.quantity }}</span>
+                   <span>{{ object.items_shown }}</span>
                 </h5>
 
             </div>
 
-           <div class="mt-4">
-                <h5>
-                    {% trans "Is room screen: " %}
-                  <span>{{ object.is_room_screen }}</span>
-                </h5>
-
-            </div>
 
 
         </div>

@@ -34,9 +34,9 @@
                         <select class="select" multiple data-mdb-placeholder="Screen names" data-mdb-filter="true" name="{{ form.screens.name }}">
                            {% for screen in screen_list.all %}
                              {% if screen in screengroup.screens.all %}
-                             <option value="{{ screen.id }}" selected>{{ screen.name }}</option>
+                             <option value="{{ screen.id }}" selected>{{ screen.screen_model }}</option>
                             {% else %}
-                             <option value="{{ screen.id }}">{{ screen.name }}</option>
+                             <option value="{{ screen.id }}">{{ screen.screen_model }}</option>
                              {% endif %}
                           {% endfor %}
                       </select>
@@ -56,7 +56,7 @@
                             id="{{ form.group_name_en.id_for_label }}"
                             name="{{ form.group_name_en.name }}"
                             value="{{ form.group_name_en.value|default:'' }}"
-                            placeholder="{% trans 'Screen Group Name (English)' %}... ({% trans 'Optional' %})" />
+                            placeholder="{% trans 'Optional' %}" />
                     </div>
 
 

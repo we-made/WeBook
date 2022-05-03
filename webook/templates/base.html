@@ -68,6 +68,7 @@
   <body>
     <header>
       <!-- Sidenav -->
+      
       <nav id="sidenav-1" style="background-color:darkslateblue; color:white" class="sidenav ps sidenav-primary sidenav-dark" data-mdb-mode="side" data-mdb-hidden="false" data-mdb-accordion="true" style="width: 240px; height: 100vh; position: fixed; transition: all 0.3s linear 0s; ">
         <a class="ripple d-flex justify-content-center py-4" href="#!" data-mdb-ripple-color="primary">
           <!-- <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" width="150px" draggable="false"> -->
@@ -274,6 +275,11 @@
           padding-left: 240px;
         }
       }
+
+      #mainBodyContainer {
+        padding-left: 280px;
+      }
+
       INPUT:-webkit-autofill,SELECT:-webkit-autofill,TEXTAREA:-webkit-autofill{animation-name:onautofillstart}INPUT:not(:-webkit-autofill),SELECT:not(:-webkit-autofill),TEXTAREA:not(:-webkit-autofill){animation-name:onautofillcancel}@keyframes onautofillstart{from{}}@keyframes onautofillcancel{from{}}
   </style>
 
@@ -281,7 +287,7 @@
     <div style="margin-top:100px"></div>
     {% endblock %}
 
-    <div class="container" id="mainBodyContainer">
+    <div class="container-fluid" id="mainBodyContainer">
       {% block noheader %}
       <section class="bg-white  header-fonted">
         <h1 class="h1 fw-bolder header-fonted">

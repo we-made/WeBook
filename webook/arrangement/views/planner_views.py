@@ -42,7 +42,7 @@ from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
-from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
+from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -785,7 +785,14 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         
-        rooms = Room.objects.all()
+        locations = Location.objects.all()
+        room_presets = RoomPreset.objects.all()
+        
+        for preset in room_presets:
+            pks = preset.rooms.all().values_list('pk', flat=True)
+            preset.room_ids = ",".join([str(pk) for pk in pks])
+
+        context["room_presets"] = room_presets
         context["serie_guid"] = self.request.GET.get("serie_guid", None)
         event_pk = self.request.GET.get("event_pk", None)
         context["event_pk"] = event_pk
@@ -793,17 +800,16 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
         event = None
         if event_pk is not None and event_pk != 0 and event_pk != "0":
             event = Event.objects.get(pk=event_pk)
-            for room in rooms:
+            for room in locations.rooms.all():
                 if room in event.rooms.all():
                     room.is_selected = True
-        context["rooms"] = rooms
+        context["locations"] = locations
 
         if (context["serie_guid"] is None):
             context["mode"] = "event"
             context["event"] = event
         else:
             context["mode"] = "serie"
-
 
         context["manager"] = self.request.GET.get("manager", None)
         context["dialog"] = self.request.GET.get("dialog", None)

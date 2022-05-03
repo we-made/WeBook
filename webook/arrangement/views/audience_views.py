@@ -13,6 +13,7 @@ from django.urls import reverse, reverse_lazy
 
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, Audience
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
@@ -114,9 +115,14 @@ class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
 audience_update_view = AudienceUpdateView.as_view()
 
 
-class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, DeleteView):
+class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, ArchiveView):
     model = Audience
     view_meta = ViewMeta.Preset.delete(Audience)
     template_name = "arrangement/delete_view.html"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:audience_list"
+        )
 
 audience_delete_view = AudienceDeleteView.as_view()

@@ -10,11 +10,23 @@ from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from webook.arrangement.managers import ArchivedManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 import webook.screenshow.models as screen_models
 
 
-class ModelArchiveableMixin():
+class ModelArchiveableMixin(models.Model):
+    """ Mixin for making a model archivable """
+
+    objects = ArchivedManager()
+
+    def archive(self, person_archiving_this):
+        """ Archive this object """
+        self.is_archived = True
+        self.archived_by = person_archiving_this
+        self.archived_when = datetime.datetime.now()
+        self.save()
+
     is_archived = models.BooleanField(
         verbose_name=_("Is archived"),
         default=False
@@ -22,6 +34,7 @@ class ModelArchiveableMixin():
 
     archived_by = models.ForeignKey(
         verbose_name=_("Archived by"),
+        related_name="%(class)s_archived_by",
         to="Person",
         null=True,
         on_delete=models.RESTRICT
@@ -31,6 +44,9 @@ class ModelArchiveableMixin():
         verbose_name=_("Archived when"),
         null=True
     )
+
+    class Meta:
+        abstract = True
 
 
 class ModelTicketCodeMixin(models.Model):
@@ -80,7 +96,7 @@ class ModelHistoricallyConfirmableMixin():
         pass
 
 
-class Audience(TimeStampedModel, ModelNamingMetaMixin):
+class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """Audience represents a target audience, and is used for categorical purposes.
 
     :param name: The name of the audience
@@ -112,7 +128,7 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
+class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     class Meta:
         verbose_name = _("Arrangement")
         verbose_name_plural = _("Arrangements")
@@ -131,10 +147,11 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class RoomPreset (TimeStampedModel, ModelNamingMetaMixin):
+class RoomPreset (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """
-        A room preset is a group, or collection, or set, of rooms. 
-    """
+        A room preset is a group, or collection, or set, of rooms.
+    """ 
+
     slug = AutoSlugField(populate_from="name", unique=True)
     name = models.CharField(verbose_name=_("Name"), max_length=256,     null=False, blank=False)
     rooms = models.ManyToManyField(to="Room")
@@ -144,7 +161,7 @@ class RoomPreset (TimeStampedModel, ModelNamingMetaMixin):
     entity_name_plural = _("Room Presets")
 
 
-class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, ModelVisitorsMixin):
+class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArchiveableMixin):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
      that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
      could be an exhibition, which may have events stretching over a large timespan, but which have a shared nature,
@@ -240,7 +257,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
         return self.name
 
 
-class ArrangementFile(TimeStampedModel):
+class ArrangementFile(TimeStampedModel, ModelArchiveableMixin):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT, related_name="files")
     uploader = models.ForeignKey(to="Person", on_delete=models.RESTRICT, related_name="files_uploaded_to_arrangements")
     file = FileField(upload_to="arrangementFiles/")
@@ -250,7 +267,7 @@ class ArrangementFile(TimeStampedModel):
         return os.path.basename(self.file.name)
 
 
-class Location (TimeStampedModel, ModelNamingMetaMixin):
+class Location (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """Location represents a physical location, for instance a building.
     In practice a location is a group of rooms, primarily helpful in contextualization and filtering
 
@@ -278,7 +295,7 @@ class Location (TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class Room(TimeStampedModel, ModelNamingMetaMixin):
+class Room(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """Room represents a physical real-world room. All rooms belong to a location.
 
     :param location: The location that this room belongs to
@@ -295,6 +312,8 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
         verbose_name = _("Room")
         verbose_name_plural = _("Rooms")
 
+    objects = ArchivedManager()
+
     name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
     location = models.ForeignKey(
         Location,
@@ -303,9 +322,8 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
         related_name="rooms"
     )
     max_capacity = models.IntegerField(verbose_name="Maximum Occupants")
-
     is_exclusive = models.BooleanField(verbose_name=_("Is Exclusive"), default=False)
-
+    has_screen = models.BooleanField(verbose_name=_("Has Screen"), default=True)
     business_hours = models.ManyToManyField(to="BusinessHour", verbose_name=_("Business Hours"))
 
     name = models.CharField(verbose_name=_("Name"), max_length=128)
@@ -324,7 +342,7 @@ class Room(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class Article(TimeStampedModel):
+class Article(TimeStampedModel, ModelArchiveableMixin):
     """An article is a consumable entity, on the same level in terms of being a resource as room and person.
     In practice an article could for instance be a projector, or any other sort of inanimate physical entity
 
@@ -344,7 +362,7 @@ class Article(TimeStampedModel):
         return self.name
 
 
-class OrganizationType(TimeStampedModel, ModelNamingMetaMixin):
+class OrganizationType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """An organization type is an arbitrary classification that is applicable to organizations
     For example non-profit organizations, or public organizations. This is for categorical purposes.
 
@@ -372,7 +390,7 @@ class OrganizationType(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class TimelineEvent (TimeStampedModel):
+class TimelineEvent (TimeStampedModel, ModelArchiveableMixin):
     """A timeline event model represents an event on a timeline, not to be confused with an event on a calendar, which
     is represented by the Event model.
 
@@ -395,7 +413,7 @@ class TimelineEvent (TimeStampedModel):
         return self.content
 
 
-class ServiceType(TimeStampedModel, ModelNamingMetaMixin):
+class ServiceType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """A service type is a type categorization of service providers
 
     :param name: The name of the service type
@@ -422,7 +440,7 @@ class ServiceType(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class BusinessHour(TimeStampedModel):
+class BusinessHour(TimeStampedModel, ModelArchiveableMixin):
     """A business hour model represents a from-to record keeping track of businesshours
     Primarily used visually to differentiate between business times, and outside of business times, in for instance
     the calendar. May apply to resources.
@@ -479,7 +497,7 @@ class BusinessHour(TimeStampedModel):
         return f"{self.start_of_business_hours} - {self.end_of_business_hours}"
 
 
-class Calendar(TimeStampedModel):
+class Calendar(TimeStampedModel, ModelArchiveableMixin):
     """Represents an implementation, or a version of a calendar. Calendars are built based on resources,
     namely which resources are wanted to be included. May be personal to a select user, or globally shared and
     available for all users
@@ -519,7 +537,7 @@ class Calendar(TimeStampedModel):
         return self.name
 
 
-class Note(TimeStampedModel):
+class Note(TimeStampedModel, ModelArchiveableMixin):
     """Notes are annotations that can be associated with other key models in the application. The practical purpose
     is to annotate information on these associated models.
 
@@ -539,7 +557,7 @@ class Note(TimeStampedModel):
         return self.content
 
 
-class ConfirmationReceipt (TimeStampedModel):
+class ConfirmationReceipt (TimeStampedModel, ModelArchiveableMixin):
     """Confirmation receipts are used to petition a person to confirm something, and allows a tracked
     record of confirmation
 
@@ -622,7 +640,7 @@ class ConfirmationReceipt (TimeStampedModel):
         return f"{self.requested_by} petitioned {self.sent_to} for a confirmation at STAMP."
 
 
-class Person(TimeStampedModel, ModelNamingMetaMixin):
+class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """Represents a person entity. Does not represent a user however.
 
     :param personal_email: Email of the person
@@ -684,7 +702,7 @@ class Person(TimeStampedModel, ModelNamingMetaMixin):
         return self.full_name
 
 
-class Organization(TimeStampedModel, ModelNamingMetaMixin):
+class Organization(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """ Organizations represent real world organizations
 
     :param organization_number: The organization number associated with this organization - if any
@@ -734,7 +752,7 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin):
         return self.name
 
 
-class ServiceProvidable(TimeStampedModel):
+class ServiceProvidable(TimeStampedModel, ModelArchiveableMixin):
     """The service provider provides services that
     can be consumed by events. An organization may provide multiple
     services, and thus be represented through multiple service provider records.
@@ -758,7 +776,7 @@ class ServiceProvidable(TimeStampedModel):
         return f"{self.service_name} of type {self.service_type} provided by {self.organization.name}"
 
 
-class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin):
+class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArchiveableMixin):
     """The event model represents an event, or happening that takes place in a set span of time, and which may
     reserve certain resources for use in that span of time (such as a room, or a person etc..).
 
@@ -876,7 +894,7 @@ class CollisionAnalysisRecord (TimeStampedModel):
             return self.conflicted_rooms
 
 
-class EventService(TimeStampedModel):
+class EventService(TimeStampedModel, ModelArchiveableMixin):
     """
     The event service model is a many-to-many mapping relationship between Event and ServiceProvider
 
@@ -903,7 +921,7 @@ class EventService(TimeStampedModel):
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
     associated_people = models.ManyToManyField(to=Person, verbose_name=_("Associated People"))
 
-class RequisitionRecord (TimeStampedModel):
+class RequisitionRecord (TimeStampedModel, ModelArchiveableMixin):
 
     REQUISITION_UNDEFINED = 'undefined'
     REQUISITION_PEOPLE = 'people'
@@ -952,7 +970,7 @@ class EventSerie(TimeStampedModel):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
 
 
-class LooseServiceRequisition(TimeStampedModel):
+class LooseServiceRequisition(TimeStampedModel, ModelArchiveableMixin):
     arrangement = models.ForeignKey(to="arrangement", related_name="loose_service_requisitions", on_delete=models.RESTRICT)
     comment = models.TextField(verbose_name=_("Comment"), default="")
     type_to_order = models.ForeignKey(to="ServiceType", on_delete=models.RESTRICT, verbose_name=_("Type to order"))
