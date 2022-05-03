@@ -108,7 +108,11 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered"); },
-                        onUpdatedCallback: ( ) => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("addPlannerDialog"); },
+                        onUpdatedCallback: ( ) => { 
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                            this.dialogManager.closeDialog("addPlannerDialog"); 
+                            toastr.success("Planlegger(e) har blitt lagt til")
+                        },
                         dialogOptions: { width: 700 }
                     })
                 ],
@@ -139,7 +143,10 @@ export class ArrangementInspector {
                             $('#serie_title').attr('value', $('#id_name').val() );
                             $('#serie_title_en').attr('value', $('#id_name_en').val() );
                         },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("newTimePlanDialog"); },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                            this.dialogManager.closeDialog("newTimePlanDialog"); 
+                        },
                         dialogOptions: { width: 700 },
                         onSubmit: async (context, details) => { 
 
@@ -189,7 +196,10 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("newSimpleActivityDialog"); },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                            this.dialogManager.closeDialog("newSimpleActivityDialog"); 
+                        },
                         dialogOptions: { width: 500 },
                         onSubmit: (context, details) => {
                             var events = [] 
@@ -246,7 +256,10 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("promotePlannerDialog"); },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                            this.dialogManager.closeDialog("promotePlannerDialog"); 
+                        },
                         dialogOptions: { width: 500 },
                     })
                 ],
@@ -260,7 +273,10 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("newNoteDialog");  },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                            this.dialogManager.closeDialog("newNoteDialog");  
+                        },
                         dialogOptions: { width: 500 },
                     })
                 ],
@@ -299,7 +315,10 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: () => { this.dialogManager._makeAware(); },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderRoomDialog");  },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                            this.dialogManager.closeDialog("orderRoomDialog");  
+                        },
                         onSubmit: async (context, details) => {
                             fetch("/arrangement/planner/dialogs/order_rooms_form", {
                                 method: "POST",
@@ -372,7 +391,10 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => {  },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.closeDialog("nestedOrderRoomDialog");
+                            toastr.success("Rom har blitt lagt til");
+                        },
                         onSubmit: (context, details) => { 
                             context.rooms = details.formData.get("room_ids");
                             context.room_name_map = details.room_name_map;
@@ -400,7 +422,10 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => {  },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.closeDialog("nestedOrderPersonDialog");
+                            toastr.success("Personer har blitt lagt til");
+                        },
                         onSubmit: (context, details) => {
                             var people_ids = details.formData.get("people_ids");
                             context.people = people_ids;

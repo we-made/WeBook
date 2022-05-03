@@ -111,7 +111,10 @@ export class ArrangementCreator {
                                     }
                                 });
                         },
-                        onUpdatedCallback: () => { this.reloadDialog("createArrangementDialog"); },
+                        onUpdatedCallback: () => { 
+                            toastr.success("Arrangement opprettet");
+                            this.dialogManager.closeDialog("createArrangementDialog");
+                        },
                         dialogOptions: { width: 900 }
                     }),
                 ],
@@ -288,7 +291,10 @@ export class ArrangementCreator {
                                 $('#patternRoute_daily').hide();
                             }
                         },
-                        onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newTimePlanDialog"); },
+                        onUpdatedCallback: () => { 
+                            toastr.success("Tidsplan lagt til eller oppdatert i planen");
+                            this.dialogManager.closeDialog("newTimePlanDialog"); 
+                        },
                         onSubmit: async (context, details) => {
                             if (context.series === undefined) {
                                 context.series = new Map();
@@ -381,7 +387,10 @@ export class ArrangementCreator {
                                 ));
                             }
                         },
-                        onUpdatedCallback: () => { this.reloadDialog("mainDialog"); this.closeDialog("newSimpleActivityDialog"); },
+                        onUpdatedCallback: () => { 
+                            toastr.success("Enkel aktivitet lagt til eller oppdatert i planen");
+                            this.dialogManager.closeDialog("newSimpleActivityDialog"); 
+                        },
                         onSubmit: async (context, details) => {
                             if (context.events === undefined) {
                                 context.events = new Map();
@@ -408,7 +417,10 @@ export class ArrangementCreator {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => {  },
+                        onUpdatedCallback: () => { 
+                            toastr.success("Rom lagt til");
+                            this.dialogManager.closeDialog("orderRoomDialog");
+                        },
                         onSubmit: (context, details) => { 
                             context.rooms = details.formData.get("room_ids");
                             context.room_name_map = details.room_name_map;
@@ -436,7 +448,10 @@ export class ArrangementCreator {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => {  },
+                        onUpdatedCallback: () => { 
+                            toastr.success("Personer lagt til");
+                            this.dialogManager.closeDialog("orderPersonDialog");
+                        },
                         onSubmit: (context, details) => {
                             var people_ids = details.formData.get("people_ids");
                             context.people = people_ids;
