@@ -40,7 +40,7 @@ from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
-from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition
+from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -416,12 +416,12 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
 
         with connection.cursor() as cursor:
             cursor.execute(
-                f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
+                f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || ' ' || resp.last_name as mainPlannerName,
                         arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, arr.name as name, ev.start as starts,
                         ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
                         GROUP_CONCAT( DISTINCT room.name) as room_names, 
-                        GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
-                        (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
+                        GROUP_CONCAT( DISTINCT participants.first_name || ' ' || participants.last_name ) as people_names,
+                        (loc.slug || ',' || GROUP_CONCAT(DISTINCT room.slug ) || ',' || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
                         from arrangement_arrangement as arr 
                         JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
                         JOIN arrangement_location as loc on loc.id = arr.location_id
@@ -749,7 +749,14 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         
-        rooms = Room.objects.all()
+        locations = Location.objects.all()
+        room_presets = RoomPreset.objects.all()
+        
+        for preset in room_presets:
+            pks = preset.rooms.all().values_list('pk', flat=True)
+            preset.room_ids = ",".join([str(pk) for pk in pks])
+
+        context["room_presets"] = room_presets
         context["serie_guid"] = self.request.GET.get("serie_guid", None)
         event_pk = self.request.GET.get("event_pk", None)
         context["event_pk"] = event_pk
@@ -757,17 +764,16 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
         event = None
         if event_pk is not None and event_pk != 0 and event_pk != "0":
             event = Event.objects.get(pk=event_pk)
-            for room in rooms:
+            for room in locations.rooms.all():
                 if room in event.rooms.all():
                     room.is_selected = True
-        context["rooms"] = rooms
+        context["locations"] = locations
 
         if (context["serie_guid"] is None):
             context["mode"] = "event"
             context["event"] = event
         else:
             context["mode"] = "serie"
-
 
         context["manager"] = self.request.GET.get("manager", None)
         context["dialog"] = self.request.GET.get("dialog", None)

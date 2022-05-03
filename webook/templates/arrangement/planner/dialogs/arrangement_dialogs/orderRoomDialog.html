@@ -6,24 +6,54 @@
         </div>
         {% endif %}
 
-        <table class="table table-sm table-striped">
+        <div class="input-group mb-2">
+            <span class="input-group-text">
+                <i class="fas fa-search"></i>
+            </span>
+            <input type="search" name="" placeholder="Søk..." class="form-control" id="datatable-search-input">
+        </div>
+
+        {% for preset in room_presets %}
+        <div class="bg-success btn p-2 text-white rounded-5 mb-2"
+            data-mdb-togggle="tooltip" title="Select all rooms in this preset"
+            rooms="{{preset.room_ids}}"
+            onclick="orderRoomDialog__activateRoomIds(this.getAttribute('rooms'))">
+            {{preset.name}}
+        </div>
+
+        {% endfor %}
+
+        <table class="table table-sm" id="roomsTable">
+            <thead>
+                <tr>
+                    <th>Velg</th>
+                </tr>
+            </thead>
             <tbody>
-                {% for room in rooms %}
+                {% for location in locations %}
                     <tr>
-                        <td>
-                            {% if room.is_selected %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{room.pk}}" id="personCheck__{{room.slug}}" 
-                                    room_name="{{room}}" name="orderRoomDialog__checkboxArray" checked/>
-                                <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
-                            </div>
-                            {% else %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{room.pk}}" id="personCheck__{{room.slug}}" 
-                                    room_name="{{room}}" name="orderRoomDialog__checkboxArray"/>
-                                <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
-                            </div>
-                            {% endif %}
+                        <td> 
+                            <span class="mb-0 fw-bold"> {{location.name}} </span> 
+
+                            <table class="table-sm table-bordered table-striped">
+                                {% for room in location.rooms.all %}
+                                <tr>
+                                    {% if room.is_selected %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
+                                            room_name="{{room}}" name="orderRoomDialog__checkboxArray" checked/>
+                                        <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
+                                    </div>
+                                    {% else %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
+                                            room_name="{{room}}" name="orderRoomDialog__checkboxArray"/>
+                                        <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
+                                    </div>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </table>
                         </td>
                     </tr>
                 {% endfor %}
@@ -47,6 +77,32 @@
         }
         return roomIds;
     }
+
+    function orderRoomDialog__activateRoomIds(roomIds) {
+        console.log(roomIds)
+        var checkboxes = $("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked");
+        for (let i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].removeAttribute("checked");
+        }
+
+        var ids = roomIds.split(",");
+        for (let i = 0; i < ids.length; i++) {
+            var correspondingCheckbox = $("input[type=checkbox][name=orderRoomDialog__checkboxArray][value='" + ids[i] + "']");
+            console.log("set", correspondingCheckbox)
+            correspondingCheckbox.attr("checked", true);
+        }
+    }
+
+    $(document).ready(function () {
+        const dt = $('#roomsTable').DataTable( { 
+            paging: false,
+            dom: 't',
+        } ); 
+
+        document.getElementById('datatable-search-input').addEventListener('input', (e) => {
+           dt.search(e.target.value).draw();
+        })
+    })
 
     {% if mode == 'serie' %}
     function orderRoomDialog__order() {

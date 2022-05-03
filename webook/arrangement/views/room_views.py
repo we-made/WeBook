@@ -131,6 +131,9 @@ class LocationRoomListView (LoginRequiredMixin, ListView):
     slug_url_kwarg = "slug"
     template_name="arrangement/room/partials/_location_room_list.html"
 
+    def get_queryset(self):
+        return super().get_queryset().filter(location_id=self.request.GET.get("location"))
+
 location_room_list_view = LocationRoomListView.as_view()
 
 

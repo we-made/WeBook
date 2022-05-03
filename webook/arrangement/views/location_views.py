@@ -143,8 +143,6 @@ class LocationsCalendarResourcesListView (LoginRequiredMixin, ListView):
         locations = Location.objects.all()
         serializable_locations = []
 
-
-
         for location in locations:
             room_slugs = []
             for room in location.rooms.all():
