@@ -20,10 +20,7 @@
 
         this.destroy();
 
-        console.log('#' + this.dialogElementId)
-
         this.dialogOptions.closeText = "hello";
-
         if (this.isOpen() === false) {
             $('body')
                 .append(await this.htmlFabricator(context))
@@ -72,10 +69,6 @@
         elements.forEach(element => {
             element.remove();
         })
-        // var $dialogElement = this._$getDialogEl();
-        // if ($dialogElement[0] !== undefined) {
-        //     $dialogElement[0].remove();
-        // }
     }
 
     getInstance() {
@@ -114,7 +107,6 @@ export class DialogManager {
     }
 
     reloadDialog(dialogId, customHtml=undefined) {
-        console.log("reloadDialog " + dialogId)
         this._dialogRepository.get(dialogId).refresh(this.context, customHtml);
     }
 
