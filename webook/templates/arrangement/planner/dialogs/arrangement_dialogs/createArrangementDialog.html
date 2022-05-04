@@ -276,9 +276,29 @@
         return true;
     }
 
+    function has_plans () {
+        let has_plans = false;
+
+        console.log("SeriesMap", seriesMap);
+        console.log("EventsMap", eventsMap)
+
+        if (seriesMap !== undefined && seriesMap.size > 0) {
+            has_plans = true;
+        }
+        if (eventsMap !== undefined && eventsMap.size > 0) {
+            has_plans = true;
+        }
+
+        return has_plans;
+    }
+
     function createArrangementDialog_submit() {
 
         if (validate_arrangement_info_form() === false) {
+            return;
+        }
+        if (has_plans() === false) {
+            toastr.warning("Plan(er) må opprettes før vi kan opprette arragementet - du må sette tider.");
             return;
         }
 
