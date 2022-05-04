@@ -4,113 +4,118 @@
 <div id="newTimePlanDialog" title="<span class='badge badge-success'><i class='fas fa-clock'></i></span>&nbsp; Ny tidsplan">
     <div>
         <input type="hidden" name="uuid" id="serie_uuid">
-        
-        <fieldset>
-            <table class="">
-                <tbody>
-                  <tr>
-                    <td>
-                      <label>{% trans "Title" %}: </label>
-                    </td>
-                    <td>
-                      <input type="text" id="serie_title" class="form-control form-control-sm" tabindex="600" autocomplete="off" required />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label>{% trans "Title" %} <em>(engelsk): </em></label>
-                    </td>
-                    <td>
-                      <input type="text" id="serie_title_en" class="form-control form-control-sm" tabindex="601" autocomplete="off" required />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label>
-                          <i class="fas fa-clock"></i>
-                          {% trans "Start" %}: 
-                       </label>
-                    </td>
-                    <td>
-                      <input type="time" id="serie_start" class="form-control form-control-sm" tabindex="602" required />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label>
-                          <i class="fas fa-clock"></i>
-                          {% trans "Slutt" %}: 
-                        </label>
-                    </td>
-                    <td>
-                      <input type="time" id="serie_end" class="form-control form-control-sm" tabindex="603" required />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label>
-                          <i class="fas fa-receipt"></i>
-                          {% trans "Ticket Code" %}: 
-                        </label>
-                    </td>
-                    <td>
-                      <input type="text" id="serie_ticket_code" class="form-control form-control-sm" tabindex="604" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label>
-                          <i class="fas fa-users"></i>
-                          {% trans "Expected visitors" %}: 
-                      </label>
-                    </td>
-                    <td>
-                      <input type="number" id="serie_expected_visitors" class="form-control form-control-sm" tabindex="605" />
-                    </td>
-                  </tr>
-                  <tr class="">
-                      <td colspan="2">
-                          <br>
-                            <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}: </label>
-                          {{ form.display_layouts_serie_planner }}
-                      </td>
-                  </tr>
-                </tbody>
-              </table>
+        <form id="headMockForm">
+            <input type="submit" style="display:none;" />
 
-              <div class="row mt-4">
-                <div class="col-6">
-                    <h4>Rom</h4>
-                    <button class="playfulButton playfulButton-green"
-                        onclick="createSerieDialog__openAddRooms()">
-                        <div class="icon"><i class="fas fa-plus"></i></div>
-                        Legg til rom
-                    </button>
+            <fieldset>
+                <table class="">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <label>{% trans "Title" %}: </label>
+                        </td>
+                        <td>
+                            <input type="text" id="serie_title" class="form-control form-control-sm" tabindex="600" autocomplete="off" required />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>{% trans "Title" %} <em>(engelsk): </em></label>
+                        </td>
+                        <td>
+                            <input type="text" id="serie_title_en" class="form-control form-control-sm" tabindex="601" autocomplete="off" required />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>
+                                <i class="fas fa-clock"></i>
+                                {% trans "Start" %}: 
+                            </label>
+                        </td>
+                        <td>
+                            <input type="time" id="serie_start" class="form-control form-control-sm" tabindex="602" required />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        <label>
+                            <i class="fas fa-clock"></i>
+                            {% trans "Slutt" %}: 
+                            </label>
+                        </td>
+                        <td>
+                            <input type="time" id="serie_end" class="form-control form-control-sm" tabindex="603" required />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        <label>
+                            <i class="fas fa-receipt"></i>
+                            {% trans "Ticket Code" %}: 
+                            </label>
+                        </td>
+                        <td>
+                            <input type="text" id="serie_ticket_code" class="form-control form-control-sm" tabindex="604" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        <label>
+                            <i class="fas fa-users"></i>
+                            {% trans "Expected visitors" %}: 
+                        </label>
+                        </td>
+                        <td>
+                            <input type="number" id="serie_expected_visitors" class="form-control form-control-sm" tabindex="605" min="0" required />
+                        </td>
+                    </tr>
+                    <tr class="">
+                        <td colspan="2">
+                            <br>
+                                <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}: </label>
+                            {{ form.display_layouts_serie_planner }}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
-                    <div class="table-responsive mt-2">
-                        <table class="table table-sm">
-                            <tbody id="roomsTbody"></tbody>
-                        </table>
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <h4>Rom</h4>
+                        <button class="playfulButton playfulButton-green"
+                            onclick="createSerieDialog__openAddRooms()"
+                            type="button">
+                            <div class="icon"><i class="fas fa-plus"></i></div>
+                            Legg til rom
+                        </button>
+
+                        <div class="table-responsive mt-2">
+                            <table class="table table-sm">
+                                <tbody id="roomsTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4>Personer</h4>
+
+                        <button class="playfulButton  playfulButton-green"
+                            onclick="createSerieDialog__openAddPeople()"
+                            type="button">
+                            <div class="icon"><i class="fas fa-plus"></i></div>
+                            Legg til personer
+                        </button>
+
+
+                        <div class="table-responsive mt-2">
+                            <table class="table table-sm">
+                                <tbody id="peopleTbody"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div class="col-6">
-                    <h4>Personer</h4>
-
-                    <button class="playfulButton  playfulButton-green"
-                        onclick="createSerieDialog__openAddPeople()">
-                        <div class="icon"><i class="fas fa-plus"></i></div>
-                        Legg til personer
-                    </button>
-
-
-                    <div class="table-responsive mt-2">
-                        <table class="table table-sm">
-                            <tbody id="peopleTbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </fieldset>
+            </fieldset>
+        </form>
 
         <fieldset>
             <legend>Pattern for recurring area</legend>
@@ -546,7 +551,8 @@
             let field_elements = [
                 document.getElementById('serie_title'),
                 document.getElementById('serie_start'),
-                document.getElementById('serie_end')
+                document.getElementById('serie_end'),
+                document.getElementById('serie_expected_visitors'),
             ];
 
             let isInvalid = false;

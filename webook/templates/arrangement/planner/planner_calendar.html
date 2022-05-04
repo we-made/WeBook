@@ -72,7 +72,7 @@
               </div>
         </div>
 
-        <!-- <div class="mt-4">
+        <div class="mt-4">
             <span class="dayCircle active fw-bold">M</span>
             <span class="dayCircle active fw-bold">T</span>
             <span class="dayCircle active fw-bold">O</span>
@@ -80,14 +80,15 @@
             <span class="dayCircle active fw-bold">F</span>
             <span class="dayCircle fw-bold">L</span>
             <span class="dayCircle fw-bold">S</span>
-        </div> -->
+        </div>
 
 
         <div class="mt-4" id="plannerCalendarFilter">
-            <h4>Typer</h4>
+            <h4><i class="fas fa-cog"></i>&nbsp; Typer</h4>
             <div>
                 <label for="">Arrangementstyper</label>
-                <select class="select" id="plannerCalendarFilter_arrangementTypes" multiple>
+                <select class="select" id="plannerCalendarFilter_arrangementTypes" multiple
+                    data-mdb-placeholder="Filtrer på arrangementstype">
                     {% for arrangement_type in ARRANGEMENT_TYPES %}
                         <option value="{{arrangement_type.slug}}">{{arrangement_type}}</option>
                     {% endfor %}
@@ -95,7 +96,8 @@
             </div>
             <div>
                 <label for="">Målgrupper</label>
-                <select class="select" id="plannerCalendarFilter_audiences" multiple>
+                <select class="select" id="plannerCalendarFilter_audiences" multiple
+                    data-mdb-placeholder="Filtrer på målgruppe">
                     {% for audience in AUDIENCES %}
                         <option value="{{audience.slug}}">{{audience}}</option>
                     {% endfor %}
@@ -103,7 +105,7 @@
             </div>
         </div>
         <div class="mt-4" id="plannerCalendarFilter">
-            <h4>Lokasjoner</h4>
+            <h4> <i class="fas fa-building"></i>&nbsp; Lokasjoner</h4>
         <!-- Checked switch -->
 
                 <!-- <div class="fc mb-0 p-0">

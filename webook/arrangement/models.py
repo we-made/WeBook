@@ -240,7 +240,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
     show_on_multimedia_screen = models.BooleanField(verbose_name=_("Show on multimedia screen"), default=False)
 
-    display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layout"), related_name="arrangements")
+    display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layout"), related_name="arrangements", blank=True)
 
     slug = AutoSlugField(populate_from="name", unique=True)
 

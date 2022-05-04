@@ -4,132 +4,136 @@
 
 <div id="newSimpleActivityDialog" title="<span class='badge badge-success'><i class='fas fa-calendar'></i></span>&nbsp; Ny enkel aktivitet">
     <div>
+        <form id="newSimpleActivityForm">
+            <input type="submit" style="display:none;" />
 
-        <input type="hidden" name="uuid" id="event_uuid">
+            <input type="hidden" name="uuid" id="event_uuid">
+            
+            <div class="form-group">
+                <label class="d-block">Tittel <small class="text-muted float-end"> * Required</small></label>
+                <input type="text" class="form-control" id="title" code-qualified-name="title" required/>
+            </div>
+            <div class="form-group mt-2">
+                <label class="d-block">Tittel <em class="small">(engelsk)</em> <small class="text-muted float-end"> * Required</small></label>
+                <input type="text" class="form-control" id="title_en" code-qualified-name="title" required/>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="d-block">Ticket Code</label>
+                <div class="input-group flex-nowrap">
+                    <span class="input-group-text"><i class="fas fa-receipt"></i></span>
+                    <input type="text" class="form-control" id="ticket_code" code-qualified-name="title"/>
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="d-block">Expected amount of visitors</label>
+                <div class="input-group flex-nowrap">
+                    <span class="input-group-text"><i class="fas fa-users"></i></span>
+                    <input type="text" class="form-control" id="expected_visitors" code-qualified-name="title" value="0"/>
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="d-block">Fra <small class="text-muted float-end"> * Required</small></label>
+                <div class="row">
+                <div class="col-6">
+                    <div class="input-group flex-nowrap">
+                        <div class="input-group-text">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate" required>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="input-group flex-nowrap">
+                        <div class="input-group-text">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <input type="time" class="form-control" id="fromTime" code-qualified-name="fromTime" required>
+                    </div>
+                </div>
+                </div>
+            </div>
         
-        <div class="form-group">
-            <label class="d-block">Tittel <small class="text-muted float-end"> * Required</small></label>
-            <input type="text" class="form-control" id="title" code-qualified-name="title" required/>
-        </div>
-        <div class="form-group mt-2">
-            <label class="d-block">Tittel <em class="small">(engelsk)</em> <small class="text-muted float-end"> * Required</small></label>
-            <input type="text" class="form-control" id="title_en" code-qualified-name="title" required/>
-        </div>
-
-        <div class="form-group mt-2">
-            <label class="d-block">Ticket Code</label>
-            <div class="input-group flex-nowrap">
-                <span class="input-group-text"><i class="fas fa-receipt"></i></span>
-                <input type="text" class="form-control" id="ticket_code" code-qualified-name="title"/>
-            </div>
-        </div>
-
-        <div class="form-group mt-2">
-            <label class="d-block">Expected amount of visitors</label>
-            <div class="input-group flex-nowrap">
-                <span class="input-group-text"><i class="fas fa-users"></i></span>
-                <input type="text" class="form-control" id="expected_visitors" code-qualified-name="title" value="0"/>
-            </div>
-        </div>
-
-        <div class="form-group mt-2">
-            <label class="d-block">Fra <small class="text-muted float-end"> * Required</small></label>
-            <div class="row">
-            <div class="col-6">
-                <div class="input-group flex-nowrap">
-                    <div class="input-group-text">
-                        <i class="fas fa-calendar"></i>
+            <div class="form-group mt-2">
+                <label class="d-block">Til <small class="text-muted float-end"> * Required</small></label>
+                <div class="row">
+                <div class="col-6">
+                    <div class="input-group flex-nowrap">
+                        <div class="input-group-text">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
                     </div>
-                    <input type="date" class="form-control" id="fromDate" code-qualified-name="fromDate" required>
                 </div>
-            </div>
-            <div class="col-6">
-                <div class="input-group flex-nowrap">
-                    <div class="input-group-text">
-                        <i class="fas fa-clock"></i>
+                <div class="col-6">
+                    <div class="input-group flex-nowrap">
+                        <div class="input-group-text">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <input type="time" class="form-control" id="toTime" code-qualified-name="toTime" required>
                     </div>
-                    <input type="time" class="form-control" id="fromTime" code-qualified-name="fromTime" required>
+                </div>
                 </div>
             </div>
+
+            <div class="form-group mt-3">
+                <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
+                <!-- {{form.display_layouts}} -->
+                <ul>
+                    {% for choice_id, choice_label in form.display_layouts.field.choices %}
+                        <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
+                        <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
+                    {% endfor %}
+                </ul>
+                    
             </div>
-        </div>
-    
-        <div class="form-group mt-2">
-            <label class="d-block">Til <small class="text-muted float-end"> * Required</small></label>
-            <div class="row">
-            <div class="col-6">
-                <div class="input-group flex-nowrap">
-                    <div class="input-group-text">
-                        <i class="fas fa-calendar"></i>
+
+            <div class="row mt-4">
+                <div class="col-6">
+                    <button class="playfulButton playfulButton-green"
+                        onclick="dialogCreateEvent__openAddRooms()"
+                        type="button">
+                        <div class="icon"><i class="fas fa-plus"></i></div>
+                        Legg til rom
+                    </button>
+
+                    <div class="mt-2 table-responsive">
+                        <table class="table-sm table">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="a" id="a" name="a" checked/>
+                                            <!-- <label class="form-check-label" for="a"> Velg alle.. </label> -->
+                                        </div>
+                                    </th>
+                                    <th><i class="fas fa-trash text-danger"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody id="roomsTbody__d1">
+                            </tbody>
+                        </table>
                     </div>
-                    <input type="date" class="form-control" id="toDate" code-qualified-name="toDate" required>
                 </div>
-            </div>
-            <div class="col-6">
-                <div class="input-group flex-nowrap">
-                    <div class="input-group-text">
-                        <i class="fas fa-clock"></i>
+                <div class="col-6">
+                    <button class="playfulButton  playfulButton-green"
+                        onclick="dialogCreateEvent_openAddPeople()"
+                        type="button">
+                        <div class="icon"><i class="fas fa-plus"></i></div>
+                        Legg til personer
+                    </button>
+
+                    <div class="mt-2 table-responsive">
+                        <table class="table-sm table">
+                            <tbody id="peopleTbody__d1">
+                            </tbody>
+                        </table>
                     </div>
-                    <input type="time" class="form-control" id="toTime" code-qualified-name="toTime" required>
                 </div>
             </div>
-            </div>
-        </div>
-
-        <div class="form-group mt-3">
-            <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
-            <!-- {{form.display_layouts}} -->
-            <ul>
-                {% for choice_id, choice_label in form.display_layouts.field.choices %}
-                    <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
-                    <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
-                {% endfor %}
-            </ul>
-                
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-6">
-                <button class="playfulButton playfulButton-green"
-                    onclick="dialogCreateEvent__openAddRooms()">
-                    <div class="icon"><i class="fas fa-plus"></i></div>
-                    Legg til rom
-                </button>
-
-                <div class="mt-2 table-responsive">
-                    <table class="table-sm table">
-                        <thead>
-                            <tr>
-                                <th colspan="2">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="a" id="a" name="a" checked/>
-                                        <!-- <label class="form-check-label" for="a"> Velg alle.. </label> -->
-                                    </div>
-                                </th>
-                                <th><i class="fas fa-trash text-danger"></i></th>
-                            </tr>
-                        </thead>
-                        <tbody id="roomsTbody__d1">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="col-6">
-                <button class="playfulButton  playfulButton-green"
-                    onclick="dialogCreateEvent_openAddPeople()">
-                    <div class="icon"><i class="fas fa-plus"></i></div>
-                    Legg til personer
-                </button>
-
-                <div class="mt-2 table-responsive">
-                    <table class="table-sm table">
-                        <tbody id="peopleTbody__d1">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
+        </form>
         <div class="clearfix">
             <button class="mt-2 float-end btn btn-sm btn-success" onclick="dialogCreateEvent__submit()">Lagre</button>
         </div>
@@ -194,6 +198,26 @@
         });
     }
 
+    function validateNewSimpleActivityForm() {
+        let field_elements = $('#newSimpleActivityForm').find("input, select");
+
+        let isInvalid = false;
+
+        for (let i = 0; i < field_elements.length; i++) {
+            if (field_elements[i].checkValidity() === false) {
+                isInvalid = true;
+                break;
+            }
+        }
+
+        if (isInvalid) {
+            $('#newSimpleActivityForm').find(':submit').click();
+            return false;
+        }
+
+        return true;
+    }
+
     function dialogCreateEvent__removeAssociation(a) {
         var row = $(a).closest("tr")[0];
         var rowid = row.getAttribute("rowid");
@@ -219,6 +243,10 @@
     }
 
     function dialogCreateEvent__submit() {
+        if (validateNewSimpleActivityForm() === false) {
+            return;
+        }
+
         var qualifiedEvent = {
             _uuid: $('#event_uuid').val(),
             title: $('#title').val(),
