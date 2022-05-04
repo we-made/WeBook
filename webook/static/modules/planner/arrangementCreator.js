@@ -21,8 +21,12 @@ export class ArrangementCreator {
                         },
                         onRenderedCallback: (dialog) => {
                             if (this.dialogManager.context.series !== undefined) {
-                                this.dialogManager.context.series = [];
+                                this.dialogManager.context.series = new Map();
                             }
+                            if (this.dialogManager.context.events !== undefined) {
+                                this.dialogManager.context.events = new Map();
+                            }
+
                             console.log("calling _makeAware")
                             this.dialogManager._makeAware();
                         },
