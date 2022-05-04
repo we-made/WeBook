@@ -35,25 +35,23 @@
                         <td> 
                             <span class="mb-0 fw-bold"> {{location.name}} </span> 
 
-                            <table class="table-sm table-bordered table-striped">
-                                {% for room in location.rooms.all %}
-                                <tr>
-                                    {% if room.is_selected %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
-                                            room_name="{{room}}" name="orderRoomDialog__checkboxArray" checked/>
-                                        <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
-                                    </div>
-                                    {% else %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
-                                            room_name="{{room}}" name="orderRoomDialog__checkboxArray"/>
-                                        <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
-                                    </div>
-                                    {% endif %}
-                                </tr>
-                                {% endfor %}
-                            </table>
+                            {% for room in location.rooms.all %}
+                            <div>
+                                {% if room.is_selected %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
+                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray" checked/>
+                                    <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
+                                </div>
+                                {% else %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
+                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray"/>
+                                    <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -112,6 +110,8 @@
                                 .join(","));
         data.set("serie_guid", "{{serie_guid}}");
         
+        $('#roomsTable').DataTable().destroy();
+
         document.dispatchEvent(
             new CustomEvent("{{manager}}.submit", { "detail": {
                 dialog: "{{dialog}}",
@@ -134,6 +134,8 @@
             room_name_map.set(element.id, element.text);
         })
         
+        $('#roomsTable').DataTable().destroy();
+
         document.dispatchEvent(
             new CustomEvent("{{manager}}.submit", { "detail": {
                 dialog: "{{dialog}}",
