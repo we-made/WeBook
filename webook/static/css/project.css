@@ -95,6 +95,10 @@ div.modal-body > .bootbox-close-button {
   color:white;
 }
 
+.swal2-container {
+  z-index: 100000000000!important;
+}
+
 .noBoxShadow {
   box-shadow: none;
 }
