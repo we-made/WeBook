@@ -336,9 +336,10 @@ APP_TITLE = env(
     default="WeBook"
 )
 
+# Remember to override this with a valid key if project is commercial.
 FULLCALENDAR_LICENSE_KEY = env(
     "FULLCALENDAR_LICENSE_KEY",
-    default="CC-Attribution-NonCommercial-NoDerivatives"
+    default="CC-Attribution-NonCommercial-NoDerivatives" 
 )
 
 ASSET_SERVER_URL = env(
