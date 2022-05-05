@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any, Dict
+from dateutil import parser
 from datetime import date, datetime
 import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -423,6 +424,13 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         serializable_arrangements = []
         results = []
 
+        and_query = ""
+        start = self.request.GET.get("start", None)
+        end = self.request.GET.get("end", None)
+
+        if start and end is not None:
+            and_query = f"AND ev.start > '{parser.parse(start).isoformat()}' AND ev.end < '{ parser.parse(end).isoformat() }'"
+
         db_vendor = connection.vendor
 
         with connection.cursor() as cursor:
@@ -444,7 +452,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                 LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                                 LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                                 LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                                WHERE arr.is_archived = false
+                                WHERE arr.is_archived = false { and_query }
                                 GROUP BY event_pk, audience.icon_class, audience.name, audience.slug,
                             resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
                             loc.name, loc.slug, arrtype.name, arrtype.slug
@@ -467,7 +475,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                             LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                             LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                            WHERE arr.is_archived = 0
+                            WHERE arr.is_archived = 0 { and_query }
                             GROUP BY event_pk'''
                 )
             columns = [column[0] for column in cursor.description]

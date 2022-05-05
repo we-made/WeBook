@@ -138,7 +138,6 @@ export class PersonStore extends BaseStore {
     }
 
     _mapToFullCalendarResource (nativePerson) {
-        console.log(nativePerson)
         return new FullCalendarResource({
             title: nativePerson.title,
             id: nativePerson.id,
@@ -184,9 +183,15 @@ export class ArrangementStore extends BaseStore {
     /**
      * Refreshes the store and returns this so you can chain in a get.
      */
-    _refreshStore(start, end) {
+    _refreshStore(time, end) {
         this._flushStore();
-        return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}`)
+
+        var query_string = "";
+        if (time !== undefined) {
+            query_string = `?start=${time.startStr}&end=${time.endStr}`;
+        }
+
+        return fetch(`/arrangement/planner/arrangements_in_period${query_string}`)
             .then(response => response.json())
             .then(obj => { obj.forEach((arrangement) => {
                 this._store.set(arrangement.event_pk, arrangement);

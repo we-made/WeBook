@@ -172,8 +172,6 @@ export class PlannerCalendar extends FullCalendarBased {
             peopleListHtml = "<h6>Personer:</h6>" + peopleListHtml;
         }
 
-        console.log(arrangement);
-
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
             content: `
