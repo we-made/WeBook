@@ -25,6 +25,11 @@ class ModelArchiveableMixin(models.Model):
         self.is_archived = True
         self.archived_by = person_archiving_this
         self.archived_when = datetime.datetime.now()
+
+        on_archive = getattr(self, "on_archive", None)
+        if callable(on_archive):
+            on_archive(person_archiving_this)
+
         self.save()
 
     is_archived = models.BooleanField(
@@ -278,6 +283,11 @@ class Location (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     class Meta:
         verbose_name = _("Location")
         verbose_name_plural = _("Locations")
+
+    def on_archive(self, person_archiving_this):
+        rooms = self.rooms.all()
+        for room in rooms:
+            room.archive(person_archiving_this)
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True)

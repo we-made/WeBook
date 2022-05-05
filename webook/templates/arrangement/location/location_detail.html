@@ -101,7 +101,7 @@
 </div>
 
 <script>
-    var resources = JSON.parse('{{ resources_json | safe }}')
+    var resources = JSON.parse(`{{ resources_json | safe }}`)
 
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('location_calendar');
