@@ -37,6 +37,7 @@ from webook.arrangement.forms.planner.planner_update_event_form import PlannerUp
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.screenshow.models import DisplayLayout
 from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
@@ -345,11 +346,11 @@ class PlanPeopleToRequisitionTableComponent(LoginRequiredMixin, ListView):
 plan_people_to_requisition_component_view = PlanPeopleToRequisitionTableComponent.as_view()
 
 
-class PlanDeleteEvent (LoginRequiredMixin, DeleteView):
+class PlanDeleteEvent (LoginRequiredMixin, ArchiveView):
     model = Event
     
     def get_success_url(self) -> str:
-        pass
+        return reverse("arrangement:arrangement_list")
 
 plan_delete_event = PlanDeleteEvent.as_view()
 
