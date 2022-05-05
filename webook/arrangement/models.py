@@ -985,6 +985,7 @@ class RequisitionRecord (TimeStampedModel, ModelArchiveableMixin):
 
 class EventSerie(TimeStampedModel):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
+    
 
 
 class LooseServiceRequisition(TimeStampedModel, ModelArchiveableMixin):

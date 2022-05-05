@@ -152,36 +152,54 @@ export class PlannerCalendar extends FullCalendarBased {
 
         var roomsListHtml = "<ul>";
         arrangement.room_names.forEach( (roomName) => {
-            roomsListHtml += "<li>" + roomName + "</li>";
+            if (roomName !== null) {
+                roomsListHtml += "<li>" + roomName + "</li>";
+            }
         });
         roomsListHtml += "</ul>";
+        console.log(roomsListHtml)
+        if (roomsListHtml !== "<ul></ul>") {
+            roomsListHtml = "<h6>Rom:</h6>" + roomsListHtml
+        }
 
         var peopleListHtml = "<ul>";
         arrangement.people_names.forEach( (personName) => {
-            peopleListHtml += "<li>" + personName + "</li>";
+            if (personName !== null) {
+                peopleListHtml += "<li>" + personName + "</li>";
+            }
         })
         peopleListHtml += "</ul>";
+        if (peopleListHtml !== "<ul></ul>") {
+            peopleListHtml = "<h6>Personer:</h6>" + peopleListHtml;
+        }
+
+        console.log(arrangement);
 
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
             content: `
-                <span class='badge badge-lg badge-info'>
+                <span class='badge h6 badge-lg badge-info'>
+                    Målgruppe: 
                     <i class='${arrangement.audience_icon}'></i>&nbsp;
                     ${arrangement.audience}
                 </span>
                 <span class='badge h6 badge-success'>
-                    ${arrangement.mainPlannerName}
+                    Hovedplanlegger:
+                    ${arrangement.mainplannername}
                 </span>
                 <span class='badge h6 badge-secondary'>
+                    Lokasjon: 
                     ${arrangement.location}
+                </span>
+                <span class='badge h6 badge-secondary'>
+                    Arrangementstype: 
+                    ${arrangement.arrangement_type}
                 </span>
                 <h5 class='mb-0 mt-2'>${arrangement.name}</h5>
                 <em class='small'>${start} - ${end}</em>
 
-                <h6>Rom:</h6>
                 ${roomsListHtml}
                 
-                <h6>Personer:</h6>
                 ${peopleListHtml}
                 `,
             html: true,
