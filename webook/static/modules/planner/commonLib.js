@@ -185,9 +185,6 @@ export class ArrangementStore extends BaseStore {
      * Refreshes the store and returns this so you can chain in a get.
      */
     _refreshStore(start, end) {
-
-        // var assembleSlugs = document.getElementById('useFilterCheckbox').checked;
-
         this._flushStore();
         return fetch(`/arrangement/planner/arrangements_in_period?start=${start}&end=${end}`)
             .then(response => response.json())

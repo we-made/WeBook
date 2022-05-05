@@ -467,8 +467,8 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                             LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                             LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                            GROUP BY event_pk
-                            WHERE arr.is_archived = 0'''
+                            WHERE arr.is_archived = 0
+                            GROUP BY event_pk'''
                 )
             columns = [column[0] for column in cursor.description]
             for row in cursor.fetchall():
