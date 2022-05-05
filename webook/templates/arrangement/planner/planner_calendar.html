@@ -417,8 +417,8 @@
                 $arrangementTypeFilterSelectEl: $("#plannerCalendarFilter_arrangementTypes"),
                 $audienceTypeFilterSelectEl: $("#plannerCalendarFilter_audiences"),
                 csrf_token: '{{ csrf_token }}',
-                calendarFilter: filter
-
+                calendarFilter: filter,
+                licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
             });
 
             // var filter = new PlannerCalendarFilter();

@@ -40,6 +40,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('day_calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
+                schedulerLicenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
                 initialView: 'listDay',
                 height: 600,
                 navLinks:true,

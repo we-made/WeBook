@@ -106,6 +106,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('location_calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
+            schedulerLicenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
             initialView: 'resourceTimelineWeek',
             height: 600,
             navLinks:true,

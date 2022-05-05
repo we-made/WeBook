@@ -29,12 +29,14 @@ export class PlannerCalendar extends FullCalendarBased {
         $locationFilterSelectEl=undefined,
         $arrangementTypeFilterSelectEl=undefined,
         $audienceTypeFilterSelectEl=undefined,
-        csrf_token=undefined, calendarFilter=undefined } = {}) {
+        csrf_token=undefined, calendarFilter=undefined,
+        licenseKey=undefined } = {}) {
 
         super();
 
         this.csrf_token = csrf_token;
-
+        
+        this._fcLicenseKey = licenseKey;
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
         this._eventsSrcUrl = eventsSrcUrl;
@@ -228,6 +230,7 @@ export class PlannerCalendar extends FullCalendarBased {
         }
 
         this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
+            schedulerLicenseKey: this._fcLicenseKey,
             initialView: initialView,
             selectable: true,
             weekNumbers: true,
