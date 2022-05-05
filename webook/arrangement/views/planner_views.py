@@ -443,9 +443,11 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                 LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                                 LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                                 LEFT JOIN arrangement_room as room on room.id = evr.room_id
+                                WHERE arr.is_archived = false
                                 GROUP BY event_pk, audience.icon_class, audience.name, audience.slug,
                             resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
-                            loc.name, loc.slug, arrtype.name, arrtype.slug''')
+                            loc.name, loc.slug, arrtype.name, arrtype.slug
+                            ''')
             elif (db_vendor == 'sqlite'):
                 cursor.execute(
                     f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
@@ -464,7 +466,8 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                             LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                             LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                            GROUP BY event_pk'''
+                            GROUP BY event_pk
+                            WHERE arr.is_archived = 0'''
                 )
             columns = [column[0] for column in cursor.description]
             for row in cursor.fetchall():

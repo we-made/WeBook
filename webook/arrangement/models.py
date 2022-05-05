@@ -205,7 +205,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     def on_archive(self, person_archiving_this):
         """ Handle extra stuff when an arrangement is archived
             We also need to archive events """
-        events = self.events.all()
+        events = self.event_set.all()
         for event in events:
             event.archive(person_archiving_this)
 

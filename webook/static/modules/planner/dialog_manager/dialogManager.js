@@ -97,6 +97,7 @@ export class DialogManager {
 
         this._listenForUpdatedEvent();
         this._listenForSubmitEvent();
+        this._listenForCloseEvent();
 
         this._dialogRepository = new Map(dialogs);
         this.context = {};
@@ -125,8 +126,14 @@ export class DialogManager {
     }
 
     closeAllDialogs() {
-        this._dialogRepository.values.forEach( (dialog) => {
+        this._dialogRepository.forEach( (dialog) => {
             dialog.close();
+        })
+    }
+
+    _listenForCloseEvent() {
+        document.addEventListener(`${this.managerName}.close`, (e) => {
+            this.closeAllDialogs();
         })
     }
 
