@@ -157,7 +157,6 @@ export class PlannerCalendar extends FullCalendarBased {
             }
         });
         roomsListHtml += "</ul>";
-        console.log(roomsListHtml)
         if (roomsListHtml !== "<ul></ul>") {
             roomsListHtml = "<h6>Rom:</h6>" + roomsListHtml
         }
