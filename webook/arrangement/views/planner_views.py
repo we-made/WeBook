@@ -37,6 +37,7 @@ from webook.arrangement.forms.planner.planner_update_event_form import PlannerUp
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.screenshow.models import DisplayLayout
 from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
@@ -345,11 +346,11 @@ class PlanPeopleToRequisitionTableComponent(LoginRequiredMixin, ListView):
 plan_people_to_requisition_component_view = PlanPeopleToRequisitionTableComponent.as_view()
 
 
-class PlanDeleteEvent (LoginRequiredMixin, DeleteView):
+class PlanDeleteEvent (LoginRequiredMixin, ArchiveView):
     model = Event
     
     def get_success_url(self) -> str:
-        pass
+        return reverse("arrangement:arrangement_list")
 
 plan_delete_event = PlanDeleteEvent.as_view()
 
@@ -443,9 +444,11 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                 LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                                 LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                                 LEFT JOIN arrangement_room as room on room.id = evr.room_id
+                                WHERE arr.is_archived = false
                                 GROUP BY event_pk, audience.icon_class, audience.name, audience.slug,
                             resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
-                            loc.name, loc.slug, arrtype.name, arrtype.slug''')
+                            loc.name, loc.slug, arrtype.name, arrtype.slug
+                            ''')
             elif (db_vendor == 'sqlite'):
                 cursor.execute(
                     f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
@@ -464,7 +467,8 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                             LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                             LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                            GROUP BY event_pk'''
+                            GROUP BY event_pk
+                            WHERE arr.is_archived = 0'''
                 )
             columns = [column[0] for column in cursor.description]
             for row in cursor.fetchall():

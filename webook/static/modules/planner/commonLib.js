@@ -267,7 +267,6 @@ export class ArrangementStore extends BaseStore {
             } )
         }
 
-        // var locationsMap =          locations !== undefined && locations.length > 0 ? new Map(locations.map(i => [i, true])) : undefined;
         var arrangementTypesMap =   arrangement_types !== undefined && arrangement_types.length > 0 ? new Map(arrangement_types.map(i => [i, true])) : undefined;
         var audienceTypesMap =      audience_types !== undefined && audience_types.length > 0 ? new Map(audience_types.map(i => [i, true])) : undefined;
 

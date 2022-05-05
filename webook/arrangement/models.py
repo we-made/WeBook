@@ -202,6 +202,13 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
         verbose_name = _("Arrangement")
         verbose_name_plural = _("Arrangements")
 
+    def on_archive(self, person_archiving_this):
+        """ Handle extra stuff when an arrangement is archived
+            We also need to archive events """
+        events = self.event_set.all()
+        for event in events:
+            event.archive(person_archiving_this)
+
     """ TODO: Write article doc in sphinx concerning the arrangements and how they 'flow' """
     """ Arrangement is in the planning phase """
     PLANNING = 'planning'

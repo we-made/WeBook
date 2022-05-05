@@ -341,6 +341,66 @@ export class PlannerCalendar extends FullCalendarBased {
                                 var pk = _this._findEventPkFromEl(opt.$trigger[0]);
                                 this.eventInspectorUtility.inspect(pk);
                             }
+                        },
+                        "section_sep_1": "---------",
+                        delete_arrangement: {
+                            name: "Slett arrangement",
+                            callback: (key, opt) => {
+                                Swal.fire({
+                                    title: 'Er du sikker?',
+                                    text: "Arrangementet og underliggende aktiviteter vil bli fjernet, og kan ikke hentes tilbake.",
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ja',
+                                    cancelButtonText: 'Avbryt'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        var slug = _this._findSlugFromEl(opt.$trigger[0]);
+                                        fetch('/arrangement/arrangement/delete/' + slug, {
+                                            method: 'DELETE',
+                                            headers: {
+                                                "X-CSRFToken": this.csrf_token
+                                            }
+                                        }).then(_ => { 
+                                            document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                                        });
+                                    }
+                                })
+                            }
+                        },
+                        delete_event: {
+                            name: "Slett aktivitet",
+                            callback: (key, opt) => {
+                                Swal.fire({
+                                    title: 'Er du sikker?',
+                                    text: "Hendelsen kan ikke hentes tilbake.",
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ja',
+                                    cancelButtonText: 'Avbryt'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        var pk = _this._findEventPkFromEl(opt.$trigger[0]);
+
+                                        var formData = new FormData();
+                                        formData.append("eventIds", String(pk));
+
+                                        fetch('/arrangement/planner/delete_events/', {
+                                            method: 'POST',
+                                            body: formData,
+                                            headers: {
+                                                "X-CSRFToken": this.csrf_token,
+                                            }
+                                        }).then(_ => { 
+                                            document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                                        });
+                                    }
+                                })
+                            }
                         }
                     }
                 });

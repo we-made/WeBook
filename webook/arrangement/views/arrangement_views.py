@@ -19,6 +19,7 @@ from webook.arrangement.forms.promote_planner_to_main_form import PromotePlanner
 from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
 from webook.arrangement.forms.add_planner_form import AddPlannerForm
 from webook.arrangement.models import Arrangement, ArrangementFile, Person
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from django.views.generic.edit import FormView
@@ -188,13 +189,16 @@ class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin,
 arrangement_update_view = ArrangementUpdateView.as_view()
 
 
-class ArrangementDeleteView(LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, DeleteView):
+class ArrangementDeleteView(LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, ArchiveView):
     model = Arrangement
     current_crumb_title = _("Delete Arrangement")
     section_subtitle = _("Edit Arrangement")
     template_name = "arrangement/delete_view.html"
     view_meta = ViewMeta.Preset.delete(Arrangement)
 
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+        
 arrangement_delete_view = ArrangementDeleteView.as_view()
 
 

@@ -12,6 +12,8 @@
         <button class="btn btn-sm shadow-0 btn-info float-end me-2"><i class="fas fa-copy"></i></button>
     </div> -->
 
+    <button class="btn btn-danger mb-3" onclick="inspectEventDialog__delete()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
+
     <div class="border border-1 bg-secondary rounded-4 mb-2 p-3">
         <div>
             <h5 class="mb-0 d-inline fw-bolder text-white">{{ object.arrangement.name }}</h5>
@@ -254,6 +256,38 @@
         var people_ids = Array.from($("#peopleTableBody")[0].children).map(row => row.getAttribute("rowid"));
         console.log("People", people_ids)
         return people_ids;
+    }
+
+    function inspectEventDialog__delete() {
+
+        Swal.fire({
+            title: 'Er du sikker?',
+            text: "Hendelsen kan ikke hentes tilbake.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ja',
+            cancelButtonText: 'Avbryt'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData = new FormData();
+                formData.append("eventIds", "{{object.pk}}");
+                
+                fetch('/arrangement/planner/delete_events/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": '{{ csrf_token }}',
+                    }
+                }).then(_ => { 
+                    document.dispatchEvent(new Event("eventInspector.close"));
+                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                });
+            }
+        })
+
+
     }
 
     function inspectEventDialog__save() {
