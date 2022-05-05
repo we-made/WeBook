@@ -69,14 +69,14 @@ class EventsLoadingHintComponent {
     Top level.
 */
 class Planner {
-    constructor({ 
-        onClickEditButton, 
-        onClickInfoButton, 
-        onClickOrderServiceButton, 
-        onSelectionCopied, 
+    constructor({
+        onClickEditButton,
+        onClickInfoButton,
+        onClickOrderServiceButton,
+        onSelectionCopied,
         csrf_token,
         csrf_token2, // TODO: remove this
-        arrangement_id, 
+        arrangement_id,
         $serviceRequisitionsWrapperEl=undefined,
         $peopleRequisitionsWrapperEl=undefined,
         $peopleToRequisitionWrapperEl=undefined,
@@ -84,7 +84,7 @@ class Planner {
 
         this.local_context = new LocalPlannerContext(this);
         this._isLoading = false;
-        
+
         this.renderer_manager = new RendererManager({
             context: this.local_context,
             renderers: undefined,
@@ -95,7 +95,7 @@ class Planner {
         });
 
         this.loaderHint = new LoadingHint(document.getElementById('loaderHint'))
-        
+
         this.arrangement_id = arrangement_id;
         this.csrf_token = csrf_token;
         this.csrf_token2 = csrf_token2;
@@ -121,9 +121,9 @@ class Planner {
 
 
         this.collision_analyzer = new CollisionAnalyzer(this);
-        
+
         this.clipboard = new EventClipboard(onSelectionCopied);
-        
+
         this.textLib = new Map([
             ["create", "Create"],
             ["delete", "Delete"],
@@ -137,7 +137,7 @@ class Planner {
 
         this.synchronizer = new ContextSynchronicityManager(csrf_token, arrangement_id, this)
         this.synchronizer.getEventsOnSource();
-        
+
 
         this.local_context.onSeriesChanged = function ({ planner, eventsAffected, changeType } = {}) {
             console.log("=> Serie added")
@@ -164,7 +164,7 @@ class Planner {
             planner.synchronizer.pushEvent(eventAfterUpdate);
             planner.init();
         }
-        
+
         this.local_context.onEventsUpdated = function ({ eventsAfterUpdate, planner} = {}) {
             console.log("==> Events updated")
             planner.synchronizer.pushEvents(eventsAfterUpdate);
@@ -223,7 +223,7 @@ class LooseRequisitionsComponentManager {
     _load() {
         let _this = this;
         this._$element.load('/arrangement/planner/loose_service_requisitions_table?arrangement_id=' + this._planner.arrangement_id, function () {
-           _this._bind(); 
+           _this._bind();
         });
     }
 
@@ -322,7 +322,7 @@ class CollisionAnalyzer {
     reset () {
         this.$collisionAnalysisWrapper.hide();
         this.$collisionAnalysisLoader.hide();
-        
+
         this.$collisionAnalysisBody.html("");
         this.$collisionAnalysisBody.hide();
 
@@ -345,7 +345,7 @@ class CollisionAnalyzer {
     renderBody (resultCount) {
         this.$collisionAnalysisWrapper.show();
         this.$collisionAnalysisLoader.hide();
-        
+
         this.$collisionAnalysisBody
             .append( $('<em> <span class="text-danger fw-bold">' + resultCount + '</span> kollisjoner funnet. Disse har blitt speilet inn i kalenderen.</em>') )
             .append( $('<button class="btn btn-block btn-outline-dark" id="cleanupAnalysisBtn">Fjern analyse og speilinger</button>') );
@@ -369,7 +369,7 @@ class EventClipboard {
 
     setClipboard (events, startTime, operationType) {
         this.clearClipboard();
-        
+
         let baseStartTime = new Date(startTime.getTime())
         baseStartTime.setHours(1)
         baseStartTime.setMinutes(0);
@@ -551,7 +551,7 @@ class ContextSynchronicityManager {
         if (id === undefined) {
             throw "Event does not exist upstream, or we do not know about it.";
         }
-        
+
         let data = new FormData();
         data.append('csrfmiddlewaretoken', this.csrf_token);
 
@@ -572,7 +572,7 @@ class ContextSynchronicityManager {
         data.append("eventIds", eventIds);
         data.append("csrfmiddlewaretoken", this.csrf_token);
 
-        planner.loaderHint.startHinting({ 
+        planner.loaderHint.startHinting({
             hintMessage: "Deleting events...",
             hintType: 'danger',
         })
@@ -592,7 +592,7 @@ class ContextSynchronicityManager {
 class StrategyExecutorAbstraction {
     constructor ({function_to_run, parameter_obj}={}) {
         this.function_to_run = function_to_run
-        
+
         this.parameters = {}
         if (parameter_obj !== undefined) {
             this.add_object_keyvals_as_params(parameter_obj);
@@ -630,7 +630,7 @@ class LocalPlannerContext {
 
     remove_shadowed_events() {
         var _events = this.events;
-        
+
         this.events.forEach(function (value, key, map) {
             if (value.is_shadow === true) {
                 _events.delete(key);
@@ -653,7 +653,7 @@ class LocalPlannerContext {
      * Add a new event.
      * @param {object} event - The event to add
      * @param {bool} triggerEvent -
-     * @returns 
+     * @returns
      */
     add_event(event, triggerEvent=true) {
         let uuid = crypto.randomUUID();
@@ -668,7 +668,7 @@ class LocalPlannerContext {
     /**
      * Update an existing event
      * @param {*} event - The event
-     * @param {*} uuid  - The UUID of the event which to update. 
+     * @param {*} uuid  - The UUID of the event which to update.
      */
     update_event(event, uuid) {
         this.events.set(uuid, event);
@@ -751,7 +751,7 @@ class LocalPlannerContext {
         static calculate_serie (serie) {
             const pattern_strategies = new Map();
             pattern_strategies.set(
-                "daily__every_x_day", 
+                "daily__every_x_day",
                 new StrategyExecutorAbstraction({
                     function_to_run: this.daily__every_x_day,
                     parameter_obj: serie.pattern
@@ -779,13 +779,13 @@ class LocalPlannerContext {
                 })
             );
             pattern_strategies.set(
-                "month__every_arbitrary_date_of_month", 
+                "month__every_arbitrary_date_of_month",
                 new StrategyExecutorAbstraction({
                     function_to_run: this.month__every_arbitrary_date_of_month,
                     parameter_obj: serie.pattern,
                 }));
             pattern_strategies.set(
-                "yearly__every_x_of_month", 
+                "yearly__every_x_of_month",
                 new StrategyExecutorAbstraction({
                     function_to_run: this.yearly__every_x_of_month,
                     parameter_obj: serie.pattern,
@@ -801,10 +801,10 @@ class LocalPlannerContext {
 
             const area_strategies = new Map();
             area_strategies.set(
-                "StopWithin", 
+                "StopWithin",
                 new StrategyExecutorAbstraction(
                     {
-                        function_to_run: this.area__stop_within, 
+                        function_to_run: this.area__stop_within,
                         parameter_obj: {
                             stop_within_date: DateExtensions.OverwriteDateTimeWithTimeInputValue(serie.time_area.stop_within, "23:59")
                         }
@@ -812,16 +812,16 @@ class LocalPlannerContext {
                 )
             );
             area_strategies.set(
-                "StopAfterXInstances", 
+                "StopAfterXInstances",
                 new StrategyExecutorAbstraction(
                     {
                         function_to_run: this.area__stop_after_x_instances,
                         parameter_obj: serie.time_area,
                     }
-                )    
+                )
             );
             area_strategies.set(
-                "NoStopDate", 
+                "NoStopDate",
                 new StrategyExecutorAbstraction(
                     {
                         function_to_run: this.area__no_stop_date,
@@ -832,7 +832,7 @@ class LocalPlannerContext {
 
             let area_strategy = area_strategies.get(serie.time_area.method_name);
             let scope = area_strategy.run({ start_date: serie.time_area.start_date });
-            
+
             let pattern_strategy = pattern_strategies.get(serie.pattern.pattern_routine);
 
             let events = [];
@@ -849,10 +849,10 @@ class LocalPlannerContext {
             }
             while ((scope.stop_within_date !== undefined && date_cursor < scope.stop_within_date) || (scope.instance_limit !== 0 && scope.instance_limit >= instance_cursor)) {
 
-                /* 
+                /*
                     There are two ways we monitor our "progress" here. One is by the date cursor, and one is by instances.
-                    In some cases we only want to do the repetition pattern until a set date, other times we wish do it X times. 
-                    Hence we need to have this "cycle manager" to handle the repeating for us - and alleviate the strategies from 
+                    In some cases we only want to do the repetition pattern until a set date, other times we wish do it X times.
+                    Hence we need to have this "cycle manager" to handle the repeating for us - and alleviate the strategies from
                     having to concern themselves with this. This in turn means that a repetition pattern/strategy is run in cycles - as one may see in their
                     respective implementations, and this does to some degree dictate implementations.
                     This does put the onus of managing the end of the series/repetition on the cycle manager (which is what this is.)
@@ -957,9 +957,9 @@ class LocalPlannerContext {
 
         static weekly_standard({cycle, start_date, event, week_interval, days}={}) {
             if (cycle != 0) {
-                /* 
+                /*
                 We need to make sure that we always work with monday as base excepting when we are running the first cycle (0), as
-                the user can specify a start_date in the middle of a week. The end, as is the standard in the other strategies, is 
+                the user can specify a start_date in the middle of a week. The end, as is the standard in the other strategies, is
                 the responsibility of the cycle runner, so we don't care about that here.
                 */
                 if (start_date.getDay() !== 1) {
@@ -983,7 +983,6 @@ class LocalPlannerContext {
                     let ev_copy = Object.assign({}, event);
                     ev_copy.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.start)
                     ev_copy.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(adjusted_date, event.end);
-
                     events.push(ev_copy);
                 }
 
@@ -1022,7 +1021,7 @@ class LocalPlannerContext {
                [1, 1],
            ]);
 
-           // Before we can do anything we need to find the first occurrence of weekday 
+           // Before we can do anything we need to find the first occurrence of weekday
            // in the month
 
            let month = start_date.getMonth();
@@ -1074,17 +1073,17 @@ class LocalPlannerContext {
 
             return event;
         }
-        
+
         static yearly__every_arbitrary_weekday_in_month ({cycle, start_date, event, arbitrator, weekday, year_interval, month}={}) {
             if (cycle != 0) {
                 start_date.setFullYear ( start_date.getFullYear() + parseInt(year_interval) )
             }
 
             let date = new Date(start_date.getFullYear() + "-" + month + "-01");
-            
+
             // use the "day-seek" algo to find the correct day, according to the arbitrator
             date = SeriesUtil.arbitrator_find(date, arbitrator, weekday);
-            
+
             event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
             event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end);
 
@@ -1094,11 +1093,11 @@ class LocalPlannerContext {
 }
 
 class RendererManager {
-    constructor({context, 
-                renderers = undefined, 
-                onClickEditButton = undefined, 
+    constructor({context,
+                renderers = undefined,
+                onClickEditButton = undefined,
                 onClickInfoButton = undefined,
-                onClickOrderServiceButton = undefined, 
+                onClickOrderServiceButton = undefined,
                 planner=undefined} = {}) {
 
         if (typeof (renderers) !== "array") {
@@ -1173,7 +1172,7 @@ class RendererBase {
     }
 }
 
-/* 
+/*
     Provides utilities to wrap around and manage a FullCalendar calendar instance fluidly
 */
 
@@ -1194,9 +1193,9 @@ class CalendarManager extends RendererBase {
         this._serie_is_marked = false;
 
         let self = this;
-    
+
         this.setup_cell_select(fc_options.initialView)
-        
+
         hotkeys('ctrl+c, ctrl+x, ctrl+v, del', function (event, handler) {
             event.preventDefault();
             self.handle_hotkey(handler.key);
@@ -1210,7 +1209,7 @@ class CalendarManager extends RendererBase {
 
         this.fc_options.eventContent = (arg) => {
             let rootNode = this.RenderingUtilities.renderEventForView(arg.view.type, arg);
-            return { 
+            return {
                 html: rootNode.outerHTML
             };
         }
@@ -1247,7 +1246,7 @@ class CalendarManager extends RendererBase {
 
         this.fc_options.eventDrop = (eventDropInfo) => {
             let selectedNodes = document.querySelectorAll(".ds-selected");
-            
+
             let addDelta = function ({delta, add_to}) {
                 add_to = add_to.addDays(delta.days);
                 add_to = new Date(add_to.setMonth(add_to.getMonth() + delta.months))
@@ -1265,7 +1264,7 @@ class CalendarManager extends RendererBase {
 
                 this.planner.local_context.update_event(ev, ev.id);
             }
-            
+
             let event = {
                 id: eventDropInfo.event.extendedProps.event_uuid,
                 title: eventDropInfo.event.title,
@@ -1277,7 +1276,7 @@ class CalendarManager extends RendererBase {
             if (this.dsIsGood === false) {
                 this.setup_dragselect();
             }
-            
+
             this.planner.local_context.update_event(event, event.id);
         }
 
@@ -1349,7 +1348,7 @@ class CalendarManager extends RendererBase {
                 onCellSelected: (cellEl) => {
                     cellEl.addEventListener('contextmenu', (jsEvent) => {
                         jsEvent.preventDefault();
-        
+
                         $.contextMenu({
                             className: "",
                             selector: '.focused-cell',
@@ -1372,7 +1371,7 @@ class CalendarManager extends RendererBase {
                 onCellSelected: (cellEl) => {
                     cellEl.addEventListener('contextmenu', (jsEvent) => {
                         jsEvent.preventDefault();
-        
+
                         $.contextMenu({
                             className: "",
                             selector: '.focused-cell',
@@ -1411,7 +1410,7 @@ class CalendarManager extends RendererBase {
 
     allocate_rooms_to_selection (roomIds) {
         let selectedNodes = document.querySelectorAll(".ds-selected");
-        
+
         for (let i = 0; i < selectedNodes.length; i++) {
             let event = this.planner.local_context.events.get(getUuidFromEventDomNode(selectedNodes[i]));
             event.rooms = Array.isArray(event.rooms) ? event.rooms.concat(roomIds) : roomIds;
@@ -1449,7 +1448,7 @@ class CalendarManager extends RendererBase {
                     startTime = selectedEvents[i].from;
                 }
             }
-            
+
             return startTime;
         }
 
@@ -1458,7 +1457,7 @@ class CalendarManager extends RendererBase {
         }
 
         switch (key) {
-            case 'ctrl+c': 
+            case 'ctrl+c':
                 console.log("ctrl+c")
                 this.planner.clipboard.setClipboard(selectedEvents, getStartTime("dayGridMonth"), "copy")
 
@@ -1467,7 +1466,7 @@ class CalendarManager extends RendererBase {
                     $(ev).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
                 }
                 break;
-                
+
             case 'ctrl+x':
                 this.planner.clipboard.setClipboard(selectedEvents, getStartTime("dayGridMonth"), "cut")
                 break;
@@ -1481,7 +1480,7 @@ class CalendarManager extends RendererBase {
                     this.planner.local_context.remove_events(planner.clipboard.events);
                 }
                 break;
-                
+
             case 'del':
                 this.planner.local_context.remove_events(selectedEvents);
                 toastr["warning"](selectedEvents.length + " hendelser slettet!")
@@ -1520,7 +1519,7 @@ class CalendarManager extends RendererBase {
                 let icon = document.createElement('i');
                 icon.classList.add('fas', 'fa-building', 'text-success');
                 icons_wrapper.appendChild(icon);
-            } 
+            }
             if (info.event.extendedProps.hasPeople === true) {
                 let icon = document.createElement('i');
                 icon.classList.add('fas', 'fa-user', 'text-success');
@@ -1540,7 +1539,7 @@ class CalendarManager extends RendererBase {
 
             rootWrapperNode.style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
             rootWrapperNode.innerHTML = "&nbsp;<span><i class='fas fa-circle' style='color: " + info.backgroundColor + "'></i></span>&nbsp; <strong>(" + info.timeText + ")</strong> " + info.event.title + "&nbsp;&nbsp;";
-            rootWrapperNode.innerHTML += icons_html;            
+            rootWrapperNode.innerHTML += icons_html;
 
             return rootWrapperNode;
         }
@@ -1549,7 +1548,7 @@ class CalendarManager extends RendererBase {
             let rootWrapperNode = document.createElement("span");
 
             rootWrapperNode.innerHTML = "<strong>" + info.timeText + "</strong>" + icons_html + "<div>" + info.event.title + "</div>"
-            
+
             return rootWrapperNode;
         }
     }
@@ -1585,7 +1584,7 @@ class CalendarManager extends RendererBase {
                         batch_order: {
                             name: "<i class='fas fa-comments-dollar text-success'></i>&nbsp; Bestill tjeneste for seleksjon",
                             isHtmlName: true,
-                            callback: function () { 
+                            callback: function () {
                                 let events = [];
                                 let selectedNodes = document.querySelectorAll(".ds-selected");
                                 for (let i = 0; i < selectedNodes.length; i++) {
@@ -1650,7 +1649,7 @@ class CalendarManager extends RendererBase {
                             }
                         },
                     };
-                    
+
                     $.contextMenu({
                         className: 'webook-context-menu',
                         selector: '.fc-event-main, .fc-daygrid-event',
@@ -1666,7 +1665,7 @@ class CalendarManager extends RendererBase {
             document.querySelectorAll(".ds-selected").forEach(function (el) {
                 el.classList.remove(".ds-selected");
             })
-            
+
         })
 
         this.ds.subscribe('dragmove', ({items, event, isDragging}) => {
@@ -1677,7 +1676,7 @@ class CalendarManager extends RendererBase {
             }
 
             let selectedNodes = this.ds.getSelection();
-            
+
             let visibleCounter = 0;
             for (let i = 0; i < selectedNodes.length; i++) {
                 if (document.body.contains(selectedNodes[i])) {
@@ -1761,7 +1760,7 @@ class CalendarManager extends RendererBase {
         generateHintTextElement() {
             let hintEl = document.createElement("span");
             hintEl.innerText = "CTRL-V for å lime inn kopierte hendelser her"
-            
+
             return hintEl;
         }
 
@@ -1853,7 +1852,7 @@ class TimeLineManager extends RendererBase {
         super(RendererBase);
         this.timeline_element = document.getElementById(timeline_element_id);
         this.options = {};
-        this.timeline = undefined;   
+        this.timeline = undefined;
         this.dataset = new vis.DataSet();
     }
 
@@ -1891,7 +1890,7 @@ class TimeLineManager extends RendererBase {
     }
 }
 
-/* 
+/*
     Provides utilities to wrap around and manage a simple HTML table
 */
 class SimpleTableManager extends RendererBase {
@@ -1909,14 +1908,14 @@ class SimpleTableManager extends RendererBase {
         this.primary_render()
     }
 
-    /* 
+    /*
         Gets all the rows in the current table (as elements)
     */
     get_rows() {
         return this.tbody_element.getElementsByTagName('tr');
     }
 
-    /* 
+    /*
         Removes all rows from the table
     */
     flush_rows() {

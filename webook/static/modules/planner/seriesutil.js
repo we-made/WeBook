@@ -20,14 +20,14 @@ Date.prototype.addDays = function(days) {
 }
 
 /**
- * Utility class primarily intended to wrap around the various strategies employed in the 
+ * Utility class primarily intended to wrap around the various strategies employed in the
  * series util, offering a far more succinct and consumable vector for executing the strategies, as well
  * as constructing parameter bodies.
  */
  class StrategyExecutorAbstraction {
     constructor ({function_to_run, parameter_obj}={}) {
         this.function_to_run = function_to_run
-        
+
         this.parameters = {}
         if (parameter_obj !== undefined) {
             this.add_object_keyvals_as_params(parameter_obj);
@@ -59,7 +59,7 @@ Date.prototype.addDays = function(days) {
     static calculate_serie (serie) {
         const pattern_strategies = new Map();
         pattern_strategies.set(
-            "daily__every_x_day", 
+            "daily__every_x_day",
             new StrategyExecutorAbstraction({
                 function_to_run: this.daily__every_x_day,
                 parameter_obj: serie.pattern
@@ -87,13 +87,13 @@ Date.prototype.addDays = function(days) {
             })
         );
         pattern_strategies.set(
-            "month__every_arbitrary_date_of_month", 
+            "month__every_arbitrary_date_of_month",
             new StrategyExecutorAbstraction({
                 function_to_run: this.month__every_arbitrary_date_of_month,
                 parameter_obj: serie.pattern,
             }));
         pattern_strategies.set(
-            "yearly__every_x_of_month", 
+            "yearly__every_x_of_month",
             new StrategyExecutorAbstraction({
                 function_to_run: this.yearly__every_x_of_month,
                 parameter_obj: serie.pattern,
@@ -109,10 +109,10 @@ Date.prototype.addDays = function(days) {
 
         const area_strategies = new Map();
         area_strategies.set(
-            "StopWithin", 
+            "StopWithin",
             new StrategyExecutorAbstraction(
                 {
-                    function_to_run: this.area__stop_within, 
+                    function_to_run: this.area__stop_within,
                     parameter_obj: {
                         stop_within_date: DateExtensions.OverwriteDateTimeWithTimeInputValue(serie.time_area.stop_within, "23:59")
                     }
@@ -120,16 +120,16 @@ Date.prototype.addDays = function(days) {
             )
         );
         area_strategies.set(
-            "StopAfterXInstances", 
+            "StopAfterXInstances",
             new StrategyExecutorAbstraction(
                 {
                     function_to_run: this.area__stop_after_x_instances,
                     parameter_obj: serie.time_area,
                 }
-            )    
+            )
         );
         area_strategies.set(
-            "NoStopDate", 
+            "NoStopDate",
             new StrategyExecutorAbstraction(
                 {
                     function_to_run: this.area__no_stop_date,
@@ -140,7 +140,7 @@ Date.prototype.addDays = function(days) {
 
         let area_strategy = area_strategies.get(serie.time_area.method_name);
         let scope = area_strategy.run({ start_date: serie.time_area.start_date });
-        
+
         let pattern_strategy = pattern_strategies.get(serie.pattern.pattern_routine);
 
         let events = [];
@@ -157,10 +157,10 @@ Date.prototype.addDays = function(days) {
         }
         while ((scope.stop_within_date !== undefined && date_cursor < scope.stop_within_date) || (scope.instance_limit !== 0 && scope.instance_limit >= instance_cursor)) {
 
-            /* 
+            /*
                 There are two ways we monitor our "progress" here. One is by the date cursor, and one is by instances.
-                In some cases we only want to do the repetition pattern until a set date, other times we wish do it X times. 
-                Hence we need to have this "cycle manager" to handle the repeating for us - and alleviate the strategies from 
+                In some cases we only want to do the repetition pattern until a set date, other times we wish do it X times.
+                Hence we need to have this "cycle manager" to handle the repeating for us - and alleviate the strategies from
                 having to concern themselves with this. This in turn means that a repetition pattern/strategy is run in cycles - as one may see in their
                 respective implementations, and this does to some degree dictate implementations.
                 This does put the onus of managing the end of the series/repetition on the cycle manager (which is what this is.)
@@ -209,7 +209,20 @@ Date.prototype.addDays = function(days) {
             cycle_cursor++;
         }
 
+        if (serie.time_area.method_name == "StopWithin")
+            this.custom__prevent_spillover(events, scope.stop_within_date, serie.time_area.method_name)
+
         return events;
+    }
+
+    static custom__prevent_spillover(events, stop_within_date) {
+         /*
+                This function prevents undesired spill over of dates when StopWithin method used in area of reccurence
+         */
+        for (let i = events.length - 1; i >= 0; i--) {
+            if (events[i].to>stop_within_date)
+                events.splice(i, 1);
+        }
     }
 
     static area__stop_within({start_date, stop_within_date} = {}) {
@@ -265,9 +278,9 @@ Date.prototype.addDays = function(days) {
 
     static weekly_standard({cycle, start_date, event, week_interval, days}={}) {
         if (cycle != 0) {
-            /* 
+            /*
             We need to make sure that we always work with monday as base excepting when we are running the first cycle (0), as
-            the user can specify a start_date in the middle of a week. The end, as is the standard in the other strategies, is 
+            the user can specify a start_date in the middle of a week. The end, as is the standard in the other strategies, is
             the responsibility of the cycle runner, so we don't care about that here.
             */
             if (start_date.getDay() !== 1) {
@@ -330,7 +343,7 @@ Date.prototype.addDays = function(days) {
            [1, 1],
        ]);
 
-       // Before we can do anything we need to find the first occurrence of weekday 
+       // Before we can do anything we need to find the first occurrence of weekday
        // in the month
 
        let month = start_date.getMonth();
@@ -382,17 +395,17 @@ Date.prototype.addDays = function(days) {
 
         return event;
     }
-    
+
     static yearly__every_arbitrary_weekday_in_month ({cycle, start_date, event, arbitrator, weekday, year_interval, month}={}) {
         if (cycle != 0) {
             start_date.setFullYear ( start_date.getFullYear() + parseInt(year_interval) )
         }
 
         let date = new Date(start_date.getFullYear() + "-" + month + "-01");
-        
+
         // use the "day-seek" algo to find the correct day, according to the arbitrator
         date = SeriesUtil.arbitrator_find(date, arbitrator, weekday);
-        
+
         event.from = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.start);
         event.to = DateExtensions.OverwriteDateTimeWithTimeInputValue(date, event.end);
 
