@@ -428,8 +428,12 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         start = self.request.GET.get("start", None)
         end = self.request.GET.get("end", None)
 
-        if start and end is not None:
-            and_query = f"AND ev.start > '{parser.parse(start).isoformat()}' AND ev.end < '{ parser.parse(end).isoformat() }'"
+        if start and end is None:
+            raise Exception()
+            #and_query = f"AND ev.start > '{parser.parse(start).isoformat()}' AND ev.end < '{ parser.parse(end).isoformat() }'"
+
+        start = parser.parse(start).isoformat()
+        end = parser.parse(end).isoformat()
 
         db_vendor = connection.vendor
 
@@ -452,11 +456,11 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                 LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                                 LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                                 LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                                WHERE arr.is_archived = false { and_query }
+                                WHERE arr.is_archived = false AND ev.start > %s AND ev.end < %s
                                 GROUP BY event_pk, audience.icon_class, audience.name, audience.slug,
                             resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
                             loc.name, loc.slug, arrtype.name, arrtype.slug
-                            ''')
+                            ''', [start, end] )
             elif (db_vendor == 'sqlite'):
                 cursor.execute(
                     f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
@@ -475,8 +479,8 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                             LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                             LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                            WHERE arr.is_archived = 0 { and_query }
-                            GROUP BY event_pk'''
+                            WHERE arr.is_archived = 0 AND ev.start > %s AND ev.end < %s
+                            GROUP BY event_pk''', [start, end]
                 )
             columns = [column[0] for column in cursor.description]
             for row in cursor.fetchall():
@@ -490,56 +494,6 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
 
         for i in results:
             serializable_arrangements.append(i)
-
-        assemble_slugs = self.request.GET.get("assembleSlugs", False)
-        # for arrangement in arrangements:
-
-        #     # GET ALL SLUGS
-        #     slug_list = [ arrangement.location.slug ]
-
-            # pslug_query = "SELECT DISTINCT(person.slug) FROM arrangement_arrangement as arr JOIN arrangement_event as ev on ev.arrangement_id = arr.id JOIN arrangement_event_people as aep on aep.event_id = ev.id JOIN arrangement_person as person on person.id = aep.person_id where arr.id = " + str(arrangement.pk)
-
-            # room_slugs_query_results = Arrangement.objects.raw( 
-            #     f''' SELECT DISTINCT(room.slug), 1 as id FROM arrangement_arrangement as arr 
-            #             JOIN arrangement_event as ev on ev.arrangement_id = arr.id 
-            #             JOIN arrangement_event_rooms as aer on aer.event_id = ev.id
-            #             JOIN arrangement_room as room on room.id = aer.room_id
-            #             WHERE arr.id = {arrangement.pk} ''', 
-            #     translations={"slug": "slug"} )
-            # person_slugs_query_results = Arrangement.objects.raw( 
-            #     f''' SELECT DISTINCT(person.slug), 1 as id FROM arrangement_arrangement as arr 
-            #             JOIN arrangement_event as ev on ev.arrangement_id = arr.id
-            #             JOIN arrangement_event_people as aep on aep.event_id = ev.id
-            #             JOIN arrangement_person as person on person.id = aep.person_id
-            #             WHERE arr.id = {arrangement.pk}''', 
-            #     translations={"slug": "slug" } )
-
-
-            # for s in room_slugs_query_results:
-            #     slug_list.append(s.slug)
-            # for p in person_slugs_query_results:
-            #     slug_list.append(p.slug)
-
-            # for event in arrangement.event_set.all():
-            #     serializable_arrangements.append({
-            #         "arrangement_pk": arrangement.pk,
-            #         "event_pk": event.pk,
-            #         "slug": arrangement.slug,
-            #         "name": arrangement.name,
-            #         "starts": event.start,
-            #         "ends": event.end,
-            #         "mainPlannerName": arrangement.responsible.full_name,
-            #         "audience": arrangement.audience.name,
-            #         "audience_slug": arrangement.audience.slug,
-            #         "slug_list": slug_list,
-            #         "room_names": [], #room_names,
-            #         "people_names": [], #people_names,
-            #         "audience_icon": arrangement.audience.icon_class,
-            #         "location": arrangement.location.name,
-            #         "location_slug": arrangement.location.slug,
-            #         "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined",
-            #         "arrangement_type_slug": arrangement.arrangement_type.slug if arrangement.arrangement_type is not None else ""
-            #     })
 
         return HttpResponse(
             json.dumps(serializable_arrangements, default=json_serial),
