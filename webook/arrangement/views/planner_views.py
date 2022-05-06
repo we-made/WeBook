@@ -172,7 +172,6 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         event_serie = None
         plan_manifest = None
         plan_manifest = querydict.get("manifest.pattern")
-        print(plan_manifest)
 
         if querydict.get("saveAsSerie", None):
             plan_manifest = PlanManifest()
@@ -190,7 +189,6 @@ class PlanCreateEvents(LoginRequiredMixin, View):
 
             event_serie = EventSerie()
             event_serie.serie_plan_manifest = plan_manifest
-            print( querydict.get("events[0].arrangement", None)  )
             event_serie.arrangement_id = int(querydict.get("events[0].arrangement", None))
             event_serie.save()
 
@@ -240,7 +238,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         if event_serie:
             event_serie.save()
 
-        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": False, "sequence_guid_if_any": None} )
+        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": bool(plan_manifest), "sequence_pk": event_serie.pk} )
 
 plan_create_events = PlanCreateEvents.as_view()
 
