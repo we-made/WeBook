@@ -44,7 +44,7 @@ from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
-from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
+from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, EventSerie, Location, Person, PlanManifest, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -169,7 +169,30 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         # parse a string of ids to a list of ids, '1,2,3 -> [1,2,3], and avoid default str.split() behaviour of '' = ['']
         parse_ids_string_to_list = lambda str_to_parse, separator=",": [x for x in str_to_parse.split(separator) if x] if str_to_parse else []
         
-        sequence_guid = uuid.uuid4()
+        event_serie = None
+        plan_manifest = None
+        plan_manifest = querydict.get("manifest.pattern")
+        print(plan_manifest)
+
+        if querydict.get("saveAsSerie", None):
+            plan_manifest = PlanManifest()
+            plan_manifest.expected_visitors = querydict.get("manifest.expectedVisitors", None)
+            plan_manifest.ticket_code = querydict.get("manifest.ticketCode", None)
+            plan_manifest.title = querydict.get("manifest.title", None)
+            plan_manifest.title_en = querydict.get("manifest.title_en", None)
+            plan_manifest.pattern = querydict.get("manifest.pattern", None)
+            plan_manifest.pattern_strategy = querydict.get("manifest.patternRoutine", None)
+            plan_manifest.recurrence_strategy = querydict.get("manifest.timeAreaMethod", None)
+            plan_manifest.start_date = querydict.get("manifest.startDate", None)
+            plan_manifest.start_time = querydict.get("manifest.startTime", None)
+            plan_manifest.end_time = querydict.get("manifest.endTime", None)
+            plan_manifest.save()
+
+            event_serie = EventSerie()
+            event_serie.serie_plan_manifest = plan_manifest
+            print( querydict.get("events[0].arrangement", None)  )
+            event_serie.arrangement_id = int(querydict.get("events[0].arrangement", None))
+            event_serie.save()
 
         while (True):
             event = Event()
@@ -185,17 +208,13 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             event.expected_visitors = get_post_value_or_none("expected_visitors")
             event.ticket_code = get_post_value_or_none("ticket_code")
             event.sequence_guid = get_post_value_or_none("sequence_guid")
-            if event.sequence_guid is None:
-                event.sequence_guid = sequence_guid
-            event.color = get_post_value_or_none("color")
 
+            event.color = get_post_value_or_none("color")
 
             # we need to save the event before setting up the many-to-many relationships,
             # as they need a tangible id to use when establishing themselves
             event.save()
             display_layouts = get_post_value_or_none("display_layouts")
-            print("Display Layouts:::")
-            print(display_layouts)
             for display_layout_id in parse_ids_string_to_list(display_layouts):
                 event.display_layouts.add(DisplayLayout.objects.get(id=display_layout_id))
 
@@ -212,11 +231,16 @@ class PlanCreateEvents(LoginRequiredMixin, View):
                 event.loose_requisitions.add(LooseServiceRequisition.objects.get(id=loose_requisition_id))
 
             event.save()
+            if event_serie is not None:
+                event_serie.events.add(event)
             
             created_event_ids.append(event.pk)
             counter += 1
+        
+        if event_serie:
+            event_serie.save()
 
-        return JsonResponse( {"created_x_events": len(created_event_ids)} )
+        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": False, "sequence_guid_if_any": None} )
 
 plan_create_events = PlanCreateEvents.as_view()
 
@@ -420,16 +444,19 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
     """ Get all arrangements happening in a given period """
 
     def get(self, request, *args, **kwargs):
-        arrangements = Arrangement.objects.all()
         serializable_arrangements = []
         results = []
 
-        and_query = ""
         start = self.request.GET.get("start", None)
         end = self.request.GET.get("end", None)
 
-        if start and end is not None:
-            and_query = f"AND ev.start > '{parser.parse(start).isoformat()}' AND ev.end < '{ parser.parse(end).isoformat() }'"
+        if start and end is None:
+            raise Exception(
+                "Start and end must be supplied."
+            )
+
+        start = parser.parse(start).isoformat()
+        end = parser.parse(end).isoformat()
 
         db_vendor = connection.vendor
 
@@ -452,11 +479,11 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                 LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                                 LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                                 LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                                WHERE arr.is_archived = false { and_query }
+                                WHERE arr.is_archived = false AND ev.start > %s AND ev.end < %s
                                 GROUP BY event_pk, audience.icon_class, audience.name, audience.slug,
                             resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
                             loc.name, loc.slug, arrtype.name, arrtype.slug
-                            ''')
+                            ''', [start, end] )
             elif (db_vendor == 'sqlite'):
                 cursor.execute(
                     f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
@@ -475,8 +502,8 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                             LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                             LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                            WHERE arr.is_archived = 0 { and_query }
-                            GROUP BY event_pk'''
+                            WHERE arr.is_archived = 0 AND ev.start > %s AND ev.end < %s
+                            GROUP BY event_pk''', [start, end]
                 )
             columns = [column[0] for column in cursor.description]
             for row in cursor.fetchall():
@@ -490,56 +517,6 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
 
         for i in results:
             serializable_arrangements.append(i)
-
-        assemble_slugs = self.request.GET.get("assembleSlugs", False)
-        # for arrangement in arrangements:
-
-        #     # GET ALL SLUGS
-        #     slug_list = [ arrangement.location.slug ]
-
-            # pslug_query = "SELECT DISTINCT(person.slug) FROM arrangement_arrangement as arr JOIN arrangement_event as ev on ev.arrangement_id = arr.id JOIN arrangement_event_people as aep on aep.event_id = ev.id JOIN arrangement_person as person on person.id = aep.person_id where arr.id = " + str(arrangement.pk)
-
-            # room_slugs_query_results = Arrangement.objects.raw( 
-            #     f''' SELECT DISTINCT(room.slug), 1 as id FROM arrangement_arrangement as arr 
-            #             JOIN arrangement_event as ev on ev.arrangement_id = arr.id 
-            #             JOIN arrangement_event_rooms as aer on aer.event_id = ev.id
-            #             JOIN arrangement_room as room on room.id = aer.room_id
-            #             WHERE arr.id = {arrangement.pk} ''', 
-            #     translations={"slug": "slug"} )
-            # person_slugs_query_results = Arrangement.objects.raw( 
-            #     f''' SELECT DISTINCT(person.slug), 1 as id FROM arrangement_arrangement as arr 
-            #             JOIN arrangement_event as ev on ev.arrangement_id = arr.id
-            #             JOIN arrangement_event_people as aep on aep.event_id = ev.id
-            #             JOIN arrangement_person as person on person.id = aep.person_id
-            #             WHERE arr.id = {arrangement.pk}''', 
-            #     translations={"slug": "slug" } )
-
-
-            # for s in room_slugs_query_results:
-            #     slug_list.append(s.slug)
-            # for p in person_slugs_query_results:
-            #     slug_list.append(p.slug)
-
-            # for event in arrangement.event_set.all():
-            #     serializable_arrangements.append({
-            #         "arrangement_pk": arrangement.pk,
-            #         "event_pk": event.pk,
-            #         "slug": arrangement.slug,
-            #         "name": arrangement.name,
-            #         "starts": event.start,
-            #         "ends": event.end,
-            #         "mainPlannerName": arrangement.responsible.full_name,
-            #         "audience": arrangement.audience.name,
-            #         "audience_slug": arrangement.audience.slug,
-            #         "slug_list": slug_list,
-            #         "room_names": [], #room_names,
-            #         "people_names": [], #people_names,
-            #         "audience_icon": arrangement.audience.icon_class,
-            #         "location": arrangement.location.name,
-            #         "location_slug": arrangement.location.slug,
-            #         "arrangement_type": arrangement.arrangement_type.name if arrangement.arrangement_type is not None else "Undefined",
-            #         "arrangement_type_slug": arrangement.arrangement_type.slug if arrangement.arrangement_type is not None else ""
-            #     })
 
         return HttpResponse(
             json.dumps(serializable_arrangements, default=json_serial),
