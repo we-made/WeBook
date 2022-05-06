@@ -44,7 +44,7 @@ from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
-from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, Location, Person, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
+from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, EventSerie, Location, Person, PlanManifest, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -169,7 +169,30 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         # parse a string of ids to a list of ids, '1,2,3 -> [1,2,3], and avoid default str.split() behaviour of '' = ['']
         parse_ids_string_to_list = lambda str_to_parse, separator=",": [x for x in str_to_parse.split(separator) if x] if str_to_parse else []
         
-        sequence_guid = uuid.uuid4()
+        event_serie = None
+        plan_manifest = None
+        plan_manifest = querydict.get("manifest.pattern")
+        print(plan_manifest)
+
+        if querydict.get("saveAsSerie", None):
+            plan_manifest = PlanManifest()
+            plan_manifest.expected_visitors = querydict.get("manifest.expectedVisitors", None)
+            plan_manifest.ticket_code = querydict.get("manifest.ticketCode", None)
+            plan_manifest.title = querydict.get("manifest.title", None)
+            plan_manifest.title_en = querydict.get("manifest.title_en", None)
+            plan_manifest.pattern = querydict.get("manifest.pattern", None)
+            plan_manifest.pattern_strategy = querydict.get("manifest.patternRoutine", None)
+            plan_manifest.recurrence_strategy = querydict.get("manifest.timeAreaMethod", None)
+            plan_manifest.start_date = querydict.get("manifest.startDate", None)
+            plan_manifest.start_time = querydict.get("manifest.startTime", None)
+            plan_manifest.end_time = querydict.get("manifest.endTime", None)
+            plan_manifest.save()
+
+            event_serie = EventSerie()
+            event_serie.serie_plan_manifest = plan_manifest
+            print( querydict.get("events[0].arrangement", None)  )
+            event_serie.arrangement_id = int(querydict.get("events[0].arrangement", None))
+            event_serie.save()
 
         while (True):
             event = Event()
@@ -185,17 +208,13 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             event.expected_visitors = get_post_value_or_none("expected_visitors")
             event.ticket_code = get_post_value_or_none("ticket_code")
             event.sequence_guid = get_post_value_or_none("sequence_guid")
-            if event.sequence_guid is None:
-                event.sequence_guid = sequence_guid
-            event.color = get_post_value_or_none("color")
 
+            event.color = get_post_value_or_none("color")
 
             # we need to save the event before setting up the many-to-many relationships,
             # as they need a tangible id to use when establishing themselves
             event.save()
             display_layouts = get_post_value_or_none("display_layouts")
-            print("Display Layouts:::")
-            print(display_layouts)
             for display_layout_id in parse_ids_string_to_list(display_layouts):
                 event.display_layouts.add(DisplayLayout.objects.get(id=display_layout_id))
 
@@ -212,11 +231,16 @@ class PlanCreateEvents(LoginRequiredMixin, View):
                 event.loose_requisitions.add(LooseServiceRequisition.objects.get(id=loose_requisition_id))
 
             event.save()
+            if event_serie is not None:
+                event_serie.events.add(event)
             
             created_event_ids.append(event.pk)
             counter += 1
+        
+        if event_serie:
+            event_serie.save()
 
-        return JsonResponse( {"created_x_events": len(created_event_ids)} )
+        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": False, "sequence_guid_if_any": None} )
 
 plan_create_events = PlanCreateEvents.as_view()
 

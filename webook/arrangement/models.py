@@ -982,10 +982,43 @@ class RequisitionRecord (TimeStampedModel, ModelArchiveableMixin):
         if (self.type_of_requisition == self.REQUISITION_SERVICES):
             return self.service_requisition
 
+class PlanManifest(TimeStampedModel):
+    """ A time manifest is a manifest of the timeplan generation """
+    expected_visitors = models.IntegerField(default=0)
+    ticket_code = models.CharField(max_length=255, blank=True)
+    title = models.CharField(max_length=255)
+    title_en = models.CharField(max_length=255)
+
+    pattern = models.CharField(max_length=255)
+    pattern_strategy = models.CharField(max_length=255)
+    recurrence_strategy = models.CharField(max_length=255)
+    start_date = models.DateField()
+
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    stop_within = models.DateField(blank=True, null=True)
+    stop_after_x_occurences = models.IntegerField(blank=True, null=True)
+    project_x_months_into_future = models.IntegerField(blank=True, null=True)
+
+    rooms =  models.ManyToManyField(to=Room)
+    people = models.ManyToManyField(to=Person)
+    display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout)
+
 
 class EventSerie(TimeStampedModel):
-    arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
-    
+    arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT, related_name="series")
+    serie_plan_manifest = models.ForeignKey(to=PlanManifest, on_delete=models.RESTRICT)
+
+
+class EventSerieFile(TimeStampedModel, ModelArchiveableMixin):
+    event_serie = models.ForeignKey(to=EventSerie, on_delete=models.RESTRICT, related_name="files")
+    uploader = models.ForeignKey(to="Person", on_delete=models.RESTRICT, related_name="files_uploaded_to_series")
+    file = FileField(upload_to="serieFiles/")
+
+    @property
+    def filename(self):
+        return os.path.basename(self.file.name)
 
 
 class LooseServiceRequisition(TimeStampedModel, ModelArchiveableMixin):

@@ -76,6 +76,27 @@ export class ArrangementCreator {
                                 var events = SeriesUtil.calculate_serie(serie);
                                 var formData = new FormData();
 
+                                formData.append("manifest.pattern", serie.pattern.pattern_type);
+                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
+                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
+                                formData.append("manifest.startDate", serie.time_area.start_date);
+                                formData.append("manifest.startTime", serie.time.start);
+                                formData.append("manifest.endTime", serie.time.end);
+                                formData.append("manifest.ticketCode", serie.time.ticket_code);
+                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
+                                formData.append("manifest.title", serie.time.title);
+                                formData.append("manifest.title_en", serie.time.title_en);
+                                
+                                if (serie.time_area.stop_within !== undefined) {
+                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
+                                }
+                                if (serie.time_area.instances !== undefined) {
+                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
+                                }
+                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
+                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
+                                }
+
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
                                     event.arrangement=arrangementId;
@@ -93,6 +114,8 @@ export class ArrangementCreator {
                                         formData.append("events[" + i + "]." + key, event[key]);
                                     }
                                 }
+
+                                formData.append("saveAsSerie", true);
 
                                 await fetch("/arrangement/planner/create_events/", {
                                     method:"POST",
