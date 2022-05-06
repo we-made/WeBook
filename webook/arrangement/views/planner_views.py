@@ -420,17 +420,16 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
     """ Get all arrangements happening in a given period """
 
     def get(self, request, *args, **kwargs):
-        arrangements = Arrangement.objects.all()
         serializable_arrangements = []
         results = []
 
-        and_query = ""
         start = self.request.GET.get("start", None)
         end = self.request.GET.get("end", None)
 
         if start and end is None:
-            raise Exception()
-            #and_query = f"AND ev.start > '{parser.parse(start).isoformat()}' AND ev.end < '{ parser.parse(end).isoformat() }'"
+            raise Exception(
+                "Start and end must be supplied."
+            )
 
         start = parser.parse(start).isoformat()
         end = parser.parse(end).isoformat()
