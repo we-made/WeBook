@@ -98,6 +98,7 @@ export class DialogManager {
         this._listenForUpdatedEvent();
         this._listenForSubmitEvent();
         this._listenForCloseEvent();
+        this._listenForReloadEvent();
 
         this._dialogRepository = new Map(dialogs);
         this.context = {};
@@ -144,7 +145,7 @@ export class DialogManager {
      */
     _listenForReloadEvent() {
         document.addEventListener(`${this.managerName}.reload`, (e) => {
-            this._dialogRepository.get(e.detail.dialog).reloadDialog();
+            this.reloadDialog(e.detail.dialog);
         })
     }
 

@@ -326,21 +326,6 @@ export class PlannerCalendar extends FullCalendarBased {
                     className: "",
                     selector: ".fc-event",
                     items: {
-                        // open: {
-                        //     name: "Åpne arrangement",
-                        //     icon: "",
-                        //     isHtmlName: false,
-                        //     callback: (key, opt) => {
-                        //         location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
-                        //     }
-                        // },
-                        // edit: {
-                        //     name: "Rediger arrangement",
-                        //     callback: (key, opt) => {
-                        //         location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
-                        //     }
-                        // },
-                        // separator: { "type": "cm_separator" },
                         arrangement_inspector: {
                             name: "Inspiser arrangement",
                             callback: (key, opt) => {

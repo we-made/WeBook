@@ -560,7 +560,24 @@
             cancelButtonText: 'Avbryt'
         }).then((result) => {
             if (result.isConfirmed) {
-                // --> Implement activity delete
+                var formData = new FormData();
+                formData.append("eventIds", String(activity_pk));
+                formData.append("csrfmiddlewaretoken", "{{CSRF_TOKEN}}")
+                console.log("{{csrf_token}}")
+                fetch('/arrangement/planner/delete_events/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": "{{csrf_token}}",
+                    }
+                }).then(_ => { 
+                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                    document.dispatchEvent(
+                        new CustomEvent("arrangementInspector.reload", { "detail": {
+                            dialog: "mainDialog"
+                        }}
+                    ))
+                });
             }
         })
     }
@@ -577,20 +594,21 @@
             confirmButtonText: 'Ja',
             cancelButtonText: 'Avbryt'
         }).then((result) => {
-
-            fetch("/arrangement/eventSerie/delete/" + event_serie_pk, {
-                method: 'DELETE',
-                headers: {
-                    "X-CSRFToken": "{{csrf_token}}"
-                }
-            }).then(_ => { 
-                document.dispatchEvent(
-                    new CustomEvent("arrangementInspector.reload", { "detail": {
-                        dialog: "mainDialog"
-                    }}
-                ))
-            });
-
+            if (result.isConfirmed) {
+                fetch("/arrangement/eventSerie/delete/" + event_serie_pk, {
+                    method: 'DELETE',
+                    headers: {
+                        "X-CSRFToken": "{{csrf_token}}"
+                    }
+                }).then(_ => { 
+                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                    document.dispatchEvent(
+                        new CustomEvent("arrangementInspector.reload", { "detail": {
+                            dialog: "mainDialog"
+                        }}
+                    ))
+                });
+            }
         })
     }
 
