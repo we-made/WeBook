@@ -40,6 +40,7 @@ from webook.arrangement.views import (
     planner_calendar_remove_person_from_event_form_view,
     planner_calendar_remove_room_from_event_form_view,
     planner_calendar_upload_file_to_arrangement_dialog_view,
+    planner_calendar_upload_file_to_event_serie_dialog_view,
 )
 
 
@@ -233,5 +234,10 @@ planner_urls = [
         route="planner/dialogs/upload_files_to_arrangement",
         view=planner_calendar_upload_file_to_arrangement_dialog_view,
         name="upload_files_to_arrangement"
+    ),
+    path(
+        route="planner/dialogs/upload_files_to_event_serie",
+        view=planner_calendar_upload_file_to_event_serie_dialog_view,
+        name="upload_files_to_event_serie"
     ),
 ]

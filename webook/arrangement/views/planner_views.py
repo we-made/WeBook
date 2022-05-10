@@ -38,13 +38,14 @@ from webook.arrangement.forms.planner.planner_update_event_form import PlannerUp
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
+from webook.arrangement.forms.upload_files_to_event_serie_dialog import UploadFilesToEventSerieForm
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.screenshow.models import DisplayLayout
 from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
-from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, EventSerie, Location, Person, PlanManifest, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
+from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, EventSerie, EventSerieFile, Location, Person, PlanManifest, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -238,7 +239,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         if event_serie:
             event_serie.save()
 
-        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": bool(plan_manifest), "sequence_pk": event_serie.pk} )
+        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": bool(plan_manifest) } )
 
 plan_create_events = PlanCreateEvents.as_view()
 
@@ -948,6 +949,45 @@ class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFromEventFormView.as_view()
+
+
+class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, FormView):
+    form_class = UploadFilesToEventSerieForm
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToEventSerieDialog.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        event_serie_pk = self.request.GET.get("event_serie_pk")
+        context["event_serie_pk"] = event_serie_pk
+        event_serie = EventSerie.objects.get(pk=event_serie_pk)
+        context["event_serie"] = event_serie
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+
+        event_serie_pk = request.POST.get("event_serie_pk")
+        event_serie = EventSerie.objects.get(pk=event_serie_pk)
+
+        files = request.FILES.getlist("file_field")
+
+        if form.is_valid():
+            for f in files:
+                event_serie_file = EventSerieFile(
+                    event_serie=event_serie,
+                    uploader=request.user.person,
+                    file=f
+                )
+                event_serie_file.save()
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+planner_calendar_upload_file_to_event_serie_dialog_view = PlannerCalendarUploadFileToEventSerieDialog.as_view()
 
 
 class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, FormView):

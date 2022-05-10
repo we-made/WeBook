@@ -1,0 +1,41 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from django.views import View
+from django.db.models import Q
+from django.views.generic import (
+    DetailView,
+    RedirectView,
+    UpdateView,
+    ListView,
+    CreateView,
+    TemplateView
+)
+from django.views.generic.edit import DeleteView
+from requests import delete
+from webook.arrangement.forms.delete_arrangement_file_form import DeleteArrangementFileForm
+from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
+from webook.arrangement.forms.promote_planner_to_main_form import PromotePlannerToMainForm
+from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
+from webook.arrangement.forms.add_planner_form import AddPlannerForm
+from webook.arrangement.models import Arrangement, ArrangementFile, EventSerieFile, Person
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.search_view import SearchView
+from webook.utils.meta_utils.meta_mixin import MetaMixin
+from django.views.generic.edit import FormView
+from django.http import JsonResponse
+from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+
+
+class EventSerieDeleteFileView(LoginRequiredMixin, DeleteView):
+    model = EventSerieFile
+    template_name = "_blank.html"
+
+    def delete(self, request, *args, **kwargs):
+        self.get_object().delete()
+        payload = { 'delete': 'ok' }
+        return JsonResponse(payload)
+
+event_serie_delete_file_view = EventSerieDeleteFileView.as_view()

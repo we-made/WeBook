@@ -108,8 +108,6 @@ export class ArrangementCreator {
                                     event.people = serie.people;
                                     event.display_layouts = serie.display_layouts;
 
-                                    console.log(event);
-
                                     for (var key in event) {
                                         formData.append("events[" + i + "]." + key, event[key]);
                                     }
