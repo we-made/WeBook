@@ -1,7 +1,8 @@
  export class Dialog {
-    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onSubmit, onPreRefresh, dialogOptions, triggerByEvent=false } = {}) {
+    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onSubmit, onPreRefresh, dialogOptions, triggerByEvent=false, customTriggerName=undefined } = {}) {
         this.dialogElementId = dialogElementId;
         this.triggerElementId = triggerElementId;
+        this.customTriggerName = customTriggerName;
         this.triggerByEvent = triggerByEvent,
         this.htmlFabricator = htmlFabricator;
         this.onRenderedCallback = onRenderedCallback;
@@ -180,7 +181,17 @@ export class DialogManager {
 
         this._dialogRepository.forEach(( value, key, map) => {
             if (value.triggerByEvent === true) {
-                document.addEventListener(`${this.managerName}.${value.dialogElementId}.trigger`, (detail) => {
+
+                var triggerName = value.dialogElementId;
+                console.log(value.customTriggerName)
+                if (value.customTriggerName !== undefined) {
+                    triggerName = value.customTriggerName;
+                }
+
+                console.log(`${this.managerName}.${triggerName}.trigger`)
+
+                document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (detail) => {
+                    console.log(`${this.managerName}.${triggerName}.trigger`)
                     this.context.lastTriggererDetails = detail.detail;
                     value.render(this.context);
                 });

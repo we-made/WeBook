@@ -501,28 +501,43 @@
         }
     }
 
-    $('input:radio[name="timeAreaMethod"]').change(
-        function() {
-            if ($(this).is(':checked')) {
-                $(this).val();
-                let method = $(this).val()
-                handle_timearea_radio(method);
+    $(document).ready(function () {
+        $('input:radio[name="timeAreaMethod"]').change(
+            function() {
+                if ($(this).is(':checked')) {
+                    $(this).val();
+                    let method = $(this).val()
+                    handle_timearea_radio(method);
+                }
             }
-        }
-    )
+        )
 
-    /* Handle user changing active pattern */
-    $('input:radio[name="pattern"]').change(
-        function() {
-            if ($(this).is(':checked')) {
-                let pattern = patterns.get($(this).val());
-                patterns.forEach(function (item) {
-                    $(item.route_fieldset).hide()
-                })
-                $(pattern.route_fieldset).show();
+        /* Handle user changing active pattern */
+        $('input:radio[name="pattern"]').change(
+            function() {
+                if ($(this).is(':checked')) {
+                    let pattern = patterns.get($(this).val());
+                    patterns.forEach(function (item) {
+                        $(item.route_fieldset).hide()
+                    })
+                    $(pattern.route_fieldset).show();
+                }
             }
-        }
-    )
+        )
+        
+        /* Handle user changing active pattern */
+        $('input:radio[name="pattern"]').click(
+            function() {
+                if ($(this).is(':checked')) {
+                    let pattern = patterns.get($(this).val());
+                    patterns.forEach(function (item) {
+                        $(item.route_fieldset).hide()
+                    })
+                    $(pattern.route_fieldset).show();
+                }
+            }
+        )
+    })
 
     class ValidatorFunctions {
         static __watchInputForValidityChange (element) {

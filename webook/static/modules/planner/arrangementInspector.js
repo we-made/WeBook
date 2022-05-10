@@ -268,6 +268,129 @@ export class ArrangementInspector {
                     })
                 ],
                 [
+                    "editEventSerieDialog",
+                    new Dialog({
+                        dialogElementId: "newTimePlanDialog",
+                        customTriggerName: "editEventSerieDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            console.log(">> fabric")
+                            return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementInspector&dialog=editEventSerieDialog&orderRoomDialog=orderRoomDialog&orderPersonDialog=orderPersonDialog")
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback:  async (dialogManager, context) => {
+                            console.log("context", context);
+
+                            var manifest = await fetch(`/arrangement/eventSerie/${context.lastTriggererDetails.event_serie_pk}/manifest`, {
+                                method: "GET"
+                            }).then(response => response.json())
+
+                            console.log("Manifest", manifest)
+                            
+                            $('#serie_title').attr("value", manifest.title);
+                            $('#serie_title_en').attr("value", manifest.title_en);
+                            $('#serie_expected_visitors').attr("value", manifest.expected_visitors);
+                            $('#serie_ticket_code').attr("value", manifest.ticket_code);
+                            $('#area_start_date').attr("value", manifest.start_date);
+                            $('#serie_start').attr("value", manifest.start_time);
+                            $('#serie_end').attr("value", manifest.end_time);
+
+                            switch(manifest.recurrence_strategy) {
+                                case "StopWithin":
+                                    $('#radio_timeAreaMethod_stopWithin').prop("checked", true).click();
+                                    $('#area_stopWithin').val(manifest.stop_within);
+                                    break;
+                                case "StopAfterXInstances":
+                                    $('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true).click();
+                                    $('#area_stopAfterXInstances').val(manifest.stop_after_x_occurences);
+                                    break;
+                                case "NoStopDate":
+                                    $('#radio_timeAreaMethod_noStopDate').prop("checked", true).click();
+                                    $('#area_noStop_projectXMonths').val(manifest.project_x_months_into_future);
+                                    break;
+                            }
+
+                            switch (manifest.pattern) {
+                                case "daily":
+                                    $('#radio_pattern_daily').prop("checked", true).click();
+
+                                    switch(manifest.pattern_strategy) {
+                                        case "daily__every_x_day":
+                                            $('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
+                                            $('#every_x_day__interval').val(parseInt(manifest.strategy_specific.interval));
+                                            break;
+                                        case "daily__every_weekday":
+                                            $('#radio_pattern_daily_every_weekday_subroute').prop("checked", true);
+                                            break;
+                                    }
+                                    break;
+                                case "weekly":
+                                    $('#radio_pattern_weekly').prop("checked", true).click();
+                                    $("#week_interval").val(parseInt(manifest.strategy_specific.interval));
+                                    
+                                    var days = [
+                                        $("#monday"),
+                                        $("#tuesday"),
+                                        $("#wednesday"),
+                                        $("#thursday"),
+                                        $("#friday"),
+                                        $("#saturday"),
+                                        $("#sunday"),
+                                    ]
+
+                                    for (var i = 0; i < manifest.strategy_specific.days.length; i++) {
+                                        if (manifest.strategy_specific.days[i] == true) {
+                                            days[i].attr("checked", true);
+                                        }
+                                    }
+
+                                    break;
+                                case "monthly":
+                                    $('#radio_pattern_monthly').prop("checked", true).click();
+                                    switch(manifest.pattern_strategy) {
+                                        case "month__every_x_day_every_y_month":
+                                            $('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
+                                            $('#every_x_day_every_y_month__day_of_month').val(manifest.strategy_specific.day_of_month);
+                                            $("#every_x_day_every_y_month__month_interval").val(parseInt(manifest.strategy_specific.interval));
+                                            break;
+                                        case "month__every_arbitrary_date_of_month":
+                                            $('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
+                                            $('#every_dynamic_date_of_month__arbitrator').val(manifest.strategy_specific.arbitrator);
+                                            $('#every_dynamic_date_of_month__weekday').val(manifest.strategy_specific.day_of_week);
+                                            $('#every_dynamic_date_of_month__month_interval').val(manifest.strategy_specific.interval);
+                                            break;
+                                    }
+                                    break;
+                                case "yearly":
+                                    $('#radio_pattern_yearly').prop("checked", true).click();
+                                    $('#pattern_yearly_const__year_interval').val(manifest.strategy_specific.interval);
+                                    switch(manifest.pattern_strategy) {
+                                        case "yearly__every_x_of_month":
+                                            $('#every_x_datemonth_of_year_radio').prop("checked", true);
+                                            $('#every_x_of_month__date').val(manifest.strategy_specific.day_of_month);
+                                            $('#every_x_of_month__month').val(manifest.strategy_specific.month);
+                                            break;
+                                        case "yearly__every_arbitrary_weekday_in_month":
+                                            $('#every_x_dynamic_day_in_month_radio').prop("checked", true);
+                                            $('#every_arbitrary_weekday_in_month__arbitrator').val(manifest.strategy_specific.arbitrator);
+                                            $('#every_arbitrary_weekday_in_month__weekday').val(manifest.strategy_specific.day_of_week);
+                                            $('#every_arbitrary_weekday_in_month__month').val(manifest.strategy_specific.month);                         
+                                            break;
+                                    }
+                                    break;
+                            }
+
+                            if (manifest.pattern !== "daily") {
+                                $('#patternRoute_daily').hide();
+                            }
+                         },
+                        onUpdatedCallback: () => {},
+                        onSubmit: () => {},
+                        dialogOptions: { width: 700 }
+                    })
+                ],
+                [
                     "calendarFormDialog",
                     new Dialog({
                         dialogElementId: "calendarFormDialog",

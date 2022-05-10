@@ -170,6 +170,8 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         # parse a string of ids to a list of ids, '1,2,3 -> [1,2,3], and avoid default str.split() behaviour of '' = ['']
         parse_ids_string_to_list = lambda str_to_parse, separator=",": [x for x in str_to_parse.split(separator) if x] if str_to_parse else []
         
+        capitalize_if_possible = lambda str_to_capitalize: str_to_capitalize.capitalize() if str_to_capitalize is not None else None
+
         event_serie = None
         plan_manifest = None
         plan_manifest = querydict.get("manifest.pattern")
@@ -186,6 +188,25 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             plan_manifest.start_date = querydict.get("manifest.startDate", None)
             plan_manifest.start_time = querydict.get("manifest.startTime", None)
             plan_manifest.end_time = querydict.get("manifest.endTime", None)
+
+            plan_manifest.stop_within = querydict.get("manifest.stopWithin", None)
+            plan_manifest.project_x_months_into_future = querydict.get("manifest.projectionDistanceInMonths", None)
+            plan_manifest.stop_after_x_occurences = querydict.get("manifest.stopAfterXInstances", None)
+            
+            plan_manifest.interval = querydict.get("manifest.interval", None)
+            plan_manifest.day_of_month = querydict.get("manifest.day_of_month", None)
+            plan_manifest.arbitrator = querydict.get("manifest.arbitrator", None)
+            plan_manifest.day_of_week = querydict.get("manifest.day_of_week", None)
+            plan_manifest.month = querydict.get("manifest.month", None)
+
+            plan_manifest.monday = capitalize_if_possible(querydict.get("manifest.monday", None))
+            plan_manifest.tuesday = capitalize_if_possible(querydict.get("manifest.tuesday", None))
+            plan_manifest.wednesday = capitalize_if_possible(querydict.get("manifest.wednesday", None))
+            plan_manifest.thursday = capitalize_if_possible(querydict.get("manifest.thursday", None))
+            plan_manifest.friday = capitalize_if_possible(querydict.get("manifest.friday", None))
+            plan_manifest.saturday = capitalize_if_possible(querydict.get("manifest.saturday", None))
+            plan_manifest.sunday = capitalize_if_possible(querydict.get("manifest.sunday", None))
+
             plan_manifest.save()
 
             event_serie = EventSerie()

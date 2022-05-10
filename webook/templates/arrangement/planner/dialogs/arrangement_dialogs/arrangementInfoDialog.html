@@ -277,24 +277,10 @@
                                         </button>
                                         <button class="btn btn-sm btn-success"
                                             data-mdb-toggle="tooltip"
-                                            title="Edit this time plan">
+                                            title="Edit this time plan"
+                                            onclick="mainPlannerDialog__openEditSerie({{event_serie.pk}})">
                                             Rediger
                                         </button>
-                                        <div class="mt-1">
-                                            <button class="btn btn-sm btn-info"
-                                                data-mdb-toggle="tooltip"
-                                                title="Edit this time plan">
-                                                Bestill rom for tidsplanen
-                                            </button>
-                                        </div>
-                                        <div class="mt-1">
-                                            <button class="btn btn-sm btn-info"
-                                                data-mdb-toggle="tooltip"
-                                                title="Edit this time plan">
-                                                Bestill personer for tidsplanen
-                                            </button>
-                                        </div>
-
                                     </div>
 
                                     
@@ -566,6 +552,15 @@
         })
     }
     
+    function mainPlannerDialog__openEditSerie(event_serie_pk) {
+        console.log("hoi")
+        document.dispatchEvent(
+            new CustomEvent("arrangementInspector.editEventSerieDialog.trigger", { "detail": {
+                event_serie_pk: event_serie_pk
+            } })
+        )
+    }
+
     function mainPlannerDialog__openEditEvent(event_pk) {
         document.dispatchEvent(
             new CustomEvent("plannerCalendar.inspectEvent", { "detail": {
