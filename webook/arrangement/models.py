@@ -1006,9 +1006,13 @@ class PlanManifest(TimeStampedModel):
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout)
 
 
-class EventSerie(TimeStampedModel):
+class EventSerie(TimeStampedModel, ModelArchiveableMixin):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT, related_name="series")
     serie_plan_manifest = models.ForeignKey(to=PlanManifest, on_delete=models.RESTRICT)
+
+    def on_archive(self, person_archiving_this):
+        for event in self.events.all():
+            event.archive(person_archiving_this)
 
 
 class EventSerieFile(TimeStampedModel, ModelArchiveableMixin):

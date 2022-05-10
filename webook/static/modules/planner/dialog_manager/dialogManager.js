@@ -137,10 +137,20 @@ export class DialogManager {
         })
     }
 
+    /**
+     * Listens for custom reload events being fired, allowing us to reload a dialog from 
+     * anywhere. The dialog name must be specified in detail.
+     * When called with valid dialog name it will reload the dialog with the given dialog name.
+     */
+    _listenForReloadEvent() {
+        document.addEventListener(`${this.managerName}.reload`, (e) => {
+            this._dialogRepository.get(e.detail.dialog).reloadDialog();
+        })
+    }
+
     _listenForUpdatedEvent() {
         document.addEventListener(`${this.managerName}.hasBeenUpdated`, (e) => {
-            this._dialogRepository.get(e.detail.dialog)
-                .onUpdatedCallback();
+            this._dialogRepository.get(e.detail.dialog).onUpdatedCallback();
         });
     }
 

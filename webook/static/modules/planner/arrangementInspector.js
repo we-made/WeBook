@@ -95,7 +95,7 @@ export class ArrangementInspector {
                             document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                         },
                         onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
-                        dialogOptions: { width: 800, height: 800,  closeText: "haaaaaaa"  }
+                        dialogOptions: { width: 800, height: 800  }
                     }),
                 ],
                 [
@@ -164,7 +164,6 @@ export class ArrangementInspector {
                         },
                         dialogOptions: { width: 700 },
                         onSubmit: async (context, details) => { 
-
 
                             var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
                                 var events = SeriesUtil.calculate_serie(serie);

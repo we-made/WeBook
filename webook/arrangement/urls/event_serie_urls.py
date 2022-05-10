@@ -4,7 +4,8 @@ from webook.arrangement import views
 
 
 from webook.arrangement.views import (
-    event_serie_delete_file_view
+    event_serie_delete_file_view,
+    delete_event_serie_view,
 )
 
 
@@ -14,4 +15,9 @@ event_serie_urls = [
         view=event_serie_delete_file_view,
         name="event_serie_delete_file",
     ),
+    path(
+        route="eventSerie/delete/<int:pk>",
+        view=delete_event_serie_view,
+        name="delete_event_serie",
+    )
 ]

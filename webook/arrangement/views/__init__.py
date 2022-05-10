@@ -191,5 +191,6 @@ from .room_preset_views import (
 
 
 from .event_serie_views import (
-    event_serie_delete_file_view
+    event_serie_delete_file_view,
+    delete_event_serie_view,
 )
