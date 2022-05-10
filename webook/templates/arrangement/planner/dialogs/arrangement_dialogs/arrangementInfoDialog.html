@@ -563,7 +563,6 @@
                 var formData = new FormData();
                 formData.append("eventIds", String(activity_pk));
                 formData.append("csrfmiddlewaretoken", "{{CSRF_TOKEN}}")
-                console.log("{{csrf_token}}")
                 fetch('/arrangement/planner/delete_events/', {
                     method: 'POST',
                     body: formData,
@@ -744,7 +743,6 @@
 
     function mainPlannerDialog__removePlanners() {
         var planners = $('#mainPlannerDialog_plannersSelect').val().join(",");
-        console.log(planners)
         var formData = new FormData()
         formData.append("planner_ids", planners);
         formData.append("arrangement_slug", "{{arrangement.slug}}")
