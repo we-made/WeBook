@@ -277,9 +277,24 @@
                                         </button>
                                         <button class="btn btn-sm btn-success"
                                             data-mdb-toggle="tooltip"
-                                            title="Edut this time plan">
+                                            title="Edit this time plan">
                                             Rediger
                                         </button>
+                                        <div class="mt-1">
+                                            <button class="btn btn-sm btn-info"
+                                                data-mdb-toggle="tooltip"
+                                                title="Edit this time plan">
+                                                Bestill rom for tidsplanen
+                                            </button>
+                                        </div>
+                                        <div class="mt-1">
+                                            <button class="btn btn-sm btn-info"
+                                                data-mdb-toggle="tooltip"
+                                                title="Edit this time plan">
+                                                Bestill personer for tidsplanen
+                                            </button>
+                                        </div>
+
                                     </div>
 
                                     
@@ -388,7 +403,8 @@
                                                                     </button>
                                                                     <button class="btn btn-sm btn-success"
                                                                         data-mdb-toggle="tooltip"
-                                                                        title"{% trans 'Edit this activity' %}">
+                                                                        title"{% trans 'Edit this activity' %}"
+                                                                        onclick="mainPlannerDialog__openEditEvent({{event.pk}});">
                                                                         Rediger
                                                                     </button>
                                                                 </div>
@@ -402,37 +418,6 @@
                                             </div>
                                         </div>
                                         </div>
-                                        <!-- <div class="accordion-item">
-                                        <h6 class="accordion-header" id="flush-headingThree">
-                                            <button
-                                            class="accordion-button collapsed"
-                                            type="button"
-                                            data-mdb-toggle="collapse"
-                                            data-mdb-target="#flush-collapseThree_{{event_serie.pk}}"
-                                            aria-expanded="false"
-                                            aria-controls="flush-collapseThree"
-                                            >
-                                            <i class="fas fa-stream"></i>&nbsp; Tidslinje
-                                            </button>
-                                        </h6>
-                                        <div
-                                            id="flush-collapseThree_{{event_serie.pk}}"
-                                            class="accordion-collapse collapse"
-                                            aria-labelledby="flush-headingThree"
-                                            data-mdb-parent="#accordion_{{event_serie.pk}}"
-                                        >
-                                            <div class="accordion-body">
-                                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
-                                            richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor
-                                            brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor,
-                                            sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch
-                                            et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt
-                                            sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat
-                                            craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't
-                                            heard of them accusamus labore sustainable VHS.
-                                            </div>
-                                        </div>
-                                        </div> -->
                                     </div>
                                   </div>
                             </td>
@@ -581,6 +566,13 @@
         })
     }
     
+    function mainPlannerDialog__openEditEvent(event_pk) {
+        document.dispatchEvent(
+            new CustomEvent("plannerCalendar.inspectEvent", { "detail": {
+                event_pk: event_pk
+            }}
+        ))
+    }
 
     function mainPlannerDialog_deleteEventSerie(event_serie_pk) {
         Swal.fire({

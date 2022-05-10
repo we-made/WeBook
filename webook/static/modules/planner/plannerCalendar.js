@@ -77,6 +77,7 @@ export class PlannerCalendar extends FullCalendarBased {
         
         this._listenToRefreshEvents();
         this._listenToInspectArrangementEvents();
+        this._listenToInspectEvent();
     }
 
     _listenToRefreshEvents() {
@@ -93,6 +94,13 @@ export class PlannerCalendar extends FullCalendarBased {
             });
     
             this.arrangementInspectorUtility.inspect(arrangement);
+        })
+    }
+
+    _listenToInspectEvent() {
+        document.addEventListener("plannerCalendar.inspectEvent", (e) => {
+            console.log(">> ListenToInspectEvent")
+            this.eventInspectorUtility.inspect(e.detail.event_pk);
         })
     }
 
@@ -303,21 +311,6 @@ export class PlannerCalendar extends FullCalendarBased {
                 }
             ],
 
-
-            // eventContent: (arg) => {
-            //     var icon_class = arg.event.extendedProps.icon;
-            //     let html = `<span class="h6"
-            //                         data-toggle='tooltip'
-            //                         title='Right click me to get options'>
-  
-            //                     <span class='text-white ms-2'>
-            //                         <i class='${icon_class}'></i>
-            //                     </span>
-            //                     <em class='small'>${arg.event.extendedProps.starts} - ${arg.event.extendedProps.ends}</em>
-            //                     ${arg.event.title}
-            //                 </span>`
-            //     return { html: html }
-            // },
             eventDidMount: (arg) => {
                 this._bindPopover(arg.el);
                 this._bindInspectorTrigger(arg.el);
