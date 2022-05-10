@@ -1,7 +1,7 @@
 {% load static i18n %}
 
 
-<div id="newTimePlanDialog" title="<span class='badge badge-success'><i class='fas fa-clock'></i></span>&nbsp; Ny tidsplan">
+<div id="{{dialog}}" title="<span class='badge badge-success'><i class='fas fa-clock'></i></span>&nbsp; Ny tidsplan">
     <div>
         <input type="hidden" name="uuid" id="serie_uuid">
         <form id="headMockForm">
@@ -825,7 +825,7 @@
             new CustomEvent(
                 "{{managerName}}.submit", 
                 {
-                    'detail': { 'dialog': "newTimePlanDialog", 'serie': serie, "csrf_token": "{{csrf_token}}" }
+                    'detail': { 'dialog': "{{dialog}}", 'serie': serie, "csrf_token": "{{csrf_token}}" }
                 }
             )
         )

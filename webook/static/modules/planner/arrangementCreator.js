@@ -86,6 +86,9 @@ export class ArrangementCreator {
                                 formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
                                 formData.append("manifest.title", serie.time.title);
                                 formData.append("manifest.title_en", serie.time.title_en);
+                                formData.append("manifest.rooms", serie.rooms);
+                                formData.append("manifest.people", serie.people);
+                                formData.append("manifest.displayLayouts", serie.display_layouts);
                                 
                                 switch(serie.pattern.pattern_type) {
                                     case "daily":
@@ -219,8 +222,6 @@ export class ArrangementCreator {
                             }
                             
                             var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
-                            
-                            console.log("serie", serie);
 
                             $('#serie_uuid').val(serie._uuid);
                             $('#serie_title').val(serie.time.title);

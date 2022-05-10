@@ -157,10 +157,10 @@ export class DialogManager {
     }
 
     _listenForSubmitEvent() {
-        document.addEventListener(`${this.managerName}.submit`, (e) => {
+        document.addEventListener(`${this.managerName}.submit`, async (e) => {
             var dialog = this._dialogRepository.get(e.detail.dialog);
-            dialog.onSubmit(this.context, e.detail); // Trigger the dialogs onSubmit handling
-            dialog.onUpdatedCallback();              // Trigger the dialogs on update handling
+            await dialog.onSubmit(this.context, e.detail);  // Trigger the dialogs onSubmit handling
+            dialog.onUpdatedCallback();                     // Trigger the dialogs on update handling
         })
     }
 
@@ -183,15 +183,11 @@ export class DialogManager {
             if (value.triggerByEvent === true) {
 
                 var triggerName = value.dialogElementId;
-                console.log(value.customTriggerName)
                 if (value.customTriggerName !== undefined) {
                     triggerName = value.customTriggerName;
                 }
 
-                console.log(`${this.managerName}.${triggerName}.trigger`)
-
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (detail) => {
-                    console.log(`${this.managerName}.${triggerName}.trigger`)
                     this.context.lastTriggererDetails = detail.detail;
                     value.render(this.context);
                 });

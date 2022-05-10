@@ -180,6 +180,10 @@ export class ArrangementInspector {
                                 formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
                                 formData.append("manifest.title", serie.time.title);
                                 formData.append("manifest.title_en", serie.time.title_en);
+                                formData.append("manifest.rooms", serie.rooms);
+                                formData.append("manifest.people", serie.people);
+                                formData.append("manifest.displayLayouts", serie.display_layouts);
+
                                 if (serie.time_area.stop_within !== undefined) {
                                     formData.append("manifest.stopWithin", serie.time_area.stop_within);
                                 }
@@ -270,31 +274,67 @@ export class ArrangementInspector {
                 [
                     "editEventSerieDialog",
                     new Dialog({
-                        dialogElementId: "newTimePlanDialog",
+                        dialogElementId: "editEventSerieDialog",
                         customTriggerName: "editEventSerieDialog",
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            console.log(">> fabric")
-                            return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementInspector&dialog=editEventSerieDialog&orderRoomDialog=orderRoomDialog&orderPersonDialog=orderPersonDialog")
+                            return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementInspector&dialog=editEventSerieDialog&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
                                 .then(response => response.text());
                         },
                         onRenderedCallback:  async (dialogManager, context) => {
-                            console.log("context", context);
-
                             var manifest = await fetch(`/arrangement/eventSerie/${context.lastTriggererDetails.event_serie_pk}/manifest`, {
                                 method: "GET"
                             }).then(response => response.json())
-
-                            console.log("Manifest", manifest)
                             
-                            $('#serie_title').attr("value", manifest.title);
+                            $('#serie_uuid').attr("value", context.lastTriggererDetails.event_serie_pk);
+                            $('#serie_title').val(manifest.title);
                             $('#serie_title_en').attr("value", manifest.title_en);
                             $('#serie_expected_visitors').attr("value", manifest.expected_visitors);
                             $('#serie_ticket_code').attr("value", manifest.ticket_code);
                             $('#area_start_date').attr("value", manifest.start_date);
                             $('#serie_start').attr("value", manifest.start_time);
                             $('#serie_end').attr("value", manifest.end_time);
+
+                            if (manifest.rooms.length > 0) {
+                                var roomSelectContext = Object();
+                                roomSelectContext.rooms = manifest.rooms.map(a => a.id).join(",");
+                                roomSelectContext.room_name_map = new Map();
+
+                                for (let i = 0; i < manifest.rooms.length; i++) {
+                                    let room = manifest.rooms[i];
+                                    roomSelectContext.room_name_map.set(String(room.id), room.name);
+                                }
+
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementInspector.d2_roomsSelected",
+                                    { detail: {
+                                        context: roomSelectContext
+                                    } }
+                                ));
+                            }
+                            if (manifest.people.length > 0) {
+                                var peopleSelectContext = Object();
+                                peopleSelectContext.people = manifest.people.map(a => a.id).join(",");
+                                peopleSelectContext.people_name_map = new Map();
+
+                                for (let i = 0; i < manifest.people.length; i++) {
+                                    let person = manifest.people[i];
+                                    peopleSelectContext.people_name_map.set(String(person.id), person.name);
+                                }
+
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementInspector.d2_peopleSelected",
+                                    { detail: {
+                                        context: peopleSelectContext
+                                    } }
+                                ));
+                            }
+
+                            manifest.display_layouts.forEach(display_layout => {
+                                $('#id_display_layouts_serie_planner_' + String(parseInt(display_layout.id)))
+                                    .prop( "checked", true );
+                            })
 
                             switch(manifest.recurrence_strategy) {
                                 case "StopWithin":
@@ -385,8 +425,70 @@ export class ArrangementInspector {
                                 $('#patternRoute_daily').hide();
                             }
                          },
-                        onUpdatedCallback: () => {},
-                        onSubmit: () => {},
+                        onUpdatedCallback: () => {
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("editEventSerieDialog");
+                        },
+                        onSubmit:  async (context, details) => { 
+                            var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
+                                var events = SeriesUtil.calculate_serie(serie);
+                                var formData = new FormData();
+
+                                formData.append("saveAsSerie", true); // Special parameter to instruct to save event batch as a serie.
+                                formData.append("predecessorSerie", serie._uuid); // The preceding serie must be removed.
+                                formData.append("manifest.pattern", serie.pattern.pattern_type);
+                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
+                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
+                                formData.append("manifest.startDate", serie.time_area.start_date);
+                                formData.append("manifest.startTime", serie.time.start);
+                                formData.append("manifest.endTime", serie.time.end);
+                                formData.append("manifest.ticketCode", serie.time.ticket_code);
+                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
+                                formData.append("manifest.title", serie.time.title);
+                                formData.append("manifest.title_en", serie.time.title_en);
+                                formData.append("manifest.rooms", serie.rooms);
+                                formData.append("manifest.people", serie.people);
+                                formData.append("manifest.displayLayouts", serie.display_layouts);
+
+                                if (serie.time_area.stop_within !== undefined) {
+                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
+                                }
+                                if (serie.time_area.instances !== undefined) {
+                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
+                                }
+                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
+                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
+                                }
+
+                                for (let i = 0; i < events.length; i++) {
+                                    var event = events[i];
+                                    event.arrangement=arrangementId;
+                                    event.start = event.from.toISOString();
+                                    event.end=event.to.toISOString();
+                                    event.ticket_code = ticket_code;
+                                    event.expected_visitors = serie.time.expected_visitors;
+                                    event.rooms = serie.rooms;
+                                    event.people = serie.people;
+                                    
+                                    for (var key in event) {
+                                        formData.append("events[" + i + "]." + key, event[key]);
+                                    }
+                                }
+
+                                await fetch("/arrangement/planner/create_events/", {
+                                    method:"POST",
+                                    body: formData,
+                                    headers: {
+                                        "X-CSRFToken": csrf_token
+                                    },
+                                    credentials: 'same-origin',
+                                }).then(_ => { 
+                                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                                })
+                            }
+
+                            await registerSerie( details.serie, context.arrangement.arrangement_pk, details.csrf_token )
+                        },
                         dialogOptions: { width: 700 }
                     })
                 ],

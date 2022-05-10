@@ -177,6 +177,11 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         plan_manifest = querydict.get("manifest.pattern")
 
         if querydict.get("saveAsSerie", None):
+            pk_of_preceding_event_serie = querydict.get("predecessorSerie", None);
+            if (pk_of_preceding_event_serie):
+                event_serie = EventSerie.objects.get(id=pk_of_preceding_event_serie)
+                event_serie.archive(self.request.user.person)
+
             plan_manifest = PlanManifest()
             plan_manifest.expected_visitors = querydict.get("manifest.expectedVisitors", None)
             plan_manifest.ticket_code = querydict.get("manifest.ticketCode", None)
@@ -206,6 +211,23 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             plan_manifest.friday = capitalize_if_possible(querydict.get("manifest.friday", None))
             plan_manifest.saturday = capitalize_if_possible(querydict.get("manifest.saturday", None))
             plan_manifest.sunday = capitalize_if_possible(querydict.get("manifest.sunday", None))
+
+            plan_manifest.save()
+
+            pm_rooms = querydict.get("manifest.rooms", None)
+            if pm_rooms:
+                for room_id in pm_rooms.split(","):
+                    plan_manifest.rooms.add(room_id)
+
+            pm_people = querydict.get("manifest.people", None)
+            if pm_people:
+                for person_id in pm_people.split(","):
+                    plan_manifest.people.add(person_id)
+
+            pm_display_layouts = querydict.get("manifest.displayLayouts", None)
+            if pm_display_layouts:
+                for display_layout_id in pm_display_layouts.split(","):
+                    plan_manifest.display_layouts.add(display_layout_id)
 
             plan_manifest.save()
 
@@ -620,8 +642,6 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
     form_class = PlannerCreateEventForm
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        print("DISPLAY::    ")
-        print(self.request.POST.get("display_layouts"))
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -727,7 +747,6 @@ class PlannerArrangementAddPlannerDialog(LoginRequiredMixin, TemplateView):
                 person.is_already_planner = True
                 continue
             for current_planner in current_planners:
-                print(arrangement.responsible.pk)
                 if person.pk == current_planner.pk:
                     person.is_already_planner = True
                     break
@@ -1064,6 +1083,7 @@ class PlanSerieForm(LoginRequiredMixin, FormView):
             context["arrangementPk"] = arrangement.pk
         else: context["arrangementPk"] = 0
 
+        context["dialog"] = self.request.GET.get("dialog", "arrangementInspector")
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
 
