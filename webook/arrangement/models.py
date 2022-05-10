@@ -1001,14 +1001,34 @@ class PlanManifest(TimeStampedModel):
     stop_after_x_occurences = models.IntegerField(blank=True, null=True)
     project_x_months_into_future = models.IntegerField(blank=True, null=True)
 
+    # Strategy Specific Fields
+    monday = models.BooleanField(default=False, null=True)
+    tuesday = models.BooleanField(default=False, null=True)
+    wednesday = models.BooleanField(default=False, null=True)
+    thursday = models.BooleanField(default=False, null=True)
+    friday = models.BooleanField(default=False, null=True)
+    saturday = models.BooleanField(default=False, null=True)
+    sunday = models.BooleanField(default=False, null=True)
+    arbitrator = models.CharField(max_length=255, blank=True, null=True)
+    day_of_week = models.IntegerField(default=0, null=True)
+    day_of_month = models.IntegerField(default=0, null=True)
+    month = models.IntegerField(default=0, null=True)
+    
+    # Strategy Shared Fields
+    interval = models.IntegerField(blank=True, default=0, null=True)
+
     rooms =  models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout)
 
 
-class EventSerie(TimeStampedModel):
+class EventSerie(TimeStampedModel, ModelArchiveableMixin):
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT, related_name="series")
     serie_plan_manifest = models.ForeignKey(to=PlanManifest, on_delete=models.RESTRICT)
+
+    def on_archive(self, person_archiving_this):
+        for event in self.events.all():
+            event.archive(person_archiving_this)
 
 
 class EventSerieFile(TimeStampedModel, ModelArchiveableMixin):

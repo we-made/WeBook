@@ -141,6 +141,7 @@ from .planner_views import (
     planner_calendar_remove_person_from_event_form_view,
     planner_calendar_remove_room_from_event_form_view,
     planner_calendar_upload_file_to_arrangement_dialog_view,
+    planner_calendar_upload_file_to_event_serie_dialog_view,
 )
 
 from .note_views import (
@@ -186,4 +187,11 @@ from .room_preset_views import (
     room_preset_create_view,
     room_preset_update_view,
     room_preset_delete_view,
+)
+
+
+from .event_serie_views import (
+    event_serie_delete_file_view,
+    delete_event_serie_view,
+    event_serie_manifest_view,
 )

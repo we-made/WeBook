@@ -17,6 +17,7 @@ from .requisition_urls import requisition_urls
 from .confirmation_urls import confirmation_urls
 from .arrangement_type_urls import arrangement_type_urls
 from .room_preset_urls import room_preset_urls
+from .event_serie_urls import event_serie_urls
 
 
 app_name = "arrangement"
@@ -40,4 +41,4 @@ urlpatterns.extend(requisition_urls)
 urlpatterns.extend(confirmation_urls)
 urlpatterns.extend(arrangement_type_urls)
 urlpatterns.extend(room_preset_urls)
-
+urlpatterns.extend(event_serie_urls)

@@ -38,13 +38,14 @@ from webook.arrangement.forms.planner.planner_update_event_form import PlannerUp
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
+from webook.arrangement.forms.upload_files_to_event_serie_dialog import UploadFilesToEventSerieForm
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.screenshow.models import DisplayLayout
 from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
-from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, EventSerie, Location, Person, PlanManifest, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
+from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, EventSerie, EventSerieFile, Location, Person, PlanManifest, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from webook.arrangement.facilities.calendar import analysis_strategies
@@ -169,11 +170,18 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         # parse a string of ids to a list of ids, '1,2,3 -> [1,2,3], and avoid default str.split() behaviour of '' = ['']
         parse_ids_string_to_list = lambda str_to_parse, separator=",": [x for x in str_to_parse.split(separator) if x] if str_to_parse else []
         
+        capitalize_if_possible = lambda str_to_capitalize: str_to_capitalize.capitalize() if str_to_capitalize is not None else None
+
         event_serie = None
         plan_manifest = None
         plan_manifest = querydict.get("manifest.pattern")
 
         if querydict.get("saveAsSerie", None):
+            pk_of_preceding_event_serie = querydict.get("predecessorSerie", None);
+            if (pk_of_preceding_event_serie):
+                event_serie = EventSerie.objects.get(id=pk_of_preceding_event_serie)
+                event_serie.archive(self.request.user.person)
+
             plan_manifest = PlanManifest()
             plan_manifest.expected_visitors = querydict.get("manifest.expectedVisitors", None)
             plan_manifest.ticket_code = querydict.get("manifest.ticketCode", None)
@@ -185,6 +193,42 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             plan_manifest.start_date = querydict.get("manifest.startDate", None)
             plan_manifest.start_time = querydict.get("manifest.startTime", None)
             plan_manifest.end_time = querydict.get("manifest.endTime", None)
+
+            plan_manifest.stop_within = querydict.get("manifest.stopWithin", None)
+            plan_manifest.project_x_months_into_future = querydict.get("manifest.projectionDistanceInMonths", None)
+            plan_manifest.stop_after_x_occurences = querydict.get("manifest.stopAfterXInstances", None)
+            
+            plan_manifest.interval = querydict.get("manifest.interval", None)
+            plan_manifest.day_of_month = querydict.get("manifest.day_of_month", None)
+            plan_manifest.arbitrator = querydict.get("manifest.arbitrator", None)
+            plan_manifest.day_of_week = querydict.get("manifest.day_of_week", None)
+            plan_manifest.month = querydict.get("manifest.month", None)
+
+            plan_manifest.monday = capitalize_if_possible(querydict.get("manifest.monday", None))
+            plan_manifest.tuesday = capitalize_if_possible(querydict.get("manifest.tuesday", None))
+            plan_manifest.wednesday = capitalize_if_possible(querydict.get("manifest.wednesday", None))
+            plan_manifest.thursday = capitalize_if_possible(querydict.get("manifest.thursday", None))
+            plan_manifest.friday = capitalize_if_possible(querydict.get("manifest.friday", None))
+            plan_manifest.saturday = capitalize_if_possible(querydict.get("manifest.saturday", None))
+            plan_manifest.sunday = capitalize_if_possible(querydict.get("manifest.sunday", None))
+
+            plan_manifest.save()
+
+            pm_rooms = querydict.get("manifest.rooms", None)
+            if pm_rooms:
+                for room_id in pm_rooms.split(","):
+                    plan_manifest.rooms.add(room_id)
+
+            pm_people = querydict.get("manifest.people", None)
+            if pm_people:
+                for person_id in pm_people.split(","):
+                    plan_manifest.people.add(person_id)
+
+            pm_display_layouts = querydict.get("manifest.displayLayouts", None)
+            if pm_display_layouts:
+                for display_layout_id in pm_display_layouts.split(","):
+                    plan_manifest.display_layouts.add(display_layout_id)
+
             plan_manifest.save()
 
             event_serie = EventSerie()
@@ -238,7 +282,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         if event_serie:
             event_serie.save()
 
-        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": bool(plan_manifest), "sequence_pk": event_serie.pk} )
+        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": bool(plan_manifest) } )
 
 plan_create_events = PlanCreateEvents.as_view()
 
@@ -477,7 +521,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                 LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                                 LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                                 LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                                WHERE arr.is_archived = false AND ev.start > %s AND ev.end < %s
+                                WHERE arr.is_archived = false AND ev.start > %s AND ev.end < %s AND ev.is_archived = false
                                 GROUP BY event_pk, audience.icon_class, audience.name, audience.slug,
                             resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
                             loc.name, loc.slug, arrtype.name, arrtype.slug
@@ -598,8 +642,6 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
     form_class = PlannerCreateEventForm
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        print("DISPLAY::    ")
-        print(self.request.POST.get("display_layouts"))
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -705,7 +747,6 @@ class PlannerArrangementAddPlannerDialog(LoginRequiredMixin, TemplateView):
                 person.is_already_planner = True
                 continue
             for current_planner in current_planners:
-                print(arrangement.responsible.pk)
                 if person.pk == current_planner.pk:
                     person.is_already_planner = True
                     break
@@ -950,6 +991,45 @@ class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, FormView):
 planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFromEventFormView.as_view()
 
 
+class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, FormView):
+    form_class = UploadFilesToEventSerieForm
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToEventSerieDialog.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        event_serie_pk = self.request.GET.get("event_serie_pk")
+        context["event_serie_pk"] = event_serie_pk
+        event_serie = EventSerie.objects.get(pk=event_serie_pk)
+        context["event_serie"] = event_serie
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+
+        event_serie_pk = request.POST.get("event_serie_pk")
+        event_serie = EventSerie.objects.get(pk=event_serie_pk)
+
+        files = request.FILES.getlist("file_field")
+
+        if form.is_valid():
+            for f in files:
+                event_serie_file = EventSerieFile(
+                    event_serie=event_serie,
+                    uploader=request.user.person,
+                    file=f
+                )
+                event_serie_file.save()
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+planner_calendar_upload_file_to_event_serie_dialog_view = PlannerCalendarUploadFileToEventSerieDialog.as_view()
+
+
 class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, FormView):
     form_class = UploadFilesToArrangementForm
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToArrangementDialog.html"
@@ -1003,6 +1083,7 @@ class PlanSerieForm(LoginRequiredMixin, FormView):
             context["arrangementPk"] = arrangement.pk
         else: context["arrangementPk"] = 0
 
+        context["dialog"] = self.request.GET.get("dialog", "arrangementInspector")
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
 
