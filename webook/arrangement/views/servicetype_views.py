@@ -99,7 +99,6 @@ class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin
         }
     }
 
-
 service_type_create_view = ServiceTypeCreateView.as_view()
 
 
