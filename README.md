@@ -97,6 +97,12 @@ choco install -y --force nodejs
 ```
 or use the web-browser to install it. [NodeJS](https://nodejs.org/en/download/)
 
+## <a name="update-assets">Update assets</a>
+
+```
+Please update your APP_LOGO in the .env file. And upload the new logo to the server.
+```
+
 
 ## <a name="troubleshooting">Troubleshooting</a>
 
