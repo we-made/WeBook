@@ -69,12 +69,13 @@
                     <div class="col-8">
                         <input type="date" class="form-control" 
                                 name="{{form.start.name}}_date" id="{{form.start.id_for_label}}_date"
-                                value="{{ form.start.value|date:'Y-m-d' }}">
+                                value="{{ start_t|date:'Y-m-d' }}">
                     </div>
                     <div class="col-4">
+                        {{start_t}}
                         <input type="time" class="form-control" 
                                 name="{{ form.start.name }}_time" id="{{ form.start.name }}_time" 
-                                value="{{ form.start.value|date:'H:i' }}">
+                                value="{{ start_t|date:'H:i' }}">
                     </div>
                 </div>
             </div>
@@ -85,12 +86,12 @@
                     <div class="col-8">
                         <input type="date" class="form-control" 
                                 name="{{ form.end.name }}_date" id="{{ form.end.id_for_label }}_date"
-                                value="{{ form.end.value|date:'Y-m-d' }}">
+                                value="{{ end_t|date:'Y-m-d' }}">
                     </div>
                     <div class="col-4">
                         <input type="time" class="form-control" 
                                 name="{{form.end.name}}_time" id="{{ form.end.name }}_time"
-                                value="{{ form.end.value|date:'H:i' }}" >
+                                value="{{ end_t|date:'H:i' }}" >
                     </div>
                 </div>
             </div>

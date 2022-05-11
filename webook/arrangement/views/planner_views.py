@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict
 from dateutil import parser
 from datetime import date, datetime
@@ -10,6 +10,7 @@ from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core import serializers, exceptions
 from django.views import View
@@ -566,6 +567,17 @@ class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
     pk_field="pk"
     pk_url_kwarg="pk"
     template_name="arrangement/planner/dialogs/arrangement_dialogs/inspectEventDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        ctx = super().get_context_data(**kwargs)
+        obj = self.get_object()
+
+        # This is stupid, even for me.
+        # Needs to be refactored promptly!!
+        ctx["start_t"] = obj.start + timedelta(hours=2)
+        ctx["end_t"] = obj.end + timedelta(hours=2)
+
+        return ctx
 
 planner_event_inspector_dialog_view = PlannerEventInspectorDialogView.as_view()
 
