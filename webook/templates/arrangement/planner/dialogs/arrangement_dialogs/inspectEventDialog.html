@@ -72,7 +72,6 @@
                                 value="{{ start_t|date:'Y-m-d' }}">
                     </div>
                     <div class="col-4">
-                        {{start_t}}
                         <input type="time" class="form-control" 
                                 name="{{ form.start.name }}_time" id="{{ form.start.name }}_time" 
                                 value="{{ start_t|date:'H:i' }}">
@@ -97,9 +96,7 @@
             </div>
 
             <div class="mt-2">
-                <label for="title">
-                    Display layouts:
-                </label>
+                <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
                 {{form.display_layouts}}
             </div>
 

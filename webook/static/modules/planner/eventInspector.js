@@ -71,7 +71,7 @@ export class EventInspector {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => {  },
+                        onUpdatedCallback: () => { this.dialogManager.closeDialog("orderRoomDialog"); },
                         onSubmit: (context, details) => { 
                             context.rooms = details.formData.get("room_ids");
                             context.room_name_map = details.room_name_map;
