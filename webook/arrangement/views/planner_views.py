@@ -820,9 +820,10 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
         event = None
         if event_pk is not None and event_pk != 0 and event_pk != "0":
             event = Event.objects.get(pk=event_pk)
-            for room in locations.rooms.all():
-                if room in event.rooms.all():
-                    room.is_selected = True
+            for location in locations:
+                for room in location.rooms.all():
+                    if room in event.rooms.all():
+                        room.is_selected = True
         context["locations"] = locations
 
         if (context["serie_guid"] is None):
