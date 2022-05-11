@@ -873,7 +873,7 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
 
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
-                                             related_name="events")
+                                             related_name="events", blank=True)
 
     def __str__(self):
         """Return title of event, with start and end times"""
