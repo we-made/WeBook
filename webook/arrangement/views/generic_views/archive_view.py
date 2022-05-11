@@ -4,6 +4,9 @@ from django.views.generic import DeleteView
 
 
 class ArchiveView(DeleteView):
+    """
+        View for archiving an entity, superceding the DeleteView functionality.
+    """
     def delete(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         """ 
             Archive the object by calling archive() method on the fetched object and then 
@@ -16,6 +19,9 @@ class ArchiveView(DeleteView):
 
 
 class JsonArchiveView(DeleteView):
+    """
+        Same as ArchiveView, but returning a JsonResponse instead of HttpResponseRedirect
+    """
     def delete(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         """ 
             Archive the object by calling archive() method on the fetched object and then 
