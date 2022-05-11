@@ -300,6 +300,8 @@
         formData.append("title_en",     $('#id_title_en').val());
         formData.append("start",        start);
         formData.append("end",          end);
+        formData.append("expected_visitors", $('#id_expected_visitors').val());
+        formData.append("actual_visitors", $('#id_actual_visitors').val())
         formData.append("arrangement", '{{object.arrangement.pk}}');
         formData.append("people",       inspectEventDialog__getSelectedPeopleIds());
         formData.append("rooms",        inspectEventDialog__getSelectedRoomIds());

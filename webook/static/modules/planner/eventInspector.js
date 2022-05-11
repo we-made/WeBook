@@ -18,6 +18,9 @@ export class EventInspector {
                             this.dialogManager._makeAware(); 
                         },
                         dialogOptions: { width: 600, height: 700 },
+                        onUpdatedCallback: () => {
+                            this.dialogManager.closeDialog("inspectEventDialog");
+                        },
                         onSubmit: async (context, details) => {
                             console.log("details", details)
                             var url = '/arrangement/planner/update_event/' + context.event.pk;

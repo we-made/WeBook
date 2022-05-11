@@ -290,15 +290,7 @@ plan_create_events = PlanCreateEvents.as_view()
 class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
     model = Event
     template_name="arrangement/event/event_form.html"
-    fields = [
-        "id",
-        "title",
-        "title_en",
-        "start",
-        "end",
-        "arrangement",
-        "display_layouts"
-    ]
+    form_class = PlannerUpdateEventForm
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         return super().post(request, *args, **kwargs)
