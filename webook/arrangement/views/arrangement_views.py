@@ -20,6 +20,7 @@ from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
 from webook.arrangement.forms.add_planner_form import AddPlannerForm
 from webook.arrangement.models import Arrangement, ArrangementFile, Person
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from django.views.generic.edit import FormView
@@ -48,18 +49,6 @@ class ArrangementSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
-
-
-class JSONResponseMixin:
-    """
-    A mixin that can be used to render a JSON response
-    """
-    def render_to_json_response(self, context, **response_kwargs):
-        return JsonResponse(self.get_data(context), **response_kwargs)
-
-    def get_data(self, context):
-        return context
-
 
 
 class ArrangementDetailView (LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, DetailView):
