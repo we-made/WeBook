@@ -273,8 +273,6 @@
                 });
             }
         })
-
-
     }
 
     function inspectEventDialog__save() {
@@ -285,6 +283,7 @@
         formData.append("id",           '{{object.pk}}');
         formData.append("title",        $('#id_title').val());
         formData.append("title_en",     $('#id_title_en').val());
+        formData.append("ticket_code",  $('#id_ticket_code').val())
         formData.append("start",        start);
         formData.append("end",          end);
         formData.append("expected_visitors", $('#id_expected_visitors').val());
