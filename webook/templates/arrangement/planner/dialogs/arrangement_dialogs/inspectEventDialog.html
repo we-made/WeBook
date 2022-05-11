@@ -2,16 +2,6 @@
 
 
 <div id="inspectEventDialog" title="Inspiser tidspunkt">
-    <!-- <div class="clearfix mb-3">
-        <button class="float-start btn btn-sm shadow-0 btn-dark">
-            <i class="fas fa-clipboard"></i>
-            Notater&nbsp;
-            <div class="badge badge-info">0</div>
-        </button>
-        <button class="btn btn-sm shadow-0 btn-danger float-end"><i class="fas fa-trash"></i></button>
-        <button class="btn btn-sm shadow-0 btn-info float-end me-2"><i class="fas fa-copy"></i></button>
-    </div> -->
-
     <button class="btn btn-danger mb-3" onclick="inspectEventDialog__delete()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
 
     <div class="border border-1 bg-secondary rounded-4 mb-2 p-3">
@@ -293,7 +283,7 @@
     function inspectEventDialog__save() {
         let formData = new FormData();
         var start = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
-        var end = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
+        var end = new Date( $('#id_end_date').val() + "T" + $('#end_time').val() ).toISOString();
 
         formData.append("id",           '{{object.pk}}');
         formData.append("title",        $('#id_title').val());
