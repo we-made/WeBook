@@ -1,7 +1,8 @@
  export class Dialog {
-    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onSubmit, onPreRefresh, dialogOptions, triggerByEvent=false } = {}) {
+    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onSubmit, onPreRefresh, dialogOptions, triggerByEvent=false, customTriggerName=undefined } = {}) {
         this.dialogElementId = dialogElementId;
         this.triggerElementId = triggerElementId;
+        this.customTriggerName = customTriggerName;
         this.triggerByEvent = triggerByEvent,
         this.htmlFabricator = htmlFabricator;
         this.onRenderedCallback = onRenderedCallback;
@@ -98,6 +99,7 @@ export class DialogManager {
         this._listenForUpdatedEvent();
         this._listenForSubmitEvent();
         this._listenForCloseEvent();
+        this._listenForReloadEvent();
 
         this._dialogRepository = new Map(dialogs);
         this.context = {};
@@ -137,18 +139,28 @@ export class DialogManager {
         })
     }
 
+    /**
+     * Listens for custom reload events being fired, allowing us to reload a dialog from 
+     * anywhere. The dialog name must be specified in detail.
+     * When called with valid dialog name it will reload the dialog with the given dialog name.
+     */
+    _listenForReloadEvent() {
+        document.addEventListener(`${this.managerName}.reload`, (e) => {
+            this.reloadDialog(e.detail.dialog);
+        })
+    }
+
     _listenForUpdatedEvent() {
         document.addEventListener(`${this.managerName}.hasBeenUpdated`, (e) => {
-            this._dialogRepository.get(e.detail.dialog)
-                .onUpdatedCallback();
+            this._dialogRepository.get(e.detail.dialog).onUpdatedCallback();
         });
     }
 
     _listenForSubmitEvent() {
-        document.addEventListener(`${this.managerName}.submit`, (e) => {
+        document.addEventListener(`${this.managerName}.submit`, async (e) => {
             var dialog = this._dialogRepository.get(e.detail.dialog);
-            dialog.onSubmit(this.context, e.detail); // Trigger the dialogs onSubmit handling
-            dialog.onUpdatedCallback();              // Trigger the dialogs on update handling
+            await dialog.onSubmit(this.context, e.detail);  // Trigger the dialogs onSubmit handling
+            dialog.onUpdatedCallback();                     // Trigger the dialogs on update handling
         })
     }
 
@@ -169,7 +181,13 @@ export class DialogManager {
 
         this._dialogRepository.forEach(( value, key, map) => {
             if (value.triggerByEvent === true) {
-                document.addEventListener(`${this.managerName}.${value.dialogElementId}.trigger`, (detail) => {
+
+                var triggerName = value.dialogElementId;
+                if (value.customTriggerName !== undefined) {
+                    triggerName = value.customTriggerName;
+                }
+
+                document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (detail) => {
                     this.context.lastTriggererDetails = detail.detail;
                     value.render(this.context);
                 });

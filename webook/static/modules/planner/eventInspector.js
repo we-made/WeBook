@@ -18,6 +18,9 @@ export class EventInspector {
                             this.dialogManager._makeAware(); 
                         },
                         dialogOptions: { width: 600, height: 700 },
+                        onUpdatedCallback: () => {
+                            this.dialogManager.closeDialog("inspectEventDialog");
+                        },
                         onSubmit: async (context, details) => {
                             console.log("details", details)
                             var url = '/arrangement/planner/update_event/' + context.event.pk;
@@ -68,7 +71,7 @@ export class EventInspector {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => {  },
+                        onUpdatedCallback: () => { this.dialogManager.closeDialog("orderRoomDialog"); },
                         onSubmit: (context, details) => { 
                             context.rooms = details.formData.get("room_ids");
                             context.room_name_map = details.room_name_map;

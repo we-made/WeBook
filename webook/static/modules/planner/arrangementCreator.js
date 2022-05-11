@@ -86,6 +86,52 @@ export class ArrangementCreator {
                                 formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
                                 formData.append("manifest.title", serie.time.title);
                                 formData.append("manifest.title_en", serie.time.title_en);
+                                formData.append("manifest.rooms", serie.rooms);
+                                formData.append("manifest.people", serie.people);
+                                formData.append("manifest.displayLayouts", serie.display_layouts);
+                                
+                                switch(serie.pattern.pattern_type) {
+                                    case "daily":
+                                        if (serie.pattern.pattern_routine === "daily__every_x_day") {
+                                            formData.append("manifest.interval", serie.pattern.interval);
+                                        }
+                                        break;
+                                    case "weekly":
+                                        formData.append("manifest.interval", serie.pattern.week_interval);
+                                        var count = 0;
+                                        for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
+                                            formData.append(`manifest.${day}`, serie.pattern.days.get(count));
+                                            count++;
+                                        }
+                                        break;
+                                    case "monthly":
+                                        switch (serie.pattern.pattern_routine) {
+                                            case "month__every_x_day_every_y_month":
+                                                formData.append("manifest.interval", serie.pattern.interval);
+                                                formData.append("manifest.day_of_month", serie.pattern.day_of_month);
+                                                break;
+                                            case "month__every_arbitrary_date_of_month":
+                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
+                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
+                                                formData.append("manifest.interval", serie.pattern.interval);
+                                                break;
+                                        }
+                                        break;
+                                    case "yearly":
+                                        formData.append("manifest.interval", serie.pattern.year_interval);
+                                        switch (serie.pattern.pattern_routine) {
+                                            case "yearly__every_x_of_month":
+                                                formData.append("manifest.day_of_month", serie.pattern.day_index);
+                                                formData.append("manifest.month", serie.pattern.month);
+                                                break;
+                                            case "yearly__every_arbitrary_weekday_in_month":
+                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
+                                                formData.append("manifest.month", serie.pattern.month);
+                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
+                                                break;
+                                        }
+                                        break;
+                                }
                                 
                                 if (serie.time_area.stop_within !== undefined) {
                                     formData.append("manifest.stopWithin", serie.time_area.stop_within);
@@ -107,8 +153,6 @@ export class ArrangementCreator {
                                     event.rooms = serie.rooms;
                                     event.people = serie.people;
                                     event.display_layouts = serie.display_layouts;
-
-                                    console.log(event);
 
                                     for (var key in event) {
                                         formData.append("events[" + i + "]." + key, event[key]);
@@ -178,7 +222,7 @@ export class ArrangementCreator {
                             }
                             
                             var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
-   
+
                             $('#serie_uuid').val(serie._uuid);
                             $('#serie_title').val(serie.time.title);
                             $('#serie_title_en').val(serie.time.title_en);
@@ -241,8 +285,7 @@ export class ArrangementCreator {
                                     $('#radio_pattern_daily').prop("checked", true);
                                     switch(serie.pattern.pattern_routine) {
                                         case "daily__every_x_day":
-                                            $('#radio_pattern_daily_every_x_day_subroute')
-                                                .prop("checked", true);
+                                            $('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
                                             $('#every_x_day__interval').val(parseInt(serie.pattern.interval));
                                             break;
                                         case "daily__every_weekday":
@@ -284,7 +327,6 @@ export class ArrangementCreator {
                                             $('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
                                             document.querySelector("#every_dynamic_date_of_month__arbitrator").setAttribute("init_value", serie.pattern.arbitrator);
                                             document.querySelector("#every_dynamic_date_of_month__weekday").setAttribute("init_value", serie.pattern.weekday);
-                                            document.querySelector("#every_dynamic_date_of_month__weekday").setAttribute("init_value", serie.pattern.weekday);
                                             $("#every_dynamic_date_of_month__month_interval").val(serie.pattern.interval);
                                             break;
                                     }
@@ -299,7 +341,6 @@ export class ArrangementCreator {
                                             $('#every_x_datemonth_of_year_radio').prop("checked", true);
                                             $('#every_x_of_month__date').val(serie.pattern.day_index);
                                             document.querySelector("#every_x_of_month__month").setAttribute("init_value", serie.pattern.month);
-
                                             break;
                                         case "yearly__every_arbitrary_weekday_in_month":
                                             $('#every_x_dynamic_day_in_month_radio').prop("checked", true);

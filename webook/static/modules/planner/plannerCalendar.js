@@ -77,11 +77,16 @@ export class PlannerCalendar extends FullCalendarBased {
         
         this._listenToRefreshEvents();
         this._listenToInspectArrangementEvents();
+        this._listenToInspectEvent();
     }
 
     _listenToRefreshEvents() {
-        document.addEventListener("plannerCalendar.refreshNeeded", () => {
-            this.init();
+        document.addEventListener("plannerCalendar.refreshNeeded", async () => {
+            await this.init();
+            /* Remove all shown popovers, if we refresh the events without doing this we'll be "pulling the rug" up from under the popovers, 
+            in so far as removing the elements they are anchored/bound to. In effect this puts the popover in a stuck state, in which it can't be hidden or
+            removed without refresh. Hence we do this. */
+            $(".popover").popover('hide');
         });
     }
 
@@ -93,6 +98,13 @@ export class PlannerCalendar extends FullCalendarBased {
             });
     
             this.arrangementInspectorUtility.inspect(arrangement);
+        })
+    }
+
+    _listenToInspectEvent() {
+        document.addEventListener("plannerCalendar.inspectEvent", (e) => {
+            console.log(">> ListenToInspectEvent")
+            this.eventInspectorUtility.inspect(e.detail.event_pk);
         })
     }
 
@@ -303,21 +315,6 @@ export class PlannerCalendar extends FullCalendarBased {
                 }
             ],
 
-
-            // eventContent: (arg) => {
-            //     var icon_class = arg.event.extendedProps.icon;
-            //     let html = `<span class="h6"
-            //                         data-toggle='tooltip'
-            //                         title='Right click me to get options'>
-  
-            //                     <span class='text-white ms-2'>
-            //                         <i class='${icon_class}'></i>
-            //                     </span>
-            //                     <em class='small'>${arg.event.extendedProps.starts} - ${arg.event.extendedProps.ends}</em>
-            //                     ${arg.event.title}
-            //                 </span>`
-            //     return { html: html }
-            // },
             eventDidMount: (arg) => {
                 this._bindPopover(arg.el);
                 this._bindInspectorTrigger(arg.el);
@@ -326,21 +323,6 @@ export class PlannerCalendar extends FullCalendarBased {
                     className: "",
                     selector: ".fc-event",
                     items: {
-                        // open: {
-                        //     name: "Åpne arrangement",
-                        //     icon: "",
-                        //     isHtmlName: false,
-                        //     callback: (key, opt) => {
-                        //         location.href = "/arrangement/arrangement/" + this._findSlugFromEl(opt.$trigger[0]);
-                        //     }
-                        // },
-                        // edit: {
-                        //     name: "Rediger arrangement",
-                        //     callback: (key, opt) => {
-                        //         location.href = "/arrangement/arrangement/edit/" + this._findSlugFromEl(opt.$trigger[0]);
-                        //     }
-                        // },
-                        // separator: { "type": "cm_separator" },
                         arrangement_inspector: {
                             name: "Inspiser arrangement",
                             callback: (key, opt) => {

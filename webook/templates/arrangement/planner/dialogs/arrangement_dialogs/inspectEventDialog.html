@@ -2,16 +2,6 @@
 
 
 <div id="inspectEventDialog" title="Inspiser tidspunkt">
-    <!-- <div class="clearfix mb-3">
-        <button class="float-start btn btn-sm shadow-0 btn-dark">
-            <i class="fas fa-clipboard"></i>
-            Notater&nbsp;
-            <div class="badge badge-info">0</div>
-        </button>
-        <button class="btn btn-sm shadow-0 btn-danger float-end"><i class="fas fa-trash"></i></button>
-        <button class="btn btn-sm shadow-0 btn-info float-end me-2"><i class="fas fa-copy"></i></button>
-    </div> -->
-
     <button class="btn btn-danger mb-3" onclick="inspectEventDialog__delete()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
 
     <div class="border border-1 bg-secondary rounded-4 mb-2 p-3">
@@ -79,12 +69,12 @@
                     <div class="col-8">
                         <input type="date" class="form-control" 
                                 name="{{form.start.name}}_date" id="{{form.start.id_for_label}}_date"
-                                value="{{ form.start.value|date:'Y-m-d' }}">
+                                value="{{ start_t|date:'Y-m-d' }}">
                     </div>
                     <div class="col-4">
                         <input type="time" class="form-control" 
                                 name="{{ form.start.name }}_time" id="{{ form.start.name }}_time" 
-                                value="{{ form.start.value|date:'H:i' }}">
+                                value="{{ start_t|date:'H:i' }}">
                     </div>
                 </div>
             </div>
@@ -95,20 +85,18 @@
                     <div class="col-8">
                         <input type="date" class="form-control" 
                                 name="{{ form.end.name }}_date" id="{{ form.end.id_for_label }}_date"
-                                value="{{ form.end.value|date:'Y-m-d' }}">
+                                value="{{ end_t|date:'Y-m-d' }}">
                     </div>
                     <div class="col-4">
                         <input type="time" class="form-control" 
                                 name="{{form.end.name}}_time" id="{{ form.end.name }}_time"
-                                value="{{ form.end.value|date:'H:i' }}" >
+                                value="{{ end_t|date:'H:i' }}" >
                     </div>
                 </div>
             </div>
 
             <div class="mt-2">
-                <label for="title">
-                    Display layouts:
-                </label>
+                <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
                 {{form.display_layouts}}
             </div>
 
@@ -293,13 +281,15 @@
     function inspectEventDialog__save() {
         let formData = new FormData();
         var start = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
-        var end = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
+        var end = new Date( $('#id_end_date').val() + "T" + $('#end_time').val() ).toISOString();
 
         formData.append("id",           '{{object.pk}}');
         formData.append("title",        $('#id_title').val());
         formData.append("title_en",     $('#id_title_en').val());
         formData.append("start",        start);
         formData.append("end",          end);
+        formData.append("expected_visitors", $('#id_expected_visitors').val());
+        formData.append("actual_visitors", $('#id_actual_visitors').val())
         formData.append("arrangement", '{{object.arrangement.pk}}');
         formData.append("people",       inspectEventDialog__getSelectedPeopleIds());
         formData.append("rooms",        inspectEventDialog__getSelectedRoomIds());

@@ -1,0 +1,58 @@
+{% load static i18n %}
+
+
+<div id="uploadFilesToEventSerieDialog" title="Last opp filer til tidsplan" class="bg-white">
+    <form action="" enctype="application/x-www-form-urlencoded" id="uploadFilesToEventSerieDialog__form">
+        <input type="hidden" name="event_serie_pk" value="{{ event_serie_pk }}">
+
+        <div class="file-upload-wrapper">
+            <input type="file"
+                id="input-file-now"
+                name="file_field"
+                class="file-upload-input"
+                multiple="true"
+                data-mdb-file-upload="file-upload" />
+        </div>
+
+        {% csrf_token %}
+
+        <div class="clearfix">
+            <button class="btn btn-sm btn-block btn-secondary float-end shadow-0"
+                type="submit">
+                <i class="fa fa-upload"></i>
+                {% trans "Upload" %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        const fileUploadEl = document.querySelector("#input-file-now");
+        const fileUploadInstance = new FileUpload(fileUploadEl);
+
+        $('#uploadFilesToEventSerieDialog__form').on('submit', function (e) {
+            e.preventDefault();
+            e.returnValue = false;
+
+            var form = $('#uploadFilesToEventSerieDialog__form')[0];
+            var formData = new FormData(form);
+
+            $.ajax({
+                url: "{% url "arrangement:upload_files_to_event_serie" %}",
+                data: formData,
+                type: 'POST',
+                contentType: false,
+                processData: false,
+                complete: function () {
+                    document.dispatchEvent(
+                        new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
+                            dialog: "uploadFilesToEventSerieDialog",
+                        }})
+                    )
+                }
+            })
+        });
+
+    });
+</script>

@@ -95,7 +95,7 @@ export class ArrangementInspector {
                             document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                         },
                         onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
-                        dialogOptions: { width: 800, height: 800,  closeText: "haaaaaaa"  }
+                        dialogOptions: { width: 800, height: 800  }
                     }),
                 ],
                 [
@@ -126,8 +126,23 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered"); },
-                        onUpdatedCallback: ( ) => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("addPlannerDialog"); },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("addPlannerDialog"); },
                         dialogOptions: { width: 400 }
+                    })
+                ],
+                [
+                    "uploadFilesToEventSerieDialog",
+                    new Dialog({
+                        dialogElementId: "uploadFilesToEventSerieDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/upload_files_to_event_serie?event_serie_pk=" + context.lastTriggererDetails.event_serie_pk)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { console.info("Upload files to event serie dialog rendered") },
+                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("uploadFilesToEventSerieDialog"); },
+                        dialogOptions: { width: 400 },
                     })
                 ],
                 [
@@ -150,10 +165,34 @@ export class ArrangementInspector {
                         dialogOptions: { width: 700 },
                         onSubmit: async (context, details) => { 
 
-
                             var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
                                 var events = SeriesUtil.calculate_serie(serie);
                                 var formData = new FormData();
+
+                                formData.append("saveAsSerie", true); // Special parameter to instruct to save event batch as a serie.
+                                formData.append("manifest.pattern", serie.pattern.pattern_type);
+                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
+                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
+                                formData.append("manifest.startDate", serie.time_area.start_date);
+                                formData.append("manifest.startTime", serie.time.start);
+                                formData.append("manifest.endTime", serie.time.end);
+                                formData.append("manifest.ticketCode", serie.time.ticket_code);
+                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
+                                formData.append("manifest.title", serie.time.title);
+                                formData.append("manifest.title_en", serie.time.title_en);
+                                formData.append("manifest.rooms", serie.rooms);
+                                formData.append("manifest.people", serie.people);
+                                formData.append("manifest.displayLayouts", serie.display_layouts);
+
+                                if (serie.time_area.stop_within !== undefined) {
+                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
+                                }
+                                if (serie.time_area.instances !== undefined) {
+                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
+                                }
+                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
+                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
+                                }
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
@@ -230,6 +269,227 @@ export class ArrangementInspector {
 
                             registerEvents(events, context.arrangement.arrangement_pk, details.csrf_token);
                         }
+                    })
+                ],
+                [
+                    "editEventSerieDialog",
+                    new Dialog({
+                        dialogElementId: "editEventSerieDialog",
+                        customTriggerName: "editEventSerieDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementInspector&dialog=editEventSerieDialog&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback:  async (dialogManager, context) => {
+                            var manifest = await fetch(`/arrangement/eventSerie/${context.lastTriggererDetails.event_serie_pk}/manifest`, {
+                                method: "GET"
+                            }).then(response => response.json())
+                            
+                            $('#serie_uuid').attr("value", context.lastTriggererDetails.event_serie_pk);
+                            $('#serie_title').val(manifest.title);
+                            $('#serie_title_en').attr("value", manifest.title_en);
+                            $('#serie_expected_visitors').attr("value", manifest.expected_visitors);
+                            $('#serie_ticket_code').attr("value", manifest.ticket_code);
+                            $('#area_start_date').attr("value", manifest.start_date);
+                            $('#serie_start').attr("value", manifest.start_time);
+                            $('#serie_end').attr("value", manifest.end_time);
+
+                            if (manifest.rooms.length > 0) {
+                                var roomSelectContext = Object();
+                                roomSelectContext.rooms = manifest.rooms.map(a => a.id).join(",");
+                                roomSelectContext.room_name_map = new Map();
+
+                                for (let i = 0; i < manifest.rooms.length; i++) {
+                                    let room = manifest.rooms[i];
+                                    roomSelectContext.room_name_map.set(String(room.id), room.name);
+                                }
+
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementInspector.d2_roomsSelected",
+                                    { detail: {
+                                        context: roomSelectContext
+                                    } }
+                                ));
+                            }
+                            if (manifest.people.length > 0) {
+                                var peopleSelectContext = Object();
+                                peopleSelectContext.people = manifest.people.map(a => a.id).join(",");
+                                peopleSelectContext.people_name_map = new Map();
+
+                                for (let i = 0; i < manifest.people.length; i++) {
+                                    let person = manifest.people[i];
+                                    peopleSelectContext.people_name_map.set(String(person.id), person.name);
+                                }
+
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementInspector.d2_peopleSelected",
+                                    { detail: {
+                                        context: peopleSelectContext
+                                    } }
+                                ));
+                            }
+
+                            manifest.display_layouts.forEach(display_layout => {
+                                $('#id_display_layouts_serie_planner_' + String(parseInt(display_layout.id)))
+                                    .prop( "checked", true );
+                            })
+
+                            switch(manifest.recurrence_strategy) {
+                                case "StopWithin":
+                                    $('#radio_timeAreaMethod_stopWithin').prop("checked", true).click();
+                                    $('#area_stopWithin').val(manifest.stop_within);
+                                    break;
+                                case "StopAfterXInstances":
+                                    $('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true).click();
+                                    $('#area_stopAfterXInstances').val(manifest.stop_after_x_occurences);
+                                    break;
+                                case "NoStopDate":
+                                    $('#radio_timeAreaMethod_noStopDate').prop("checked", true).click();
+                                    $('#area_noStop_projectXMonths').val(manifest.project_x_months_into_future);
+                                    break;
+                            }
+
+                            switch (manifest.pattern) {
+                                case "daily":
+                                    $('#radio_pattern_daily').prop("checked", true).click();
+
+                                    switch(manifest.pattern_strategy) {
+                                        case "daily__every_x_day":
+                                            $('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
+                                            $('#every_x_day__interval').val(parseInt(manifest.strategy_specific.interval));
+                                            break;
+                                        case "daily__every_weekday":
+                                            $('#radio_pattern_daily_every_weekday_subroute').prop("checked", true);
+                                            break;
+                                    }
+                                    break;
+                                case "weekly":
+                                    $('#radio_pattern_weekly').prop("checked", true).click();
+                                    $("#week_interval").val(parseInt(manifest.strategy_specific.interval));
+                                    
+                                    var days = [
+                                        $("#monday"),
+                                        $("#tuesday"),
+                                        $("#wednesday"),
+                                        $("#thursday"),
+                                        $("#friday"),
+                                        $("#saturday"),
+                                        $("#sunday"),
+                                    ]
+
+                                    for (var i = 0; i < manifest.strategy_specific.days.length; i++) {
+                                        if (manifest.strategy_specific.days[i] == true) {
+                                            days[i].attr("checked", true);
+                                        }
+                                    }
+
+                                    break;
+                                case "monthly":
+                                    $('#radio_pattern_monthly').prop("checked", true).click();
+                                    switch(manifest.pattern_strategy) {
+                                        case "month__every_x_day_every_y_month":
+                                            $('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
+                                            $('#every_x_day_every_y_month__day_of_month').val(manifest.strategy_specific.day_of_month);
+                                            $("#every_x_day_every_y_month__month_interval").val(parseInt(manifest.strategy_specific.interval));
+                                            break;
+                                        case "month__every_arbitrary_date_of_month":
+                                            $('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
+                                            $('#every_dynamic_date_of_month__arbitrator').val(manifest.strategy_specific.arbitrator);
+                                            $('#every_dynamic_date_of_month__weekday').val(manifest.strategy_specific.day_of_week);
+                                            $('#every_dynamic_date_of_month__month_interval').val(manifest.strategy_specific.interval);
+                                            break;
+                                    }
+                                    break;
+                                case "yearly":
+                                    $('#radio_pattern_yearly').prop("checked", true).click();
+                                    $('#pattern_yearly_const__year_interval').val(manifest.strategy_specific.interval);
+                                    switch(manifest.pattern_strategy) {
+                                        case "yearly__every_x_of_month":
+                                            $('#every_x_datemonth_of_year_radio').prop("checked", true);
+                                            $('#every_x_of_month__date').val(manifest.strategy_specific.day_of_month);
+                                            $('#every_x_of_month__month').val(manifest.strategy_specific.month);
+                                            break;
+                                        case "yearly__every_arbitrary_weekday_in_month":
+                                            $('#every_x_dynamic_day_in_month_radio').prop("checked", true);
+                                            $('#every_arbitrary_weekday_in_month__arbitrator').val(manifest.strategy_specific.arbitrator);
+                                            $('#every_arbitrary_weekday_in_month__weekday').val(manifest.strategy_specific.day_of_week);
+                                            $('#every_arbitrary_weekday_in_month__month').val(manifest.strategy_specific.month);                         
+                                            break;
+                                    }
+                                    break;
+                            }
+
+                            if (manifest.pattern !== "daily") {
+                                $('#patternRoute_daily').hide();
+                            }
+                         },
+                        onUpdatedCallback: () => {
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("editEventSerieDialog");
+                        },
+                        onSubmit:  async (context, details) => { 
+                            var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
+                                var events = SeriesUtil.calculate_serie(serie);
+                                var formData = new FormData();
+
+                                formData.append("saveAsSerie", true); // Special parameter to instruct to save event batch as a serie.
+                                formData.append("predecessorSerie", serie._uuid); // The preceding serie must be removed.
+                                formData.append("manifest.pattern", serie.pattern.pattern_type);
+                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
+                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
+                                formData.append("manifest.startDate", serie.time_area.start_date);
+                                formData.append("manifest.startTime", serie.time.start);
+                                formData.append("manifest.endTime", serie.time.end);
+                                formData.append("manifest.ticketCode", serie.time.ticket_code);
+                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
+                                formData.append("manifest.title", serie.time.title);
+                                formData.append("manifest.title_en", serie.time.title_en);
+                                formData.append("manifest.rooms", serie.rooms);
+                                formData.append("manifest.people", serie.people);
+                                formData.append("manifest.displayLayouts", serie.display_layouts);
+
+                                if (serie.time_area.stop_within !== undefined) {
+                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
+                                }
+                                if (serie.time_area.instances !== undefined) {
+                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
+                                }
+                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
+                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
+                                }
+
+                                for (let i = 0; i < events.length; i++) {
+                                    var event = events[i];
+                                    event.arrangement=arrangementId;
+                                    event.start = event.from.toISOString();
+                                    event.end=event.to.toISOString();
+                                    event.ticket_code = ticket_code;
+                                    event.expected_visitors = serie.time.expected_visitors;
+                                    event.rooms = serie.rooms;
+                                    event.people = serie.people;
+                                    
+                                    for (var key in event) {
+                                        formData.append("events[" + i + "]." + key, event[key]);
+                                    }
+                                }
+
+                                await fetch("/arrangement/planner/create_events/", {
+                                    method:"POST",
+                                    body: formData,
+                                    headers: {
+                                        "X-CSRFToken": csrf_token
+                                    },
+                                    credentials: 'same-origin',
+                                }).then(_ => { 
+                                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                                })
+                            }
+
+                            await registerSerie( details.serie, context.arrangement.arrangement_pk, details.csrf_token )
+                        },
+                        dialogOptions: { width: 700 }
                     })
                 ],
                 [
