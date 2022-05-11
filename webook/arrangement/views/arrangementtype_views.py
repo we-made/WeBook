@@ -14,7 +14,7 @@ from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, ArrangementType
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from webook.arrangement.views.search_view import SearchView
+from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs

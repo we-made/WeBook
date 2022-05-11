@@ -17,7 +17,7 @@ from django.core import serializers
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location, Room, BusinessHour
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
-from webook.arrangement.views.search_view import SearchView
+from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 import json
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
