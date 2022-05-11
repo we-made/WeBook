@@ -52,6 +52,10 @@ delete_event_serie_view = DeleteEventSerie.as_view()
 
 
 class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
+    """
+        EventSerieManifestView takes a given EventSerie, and serves the manifest used to generate
+        that serie out in JSON format.
+    """
     model = PlanManifest
     pk_url_kwarg = "pk"
 
