@@ -81,6 +81,18 @@ div.modal-body > .bootbox-close-button {
   font-family: 'Akshar', sans-serif!important;
 }
 
+
+.list-group-light > .list-group-item.active {
+  background-color: whitesmoke;
+  color:black;
+}
+.list-group > .list-group-item {
+  border-radius: 0.6em;
+}
+.list-group > .list-group-item{
+  margin: 0.1em;
+}
+
 .header-fonted {
   /* font-family: 'Akshar', sans-serif!important; */
 }
