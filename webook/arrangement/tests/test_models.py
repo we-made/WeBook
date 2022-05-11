@@ -17,7 +17,7 @@ from webook.arrangement.models import (
     Note,
     OrganizationType,
     Room,
-    ServiceProvider,
+    ServiceProvidable,
     ServiceType,
     TimelineEvent,
     Person,
@@ -84,7 +84,7 @@ def test_service_type__str__():
 def test_business_hour__str__():
     business_hour = BusinessHour()
     business_hour.start_of_business_hours = time(7, 0)
-    business_hour.end_of_business_hours = time(14, 0) 
+    business_hour.end_of_business_hours = time(14, 0)
     assert business_hour.__str__() == "07:00:00 - 14:00:00"
     assert str(business_hour) == "07:00:00 - 14:00:00"
 
@@ -144,7 +144,7 @@ def test_organization__str__():
 
 
 def test_service_provider__str__():
-    service_provider = ServiceProvider()
+    service_provider = ServiceProvidable()
     service_provider.service_name = "Code Testing"
 
     service_type = ServiceType()
