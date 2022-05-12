@@ -151,7 +151,8 @@ export class ArrangementInspector {
                         dialogElementId: "newTimePlanDialog",
                         triggerElementId: "mainPlannerDialog__newTimePlan",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
+                        dialogElementId:
+                            return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&dialog=newTimePlanDialog&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { 
