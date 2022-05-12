@@ -10,7 +10,6 @@ from .organizationtype_urls import organizationtype_urls
 from .person_urls import person_urls
 from .room_urls import room_urls
 from .servicetype_urls import servicetype_urls
-from .statistics_urls import statistics_urls
 from .planner_urls import planner_urls
 from .note_urls import note_urls
 from .requisition_urls import requisition_urls
@@ -34,7 +33,6 @@ urlpatterns.extend(organizationtype_urls)
 urlpatterns.extend(person_urls)
 urlpatterns.extend(room_urls)
 urlpatterns.extend(servicetype_urls)
-urlpatterns.extend(statistics_urls)
 urlpatterns.extend(planner_urls)
 urlpatterns.extend(note_urls)
 urlpatterns.extend(requisition_urls)

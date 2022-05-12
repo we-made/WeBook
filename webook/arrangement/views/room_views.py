@@ -17,7 +17,7 @@ from django.core import serializers
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Location, Room, BusinessHour
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
-from webook.arrangement.views.search_view import SearchView
+from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 import json
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -108,6 +108,7 @@ class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Ar
 
 room_delete_view = RoomDeleteView.as_view()
 
+
 class SearchRoomsAjax (LoginRequiredMixin, SearchView):
     model = Room
 
@@ -121,8 +122,8 @@ class SearchRoomsAjax (LoginRequiredMixin, SearchView):
 
         return rooms
 
-
 search_room_ajax_view = SearchRoomsAjax.as_view();
+
 
 class LocationRoomListView (LoginRequiredMixin, ListView):
     model = Location
@@ -138,7 +139,6 @@ location_room_list_view = LocationRoomListView.as_view()
 
 
 class SearchRoomsAjax (LoginRequiredMixin, SearchView):
-
     model = Room
 
     def search (self, search_term):

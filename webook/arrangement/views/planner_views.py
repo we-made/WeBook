@@ -490,8 +490,14 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                 "Start and end must be supplied."
             )
 
-        start = parser.parse(start).isoformat()
-        end = parser.parse(end).isoformat()
+        try:
+            start = parser.parse(start).isoformat()
+            end = parser.parse(end).isoformat()
+        except TypeError:
+            return HttpResponse(
+                json.dumps([], default=json_serial),
+                content_type="application/json",
+            )
 
         db_vendor = connection.vendor
 

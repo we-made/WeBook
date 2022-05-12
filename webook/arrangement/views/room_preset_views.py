@@ -49,6 +49,7 @@ def get_section_manifest():
         )
     )
 
+
 class RoomPresetsSectionManifestMixin:
     def __init__(self) -> None:
         super().__init__()

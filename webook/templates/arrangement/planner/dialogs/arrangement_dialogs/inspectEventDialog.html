@@ -18,9 +18,8 @@
 
     <div style="max-height: 300px;">
         <div>
-            <h4>Informasjon</h4>
             <div>
-                <label for="{{form.title.id_for_label}}">
+                <label for="{{form.title.id_for_label}}" class="">
                     Tittel
                 </label>
                 <input type="text" class="form-control"
@@ -274,8 +273,6 @@
                 });
             }
         })
-
-
     }
 
     function inspectEventDialog__save() {
@@ -286,6 +283,7 @@
         formData.append("id",           '{{object.pk}}');
         formData.append("title",        $('#id_title').val());
         formData.append("title_en",     $('#id_title_en').val());
+        formData.append("ticket_code",  $('#id_ticket_code').val())
         formData.append("start",        start);
         formData.append("end",          end);
         formData.append("expected_visitors", $('#id_expected_visitors').val());
@@ -365,24 +363,5 @@
 
         return rooms;
       };
-
-      var personAutocomplete = new mdb.Autocomplete(document.getElementById('personAutocomplete'), {
-        filter: personAsyncFilter,
-        displayValue: (value) => [value.first_name, value.middle_name, value.last_name].join(" ")
-      });
-      var roomAutocomplete = new mdb.Autocomplete(document.getElementById('roomAutoComplete'), {
-        filter: roomAsyncFilter,
-        displayValue: (value) => value.name
-      });
-
-      $("#personAutocomplete").on("itemSelect.mdb.autocomplete", function (ev) {
-          peopleMap.set(ev.value.id, ev.value);
-          $('#peopleTableBody').append("<tr person-key='" + ev.value.id  + "'><td>" + [ev.value.first_name, ev.value.middle_name, ev.value.last_name].join(" ") + "</td><td><a href='#' onclick='removePerson(this.parentElement.parentElement)'><i class='fas fa-minus text-danger'></i></td>");
-          personAutoCompleteEl.children[0].value = ""
-      })
-      $("#roomAutoComplete").on("itemSelect.mdb.autocomplete", function (ev) {
-          roomsMap.set(ev.value.id, ev.value);
-          $('#roomsTableBody').append("<tr room-key='" + ev.value.id  + "'><td>" + ev.value.name + "</td><td><a href='#' onclick='removeRoom(this.parentElement.parentElement)'><i class='fas fa-minus text-danger'></i></td>");
-      })
     })
 </script>

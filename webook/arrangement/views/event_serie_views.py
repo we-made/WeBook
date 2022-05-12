@@ -23,7 +23,7 @@ from webook.arrangement.forms.add_planner_form import AddPlannerForm
 from webook.arrangement.models import Arrangement, ArrangementFile, EventSerie, EventSerieFile, Person, PlanManifest
 from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
-from webook.arrangement.views.search_view import SearchView
+from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from django.views.generic.edit import FormView
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
@@ -52,6 +52,10 @@ delete_event_serie_view = DeleteEventSerie.as_view()
 
 
 class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
+    """
+        EventSerieManifestView takes a given EventSerie, and serves the manifest used to generate
+        that serie out in JSON format.
+    """
     model = PlanManifest
     pk_url_kwarg = "pk"
 

@@ -22,7 +22,7 @@ from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils.section_manifest import ViewMeta
-from webook.arrangement.views.search_view import SearchView
+from webook.arrangement.views.generic_views.search_view import SearchView
 
 
 def get_section_manifest():
@@ -98,7 +98,6 @@ class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin
             "url": reverse_lazy("arrangement:servicetype_list"),
         }
     }
-
 
 service_type_create_view = ServiceTypeCreateView.as_view()
 

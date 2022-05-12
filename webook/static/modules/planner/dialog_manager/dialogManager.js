@@ -26,8 +26,8 @@
             $('body')
                 .append(await this.htmlFabricator(context))
                 .ready( () => {
+                    this._$getDialogEl().dialog( this.dialogOptions );
                     this.onRenderedCallback(this, context);
-                    this._$getDialogEl().dialog( this.dialogOptions );    
                     this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
                         .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>");
                 });
@@ -66,7 +66,14 @@
     }
 
     prepareDOM() {
-        var elements = document.querySelectorAll("#" + this.dialogElementId);
+
+        var selector = `#${this.dialogElementId}`
+        if (this.dialogElementId == "editEventSerieDialog") {
+            selector += ",#newTimePlanDialog";
+        }
+
+        var elements = document.querySelectorAll(selector);
+
         elements.forEach(element => {
             element.remove();
         })

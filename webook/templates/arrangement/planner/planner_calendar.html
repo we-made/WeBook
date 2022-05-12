@@ -84,18 +84,15 @@
 
 
         <div class="mt-4" id="plannerCalendarFilter">
-            <h4>Typer</h4>
-            <div>
-                <label for="">Arrangementstyper</label>
-                <select class="select" id="plannerCalendarFilter_arrangementTypes" multiple>
+            <div class="mb-2">
+                <select class="select form-control" id="plannerCalendarFilter_arrangementTypes" data-mdb-placeholder="Filtrer blant arrangementstyper..." multiple>
                     {% for arrangement_type in ARRANGEMENT_TYPES %}
                         <option value="{{arrangement_type.slug}}">{{arrangement_type}}</option>
                     {% endfor %}
                 </select>
             </div>
             <div>
-                <label for="">Målgrupper</label>
-                <select class="select" id="plannerCalendarFilter_audiences" multiple>
+                <select class="select" id="plannerCalendarFilter_audiences" data-mdb-placeholder="Filtrer blant målgrupper..."  multiple>
                     {% for audience in AUDIENCES %}
                         <option value="{{audience.slug}}">{{audience}}</option>
                     {% endfor %}
@@ -116,6 +113,25 @@
                         </div>
                     </div>
                 </div> -->
+                <div class="mt-2">
+                    {% for location in LOCATIONS %}
+                    <!-- <div class="list-group list-group-light">
+                        <span  class="list-group-item list-group-item-action  px-3 border-0" aria-current="true">
+                            <i class="fas fa-chevron-down"></i>&nbsp; 
+                            <input type="checkbox" name="" id="">
+                            {{location}}
+
+                            <button class="btn btn-sm d-inline btn-white float-end shadow-0">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                            <button class="btn btn-sm d-inline btn-white float-end shadow-0 me-2">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </span>
+                      </div> -->
+                    {% endfor %}
+
+                </div>
                 <div class="mt-2">
                         <table class="table table-sm" id="filter_locationsTable">
                             <tbody>
@@ -220,6 +236,7 @@
         </div> -->
     </div>
     <div class="col-10">
+        <h2 id="plannerCalendarHeader"></h2>
         <div class="clearfix">
             <div class="float-start">
                 <ul class="nav nav-tabs rounded-top mt-4 fc-tabs" style="display: none;" id="navTabs" role="tablist">
