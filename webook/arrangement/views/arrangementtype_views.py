@@ -77,11 +77,11 @@ class ArrangementTypeCreateView(LoginRequiredMixin, ArrangementTypeSectionManife
 
     success_urls_and_messages = { 
         "submitAndNew": { 
-            "url": reverse_lazy( "arrangement:audience_create" ),
+            "url": reverse_lazy( "arrangement:arrangement_type_create" ),
             "msg": _("Successfully created entity")
         },
         "submit": { 
-            "url": reverse_lazy("arrangement:audience_list"),
+            "url": reverse_lazy("arrangement:arrangement_type_list"),
         }
     }
 
