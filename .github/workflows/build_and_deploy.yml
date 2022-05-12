@@ -14,7 +14,7 @@ jobs:
 
       # Build and publish the docker image
       - name: Publish to DockerHub
-        uses: elgohr/Publish-Docker-Github-Action@master
+        uses: elgohr/Publish-Docker-Github-Action
         with:
           name: we-made/webook-nm
           username: ${{ github.actor }}
