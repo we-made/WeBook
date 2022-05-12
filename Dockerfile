@@ -7,7 +7,7 @@ COPY requirements/production.txt ./requirements/production.txt
 
 ENV DJANGO_DEBUG=True
 #ENV DJANGO_SECRET_KEY='THISISMYSECRETKEYTOSEIFITALLWORKS'
-ENV DJANGO_ALLOWED_HOSTS='nasjonalmuseet.webook.no'
+ENV DJANGO_ALLOWED_HOSTS='*'
 ENV DJANGO_SETTINGS_MODULE='config.settings.local'
 
 
