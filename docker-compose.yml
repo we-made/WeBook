@@ -1,7 +1,6 @@
 services:
   webook:
     image: "ghcr.io/wemadefree/webook-nm:latest"
-    build: .
     ports:
       - "8000:8000"
     volumes:
