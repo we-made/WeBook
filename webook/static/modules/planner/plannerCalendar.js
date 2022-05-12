@@ -19,6 +19,11 @@ import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
 import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
 
 
+const monthNames = ["Januar", "Februar", "Mars", "April", "Mai", "Juni",
+  "Juli", "August", "September", "Oktober", "November", "Desember"
+];
+
+
 export class PlannerCalendar extends FullCalendarBased {
 
     constructor({ 
@@ -270,6 +275,15 @@ export class PlannerCalendar extends FullCalendarBased {
                     buttonText: 'Tidslinje - År'
                 }
             },
+            datesSet: (dateInfo) => {
+                console.log(dateInfo)
+                $('#plannerCalendarHeader').text("");
+                $(".popover").popover('hide');
+
+                if (dateInfo.view.type == "timelineMonth" || dateInfo.view.type == "customTimelineMonth" || dateInfo.view.type == "dayGridMonth" || dateInfo.view.type == "customTimeGridMonth") {
+                    $('#plannerCalendarHeader').text(`${monthNames[dateInfo.start.getMonth()]} ${dateInfo.start.getFullYear()}`)
+                }
+            },
             customButtons: {
                 filterButton: {
                     text: 'Filtrering',
@@ -280,18 +294,21 @@ export class PlannerCalendar extends FullCalendarBased {
                 arrangementsCalendarButton: {
                     text: 'Arrangementer',
                     click: () => {
+                        // $('#plannerCalendarHeader').text("");
                         $('#overview-tab')[0].click();
                     }
                 },
                 locationsCalendarButton: {
                     text: 'Lokasjoner',
                     click: () => {
+                        // $('#plannerCalendarHeader').text("");
                         $('#locations-tab')[0].click();
                     }
                 },
                 peopleCalendarButton: {
                     text: 'Personer',
                     click: () => {
+                        // $('#plannerCalendarHeader').text("");
                         $('#people-tab')[0].click();
                     }
                 }

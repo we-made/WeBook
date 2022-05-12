@@ -114,7 +114,7 @@ def make_request (recipient_email: str, requested_by: Person, request_type, requ
     request = ConfirmationReceipt()
     request.code = secrets.token_urlsafe(120)
     request.sent_to = recipient_email
-    request.sent_when = datetime.datetime.now;
+    request.sent_when = datetime.datetime.now
     request.requested_by = requested_by
     request.type = request_type
     request.save()

@@ -14,7 +14,7 @@ from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, ArrangementType
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from webook.arrangement.views.search_view import SearchView
+from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
@@ -77,11 +77,11 @@ class ArrangementTypeCreateView(LoginRequiredMixin, ArrangementTypeSectionManife
 
     success_urls_and_messages = { 
         "submitAndNew": { 
-            "url": reverse_lazy( "arrangement:audience_create" ),
+            "url": reverse_lazy( "arrangement:arrangement_type_create" ),
             "msg": _("Successfully created entity")
         },
         "submit": { 
-            "url": reverse_lazy("arrangement:audience_list"),
+            "url": reverse_lazy("arrangement:arrangement_type_list"),
         }
     }
 

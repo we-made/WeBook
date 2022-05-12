@@ -151,7 +151,8 @@ export class ArrangementInspector {
                         dialogElementId: "newTimePlanDialog",
                         triggerElementId: "mainPlannerDialog__newTimePlan",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
+                        dialogElementId:
+                            return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&dialog=newTimePlanDialog&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { 
@@ -183,6 +184,49 @@ export class ArrangementInspector {
                                 formData.append("manifest.rooms", serie.rooms);
                                 formData.append("manifest.people", serie.people);
                                 formData.append("manifest.displayLayouts", serie.display_layouts);
+
+                                switch(serie.pattern.pattern_type) {
+                                    case "daily":
+                                        if (serie.pattern.pattern_routine === "daily__every_x_day") {
+                                            formData.append("manifest.interval", serie.pattern.interval);
+                                        }
+                                        break;
+                                    case "weekly":
+                                        formData.append("manifest.interval", serie.pattern.week_interval);
+                                        var count = 0;
+                                        for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
+                                            formData.append(`manifest.${day}`, serie.pattern.days.get(count));
+                                            count++;
+                                        }
+                                        break;
+                                    case "monthly":
+                                        switch (serie.pattern.pattern_routine) {
+                                            case "month__every_x_day_every_y_month":
+                                                formData.append("manifest.interval", serie.pattern.interval);
+                                                formData.append("manifest.day_of_month", serie.pattern.day_of_month);
+                                                break;
+                                            case "month__every_arbitrary_date_of_month":
+                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
+                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
+                                                formData.append("manifest.interval", serie.pattern.interval);
+                                                break;
+                                        }
+                                        break;
+                                    case "yearly":
+                                        formData.append("manifest.interval", serie.pattern.year_interval);
+                                        switch (serie.pattern.pattern_routine) {
+                                            case "yearly__every_x_of_month":
+                                                formData.append("manifest.day_of_month", serie.pattern.day_index);
+                                                formData.append("manifest.month", serie.pattern.month);
+                                                break;
+                                            case "yearly__every_arbitrary_weekday_in_month":
+                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
+                                                formData.append("manifest.month", serie.pattern.month);
+                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
+                                                break;
+                                        }
+                                        break;
+                                }
 
                                 if (serie.time_area.stop_within !== undefined) {
                                     formData.append("manifest.stopWithin", serie.time_area.stop_within);
@@ -340,14 +384,17 @@ export class ArrangementInspector {
                                 case "StopWithin":
                                     $('#radio_timeAreaMethod_stopWithin').prop("checked", true).click();
                                     $('#area_stopWithin').val(manifest.stop_within);
+                                    $('#area_stopWithin').removeAttr("disabled");
                                     break;
                                 case "StopAfterXInstances":
                                     $('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true).click();
                                     $('#area_stopAfterXInstances').val(manifest.stop_after_x_occurences);
+                                    $('#area_stopAfterXInstances').removeAttr("disabled");
                                     break;
                                 case "NoStopDate":
                                     $('#radio_timeAreaMethod_noStopDate').prop("checked", true).click();
                                     $('#area_noStop_projectXMonths').val(manifest.project_x_months_into_future);
+                                    $('#area_noStop_projectXMonths').removeAttr("disabled");
                                     break;
                             }
 
@@ -359,6 +406,7 @@ export class ArrangementInspector {
                                         case "daily__every_x_day":
                                             $('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
                                             $('#every_x_day__interval').val(parseInt(manifest.strategy_specific.interval));
+                                            $('#every_x_day__interval').removeAttr("disabled");
                                             break;
                                         case "daily__every_weekday":
                                             $('#radio_pattern_daily_every_weekday_subroute').prop("checked", true);
@@ -449,6 +497,49 @@ export class ArrangementInspector {
                                 formData.append("manifest.rooms", serie.rooms);
                                 formData.append("manifest.people", serie.people);
                                 formData.append("manifest.displayLayouts", serie.display_layouts);
+
+                                switch(serie.pattern.pattern_type) {
+                                    case "daily":
+                                        if (serie.pattern.pattern_routine === "daily__every_x_day") {
+                                            formData.append("manifest.interval", serie.pattern.interval);
+                                        }
+                                        break;
+                                    case "weekly":
+                                        formData.append("manifest.interval", serie.pattern.week_interval);
+                                        var count = 0;
+                                        for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
+                                            formData.append(`manifest.${day}`, serie.pattern.days.get(count));
+                                            count++;
+                                        }
+                                        break;
+                                    case "monthly":
+                                        switch (serie.pattern.pattern_routine) {
+                                            case "month__every_x_day_every_y_month":
+                                                formData.append("manifest.interval", serie.pattern.interval);
+                                                formData.append("manifest.day_of_month", serie.pattern.day_of_month);
+                                                break;
+                                            case "month__every_arbitrary_date_of_month":
+                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
+                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
+                                                formData.append("manifest.interval", serie.pattern.interval);
+                                                break;
+                                        }
+                                        break;
+                                    case "yearly":
+                                        formData.append("manifest.interval", serie.pattern.year_interval);
+                                        switch (serie.pattern.pattern_routine) {
+                                            case "yearly__every_x_of_month":
+                                                formData.append("manifest.day_of_month", serie.pattern.day_index);
+                                                formData.append("manifest.month", serie.pattern.month);
+                                                break;
+                                            case "yearly__every_arbitrary_weekday_in_month":
+                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
+                                                formData.append("manifest.month", serie.pattern.month);
+                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
+                                                break;
+                                        }
+                                        break;
+                                }
 
                                 if (serie.time_area.stop_within !== undefined) {
                                     formData.append("manifest.stopWithin", serie.time_area.stop_within);

@@ -562,6 +562,7 @@
     }
 
     function mainPlannerDialog__openEditEvent(event_pk) {
+        console.log(">> plannerCalendar edit event", event_pk)
         document.dispatchEvent(
             new CustomEvent("plannerCalendar.inspectEvent", { "detail": {
                 event_pk: event_pk
@@ -698,35 +699,6 @@
             )
         })
     }
-
-    $(document).ready(function () {
-        const fileUploadEl = document.querySelector("#input-file-now");
-        const fileUploadInstance = new FileUpload(fileUploadEl);
-
-        $('#uploadFilesToArrangementDialog__uploadForm').on('submit', function (e) {
-            e.preventDefault();
-            e.returnValue = false;
-
-            var form = $('#uploadFilesToArrangementDialog__uploadForm')[0];
-            var formData = new FormData(form);
-
-            $.ajax({
-                url: "",
-                data: formData,
-                type: 'POST',
-                contentType: false,
-                processData: false,
-                complete: function () {
-                    document.dispatchEvent(
-                        new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
-                            dialog: "uploadFilesToArrangementDialog",
-                        }})
-                    )
-                }
-            })
-        });
-
-    });
 
     function mainPlannerDialog__removePlanners() {
         var planners = $('#mainPlannerDialog_plannersSelect').val().join(",");
