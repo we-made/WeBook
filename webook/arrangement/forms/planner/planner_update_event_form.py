@@ -1,5 +1,4 @@
 from django import forms
-from numpy import require
 from webook.arrangement.models import Arrangement, RoomPreset, Event
 from django.forms.widgets import CheckboxSelectMultiple
 
@@ -7,7 +6,7 @@ from django.forms.widgets import CheckboxSelectMultiple
 class PlannerUpdateEventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = (          
+        fields = (
             "title",
             "title_en",
             "start",
