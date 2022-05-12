@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Check out the current branch
-      - uses: actions/checkout
+      - uses: actions/checkout@v3
 
       # Build and publish the docker image
       - name: Publish to DockerHub
-        uses: elgohr/Publish-Docker-Github-Action
+        uses: elgohr/Publish-Docker-Github-Action@v4
         with:
           name: we-made/webook-nm
           username: ${{ github.actor }}
