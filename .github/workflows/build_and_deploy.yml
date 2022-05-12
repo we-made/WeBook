@@ -16,7 +16,7 @@ jobs:
       - name: Publish to DockerHub
         uses: elgohr/Publish-Docker-Github-Action@v4
         with:
-          name: we-made/webook-nm
+          name: wemadefree/webook-nm
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io

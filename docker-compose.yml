@@ -1,6 +1,6 @@
 services:
   webook:
-    image: "ghcr.io/we-made/webook-nm:latest"
+    image: "ghcr.io/wemadefree/webook-nm:latest"
     build: .
     ports:
       - "8000:8000"
