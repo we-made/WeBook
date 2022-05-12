@@ -20,3 +20,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
+
+      # SSH into the Azure VM and run the deployment script.
+      - name: Redeploy the application on the remote server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AZURE_NM_HOST }}
+          username: ${{ secrets.AZURE_NM_USER }}
+          key: ${{ secrets.AZURE_NM_SSH }}
+          script: |
+            cd ${{ secrets.AZURE_NM_PATH }}
+            ./deploy.sh
