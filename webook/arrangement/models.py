@@ -227,7 +227,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     )
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
+    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=True, null=True)
 
     stages = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PLANNING)
 

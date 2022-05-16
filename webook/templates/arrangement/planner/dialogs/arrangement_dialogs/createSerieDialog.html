@@ -23,7 +23,7 @@
                             <label>{% trans "Title" %} <em>(engelsk): </em></label>
                         </td>
                         <td>
-                            <input type="text" id="serie_title_en" class="form-control form-control-sm" tabindex="601" autocomplete="off" required />
+                            <input type="text" id="serie_title_en" class="form-control form-control-sm" tabindex="601" autocomplete="off" />
                         </td>
                     </tr>
                     <tr>
@@ -242,8 +242,6 @@
 </div>
 
 <script>
-
-
     var peopleNameMap = new Map();
     var roomsNameMap = new Map();
 
@@ -363,7 +361,23 @@
         }
     }
 
+    function createSerieDialog__evaluateEnTitleObligatory() {
+        var $enTitleElement = $('#serie_title_en');
+        var countSeletedDisplayLayouts = $("input[name='display_layouts_serie_planner'][type='checkbox']:checked").length;
+
+        if (countSeletedDisplayLayouts === 0) {
+            $enTitleElement.removeAttr("required");
+        }
+        else {
+            $enTitleElement.attr("required", true);
+        }
+    }
+
     $(document).ready(function () {
+        $("input[name='display_layouts_serie_planner'][type='checkbox']").on("change", (e) => {
+            createSerieDialog__evaluateEnTitleObligatory();
+        });
+
         new DayOfWeekSelectComponent('every_arbitrary_weekday_in_month__weekday');
         new MonthSelectComponent('every_arbitrary_weekday_in_month__month');
         new MonthSelectComponent('every_x_of_month__month');
