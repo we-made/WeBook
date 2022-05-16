@@ -19,7 +19,7 @@ from webook.arrangement.forms.promote_planner_to_main_form import PromotePlanner
 from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
 from webook.arrangement.forms.add_planner_form import AddPlannerForm
 from webook.arrangement.models import Arrangement, ArrangementFile, Person
-from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -30,28 +30,7 @@ from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
-def get_section_manifest():
-    return SectionManifest(
-        section_title=_("Arrangements"),
-        section_icon="fas fa-clock",
-        section_crumb_url=reverse("arrangement:arrangement_list"),
-        crudl_map=SectionCrudlPathMap(
-            detail_url="arrangement:arrangement_detail",
-            create_url="arrangement:arrangement_create",
-            edit_url="arrangement:arrangement_edit",
-            delete_url="arrangement:arrangement_delete",
-            list_url="arrangement:arrangement_list",
-        )
-    )
-
-
-class ArrangementSectionManifestMixin:
-    def __init__(self) -> None:
-        super().__init__()
-        self.section = get_section_manifest()
-
-
-class ArrangementCreateView (LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, CreateView):
+class ArrangementCreateView (LoginRequiredMixin, MetaMixin, CreateView):
     model = Arrangement
     fields = [
         "name",
@@ -86,7 +65,7 @@ class ArrangementCreateJSONView (LoginRequiredMixin, JSONResponseMixin, CreateVi
 arrangement_create_json_view = ArrangementCreateJSONView.as_view()
 
 
-class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, UpdateView):
+class ArrangementUpdateView(LoginRequiredMixin, MetaMixin, UpdateView):
     model = Arrangement
     fields = [
         "name",
@@ -108,15 +87,12 @@ class ArrangementUpdateView(LoginRequiredMixin, ArrangementSectionManifestMixin,
 arrangement_update_view = ArrangementUpdateView.as_view()
 
 
-class ArrangementDeleteView(LoginRequiredMixin, ArrangementSectionManifestMixin, MetaMixin, ArchiveView):
+class ArrangementDeleteView(LoginRequiredMixin, MetaMixin, JsonArchiveView):
     model = Arrangement
     current_crumb_title = _("Delete Arrangement")
     section_subtitle = _("Edit Arrangement")
     template_name = "arrangement/delete_view.html"
     view_meta = ViewMeta.Preset.delete(Arrangement)
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
         
 arrangement_delete_view = ArrangementDeleteView.as_view()
 
