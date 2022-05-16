@@ -15,10 +15,22 @@ from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 import webook.screenshow.models as screen_models
 
 
+class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
+    """
+        A subclassed AutoSlugField that can see both archived and non archived entities, thus
+        preventing slug collisions with entities that are archived.
+        Use in tandem with ModelArchiveableMixin.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, manager_name="all_objects")
+
+
 class ModelArchiveableMixin(models.Model):
     """ Mixin for making a model archivable """
 
     objects = ArchivedManager()
+    all_objects = models.Manager()
 
     def archive(self, person_archiving_this):
         """ Archive this object """
@@ -118,7 +130,7 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
     icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     entity_name_singular = _("Audience")
     entity_name_plural = _("Audiences")
