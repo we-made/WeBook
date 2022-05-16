@@ -40,7 +40,8 @@ from webook.arrangement.forms.remove_person_from_event_form import RemovePersonF
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
 from webook.arrangement.forms.upload_files_to_event_serie_dialog import UploadFilesToEventSerieForm
-from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.screenshow.models import DisplayLayout
 from webook.utils.json_serial import json_serial
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
@@ -337,12 +338,9 @@ class PlanGetEvents (LoginRequiredMixin, ListView):
 plan_get_events = PlanGetEvents.as_view()
 
 
-class PlanOrderService(LoginRequiredMixin, FormView):
+class PlanOrderService(LoginRequiredMixin, JsonFormView):
     form_class = LooselyOrderServiceForm
     template_name = "_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_invalid(self, form) -> HttpResponse:
         print(" >> OrderServiceForm invalid")
@@ -406,11 +404,8 @@ class PlanPeopleToRequisitionTableComponent(LoginRequiredMixin, ListView):
 plan_people_to_requisition_component_view = PlanPeopleToRequisitionTableComponent.as_view()
 
 
-class PlanDeleteEvent (LoginRequiredMixin, ArchiveView):
+class PlanDeleteEvent (LoginRequiredMixin, JsonArchiveView):
     model = Event
-    
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
 plan_delete_event = PlanDeleteEvent.as_view()
 
@@ -768,12 +763,9 @@ class PlannerArrangementAddPlannerDialog(LoginRequiredMixin, TemplateView):
 arrangement_add_planner_dialog_view = PlannerArrangementAddPlannerDialog.as_view()
 
 
-class PlannerArrangementAddPlannersFormView (LoginRequiredMixin, FormView):
+class PlannerArrangementAddPlannersFormView (LoginRequiredMixin, JsonFormView):
     form_class=AddPlannersForm
     template_name="_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -786,12 +778,9 @@ class PlannerArrangementAddPlannersFormView (LoginRequiredMixin, FormView):
 arrangement_add_planners_form_view = PlannerArrangementAddPlannersFormView.as_view()
 
 
-class PlannerArrangementRemovePlannersFormView(LoginRequiredMixin, FormView):
+class PlannerArrangementRemovePlannersFormView(LoginRequiredMixin, JsonFormView):
     form_class=RemovePlannersForm
     template_name="_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -890,12 +879,9 @@ class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, TemplateView):
 planner_calendar_order_person_dialog_view = PlannerCalendarOrderPersonDialogView.as_view()
 
 
-class PlannerCalendarOrderPersonForSeriesFormView (LoginRequiredMixin, FormView):
+class PlannerCalendarOrderPersonForSeriesFormView (LoginRequiredMixin, JsonFormView):
     form_class = OrderPersonForSerieForm
     template_name="_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -908,12 +894,9 @@ class PlannerCalendarOrderPersonForSeriesFormView (LoginRequiredMixin, FormView)
 planner_calendar_order_person_for_series_form_view = PlannerCalendarOrderPersonForSeriesFormView.as_view()
 
 
-class PlannerCalendarOrderRoomsForSeriesFormView (LoginRequiredMixin, FormView):
+class PlannerCalendarOrderRoomsForSeriesFormView (LoginRequiredMixin, JsonFormView):
     form_class = OrderRoomForSerieForm
     template_name="_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -927,12 +910,9 @@ class PlannerCalendarOrderRoomsForSeriesFormView (LoginRequiredMixin, FormView):
 planner_calendar_order_rooms_for_series_form_view = PlannerCalendarOrderRoomsForSeriesFormView.as_view()
 
 
-class PlannerCalendarOrderRoomForEventFormView(LoginRequiredMixin, FormView):
+class PlannerCalendarOrderRoomForEventFormView(LoginRequiredMixin, JsonFormView):
     form_class = OrderRoomForEventForm
     template_name= "_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -945,12 +925,9 @@ class PlannerCalendarOrderRoomForEventFormView(LoginRequiredMixin, FormView):
 
 planner_calendar_order_room_for_event_form_view = PlannerCalendarOrderRoomForEventFormView.as_view()
 
-class PlannerCalendarOrderPeopleForEventFormView(LoginRequiredMixin, FormView):
+class PlannerCalendarOrderPeopleForEventFormView(LoginRequiredMixin, JsonFormView):
     form_class = OrderPersonForEventForm
     template_name = "_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -964,12 +941,9 @@ class PlannerCalendarOrderPeopleForEventFormView(LoginRequiredMixin, FormView):
 planner_calendar_order_people_for_event_form_view = PlannerCalendarOrderPeopleForEventFormView.as_view()
 
 
-class PlannerCalendarRemovePersonFromEventFormView(LoginRequiredMixin, FormView):
+class PlannerCalendarRemovePersonFromEventFormView(LoginRequiredMixin, JsonFormView):
     form_class = RemovePersonFromEventForm
     template_name = "_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.remove()
@@ -983,12 +957,9 @@ class PlannerCalendarRemovePersonFromEventFormView(LoginRequiredMixin, FormView)
 planner_calendar_remove_person_from_event_form_view = PlannerCalendarRemovePersonFromEventFormView.as_view()
 
 
-class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, FormView):
+class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, JsonFormView):
     form_class = RemoveRoomFromEventForm
     template_name = "_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.remove()
@@ -1002,12 +973,9 @@ class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, FormView):
 planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFromEventFormView.as_view()
 
 
-class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, FormView):
+class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, JsonFormView):
     form_class = UploadFilesToEventSerieForm
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToEventSerieDialog.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -1041,12 +1009,9 @@ class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, FormView):
 planner_calendar_upload_file_to_event_serie_dialog_view = PlannerCalendarUploadFileToEventSerieDialog.as_view()
 
 
-class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, FormView):
+class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, JsonFormView):
     form_class = UploadFilesToArrangementForm
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToArrangementDialog.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
