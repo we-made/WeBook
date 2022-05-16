@@ -281,7 +281,12 @@ export class PlannerCalendar extends FullCalendarBased {
                 $(".popover").popover('hide');
 
                 if (dateInfo.view.type == "timelineMonth" || dateInfo.view.type == "customTimelineMonth" || dateInfo.view.type == "dayGridMonth" || dateInfo.view.type == "customTimeGridMonth") {
-                    $('#plannerCalendarHeader').text(`${monthNames[dateInfo.start.getMonth()]} ${dateInfo.start.getFullYear()}`)
+                    var monthIndex = dateInfo.start.getMonth();
+                    console.log(dateInfo.start.getDate());
+                    if (dateInfo.start.getDate() !== 1) {
+                        monthIndex++;
+                    }
+                    $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
                 }
             },
             customButtons: {
