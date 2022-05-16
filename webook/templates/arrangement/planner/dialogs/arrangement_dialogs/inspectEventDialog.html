@@ -16,156 +16,161 @@
         </div>
     </div>
 
-    <div style="max-height: 300px;">
-        <div>
+    <form id="inspectEventForm">
+        <input type="submit" style="display:none;" />
+        <div style="max-height: 300px;">
             <div>
-                <label for="{{form.title.id_for_label}}" class="">
-                    Tittel
-                </label>
-                <input type="text" class="form-control"
-                    name="{{form.title.name}}" id="{{form.title.id_for_label}}"
-                    value="{{form.title.value}}">
-            </div>
-            <div class="mt-2">
-                <label for="{{form.title_en.id_for_label}}">
-                    Tittel (Engelsk)
-                </label>
-                <input type="text" class="form-control"
-                    name="{{form.title_en.name}}" id="{{form.title_en.id_for_label}}"
-                    value="{{form.title_en.value}}">
-            </div>
+                <div>
+                    <label for="{{form.title.id_for_label}}" class="">
+                        Tittel
+                    </label>
+                    <input type="text" class="form-control"
+                        name="{{form.title.name}}" id="{{form.title.id_for_label}}"
+                        value="{{form.title.value}}">
+                </div>
+                <div class="mt-2">
+                    <label for="{{form.title_en.id_for_label}}">
+                        Tittel (Engelsk)
+                    </label>
+                    <input type="text" class="form-control"
+                        name="{{form.title_en.name}}" id="{{form.title_en.id_for_label}}"
+                        value="{{form.title_en.value}}">
+                </div>
 
-            <div class="mt-2">
-                <label for="title" form="{{form.ticket_code.id_for_label}}">
-                    Billetkode
-                </label>
-                <input type="text" class="form-control"
-                    name="{{ form.ticket_code.name }}" id="{{ form.ticket_code.id_for_label }}"
-                    value="{{ form.ticket_code.value|default:'' }}">
-            </div>
+                <div class="mt-2">
+                    <label for="title" form="{{form.ticket_code.id_for_label}}">
+                        Billetkode
+                    </label>
+                    <input type="text" class="form-control"
+                        name="{{ form.ticket_code.name }}" id="{{ form.ticket_code.id_for_label }}"
+                        value="{{ form.ticket_code.value|default:'' }}">
+                </div>
 
-            <div class="mt-2">
-                <label for="title" form="{{form.expected_visitors.id_for_label}}">
-                    Forventet antall besøkende
-                </label>
-                <input type="text" class="form-control"
-                    name="{{ form.expected_visitors.name }}" id="{{ form.expected_visitors.id_for_label }}"
-                    value="{{ form.expected_visitors.value|default:'0' }}">
-            </div>
+                <div class="mt-2">
+                    <label for="title" form="{{form.expected_visitors.id_for_label}}">
+                        Forventet antall besøkende
+                    </label>
+                    <input type="text" class="form-control"
+                        name="{{ form.expected_visitors.name }}" id="{{ form.expected_visitors.id_for_label }}"
+                        value="{{ form.expected_visitors.value|default:'0' }}">
+                </div>
 
-            <div class="mt-2">
-                <label for="title" form="{{form.actual_visitors.id_for_label}}">
-                    Faktisk antall besøkende
-                </label>
-                <input type="text" class="form-control"
-                    name="{{ form.actual_visitors.name }}" id="{{ form.actual_visitors.id_for_label }}"
-                    value="{{ form.actual_visitors.value|default:'0' }}">
-            </div>
+                <div class="mt-2">
+                    <label for="title" form="{{form.actual_visitors.id_for_label}}">
+                        Faktisk antall besøkende
+                    </label>
+                    <input type="text" class="form-control"
+                        name="{{ form.actual_visitors.name }}" id="{{ form.actual_visitors.id_for_label }}"
+                        value="{{ form.actual_visitors.value|default:'0' }}">
+                </div>
 
-            <div class="mt-2">
-                <h6>Fra</h6>
-                <div class="row">
-                    <div class="col-8">
-                        <input type="date" class="form-control" 
-                                name="{{form.start.name}}_date" id="{{form.start.id_for_label}}_date"
-                                value="{{ start_t|date:'Y-m-d' }}">
-                    </div>
-                    <div class="col-4">
-                        <input type="time" class="form-control" 
-                                name="{{ form.start.name }}_time" id="{{ form.start.name }}_time" 
-                                value="{{ start_t|date:'H:i' }}">
+                <div class="mt-2">
+                    <h6>Fra</h6>
+                    <div class="row">
+                        <div class="col-8">
+                            <input type="date" class="form-control" 
+                                    name="{{form.start.name}}_date" id="{{form.start.id_for_label}}_date"
+                                    value="{{ start_t|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-4">
+                            <input type="time" class="form-control" 
+                                    name="{{ form.start.name }}_time" id="{{ form.start.name }}_time" 
+                                    value="{{ start_t|date:'H:i' }}">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="mt-2">
-                <h6>Til</h6>
-                <div class="row">
-                    <div class="col-8">
-                        <input type="date" class="form-control" 
-                                name="{{ form.end.name }}_date" id="{{ form.end.id_for_label }}_date"
-                                value="{{ end_t|date:'Y-m-d' }}">
-                    </div>
-                    <div class="col-4">
-                        <input type="time" class="form-control" 
-                                name="{{form.end.name}}_time" id="{{ form.end.name }}_time"
-                                value="{{ end_t|date:'H:i' }}" >
+                <div class="mt-2">
+                    <h6>Til</h6>
+                    <div class="row">
+                        <div class="col-8">
+                            <input type="date" class="form-control" 
+                                    name="{{ form.end.name }}_date" id="{{ form.end.id_for_label }}_date"
+                                    value="{{ end_t|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-4">
+                            <input type="time" class="form-control" 
+                                    name="{{form.end.name}}_time" id="{{ form.end.name }}_time"
+                                    value="{{ end_t|date:'H:i' }}" >
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="mt-2">
-                <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
-                {{form.display_layouts}}
-            </div>
+                <div class="mt-2">
+                    <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
+                    {{form.display_layouts}}
+                </div>
 
-            <div class="clearfix mb-2 mt-4">
-                <h4 class=" float-start">People</h4>
-                <button class="float-end btn btn-sm btn-success shadow-0"
-                    id="inspectEventDialog_addPeopleBtn">
-                    + Legg til nye personer
-                </button>
-            </div>
+                <div class="clearfix mb-2 mt-4">
+                    <h4 class=" float-start">People</h4>
+                    <button class="float-end btn btn-sm btn-success shadow-0"
+                        id="inspectEventDialog_addPeopleBtn"
+                        type="button">
+                        + Legg til nye personer
+                    </button>
+                </div>
 
-            <hr>
-            <div class="table-responsive">
-                <table class="table table-sm table-borderless">
-                    <tbody id="peopleTableBody">
-                        {% for person in object.people.all %}
-                            <tr rowid="{{person.pk}}">
-                                <td>{{person}}</td>
-                                <td> 
+                <hr>
+                <div class="table-responsive">
+                    <table class="table table-sm table-borderless">
+                        <tbody id="peopleTableBody">
+                            {% for person in object.people.all %}
+                                <tr rowid="{{person.pk}}">
+                                    <td>{{person}}</td>
+                                    <td> 
+                                        <a href="#" class="text-danger"
+                                            data-mdb-toggle="tooltip"
+                                            onclick="inspectEventDialog__removeAssociation(this)"
+                                            title="{% trans 'Remove this person from the activity' %}">
+                                            <i class="fas fa-trash"></i>
+                                        </a> 
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+
+                <div class="clearfix mb-2 mt-4">
+                    <h4 class=" float-start">Rom</h4>
+                    <button class="float-end btn btn-sm btn-success shadow-0"
+                        id="inspectEventDialog_addRoomsBtn"
+                        type="button">
+                        + Legg til nye rom
+                    </button>
+                </div>
+                <hr>
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-borderless">
+                        <tbody id="roomsTableBody">
+                            {% for room in object.rooms.all %}
+                            <tr rowid="{{room.pk}}">
+                                <td>{{room}}</td>
+                                <td>
                                     <a href="#" class="text-danger"
                                         data-mdb-toggle="tooltip"
                                         onclick="inspectEventDialog__removeAssociation(this)"
-                                        title="{% trans 'Remove this person from the activity' %}">
+                                        title="{% trans 'Remove this room from the activity' %}">
                                         <i class="fas fa-trash"></i>
-                                    </a> 
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
+                        </tbody>
+                    </table>
+                </div>
 
-            <div class="clearfix mb-2 mt-4">
-                <h4 class=" float-start">Rom</h4>
-                <button class="float-end btn btn-sm btn-success shadow-0"
-                    id="inspectEventDialog_addRoomsBtn">
-                    + Legg til nye rom
-                </button>
-            </div>
-            <hr>
-
-            <div class="table-responsive">
-                <table class="table table-sm table-borderless">
-                    <tbody id="roomsTableBody">
-                        {% for room in object.rooms.all %}
-                        <tr rowid="{{room.pk}}">
-                            <td>{{room}}</td>
-                            <td>
-                                <a href="#" class="text-danger"
-                                    data-mdb-toggle="tooltip"
-                                    onclick="inspectEventDialog__removeAssociation(this)"
-                                    title="{% trans 'Remove this room from the activity' %}">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="clearfix">
-                <div class="float-end">
-                    <button class="btn btn-sm btn-dark">Avbryt</button>
-                    <button class="btn btn-sm btn-success" onclick="inspectEventDialog__save()">Lagre</button>
+                <div class="clearfix">
+                    <div class="float-end">
+                        <button class="btn btn-sm btn-dark">Avbryt</button>
+                        <button class="btn btn-sm btn-success" type="button" onclick="inspectEventDialog__save()">Lagre</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
 
@@ -173,7 +178,45 @@
     var peopleMap = new Map();
     var roomsMap = new Map();
 
+    function inspectEventDialog__evaluateEnTitleObligatory() {
+        var $enTitleElement = $('#id_title_en');
+        var countSeletedDisplayLayouts = $("input[name='display_layouts'][type='checkbox']:checked").length;
+
+        if (countSeletedDisplayLayouts === 0) {
+            $enTitleElement.removeAttr("required");
+        }
+        else {
+            $enTitleElement.attr("required", true);
+        }
+    }
+
+    function inspectEventDialog__validate() {
+        let field_elements = $('#inspectEventForm').find("input, select");
+
+        let isInvalid = false;
+
+        for (let i = 0; i < field_elements.length; i++) {
+            if (field_elements[i].checkValidity() === false) {
+                isInvalid = true;
+                break;
+            }
+        }
+
+        if (isInvalid) {
+            $('#inspectEventForm').find(':submit').click();
+            return false;
+        }
+
+        return true;
+    }
+
     $(document).ready(function () {
+        inspectEventDialog__evaluateEnTitleObligatory();
+
+        $("input[name='display_layouts'][type='checkbox']").on("change", (e) => {
+            inspectEventDialog__evaluateEnTitleObligatory();
+        });
+
         document.addEventListener("eventInspector.roomsUpdated", (e) => {
             roomsMap = e.detail.context.room_name_map;
             inspectEventDialog__setRooms(e.detail.context.rooms);
@@ -276,6 +319,10 @@
     }
 
     function inspectEventDialog__save() {
+        if (inspectEventDialog__validate() === false) {
+            return;
+        }
+        
         let formData = new FormData();
         var start = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
         var end = new Date( $('#id_end_date').val() + "T" + $('#end_time').val() ).toISOString();
