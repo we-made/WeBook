@@ -20,6 +20,7 @@ from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
 from webook.arrangement.forms.add_planner_form import AddPlannerForm
 from webook.arrangement.models import Arrangement, ArrangementFile, Person
 from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -143,12 +144,9 @@ class PlannersOnArrangementTableView(LoginRequiredMixin, ListView):
 planners_on_arrangement_table_view = PlannersOnArrangementTableView.as_view()
 
 
-class ArrangementAddPlannerFormView(LoginRequiredMixin, FormView):
+class ArrangementAddPlannerFormView(LoginRequiredMixin, JsonFormView):
     form_class = AddPlannerForm
     template_name="_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -161,37 +159,23 @@ class ArrangementAddPlannerFormView(LoginRequiredMixin, FormView):
 arrangement_add_planner_form_view = ArrangementAddPlannerFormView.as_view()
 
 
-class ArrangementPromotePlannerToMainPlanner (LoginRequiredMixin, FormView):
+class ArrangementPromotePlannerToMainPlanner (LoginRequiredMixin, JsonFormView):
     form_class = PromotePlannerToMainForm
     template_name ="_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.promote()
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        print(">> ArrangementPromotePlannerView | Form Invalid")
-        return super().form_invalid(form)
-
 arrangement_promote_planner_to_main_view = ArrangementPromotePlannerToMainPlanner.as_view()
 
-class ArrangementRemovePlannerFormView(LoginRequiredMixin, FormView):
+class ArrangementRemovePlannerFormView(LoginRequiredMixin, JsonFormView):
     form_class = RemovePlannerForm
     template_name = "_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
-
-    def form_invalid(self, form):
-        print(">> ArrangementRemovePlannerView | Form Invalid")
-        return super().form_invalid(form)
 
 arrangement_remove_planner_form_view = ArrangementRemovePlannerFormView.as_view()
 

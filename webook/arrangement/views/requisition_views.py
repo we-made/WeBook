@@ -29,6 +29,7 @@ from webook.arrangement.forms.requisition_person_form import RequisitionPersonFo
 from webook.arrangement.forms.order_service_form import OrderServiceForm
 from webook.arrangement.forms.reset_service_requisition_form import ResetRequisitionForm
 from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition, ServiceRequisition
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from django.http import HttpResponseBadRequest, Http404
@@ -159,12 +160,9 @@ class RequisitionServiceFormView (LoginRequiredMixin, FormView):
 requisition_service_form_view = RequisitionServiceFormView.as_view()
 
 
-class RequisitionPersonFormView (LoginRequiredMixin, FormView):
+class RequisitionPersonFormView (LoginRequiredMixin, JsonFormView):
     form_class = RequisitionPersonForm
     template_name = "_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form) -> HttpResponse:
         form.save()
@@ -176,12 +174,9 @@ class RequisitionPersonFormView (LoginRequiredMixin, FormView):
 requisition_person_form_view = RequisitionPersonFormView.as_view()
 
 
-class ResetRequisitionFormView (LoginRequiredMixin, FormView):
+class ResetRequisitionFormView (LoginRequiredMixin, JsonFormView):
     form_class = ResetRequisitionForm
     template_name = "_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form) -> HttpResponse:
         form.reset()
@@ -193,12 +188,9 @@ class ResetRequisitionFormView (LoginRequiredMixin, FormView):
 reset_requisition_form_view = ResetRequisitionFormView.as_view()
 
 
-class CancelServiceRequisitionFormView(LoginRequiredMixin, FormView):
+class CancelServiceRequisitionFormView(LoginRequiredMixin, JsonFormView):
     form_class = CancelServiceRequisitionForm
     template_name = "_blank.html"
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form) -> HttpResponse:
         form.cancel_service_requisition()
