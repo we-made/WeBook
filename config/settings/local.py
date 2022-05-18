@@ -78,3 +78,4 @@ ANYMAIL = {
         "MAILGUN_API_URL", default="https://api.mailgun.net/v3"
     ),
 }
+
