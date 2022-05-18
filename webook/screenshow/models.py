@@ -81,7 +81,7 @@ class DisplayLayout(TimeStampedModel):
 
     setting = models.ForeignKey(to="DisplayLayoutSetting", verbose_name=_("Display Layout Setting"),
                                 on_delete=models.RESTRICT, null=True, blank=True)
-
+    
     slug = AutoSlugField(populate_from="name", unique=True)
 
     instance_name_attribute_name = "name"

@@ -6,7 +6,7 @@ from django.forms.widgets import CheckboxSelectMultiple
 class PlannerUpdateEventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = (          
+        fields = (
             "title",
             "title_en",
             "start",

@@ -32,9 +32,10 @@ class UserChangeForm(forms.UserChangeForm):
 class UserCreationForm(SignupForm):
 
     first_name = dj_forms.CharField(max_length=512, label=_("First Name"))
-    middle_name = dj_forms.CharField(max_length=512, label=_("Middle Name"))
+    middle_name = dj_forms.CharField(max_length=512, label=_("Middle Name"),
+                                     required=False)
     last_name = dj_forms.CharField(max_length=512, label=_("Last Name"))
-    
+
     def save (self, request):
         user = super(UserCreationForm, self).save(request)
         person = Person()

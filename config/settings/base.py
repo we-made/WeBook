@@ -3,7 +3,7 @@ Base settings to build other settings files upon.
 """
 
 from pathlib import Path
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 import environ
 
 # webook/
@@ -339,7 +339,7 @@ APP_TITLE = env(
 # Remember to override this with a valid key if project is commercial.
 FULLCALENDAR_LICENSE_KEY = env(
     "FULLCALENDAR_LICENSE_KEY",
-    default="CC-Attribution-NonCommercial-NoDerivatives" 
+    default="CC-Attribution-NonCommercial-NoDerivatives"
 )
 
 ASSET_SERVER_URL = env(

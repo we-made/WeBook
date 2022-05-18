@@ -423,6 +423,10 @@
                     {{note.content}}
 
                     <div class="clearfix">
+                        {% if note.has_personal_information %}
+                            <i class="fas fa-user-secret text-info"></i>
+                        {% endif %}
+                        <em class="text-muted small float-start"></em>
                         <em class="text-muted small float-end">{{note.author}}</em>
                     </div>
                 </div>
