@@ -212,9 +212,11 @@ export class ArrangementCreator {
 
                                 document.querySelectorAll("input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
-                                        $('#id_display_layouts_serie_planner_' + String(parseInt(checkboxElement.value) - 1))
+                                        $('#id_display_layouts_serie_planner_' + parseInt(checkboxElement.value) - 1)
                                             .prop( "checked", true );
                                     })
+                                    
+                                createSerieDialog__evaluateEnTitleObligatory();
                                 
                                 $('#serie_uuid').val(crypto.randomUUID());
 
@@ -398,9 +400,12 @@ export class ArrangementCreator {
                                 
                                 document.querySelectorAll("input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
-                                        $(`#${String(parseInt(checkboxElement.value))}_dlcheck`)
+                                        $(`#${checkboxElement.value}_dlcheck`)
                                             .prop( "checked", true );
                                     })
+                                    
+                                // This ensures that english title is only obligatory IF a display layout has been selected.
+                                dialogCreateEvent__evaluateEnTitleObligatory();
 
                                 $('#event_uuid').val(crypto.randomUUID());
 
