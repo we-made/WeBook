@@ -5,6 +5,11 @@
             placeholder="Tast inn..">
         </textarea>
 
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="has_personal_info"/>
+            <label class="form-check-label" for="flexCheckChecked">Inneholder personlig informasjon</label>
+          </div>
+
         <button class="btn-block btn btn-success btn-sm" onclick="submitNote()" type="button">
             Lagre
         </button>
@@ -15,6 +20,7 @@
     function submitNote() {
         let data = new FormData();
         data.append("entityPk", '{{arrangementPk}}');
+        data.append("has_personal_information", $('#has_personal_info').is(':checked') ? 1 : 0)
         data.append("entityType", 'arrangement');
         data.append("content", $('#newNoteDialog__content').val());
         data.append('csrfmiddlewaretoken', "{{ csrf_token }}");

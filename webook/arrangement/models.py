@@ -585,6 +585,7 @@ class Note(TimeStampedModel, ModelArchiveableMixin):
 
     author = models.ForeignKey(to='Person', on_delete=models.RESTRICT)
     content = models.TextField(verbose_name=_("Content"), max_length=1024)
+    has_personal_information = models.BooleanField(verbose_name=_("Has personal information"), default=False)
 
     def __str__(self):
         """Return contents of note"""
