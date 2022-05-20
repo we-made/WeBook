@@ -18,6 +18,8 @@ from django.views.generic.edit import DeleteView
 from webook.arrangement.forms.post_note_form import PostNoteForm
 from webook.arrangement.models import Location, Note, Event
 from django.core.serializers.json import DjangoJSONEncoder
+from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 from django.core import serializers
@@ -63,25 +65,23 @@ class GetNotesForEntityView (ListView):
 get_notes_view = GetNotesForEntityView.as_view()
 
 
-class PostNoteView (FormView):
+class PostNoteView (JsonFormView):
     form_class = PostNoteForm
     template_name = "_blank.html"
-    
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save_note(self.request.user.person)
         return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        print(form.errors)
+        return super().form_invalid(form)
 
 post_note_view = PostNoteView.as_view()
 
 
-class DeleteNoteView (DeleteView):
+class DeleteNoteView (JsonArchiveView):
     pk_url_kwarg = 'entityPk'
     model = Note
-    
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_list")
 
 delete_note_view = DeleteNoteView.as_view()

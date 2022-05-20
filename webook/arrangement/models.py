@@ -15,10 +15,27 @@ from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 import webook.screenshow.models as screen_models
 
 
+class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
+    """
+        A subclassed AutoSlugField that can see both archived and non archived entities, thus
+        preventing slug collisions with entities that are archived.
+        Use in tandem with ModelArchiveableMixin.
+    """
+
+    def __init__(self, *args, **kwargs):
+        model = kwargs.get("model")
+        manager_name = kwargs.get("manager_name")
+        if getattr(model, "all_objects", None) is not None:
+            manager_name = "all_objects"
+
+        super().__init__(*args, **kwargs, manager_name=manager_name)
+
+
 class ModelArchiveableMixin(models.Model):
     """ Mixin for making a model archivable """
 
     objects = ArchivedManager()
+    all_objects = models.Manager()
 
     def archive(self, person_archiving_this):
         """ Archive this object """
@@ -118,7 +135,7 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
     icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     entity_name_singular = _("Audience")
     entity_name_plural = _("Audiences")
@@ -140,7 +157,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMi
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     name_en = models.CharField(verbose_name=_("Screen Name English"), max_length=255, blank=False, null=True)
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     def get_absolute_url(self):
         return reverse(
@@ -157,7 +174,7 @@ class RoomPreset (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin)
         A room preset is a group, or collection, or set, of rooms.
     """ 
 
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
     name = models.CharField(verbose_name=_("Name"), max_length=256,     null=False, blank=False)
     rooms = models.ManyToManyField(to="Room")
 
@@ -227,7 +244,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     )
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
+    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=True, null=True)
 
     stages = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PLANNING)
 
@@ -254,7 +271,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
 
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layout"), related_name="arrangements", blank=True)
 
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     entity_name_singular = _("Arrangement")
     entity_name_plural = _("Arrangements")
@@ -297,7 +314,7 @@ class Location (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
             room.archive(person_archiving_this)
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     entity_name_singular = _("Location")
     entity_name_plural = _("Locations")
@@ -344,7 +361,7 @@ class Room(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     business_hours = models.ManyToManyField(to="BusinessHour", verbose_name=_("Business Hours"))
 
     name = models.CharField(verbose_name=_("Name"), max_length=128)
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     entity_name_singular = _("Room")
     entity_name_plural = _("Rooms")
@@ -372,7 +389,7 @@ class Article(TimeStampedModel, ModelArchiveableMixin):
         verbose_name_plural = _("Articles")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return article name"""
@@ -392,7 +409,7 @@ class OrganizationType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableM
         verbose_name_plural = _("Organization Types")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     entity_name_singular = _("Organization Type")
     entity_name_plural = _("Organization Types")
@@ -442,7 +459,7 @@ class ServiceType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin)
         verbose_name_plural = _("Service Types")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     entity_name_singular = "Service Type"
     entity_name_plural = "Service Types"
@@ -547,7 +564,7 @@ class Calendar(TimeStampedModel, ModelArchiveableMixin):
     people_resources = models.ManyToManyField(to="Person", verbose_name=_("People Resources"))
     room_resources = models.ManyToManyField(to="Room", verbose_name=_("Room Resources"))
 
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     def __str__(self):
         """Return calendar name"""
@@ -568,6 +585,7 @@ class Note(TimeStampedModel, ModelArchiveableMixin):
 
     author = models.ForeignKey(to='Person', on_delete=models.RESTRICT)
     content = models.TextField(verbose_name=_("Content"), max_length=1024)
+    has_personal_information = models.BooleanField(verbose_name=_("Has personal information"), default=False)
 
     def __str__(self):
         """Return contents of note"""
@@ -694,7 +712,7 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     business_hours = models.ManyToManyField(to=BusinessHour, verbose_name=_("Business Hours"))
     notes = models.ManyToManyField(to=Note, verbose_name="Notes")
 
-    slug = AutoSlugField(populate_from="full_name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="full_name", unique=True)
 
     instance_name_attribute_name = "full_name"
     entity_name_singular = _("Person")
@@ -754,7 +772,7 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin
     members = models.ManyToManyField(to=Person, verbose_name=_("Members"), related_name="organizations")
     business_hours = models.ManyToManyField(to=BusinessHour, verbose_name=_("Business Hours"))
 
-    slug = AutoSlugField(populate_from="name", unique=True)
+    slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     entity_name_plural = _("Organizations")
     entity_name_singular = _("Organization")

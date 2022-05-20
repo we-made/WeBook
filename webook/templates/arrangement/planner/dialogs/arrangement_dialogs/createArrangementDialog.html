@@ -37,7 +37,7 @@
                                             name="{{ form.name_en.name }}"
                                             autocomplete="off"
                                             placeholder="{% trans 'Name of the arrangement in english' %}..."
-                                            required />
+                                            />
             
                                         {% if form.name_en.errors|length > 0 %}
                                             <div class="alert alert-danger">
@@ -254,6 +254,18 @@
                 setEvents(e.detail.context.events);
             }
         })
+
+        $("input[name='display_layouts'][type='checkbox']").on("change", (e) => {
+            var $enTitleElement = $('#id_name_en');
+            var countSeletedDisplayLayouts = $("input[name='display_layouts'][type='checkbox']:checked").length;
+
+            if (countSeletedDisplayLayouts === 0) {
+                $enTitleElement.removeAttr("required");
+            }
+            else {
+                $enTitleElement.attr("required", true);
+            }
+        });
     })
 
     function validate_arrangement_info_form() {

@@ -1,3 +1,6 @@
+# make sure the localhost has the same version of the code as the remote server
+git pull
+
 # re-deploy the image
 docker-compose pull
 docker-compose down --remove-orphans
