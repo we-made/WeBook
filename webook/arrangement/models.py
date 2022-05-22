@@ -1000,6 +1000,7 @@ class RequisitionRecord (TimeStampedModel, ModelArchiveableMixin):
         if (self.type_of_requisition == self.REQUISITION_SERVICES):
             return self.service_requisition
 
+
 class PlanManifest(TimeStampedModel):
     """ A time manifest is a manifest of the timeplan generation """
     expected_visitors = models.IntegerField(default=0)
