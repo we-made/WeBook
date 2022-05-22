@@ -192,4 +192,6 @@ from .event_serie_views import (
     event_serie_delete_file_view,
     delete_event_serie_view,
     event_serie_manifest_view,
+    calculate_event_serie_view,
+    calculate_event_serie_preview_view,
 )
