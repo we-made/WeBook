@@ -178,7 +178,7 @@ Date.prototype.addDays = function(days) {
                     break;
                 }
             }
-            if (scope.instance_limit !== undefined &&  scope.instance_limit !== undefined) {
+            if (scope.instance_limit !== undefined && scope.instance_limit !== undefined) {
                 if (instance_cursor > scope.instance_limit) {
                     break;
                 }
@@ -357,7 +357,7 @@ Date.prototype.addDays = function(days) {
 
        // go to the first instance of weekday
        let weekdaydiff = parseInt(weekDayParseReverseMap.get(date.getDay())) - parseInt(weekday);
-       date = date.addDays(weekdaydiff * (weekdaydiff > 0 ? -1 : 1));
+       date = date.addDays(weekdaydiff * -1);
 
        // go to the desired position, as determined by the arbitrator (is that even the right word? :D)
        date = date.addDays(arbitrator * 7);
