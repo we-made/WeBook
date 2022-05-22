@@ -2,6 +2,27 @@ from dataclasses import dataclass
 from typing import List, Optional
 from webook.arrangement.models import PlanManifest
 from datetime import datetime, timedelta, time
+import calendar
+from dateutil.relativedelta import *
+
+
+"""
+
+serie_calculator.py
+
+    Utility for calculating repeating events/series in an Outlook-like fashion.
+
+    Recurrence strategies dictate how the cycling is run. Cycling runs over pattern strategies which
+    dictate how events are generated. Recurrence strategies work for each pattern strategy, and are independent.
+    Cycling runs a pattern strategy for how many times the recurrence method dictates, so each run of a pattern
+    strategy generates one (or more) events associated with that cycle (for instance if you are running a cycle on a pattern 
+    generating events for a selection of days in a week you want to return a list). 
+    The pattern strategy returns new information generated in the cycle, which allows us to move the cycle forward.
+
+    This is written to work with Python standards first and foremost. Converting values for weekdays may be needed depending 
+    on how things are done on the front-end.
+
+"""
 
 
 @dataclass
@@ -41,18 +62,6 @@ class _RecurrenceInstruction:
     projection_distance_in_months: Optional[int]
 
 
-def _overwrite_time(write_to_datetime: datetime, time_from_datetime: datetime):
-    """ 
-        Overwrite the time values of datetime with that of another datetime and 
-        return a new datetime 
-    """
-    return write_to_datetime.replace(
-        hour=time_from_datetime.hour,
-        minute=time_from_datetime.minute,
-        second=time_from_datetime.second,
-    )
-
-
 def _days_to_dict (serie_manifest: PlanManifest) -> dict:
     """ Takes the days on a PlanManifest and returns it in dict form """
     return {
@@ -89,7 +98,11 @@ def _day_seek(start_date: datetime, arbitrator: int, weekday: int) -> datetime:
     weekday_diff = date.weekday() - weekday
 
     # move the date to the desired day of week - this may be out of bounds of the desired months
-    date = date + timedelta(days = weekday_diff * (-1 if weekday_diff > 0 else 1))
+    date = date + timedelta(days = weekday_diff * -1)
+
+    if (date.weekday() is not weekday):
+        raise Exception(f"Moved to wrong weekday (Expected: {weekday}, got {date.weekday()}")
+
     # are we still in the desired month? if not move a week forward to get to the first ocurrence of the desired weekday
     if date.month != start_date.month:
         date = date + timedelta(days=7)
@@ -107,29 +120,37 @@ def _day_seek(start_date: datetime, arbitrator: int, weekday: int) -> datetime:
 
 
 def _pattern_strategy_daily_every_x_day(cycle: _CycleInstruction) -> _Event:
+    """
+        Generate events on every X day between cycle start and cycle end, where X is
+        interval (or more aptly a spacer).
+    """
     if cycle.cycle != 0:
         cycle.start_date += timedelta(days = cycle.interval - 1)
     
-    cycle.event.start = _overwrite_time(write_to_datetime=cycle.start_date, time_from_datetime=cycle.event.start)
-    cycle.event.end =   _overwrite_time(write_to_datetime=cycle.start_date, time_from_datetime=cycle.event.end)
+    cycle.event.start = datetime.combine(cycle.start_date, cycle.event.start)
+    cycle.event.end = datetime.combine(cycle.start_date, cycle.event.end)
 
     return cycle.event
 
 
 def _pattern_strategy_daily_every_weekday(cycle: _CycleInstruction) -> _Event:
-    while cycle.start_date.weekday in [5,6]:
+    """
+        Generate events on every weekday between cycle start and cycle end
+    """
+    while cycle.start_date.weekday() in [5,6]:
         cycle.start_date += timedelta(days = 1)
 
-    cycle.event.start = cycle.start_date.replace(
-        hour=cycle.event.start.hour,
-        minute=cycle.event.start.minute,
-        second=cycle.event.end.second
-    )
+    cycle.event.start = datetime.combine(cycle.start_date, cycle.event.start)
+    cycle.event.end = datetime.combine(cycle.start_date, cycle.event.end)
 
     return cycle.event
 
 
 def _pattern_strategy_weekly_standard(cycle: _CycleInstruction) -> List[_Event]:
+    """
+        Generate events on a given set of days per week, with a week interval.
+        For example; every 2 weeks on monday and friday
+    """
     if cycle.cycle != 0:
         if  cycle.start_date.weekday() != 0:
             cycle.start_date += timedelta(days = (cycle.start_date.weekday() - 1) * -1 )
@@ -137,12 +158,14 @@ def _pattern_strategy_weekly_standard(cycle: _CycleInstruction) -> List[_Event]:
     
     events = []
     counter = 0
-    for day in range(cycle.start_date.weekday(), 0, 6):
+    for day in range(cycle.start_date.weekday(), 7):
         if day in cycle.days and cycle.days[day] == True:
             adjusted_start_date = cycle.start_date + timedelta(days=counter)
-            cycle.event.start = _overwrite_time(write_to_datetime=adjusted_start_date, time_from_datetime=cycle.event.start)
-            cycle.event.end = _overwrite_time(write_to_datetime=adjusted_start_date, time_from_datetime=cycle.event.end)
-            events.append(cycle.event)
+            events.append(_Event(
+                title=cycle.event.title,
+                start=datetime.combine(adjusted_start_date, cycle.event.start),
+                end=datetime.combine(adjusted_start_date, cycle.event.end)
+            ))
         
         counter += 1
     
@@ -150,74 +173,104 @@ def _pattern_strategy_weekly_standard(cycle: _CycleInstruction) -> List[_Event]:
 
 
 def _pattern_strategy_every_x_day_every_y_month(cycle: _CycleInstruction) -> _Event:
-    if cycle != 0:
-        cycle.start_date += timedelta( weeks = 4 * cycle.interval )
-        cycle.start_date.day = 1
+    """
+        Generates events every X day every Y month.
+        For instance every 2nd day every 1 months
+    """
+    if cycle.cycle != 0:
+        cycle.start_date = cycle.start_date + relativedelta( months = cycle.interval )
+        cycle.start_date.replace(day=1)
     
     if cycle.day_of_month > cycle.start_date.day:
         return
 
     adjusted_date = cycle.start_date.replace(day=cycle.day_of_month)
-    cycle.event.start = _overwrite_time(write_to_datetime=adjusted_date, time_from_datetime=cycle.event.start)
-    cycle.event.end = _overwrite_time(write_to_datetime=adjusted_date, time_from_datetime=cycle.event.end)
+    cycle.event.start = datetime.combine(adjusted_date, cycle.event.start)
+    cycle.event.end = datetime.combine(adjusted_date, cycle.event.end)
 
     return cycle.event
 
 
 def _pattern_strategy_every_arbitrary_date_of_month(cycle: _CycleInstruction) -> _Event:
-    if cycle != 0:
-        cycle.start_date = cycle.start_date.replace(day=1, month=cycle.start_date.month + cycle.interval)
+    """
+        Generates events every arbitrary date of month, where "arbitrary" is first, second, third and so on...
+        So for instance every first monday every 1 months.
+    """
+    if cycle.cycle != 0:
+        cycle.start_date = cycle.start_date + relativedelta( months = cycle.interval )
     
-    date = _day_seek(cycle.start_date, cycle.arbitrator, cycle.day_of_week)
-    cycle.event.start = _overwrite_time(write_to_datetime=date, time_from_datetime=cycle.event.start)
-    cycle.event.end = _overwrite_time(write_to_datetime=date, time_from_datetime=cycle.event.end)
+    date = _day_seek(cycle.start_date, int(cycle.arbitrator), cycle.day_of_week)
+    cycle.event.start = datetime.combine(date, cycle.event.start)
+    cycle.event.end = datetime.combine(date, cycle.event.end)
+    cycle.start_date = date
 
     return cycle.event
 
 
 def _pattern_strategy_yearly_every_x_of_month(cycle: _CycleInstruction) -> _Event:
-    if cycle != 0:
-        cycle.start_date.replace(year = cycle.start_date.year + cycle.interval)
+    """
+        Generates events every X (1-31) of month for a year.
+        So for instance every 1 January every 1 year.
+    """
+    if cycle.cycle != 0:
+        cycle.start_date = cycle.start_date + relativedelta(year = cycle.start_date.year + cycle.interval)
     
-    date = cycle.start_date.replace(month=cycle.month, day=cycle.day_index)
-    cycle.event.start = _overwrite_time(write_to_datetime=date, time_from_datetime=cycle.event.start)
-    cycle.event.end = _overwrite_time(write_to_datetime=date, time_from_datetime=cycle.event.end)
+    cycle.start_date = cycle.start_date.replace(month=cycle.month, day=cycle.day_index)
+    cycle.event.start = datetime.combine(cycle.start_date, cycle.event.start)
+    cycle.event.end = datetime.combine(cycle.start_date, cycle.event.end)
 
     return cycle.event
 
 
 def _pattern_strategy_arbitrary_weekday_in_month(cycle: _CycleInstruction) -> _Event:
-    if cycle != 0:
-        cycle.start_date.replace(year=cycle.start_date.year + cycle.interval)
+    """
+        Generates events every arbitrary weekday in month.
+        So for instance every second monday in January every year.
+    """
+    if cycle.cycle != 0:
+        cycle.start_date = cycle.start_date + relativedelta(year = cycle.start_date.year + cycle.interval)
     
-    date = _day_seek(cycle.start_date.replace(month=cycle.month), cycle.arbitrator, cycle.day_of_week)
-    _overwrite_time(write_to_datetime=date, time_from_datetime=cycle.event.start)
-    _overwrite_time(write_to_datetime=date, time_from_datetime=cycle.event.end)
+    date = _day_seek(cycle.start_date.replace(month=cycle.month), int(cycle.arbitrator), cycle.day_of_week)
+    cycle.event.start = datetime.combine(date, cycle.event.start)
+    cycle.event.end = datetime.combine(date, cycle.event.end)
 
     return cycle.event
 
 
 def _area_strategy_stopwithin(recurrence_instructions: _RecurrenceInstruction) -> _Scope:
+    """
+        Recurrence strategy where one has a decided stop date for the pattern to follow
+    """
     return _Scope(
-        start_date=recurrence_instructions["start_date"],
-        stop_within_date=recurrence_instructions["stop_within_date"],
+        start_date=recurrence_instructions.start_date,
+        stop_within_date=datetime.combine(recurrence_instructions.stop_within_date, datetime.max.time()),
         instance_limit=0
     )
 
 
 def _area_strategy_stop_after_x_instances(recurrence_instructions: _RecurrenceInstruction) -> _Scope:
+    """
+        Recurrence strategy where one wants to run the pattern X amounts of times (instance_limit)
+    """
     return _Scope(
-        start_date=recurrence_instructions["start_date"],
+        start_date=recurrence_instructions.start_date,
         stop_within_date=None,
-        instance_limit=recurrence_instructions["instances"]
+        instance_limit=recurrence_instructions.instances
     )
 
 
 def _area_strategy_no_stop_date(recurrence_instructions: _RecurrenceInstruction) -> _Scope:
-    stop_within_date = recurrence_instructions["start_date"] + timedelta( weeks = 4 * recurrence_instructions["projection_distance_in_months"] )
+    """
+        Recurrence strategy where one has no stop date, and want to project the pattern forward a set amount of months.
+        This is "infinite", and the projection will (should) be continued with a background tasks that keep pushing the projection
+        forward in time based on current date. (On every month shift should do)
+    """
+    # We -1 from month move-forward to account for zero-indexing.
+    tmp = recurrence_instructions.start_date + relativedelta(month = recurrence_instructions.start_date.month + ( recurrence_instructions.projection_distance_in_months - 1)) 
+    stop_within_date = datetime.combine(tmp.replace( day = calendar.monthrange( tmp.year, tmp.month )[1] ), datetime.max.time())
 
     return _Scope(
-        start_date=recurrence_instructions["start_date"],
+        start_date=recurrence_instructions.start_date,
         stop_within_date=stop_within_date,
         instance_limit=0
     )
@@ -258,12 +311,12 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
 
     events = []
 
-    date_cursor = scope.start_date
-    instance_cursor, cycle_cursor = 0
+    date_cursor = datetime.combine(scope.start_date, datetime.min.time())
+    instance_cursor = 0 
+    cycle_cursor = 0
 
-    while ((scope.stop_within_date is not None and date_cursor < scope.stop_within_date) 
-            or (scope.instance_limit != 0 and scope.instance_limit >= instance_cursor)):
-
+    while (scope.stop_within_date is not None and date_cursor < scope.stop_within_date
+            or (scope.instance_limit != 0 and scope.instance_limit >= (instance_cursor + 1))):
             cycle_instruction = _CycleInstruction(
                 cycle=cycle_cursor,
                 start_date=date_cursor,
@@ -273,7 +326,7 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
                 days=_days_to_dict(serie_manifest),
                 day_of_month=serie_manifest.day_of_month,
                 day_of_week=serie_manifest.day_of_week,
-                day_index=serie_manifest.day_of_month, # TODO: Check the validity of this
+                day_index=serie_manifest.day_of_month,
                 month=serie_manifest.month,
             )
 
@@ -283,10 +336,6 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
                 cycle_cursor += 1
                 continue
             
-            if (scope.stop_within_date is not None and result.start >= scope.stop_within_date 
-                    or scope.instance_limit is not None and instance_cursor > scope.instance_limit):
-                break
-
             if isinstance(result, list):
                 date_cursor = result[-1].end
                 events += result
