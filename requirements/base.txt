@@ -19,4 +19,3 @@ django-autoslug==1.9.8  # https://github.com/justinmayer/django-autoslug/
 django-npm
 anytree
 python-dateutil
-django-anymail
