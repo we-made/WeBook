@@ -92,6 +92,8 @@
     }
 
     $(document).ready(function () {
+        $('#roomsTable').DataTable().destroy();
+
         const dt = $('#roomsTable').DataTable( { 
             paging: false,
             dom: 't',
