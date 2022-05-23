@@ -513,7 +513,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
             if (db_vendor == 'postgresql'):
                 cursor.execute(
                     f'''    SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, (resp.first_name || ' ' || resp.last_name) as mainPlannerName,
-                                arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.name as name, ev.start as starts,
+                                arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts,
                                 ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
                                 array_agg( DISTINCT room.name) as room_names,
                                 array_agg( DISTINCT participants.first_name || ' ' || participants.last_name ) as people_names,
