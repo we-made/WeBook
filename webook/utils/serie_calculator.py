@@ -351,3 +351,4 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
             cycle_cursor += 1
     
     return events
+    
