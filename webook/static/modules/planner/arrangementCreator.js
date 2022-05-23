@@ -1,5 +1,5 @@
-import { DialogManager, Dialog } from "./dialog_manager/dialogManager.js";
-import { SeriesUtil } from "./seriesutil.js"
+import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
+import { SeriesUtil } from "./seriesutil.js";
 
 
 export class ArrangementCreator {
@@ -215,8 +215,6 @@ export class ArrangementCreator {
                                         $('#id_display_layouts_serie_planner_' + parseInt(checkboxElement.value) - 1)
                                             .prop( "checked", true );
                                     })
-                                    
-                                createSerieDialog__evaluateEnTitleObligatory();
                                 
                                 $('#serie_uuid').val(crypto.randomUUID());
 
