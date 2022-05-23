@@ -63,9 +63,8 @@ class CalculateEventSerieView(LoginRequiredMixin, DetailView, JSONResponseMixin)
         if (event_serie is None):
             raise Http404("No event_serie found matching the query")
 
-        result = calculate_serie(event_serie.serie_plan_manifest)
-        print(result)
-        return result
+        
+        return calculate_serie(event_serie.serie_plan_manifest)
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.object = self.get_object()
