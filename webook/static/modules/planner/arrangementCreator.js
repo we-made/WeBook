@@ -149,8 +149,6 @@ export class ArrangementCreator {
                                         $('#id_display_layouts_serie_planner_' + parseInt(checkboxElement.value) - 1)
                                             .prop( "checked", true );
                                     })
-                                    
-                                // createSerieDialog__evaluateEnTitleObligatory();
                                 
                                 $('#serie_uuid').val(crypto.randomUUID());
 

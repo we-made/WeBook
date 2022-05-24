@@ -30,6 +30,7 @@ from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from webook.utils.serie_calculator import calculate_serie
 
 
 class EventSerieDeleteFileView(LoginRequiredMixin, DeleteView):
@@ -49,6 +50,50 @@ class DeleteEventSerie(LoginRequiredMixin, JsonArchiveView):
     pk_url_kwarg = "pk"
 
 delete_event_serie_view = DeleteEventSerie.as_view()
+
+
+class CalculateEventSerieView(LoginRequiredMixin, DetailView, JSONResponseMixin):
+    model = PlanManifest
+    pk_url_kwarg = "pk"
+
+    def get_object(self):
+        serie_pk = self.kwargs.get(self.pk_url_kwarg)
+        event_serie = EventSerie.objects.filter(pk=serie_pk).first()
+        
+        if (event_serie is None):
+            raise Http404("No event_serie found matching the query")
+
+        
+        return calculate_serie(event_serie.serie_plan_manifest)
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_json_response(context, safe=False)
+
+    def get_data(self, context):
+        events = context["object"]
+
+        converted_events = []
+        for event in events:
+            converted_events.append({
+                "title": event.title,
+                "start": event.start,
+                "end": event.end,
+            })
+
+        return converted_events
+
+calculate_event_serie_view = CalculateEventSerieView.as_view()
+
+
+class CalculateEventSeriePreviewView(LoginRequiredMixin, DetailView):
+    """ Preview calendar primarily used for testing and debugging the results of a calculation """
+    model = PlanManifest
+    pk_url_kwarg = "pk"
+    template_name = "arrangement/eventserie/preview_calendar.html"
+
+calculate_event_serie_preview_view = CalculateEventSeriePreviewView.as_view()
 
 
 class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
