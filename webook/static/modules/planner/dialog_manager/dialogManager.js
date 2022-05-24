@@ -97,9 +97,6 @@ export class DialogManager {
         this._listenForSubmitEvent();
         this._listenForCloseEvent();
         this._listenForReloadEvent();
-        
-        this.discriminator = crypto.randomUUID();
-        global_dialogManagerDiscriminators.set(this.managerName, this.discriminator);
 
         this._dialogRepository = new Map(dialogs);
         this.context = {};
