@@ -374,6 +374,7 @@
     }
 
     $(document).ready(function () {
+        createSerieDialog__evaluateEnTitleObligatory();
         $("input[name='display_layouts_serie_planner'][type='checkbox']").on("change", (e) => {
             createSerieDialog__evaluateEnTitleObligatory();
         });
