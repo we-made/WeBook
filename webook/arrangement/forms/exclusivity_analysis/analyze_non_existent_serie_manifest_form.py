@@ -1,9 +1,6 @@
-import re
-
 from django import forms
 
 from webook.arrangement.models import PlanManifest
-
 
 class AnalyzeNonExistentSerieManifestForm(forms.Form):
     pattern = forms.CharField(max_length=255)
@@ -39,7 +36,7 @@ class AnalyzeNonExistentSerieManifestForm(forms.Form):
     def as_plan_manifest(self):
         plan_manifest = PlanManifest()
         plan_manifest.pattern = self.cleaned_data["pattern"]
-        plan_manifest.patternRoutine = self.cleaned_data["patternRoutine"]
+        plan_manifest.pattern_strategy = self.cleaned_data["patternRoutine"]
         plan_manifest.recurrence_strategy = self.cleaned_data["timeAreaMethod"]
         plan_manifest.start_date = self.cleaned_data["startDate"]
         plan_manifest.start_time = self.cleaned_data["startTime"]
@@ -48,9 +45,7 @@ class AnalyzeNonExistentSerieManifestForm(forms.Form):
         plan_manifest.expected_visitors = self.cleaned_data["expectedVisitors"]
         plan_manifest.title = self.cleaned_data["title"]
         plan_manifest.title_en = self.cleaned_data["title_en"]
-        plan_manifest.rooms.set(self.cleaned_data["rooms"])
-        plan_manifest.people.set(self.cleaned_data["people"])
-        plan_manifest.display_layouts.set(self.cleaned_data["display_layouts"])
+
         plan_manifest.interval = self.cleaned_data["interval"]
         plan_manifest.day_of_month = self.cleaned_data["day_of_month"]
         plan_manifest.arbitrator = self.cleaned_data["arbitrator"]
@@ -66,6 +61,15 @@ class AnalyzeNonExistentSerieManifestForm(forms.Form):
         plan_manifest.friday = self.cleaned_data["friday"]
         plan_manifest.saturday = self.cleaned_data["saturday"]
         plan_manifest.sunday = self.cleaned_data["sunday"]
+        
+        plan_manifest.save()
+        
+        plan_manifest.rooms.set([int(room) for room in self.cleaned_data["rooms"].split(",") if room])
+        plan_manifest.people.set([int(person) for person in self.cleaned_data["people"].split(",") if person])
+        plan_manifest.display_layouts.set([int(display_layout) for display_layout in self.cleaned_data["display_layouts"].split(",") if display_layout])
+
+        plan_manifest.save()
+
         return plan_manifest
 
 

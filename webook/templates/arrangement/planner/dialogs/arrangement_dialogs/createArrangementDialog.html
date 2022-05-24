@@ -385,12 +385,29 @@
         series.forEach(element => {
             var uuid = crypto.randomUUID();
             seriesMap.set(element._uuid, element);
-            
+            collisions_html = "";
+            console.log(element)
+            if (element.collisions !== undefined) {
+                collisions_html += "<ul class='text-danger'>";
+                element.collisions.forEach(collisionRecord => {
+                    collisions_html += 
+                        `<li>
+                            Hendelse kunne ikke opprettes den ${collisionRecord.event_a_start} til ${collisionRecord.event_a_end} da den kolliderer med 
+                            hendelse ${collisionRecord.event_b_title} (${collisionRecord.event_b_start} - ${collisionRecord.event_b_end}) på eksklusiv ressurs ${collisionRecord.contested_resource_name}
+                        </li>`;
+                })
+                collisions_html += "</ul>";
+            }
+            console.log(collisions_html)
+
             tbody.append(
                 $(`
                     <tr id='${element._uuid}'> 
                         <td> 
                             ${element.time.title} --  ${element.pattern.pattern_type} (${element.pattern.pattern_routine}) - ${element.time.start} - ${element.time.end} 
+                            <div>
+                                ${collisions_html}
+                            </div>
                         </td> 
                         <td> 
                             <div class='btn-group'>
@@ -406,7 +423,8 @@
                                 </button> 
                             </div>
                         </td> 
-                    </tr>`)
+                    </tr>
+                    `)
             )
         });
     }

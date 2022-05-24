@@ -309,14 +309,15 @@ export class ArrangementCreator {
                             
                             var formData = new FormData();
                             formData = serieConvert(details.serie, formData, "");
-                            fetch("/arrangement/analysis/analyzeNonExistentSerie", {
+                            details.serie.collisions = await fetch("/arrangement/analysis/analyzeNonExistentSerie", {
                                 method: 'POST',
                                 body: formData,
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 },
                                 credentials: 'same-origin'
-                            }).then(response => response.text()).then(text => console.log(text));
+                            }).then(response => response.text()).then(text => JSON.parse(text));
+                            console.log(details.serie)
 
                             context.series.set(details.serie._uuid, details.serie);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
@@ -417,6 +418,48 @@ export class ArrangementCreator {
                                 details.event._uuid = crypto.randomUUID();
                             }
 
+                            Swal.fire({
+                                title: 'Kollisjon',
+                                width: 600,
+                                html: 
+                                `
+                                Hendelsen kan ikke opprettes da den kolliderer med en eksisterende booking på den eksklusive ressursen Contested Resource.
+                                <div class='row mt-3'>
+                                    <div class='col-5'>
+                                        <div class='card shadow-4 border'>
+                                            <div class='card-head bg-info text-white p-1'>
+                                                ARRANGEMENT A
+                                            </div>
+                                            <div class='card-body'>
+                                                <span class='fw-bold'>EVENT A</span>
+                                                <div class='small text-muted'>
+                                                    24.05.2022 12:00 - 24.05.2022 19:00
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class='col-2'>
+                                        <h2 class='align-middle'> <i class='fas fa-arrow-right'></i> </h2>
+                                    </div>
+                                    <div class='col-5'>
+                                        <div class='card shadow-4 border'>
+                                            <div class='card-head bg-danger text-white p-1'>
+                                                ARRANGEMENT B
+                                            </div>
+                                            <div class='card-body'>
+                                                <span class='fw-bold'>EVENT B</span>
+                                                <div class='small text-muted'>
+                                                    24.05.2022 15:00 - 24.05.2022 18:00
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                `,
+                                icon: 'error',
+                                footer: '<a href="">Why do I have this issue?</a>'
+                            })
+                            
                             context.events.set(details.event._uuid, details.event);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
