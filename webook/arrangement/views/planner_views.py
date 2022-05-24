@@ -1,57 +1,64 @@
-from datetime import datetime, timedelta
-from typing import Any, Dict
-from dateutil import parser
-from datetime import date, datetime
+import json
 import uuid
+from datetime import date, datetime, timedelta
+from typing import Any, Dict
+
+from dateutil import parser
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import exceptions, serializers
+from django.db import connection
 from django.db.models import query
 from django.db.models.query import QuerySet
 from django.http import Http404
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.http.response import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
-from django.core import serializers, exceptions
 from django.views import View
-from django.db import connection
-from django.views.generic.edit import FormView
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-    TemplateView
-)
 from django.views.decorators.http import require_http_methods
-import json
-from django.views.generic.edit import DeleteView
-from webook.arrangement.forms.order_person_form import OrderPersonForEventForm
-from webook.arrangement.forms.order_room_form import OrderRoomForEventForm
-from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerieForm
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic.edit import DeleteView, FormView
+
+from webook.arrangement.facilities.calendar import analysis_strategies
+from webook.arrangement.forms.add_planners_form import AddPlannersForm
+from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.order_person_for_serie_form import OrderPersonForSerieForm
+from webook.arrangement.forms.order_person_form import OrderPersonForEventForm
+from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerieForm
+from webook.arrangement.forms.order_room_form import OrderRoomForEventForm
 from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
 from webook.arrangement.forms.planner.planner_create_event_form import PlannerCreateEventForm
 from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
 from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
 from webook.arrangement.forms.planner.planner_update_event_form import PlannerUpdateEventForm
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
+from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
 from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
 from webook.arrangement.forms.upload_files_to_event_serie_dialog import UploadFilesToEventSerieForm
-from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
-from webook.arrangement.views.generic_views.json_form_view import JsonFormView
+from webook.arrangement.models import (
+    Arrangement,
+    ArrangementFile,
+    ArrangementType,
+    Audience,
+    Event,
+    EventSerie,
+    EventSerieFile,
+    Location,
+    LooseServiceRequisition,
+    Person,
+    PlanManifest,
+    RequisitionRecord,
+    Room,
+    RoomPreset,
+)
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.screenshow.models import DisplayLayout
 from webook.utils.json_serial import json_serial
-from webook.arrangement.forms.add_planners_form import AddPlannersForm
-from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
-from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
-from webook.arrangement.models import Arrangement, ArrangementFile, ArrangementType, Audience, Event, EventSerie, EventSerieFile, Location, Person, PlanManifest, RequisitionRecord, Room, LooseServiceRequisition, RoomPreset
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
-from webook.arrangement.facilities.calendar import analysis_strategies
-from django.utils.timezone import make_aware
 
 
 def get_section_manifest():
@@ -338,9 +345,12 @@ class PlanGetEvents (LoginRequiredMixin, ListView):
 plan_get_events = PlanGetEvents.as_view()
 
 
-class PlanOrderService(LoginRequiredMixin, JsonFormView):
+class PlanOrderService(LoginRequiredMixin, FormView):
     form_class = LooselyOrderServiceForm
     template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def form_invalid(self, form) -> HttpResponse:
         print(" >> OrderServiceForm invalid")
@@ -404,8 +414,11 @@ class PlanPeopleToRequisitionTableComponent(LoginRequiredMixin, ListView):
 plan_people_to_requisition_component_view = PlanPeopleToRequisitionTableComponent.as_view()
 
 
-class PlanDeleteEvent (LoginRequiredMixin, JsonArchiveView):
+class PlanDeleteEvent (LoginRequiredMixin, ArchiveView):
     model = Event
+    
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
 plan_delete_event = PlanDeleteEvent.as_view()
 
@@ -500,7 +513,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
             if (db_vendor == 'postgresql'):
                 cursor.execute(
                     f'''    SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, (resp.first_name || ' ' || resp.last_name) as mainPlannerName,
-                                arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, arr.name as name, ev.start as starts,
+                                arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts,
                                 ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
                                 array_agg( DISTINCT room.name) as room_names,
                                 array_agg( DISTINCT participants.first_name || ' ' || participants.last_name ) as people_names,
@@ -523,7 +536,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
             elif (db_vendor == 'sqlite'):
                 cursor.execute(
                     f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
-                            arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, arr.name as name, ev.start as starts,
+                            arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.name as name, ev.start as starts,
                             ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
                             GROUP_CONCAT( DISTINCT room.name) as room_names, 
                             GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
@@ -763,9 +776,12 @@ class PlannerArrangementAddPlannerDialog(LoginRequiredMixin, TemplateView):
 arrangement_add_planner_dialog_view = PlannerArrangementAddPlannerDialog.as_view()
 
 
-class PlannerArrangementAddPlannersFormView (LoginRequiredMixin, JsonFormView):
+class PlannerArrangementAddPlannersFormView (LoginRequiredMixin, FormView):
     form_class=AddPlannersForm
     template_name="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -778,9 +794,12 @@ class PlannerArrangementAddPlannersFormView (LoginRequiredMixin, JsonFormView):
 arrangement_add_planners_form_view = PlannerArrangementAddPlannersFormView.as_view()
 
 
-class PlannerArrangementRemovePlannersFormView(LoginRequiredMixin, JsonFormView):
+class PlannerArrangementRemovePlannersFormView(LoginRequiredMixin, FormView):
     form_class=RemovePlannersForm
     template_name="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -879,9 +898,12 @@ class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, TemplateView):
 planner_calendar_order_person_dialog_view = PlannerCalendarOrderPersonDialogView.as_view()
 
 
-class PlannerCalendarOrderPersonForSeriesFormView (LoginRequiredMixin, JsonFormView):
+class PlannerCalendarOrderPersonForSeriesFormView (LoginRequiredMixin, FormView):
     form_class = OrderPersonForSerieForm
     template_name="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -894,9 +916,12 @@ class PlannerCalendarOrderPersonForSeriesFormView (LoginRequiredMixin, JsonFormV
 planner_calendar_order_person_for_series_form_view = PlannerCalendarOrderPersonForSeriesFormView.as_view()
 
 
-class PlannerCalendarOrderRoomsForSeriesFormView (LoginRequiredMixin, JsonFormView):
+class PlannerCalendarOrderRoomsForSeriesFormView (LoginRequiredMixin, FormView):
     form_class = OrderRoomForSerieForm
     template_name="_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -910,9 +935,12 @@ class PlannerCalendarOrderRoomsForSeriesFormView (LoginRequiredMixin, JsonFormVi
 planner_calendar_order_rooms_for_series_form_view = PlannerCalendarOrderRoomsForSeriesFormView.as_view()
 
 
-class PlannerCalendarOrderRoomForEventFormView(LoginRequiredMixin, JsonFormView):
+class PlannerCalendarOrderRoomForEventFormView(LoginRequiredMixin, FormView):
     form_class = OrderRoomForEventForm
     template_name= "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -925,9 +953,12 @@ class PlannerCalendarOrderRoomForEventFormView(LoginRequiredMixin, JsonFormView)
 
 planner_calendar_order_room_for_event_form_view = PlannerCalendarOrderRoomForEventFormView.as_view()
 
-class PlannerCalendarOrderPeopleForEventFormView(LoginRequiredMixin, JsonFormView):
+class PlannerCalendarOrderPeopleForEventFormView(LoginRequiredMixin, FormView):
     form_class = OrderPersonForEventForm
     template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.save()
@@ -941,9 +972,12 @@ class PlannerCalendarOrderPeopleForEventFormView(LoginRequiredMixin, JsonFormVie
 planner_calendar_order_people_for_event_form_view = PlannerCalendarOrderPeopleForEventFormView.as_view()
 
 
-class PlannerCalendarRemovePersonFromEventFormView(LoginRequiredMixin, JsonFormView):
+class PlannerCalendarRemovePersonFromEventFormView(LoginRequiredMixin, FormView):
     form_class = RemovePersonFromEventForm
     template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.remove()
@@ -957,9 +991,12 @@ class PlannerCalendarRemovePersonFromEventFormView(LoginRequiredMixin, JsonFormV
 planner_calendar_remove_person_from_event_form_view = PlannerCalendarRemovePersonFromEventFormView.as_view()
 
 
-class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, JsonFormView):
+class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, FormView):
     form_class = RemoveRoomFromEventForm
     template_name = "_blank.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def form_valid(self, form):
         form.remove()
@@ -973,9 +1010,12 @@ class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, JsonFormVie
 planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFromEventFormView.as_view()
 
 
-class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, JsonFormView):
+class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, FormView):
     form_class = UploadFilesToEventSerieForm
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToEventSerieDialog.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -1009,9 +1049,12 @@ class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, JsonFormVi
 planner_calendar_upload_file_to_event_serie_dialog_view = PlannerCalendarUploadFileToEventSerieDialog.as_view()
 
 
-class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, JsonFormView):
+class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, FormView):
     form_class = UploadFilesToArrangementForm
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToArrangementDialog.html"
+
+    def get_success_url(self) -> str:
+        return reverse("arrangement:arrangement_list")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
