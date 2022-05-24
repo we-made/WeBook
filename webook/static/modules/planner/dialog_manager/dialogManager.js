@@ -17,7 +17,6 @@
     }
 
     async render(context) {
-        // this.prepareDOM();
         $( `#${this.dialogElementId}` ).dialog( "destroy" ).remove();
         this.destroy();
 
@@ -30,7 +29,6 @@
                     this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
                         .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>")
                         .click( () => {
-                            console.log("Clicked X button")
                             this.destroy();
                         });
                     
