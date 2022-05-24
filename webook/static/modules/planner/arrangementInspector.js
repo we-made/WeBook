@@ -1,5 +1,6 @@
-import { DialogManager, Dialog } from "./dialog_manager/dialogManager.js";
-import { SeriesUtil } from "./seriesutil.js"
+import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
+import { serieConvert } from "./serieConvert.js";
+import { SeriesUtil } from "./seriesutil.js";
 
 
 const MANAGER_NAME = "arrangementInspector"
@@ -171,72 +172,7 @@ export class ArrangementInspector {
                                 var formData = new FormData();
 
                                 formData.append("saveAsSerie", true); // Special parameter to instruct to save event batch as a serie.
-                                formData.append("manifest.pattern", serie.pattern.pattern_type);
-                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
-                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
-                                formData.append("manifest.startDate", serie.time_area.start_date);
-                                formData.append("manifest.startTime", serie.time.start);
-                                formData.append("manifest.endTime", serie.time.end);
-                                formData.append("manifest.ticketCode", serie.time.ticket_code);
-                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
-                                formData.append("manifest.title", serie.time.title);
-                                formData.append("manifest.title_en", serie.time.title_en);
-                                formData.append("manifest.rooms", serie.rooms);
-                                formData.append("manifest.people", serie.people);
-                                formData.append("manifest.displayLayouts", serie.display_layouts);
-
-                                switch(serie.pattern.pattern_type) {
-                                    case "daily":
-                                        if (serie.pattern.pattern_routine === "daily__every_x_day") {
-                                            formData.append("manifest.interval", serie.pattern.interval);
-                                        }
-                                        break;
-                                    case "weekly":
-                                        formData.append("manifest.interval", serie.pattern.week_interval);
-                                        var count = 0;
-                                        for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-                                            formData.append(`manifest.${day}`, serie.pattern.days.get(count));
-                                            count++;
-                                        }
-                                        break;
-                                    case "monthly":
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "month__every_x_day_every_y_month":
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                formData.append("manifest.day_of_month", serie.pattern.day_of_month);
-                                                break;
-                                            case "month__every_arbitrary_date_of_month":
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                break;
-                                        }
-                                        break;
-                                    case "yearly":
-                                        formData.append("manifest.interval", serie.pattern.year_interval);
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "yearly__every_x_of_month":
-                                                formData.append("manifest.day_of_month", serie.pattern.day_index);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                break;
-                                            case "yearly__every_arbitrary_weekday_in_month":
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                break;
-                                        }
-                                        break;
-                                }
-
-                                if (serie.time_area.stop_within !== undefined) {
-                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
-                                }
-                                if (serie.time_area.instances !== undefined) {
-                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
-                                }
-                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
-                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
-                                }
+                                formData = serieConvert(serie, formData);
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
@@ -481,75 +417,8 @@ export class ArrangementInspector {
                             var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
                                 var events = SeriesUtil.calculate_serie(serie);
                                 var formData = new FormData();
-
                                 formData.append("saveAsSerie", true); // Special parameter to instruct to save event batch as a serie.
-                                formData.append("predecessorSerie", serie._uuid); // The preceding serie must be removed.
-                                formData.append("manifest.pattern", serie.pattern.pattern_type);
-                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
-                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
-                                formData.append("manifest.startDate", serie.time_area.start_date);
-                                formData.append("manifest.startTime", serie.time.start);
-                                formData.append("manifest.endTime", serie.time.end);
-                                formData.append("manifest.ticketCode", serie.time.ticket_code);
-                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
-                                formData.append("manifest.title", serie.time.title);
-                                formData.append("manifest.title_en", serie.time.title_en);
-                                formData.append("manifest.rooms", serie.rooms);
-                                formData.append("manifest.people", serie.people);
-                                formData.append("manifest.displayLayouts", serie.display_layouts);
-
-                                switch(serie.pattern.pattern_type) {
-                                    case "daily":
-                                        if (serie.pattern.pattern_routine === "daily__every_x_day") {
-                                            formData.append("manifest.interval", serie.pattern.interval);
-                                        }
-                                        break;
-                                    case "weekly":
-                                        formData.append("manifest.interval", serie.pattern.week_interval);
-                                        var count = 0;
-                                        for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-                                            formData.append(`manifest.${day}`, serie.pattern.days.get(count));
-                                            count++;
-                                        }
-                                        break;
-                                    case "monthly":
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "month__every_x_day_every_y_month":
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                formData.append("manifest.day_of_month", serie.pattern.day_of_month);
-                                                break;
-                                            case "month__every_arbitrary_date_of_month":
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                break;
-                                        }
-                                        break;
-                                    case "yearly":
-                                        formData.append("manifest.interval", serie.pattern.year_interval);
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "yearly__every_x_of_month":
-                                                formData.append("manifest.day_of_month", serie.pattern.day_index);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                break;
-                                            case "yearly__every_arbitrary_weekday_in_month":
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                break;
-                                        }
-                                        break;
-                                }
-
-                                if (serie.time_area.stop_within !== undefined) {
-                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
-                                }
-                                if (serie.time_area.instances !== undefined) {
-                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
-                                }
-                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
-                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
-                                }
+                                formData = serieConvert(serie, formData);
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];

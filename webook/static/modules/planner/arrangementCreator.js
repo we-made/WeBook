@@ -1,5 +1,6 @@
-import { DialogManager, Dialog } from "./dialog_manager/dialogManager.js";
-import { SeriesUtil } from "./seriesutil.js"
+import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
+import { serieConvert } from "./serieConvert.js";
+import { SeriesUtil } from "./seriesutil.js";
 
 
 export class ArrangementCreator {
@@ -75,73 +76,8 @@ export class ArrangementCreator {
                             var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
                                 var events = SeriesUtil.calculate_serie(serie);
                                 var formData = new FormData();
-
-                                formData.append("manifest.pattern", serie.pattern.pattern_type);
-                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
-                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
-                                formData.append("manifest.startDate", serie.time_area.start_date);
-                                formData.append("manifest.startTime", serie.time.start);
-                                formData.append("manifest.endTime", serie.time.end);
-                                formData.append("manifest.ticketCode", serie.time.ticket_code);
-                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
-                                formData.append("manifest.title", serie.time.title);
-                                formData.append("manifest.title_en", serie.time.title_en);
-                                formData.append("manifest.rooms", serie.rooms);
-                                formData.append("manifest.people", serie.people);
-                                formData.append("manifest.displayLayouts", serie.display_layouts);
                                 
-                                switch(serie.pattern.pattern_type) {
-                                    case "daily":
-                                        if (serie.pattern.pattern_routine === "daily__every_x_day") {
-                                            formData.append("manifest.interval", serie.pattern.interval);
-                                        }
-                                        break;
-                                    case "weekly":
-                                        formData.append("manifest.interval", serie.pattern.week_interval);
-                                        var count = 0;
-                                        for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-                                            formData.append(`manifest.${day}`, serie.pattern.days.get(count));
-                                            count++;
-                                        }
-                                        break;
-                                    case "monthly":
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "month__every_x_day_every_y_month":
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                formData.append("manifest.day_of_month", serie.pattern.day_of_month);
-                                                break;
-                                            case "month__every_arbitrary_date_of_month":
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                break;
-                                        }
-                                        break;
-                                    case "yearly":
-                                        formData.append("manifest.interval", serie.pattern.year_interval);
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "yearly__every_x_of_month":
-                                                formData.append("manifest.day_of_month", serie.pattern.day_index);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                break;
-                                            case "yearly__every_arbitrary_weekday_in_month":
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                break;
-                                        }
-                                        break;
-                                }
-                                
-                                if (serie.time_area.stop_within !== undefined) {
-                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
-                                }
-                                if (serie.time_area.instances !== undefined) {
-                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
-                                }
-                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
-                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
-                                }
+                                formData = serieConvert({ serie, formData });
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
@@ -202,8 +138,6 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: (dialogManager, context) => { 
-                            console.log("OnRendered Context -> ", context);
-
                             if (context.lastTriggererDetails === undefined) {
                                 $('#serie_ticket_code').attr('value', $('#id_ticket_code')[0].value );
                                 $('#serie_title').attr('value', $('#id_name')[0].value );
@@ -216,7 +150,7 @@ export class ArrangementCreator {
                                             .prop( "checked", true );
                                     })
                                     
-                                createSerieDialog__evaluateEnTitleObligatory();
+                                // createSerieDialog__evaluateEnTitleObligatory();
                                 
                                 $('#serie_uuid').val(crypto.randomUUID());
 
@@ -375,6 +309,17 @@ export class ArrangementCreator {
                                 details.serie._uuid = crypto.randomUUID();
                             }
                             
+                            var formData = new FormData();
+                            formData = serieConvert(details.serie, formData, "");
+                            fetch("/arrangement/analysis/analyzeNonExistentSerie", {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    "X-CSRFToken": details.csrf_token
+                                },
+                                credentials: 'same-origin'
+                            }).then(response => response.text()).then(text => console.log(text));
+
                             context.series.set(details.serie._uuid, details.serie);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
