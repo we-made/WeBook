@@ -17,11 +17,10 @@
     }
 
     async render(context) {
-        this.prepareDOM();
-
+        // this.prepareDOM();
+        $( `#${this.dialogElementId}` ).dialog( "destroy" ).remove();
         this.destroy();
 
-        this.dialogOptions.closeText = "hello";
         if (this.isOpen() === false) {
             $('body')
                 .append(await this.htmlFabricator(context))
@@ -29,7 +28,12 @@
                     this._$getDialogEl().dialog( this.dialogOptions );
                     this.onRenderedCallback(this, context);
                     this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                        .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>");
+                        .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>")
+                        .click( () => {
+                            console.log("Clicked X button")
+                            this.destroy();
+                        });
+                    
                 });
         }
     }
@@ -61,22 +65,8 @@
 
     close() {
         if (this.isOpen() === true) {
-            this._$getDialogEl().dialog("close");
+            this.destroy()
         }
-    }
-
-    prepareDOM() {
-
-        var selector = `#${this.dialogElementId}`
-        if (this.dialogElementId == "editEventSerieDialog") {
-            selector += ",#newTimePlanDialog";
-        }
-
-        var elements = document.querySelectorAll(selector);
-
-        elements.forEach(element => {
-            element.remove();
-        })
     }
 
     getInstance() {
@@ -84,7 +74,7 @@
     }
 
     destroy() {
-        $( `#${this.dialogElementId}` ).dialog( "destroy" );
+        $( `#${this.dialogElementId}` ).dialog( "destroy" ).remove();
     }
 
     isOpen() {
@@ -107,6 +97,9 @@ export class DialogManager {
         this._listenForSubmitEvent();
         this._listenForCloseEvent();
         this._listenForReloadEvent();
+        
+        this.discriminator = crypto.randomUUID();
+        global_dialogManagerDiscriminators.set(this.managerName, this.discriminator);
 
         this._dialogRepository = new Map(dialogs);
         this.context = {};
