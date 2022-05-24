@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block content %}
+
+<h1>{{object.title}}</h1>
+<div id="previewCalendar"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('previewCalendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            events: '/arrangement/eventSerie/{{object.pk}}/calculate',
+            initialView: 'timeGridWeek',
+            navLinks:true,
+            locale: 'nb',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            }
+        });
+        calendar.render();
+    });
+</script>
+
+{% endblock %}
