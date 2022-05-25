@@ -254,6 +254,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
 
             event.arrangement_id = arrangement_id
             event.title = get_post_value_or_none("title")
+            event.title_en = get_post_value_or_none("title_en")
             event.start = get_post_value_or_none("start")
             event.end = get_post_value_or_none("end")
             event.expected_visitors = get_post_value_or_none("expected_visitors")
