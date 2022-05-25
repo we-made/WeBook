@@ -266,7 +266,7 @@
         }
       }
 
-      #mainBodyContainer {
+      .container-sidebar-padded-in {
         padding-left: 280px;
       }
 
@@ -277,7 +277,7 @@
     <div style="margin-top:100px"></div>
     {% endblock %}
 
-    <div class="container-fluid" id="mainBodyContainer">
+    <div class="container-fluid container-sidebar-padded-in" id="mainBodyContainer">
       {% block noheader %}
       <section class="bg-white  header-fonted">
         <h1 class="h1 fw-bolder header-fonted">
@@ -360,17 +360,13 @@
           $('#zenModeCheckbox').change(function () {
             if (this.checked) {
               console.log("<< Zen Mode Activated >>")
-              $('#mainBodyContainer').addClass("container-fluid");
-              $('#mainBodyContainer').removeClass("container");
-
+              $('#mainBodyContainer').removeClass("container-sidebar-padded-in");
               document.dispatchEvent(new Event("zenmode.activated"))
-
               instance.hide();
             }
             else {
               console.log("<< Zen Mode Deactivated >>")
-              $('#mainBodyContainer').addClass("container");
-              $('#mainBodyContainer').removeClass("container-fluid");
+              $('#mainBodyContainer').addClass("container-sidebar-padded-in");
               instance.show();
             }
           });
