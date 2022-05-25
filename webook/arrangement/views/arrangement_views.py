@@ -1,3 +1,4 @@
+from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -25,10 +26,36 @@ from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixi
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from django.views.generic.edit import FormView
-from django.http import JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+
+
+class ArrangementRecurringInformationJsonView(LoginRequiredMixin, DetailView, JSONResponseMixin):
+    """ A view for getting the JSON 'recurrent' information
+        This is name, name in english, ticket code, expected visitors
+    """
+    model = Arrangement
+    pk_url_kwarg = "pk"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_json_response(context, safe=False)
+
+    def get_data(self, context):
+        arrangement = context["object"]
+
+        return {
+            "title": arrangement.name,
+            "title_en": arrangement.name_en,
+            "ticket_code": arrangement.ticket_code,
+            "expected_visitors": arrangement.expected_visitors,
+            "display_layouts": [ display_layout.pk for display_layout in arrangement.display_layouts.all() ]
+        }
+
+arrangement_recurring_information_json_view = ArrangementRecurringInformationJsonView.as_view()
 
 
 class ArrangementCreateView (LoginRequiredMixin, MetaMixin, CreateView):

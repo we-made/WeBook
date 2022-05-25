@@ -53,7 +53,7 @@
             document.querySelector("#" + this.dialogElementId).innerHTML 
                 = holderEl.querySelector("#" + this.dialogElementId).innerHTML;
 
-            this.onRenderedCallback(this);
+            this.onRenderedCallback(this, context);
 
             return;
         }

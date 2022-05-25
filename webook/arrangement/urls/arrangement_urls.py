@@ -12,10 +12,16 @@ from webook.arrangement.views import (
     arrangement_search_view,
     arrangement_create_json_view,
     arrangement_delete_file_view,
+    arrangement_recurring_information_json_view,
 )
 
 
 arrangement_urls = [
+    path(
+        route="arrangement/<int:pk>/detail",
+        view=arrangement_recurring_information_json_view,
+        name="arrangement_recurring_info_json",
+    ),
     path(
         route="arrangement/create/",
         view=arrangement_create_view,
