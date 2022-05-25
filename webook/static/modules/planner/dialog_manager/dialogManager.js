@@ -17,7 +17,6 @@
     }
 
     async render(context) {
-        $( `#${this.dialogElementId}` ).dialog( "destroy" ).remove();
         this.destroy();
 
         if (this.isOpen() === false) {
