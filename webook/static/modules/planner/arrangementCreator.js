@@ -145,6 +145,7 @@ export class ArrangementCreator {
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
+                                    event.title_en = serie.time.title_en;
                                     event.arrangement=arrangementId;
                                     event.start = event.from.toISOString();
                                     event.end=event.to.toISOString();
