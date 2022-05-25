@@ -71,7 +71,10 @@
     }
 
     destroy() {
-        $( `#${this.dialogElementId}` ).dialog( "destroy" ).remove();
+        $( this.dialogElementId ).dialog( "destroy" );
+        $(`[id=${this.dialogElementId}]`).each(function (index, $dialogElement) {
+            $dialogElement.remove();
+        })
     }
 
     isOpen() {
