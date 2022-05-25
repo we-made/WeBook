@@ -362,12 +362,12 @@
               console.log("<< Zen Mode Activated >>")
               $('#mainBodyContainer').removeClass("container-sidebar-padded-in");
               document.dispatchEvent(new Event("zenmode.activated"))
-              instance.hide();
+              sidebarInstance.hide();
             }
             else {
               console.log("<< Zen Mode Deactivated >>")
               $('#mainBodyContainer').addClass("container-sidebar-padded-in");
-              instance.show();
+              sidebarInstance.show();
             }
           });
 
@@ -402,7 +402,7 @@
 
 
           const sidenav = document.getElementById("sidenav-1");
-          const instance = mdb.Sidenav.getInstance(sidenav);
+          const sidebarInstance = mdb.Sidenav.getInstance(sidenav);
 
           let innerWidth = null;
 
@@ -415,11 +415,11 @@
             innerWidth = window.innerWidth;
 
             if (window.innerWidth < 1400) {
-              instance.changeMode("over");
-              instance.hide();
+              sidebarInstance.changeMode("over");
+              sidebarInstance.hide();
             } else {
-              instance.changeMode("side");
-              instance.show();
+              sidebarInstance.changeMode("side");
+              sidebarInstance.show();
             }
           };
 
