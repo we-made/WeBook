@@ -26,8 +26,7 @@
                     aria-orientation="vertical">
 
                     {% for location in locations %}
-                        {% if forloop.counter == 1 %}
-                        <a class="nav-link active"
+                        <a class="nav-link {% if forloop.counter == 1 %} active {% endif %}"
                         id="tabs-{{location.slug}}-tab"
                         data-mdb-toggle="tab"
                         href="#tabs-{{location.slug}}"
@@ -36,17 +35,6 @@
                         aria-selected="true">
                             {{location.name}}
                         </a>
-                        {% else %}
-                        <a class="nav-link"
-                        id="tabs-{{location.slug}}-tab"
-                        data-mdb-toggle="tab"
-                        href="#tabs-{{location.slug}}"
-                        role="tab"
-                        aria-controls="v-tabs-home"
-                        aria-selected="true">
-                            {{location.name}}
-                        </a>
-                        {% endif %}
                     {% endfor %}
                   </div>
                 </div>
@@ -70,7 +58,7 @@
                                     {% for room in location.rooms.all %}
                                         <tr>
                                             <td> 
-
+                                                {{room.is_selected}}
                                                 {% if room.is_selected %}
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
