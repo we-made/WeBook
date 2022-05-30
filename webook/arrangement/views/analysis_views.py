@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView, View
 
 from webook.arrangement.forms.exclusivity_analysis.analyze_arrangement_form import AnalyzeArrangementForm
-from webook.arrangement.forms.exclusivity_analysis.analyze_non_existant_event import AnalyzeNonExistantEvent
+from webook.arrangement.forms.exclusivity_analysis.analyze_non_existant_event import AnalyzeNonExistantEventForm
 from webook.arrangement.forms.exclusivity_analysis.analyze_non_existent_serie_manifest_form import (
     AnalyzeNonExistentSerieManifestForm,
 )
@@ -19,8 +19,8 @@ sample_collision_records = [
     CollisionRecord(
         contested_resource_name = "Contested Resource",
         contested_resource_id = 1,
-        event_a_title = "Event A",
-        event_b_title = "Event B",
+        event_a_title="Event A",
+        event_b_title="Event B",
         event_a_start=datetime.now(),
         event_a_end=datetime.now() + timedelta(hours = 4),
         event_b_start=datetime.now() + timedelta(hours = 1),
@@ -75,12 +75,12 @@ analyze_arrangement_view = AnalyzeArrangement.as_view()
 
 class AnalyzeNonExistantEvent(LoginRequiredMixin, CollisionAnalysisFormView):
     """ Analyze a non-existent event, and return JSON with collisions """
-    form_class = AnalyzeNonExistantEvent
+    form_class = AnalyzeNonExistantEventForm
     
     def form_valid(self, form) -> JsonResponse:
-        event_dict = form.as_dict()
-        analyze_collisions([ event_dict ])
-        return super().form_valid(form)
+        event_dict = form.as_event_dto()
+        records = analyze_collisions([ event_dict ])
+        return JsonResponse( [ vars(record) for record in records ], safe=False )
 
     def form_invalid(self, form) -> JsonResponse:
         return super().form_invalid(form)

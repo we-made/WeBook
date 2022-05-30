@@ -418,48 +418,68 @@ export class ArrangementCreator {
                                 details.event._uuid = crypto.randomUUID();
                             }
 
-                            Swal.fire({
-                                title: 'Kollisjon',
-                                width: 600,
-                                html: 
-                                `
-                                Hendelsen kan ikke opprettes da den kolliderer med en eksisterende booking på den eksklusive ressursen Contested Resource.
-                                <div class='row mt-3'>
-                                    <div class='col-5'>
-                                        <div class='card shadow-4 border'>
-                                            <div class='card-head bg-info text-white p-1'>
-                                                ARRANGEMENT A
+                            console.log(details.event);
+
+                            var formData = new FormData();
+                            for (var key in details.event) {
+                                formData.append(key, details.event[key])
+                            }
+
+                            var startDate = new Date(details.event.start);
+                            var endDate = new Date(details.event.end);
+                            formData.append("fromDate", startDate.toISOString());
+                            formData.append("toDate", endDate.toISOString());
+                            
+                            details.event.collisions = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    "X-CSRFToken": details.csrf_token
+                                },
+                                credentials: 'same-origin'
+                            }).then(response => response.text()).then(text => JSON.parse(text));
+
+                            if (details.event.collisions.length > 0) {
+                                var collision = details.event.collisions[0];
+                                Swal.fire({
+                                    title: 'Kollisjon',
+                                    width: 600,
+                                    html: 
+                                    `
+                                    Hendelsen kan ikke opprettes da den kolliderer med en eksisterende booking på den eksklusive ressursen ${collision.contested_resource_name}.
+                                    <div class='row mt-3'>
+                                        <div class='col-5'>
+                                            <div class='card shadow-4 border'>
+                                                <div class='card-body'>
+                                                    <span class='fw-bold'>${collision.event_a_title}</span>
+                                                    <div class='small text-muted'>
+                                                        ${collision.event_a_start} - ${collision.event_a_end}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class='card-body'>
-                                                <span class='fw-bold'>EVENT A</span>
-                                                <div class='small text-muted'>
-                                                    24.05.2022 12:00 - 24.05.2022 19:00
+                                        </div>
+                                        <div class='col-2'>
+                                            <h2 class='align-middle'> <i class='fas fa-arrow-right'></i> </h2>
+                                        </div>
+                                        <div class='col-5'>
+                                            <div class='card shadow-4 border'>
+                                                <div class='card-body'>
+                                                    <span class='fw-bold'>${collision.event_b_title}</span>
+                                                    <div class='small text-muted'>
+                                                        ${collision.event_b_start} - ${collision.event_b_end}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class='col-2'>
-                                        <h2 class='align-middle'> <i class='fas fa-arrow-right'></i> </h2>
-                                    </div>
-                                    <div class='col-5'>
-                                        <div class='card shadow-4 border'>
-                                            <div class='card-head bg-danger text-white p-1'>
-                                                ARRANGEMENT B
-                                            </div>
-                                            <div class='card-body'>
-                                                <span class='fw-bold'>EVENT B</span>
-                                                <div class='small text-muted'>
-                                                    24.05.2022 15:00 - 24.05.2022 18:00
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                `,
-                                icon: 'error',
-                                footer: '<a href="">Why do I have this issue?</a>'
-                            })
-                            return false;
+                                    `,
+                                    icon: 'error',
+                                    // footer: '<a href="">Why do I have this issue?</a>'
+                                })
+                                return false;
+                            }
+
+
                             // context.events.set(details.event._uuid, details.event);
                             // document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },

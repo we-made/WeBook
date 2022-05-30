@@ -2,8 +2,8 @@ from collections import namedtuple
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, List, Tuple, Union
-import pytz
 
+import pytz
 from django.db.models import Q
 
 from webook.arrangement.models import Arrangement, Event, EventSerie, Room
@@ -55,8 +55,10 @@ def _analyze_multiple_events(events: List[dict], rooms: dict, room_ids: List[int
 
     for event in events:
         utc = pytz.UTC
-        event.start = utc.localize(event.start)
-        event.end = utc.localize(event.end)
+        if event.start.tzinfo is None:
+            event.start = utc.localize(event.start)
+        if event.end.tzinfo is None:
+            event.end = utc.localize(event.end)
         exclusive_room_ids = [value for value in room_ids if value in event.rooms]
         for exlusive_room_id in exclusive_room_ids:
             room_calendar = rooms[exlusive_room_id]
