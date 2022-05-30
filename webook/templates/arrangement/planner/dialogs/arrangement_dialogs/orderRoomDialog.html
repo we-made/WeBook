@@ -1,68 +1,92 @@
 <div id="{{dialog}}" title="{% if mode == 'serie' %}Bestill rom{% else %}Bestill rom for '{{event.title}}'{% endif %}">
-    <div class='bg-white p-2 border border-1'>
+    <div>
         {% if mode == "serie" %}
         <div class="alert alert-danger">
             <strong>Merk: </strong> du bestiller rom for hele serien.
         </div>
         {% endif %}
 
-        <div class="input-group mb-2">
-            <span class="input-group-text">
-                <i class="fas fa-search"></i>
-            </span>
-            <input type="search" name="" placeholder="Søk..." class="form-control" id="datatable-search-input">
-        </div>
+        <div class="mb-5">
+            <h5>Aktiver presets</h5>
 
-        {% for preset in room_presets %}
-        <div class="bg-success btn p-2 text-white rounded-5 mb-2"
-            data-mdb-togggle="tooltip" title="Select all rooms in this preset"
-            rooms="{{preset.room_ids}}"
-            onclick="orderRoomDialog__activateRoomIds(this.getAttribute('rooms'))">
-            {{preset.name}}
-        </div>
+            {% for preset in room_presets %}
+                <a href="#" class="btn btn-info text-white shadow-0"
+                    rooms="{{preset.room_ids}}"
+                    onclick="orderRoomDialog__activateRoomIds(this.getAttribute('rooms'))">
+                    {{preset.name}}
+                </a>
+            {% endfor %}
 
-        {% endfor %}
+            <h5 class="mt-3">Eller velg rom manuelt</h5>
+            <div class="row">
+                <div class="col-3">
+                  <div class="nav flex-column nav-tabs text-center"
+                    id="tabs-tab"
+                    role="tablist"
+                    aria-orientation="vertical">
 
-        <table class="table table-sm" id="roomsTable" style="max-height: 25rem;overflow: auto;display:inline-block;">
-            <thead>
-                <tr>
-                    <th>Velg</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for location in locations %}
-                    <tr>
-                        <td> 
-                            <span class="mb-0 fw-bold"> {{location.name}} </span> 
+                    {% for location in locations %}
+                        <a class="nav-link {% if forloop.counter == 1 %} active {% endif %}"
+                        id="tabs-{{location.slug}}-tab"
+                        data-mdb-toggle="tab"
+                        href="#tabs-{{location.slug}}"
+                        role="tab"
+                        aria-controls="v-tabs-home"
+                        aria-selected="true">
+                            {{location.name}}
+                        </a>
+                    {% endfor %}
+                  </div>
+                </div>
+              
+                <div class="col-9">
+                  <div class="tab-content" id="v-tabs-tabContent">
+                      {% for location in locations %}
+                        <div
+                            class="tab-pane {% if forloop.counter == 1 %} show active {% endif %} fade"
+                            id="tabs-{{location.slug}}"
+                            role="tabpanel"
+                            aria-labelledby="tabs-{{location.slug}}-tab">
 
-                            {% for room in location.rooms.all %}
-                            <div>
-                                {% if room.is_selected %}
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
-                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray" checked/>
-                                    <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
-                                </div>
-                                {% else %}
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
-                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray"/>
-                                    <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
-                                </div>
-                                {% endif %}
-                            </div>
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="clearfix">
-            <button class="btn btn-sm btn-success float-end shadow-0" type="button" onclick="orderRoomDialog__order()">
-                Bestill valgte rom
-            </button>
-        </div>
+                            <table class="table table-sm table-striped mt-2" id="{{location.slug}}_roomsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Rom</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for room in location.rooms.all %}
+                                        <tr>
+                                            <td> 
+                                                {{room.is_selected}}
+                                                {% if room.is_selected %}
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
+                                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray" checked/>
+                                                    <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
+                                                </div>
+                                                {% else %}
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
+                                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray"/>
+                                                    <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
+                                                </div>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                      {% endfor %}
+                  </div>
+                </div>
+            </div>
+    </div>
+    <div class="clearfix">
+        <a class="btn btn-success text-white float-end shadow-0" type="button" onclick="orderRoomDialog__order()">
+            Lagre seleksjon
+        </a>
     </div>
 </div>
 
@@ -77,7 +101,6 @@
     }
 
     function orderRoomDialog__activateRoomIds(roomIds) {
-        console.log(roomIds)
         var checkboxes = $("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked");
         for (let i = 0; i < checkboxes.length; i++) {
             checkboxes[i].removeAttribute("checked");
@@ -92,16 +115,14 @@
     }
 
     $(document).ready(function () {
-        $('#roomsTable').DataTable().destroy();
+        document.querySelectorAll('.form-outline').forEach((formOutline) => {
+            new mdb.Input(formOutline).init();
+        });
 
-        const dt = $('#roomsTable').DataTable( { 
-            paging: false,
-            dom: 't',
-        } ); 
-
-        document.getElementById('datatable-search-input').addEventListener('input', (e) => {
-           dt.search(e.target.value).draw();
-        })
+        {% for location in locations %}
+            $('#{{location.slug}}_roomsTable').DataTable().destroy();
+            $('#{{location.slug}}_roomsTable').DataTable();
+        {% endfor %}
     })
 
     {% if mode == 'serie' %}
@@ -111,7 +132,8 @@
                                 .map( x => x.id )
                                 .join(","));
         data.set("serie_guid", "{{serie_guid}}");
-        
+    
+
         $('#roomsTable').DataTable().destroy();
 
         document.dispatchEvent(
