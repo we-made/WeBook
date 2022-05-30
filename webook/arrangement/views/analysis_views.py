@@ -44,8 +44,14 @@ class AnalyzeNonExistentSerieManifest(LoginRequiredMixin, CollisionAnalysisFormV
     def form_valid(self, form) -> JsonResponse:
         manifest = form.as_plan_manifest()
         calculated_serie = calculate_serie(manifest)
-        analyze_collisions(calculated_serie)
-        return JsonResponse( [ vars(record) for record in sample_collision_records  ], safe=False )
+
+        rooms_list = [int(room.id) for room in manifest.rooms.all()]
+
+        for ev in calculated_serie:
+            ev.rooms = rooms_list
+
+        records = analyze_collisions(calculated_serie)
+        return JsonResponse( [ vars(record) for record in records ], safe=False )
 
     def form_invalid(self, form) -> JsonResponse:
         print(form.errors)
@@ -73,7 +79,7 @@ class AnalyzeNonExistantEvent(LoginRequiredMixin, CollisionAnalysisFormView):
     
     def form_valid(self, form) -> JsonResponse:
         event_dict = form.as_dict()
-        analyze_collisions(event_dict)
+        analyze_collisions([ event_dict ])
         return super().form_valid(form)
 
     def form_invalid(self, form) -> JsonResponse:

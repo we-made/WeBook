@@ -77,7 +77,7 @@ export class ArrangementCreator {
                                 var events = SeriesUtil.calculate_serie(serie);
                                 var formData = new FormData();
                                 
-                                formData = serieConvert({ serie, formData });
+                                formData = serieConvert(serie, formData);
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
@@ -459,9 +459,9 @@ export class ArrangementCreator {
                                 icon: 'error',
                                 footer: '<a href="">Why do I have this issue?</a>'
                             })
-                            
-                            context.events.set(details.event._uuid, details.event);
-                            document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
+                            return false;
+                            // context.events.set(details.event._uuid, details.event);
+                            // document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
                         dialogOptions: { width: 700 }
                     })

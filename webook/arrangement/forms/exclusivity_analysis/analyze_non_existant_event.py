@@ -1,5 +1,4 @@
 from django import forms
-from numpy import require
 
 from webook.arrangement.models import Arrangement, Event
 
