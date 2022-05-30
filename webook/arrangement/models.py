@@ -1,18 +1,20 @@
 import datetime
+import os
 from argparse import ArgumentError
 from email.policy import default
 from enum import Enum
-import os
+
+from autoslug import AutoSlugField
 from django.db import models
 from django.db.models import FileField
 from django.db.models.deletion import RESTRICT
-from django_extensions.db.models import TimeStampedModel
-from autoslug import AutoSlugField
-from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
+
+import webook.screenshow.models as screen_models
 from webook.arrangement.managers import ArchivedManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
-import webook.screenshow.models as screen_models
 
 
 class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
@@ -852,21 +854,16 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
 
-    PLANNING_SILO = 'planning_silo'
-    ANALYSIS_SILO = 'analysis_silo'
-    REQUISITIONING_SILO = 'requisitioning_silo'
-    PRODUCTION_SILO = 'production_silo'
-    ARCHIVE_SILO = 'archive_silo'
-
-    SILO_CHOICES = (
-        (PLANNING_SILO, PLANNING_SILO),
-        (REQUISITIONING_SILO, REQUISITIONING_SILO),
-        (ANALYSIS_SILO, ANALYSIS_SILO),
-        (PRODUCTION_SILO, PRODUCTION_SILO),
-        (ARCHIVE_SILO, ARCHIVE_SILO),
+    ARRANGEMENT_EVENT = 'arrangement_event'
+    COLLISION_EVENT = 'collision_event'
+    HOLIDAY_EVENT = 'holiday_event'
+    EVENT_TYPE_CHOICES = (
+        ( ARRANGEMENT_EVENT, ARRANGEMENT_EVENT ),
+        ( COLLISION_EVENT, COLLISION_EVENT ),
+        ( HOLIDAY_EVENT, HOLIDAY_EVENT ),
     )
-
-    silo = models.CharField(max_length=255, choices=SILO_CHOICES, default=PLANNING_SILO)
+    
+    event_type = models.CharField(max_length=255, choices=EVENT_TYPE_CHOICES, default=ARRANGEMENT_EVENT)
 
     serie = models.ForeignKey(to="EventSerie", on_delete=models.RESTRICT, null=True, blank=True, related_name="events")
 
