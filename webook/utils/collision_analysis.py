@@ -61,7 +61,7 @@ def _analyze_multiple_events(events: List[dict], rooms: dict, room_ids: List[int
             event.end = utc.localize(event.end)
         exclusive_room_ids = [value for value in room_ids if value in event.rooms]
         for exlusive_room_id in exclusive_room_ids:
-            room_calendar = rooms[exlusive_room_id]
+            room_calendar = rooms[int(exlusive_room_id)]
             for r_event in room_calendar.events:
                 if (r_event.start < event.end and r_event.end > event.start):
                     records.append(CollisionRecord(
@@ -74,5 +74,6 @@ def _analyze_multiple_events(events: List[dict], rooms: dict, room_ids: List[int
                         contested_resource_id=room_calendar.room.id,
                         contested_resource_name=room_calendar.room.name,
                     ))
+                    event.is_collision = True
     
     return records
