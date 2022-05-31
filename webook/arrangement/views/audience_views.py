@@ -29,7 +29,8 @@ def get_section_manifest():
         section_icon="fas fa-user",
         section_crumb_url=reverse("arrangement:audience_list"),
         crudl_map=SectionCrudlPathMap(
-            detail_url="arrangement:audience_detail",
+            #detail_url="arrangement:audience_detail",
+            detail_url=None,
             create_url="arrangement:audience_create",
             edit_url="arrangement:audience_edit",
             delete_url="arrangement:audience_delete",
@@ -48,6 +49,11 @@ class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, Generic
     model = Audience
     queryset = Audience.objects.all()
     view_meta = ViewMeta.Preset.table(Audience)
+
+    fields = [
+        "name_en",
+        "icon_class",
+    ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -73,7 +79,7 @@ class AudienceSearchView(LoginRequiredMixin, SearchView):
 
         if (search_term == ""):
             audiences = Audience.objects.all()
-        else: 
+        else:
             audiences = Audience.objects.filter(name__contains=search_term)
 
         return audiences
@@ -85,17 +91,18 @@ class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
     model = Audience
     fields = [
         "name",
+        "name_en",
         "icon_class",
     ]
     template_name = "arrangement/audience/audience_form.html"
     view_meta = ViewMeta.Preset.create(Audience)
 
-    success_urls_and_messages = { 
-        "submitAndNew": { 
+    success_urls_and_messages = {
+        "submitAndNew": {
             "url": reverse_lazy( "arrangement:audience_create" ),
             "msg": _("Successfully created entity")
         },
-        "submit": { 
+        "submit": {
             "url": reverse_lazy("arrangement:audience_list"),
         }
     }
@@ -107,10 +114,16 @@ class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
     model = Audience
     fields = [
         "name",
+        "name_en",
         "icon_class",
     ]
     view_meta = ViewMeta.Preset.edit(Audience)
     template_name = "arrangement/audience/audience_form.html"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:audience_list"
+        )
 
 audience_update_view = AudienceUpdateView.as_view()
 
