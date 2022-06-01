@@ -254,6 +254,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             
             dto_events.append(EventDTO(
                 arrangement_id = get_post_value_or_none("arrangement"),
+                is_resolution=get_post_value_list_or_none("is_resolution"),
                 title = get_post_value_or_none("title"),
                 title_en = get_post_value_or_none("title_en"),
                 start=parser.parse(get_post_value_or_none("start")),
@@ -270,9 +271,12 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             counter += 1
         
         # collision analysis stuff
-        collision_records = analyze_collisions( dto_events )
+        collision_records = analyze_collisions( events=dto_events, annotate_events=True )
 
         for dto_event in dto_events:
+            if dto_event.is_collision:
+                continue
+
             event = Event()
 
             event.arrangement_id = dto_event.arrangement_id
@@ -296,13 +300,13 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             for personId in dto_event.people:
                 event.people.add(personId)
 
-            # loose_requisitions_post = get_post_value_or_none("loose_requisitions")
-            # for loose_requisition_id in parse_ids_string_to_list(loose_requisitions_post):
-            #     event.loose_requisitions.add(loose_requisition_id)
-
             event.save()
             if event_serie is not None:
-                event_serie.events.add(event)
+                if dto_event.is_resolution:
+                    event.associated_serie = event_serie
+                    event.association_type = Event.COLLISION_RESOLVED_ORIGINATING_OF_SERIE
+                else:
+                    event_serie.events.add(event)
             
             created_event_ids.append(event.pk)
 

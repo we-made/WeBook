@@ -20,4 +20,6 @@ class EventDTO:
     color: str = None
     sequence_guid: str = None
     ticket_code: str = None
+
+    is_resolution: bool = False
     

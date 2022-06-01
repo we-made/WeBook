@@ -25,10 +25,11 @@ Range = namedtuple('Range', ['start', 'end'])
 RoomCalendar = namedtuple('RoomCalendar', [ 'room', 'events' ])
 
 
-def analyze_collisions(events: Union[List[dict], dict]) -> Union[List[CollisionRecord], CollisionRecord]:
+def analyze_collisions(events: Union[List[dict], dict], annotate_events: bool = False) -> Union[List[CollisionRecord], CollisionRecord]:
     """
-        Analyze a list of events, or a single event for collisions. Returns a list of CollisionRecord if analyzing
-        multiple events, or a single CollisionRecord if only one event.P.en
+        Analyze a list of events, or a single event for collisions. Returns a list of CollisionRecords.
+        If annotate_events is True then the items in the event list will have a new attribute set; is_collision.
+        If true then the event is in a collision with another event.
     """
 
     earliest_start = min ( map(lambda event: event.start, events) )
@@ -38,6 +39,8 @@ def analyze_collisions(events: Union[List[dict], dict]) -> Union[List[CollisionR
     room_ids = []
 
     for event in events:
+        if annotate_events:
+            event.is_collision = False
         for room_id in event.rooms:
             if room_id not in room_ids:
                 room_ids.append(room_id)
@@ -74,6 +77,7 @@ def _analyze_multiple_events(events: List[dict], rooms: dict, room_ids: List[int
                         contested_resource_id=room_calendar.room.id,
                         contested_resource_name=room_calendar.room.name,
                     ))
-                    event.is_collision = True
+                    if hasattr(event, "is_collision"):
+                        event.is_collision = True
     
     return records

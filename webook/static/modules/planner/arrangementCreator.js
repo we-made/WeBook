@@ -428,6 +428,8 @@ export class ArrangementCreator {
                                 details.event._uuid = crypto.randomUUID();
                             }
 
+                            details.event.is_resolution = True;
+
                             var formData = new FormData();
                             for (var key in details.event) {
                                 formData.append(key, details.event[key])
