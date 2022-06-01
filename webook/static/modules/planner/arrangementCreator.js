@@ -326,6 +326,166 @@ export class ArrangementCreator {
                     })
                 ],
                 [
+                    "breakOutActivityDialog",
+                    new Dialog({
+                        dialogElementId: "breakOutActivityDialog",
+                        triggerElementId: "breakOutActivityDialog",
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=0&managerName=arrangementCreator&dialog=breakOutActivityDialog&orderRoomDialog=orderRoomDialog&orderPersonDIalog=orderPersonDialog&dialogTitle=Kollisjonshåndtering&dialogIcon=fa-code-branch')
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+                            var serie = context.lastTriggererDetails.serie;
+                            var collision_record = serie.collisions[context.lastTriggererDetails.collision_index];
+
+                            console.log(">> breakOutActivityDialog --> OnRenderedCallback")
+
+                            $('#ticket_code').val(serie.time.ticket_code ).trigger('change');
+                            $('#title').val(serie.time.title ).trigger('change');
+                            $('#title_en').attr('value', serie.time.title_en ).trigger('change');
+                            $('#expected_visitors').attr('value', serie.time.expected_visitors ).trigger('change');
+
+                            serie.display_layouts.split(",")
+                                .forEach(checkboxElement => {
+                                    $(`#${checkboxElement.value}_dlcheck`)
+                                        .prop( "checked", true );
+                                })
+
+                            $('#breakOutActivityDialog').prepend( $(
+                                document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
+                            ).addClass("mb-4"));
+                            
+                            
+                            // document.querySelectorAll("input[name='display_layouts']:checked")
+                            //     .forEach(checkboxElement => {
+                            //         $(`#${checkboxElement.value}_dlcheck`)
+                            //             .prop( "checked", true );
+                            //     })
+
+
+                            var splitDateFunc = function (strToDateSplit) {
+                                var date_str = strToDateSplit.split("T")[0];
+                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
+                                return [ date_str, time_str ];
+                            }
+                            var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
+                            var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
+                            $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
+                            $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
+                            $('#toDate').val(endTimeArtifacts[0]).trigger('change');
+                            $('#toTime').val(endTimeArtifacts[1]).trigger('change');
+                                
+                            // This ensures that english title is only obligatory IF a display layout has been selected.
+                            // dialogCreateEvent__evaluateEnTitleObligatory();
+
+                            if (serie.people.length > 0) {
+                                var peopleSelectContext = Object();
+                                peopleSelectContext.people = serie.people.join(",");
+                                peopleSelectContext.people_name_map = serie.people_name_map;
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementCreator.d1_peopleSelected",
+                                    { detail: {
+                                        context: peopleSelectContext
+                                    } }
+                                ));
+                            }
+                            if (serie.rooms.length > 0) {
+                                var roomSelectContext = Object();
+                                roomSelectContext.rooms = serie.rooms.join(",");
+                                roomSelectContext.room_name_map = serie.room_name_map;
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementCreator.d1_roomsSelected",
+                                    { detail: {
+                                        context: roomSelectContext
+                                    } }
+                                ));
+                            }
+
+                            $('#event_uuid').val(crypto.randomUUID());
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
+                        },
+                        onUpdatedCallback: () => {
+                            toastr.success("Enkel aktivitet lagt til eller oppdatert i planen");
+                            this.dialogManager.closeDialog("newSimpleActivityDialog"); 
+                        },
+                        onSubmit: async (context, details) => {
+                            if (context.events === undefined) {
+                                context.events = new Map();
+                            }
+                            if (details.event._uuid === undefined) {
+                                details.event._uuid = crypto.randomUUID();
+                            }
+
+                            var formData = new FormData();
+                            for (var key in details.event) {
+                                formData.append(key, details.event[key])
+                            }
+
+                            var startDate = new Date(details.event.start);
+                            var endDate = new Date(details.event.end);
+                            formData.append("fromDate", startDate.toISOString());
+                            formData.append("toDate", endDate.toISOString());
+                            
+                            details.event.collisions = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    "X-CSRFToken": details.csrf_token
+                                },
+                                credentials: 'same-origin'
+                            }).then(response => response.text()).then(text => JSON.parse(text));
+
+                            if (details.event.collisions.length > 0) {
+                                var collision = details.event.collisions[0];
+                                Swal.fire({
+                                    title: 'Kollisjon',
+                                    width: 600,
+                                    html: 
+                                    `
+                                    Hendelsen kan ikke opprettes da den kolliderer med en eksisterende booking på den eksklusive ressursen ${collision.contested_resource_name}.
+                                    <div class='row mt-3'>
+                                        <div class='col-5'>
+                                            <div class='card shadow-4 border'>
+                                                <div class='card-body'>
+                                                    <span class='fw-bold'>${collision.event_a_title}</span>
+                                                    <div class='small text-muted'>
+                                                        ${collision.event_a_start} - ${collision.event_a_end}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class='col-2'>
+                                            <h2 class='align-middle'> <i class='fas fa-arrow-right'></i> </h2>
+                                        </div>
+                                        <div class='col-5'>
+                                            <div class='card shadow-4 border'>
+                                                <div class='card-body'>
+                                                    <span class='fw-bold'>${collision.event_b_title}</span>
+                                                    <div class='small text-muted'>
+                                                        ${collision.event_b_start} - ${collision.event_b_end}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `,
+                                    icon: 'error',
+                                })
+                                return false;
+                            }
+
+                            context.lastTriggererDetails.serie.splice
+
+                            context.events.set(details.event._uuid, details.event);
+                            document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
+                        },
+                        dialogOptions: { width: 700 }
+                    })
+                ],
+                [
                     "newSimpleActivityDialog",
                     new Dialog({
                         dialogElementId: "newSimpleActivityDialog",
@@ -336,6 +496,10 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: (dialogManager, context) => { 
+                            
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                             if (context.lastTriggererDetails === undefined) {
                                 $('#ticket_code').attr('value', $('#id_ticket_code')[0].value );
                                 $('#title').attr('value', $('#id_name')[0].value );
@@ -405,6 +569,10 @@ export class ArrangementCreator {
                                     } }
                                 ));
                             }
+
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
                         onUpdatedCallback: () => { 
                             toastr.success("Enkel aktivitet lagt til eller oppdatert i planen");
@@ -417,8 +585,6 @@ export class ArrangementCreator {
                             if (details.event._uuid === undefined) {
                                 details.event._uuid = crypto.randomUUID();
                             }
-
-                            console.log(details.event);
 
                             var formData = new FormData();
                             for (var key in details.event) {
@@ -474,14 +640,12 @@ export class ArrangementCreator {
                                     </div>
                                     `,
                                     icon: 'error',
-                                    // footer: '<a href="">Why do I have this issue?</a>'
                                 })
                                 return false;
                             }
 
-
-                            // context.events.set(details.event._uuid, details.event);
-                            // document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
+                            context.events.set(details.event._uuid, details.event);
+                            document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
                         dialogOptions: { width: 700 }
                     })

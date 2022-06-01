@@ -684,6 +684,8 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
         context = super().get_context_data(**kwargs)
         
         context["managerName"] = self.request.GET.get("managerName")
+        context["dialogTitle"] = self.request.GET.get("dialogTitle", "Ny enkel aktivitet")
+        context["dialogIcon"] = self.request.GET.get("dialogIcon", "fa-calendar-plus")
         context["dialog"] = self.request.GET.get("dialog")
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
