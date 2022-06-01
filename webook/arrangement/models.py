@@ -866,11 +866,9 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     event_type = models.CharField(max_length=255, choices=EVENT_TYPE_CHOICES, default=ARRANGEMENT_EVENT)
 
     NO_ASSOCIATION = 'no_association'
-    UNRESOLVED_COLLISION_OF_SERIE = 'unresolved_collision_of_serie'
     COLLISION_RESOLVED_ORIGINATING_OF_SERIE = 'collision_resolved_originating_of_serie'
     ASSOCIATION_TYPE_CHOICES = (
         ( NO_ASSOCIATION, NO_ASSOCIATION ),
-        ( UNRESOLVED_COLLISION_OF_SERIE, UNRESOLVED_COLLISION_OF_SERIE ),
         ( COLLISION_RESOLVED_ORIGINATING_OF_SERIE, COLLISION_RESOLVED_ORIGINATING_OF_SERIE )
     )
     association_type = models.CharField(max_length=255, choices=ASSOCIATION_TYPE_CHOICES, default=NO_ASSOCIATION)
