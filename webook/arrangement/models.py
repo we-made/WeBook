@@ -172,7 +172,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMi
 class RoomPreset (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """
         A room preset is a group, or collection, or set, of rooms.
-    """ 
+    """
 
     slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
     name = models.CharField(verbose_name=_("Name"), max_length=256,     null=False, blank=False)
@@ -244,7 +244,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     )
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=True, null=True)
+    name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=True, null=True)
 
     stages = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PLANNING)
 
@@ -269,6 +269,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
     show_on_multimedia_screen = models.BooleanField(verbose_name=_("Show on multimedia screen"), default=False)
 
+    display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
+    display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layout"), related_name="arrangements", blank=True)
 
     slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
@@ -1032,7 +1034,7 @@ class PlanManifest(TimeStampedModel):
     day_of_week = models.IntegerField(default=0, null=True)
     day_of_month = models.IntegerField(default=0, null=True)
     month = models.IntegerField(default=0, null=True)
-    
+
     # Strategy Shared Fields
     interval = models.IntegerField(blank=True, default=0, null=True)
 
