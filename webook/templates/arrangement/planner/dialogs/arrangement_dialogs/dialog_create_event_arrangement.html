@@ -354,7 +354,7 @@
             new CustomEvent(
                 "{{managerName}}.submit", 
                 {
-                    'detail': { 'dialog': "newSimpleActivityDialog", 'event': qualifiedEvent, 'csrf_token': '{{ csrf_token }}' }
+                    'detail': { 'dialog': "{{dialog}}", 'event': qualifiedEvent, 'csrf_token': '{{ csrf_token }}' }
                 }
             )
         );

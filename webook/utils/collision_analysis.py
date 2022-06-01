@@ -28,7 +28,7 @@ RoomCalendar = namedtuple('RoomCalendar', [ 'room', 'events' ])
 def analyze_collisions(events: Union[List[dict], dict]) -> Union[List[CollisionRecord], CollisionRecord]:
     """
         Analyze a list of events, or a single event for collisions. Returns a list of CollisionRecord if analyzing
-        multiple events, or a single CollisionRecord if only one event.
+        multiple events, or a single CollisionRecord if only one event.P.en
     """
 
     earliest_start = min ( map(lambda event: event.start, events) )

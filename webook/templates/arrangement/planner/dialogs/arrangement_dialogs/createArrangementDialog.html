@@ -155,15 +155,16 @@
                         </h4>
 
                         <div class="alert alert-info small">
-                            Definer en plan
+                            <h5><i class="fas fa-info-circle"></i></h5>
+                            <p>Definer en plan på når og hvor arrangementet inntreffer.</p>
+                            
+                            <p>Du kan opprette egne tidsplaner, dette er i praksis det samme som en repeterende hendelse i Outlook.</p>
+                
+                            Eller så kan du opprette en enkel aktivitet, dette er et frittstående tidspunkt eller hendelse som inntreffer en gang.
                         </div>
 
                         <h5 class="mt-3 mb-0">Tidsplaner: </h5>
-                        <span class="small text-muted text-uppercase">
-                            Test test test
-                        </span>
-                        <a class="btn btn-md btn-success text-white btn-block shadow-0" id="createArrangementDialog_createSerie">
-                            <!-- <div class="icon"><i class="fas fa-plus"></i></div> -->
+                        <a class="btn btn-md btn-success text-white btn-block shadow-0 mb-2" id="createArrangementDialog_createSerie">
                             <i class="fas fa-calendar-week"></i>
                             Ny tidsplan
                         </a>
@@ -171,18 +172,12 @@
                         <div id="timeplansBody"></div>
 
                         <h5 class="mt-3">Enkle aktiviteter: </h5>
-                        <a class="btn btn-md btn-success shadow-0 text-white btn-block" id="createArrangementDialog_createSimpleActivity">
-                            <!-- <div class="icon"><i class="fas fa-plus"></i></div> -->
+                        <a class="btn btn-md btn-success shadow-0 text-white btn-block mb-2" id="createArrangementDialog_createSimpleActivity">
                             <i class="fas fa-calendar-plus"></i>
                             Ny enkel aktivitet
                         </a>
 
                         <div id="eventsBody"></div>
-
-                        <!-- <table class="table-sm table">
-                            <tbody id="eventsTbody">
-                            </tbody>
-                        </table> -->
                     </td>
                 </tr>
             </div>
@@ -424,7 +419,7 @@
                                       aria-expanded="true"
                                       aria-controls="collisionsCollapse_${element._uuid}"
                                     >
-                                    <span class="bg-danger rounded-pill text-white p-1">${element.collisions.length}</span>
+                                    <span class="bg-danger rounded-pill text-white p-1" id='${element._uuid}_collisionCounter'>${element.collisions.length}</span>
                                     <i class="fas fa-exclamation-triangle ms-2"></i>&nbsp; Kollisjoner
                                   </a>
                                   </h2>
@@ -469,7 +464,7 @@
         document.dispatchEvent(
             new CustomEvent("arrangementCreator.breakOutActivityDialog.trigger", { "detail": {
                 "serie": serie,
-                "collision_index": collision_index
+                "collision_index": collision_index,
             } })
         )
     }

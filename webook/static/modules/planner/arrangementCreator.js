@@ -336,10 +336,17 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: (dialogManager, context) => {
+                            /* 
+                                LastTriggererDetails is set when the dialog is called for, and not available
+                                in the subsequent callbacks versions of the context. We need to access this in  
+                                the OnSubmit callback so we set it as such. It might be more correct in the long
+                                run to make this remembered for the entire lifetime of the dialog instance, as to avoid
+                                these kinds of things.
+                            */
+                            context._lastTriggererDetails = context.lastTriggererDetails;
+
                             var serie = context.lastTriggererDetails.serie;
                             var collision_record = serie.collisions[context.lastTriggererDetails.collision_index];
-
-                            console.log(">> breakOutActivityDialog --> OnRenderedCallback")
 
                             $('#ticket_code').val(serie.time.ticket_code ).trigger('change');
                             $('#title').val(serie.time.title ).trigger('change');
@@ -408,10 +415,12 @@ export class ArrangementCreator {
                             });
                         },
                         onUpdatedCallback: () => {
-                            toastr.success("Enkel aktivitet lagt til eller oppdatert i planen");
-                            this.dialogManager.closeDialog("newSimpleActivityDialog"); 
+                            toastr.success("Kollisjon løst, enkel aktivitet har blitt opprettet");
+                            this.dialogManager.closeDialog("breakOutActivityDialog"); 
                         },
                         onSubmit: async (context, details) => {
+                            console.log("onSubmit context", context)
+
                             if (context.events === undefined) {
                                 context.events = new Map();
                             }
@@ -477,7 +486,8 @@ export class ArrangementCreator {
                                 return false;
                             }
 
-                            context.lastTriggererDetails.serie.splice
+                            context._lastTriggererDetails.serie.collisions
+                                .splice(context._lastTriggererDetails.collision_index, 1);
 
                             context.events.set(details.event._uuid, details.event);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
