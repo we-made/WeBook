@@ -270,7 +270,6 @@ class PlanCreateEvents(LoginRequiredMixin, View):
 
             counter += 1
         
-        # collision analysis stuff
         collision_records = analyze_collisions( events=dto_events, annotate_events=True )
 
         for dto_event in dto_events:

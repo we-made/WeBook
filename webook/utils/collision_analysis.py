@@ -41,11 +41,13 @@ def analyze_collisions(events: Union[List[dict], dict], annotate_events: bool = 
     for event in events:
         if annotate_events:
             event.is_collision = False
+
         for room_id in event.rooms:
             if room_id not in room_ids:
                 room_ids.append(room_id)
 
-    exclusive_rooms = Room.objects.filter(pk__in=room_ids)
+    exclusive_rooms = Room.objects.filter( Q(pk__in=room_ids) & Q(is_exclusive=True))
+    room_ids = [room.id for room in exclusive_rooms]
     for room in exclusive_rooms:
         room_calendars[room.id] = RoomCalendar (room, list(room.event_set.filter( Q(start__lte = latest_end) & Q(end__gte = earliest_start))))
 
