@@ -25,7 +25,7 @@ Range = namedtuple('Range', ['start', 'end'])
 RoomCalendar = namedtuple('RoomCalendar', [ 'room', 'events' ])
 
 
-def analyze_collisions(events: Union[List[dict], dict], annotate_events: bool = False) -> Union[List[CollisionRecord], CollisionRecord]:
+def analyze_collisions(events: Union[List[dict], dict], annotate_events: bool = True) -> Union[List[CollisionRecord], CollisionRecord]:
     """
         Analyze a list of events, or a single event for collisions. Returns a list of CollisionRecords.
         If annotate_events is True then the items in the event list will have a new attribute set; is_collision.

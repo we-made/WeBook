@@ -21,5 +21,7 @@ class EventDTO:
     sequence_guid: str = None
     ticket_code: str = None
 
+    associated_serie_id: int = None
+
     is_resolution: bool = False
     

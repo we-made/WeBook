@@ -48,14 +48,17 @@ export class ArrangementCreator {
                                 return obj.arrangementPk;
                             };
 
-                            var registerEvents = async function (events, arrangementId, csrf_token, ticket_code) {
+                            var registerEvents = async function (events, arrangementId, csrf_token, serieUUIDToIdMap) {
                                 var formData = new FormData();
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
-                                    var displayLayoutCounter = 0;
-
                                     event.arrangement = arrangementId;
+                                    
+                                    if (event.is_resolution && "associated_serie_internal_uuid" in event) {
+                                        event.associated_serie_id = serieUUIDToIdMap.get(event.associated_serie_internal_uuid);
+                                    }
+
                                     for (var key in event) {
                                         formData.append("events[" + i + "]." + key, event[key]);
                                     }
@@ -97,26 +100,30 @@ export class ArrangementCreator {
 
                                 formData.append("saveAsSerie", true);
 
-                                await fetch("/arrangement/planner/create_events/", {
+                                return await fetch("/arrangement/planner/create_events/", {
                                     method:"POST",
                                     body: formData,
                                     headers: {
                                         "X-CSRFToken": csrf_token
                                     },
                                     credentials: 'same-origin',
-                                }).then(_ => { 
+                                }).then(response => response.json())
+                                  .then(responseAsJson => { 
                                     document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
-                                })
+                                    return responseAsJson.serie_id;
+                                });
                             }
-
+                            
+                            var internalSerieUuidsMapToCreatedSerieIds = new Map(); // maps between our internal uuids used locally, to their "real" counter-parts in the back-end
                             createArrangement(details.formData, csrf_token)
-                                .then(arrId => {
-                                    details.series.forEach(async (serie) => {
-                                        await registerSerie(serie, arrId, csrf_token, details.formData.get("ticket_code"));
-                                    });
+                                .then(async arrId => {
+                                    for (const serie of details.series) {
+                                        var created_serie_id = await registerSerie(serie, arrId, csrf_token, details.formData.get("ticket_code"));
+                                        internalSerieUuidsMapToCreatedSerieIds.set(String(serie._uuid), created_serie_id);
+                                    }
                                     
                                     if (details.events !== undefined) {
-                                        registerEvents(details.events, arrId, csrf_token, details.formData.get("ticked_code"));
+                                        registerEvents(details.events, arrId, csrf_token, internalSerieUuidsMapToCreatedSerieIds);
                                     }
                                 });
                         },
@@ -376,6 +383,7 @@ export class ArrangementCreator {
                                 var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
                                 return [ date_str, time_str ];
                             }
+
                             var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
                             var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
                             $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
@@ -429,6 +437,7 @@ export class ArrangementCreator {
                             }
 
                             details.event.is_resolution = true;
+                            details.event.associated_serie_internal_uuid = context._lastTriggererDetails.serie._uuid;
 
                             var formData = new FormData();
                             for (var key in details.event) {
@@ -485,6 +494,7 @@ export class ArrangementCreator {
                                     `,
                                     icon: 'error',
                                 })
+
                                 return false;
                             }
 

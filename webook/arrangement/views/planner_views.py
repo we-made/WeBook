@@ -252,9 +252,11 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             if get_post_value_or_none("arrangement") is None:
                 break
             
+            is_resolution = (is_resolution := get_post_value_or_none("is_resolution")) is not None and is_resolution.upper() == "TRUE"
+
             dto_events.append(EventDTO(
                 arrangement_id = get_post_value_or_none("arrangement"),
-                is_resolution=get_post_value_list_or_none("is_resolution"),
+                is_resolution=is_resolution,
                 title = get_post_value_or_none("title"),
                 title_en = get_post_value_or_none("title_en"),
                 start=parser.parse(get_post_value_or_none("start")),
@@ -263,14 +265,15 @@ class PlanCreateEvents(LoginRequiredMixin, View):
                 ticket_code=get_post_value_or_none("ticket_code"),
                 sequence_guid=get_post_value_or_none("sequence_guid"),
                 color=get_post_value_or_none("color"),
-                display_layouts=parse_ids_string_to_list(get_post_value_or_none("display_layouts")),
-                people=parse_ids_string_to_list(get_post_value_or_none("people")),
-                rooms=parse_ids_string_to_list(get_post_value_or_none("rooms")),
+                associated_serie_id=get_post_value_or_none("associated_serie_id"),
+                display_layouts=list(map(int, parse_ids_string_to_list(get_post_value_or_none("display_layouts")))),
+                people=list(map(int, parse_ids_string_to_list(get_post_value_or_none("people")))),
+                rooms=list(map(int, parse_ids_string_to_list(get_post_value_or_none("rooms")))),
             ))
 
             counter += 1
         
-        collision_records = analyze_collisions( events=dto_events, annotate_events=True )
+        analyze_collisions( dto_events, True )
 
         for dto_event in dto_events:
             if dto_event.is_collision:
@@ -287,9 +290,8 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             event.sequence_guid = dto_event.sequence_guid
             event.color = dto_event.color
 
-            # we need to save the event before setting up the many-to-many relationships,
-            # as they need a tangible id to use when establishing themselves
             event.save()
+
             for display_layout_id in dto_event.display_layouts:
                 event.display_layouts.add(display_layout_id)
 
@@ -299,20 +301,26 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             for personId in dto_event.people:
                 event.people.add(personId)
 
+            if dto_event.is_resolution and dto_event.associated_serie_id is not None:
+                # When we're posting up a resolution event on a conflict in a serie we're posting it individually as a single activity.
+                # Hence we can't look at the EventSerie, as it does not exist in this context. It is then expected
+                # that this serie_id is known and provided by the front end.
+                event.associated_serie_id = dto_event.associated_serie_id
+                event.association_type = Event.COLLISION_RESOLVED_ORIGINATING_OF_SERIE
+
             event.save()
             if event_serie is not None:
-                if dto_event.is_resolution:
-                    event.associated_serie = event_serie
-                    event.association_type = Event.COLLISION_RESOLVED_ORIGINATING_OF_SERIE
-                else:
-                    event_serie.events.add(event)
+                event_serie.events.add(event)
             
             created_event_ids.append(event.pk)
 
         if event_serie:
             event_serie.save()
 
-        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": bool(plan_manifest) } )
+        return JsonResponse( {"created_x_events": 
+                               len(created_event_ids), 
+                               "is_sequence": bool(plan_manifest), 
+                               "serie_id": event_serie.id if event_serie is not None else None } )
 
 plan_create_events = PlanCreateEvents.as_view()
 
