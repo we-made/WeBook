@@ -211,10 +211,14 @@ export class ArrangementInspector {
                         dialogElementId: "newSimpleActivityDialog",
                         triggerElementId: "mainPlannerDialog__newSimpleActivity",
                         htmlFabricator: async (context) => {
-                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + context.arrangement.slug + "&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
+                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + context.arrangement.slug + "&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog&dialog=newSimpleActivityDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => { console.info("Rendered") },
+                        onRenderedCallback: () => { 
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
+                        },
                         onUpdatedCallback: () => { 
                             this.dialogManager.reloadDialog("mainDialog"); 
                             this.dialogManager.closeDialog("newSimpleActivityDialog"); 
