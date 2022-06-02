@@ -69,6 +69,8 @@ class ArrangementCreateView (LoginRequiredMixin, MetaMixin, CreateView):
         "ticket_code",
         "meeting_place",
         "expected_visitors",
+        "display_text",
+        "display_text_en",
     ]
     template_name = "arrangement/arrangement/arrangement_form.html"
     view_meta = ViewMeta.Preset.create(Arrangement)
@@ -106,6 +108,8 @@ class ArrangementUpdateView(LoginRequiredMixin, MetaMixin, UpdateView):
         "ticket_code",
         "meeting_place",
         "expected_visitors",
+        "display_text",
+        "display_text_en",
     ]
     current_crumb_title = _("Edit Arrangement")
     section_subtitle = _("Edit Arrangement")
@@ -121,7 +125,7 @@ class ArrangementDeleteView(LoginRequiredMixin, MetaMixin, JsonArchiveView):
     section_subtitle = _("Edit Arrangement")
     template_name = "arrangement/delete_view.html"
     view_meta = ViewMeta.Preset.delete(Arrangement)
-        
+
 arrangement_delete_view = ArrangementDeleteView.as_view()
 
 
@@ -131,7 +135,7 @@ class ArrangementSearchView(LoginRequiredMixin, SearchView):
 
         if (search_term == ""):
             arrangements = Arrangement.objects.all()
-        else: 
+        else:
             arrangements = Arrangement.objects.filter(name__contains=search_term)
 
         return arrangements
