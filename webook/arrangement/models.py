@@ -133,7 +133,7 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         verbose_name_plural = _("Audiences")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
+    name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
     icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
     slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
@@ -156,7 +156,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMi
         verbose_name_plural = _("Arrangements")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Screen Name English"), max_length=255, blank=False, null=True)
+    name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
     slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     def get_absolute_url(self):
@@ -172,7 +172,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMi
 class RoomPreset (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """
         A room preset is a group, or collection, or set, of rooms.
-    """ 
+    """
 
     slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
     name = models.CharField(verbose_name=_("Name"), max_length=256,     null=False, blank=False)
@@ -1032,7 +1032,7 @@ class PlanManifest(TimeStampedModel):
     day_of_week = models.IntegerField(default=0, null=True)
     day_of_month = models.IntegerField(default=0, null=True)
     month = models.IntegerField(default=0, null=True)
-    
+
     # Strategy Shared Fields
     interval = models.IntegerField(blank=True, default=0, null=True)
 
