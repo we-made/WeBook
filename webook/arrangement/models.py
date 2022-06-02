@@ -133,7 +133,7 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         verbose_name_plural = _("Audiences")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
+    name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
     icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
     slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
@@ -156,7 +156,7 @@ class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMi
         verbose_name_plural = _("Arrangements")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Screen Name English"), max_length=255, blank=False, null=True)
+    name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
     slug = ArchiveIrrespectiveAutoSlugField(populate_from="name", unique=True)
 
     def get_absolute_url(self):
