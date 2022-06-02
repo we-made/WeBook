@@ -28,7 +28,8 @@ def get_section_manifest():
         section_icon="fas fa-suitcase",
         section_crumb_url=reverse("arrangement:arrangement_type_list"),
         crudl_map=SectionCrudlPathMap(
-            detail_url="arrangement:arrangement_type_detail",
+            #detail_url="arrangement:arrangement_type_detail",
+            detail_url=None,
             create_url="arrangement:arrangement_type_create",
             edit_url="arrangement:arrangement_type_edit",
             delete_url="arrangement:arrangement_type_delete",
@@ -48,6 +49,9 @@ class ArrangementTypeListView(LoginRequiredMixin, ArrangementTypeSectionManifest
     model = ArrangementType
     queryset = ArrangementType.objects.all()
     view_meta = ViewMeta.Preset.table(ArrangementType)
+    fields = [
+        "name_en"
+    ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -70,17 +74,18 @@ arrangement_type_detail_view = ArrangementTypeDetailView.as_view()
 class ArrangementTypeCreateView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView):
     model = ArrangementType
     fields = [
-        "name"
+        "name",
+        "name_en",
     ]
     template_name = "arrangement/arrangementtype/arrangement_type_form.html"
     view_meta = ViewMeta.Preset.create(ArrangementType)
 
-    success_urls_and_messages = { 
-        "submitAndNew": { 
-            "url": reverse_lazy( "arrangement:arrangement_type_create" ),
+    success_urls_and_messages = {
+        "submitAndNew": {
+            "url": reverse_lazy( "arrangement:arrangement_type_create"),
             "msg": _("Successfully created entity")
         },
-        "submit": { 
+        "submit": {
             "url": reverse_lazy("arrangement:arrangement_type_list"),
         }
     }
@@ -90,11 +95,17 @@ arrangement_type_create_view = ArrangementTypeCreateView.as_view()
 
 class ArrangementTypeUpdateView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, UpdateView):
     model = ArrangementType
-    fields=[
-        "name"
+    fields = [
+        "name",
+        "name_en"
     ]
     view_meta = ViewMeta.Preset.edit(ArrangementType)
     template_name = "arrangement/arrangementtype/arrangement_type_form.html"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:arrangement_type_list"
+        )
 
 arrangement_type_update_view = ArrangementTypeUpdateView.as_view()
 

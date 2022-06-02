@@ -6,7 +6,7 @@
     <table class="table table-sm">
         <thead>
             <tr>
-                <th class="h5 ms-0"> <em>{{ object.name }}</em> {% trans "Arrangements" %}</th>
+                <th class="h5 ms-0"> <em>{{ object.name }}</em> {% trans "Arrangement Types" %}</th>
             </tr>
         </thead>
         <tbody>
@@ -14,14 +14,14 @@
                 {% for item in object.arrangements.all %}
                     <tr>
                         <td>
-                            <a href="{% url 'arrangement:arrangement_detail' item.slug %}">
+                            <a href="{% url 'arrangement:arrangement_type_detail' item.slug %}">
                                 <i class="fas fa-link"></i>
                                 {{item.name}}
                             </a>
                         </td>
                     </tr>
                 {% endfor %}
-            
+
             {% else %}
                 <tr>
                     <td>
