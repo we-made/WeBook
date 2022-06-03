@@ -8,7 +8,7 @@
         <div>
             <h5 class="mb-0 d-inline fw-bolder text-white">{{ object.arrangement.name }}</h5>
             <h6 class="fw-bold  d-inline text-white">| På {{ object.arrangement.location }}</h6>
-            
+
             <button class="btn btn-sm btn-white shadow-0 float-end"
                 onclick="triggerFocusTo('{{object.arrangement.slug}}', '{{object.pk}}')">
                 Inspiser
@@ -68,13 +68,13 @@
                     <h6>Fra</h6>
                     <div class="row">
                         <div class="col-8">
-                            <input type="date" class="form-control" 
+                            <input type="date" class="form-control"
                                     name="{{form.start.name}}_date" id="{{form.start.id_for_label}}_date"
                                     value="{{ start_t|date:'Y-m-d' }}">
                         </div>
                         <div class="col-4">
-                            <input type="time" class="form-control" 
-                                    name="{{ form.start.name }}_time" id="{{ form.start.name }}_time" 
+                            <input type="time" class="form-control"
+                                    name="{{ form.start.name }}_time" id="{{ form.start.name }}_time"
                                     value="{{ start_t|date:'H:i' }}">
                         </div>
                     </div>
@@ -84,12 +84,12 @@
                     <h6>Til</h6>
                     <div class="row">
                         <div class="col-8">
-                            <input type="date" class="form-control" 
+                            <input type="date" class="form-control"
                                     name="{{ form.end.name }}_date" id="{{ form.end.id_for_label }}_date"
                                     value="{{ end_t|date:'Y-m-d' }}">
                         </div>
                         <div class="col-4">
-                            <input type="time" class="form-control" 
+                            <input type="time" class="form-control"
                                     name="{{form.end.name}}_time" id="{{ form.end.name }}_time"
                                     value="{{ end_t|date:'H:i' }}" >
                         </div>
@@ -97,7 +97,7 @@
                 </div>
 
                 <div class="mt-2">
-                    <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
+                    <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Vises på skjermen:" %}</label>
                     {{form.display_layouts}}
                 </div>
 
@@ -117,20 +117,20 @@
                             {% for person in object.people.all %}
                                 <tr rowid="{{person.pk}}">
                                     <td>{{person}}</td>
-                                    <td> 
+                                    <td>
                                         <a href="#" class="text-danger"
                                             data-mdb-toggle="tooltip"
                                             onclick="inspectEventDialog__removeAssociation(this)"
                                             title="{% trans 'Remove this person from the activity' %}">
                                             <i class="fas fa-trash"></i>
-                                        </a> 
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                
+
 
                 <div class="clearfix mb-2 mt-4">
                     <h4 class=" float-start">Rom</h4>
@@ -221,7 +221,7 @@
             roomsMap = e.detail.context.room_name_map;
             inspectEventDialog__setRooms(e.detail.context.rooms);
         })
-        document.addEventListener("eventInspector.peopleUpdated", (e) => { 
+        document.addEventListener("eventInspector.peopleUpdated", (e) => {
             peopleMap = e.detail.context.people_name_map;
             inspectEventDialog__setPeople(e.detail.context.people);
         });
@@ -241,7 +241,7 @@
         var ids = rooms.split(",");
 
         ids.forEach(id => {
-            tbody.append( 
+            tbody.append(
                 $(`<tr rowid='${id}'>
                     <td>${roomsMap.get(id)}</td>
                     <td>
@@ -249,7 +249,7 @@
                                     data-mdb-toggle="tooltip"
                                     onclick="inspectEventDialog__removeAssociation(this)"
                                     title="{% trans 'Remove this room from the activity' %}">
-                                    <i class="fas fa-trash"></i>    
+                                    <i class="fas fa-trash"></i>
                     </td>
                    </tr>`) );
         });
@@ -262,7 +262,7 @@
         var ids = people.split(",");
 
         ids.forEach(id => {
-            tbody.append( 
+            tbody.append(
                 $(`<tr rowid='${id}'>
                     <td>${peopleMap.get(id)}</td>
                     <td>
@@ -270,7 +270,7 @@
                                     data-mdb-toggle="tooltip"
                                     onclick="inspectEventDialog__removeAssociation(this)"
                                     title="{% trans 'Remove this person from the activity' %}">
-                                    <i class="fas fa-trash"></i>    
+                                    <i class="fas fa-trash"></i>
                     </td>
                    </tr>`) );
         });
@@ -303,14 +303,14 @@
             if (result.isConfirmed) {
                 let formData = new FormData();
                 formData.append("eventIds", "{{object.pk}}");
-                
+
                 fetch('/arrangement/planner/delete_events/', {
                     method: 'POST',
                     body: formData,
                     headers: {
                         "X-CSRFToken": '{{ csrf_token }}',
                     }
-                }).then(_ => { 
+                }).then(_ => {
                     document.dispatchEvent(new Event("eventInspector.close"));
                     document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
                 });
@@ -322,7 +322,7 @@
         if (inspectEventDialog__validate() === false) {
             return;
         }
-        
+
         let formData = new FormData();
         var start = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
         var end = new Date( $('#id_end_date').val() + "T" + $('#end_time').val() ).toISOString();
@@ -381,7 +381,7 @@
         const url = `{% url "arrangement:search_people_ajax_view" %}?term=${encodeURI(query)}`;
         const response = await fetch(url);
         const data = JSON.parse(await response.json());
-        
+
         let people = []
         for (let i = 0; i < data.length; i++) {
           let entry = data[i]

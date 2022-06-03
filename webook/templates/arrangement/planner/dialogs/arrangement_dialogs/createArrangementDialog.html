@@ -22,23 +22,23 @@
                                         <strong>Navn:</strong>
                                         <input type="text"
                                             class="form-control mb-2"
-                                            id="{{ form.name.id_for_label }}" 
+                                            id="{{ form.name.id_for_label }}"
                                             value="{{ form.name.value|default:'' }}"
                                             name="{{ form.name.name }}"
                                             autocomplete="off"
                                             placeholder="{% trans 'Name of the arrangement' %}..."
                                             required />
-            
+
                                         <strong>Navn <em>(engelsk)</em>:</strong>
                                         <input type="text"
                                             class="form-control"
-                                            id="{{ form.name_en.id_for_label }}" 
+                                            id="{{ form.name_en.id_for_label }}"
                                             value="{{ form.name_en.value|default:'' }}"
                                             name="{{ form.name_en.name }}"
                                             autocomplete="off"
                                             placeholder="{% trans 'Name of the arrangement in english' %}..."
                                             />
-            
+
                                         {% if form.name_en.errors|length > 0 %}
                                             <div class="alert alert-danger">
                                                 {{ form.name_en.errors }}
@@ -46,14 +46,14 @@
                                         {% endif %}
                                     </td>
                                 </tr>
-            
+
                                 <tr>
                                     <td>
                                         <strong>Målgruppe:</strong>
                                         <div>
                                             {{ form.audience }}
                                         </div>
-                
+
                                         {% if form.audience.errors|length > 0 %}
                                             <div class="alert alert-danger">
                                                 {{ form.audience.errors }}
@@ -61,14 +61,14 @@
                                         {% endif %}
                                     </td>
                                 </tr>
-            
+
                                 <tr>
                                     <td colspan="3">
                                         <strong>Lokasjon</strong>
                                         <div>
                                             {{ form.location }}
                                         </div>
-            
+
                                         {% if form.location.errors|length > 0 %}
                                             <div class="alert alert-danger">
                                                 {{ form.location.errors }}
@@ -76,14 +76,14 @@
                                         {% endif %}
                                     </td>
                                 </tr>
-            
+
                                 <tr>
                                     <td colspan='2'>
                                         <strong>Arrangementstype:</strong>
                                         <div>
                                             {{ form.arrangement_type }}
                                         </div>
-                                        
+
                                         {% if form.arrangement_type.errors|length > 0 %}
                                             <div class="alert alert-danger">
                                                 {{ form.arrangement_type.errors }}
@@ -91,14 +91,14 @@
                                         {% endif %}
                                     </td>
                                 </tr>
-            
+
                                 <tr>
                                     <td colspan='2'>
                                         <strong>Hovedplanlegger:</strong>
                                         <div>
                                             {{ form.responsible }}
                                         </div>
-            
+
                                         {% if form.responsible.errors|length > 0 %}
                                             <div class="alert alert-danger">
                                                 {{ form.responsible.errors }}
@@ -106,23 +106,23 @@
                                         {% endif %}
                                     </td>
                                 </tr>
-            
+
                                 <tr>
                                     <td colspan="2">
                                         <strong>Billetkode</strong>
-            
+
                                         <div class="input-group flex-nowrap">
                                             <span class="input-group-text">
                                                 <i class="fas fa-receipt"></i>
                                             </span>
                                             <input type="text"
                                                 class="form-control"
-                                                id="{{ form.ticket_code.id_for_label }}" 
+                                                id="{{ form.ticket_code.id_for_label }}"
                                                 value="{{ form.ticket_code.value|default:'' }}"
                                                 name="{{ form.ticket_code.name }}"
                                                 placeholder="{% trans 'Ticket code' %}..."/>
                                         </div>
-            
+
                                         {% if form.ticket_code.errors|length > 0 %}
                                             <div class="alert alert-danger">
                                                 {{ form.ticket_code.errors }}
@@ -130,18 +130,18 @@
                                         {% endif %}
                                     </td>
                                 </tr>
-            
+
                                 <tr>
                                     <td colspan="2">
                                         <strong>Møtested</strong>
-            
+
                                         <div class="input-group flex-nowrap">
                                             <span class="input-group-text">
                                                 <i class="fas fa-building"></i>
                                             </span>
                                             <input type="text"
                                                 class="form-control"
-                                                id="{{ form.meeting_place.id_for_label }}" 
+                                                id="{{ form.meeting_place.id_for_label }}"
                                                 value="{{ form.meeting_place.value|default:'' }}"
                                                 name="{{ form.meeting_place.name }}"
                                                 placeholder="{% trans 'Meeting place' %}..."/>
@@ -150,7 +150,7 @@
                                             <i class="fas fa-exclamation-circle"></i>&nbsp;
                                             Vil overskrive sted/rom vist på skjermer.
                                         </div>
-            
+
                                         {% if form.meeting_place.errors|length > 0 %}
                                             <div class="alert alert-danger">
                                                 {{ form.meeting_place.errors }}
@@ -158,11 +158,11 @@
                                         {% endif %}
                                     </td>
                                 </tr>
-            
+
                                 <tr>
                                     <td colspan="2">
                                         <strong>Expected amount of visitors</strong>
-            
+
                                         <div class="input-group flex-nowrap">
                                             <span class="input-group-text">
                                                 <i class="fas fa-users"></i>
@@ -170,24 +170,17 @@
                                             <input type="number"
                                                 min="0"
                                                 class="form-control"
-                                                id="{{ form.expected_visitors.id_for_label }}" 
+                                                id="{{ form.expected_visitors.id_for_label }}"
                                                 value="{{ form.expected_visitors.value|default:'' }}"
                                                 name="{{ form.expected_visitors.name }}"
                                                 required />
                                         </div>
-            
+
                                         {% if form.expected_visitors.errors|length > 0 %}
                                             <div class="alert alert-danger">
                                                 {{ form.expected_visitors.errors }}
                                             </div>
                                         {% endif %}
-                                    </td>
-                                </tr>
-            
-                                <tr>
-                                    <td colspan="2">
-                                        <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
-                                        {{form.display_layouts}}
                                     </td>
                                 </tr>
                             </tbody>
@@ -201,7 +194,7 @@
                         <h5 class="header-fonted">
                             <i class="fas fa-clock"></i>
                             Plan
-                        </h4>
+                        </h5>
                         <div class="row mt-4">
                             <div class="col-6">
                                 <button class="playfulButton playfulButton-green" id="createArrangementDialog_createSimpleActivity">
@@ -228,6 +221,39 @@
                             <tbody id="eventsTbody">
                             </tbody>
                         </table>
+                    </td>
+                </tr>
+
+                 <tr>
+                  <br/>
+                    <td>
+                        <h5 class="header-fonted">
+                            <i class="fas fa-tv"></i>
+                            Skjerm
+                        </h5>
+                        <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
+                                        {{form.display_layouts}}
+                      <label>Skjermtekst:</label>
+                      <input type="text"
+                             class="form-control"
+                             id="{{ form.display_text.id_for_label }}"
+                             value="{{ form.display_text.value|default:'' }}"
+                             name="{{ form.display_text.name }}"
+                             placeholder="{% trans 'Custom text for display' %}..."/>
+                      <label class="mt-4">Skjermtekst (<em class="small">Engelsk</em>):</label>
+                      <input type="text"
+                             class="form-control"
+                             id="{{ form.display_text_en.id_for_label }}"
+                             value="{{ form.display_text_en.value|default:'' }}"
+                             name="{{ form.display_text_en.name }}"
+                             placeholder="{% trans 'Custom text for display (in english)' %}..."/>
+
+                      {% if form.display_text.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                          {{ form.display_text_en.errors }}
+                        </div>
+                      {% endif %}
+
                     </td>
                 </tr>
             </div>
@@ -324,7 +350,9 @@
         formData.append("ticket_code",      $('#id_ticket_code').val());
         formData.append("meeting_place",    $('#id_meeting_place').val());
         formData.append("expected_visitors",$('#id_expected_visitors').val());
-        
+        formData.append("display_text",$('#id_display_text').val());
+        formData.append("display_text_en",$('#id_display_text_en').val());
+
         let displayLayouts = [];
         document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
             formData.append("display_layouts", element.value);
@@ -355,26 +383,26 @@
             eventsMap.set(element._uuid, element);
             tbody.append(
                 $(`
-                    <tr id='${element._uuid}'> 
-                        <td> ${element.title} (${element.start} - ${element.end}) </td> 
-                        <td> 
+                    <tr id='${element._uuid}'>
+                        <td> ${element.title} (${element.start} - ${element.end}) </td>
+                        <td>
                             <div class='btn-group'>
-                                <button class='btn btn-sm btn-danger shadow-0' 
-                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
+                                <button class='btn btn-sm btn-danger shadow-0'
+                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}'
                                     onclick='createArrangementDialog_removeSimpleActivity("${element._uuid}")'>
                                     <i class='fas fa-trash'></i>
-                                </button> 
-                                <button class='btn btn-sm btn-success shadow-0' 
-                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                                </button>
+                                <button class='btn btn-sm btn-success shadow-0'
+                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}'
                                     onclick='createArrangementDialog_editSimpleActivity("${element._uuid}")'>
                                     <i class='fas fa-edit'></i>
-                                </button> 
+                                </button>
                             </div>
-                        </td> 
+                        </td>
                     </tr>`)
             )
         })
-    } 
+    }
 
     function setSeries(series) {
         seriesMap = new Map();
@@ -385,27 +413,27 @@
         series.forEach(element => {
             var uuid = crypto.randomUUID();
             seriesMap.set(element._uuid, element);
-            
+
             tbody.append(
                 $(`
-                    <tr id='${element._uuid}'> 
-                        <td> 
-                            ${element.time.title} --  ${element.pattern.pattern_type} (${element.pattern.pattern_routine}) - ${element.time.start} - ${element.time.end} 
-                        </td> 
-                        <td> 
+                    <tr id='${element._uuid}'>
+                        <td>
+                            ${element.time.title} --  ${element.pattern.pattern_type} (${element.pattern.pattern_routine}) - ${element.time.start} - ${element.time.end}
+                        </td>
+                        <td>
                             <div class='btn-group'>
-                                <button class='btn btn-sm btn-danger shadow-0' 
-                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
+                                <button class='btn btn-sm btn-danger shadow-0'
+                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}'
                                     onclick='createArrangementDialog_removeSerie("${element._uuid}")'>
                                     <i class='fas fa-trash'></i>
-                                </button> 
-                                <button class='btn btn-sm btn-success shadow-0' 
-                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                                </button>
+                                <button class='btn btn-sm btn-success shadow-0'
+                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}'
                                     onclick='createArrangementDialog_editSerie("${element._uuid}")'>
                                     <i class='fas fa-edit'></i>
-                                </button> 
+                                </button>
                             </div>
-                        </td> 
+                        </td>
                     </tr>`)
             )
         });
