@@ -164,7 +164,7 @@ export class ArrangementInspector {
                             this.dialogManager.reloadDialog("mainDialog"); 
                             this.dialogManager.closeDialog("newTimePlanDialog"); 
                         },
-                        dialogOptions: { width: 700 },
+                        dialogOptions: { width: 700, modal:true },
                         onSubmit: async (context, details) => { 
 
                             var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
@@ -203,6 +203,186 @@ export class ArrangementInspector {
 
                             await registerSerie( details.serie, context.arrangement.arrangement_pk, details.csrf_token )
                         }
+                    })
+                ],
+                [
+                    "breakOutActivityDialog",
+                    new Dialog({
+                        dialogElementId: "breakOutActivityDialog",
+                        triggerElementId: "breakOutActivityDialog",
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=0&managerName=arrangementInspector&dialog=breakOutActivityDialog&orderRoomDialog=orderRoomDialog&orderPersonDIalog=orderPersonDialog&dialogTitle=Kollisjonshåndtering&dialogIcon=fa-code-branch')
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+                            /* 
+                                LastTriggererDetails is set when the dialog is called for, and not available
+                                in the subsequent callbacks versions of the context. We need to access this in  
+                                the OnSubmit callback so we set it as such. It might be more correct in the long
+                                run to make this remembered for the entire lifetime of the dialog instance, as to avoid
+                                these kinds of things.
+                            */
+                            context._lastTriggererDetails = context.lastTriggererDetails;
+                            var serie = context.serie;
+
+
+                            var collision_uuid = context._lastTriggererDetails.collision_uuid;
+                            var resolution_bundle = context.collision_resolution.get(collision_uuid); 
+                            var collision_record = resolution_bundle.record;
+
+                            console.log(collision_record)
+
+                            $('#ticket_code').val(serie.time.ticket_code ).trigger('change');
+                            $('#title').val(serie.time.title ).trigger('change');
+                            $('#title_en').attr('value', serie.time.title_en ).trigger('change');
+                            $('#expected_visitors').attr('value', serie.time.expected_visitors ).trigger('change');
+
+                            serie.display_layouts.split(",")
+                                .forEach(checkboxElement => {
+                                    $(`#${checkboxElement.value}_dlcheck`)
+                                        .prop( "checked", true );
+                                })
+
+                            // $('#breakOutActivityDialog').prepend( $(
+                            //     document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
+                            // ).addClass("mb-4"));
+                            
+                            
+                            // document.querySelectorAll("input[name='display_layouts']:checked")
+                            //     .forEach(checkboxElement => {
+                            //         $(`#${checkboxElement.value}_dlcheck`)
+                            //             .prop( "checked", true );
+                            //     })
+
+
+                            var splitDateFunc = function (strToDateSplit) {
+                                var date_str = strToDateSplit.split("T")[0];
+                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
+                                return [ date_str, time_str ];
+                            }
+
+                            var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
+                            var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
+                            $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
+                            $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
+                            $('#toDate').val(endTimeArtifacts[0]).trigger('change');
+                            $('#toTime').val(endTimeArtifacts[1]).trigger('change');
+                                
+                            // This ensures that english title is only obligatory IF a display layout has been selected.
+                            // dialogCreateEvent__evaluateEnTitleObligatory();
+
+                            if (serie.people.length > 0) {
+                                var peopleSelectContext = Object();
+                                peopleSelectContext.people = serie.people.join(",");
+                                peopleSelectContext.people_name_map = serie.people_name_map;
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementInspector.d1_peopleSelected",
+                                    { detail: {
+                                        context: peopleSelectContext
+                                    } }
+                                ));
+                            }
+                            if (serie.rooms.length > 0) {
+                                var roomSelectContext = Object();
+                                roomSelectContext.rooms = serie.rooms.join(",");
+                                roomSelectContext.room_name_map = serie.room_name_map;
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementInspector.d1_roomsSelected",
+                                    { detail: {
+                                        context: roomSelectContext
+                                    } }
+                                ));
+                            }
+
+                            $('#event_uuid').val(crypto.randomUUID());
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
+                        },
+                        onUpdatedCallback: () => {
+                            toastr.success("Kollisjon løst, enkel aktivitet har blitt opprettet");
+                            this.dialogManager.closeDialog("breakOutActivityDialog"); 
+                        },
+                        onSubmit: async (context, details) => {
+                            console.log("onSubmit context", context)
+
+                            if (context.events === undefined) {
+                                context.events = new Map();
+                            }
+                            if (details.event._uuid === undefined) {
+                                details.event._uuid = crypto.randomUUID();
+                            }
+
+                            details.event.is_resolution = true;
+                            details.event.associated_serie_internal_uuid = context._lastTriggererDetails.serie._uuid;
+
+                            var formData = new FormData();
+                            for (var key in details.event) {
+                                formData.append(key, details.event[key])
+                            }
+
+                            var startDate = new Date(details.event.start);
+                            var endDate = new Date(details.event.end);
+                            formData.append("fromDate", startDate.toISOString());
+                            formData.append("toDate", endDate.toISOString());
+                            
+                            details.event.collisions = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    "X-CSRFToken": details.csrf_token
+                                },
+                                credentials: 'same-origin'
+                            }).then(response => response.text()).then(text => JSON.parse(text));
+
+                            if (details.event.collisions.length > 0) {
+                                var collision = details.event.collisions[0];
+                                Swal.fire({
+                                    title: 'Kollisjon',
+                                    width: 600,
+                                    html: 
+                                    `
+                                    Hendelsen kan ikke opprettes da den kolliderer med en eksisterende booking på den eksklusive ressursen ${collision.contested_resource_name}.
+                                    <div class='row mt-3'>
+                                        <div class='col-5'>
+                                            <div class='card shadow-4 border'>
+                                                <div class='card-body'>
+                                                    <span class='fw-bold'>${collision.event_a_title}</span>
+                                                    <div class='small text-muted'>
+                                                        ${collision.event_a_start} - ${collision.event_a_end}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class='col-2'>
+                                            <h2 class='align-middle'> <i class='fas fa-arrow-right'></i> </h2>
+                                        </div>
+                                        <div class='col-5'>
+                                            <div class='card shadow-4 border'>
+                                                <div class='card-body'>
+                                                    <span class='fw-bold'>${collision.event_b_title}</span>
+                                                    <div class='small text-muted'>
+                                                        ${collision.event_b_start} - ${collision.event_b_end}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `,
+                                    icon: 'error',
+                                })
+
+                                return false;
+                            }
+
+                            context._lastTriggererDetails.serie.collisions
+                                .splice(context._lastTriggererDetails.collision_index, 1);
+
+                            context.events.set(details.event._uuid, details.event);
+                            document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
+                        },
+                        dialogOptions: { width: 700 }
                     })
                 ],
                 [
@@ -480,6 +660,91 @@ export class ArrangementInspector {
                                 var formData = new FormData();
                                 formData.append("saveAsSerie", true); // Special parameter to instruct to save event batch as a serie.
                                 formData = serieConvert(serie, formData);
+
+                                var formData2 = new FormData();
+                                formData2 = serieConvert(serie, formData2, "");
+                                serie.collisions = await fetch("/arrangement/analysis/analyzeNonExistentSerie", {
+                                    method: 'POST',
+                                    body: formData2,
+                                    headers: {
+                                        "X-CSRFToken": details.csrf_token
+                                    },
+                                    credentials: 'same-origin'
+                                }).then(response => response.json());
+
+                                // Collisions: CollisionUUID -> ( CollisionRecord, Solution )
+                                context.collision_resolution = new Map();
+
+                                if (serie.collisions.length > 0) {
+                                    context.serie = serie;
+                                    var trHtml = "";
+                                    for (let i = 0; i < serie.collisions.length; i++) {
+                                        var collision = serie.collisions[i];
+                                        var collision_uuid = crypto.randomUUID();
+
+                                        context.collision_resolution.set(collision_uuid, { record: collision, solution: undefined });
+
+                                        trHtml += `
+                                            <tr>
+                                                <td>
+                                                    <div class='row'>
+                                                        <div class='col-5'>
+                                                            ${collision.event_a_title} (${collision.event_a_start} - ${collision.event_a_end})
+                                                        </div>
+                                                        <div class='col-2'>
+                                                            <h5 class="text-center">
+                                                                <i class='fas fa-arrow-right'></i>
+                                                            </h5>
+                                                        </div>
+                                                        <div class='col-5'>
+                                                            ${collision.event_b_title} (${collision.event_b_start} - ${collision.event_b_end})
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success"
+                                                        onclick='document.dispatchEvent(
+                                                            new CustomEvent("arrangementInspector.breakOutActivityDialog.trigger", { "detail": {
+                                                                "collision_uuid": "${collision_uuid}",
+                                                            } })
+                                                        ) '> 
+                                                        <i class='fas fa-code-branch'></i> Løs kollisjon 
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }
+
+                                    Swal.fire({
+                                        title: 'Kollisjoner',
+                                        width: 800,
+                                        html: 
+                                        `
+                                            <div class="alert alert-danger">
+                                                Den gitte forandringen vil medføre kollisjoner. Disse må løses opp, og konverteres til enkle aktiviteter.
+                                                Tabellen under viser hendelsene i kollisjon. Du kan velge å ikke løse opp hendelser, men da vil de ikke opprettes
+                                                ved fullføring.
+                                            </div>
+
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Kollisjon</th>
+                                                            <th>Valg</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        ${trHtml}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        `,
+                                        icon: 'error',
+                                    })
+                                 
+                                    return false;
+                                }
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];

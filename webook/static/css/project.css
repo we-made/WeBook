@@ -237,7 +237,7 @@ sidenav-primary .sidenav-link {
   background: skyblue;
   color: white;
 }
-.ui-dialog { z-index: 999999 !important ;}
+.ui-dialog { z-index: 100000000000 !important ;}
 /* .context-menu-root {
   background-color: #386080!important;
 }
