@@ -224,6 +224,7 @@ export class ArrangementInspector {
                                 these kinds of things.
                             */
                             context._lastTriggererDetails = context.lastTriggererDetails;
+                            context._lastTriggererDetails.serie = context.serie;
                             var serie = context.serie;
 
 

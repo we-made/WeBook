@@ -7,7 +7,7 @@ from webook.arrangement.models import Arrangement, Event
 class AnalyzeNonExistantEventForm(forms.Form):
     title = forms.CharField(max_length=255)
     title_en = forms.CharField(max_length=255)
-    ticket_code = forms.CharField(max_length=255)
+    ticket_code = forms.CharField(max_length=255, required=False)
     expected_visitors = forms.IntegerField(required=False)
     fromDate = forms.DateTimeField()
     toDate = forms.DateTimeField()
