@@ -139,80 +139,81 @@
                             </div>
                         {% endif %}
                         
-                        <div>
-                            <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}</label>
-                            {{form.display_layouts}}
+                        <div class="mt-5 mb-3">
+                            <h5 class="header-fonted">
+                                <i class="fas fa-tv"></i>
+                                Skjerm
+                            </h5>
+                            <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
+                                            {{form.display_layouts}}
+        
+                            <div class="mb-2 form-outline">
+                                <input type="text"
+                                    class="form-control"
+                                    id="{{ form.display_text.id_for_label }}"
+                                    value="{{ form.display_text.value|default:'' }}"
+                                    name="{{ form.display_text.name }}"
+                                    placeholder="{% trans 'Custom text for display' %}..."/>
+                                <label for="{{ form.display_text.id_for_label }}" class="form-label">
+                                    <i>🇳🇴</i>&nbsp; Skjermtekst
+                                </label>
+                            </div>
+                            {% if form.display_text.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.display_text_en.errors }}
+                                </div>
+                            {% endif %}
+        
+                            <div class="form-outline">
+                                <input type="text"
+                                    class="form-control"
+                                    id="{{ form.display_text_en.id_for_label }}"
+                                    value="{{ form.display_text_en.value|default:'' }}"
+                                    name="{{ form.display_text_en.name }}"
+                                    placeholder="{% trans 'Custom text for display' %}..."/>
+                                <label for="{{ form.display_text_en.id_for_label }}" class="form-label">
+                                    <i>🇬🇧</i>&nbsp; Skjermtekst
+                                </label>
+                            </div>
+                            {% if form.display_text_en.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.display_text_en.errors }}
+                                </div>
+                            {% endif %}
                         </div>
                     </fieldset>
                 </form>
             </div>
             <div class="col-6">
-                <tr>
-                    <td>
-                        <h5 class="header-fonted">
-                            <i class="fas fa-clock"></i>
-                            Plan
-                        </h4>
+                <h5 class="header-fonted">
+                    <i class="fas fa-clock"></i>
+                    Plan
+                </h4>
 
-                        <div class="alert alert-info small">
-                            <h5><i class="fas fa-info-circle"></i></h5>
-                            <p>Definer en plan på når og hvor arrangementet inntreffer.</p>
-                            
-                            <p>Du kan opprette egne tidsplaner, dette er i praksis det samme som en repeterende hendelse i Outlook.</p>
-                
-                            Eller så kan du opprette en enkel aktivitet, dette er et frittstående tidspunkt eller hendelse som inntreffer en gang.
-                        </div>
+                <div class="alert alert-info small">
+                    <h5><i class="fas fa-info-circle"></i></h5>
+                    <p>Definer en plan på når og hvor arrangementet inntreffer.</p>
+                    
+                    <p>Du kan opprette egne tidsplaner, dette er i praksis det samme som en repeterende hendelse i Outlook.</p>
+        
+                    Eller så kan du opprette en enkel aktivitet, dette er et frittstående tidspunkt eller hendelse som inntreffer en gang.
+                </div>
 
-                        <h5 class="mt-3 mb-0">Tidsplaner: </h5>
-                        <a class="btn btn-md btn-success text-white btn-block shadow-0 mb-2" id="createArrangementDialog_createSerie">
-                            <i class="fas fa-calendar-week"></i>
-                            Ny tidsplan
-                        </a>
+                <h5 class="mt-3 mb-0">Tidsplaner: </h5>
+                <a class="btn btn-md btn-success text-white btn-block shadow-0 mb-2" id="createArrangementDialog_createSerie">
+                    <i class="fas fa-calendar-week"></i>
+                    Ny tidsplan
+                </a>
 
-                        <div id="timeplansBody"></div>
+                <div id="timeplansBody"></div>
 
-                        <h5 class="mt-3">Enkle aktiviteter: </h5>
-                        <a class="btn btn-md btn-success shadow-0 text-white btn-block mb-2" id="createArrangementDialog_createSimpleActivity">
-                            <i class="fas fa-calendar-plus"></i>
-                            Ny enkel aktivitet
-                        </a>
+                <h5 class="mt-3">Enkle aktiviteter: </h5>
+                <a class="btn btn-md btn-success shadow-0 text-white btn-block mb-2" id="createArrangementDialog_createSimpleActivity">
+                    <i class="fas fa-calendar-plus"></i>
+                    Ny enkel aktivitet
+                </a>
 
-                        <div id="eventsBody"></div>
-                    </td>
-                </tr>
-
-                 <tr>
-                  <br/>
-                    <td>
-                        <h5 class="header-fonted">
-                            <i class="fas fa-tv"></i>
-                            Skjerm
-                        </h5>
-                        <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
-                                        {{form.display_layouts}}
-                      <label>Skjermtekst:</label>
-                      <input type="text"
-                             class="form-control"
-                             id="{{ form.display_text.id_for_label }}"
-                             value="{{ form.display_text.value|default:'' }}"
-                             name="{{ form.display_text.name }}"
-                             placeholder="{% trans 'Custom text for display' %}..."/>
-                      <label class="mt-4">Skjermtekst (<em class="small">Engelsk</em>):</label>
-                      <input type="text"
-                             class="form-control"
-                             id="{{ form.display_text_en.id_for_label }}"
-                             value="{{ form.display_text_en.value|default:'' }}"
-                             name="{{ form.display_text_en.name }}"
-                             placeholder="{% trans 'Custom text for display (in english)' %}..."/>
-
-                      {% if form.display_text.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                          {{ form.display_text_en.errors }}
-                        </div>
-                      {% endif %}
-
-                    </td>
-                </tr>
+                <div id="eventsBody"></div>
             </div>
         </div>
         <a class="btn btn-lg shadow-0 text-white btn-success btn-block"
