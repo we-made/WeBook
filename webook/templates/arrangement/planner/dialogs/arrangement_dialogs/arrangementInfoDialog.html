@@ -9,34 +9,35 @@
         <ul>
             <li>
                 <a href="#tabs-1">
-                    <i class="fas fa-info-circle"></i>&nbsp; 
+                    <i class="fas fa-info-circle"></i>&nbsp;
                     Informasjon
                 </a>
             </li>
             <li>
                 <a href="#tabs-2">
-                    <i class="fas fa-calendar"></i>&nbsp; 
+                    <i class="fas fa-calendar"></i>&nbsp;
                     Tidspunkter
                 </a>
             </li>
             <li>
                 <a href="#tabs-3">
-                    <i class="fas fa-comment"></i>&nbsp; 
+                    <i class="fas fa-comment"></i>&nbsp;
                     Notater
                 </a>
             </li>
             <li>
                 <a href="#tabs-4">
-                    <i class="fas fa-receipt"></i>&nbsp; 
+                    <i class="fas fa-receipt"></i>&nbsp;
                     Kvitteringer
                 </a>
             </li>
             <li>
                 <a href="#tabs-5">
-                    <i class="fas fa-file"></i>&nbsp; 
+                    <i class="fas fa-file"></i>&nbsp;
                     Filer
                 </a>
             </li>
+
         </ul>
         <div id="tabs-1">
             <table class='table table-sm'>
@@ -46,7 +47,7 @@
                             <strong>Navn:</strong>
                             <input type="text"
                                 class="form-control"
-                                id="{{ form.name.id_for_label }}" 
+                                id="{{ form.name.id_for_label }}"
                                 value="{{ form.name.value|default:'' }}"
                                 name="{{ form.name.name }}"
                                 placeholder="{% trans 'Name of the arrangement' %}..."/>
@@ -54,7 +55,7 @@
                             <strong class="mt-3">Navn (<em class="small">Engelsk</em>):</strong>
                             <input type="text"
                                 class="form-control"
-                                id="{{ form.name_en.id_for_label }}" 
+                                id="{{ form.name_en.id_for_label }}"
                                 value="{{ form.name_en.value|default:'' }}"
                                 name="{{ form.name_en.name }}"
                                 placeholder="{% trans 'Name of the arrangement (in english)' %}..."/>
@@ -95,7 +96,7 @@
                         <td colspan='2'>
                             <strong>Arrangementstype:</strong>
                             {{ form.arrangement_type }}
-                            
+
                             {% if form.arrangement_type.errors|length > 0 %}
                                 <div class="alert alert-danger">
                                     {{ form.arrangement_type.errors }}
@@ -108,11 +109,11 @@
                             <strong>Billettkode:</strong>
                             <input type="text"
                                 class="form-control"
-                                id="{{ form.ticket_code.id_for_label }}" 
+                                id="{{ form.ticket_code.id_for_label }}"
                                 value="{{ form.ticket_code.value|default:'' }}"
                                 name="{{ form.ticket_code.name }}"
                                 placeholder="{% trans 'Ticket code' %}..."/>
-                            
+
                             {% if form.ticket_code.errors|length > 0 %}
                                 <div class="alert alert-danger">
                                     {{ form.ticket_code.errors }}
@@ -125,11 +126,11 @@
                             <strong>Møtested:</strong>
                             <input type="text"
                                 class="form-control"
-                                id="{{ form.meeting_place.id_for_label }}" 
+                                id="{{ form.meeting_place.id_for_label }}"
                                 value="{{ form.meeting_place.value|default:'' }}"
                                 name="{{ form.meeting_place.name }}"
                                 placeholder="{% trans 'Meeting place' %}..."/>
-                            
+
                             {% if form.meeting_place.errors|length > 0 %}
                                 <div class="alert alert-danger">
                                     {{ form.meeting_place.errors }}
@@ -143,11 +144,11 @@
                             <input type="number"
                                 min="0"
                                 class="form-control"
-                                id="{{ form.expected_visitors.id_for_label }}" 
+                                id="{{ form.expected_visitors.id_for_label }}"
                                 value="{{ form.expected_visitors.value|default:'' }}"
                                 name="{{ form.expected_visitors.name }}"
                                 placeholder="{% trans 'Forventet antall besøkende' %}..."/>
-                            
+
                             {% if form.expected_visitors.errors|length > 0 %}
                                 <div class="alert alert-danger">
                                     {{ form.expected_visitors.errors }}
@@ -161,11 +162,11 @@
                             <input type="number"
                                 min="0"
                                 class="form-control"
-                                id="{{ form.actual_visitors.id_for_label }}" 
+                                id="{{ form.actual_visitors.id_for_label }}"
                                 value="{{ form.actual_visitors.value|default:'' }}"
                                 name="{{ form.actual_visitors.name }}"
                                 placeholder="{% trans 'Faktisk antall besøkende' %}..."/>
-                            
+
                             {% if form.actual_visitors.errors|length > 0 %}
                                 <div class="alert alert-danger">
                                     {{ form.actual_visitors.errors }}
@@ -208,10 +209,33 @@
 
                     </tr>
                     <tr>
-                        <th colspan='2'>
-                            <label for="">Display Layouts: </label>
+                        <td>
+                            <label for="">Vises på skjermen: </label>
                             {{ form.display_layouts }}
-                        </th>
+                        </td>
+                        <td colspan='2'>
+                            <strong>Skjermtekst:</strong>
+                            <input type="text"
+                                class="form-control"
+                                id="{{ form.display_text.id_for_label }}"
+                                value="{{ form.display_text.value|default:'' }}"
+                                name="{{ form.display_text.name }}"
+                                placeholder="{% trans 'Custom text for display' %}..."/>
+                            <br>
+                            <strong class="mt-3">Skjermtekst (<em class="small">Engelsk</em>):</strong>
+                            <input type="text"
+                                class="form-control"
+                                id="{{ form.display_text_en.id_for_label }}"
+                                value="{{ form.display_text_en.value|default:'' }}"
+                                name="{{ form.display_text_en.name }}"
+                                placeholder="{% trans 'Custom text for display (in english)' %}..."/>
+
+                            {% if form.display_text.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.display_text_en.errors }}
+                                </div>
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <td colspan='3'>
@@ -232,7 +256,7 @@
         <div id="tabs-2">
             <div class="table-responsive" style="max-height: 480px;">
                 <table class='table'>
-                    
+
                     <div class="row mb-2">
                         <div class="col-6">
                             <button class="playfulButton playfulButton-green" id='mainPlannerDialog__newTimePlan'>
@@ -283,7 +307,7 @@
                                         </button>
                                     </div>
 
-                                    
+
                                     <div class="accordion accordion-flush" id="accordion_{{event_serie.pk}}">
                                         <div class="accordion-item">
                                         <h6 class="accordion-header" id="flush-headingOne">
@@ -327,14 +351,14 @@
                                                                         <button class="btn btn-danger btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
                                                                             data-mdb-toggle="tooltip"
                                                                             title="{% trans 'Delete this file' %}"
-                                                                            onclick="mainPlannerDialog__deleteFile( {{ file.pk }}, 'event_serie' )"> 
-                                                                            <i class="fas fa-trash"></i> 
+                                                                            onclick="mainPlannerDialog__deleteFile( {{ file.pk }}, 'event_serie' )">
+                                                                            <i class="fas fa-trash"></i>
                                                                         </button>
                                                                         <a class="btn btn-success btn-sm text-white" style="border-radius: 50%!important; padding: 0.7rem;"
                                                                             data-mdb-toggle="tooltip"
                                                                             title="{% trans 'Download this file' %}"
                                                                             href="/media/{{file.file}}" download>
-                                                                            <i class="fas fa-download"></i> 
+                                                                            <i class="fas fa-download"></i>
                                                                     </a>
                                                                     </td>
                                                                 </tr>
@@ -373,9 +397,9 @@
 
                                                             <td>
                                                                 <div>
-                
+
                                                                     {{event}}
-                                
+
                                                                 </div>
                                                             </td>
 
@@ -400,7 +424,7 @@
 
                                                     </tbody>
                                                 </table>
-        
+
                                             </div>
                                         </div>
                                         </div>
@@ -463,14 +487,14 @@
                                     <button class="btn btn-danger btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
                                         data-mdb-toggle="tooltip"
                                         title="{% trans 'Delete this file' %}"
-                                        onclick="mainPlannerDialog__deleteFile( {{ file.pk }} )"> 
-                                        <i class="fas fa-trash"></i> 
+                                        onclick="mainPlannerDialog__deleteFile( {{ file.pk }} )">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                     <a class="btn btn-success btn-sm text-white" style="border-radius: 50%!important; padding: 0.7rem;"
                                         data-mdb-toggle="tooltip"
                                         title="{% trans 'Download this file' %}"
                                         href="/media/{{file.file}}" download>
-                                        <i class="fas fa-download"></i> 
+                                        <i class="fas fa-download"></i>
                                 </a>
                                 </td>
                                 <td>{{ file.filename }}</td>
@@ -500,6 +524,8 @@
         formData.append("meeting_place",    $('#id_meeting_place').val());
         formData.append("expected_visitors",$('#id_expected_visitors').val());
         formData.append("actual_visitors",  $('#id_actual_visitors').val());
+        formData.append("display_text",$('#id_display_text').val());
+        formData.append("display_text_en",$('#id_display_text_en').val());
         formData.append("csrfmiddlewaretoken","{{ csrf_token }}");
 
         let displayLayouts = [];
@@ -544,7 +570,7 @@
                     headers: {
                         "X-CSRFToken": "{{csrf_token}}",
                     }
-                }).then(_ => { 
+                }).then(_ => {
                     document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
                     document.dispatchEvent(
                         new CustomEvent("arrangementInspector.reload", { "detail": {
@@ -555,7 +581,7 @@
             }
         })
     }
-    
+
     function mainPlannerDialog__openEditSerie(event_serie_pk) {
         document.dispatchEvent(
             new CustomEvent("arrangementInspector.editEventSerieDialog.trigger", { "detail": {
@@ -590,7 +616,7 @@
                     headers: {
                         "X-CSRFToken": "{{csrf_token}}"
                     }
-                }).then(_ => { 
+                }).then(_ => {
                     document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
                     document.dispatchEvent(
                         new CustomEvent("arrangementInspector.reload", { "detail": {
@@ -619,7 +645,7 @@
                     headers: {
                         "X-CSRFToken": '{{ csrf_token }}'
                     }
-                }).then(_ => { 
+                }).then(_ => {
                     document.dispatchEvent(new Event("arrangementInspector.close"));    // Close all dialogs on mainPlannerDialog
                     document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
                 });

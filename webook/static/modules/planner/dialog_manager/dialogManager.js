@@ -17,11 +17,8 @@
     }
 
     async render(context) {
-        this.prepareDOM();
-
         this.destroy();
 
-        this.dialogOptions.closeText = "hello";
         if (this.isOpen() === false) {
             $('body')
                 .append(await this.htmlFabricator(context))
@@ -29,7 +26,11 @@
                     this._$getDialogEl().dialog( this.dialogOptions );
                     this.onRenderedCallback(this, context);
                     this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                        .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>");
+                        .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>")
+                        .click( () => {
+                            this.destroy();
+                        });
+                    
                 });
         }
     }
@@ -51,7 +52,7 @@
             document.querySelector("#" + this.dialogElementId).innerHTML 
                 = holderEl.querySelector("#" + this.dialogElementId).innerHTML;
 
-            this.onRenderedCallback(this);
+            this.onRenderedCallback(this, context);
 
             return;
         }
@@ -61,7 +62,7 @@
 
     close() {
         if (this.isOpen() === true) {
-            this._$getDialogEl().dialog("close");
+            this.destroy()
         }
     }
 
@@ -83,7 +84,10 @@
     }
 
     destroy() {
-        $( `#${this.dialogElementId}` ).dialog( "destroy" );
+        $( this.dialogElementId ).dialog( "destroy" );
+        $(`[id=${this.dialogElementId}]`).each(function (index, $dialogElement) {
+            $dialogElement.remove();
+        })
     }
 
     isOpen() {

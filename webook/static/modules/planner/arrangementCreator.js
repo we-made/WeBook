@@ -85,9 +85,10 @@ export class ArrangementCreator {
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
+                                    event.title_en = serie.time.title_en;
                                     event.arrangement=arrangementId;
                                     event.start = event.from.toISOString();
-                                    event.end= event.to.toISOString();
+                                    event.end = event.to.toISOString();
                                     event.ticket_code = ticket_code;
                                     event.expected_visitors = serie.time.expected_visitors;
                                     event.rooms = serie.rooms;
@@ -154,7 +155,7 @@ export class ArrangementCreator {
 
                                 document.querySelectorAll("input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
-                                        $('#id_display_layouts_serie_planner_' + parseInt(checkboxElement.value) - 1)
+                                        $('#id_display_layouts_serie_planner_' + String(parseInt(checkboxElement.value) - 1))
                                             .prop( "checked", true );
                                     })
                                 

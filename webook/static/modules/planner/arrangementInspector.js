@@ -16,9 +16,13 @@ export class ArrangementInspector {
         this.dialogManager = this._createDialogManager();
     }
 
-    inspect( arrangement ) {
+    async inspect( arrangement ) {
         this.dialogManager.setContext({ arrangement: arrangement });
         this.dialogManager.openDialog( "mainDialog" );
+    }
+
+    async _getRecurringInfo(arrangementPk) {
+        return await fetch(`/arrangement/arrangement/${arrangementPk}/detail`).then( response => response.json() );
     }
 
     _listenToOrderRoomForSingleEventBtnClick() {
@@ -178,9 +182,17 @@ export class ArrangementInspector {
                             return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&dialog=newTimePlanDialog&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => { 
-                            $('#serie_title').attr('value', $('#id_name').val() );
-                            $('#serie_title_en').attr('value', $('#id_name_en').val() );
+                        onRenderedCallback: async (dialogManager, context) => { 
+                            var info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
+                            $('#serie_title').attr('value', info.title);
+                            $('#serie_title_en').attr('value', info.title_en);
+                            $('#serie_ticket_code').attr('value', info.ticket_code);
+                            $('#serie_expected_visitors').attr('value', info.expected_visitors);
+
+                            info.display_layouts.forEach(display_layout => {
+                                $('#id_display_layouts_serie_planner_' + ( display_layout - 1))
+                                    .prop( "checked", true );
+                            })
                         },
                         onUpdatedCallback: () => { 
                             this.dialogManager.reloadDialog("mainDialog"); 

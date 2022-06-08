@@ -180,6 +180,39 @@
                         <div id="eventsBody"></div>
                     </td>
                 </tr>
+
+                 <tr>
+                  <br/>
+                    <td>
+                        <h5 class="header-fonted">
+                            <i class="fas fa-tv"></i>
+                            Skjerm
+                        </h5>
+                        <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
+                                        {{form.display_layouts}}
+                      <label>Skjermtekst:</label>
+                      <input type="text"
+                             class="form-control"
+                             id="{{ form.display_text.id_for_label }}"
+                             value="{{ form.display_text.value|default:'' }}"
+                             name="{{ form.display_text.name }}"
+                             placeholder="{% trans 'Custom text for display' %}..."/>
+                      <label class="mt-4">Skjermtekst (<em class="small">Engelsk</em>):</label>
+                      <input type="text"
+                             class="form-control"
+                             id="{{ form.display_text_en.id_for_label }}"
+                             value="{{ form.display_text_en.value|default:'' }}"
+                             name="{{ form.display_text_en.name }}"
+                             placeholder="{% trans 'Custom text for display (in english)' %}..."/>
+
+                      {% if form.display_text.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                          {{ form.display_text_en.errors }}
+                        </div>
+                      {% endif %}
+
+                    </td>
+                </tr>
             </div>
         </div>
         <a class="btn btn-lg shadow-0 text-white btn-success btn-block"
@@ -290,7 +323,9 @@
         formData.append("ticket_code",      $('#id_ticket_code').val());
         formData.append("meeting_place",    $('#id_meeting_place').val());
         formData.append("expected_visitors",$('#id_expected_visitors').val());
-        
+        formData.append("display_text",$('#id_display_text').val());
+        formData.append("display_text_en",$('#id_display_text_en').val());
+
         let displayLayouts = [];
         document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
             formData.append("display_layouts", element.value);
@@ -342,7 +377,7 @@
                 `)
             )
         })
-    } 
+    }
 
     function setSeries(series) {
         seriesMap = new Map();
