@@ -15,18 +15,6 @@ from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.utils.collision_analysis import CollisionRecord, analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
 
-sample_collision_records = [
-    CollisionRecord(
-        contested_resource_name = "Contested Resource",
-        contested_resource_id = 1,
-        event_a_title="Event A",
-        event_b_title="Event B",
-        event_a_start=datetime.now(),
-        event_a_end=datetime.now() + timedelta(hours = 4),
-        event_b_start=datetime.now() + timedelta(hours = 1),
-        event_b_end=datetime.now() + timedelta(hours = 3)
-    )
-]
 
 class CollisionAnalysisFormView(JsonFormView):
     def form_valid(self, form) -> JsonResponse:
