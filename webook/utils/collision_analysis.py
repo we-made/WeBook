@@ -32,6 +32,9 @@ def analyze_collisions(events: Union[List[dict], dict], annotate_events: bool = 
         If true then the event is in a collision with another event.
     """
 
+    if len(events) == 0:
+        return []
+
     earliest_start = min ( map(lambda event: event.start, events) )
     latest_end = max ( map(lambda event: event.end, events) )
 

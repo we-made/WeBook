@@ -1,4 +1,6 @@
+import { CollisionsUtil } from "./collisions_util.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
+import { PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
 import { serieConvert } from "./serieConvert.js";
 import { SeriesUtil } from "./seriesutil.js";
 
@@ -27,8 +29,7 @@ export class ArrangementCreator {
                             if (this.dialogManager.context.events !== undefined) {
                                 this.dialogManager.context.events = new Map();
                             }
-
-                            console.log("calling _makeAware")
+                            
                             this.dialogManager._makeAware();
                         },
                         onSubmit: async (context, details) => { 
@@ -86,7 +87,7 @@ export class ArrangementCreator {
                                     var event = events[i];
                                     event.arrangement=arrangementId;
                                     event.start = event.from.toISOString();
-                                    event.end=event.to.toISOString();
+                                    event.end= event.to.toISOString();
                                     event.ticket_code = ticket_code;
                                     event.expected_visitors = serie.time.expected_visitors;
                                     event.rooms = serie.rooms;
@@ -163,144 +164,7 @@ export class ArrangementCreator {
                             }
                             
                             var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
-
-                            $('#serie_uuid').val(serie._uuid);
-                            $('#serie_title').val(serie.time.title);
-                            $('#serie_title_en').val(serie.time.title_en);
-                            $('#serie_start').val(serie.time.start);
-                            $('#serie_end').val(serie.time.end);
-                            $('#serie_ticket_code').val(serie.time.ticket_code);
-                            $('#serie_expected_visitors').val(serie.time.expected_visitors);
-                            $('#area_start_date').val(serie.time_area.start_date)
-
-                            // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
-                            // has "selected" rooms as they would through the dialog interface.
-                            if (serie.people.length > 0) {
-                                var peopleSelectContext = Object();
-                                peopleSelectContext.people = serie.people.join(",");
-                                peopleSelectContext.people_name_map = serie.people_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d2_peopleSelected",
-                                    { detail: {
-                                        context: peopleSelectContext
-                                    } }
-                                ));
-                            }
-                            if (serie.rooms.length > 0) {
-                                var roomSelectContext = Object();
-                                roomSelectContext.rooms = serie.rooms.join(",");
-                                roomSelectContext.room_name_map = serie.room_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d2_roomsSelected",
-                                    { detail: {
-                                        context: roomSelectContext
-                                    } }
-                                ));
-                            }
-
-                            serie.display_layouts.split(",").forEach(element => {
-                                $('#id_display_layouts_serie_planner_' + String(parseInt(element) - 1))
-                                    .prop( "checked", true );
-                            })
-
-                            switch(serie.time_area.method_name) {
-                                case "StopWithin":
-                                    $('#radio_timeAreaMethod_stopWithin').prop("checked", true);
-                                    $('#area_stopWithin').val(serie.time_area.stop_within);
-                                    $('#area_stopWithin')[0].disabled = false;
-                                    break;
-                                case "StopAfterXInstances":
-                                    $('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true);
-                                    $('#area_stopAfterXInstances').val(serie.time_area.instances);
-                                    $('#area_stopAfterXInstances')[0].disabled = false;
-                                    break;
-                                case "NoStopDate":
-                                    $('#radio_timeAreaMethod_noStopDate').prop("checked", true);
-                                    $('#area_noStop_projectXMonths').val(serie.time_area.projectionDistanceInMonths);
-                                    $('#area_noStop_projectXMonths')[0].disabled = false;
-                                    break;
-                            }
-
-                            switch(serie.pattern.pattern_type) {
-                                case "daily":
-                                    $('#radio_pattern_daily').prop("checked", true);
-                                    switch(serie.pattern.pattern_routine) {
-                                        case "daily__every_x_day":
-                                            $('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
-                                            $('#every_x_day__interval').val(parseInt(serie.pattern.interval));
-                                            break;
-                                        case "daily__every_weekday":
-                                            $('#radio_pattern_daily_every_weekday_subroute')
-                                                .prop("checked", true);
-                                            break;
-                                    }
-                                    break;
-                                case "weekly":
-                                    $('#radio_pattern_weekly').prop("checked", true);
-                                    $("#week_interval").val(serie.pattern.week_interval);
-
-                                    var days = [
-                                        $("#monday"),
-                                        $("#tuesday"),
-                                        $("#wednesday"),
-                                        $("#thursday"),
-                                        $("#friday"),
-                                        $("#saturday"),
-                                        $("#sunday"),
-                                    ]
-
-                                    for (let i = 1; i < 8; i++) {
-                                        if (serie.pattern.days.get(i) === true) {
-                                            days[i - 1].attr("checked", true);
-                                        }
-                                    }
-                                    break;
-                                case "monthly":
-                                    $('#radio_pattern_monthly').prop("checked", true).click();
-                                    
-                                    switch(serie.pattern.pattern_routine) {
-                                        case "month__every_x_day_every_y_month":
-                                            $('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
-                                            $('#every_x_day_every_y_month__day_of_month').val(serie.pattern.day_of_month);
-                                            $('#every_x_day_every_y_month__month_interval').val(serie.pattern.interval);
-                                            break;
-                                        case "month__every_arbitrary_date_of_month":
-                                            $('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
-                                            document.querySelector("#every_dynamic_date_of_month__arbitrator").setAttribute("init_value", serie.pattern.arbitrator);
-                                            document.querySelector("#every_dynamic_date_of_month__weekday").setAttribute("init_value", serie.pattern.weekday);
-                                            $("#every_dynamic_date_of_month__month_interval").val(serie.pattern.interval);
-                                            break;
-                                    }
-
-                                    break;
-                                case "yearly":
-                                    $('#radio_pattern_yearly').prop("checked", true);
-                                    $('#pattern_yearly_const__year_interval').val(serie.pattern.year_interval);
-
-                                    switch(serie.pattern.pattern_routine) {
-                                        case "yearly__every_x_of_month":
-                                            $('#every_x_datemonth_of_year_radio').prop("checked", true);
-                                            $('#every_x_of_month__date').val(serie.pattern.day_index);
-                                            document.querySelector("#every_x_of_month__month").setAttribute("init_value", serie.pattern.month);
-                                            break;
-                                        case "yearly__every_arbitrary_weekday_in_month":
-                                            $('#every_x_dynamic_day_in_month_radio').prop("checked", true);
-                                            document.querySelector("#every_arbitrary_weekday_in_month__arbitrator").setAttribute("init_value", serie.pattern.arbitrator);
-                                            document.querySelector("#every_arbitrary_weekday_in_month__weekday").setAttribute("init_value", serie.pattern.weekday);
-                                            document.querySelector("#every_arbitrary_weekday_in_month__month").setAttribute("init_value", serie.pattern.month);
-
-                                            $("#every_arbitrary_weekday_in_month__month").val(serie.pattern.month);
-                                            break;
-                                    }
-
-                                    break;
-                            }
-
-                            // This is a bad solution to a pesky bug where the "daily" strategy choices appear when selecting
-                            // weekly/monthly/yearly. Should be fixed on createSerieDialog when time allows.
-                            if (serie.pattern.pattern_type !== "daily") {
-                                $('#patternRoute_daily').hide();
-                            }
+                            PopulateCreateSerieDialogFromSerie(serie);
                         },
                         onUpdatedCallback: () => { 
                             toastr.success("Tidsplan lagt til eller oppdatert i planen");
@@ -314,18 +178,7 @@ export class ArrangementCreator {
                                 details.serie._uuid = crypto.randomUUID();
                             }
                             
-                            var formData = new FormData();
-                            formData = serieConvert(details.serie, formData, "");
-                            details.serie.collisions = await fetch("/arrangement/analysis/analyzeNonExistentSerie", {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    "X-CSRFToken": details.csrf_token
-                                },
-                                credentials: 'same-origin'
-                            }).then(response => response.text()).then(text => JSON.parse(text));
-                            console.log(details.serie)
-
+                            details.serie.collisions = await CollisionsUtil.GetCollisionsForSerie(serieConvert(details.serie, new FormData(), ""), details.csrf_token);
                             context.series.set(details.serie._uuid, details.serie);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
@@ -427,8 +280,6 @@ export class ArrangementCreator {
                             this.dialogManager.closeDialog("breakOutActivityDialog"); 
                         },
                         onSubmit: async (context, details) => {
-                            console.log("onSubmit context", context)
-
                             if (context.events === undefined) {
                                 context.events = new Map();
                             }
@@ -449,52 +300,12 @@ export class ArrangementCreator {
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
                             
-                            details.event.collisions = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    "X-CSRFToken": details.csrf_token
-                                },
-                                credentials: 'same-origin'
-                            }).then(response => response.text()).then(text => JSON.parse(text));
+                            details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
                                 var collision = details.event.collisions[0];
-                                Swal.fire({
-                                    title: 'Kollisjon',
-                                    width: 600,
-                                    html: 
-                                    `
-                                    Hendelsen kan ikke opprettes da den kolliderer med en eksisterende booking på den eksklusive ressursen ${collision.contested_resource_name}.
-                                    <div class='row mt-3'>
-                                        <div class='col-5'>
-                                            <div class='card shadow-4 border'>
-                                                <div class='card-body'>
-                                                    <span class='fw-bold'>${collision.event_a_title}</span>
-                                                    <div class='small text-muted'>
-                                                        ${collision.event_a_start} - ${collision.event_a_end}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class='col-2'>
-                                            <h2 class='align-middle'> <i class='fas fa-arrow-right'></i> </h2>
-                                        </div>
-                                        <div class='col-5'>
-                                            <div class='card shadow-4 border'>
-                                                <div class='card-body'>
-                                                    <span class='fw-bold'>${collision.event_b_title}</span>
-                                                    <div class='small text-muted'>
-                                                        ${collision.event_b_start} - ${collision.event_b_end}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    `,
-                                    icon: 'error',
-                                })
-
+                                await CollisionsUtil.FireOneToOneCollisionWarningSwal(collision);
+                                
                                 return false;
                             }
 
@@ -618,51 +429,11 @@ export class ArrangementCreator {
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
                             
-                            details.event.collisions = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    "X-CSRFToken": details.csrf_token
-                                },
-                                credentials: 'same-origin'
-                            }).then(response => response.text()).then(text => JSON.parse(text));
+                            details.event.collision = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
                                 var collision = details.event.collisions[0];
-                                Swal.fire({
-                                    title: 'Kollisjon',
-                                    width: 600,
-                                    html: 
-                                    `
-                                    Hendelsen kan ikke opprettes da den kolliderer med en eksisterende booking på den eksklusive ressursen ${collision.contested_resource_name}.
-                                    <div class='row mt-3'>
-                                        <div class='col-5'>
-                                            <div class='card shadow-4 border'>
-                                                <div class='card-body'>
-                                                    <span class='fw-bold'>${collision.event_a_title}</span>
-                                                    <div class='small text-muted'>
-                                                        ${collision.event_a_start} - ${collision.event_a_end}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class='col-2'>
-                                            <h2 class='align-middle'> <i class='fas fa-arrow-right'></i> </h2>
-                                        </div>
-                                        <div class='col-5'>
-                                            <div class='card shadow-4 border'>
-                                                <div class='card-body'>
-                                                    <span class='fw-bold'>${collision.event_b_title}</span>
-                                                    <div class='small text-muted'>
-                                                        ${collision.event_b_start} - ${collision.event_b_end}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    `,
-                                    icon: 'error',
-                                })
+                                await CollisionsUtil.FireOneToOneCollisionWarningSwal(collision);
                                 return false;
                             }
 

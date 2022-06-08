@@ -557,7 +557,6 @@
     }
     
     function mainPlannerDialog__openEditSerie(event_serie_pk) {
-        console.log("hoi")
         document.dispatchEvent(
             new CustomEvent("arrangementInspector.editEventSerieDialog.trigger", { "detail": {
                 event_serie_pk: event_serie_pk

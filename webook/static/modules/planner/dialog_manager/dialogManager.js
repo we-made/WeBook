@@ -66,7 +66,6 @@
     }
 
     prepareDOM() {
-
         var selector = `#${this.dialogElementId}`
         if (this.dialogElementId == "editEventSerieDialog") {
             selector += ",#newTimePlanDialog";
@@ -159,7 +158,7 @@ export class DialogManager {
 
     _listenForUpdatedEvent() {
         document.addEventListener(`${this.managerName}.hasBeenUpdated`, (e) => {
-            this._dialogRepository.get(e.detail.dialog).onUpdatedCallback();
+            this._dialogRepository.get(e.detail.dialog).onUpdatedCallback(this.context);
         });
     }
 
@@ -168,7 +167,7 @@ export class DialogManager {
             var dialog = this._dialogRepository.get(e.detail.dialog);
             var submitResult = await dialog.onSubmit(this.context, e.detail);  // Trigger the dialogs onSubmit handling
             if (submitResult !== false) {
-                dialog.onUpdatedCallback();  // Trigger the dialogs on update handling
+                dialog.onUpdatedCallback(this.context);  // Trigger the dialogs on update handling
             }
         })
     }

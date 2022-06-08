@@ -859,7 +859,6 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     HOLIDAY_EVENT = 'holiday_event'
     EVENT_TYPE_CHOICES = (
         ( ARRANGEMENT_EVENT, ARRANGEMENT_EVENT ),
-        ( COLLISION_EVENT, COLLISION_EVENT ),
         ( HOLIDAY_EVENT, HOLIDAY_EVENT ),
     )
 
