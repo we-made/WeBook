@@ -18,6 +18,7 @@ from .arrangement_views import (
     arrangement_delete_file_view,
     arrangement_delete_view,
     arrangement_promote_planner_to_main_view,
+    arrangement_recurring_information_json_view,
     arrangement_remove_planner_form_view,
     arrangement_search_view,
     arrangement_update_view,
