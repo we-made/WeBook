@@ -25,22 +25,10 @@ export class LocationCalendar extends FullCalendarBased {
         // // If user has not supplied an active color provider key we use default color provider as active.
         // this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : this._colorProviders.get("DEFAULT");
 
-        this._listenToRefreshEvents();
-
         this._ARRANGEMENT_STORE = new ArrangementStore(this._colorProviders.get("arrangement"));
         this._LOCATIONS_STORE = new LocationStore(this);
 
         this.init()
-    }
-
-    _listenToRefreshEvents() {
-        document.addEventListener("plannerCalendar.refreshNeeded", async () => {
-            await this.init();
-            /* Remove all shown popovers, if we refresh the events without doing this we'll be "pulling the rug" up from under the popovers, 
-            in so far as removing the elements they are anchored/bound to. In effect this puts the popover in a stuck state, in which it can't be hidden or
-            removed without refresh. Hence we do this. */
-            $(".popover").popover('hide');
-        });
     }
 
     getFcCalendar() {

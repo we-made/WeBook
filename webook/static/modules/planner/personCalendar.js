@@ -26,19 +26,7 @@ export class PersonCalendar extends FullCalendarBased {
         this._ARRANGEMENT_STORE = new ArrangementStore(this._colorProviders.get("arrangement"));
         this._STORE = new PersonStore(this);
 
-        this._listenToRefreshEvents();
-
         this.init()
-    }
-
-    _listenToRefreshEvents() {
-        document.addEventListener("plannerCalendar.refreshNeeded", async () => {
-            await this.init();
-            /* Remove all shown popovers, if we refresh the events without doing this we'll be "pulling the rug" up from under the popovers, 
-            in so far as removing the elements they are anchored/bound to. In effect this puts the popover in a stuck state, in which it can't be hidden or
-            removed without refresh. Hence we do this. */
-            $(".popover").popover('hide');
-        });
     }
 
     getFcCalendar() {

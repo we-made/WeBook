@@ -70,23 +70,12 @@ export class PlannerCalendar extends FullCalendarBased {
             this.init();
         });
         
-        this._listenToRefreshEvents();
         this._listenToInspectArrangementEvents();
         this._listenToInspectEvent();
     }
 
     getFcCalendar() {
         return this._fcCalendar;
-    }
-
-    _listenToRefreshEvents() {
-        document.addEventListener("plannerCalendar.refreshNeeded", async () => {
-            await this.init();
-            /* Remove all shown popovers, if we refresh the events without doing this we'll be "pulling the rug" up from under the popovers, 
-            in so far as removing the elements they are anchored/bound to. In effect this puts the popover in a stuck state, in which it can't be hidden or
-            removed without refresh. Hence we do this. */
-            $(".popover").popover('hide');
-        });
     }
 
     _listenToInspectArrangementEvents() {
