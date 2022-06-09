@@ -66,8 +66,8 @@ class AnalyzeNonExistantEvent(LoginRequiredMixin, CollisionAnalysisFormView):
     form_class = AnalyzeNonExistantEventForm
     
     def form_valid(self, form) -> JsonResponse:
-        event_dict = form.as_event_dto()
-        records = analyze_collisions([ event_dict ])
+        event_dto = form.as_event_dto()
+        records = analyze_collisions([ event_dto ])
         return JsonResponse( [ vars(record) for record in records ], safe=False )
 
     def form_invalid(self, form) -> JsonResponse:
