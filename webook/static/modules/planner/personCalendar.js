@@ -26,6 +26,10 @@ export class PersonCalendar extends FullCalendarBased {
         this.init()
     }
 
+    getFcCalendar() {
+        return this._fcCalendar;
+    }
+
     refresh() {
         this.init()
     }

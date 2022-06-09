@@ -318,7 +318,6 @@ export class ArrangementStore extends BaseStore {
 }
 
 export class FullCalendarBased {
-
     _findSlugFromEl(el) { 
         var slug = undefined;
 
@@ -360,6 +359,10 @@ export class FullCalendarBased {
         this.init();
     }
 
+    /**
+     * Get the FullCalendar calendar instance
+     */
+    getFcCalendar() { }
     teardown() { }
     init() { }
 

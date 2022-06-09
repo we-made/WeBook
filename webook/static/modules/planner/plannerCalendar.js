@@ -75,6 +75,10 @@ export class PlannerCalendar extends FullCalendarBased {
         this._listenToInspectEvent();
     }
 
+    getFcCalendar() {
+        return this._fcCalendar;
+    }
+
     _listenToRefreshEvents() {
         document.addEventListener("plannerCalendar.refreshNeeded", async () => {
             await this.init();

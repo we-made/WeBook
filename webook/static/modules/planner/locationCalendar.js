@@ -27,6 +27,10 @@ export class LocationCalendar extends FullCalendarBased {
         this.init()
     }
 
+    getFcCalendar() {
+        return this._fcCalendar;
+    }
+
     /**
      * Set a new active color provider, identified by the given key. 
      * Set color provider must have been registered on initialization of planner calendar.
