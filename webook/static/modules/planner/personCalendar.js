@@ -1,5 +1,8 @@
 import { ArrangementStore, FullCalendarBased, PersonStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
 
+const monthNames = ["Januar", "Februar", "Mars", "April", "Mai", "Juni",
+  "Juli", "August", "September", "Oktober", "November", "Desember"
+];
 
 export class PersonCalendar extends FullCalendarBased {
 
@@ -23,7 +26,19 @@ export class PersonCalendar extends FullCalendarBased {
         this._ARRANGEMENT_STORE = new ArrangementStore(this._colorProviders.get("arrangement"));
         this._STORE = new PersonStore(this);
 
+        this._listenToRefreshEvents();
+
         this.init()
+    }
+
+    _listenToRefreshEvents() {
+        document.addEventListener("plannerCalendar.refreshNeeded", async () => {
+            await this.init();
+            /* Remove all shown popovers, if we refresh the events without doing this we'll be "pulling the rug" up from under the popovers, 
+            in so far as removing the elements they are anchored/bound to. In effect this puts the popover in a stuck state, in which it can't be hidden or
+            removed without refresh. Hence we do this. */
+            $(".popover").popover('hide');
+        });
     }
 
     getFcCalendar() {
@@ -38,7 +53,7 @@ export class PersonCalendar extends FullCalendarBased {
 
     }
 
-    init() {
+    async init() {
         let _this = this;
 
         if (this._fcCalendar === undefined) {
@@ -100,11 +115,26 @@ export class PersonCalendar extends FullCalendarBased {
                         },
                     }
                 ],
+                datesSet: (dateInfo) => {
+                    $('#plannerCalendarHeader').text("");
+                    $(".popover").popover('hide');
+    
+                    if (dateInfo.view.type == "resourceTimelineMonth") {
+                        var monthIndex = dateInfo.start.getMonth();
+                        if (dateInfo.start.getDate() !== 1) {
+                            monthIndex++;
+                        }
+                        $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
+                    }
+                },
                 resources: async (fetchInfo, successCallback, failureCallback) => {
                     await _this._STORE._refreshStore();
                     successCallback(_this._STORE.getAll({ get_as: _FC_RESOURCE }));
                 },
             });
+        }
+        else {
+            this._fcCalendar.refetchEvents();
         }
 
         this._fcCalendar.render();

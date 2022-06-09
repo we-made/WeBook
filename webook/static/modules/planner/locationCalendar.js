@@ -2,6 +2,10 @@ import { FullCalendarEvent, StandardColorProvider, _FC_EVENT, ArrangementStore, 
 
 import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
 
+const monthNames = ["Januar", "Februar", "Mars", "April", "Mai", "Juni",
+  "Juli", "August", "September", "Oktober", "November", "Desember"
+];
+
 export class LocationCalendar extends FullCalendarBased {
 
     constructor ( {calendarElement,  colorProviders=[], initialColorProvider="", calendarFilter=undefined  } = {} ) {
@@ -21,10 +25,22 @@ export class LocationCalendar extends FullCalendarBased {
         // // If user has not supplied an active color provider key we use default color provider as active.
         // this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? initialColorProvider : this._colorProviders.get("DEFAULT");
 
+        this._listenToRefreshEvents();
+
         this._ARRANGEMENT_STORE = new ArrangementStore(this._colorProviders.get("arrangement"));
         this._LOCATIONS_STORE = new LocationStore(this);
 
         this.init()
+    }
+
+    _listenToRefreshEvents() {
+        document.addEventListener("plannerCalendar.refreshNeeded", async () => {
+            await this.init();
+            /* Remove all shown popovers, if we refresh the events without doing this we'll be "pulling the rug" up from under the popovers, 
+            in so far as removing the elements they are anchored/bound to. In effect this puts the popover in a stuck state, in which it can't be hidden or
+            removed without refresh. Hence we do this. */
+            $(".popover").popover('hide');
+        });
     }
 
     getFcCalendar() {
@@ -54,11 +70,10 @@ export class LocationCalendar extends FullCalendarBased {
     }
 
     refresh() {
-        console.info("HIT REFRESH")
         this.init()
     }
 
-    init() {
+    async init() {
         let _this = this;
 
         if (this._fcCalendar === undefined) {
@@ -120,6 +135,18 @@ export class LocationCalendar extends FullCalendarBased {
                         },
                     }
                 ],
+                datesSet: (dateInfo) => {
+                    $('#plannerCalendarHeader').text("");
+                    $(".popover").popover('hide');
+    
+                    if (dateInfo.view.type == "resourceTimelineMonth") {
+                        var monthIndex = dateInfo.start.getMonth();
+                        if (dateInfo.start.getDate() !== 1) {
+                            monthIndex++;
+                        }
+                        $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
+                    }
+                },
                 resources: async (fetchInfo, successCallback, failureCallback) => {
                     await _this._LOCATIONS_STORE._refreshStore();
                     successCallback(_this._LOCATIONS_STORE.getAll({ get_as: _FC_RESOURCE }));
@@ -148,6 +175,9 @@ export class LocationCalendar extends FullCalendarBased {
                     return { domNodes: domNodes };
                 }
             });
+        }
+        else {
+            this._fcCalendar.refetchEvents();
         }
 
         this._fcCalendar.render();
