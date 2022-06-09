@@ -1,10 +1,8 @@
 import { FullCalendarEvent, StandardColorProvider, _FC_EVENT, ArrangementStore, FullCalendarResource, FullCalendarBased, LocationStore, _FC_RESOURCE } from "./commonLib.js";
 
 import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
+import { monthNames } from "./monthNames.js";
 
-const monthNames = ["Januar", "Februar", "Mars", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Desember"
-];
 
 export class LocationCalendar extends FullCalendarBased {
 

@@ -1,8 +1,5 @@
 import { ArrangementStore, FullCalendarBased, PersonStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
-
-const monthNames = ["Januar", "Februar", "Mars", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Desember"
-];
+import { monthNames } from "./monthNames.js";
 
 export class PersonCalendar extends FullCalendarBased {
 

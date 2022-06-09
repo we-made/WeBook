@@ -6,12 +6,7 @@ import {
 } from "./commonLib.js";
 import { EventInspector } from "./eventInspector.js";
 import { FilterDialog } from "./filterDialog.js";
-
-
-
-const monthNames = ["Januar", "Februar", "Mars", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Desember"
-];
+import { monthNames } from "./monthNames.js";
 
 
 export class PlannerCalendar extends FullCalendarBased {
