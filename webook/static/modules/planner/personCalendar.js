@@ -1,5 +1,4 @@
-import { FullCalendarEvent, StandardColorProvider, ArrangementStore,  _FC_EVENT,  FullCalendarResource, FullCalendarBased, LocationStore, _FC_RESOURCE, PersonStore } from "./commonLib.js";
-import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
+import { ArrangementStore, FullCalendarBased, PersonStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
 
 
 export class PersonCalendar extends FullCalendarBased {

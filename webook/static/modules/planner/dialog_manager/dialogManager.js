@@ -66,12 +66,25 @@
         }
     }
 
+    prepareDOM() {
+        var selector = `#${this.dialogElementId}`
+        if (this.dialogElementId == "editEventSerieDialog") {
+            selector += ",#newTimePlanDialog";
+        }
+
+        var elements = document.querySelectorAll(selector);
+
+        elements.forEach(element => {
+            element.remove();
+        })
+    }
+
     getInstance() {
         return $( `#${this.dialogElementId}` ).dialog( "instance" );
     }
 
     destroy() {
-        $( this.dialogElementId ).dialog( "destroy" );
+        $( "#" + this.dialogElementId ).dialog( "destroy" );
         $(`[id=${this.dialogElementId}]`).each(function (index, $dialogElement) {
             $dialogElement.remove();
         })
@@ -149,15 +162,17 @@ export class DialogManager {
 
     _listenForUpdatedEvent() {
         document.addEventListener(`${this.managerName}.hasBeenUpdated`, (e) => {
-            this._dialogRepository.get(e.detail.dialog).onUpdatedCallback();
+            this._dialogRepository.get(e.detail.dialog).onUpdatedCallback(this.context);
         });
     }
 
     _listenForSubmitEvent() {
         document.addEventListener(`${this.managerName}.submit`, async (e) => {
             var dialog = this._dialogRepository.get(e.detail.dialog);
-            await dialog.onSubmit(this.context, e.detail);  // Trigger the dialogs onSubmit handling
-            dialog.onUpdatedCallback();                     // Trigger the dialogs on update handling
+            var submitResult = await dialog.onSubmit(this.context, e.detail);  // Trigger the dialogs onSubmit handling
+            if (submitResult !== false) {
+                dialog.onUpdatedCallback(this.context);  // Trigger the dialogs on update handling
+            }
         })
     }
 

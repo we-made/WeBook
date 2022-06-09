@@ -1,22 +1,12 @@
-import { 
-    FullCalendarEvent, 
-    FullCalendarResource, 
-    FullCalendarBased, 
-    writeSlugClass, 
-    ArrangementStore, 
-    _FC_EVENT, 
-    _NATIVE_ARRANGEMENT, 
-    LocationStore,
-    PersonStore,
-    _FC_RESOURCE,
-    StandardColorProvider,
-} from "./commonLib.js";
-
 import { ArrangementInspector } from "./arrangementInspector.js";
+import {
+    ArrangementStore, FullCalendarBased, LocationStore,
+    PersonStore, StandardColorProvider, _FC_EVENT,
+    _NATIVE_ARRANGEMENT
+} from "./commonLib.js";
 import { EventInspector } from "./eventInspector.js";
 import { FilterDialog } from "./filterDialog.js";
-import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
-import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
+
 
 
 const monthNames = ["Januar", "Februar", "Mars", "April", "Mai", "Juni",
@@ -253,6 +243,7 @@ export class PlannerCalendar extends FullCalendarBased {
             weekNumbers: true,
             navLinks: true,
             minTime: "06:00",
+            themeSystem: 'bootstrap',
             maxTime: "23:00",
             slotEventOverlap: false,
             locale: 'nb',

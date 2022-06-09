@@ -1,4 +1,7 @@
+import { CollisionsUtil } from "./collisions_util.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
+import { PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
+import { serieConvert } from "./serieConvert.js";
 import { SeriesUtil } from "./seriesutil.js";
 
 
@@ -26,8 +29,7 @@ export class ArrangementCreator {
                             if (this.dialogManager.context.events !== undefined) {
                                 this.dialogManager.context.events = new Map();
                             }
-
-                            console.log("calling _makeAware")
+                            
                             this.dialogManager._makeAware();
                         },
                         onSubmit: async (context, details) => { 
@@ -47,14 +49,17 @@ export class ArrangementCreator {
                                 return obj.arrangementPk;
                             };
 
-                            var registerEvents = async function (events, arrangementId, csrf_token, ticket_code) {
+                            var registerEvents = async function (events, arrangementId, csrf_token, serieUUIDToIdMap) {
                                 var formData = new FormData();
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
-                                    var displayLayoutCounter = 0;
-
                                     event.arrangement = arrangementId;
+                                    
+                                    if (event.is_resolution && "associated_serie_internal_uuid" in event) {
+                                        event.associated_serie_id = serieUUIDToIdMap.get(event.associated_serie_internal_uuid);
+                                    }
+
                                     for (var key in event) {
                                         formData.append("events[" + i + "]." + key, event[key]);
                                     }
@@ -75,73 +80,8 @@ export class ArrangementCreator {
                             var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
                                 var events = SeriesUtil.calculate_serie(serie);
                                 var formData = new FormData();
-
-                                formData.append("manifest.pattern", serie.pattern.pattern_type);
-                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
-                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
-                                formData.append("manifest.startDate", serie.time_area.start_date);
-                                formData.append("manifest.startTime", serie.time.start);
-                                formData.append("manifest.endTime", serie.time.end);
-                                formData.append("manifest.ticketCode", serie.time.ticket_code);
-                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
-                                formData.append("manifest.title", serie.time.title);
-                                formData.append("manifest.title_en", serie.time.title_en);
-                                formData.append("manifest.rooms", serie.rooms);
-                                formData.append("manifest.people", serie.people);
-                                formData.append("manifest.displayLayouts", serie.display_layouts);
                                 
-                                switch(serie.pattern.pattern_type) {
-                                    case "daily":
-                                        if (serie.pattern.pattern_routine === "daily__every_x_day") {
-                                            formData.append("manifest.interval", serie.pattern.interval);
-                                        }
-                                        break;
-                                    case "weekly":
-                                        formData.append("manifest.interval", serie.pattern.week_interval);
-                                        var count = 0;
-                                        for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-                                            formData.append(`manifest.${day}`, serie.pattern.days.get(count));
-                                            count++;
-                                        }
-                                        break;
-                                    case "monthly":
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "month__every_x_day_every_y_month":
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                formData.append("manifest.day_of_month", serie.pattern.day_of_month);
-                                                break;
-                                            case "month__every_arbitrary_date_of_month":
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                break;
-                                        }
-                                        break;
-                                    case "yearly":
-                                        formData.append("manifest.interval", serie.pattern.year_interval);
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "yearly__every_x_of_month":
-                                                formData.append("manifest.day_of_month", serie.pattern.day_index);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                break;
-                                            case "yearly__every_arbitrary_weekday_in_month":
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                break;
-                                        }
-                                        break;
-                                }
-                                
-                                if (serie.time_area.stop_within !== undefined) {
-                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
-                                }
-                                if (serie.time_area.instances !== undefined) {
-                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
-                                }
-                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
-                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
-                                }
+                                formData = serieConvert(serie, formData);
 
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
@@ -162,26 +102,30 @@ export class ArrangementCreator {
 
                                 formData.append("saveAsSerie", true);
 
-                                await fetch("/arrangement/planner/create_events/", {
+                                return await fetch("/arrangement/planner/create_events/", {
                                     method:"POST",
                                     body: formData,
                                     headers: {
                                         "X-CSRFToken": csrf_token
                                     },
                                     credentials: 'same-origin',
-                                }).then(_ => { 
+                                }).then(response => response.json())
+                                  .then(responseAsJson => { 
                                     document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
-                                })
+                                    return responseAsJson.serie_id;
+                                });
                             }
-
+                            
+                            var internalSerieUuidsMapToCreatedSerieIds = new Map(); // maps between our internal uuids used locally, to their "real" counter-parts in the back-end
                             createArrangement(details.formData, csrf_token)
-                                .then(arrId => {
-                                    details.series.forEach(async (serie) => {
-                                        await registerSerie(serie, arrId, csrf_token, details.formData.get("ticket_code"));
-                                    });
+                                .then(async arrId => {
+                                    for (const serie of details.series) {
+                                        var created_serie_id = await registerSerie(serie, arrId, csrf_token, details.formData.get("ticket_code"));
+                                        internalSerieUuidsMapToCreatedSerieIds.set(String(serie._uuid), created_serie_id);
+                                    }
                                     
                                     if (details.events !== undefined) {
-                                        registerEvents(details.events, arrId, csrf_token, details.formData.get("ticked_code"));
+                                        registerEvents(details.events, arrId, csrf_token, internalSerieUuidsMapToCreatedSerieIds);
                                     }
                                 });
                         },
@@ -203,8 +147,6 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: (dialogManager, context) => { 
-                            console.log("OnRendered Context -> ", context);
-
                             if (context.lastTriggererDetails === undefined) {
                                 $('#serie_ticket_code').attr('value', $('#id_ticket_code')[0].value );
                                 $('#serie_title').attr('value', $('#id_name')[0].value );
@@ -223,144 +165,7 @@ export class ArrangementCreator {
                             }
                             
                             var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
-
-                            $('#serie_uuid').val(serie._uuid);
-                            $('#serie_title').val(serie.time.title);
-                            $('#serie_title_en').val(serie.time.title_en);
-                            $('#serie_start').val(serie.time.start);
-                            $('#serie_end').val(serie.time.end);
-                            $('#serie_ticket_code').val(serie.time.ticket_code);
-                            $('#serie_expected_visitors').val(serie.time.expected_visitors);
-                            $('#area_start_date').val(serie.time_area.start_date)
-
-                            // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
-                            // has "selected" rooms as they would through the dialog interface.
-                            if (serie.people.length > 0) {
-                                var peopleSelectContext = Object();
-                                peopleSelectContext.people = serie.people.join(",");
-                                peopleSelectContext.people_name_map = serie.people_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d2_peopleSelected",
-                                    { detail: {
-                                        context: peopleSelectContext
-                                    } }
-                                ));
-                            }
-                            if (serie.rooms.length > 0) {
-                                var roomSelectContext = Object();
-                                roomSelectContext.rooms = serie.rooms.join(",");
-                                roomSelectContext.room_name_map = serie.room_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d2_roomsSelected",
-                                    { detail: {
-                                        context: roomSelectContext
-                                    } }
-                                ));
-                            }
-
-                            serie.display_layouts.split(",").forEach(element => {
-                                $('#id_display_layouts_serie_planner_' + String(parseInt(element) - 1))
-                                    .prop( "checked", true );
-                            })
-
-                            switch(serie.time_area.method_name) {
-                                case "StopWithin":
-                                    $('#radio_timeAreaMethod_stopWithin').prop("checked", true);
-                                    $('#area_stopWithin').val(serie.time_area.stop_within);
-                                    $('#area_stopWithin')[0].disabled = false;
-                                    break;
-                                case "StopAfterXInstances":
-                                    $('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true);
-                                    $('#area_stopAfterXInstances').val(serie.time_area.instances);
-                                    $('#area_stopAfterXInstances')[0].disabled = false;
-                                    break;
-                                case "NoStopDate":
-                                    $('#radio_timeAreaMethod_noStopDate').prop("checked", true);
-                                    $('#area_noStop_projectXMonths').val(serie.time_area.projectionDistanceInMonths);
-                                    $('#area_noStop_projectXMonths')[0].disabled = false;
-                                    break;
-                            }
-
-                            switch(serie.pattern.pattern_type) {
-                                case "daily":
-                                    $('#radio_pattern_daily').prop("checked", true);
-                                    switch(serie.pattern.pattern_routine) {
-                                        case "daily__every_x_day":
-                                            $('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
-                                            $('#every_x_day__interval').val(parseInt(serie.pattern.interval));
-                                            break;
-                                        case "daily__every_weekday":
-                                            $('#radio_pattern_daily_every_weekday_subroute')
-                                                .prop("checked", true);
-                                            break;
-                                    }
-                                    break;
-                                case "weekly":
-                                    $('#radio_pattern_weekly').prop("checked", true);
-                                    $("#week_interval").val(serie.pattern.week_interval);
-
-                                    var days = [
-                                        $("#monday"),
-                                        $("#tuesday"),
-                                        $("#wednesday"),
-                                        $("#thursday"),
-                                        $("#friday"),
-                                        $("#saturday"),
-                                        $("#sunday"),
-                                    ]
-
-                                    for (let i = 1; i < 8; i++) {
-                                        if (serie.pattern.days.get(i) === true) {
-                                            days[i - 1].attr("checked", true);
-                                        }
-                                    }
-                                    break;
-                                case "monthly":
-                                    $('#radio_pattern_monthly').prop("checked", true).click();
-                                    
-                                    switch(serie.pattern.pattern_routine) {
-                                        case "month__every_x_day_every_y_month":
-                                            $('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
-                                            $('#every_x_day_every_y_month__day_of_month').val(serie.pattern.day_of_month);
-                                            $('#every_x_day_every_y_month__month_interval').val(serie.pattern.interval);
-                                            break;
-                                        case "month__every_arbitrary_date_of_month":
-                                            $('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
-                                            document.querySelector("#every_dynamic_date_of_month__arbitrator").setAttribute("init_value", serie.pattern.arbitrator);
-                                            document.querySelector("#every_dynamic_date_of_month__weekday").setAttribute("init_value", serie.pattern.weekday);
-                                            $("#every_dynamic_date_of_month__month_interval").val(serie.pattern.interval);
-                                            break;
-                                    }
-
-                                    break;
-                                case "yearly":
-                                    $('#radio_pattern_yearly').prop("checked", true);
-                                    $('#pattern_yearly_const__year_interval').val(serie.pattern.year_interval);
-
-                                    switch(serie.pattern.pattern_routine) {
-                                        case "yearly__every_x_of_month":
-                                            $('#every_x_datemonth_of_year_radio').prop("checked", true);
-                                            $('#every_x_of_month__date').val(serie.pattern.day_index);
-                                            document.querySelector("#every_x_of_month__month").setAttribute("init_value", serie.pattern.month);
-                                            break;
-                                        case "yearly__every_arbitrary_weekday_in_month":
-                                            $('#every_x_dynamic_day_in_month_radio').prop("checked", true);
-                                            document.querySelector("#every_arbitrary_weekday_in_month__arbitrator").setAttribute("init_value", serie.pattern.arbitrator);
-                                            document.querySelector("#every_arbitrary_weekday_in_month__weekday").setAttribute("init_value", serie.pattern.weekday);
-                                            document.querySelector("#every_arbitrary_weekday_in_month__month").setAttribute("init_value", serie.pattern.month);
-
-                                            $("#every_arbitrary_weekday_in_month__month").val(serie.pattern.month);
-                                            break;
-                                    }
-
-                                    break;
-                            }
-
-                            // This is a bad solution to a pesky bug where the "daily" strategy choices appear when selecting
-                            // weekly/monthly/yearly. Should be fixed on createSerieDialog when time allows.
-                            if (serie.pattern.pattern_type !== "daily") {
-                                $('#patternRoute_daily').hide();
-                            }
+                            PopulateCreateSerieDialogFromSerie(serie);
                         },
                         onUpdatedCallback: () => { 
                             toastr.success("Tidsplan lagt til eller oppdatert i planen");
@@ -374,7 +179,141 @@ export class ArrangementCreator {
                                 details.serie._uuid = crypto.randomUUID();
                             }
                             
+                            details.serie.collisions = await CollisionsUtil.GetCollisionsForSerie(serieConvert(details.serie, new FormData(), ""), details.csrf_token);
                             context.series.set(details.serie._uuid, details.serie);
+                            document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
+                        },
+                        dialogOptions: { width: 700 }
+                    })
+                ],
+                [
+                    "breakOutActivityDialog",
+                    new Dialog({
+                        dialogElementId: "breakOutActivityDialog",
+                        triggerElementId: "breakOutActivityDialog",
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=0&managerName=arrangementCreator&dialog=breakOutActivityDialog&orderRoomDialog=orderRoomDialog&orderPersonDIalog=orderPersonDialog&dialogTitle=Kollisjonshåndtering&dialogIcon=fa-code-branch')
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+                            /* 
+                                LastTriggererDetails is set when the dialog is called for, and not available
+                                in the subsequent callbacks versions of the context. We need to access this in  
+                                the OnSubmit callback so we set it as such. It might be more correct in the long
+                                run to make this remembered for the entire lifetime of the dialog instance, as to avoid
+                                these kinds of things.
+                            */
+                            context._lastTriggererDetails = context.lastTriggererDetails;
+
+                            var serie = context.lastTriggererDetails.serie;
+                            var collision_record = serie.collisions[context.lastTriggererDetails.collision_index];
+
+                            $('#ticket_code').val(serie.time.ticket_code ).trigger('change');
+                            $('#title').val(serie.time.title ).trigger('change');
+                            $('#title_en').attr('value', serie.time.title_en ).trigger('change');
+                            $('#expected_visitors').attr('value', serie.time.expected_visitors ).trigger('change');
+
+                            serie.display_layouts.split(",")
+                                .forEach(checkboxElement => {
+                                    $(`#${checkboxElement.value}_dlcheck`)
+                                        .prop( "checked", true );
+                                })
+
+                            $('#breakOutActivityDialog').prepend( $(
+                                document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
+                            ).addClass("mb-4"));
+                            
+                            
+                            // document.querySelectorAll("input[name='display_layouts']:checked")
+                            //     .forEach(checkboxElement => {
+                            //         $(`#${checkboxElement.value}_dlcheck`)
+                            //             .prop( "checked", true );
+                            //     })
+
+
+                            var splitDateFunc = function (strToDateSplit) {
+                                var date_str = strToDateSplit.split("T")[0];
+                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
+                                return [ date_str, time_str ];
+                            }
+
+                            var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
+                            var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
+                            $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
+                            $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
+                            $('#toDate').val(endTimeArtifacts[0]).trigger('change');
+                            $('#toTime').val(endTimeArtifacts[1]).trigger('change');
+                                
+                            // This ensures that english title is only obligatory IF a display layout has been selected.
+                            // dialogCreateEvent__evaluateEnTitleObligatory();
+
+                            if (serie.people.length > 0) {
+                                var peopleSelectContext = Object();
+                                peopleSelectContext.people = serie.people.join(",");
+                                peopleSelectContext.people_name_map = serie.people_name_map;
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementCreator.d1_peopleSelected",
+                                    { detail: {
+                                        context: peopleSelectContext
+                                    } }
+                                ));
+                            }
+                            if (serie.rooms.length > 0) {
+                                var roomSelectContext = Object();
+                                roomSelectContext.rooms = serie.rooms.join(",");
+                                roomSelectContext.room_name_map = serie.room_name_map;
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementCreator.d1_roomsSelected",
+                                    { detail: {
+                                        context: roomSelectContext
+                                    } }
+                                ));
+                            }
+
+                            $('#event_uuid').val(crypto.randomUUID());
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
+                        },
+                        onUpdatedCallback: () => {
+                            toastr.success("Kollisjon løst, enkel aktivitet har blitt opprettet");
+                            this.dialogManager.closeDialog("breakOutActivityDialog"); 
+                        },
+                        onSubmit: async (context, details) => {
+                            if (context.events === undefined) {
+                                context.events = new Map();
+                            }
+                            if (details.event._uuid === undefined) {
+                                details.event._uuid = crypto.randomUUID();
+                            }
+
+                            details.event.is_resolution = true;
+                            details.event.associated_serie_internal_uuid = context._lastTriggererDetails.serie._uuid;
+
+                            var formData = new FormData();
+                            for (var key in details.event) {
+                                formData.append(key, details.event[key])
+                            }
+
+                            var startDate = new Date(details.event.start);
+                            var endDate = new Date(details.event.end);
+                            formData.append("fromDate", startDate.toISOString());
+                            formData.append("toDate", endDate.toISOString());
+                            
+                            details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
+
+                            if (details.event.collisions.length > 0) {
+                                var collision = details.event.collisions[0];
+                                await CollisionsUtil.FireOneToOneCollisionWarningSwal(collision);
+                                
+                                return false;
+                            }
+
+                            context._lastTriggererDetails.serie.collisions
+                                .splice(context._lastTriggererDetails.collision_index, 1);
+
+                            context.events.set(details.event._uuid, details.event);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
                         dialogOptions: { width: 700 }
@@ -391,6 +330,10 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: (dialogManager, context) => { 
+                            
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                             if (context.lastTriggererDetails === undefined) {
                                 $('#ticket_code').attr('value', $('#id_ticket_code')[0].value );
                                 $('#title').attr('value', $('#id_name')[0].value );
@@ -460,6 +403,10 @@ export class ArrangementCreator {
                                     } }
                                 ));
                             }
+
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
                         onUpdatedCallback: () => { 
                             toastr.success("Enkel aktivitet lagt til eller oppdatert i planen");
@@ -471,6 +418,24 @@ export class ArrangementCreator {
                             }
                             if (details.event._uuid === undefined) {
                                 details.event._uuid = crypto.randomUUID();
+                            }
+
+                            var formData = new FormData();
+                            for (var key in details.event) {
+                                formData.append(key, details.event[key])
+                            }
+
+                            var startDate = new Date(details.event.start);
+                            var endDate = new Date(details.event.end);
+                            formData.append("fromDate", startDate.toISOString());
+                            formData.append("toDate", endDate.toISOString());
+                            
+                            details.event.collision = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
+
+                            if (details.event.collisions.length > 0) {
+                                var collision = details.event.collisions[0];
+                                await CollisionsUtil.FireOneToOneCollisionWarningSwal(collision);
+                                return false;
                             }
 
                             context.events.set(details.event._uuid, details.event);

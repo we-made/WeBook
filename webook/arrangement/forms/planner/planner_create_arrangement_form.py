@@ -1,6 +1,7 @@
 from django import forms
-from webook.arrangement.models import Arrangement, RoomPreset
 from django.forms.widgets import CheckboxSelectMultiple
+
+from webook.arrangement.models import Arrangement, RoomPreset
 
 
 class PlannerCreateArrangementModelForm(forms.ModelForm):
@@ -17,5 +18,9 @@ class PlannerCreateArrangementModelForm(forms.ModelForm):
                     "expected_visitors",
                     "display_layouts",
                     "display_text",
-                    "display_text_en",)
-        widgets = { "display_layouts": CheckboxSelectMultiple(), }
+                    "display_text_en", )
+        widgets = { "display_layouts": CheckboxSelectMultiple(), 
+                    'location': forms.Select(attrs={'class': 'form-control'}),
+                    'audience': forms.Select(attrs={'class': 'select', 'data-mdb-placeholder': 'Select audience'}),
+                    'arrangement_type': forms.Select(attrs={'class': 'form-control'}),
+                    'responsible': forms.Select(attrs={'class': 'form-control'}), }

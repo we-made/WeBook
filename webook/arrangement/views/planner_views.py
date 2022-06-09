@@ -21,6 +21,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
 from django.views.generic.edit import DeleteView, FormView
 
+from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.facilities.calendar import analysis_strategies
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
@@ -56,6 +57,7 @@ from webook.arrangement.models import (
 )
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.screenshow.models import DisplayLayout
+from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.json_serial import json_serial
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -172,6 +174,7 @@ class PlanCreateEvents(LoginRequiredMixin, View):
         """
 
         created_event_ids = []
+        dto_events = []
         counter = 0;
         querydict = self.request.POST
         get_post_value_or_none = lambda attr: querydict.get("events[" + str(counter) + "]." + attr, None)
@@ -246,53 +249,78 @@ class PlanCreateEvents(LoginRequiredMixin, View):
             event_serie.save()
 
         while (True):
+            if get_post_value_or_none("arrangement") is None:
+                break
+            
+            is_resolution = (is_resolution := get_post_value_or_none("is_resolution")) is not None and is_resolution.upper() == "TRUE"
+
+            dto_events.append(EventDTO(
+                arrangement_id = get_post_value_or_none("arrangement"),
+                is_resolution=is_resolution,
+                title = get_post_value_or_none("title"),
+                title_en = get_post_value_or_none("title_en"),
+                start=parser.parse(get_post_value_or_none("start")),
+                end=parser.parse(get_post_value_or_none("end")),
+                expected_visitors=get_post_value_or_none("expected_visitors"),
+                ticket_code=get_post_value_or_none("ticket_code"),
+                sequence_guid=get_post_value_or_none("sequence_guid"),
+                color=get_post_value_or_none("color"),
+                associated_serie_id=get_post_value_or_none("associated_serie_id"),
+                display_layouts=list(map(int, parse_ids_string_to_list(get_post_value_or_none("display_layouts")))),
+                people=list(map(int, parse_ids_string_to_list(get_post_value_or_none("people")))),
+                rooms=list(map(int, parse_ids_string_to_list(get_post_value_or_none("rooms")))),
+            ))
+
+            counter += 1
+        
+        analyze_collisions( dto_events, True )
+
+        for dto_event in dto_events:
+            if dto_event.is_collision:
+                continue
+
             event = Event()
 
-            arrangement_id = get_post_value_or_none("arrangement")
-            if arrangement_id is None:
-                break
+            event.arrangement_id = dto_event.arrangement_id
+            event.title = dto_event.title
+            event.start = dto_event.start
+            event.end = dto_event.end
+            event.expected_visitors = dto_event.expected_visitors
+            event.ticket_code = dto_event.ticket_code
+            event.sequence_guid = dto_event.sequence_guid
+            event.color = dto_event.color
 
-            event.arrangement_id = arrangement_id
-            event.title = get_post_value_or_none("title")
-            event.title_en = get_post_value_or_none("title_en")
-            event.start = get_post_value_or_none("start")
-            event.end = get_post_value_or_none("end")
-            event.expected_visitors = get_post_value_or_none("expected_visitors")
-            event.ticket_code = get_post_value_or_none("ticket_code")
-            event.sequence_guid = get_post_value_or_none("sequence_guid")
-
-            event.color = get_post_value_or_none("color")
-
-            # we need to save the event before setting up the many-to-many relationships,
-            # as they need a tangible id to use when establishing themselves
             event.save()
-            display_layouts = get_post_value_or_none("display_layouts")
-            for display_layout_id in parse_ids_string_to_list(display_layouts):
-                event.display_layouts.add(DisplayLayout.objects.get(id=display_layout_id))
 
-            rooms_post = get_post_value_or_none("rooms")
-            for roomId in parse_ids_string_to_list(rooms_post):
-                event.rooms.add(Room.objects.get(id=roomId))
+            for display_layout_id in dto_event.display_layouts:
+                event.display_layouts.add(display_layout_id)
+
+            for roomId in dto_event.rooms:
+                event.rooms.add(roomId)
             
-            people_post = get_post_value_or_none("people")
-            for personId in parse_ids_string_to_list(people_post):
-                event.people.add(Person.objects.get(id=personId))
+            for personId in dto_event.people:
+                event.people.add(personId)
 
-            loose_requisitions_post = get_post_value_or_none("loose_requisitions")
-            for loose_requisition_id in parse_ids_string_to_list(loose_requisitions_post):
-                event.loose_requisitions.add(LooseServiceRequisition.objects.get(id=loose_requisition_id))
+            if dto_event.is_resolution and dto_event.associated_serie_id is not None:
+                # When we're posting up a resolution event on a conflict in a serie we're posting it individually as a single activity.
+                # Hence we can't look at the EventSerie, as it does not exist in this context. It is then expected
+                # that this serie_id is known and provided by the front end.
+                event.associated_serie_id = dto_event.associated_serie_id
+                event.association_type = Event.COLLISION_RESOLVED_ORIGINATING_OF_SERIE
 
             event.save()
             if event_serie is not None:
                 event_serie.events.add(event)
             
             created_event_ids.append(event.pk)
-            counter += 1
-        
+
         if event_serie:
             event_serie.save()
 
-        return JsonResponse( {"created_x_events": len(created_event_ids), "is_sequence": bool(plan_manifest) } )
+        return JsonResponse( {"created_x_events": 
+                               len(created_event_ids), 
+                               "is_sequence": bool(plan_manifest), 
+                               "serie_id": event_serie.id if event_serie is not None else None } )
 
 plan_create_events = PlanCreateEvents.as_view()
 
@@ -667,6 +695,8 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
         context = super().get_context_data(**kwargs)
         
         context["managerName"] = self.request.GET.get("managerName")
+        context["dialogTitle"] = self.request.GET.get("dialogTitle", "Ny enkel aktivitet")
+        context["dialogIcon"] = self.request.GET.get("dialogIcon", "fa-calendar-plus")
         context["dialog"] = self.request.GET.get("dialog")
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
