@@ -1,14 +1,13 @@
-from unicodedata import name
 from django.urls import path
-from webook.arrangement.views import (
-    audience_list_view,
-    audience_create_view,
-    audience_update_view,
-    audience_detail_view,
-    audience_delete_view,
-    audience_search_view,
-)
 
+from webook.arrangement.views import (
+    audience_create_view,
+    audience_delete_view,
+    audience_detail_view,
+    audience_list_view,
+    audience_search_view,
+    audience_update_view,
+)
 
 audience_urls = [
     path(

@@ -15,254 +15,212 @@
                             <i class="fas fa-clipboard"></i>
                             Informasjon om arrangementet
                         </h5>
-                        <table class="table table-sm">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <strong>Navn:</strong>
-                                        <input type="text"
-                                            class="form-control mb-2"
-                                            id="{{ form.name.id_for_label }}"
-                                            value="{{ form.name.value|default:'' }}"
-                                            name="{{ form.name.name }}"
-                                            autocomplete="off"
-                                            placeholder="{% trans 'Name of the arrangement' %}..."
-                                            required />
+                        <div class="form-outline mb-2">
+                            <input type="text"
+                                class="form-control mb-2"
+                                id="{{ form.name.id_for_label }}" 
+                                value="{{ form.name.value|default:'' }}"
+                                name="{{ form.name.name }}"
+                                autocomplete="off"
+                                required />
+                            <label class="form-label" for="{{ form.name.id_for_label }}">🇳🇴 Tittel på norsk</label>
+                        </div>
+                        {% if form.name.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.name.errors }}
+                            </div>
+                        {% endif %}
 
-                                        <strong>Navn <em>(engelsk)</em>:</strong>
-                                        <input type="text"
-                                            class="form-control"
-                                            id="{{ form.name_en.id_for_label }}"
-                                            value="{{ form.name_en.value|default:'' }}"
-                                            name="{{ form.name_en.name }}"
-                                            autocomplete="off"
-                                            placeholder="{% trans 'Name of the arrangement in english' %}..."
-                                            />
+                        <div class="form-outline mb-3">
+                            <input type="text"
+                                class="form-control form-control-md"
+                                id="{{ form.name_en.id_for_label }}" 
+                                value="{{ form.name_en.value|default:'' }}"
+                                name="{{ form.name_en.name }}"
+                                autocomplete="off"
+                                />
+                            <label class="form-label" for="{{ form.name.id_for_label }}">🇬🇧 Tittel på engelsk</label>
+                        </div>
+                        {% if form.name_en.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.name_en.errors }}
+                            </div>
+                        {% endif %}
 
-                                        {% if form.name_en.errors|length > 0 %}
-                                            <div class="alert alert-danger">
-                                                {{ form.name_en.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                        <div class="mb-2">
+                            {{ form.audience }}
+                            <label for="" class="form-label select-label"><i class="fas fa-cog"></i>&nbsp; {{ form.audience.label }}</label>
+                        </div>
+                        {% if form.audience.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.audience.errors }}
+                            </div>
+                        {% endif %}
 
-                                <tr>
-                                    <td>
-                                        <strong>Målgruppe:</strong>
-                                        <div>
-                                            {{ form.audience }}
-                                        </div>
+                        <div class="mb-2">
+                            {{ form.location }}
+                            <label for="" class="form-label select-label"><i class="fas fa-building"></i>&nbsp; {{ form.location.label }}</label>
+                        </div>
+                        {% if form.location.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.location.errors }}
+                            </div>
+                        {% endif %}
 
-                                        {% if form.audience.errors|length > 0 %}
-                                            <div class="alert alert-danger">
-                                                {{ form.audience.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                        <div class="mb-2">
+                            {{ form.arrangement_type }}
+                            <label for="" class="form-label select-label"><i class="fas fa-cog"></i>&nbsp; {{ form.arrangement_type.label }}</label>
+                        </div>
+                        {% if form.arrangement_type.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.arrangement_type.errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            {{ form.responsible }}
+                            <label for="" class="form-label select-label"><i class="fas fa-user"></i>&nbsp; {{ form.responsible.label }}</label>
+                        </div>
+                        {% if form.responsible.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.responsible.errors }}
+                            </div>
+                        {% endif %}
 
-                                <tr>
-                                    <td colspan="3">
-                                        <strong>Lokasjon</strong>
-                                        <div>
-                                            {{ form.location }}
-                                        </div>
+                        <div class="mb-2 form-outline">
+                            <input type="text"
+                                class="form-control"
+                                id="{{ form.ticket_code.id_for_label }}" 
+                                value="{{ form.ticket_code.value|default:'' }}"
+                                name="{{ form.ticket_code.name }}"
+                                placeholder="{% trans 'Ticket code' %}..."/>
+                            <label class="form-label" for="{{ form.ticket_code.id_for_label }}">
+                                <i class="fas fa-receipt"></i>&nbsp; Billetkode
+                            </label>
+                        </div>
+                        {% if form.ticket_code.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.ticket_code.errors }}
+                            </div>
+                        {% endif %}
 
-                                        {% if form.location.errors|length > 0 %}
-                                            <div class="alert alert-danger">
-                                                {{ form.location.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                        <div class="mb-2 form-outline">
+                            <input type="text"
+                                class="form-control"
+                                id="{{ form.meeting_place.id_for_label }}" 
+                                value="{{ form.meeting_place.value|default:'' }}"
+                                name="{{ form.meeting_place.name }}"
+                                placeholder="{% trans 'Meeting place' %}..."/>
+                            <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
+                                <i class="fas fa-building"></i>&nbsp; Møtested
+                            </label>
+                        </div>
+                        {% if form.meeting_place.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.meeting_place.errors }}
+                            </div>
+                        {% endif %}
 
-                                <tr>
-                                    <td colspan='2'>
-                                        <strong>Arrangementstype:</strong>
-                                        <div>
-                                            {{ form.arrangement_type }}
-                                        </div>
-
-                                        {% if form.arrangement_type.errors|length > 0 %}
-                                            <div class="alert alert-danger">
-                                                {{ form.arrangement_type.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td colspan='2'>
-                                        <strong>Hovedplanlegger:</strong>
-                                        <div>
-                                            {{ form.responsible }}
-                                        </div>
-
-                                        {% if form.responsible.errors|length > 0 %}
-                                            <div class="alert alert-danger">
-                                                {{ form.responsible.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td colspan="2">
-                                        <strong>Billetkode</strong>
-
-                                        <div class="input-group flex-nowrap">
-                                            <span class="input-group-text">
-                                                <i class="fas fa-receipt"></i>
-                                            </span>
-                                            <input type="text"
-                                                class="form-control"
-                                                id="{{ form.ticket_code.id_for_label }}"
-                                                value="{{ form.ticket_code.value|default:'' }}"
-                                                name="{{ form.ticket_code.name }}"
-                                                placeholder="{% trans 'Ticket code' %}..."/>
-                                        </div>
-
-                                        {% if form.ticket_code.errors|length > 0 %}
-                                            <div class="alert alert-danger">
-                                                {{ form.ticket_code.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td colspan="2">
-                                        <strong>Møtested</strong>
-
-                                        <div class="input-group flex-nowrap">
-                                            <span class="input-group-text">
-                                                <i class="fas fa-building"></i>
-                                            </span>
-                                            <input type="text"
-                                                class="form-control"
-                                                id="{{ form.meeting_place.id_for_label }}"
-                                                value="{{ form.meeting_place.value|default:'' }}"
-                                                name="{{ form.meeting_place.name }}"
-                                                placeholder="{% trans 'Meeting place' %}..."/>
-                                        </div>
-                                        <div id="textExample1" class="form-text">
-                                            <i class="fas fa-exclamation-circle"></i>&nbsp;
-                                            Vil overskrive sted/rom vist på skjermer.
-                                        </div>
-
-                                        {% if form.meeting_place.errors|length > 0 %}
-                                            <div class="alert alert-danger">
-                                                {{ form.meeting_place.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td colspan="2">
-                                        <strong>Expected amount of visitors</strong>
-
-                                        <div class="input-group flex-nowrap">
-                                            <span class="input-group-text">
-                                                <i class="fas fa-users"></i>
-                                            </span>
-                                            <input type="number"
-                                                min="0"
-                                                class="form-control"
-                                                id="{{ form.expected_visitors.id_for_label }}"
-                                                value="{{ form.expected_visitors.value|default:'' }}"
-                                                name="{{ form.expected_visitors.name }}"
-                                                required />
-                                        </div>
-
-                                        {% if form.expected_visitors.errors|length > 0 %}
-                                            <div class="alert alert-danger">
-                                                {{ form.expected_visitors.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="mb-2 form-outline">
+                            <input type="number"
+                                min="0"
+                                class="form-control"
+                                id="{{ form.expected_visitors.id_for_label }}" 
+                                value="{{ form.expected_visitors.value|default:'' }}"
+                                name="{{ form.expected_visitors.name }}"
+                                required />
+                            <label for="{{ form.expected_visitors.id_for_label }}" class="form-label">
+                                <i class="fas fa-users"></i>&nbsp; Expected visitors
+                            </label>
+                        </div>
+                        {% if form.expected_visitors.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.expected_visitors.errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-5 mb-3">
+                            <h5 class="header-fonted">
+                                <i class="fas fa-tv"></i>
+                                Skjerm
+                            </h5>
+                            <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
+                                            {{form.display_layouts}}
+        
+                            <div class="mb-2 form-outline">
+                                <input type="text"
+                                    class="form-control"
+                                    id="{{ form.display_text.id_for_label }}"
+                                    value="{{ form.display_text.value|default:'' }}"
+                                    name="{{ form.display_text.name }}"
+                                    placeholder="{% trans 'Custom text for display' %}..."/>
+                                <label for="{{ form.display_text.id_for_label }}" class="form-label">
+                                    <i>🇳🇴</i>&nbsp; Skjermtekst
+                                </label>
+                            </div>
+                            {% if form.display_text.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.display_text_en.errors }}
+                                </div>
+                            {% endif %}
+        
+                            <div class="form-outline">
+                                <input type="text"
+                                    class="form-control"
+                                    id="{{ form.display_text_en.id_for_label }}"
+                                    value="{{ form.display_text_en.value|default:'' }}"
+                                    name="{{ form.display_text_en.name }}"
+                                    placeholder="{% trans 'Custom text for display' %}..."/>
+                                <label for="{{ form.display_text_en.id_for_label }}" class="form-label">
+                                    <i>🇬🇧</i>&nbsp; Skjermtekst
+                                </label>
+                            </div>
+                            {% if form.display_text_en.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.display_text_en.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
                     </fieldset>
                 </form>
             </div>
             <div class="col-6">
-                <tr>
-                    <td>
-                        <h5 class="header-fonted">
-                            <i class="fas fa-clock"></i>
-                            Plan
-                        </h5>
-                        <div class="row mt-4">
-                            <div class="col-6">
-                                <button class="playfulButton playfulButton-green" id="createArrangementDialog_createSimpleActivity">
-                                    <!-- <div class="icon"><i class="fas fa-plus"></i></div> -->
-                                    Ny enkel aktivitet
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button class="playfulButton  playfulButton-green" id="createArrangementDialog_createSerie">
-                                    <!-- <div class="icon"><i class="fas fa-plus"></i></div> -->
-                                    Ny tidsplan
-                                </button>
-                            </div>
-                        </div>
+                <h5 class="header-fonted">
+                    <i class="fas fa-clock"></i>
+                    Plan
+                </h4>
 
-                        <h5 class="mt-3">Tidsplaner: </h5>
-                        <table class="table-sm table">
-                            <tbody id="seriesTbody">
-                            </tbody>
-                        </table>
+                <div class="alert alert-info small">
+                    <h5><i class="fas fa-info-circle"></i></h5>
+                    <p>Definer en plan på når og hvor arrangementet inntreffer.</p>
+                    
+                    <p>Du kan opprette egne tidsplaner, dette er i praksis det samme som en repeterende hendelse i Outlook.</p>
+        
+                    Eller så kan du opprette en enkel aktivitet, dette er et frittstående tidspunkt eller hendelse som inntreffer en gang.
+                </div>
 
-                        <h5 class="mt-3">Enkle aktiviteter: </h5>
-                        <table class="table-sm table">
-                            <tbody id="eventsTbody">
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
+                <h5 class="mt-3 mb-0">Tidsplaner: </h5>
+                <a class="btn btn-md btn-success text-white btn-block shadow-0 mb-2" id="createArrangementDialog_createSerie">
+                    <i class="fas fa-calendar-week"></i>
+                    Ny tidsplan
+                </a>
 
-                 <tr>
-                  <br/>
-                    <td>
-                        <h5 class="header-fonted">
-                            <i class="fas fa-tv"></i>
-                            Skjerm
-                        </h5>
-                        <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
-                                        {{form.display_layouts}}
-                      <label>Skjermtekst:</label>
-                      <input type="text"
-                             class="form-control"
-                             id="{{ form.display_text.id_for_label }}"
-                             value="{{ form.display_text.value|default:'' }}"
-                             name="{{ form.display_text.name }}"
-                             placeholder="{% trans 'Custom text for display' %}..."/>
-                      <label class="mt-4">Skjermtekst (<em class="small">Engelsk</em>):</label>
-                      <input type="text"
-                             class="form-control"
-                             id="{{ form.display_text_en.id_for_label }}"
-                             value="{{ form.display_text_en.value|default:'' }}"
-                             name="{{ form.display_text_en.name }}"
-                             placeholder="{% trans 'Custom text for display (in english)' %}..."/>
+                <div id="timeplansBody"></div>
 
-                      {% if form.display_text.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                          {{ form.display_text_en.errors }}
-                        </div>
-                      {% endif %}
+                <h5 class="mt-3">Enkle aktiviteter: </h5>
+                <a class="btn btn-md btn-success shadow-0 text-white btn-block mb-2" id="createArrangementDialog_createSimpleActivity">
+                    <i class="fas fa-calendar-plus"></i>
+                    Ny enkel aktivitet
+                </a>
 
-                    </td>
-                </tr>
+                <div id="eventsBody"></div>
             </div>
         </div>
-        <button class=" btn btn-sm shadow-0 btn-success btn-block"
-        type="button"
-        onclick="createArrangementDialog_submit()">
+        <a class="btn btn-lg shadow-0 text-white btn-success btn-block"
+            onclick="createArrangementDialog_submit()">
+            <i class="fas fa-save"></i>
             Opprett Arrangement
-        </button>
+        </a>
     </div>
 </div>
 
@@ -272,6 +230,22 @@
     var eventsMap;
 
     $(document).ready(function () {
+        document.querySelectorAll('.form-outline').forEach((formOutline) => {
+            new mdb.Input(formOutline).init();
+        });
+        new mdb.Select(document.getElementById('{{ form.audience.id_for_label }}'), {
+            container: '#createArrangementDialog'
+        })
+        new mdb.Select(document.getElementById('{{ form.location.id_for_label }}'), {
+            container: '#createArrangementDialog'
+        })
+        new mdb.Select(document.getElementById('{{ form.responsible.id_for_label }}'), {
+            container: '#createArrangementDialog'
+        })
+        new mdb.Select(document.getElementById('{{ form.arrangement_type.id_for_label }}'), {
+            container: '#createArrangementDialog'
+        })
+
         document.addEventListener("{{managerName}}.contextUpdated", (e) => {
             if (e.detail.context.series !== undefined) {
                 setSeries(e.detail.context.series);
@@ -376,30 +350,32 @@
     function setEvents(events) {
         eventsMap = new Map();
 
-        var tbody = $('#eventsTbody');
+        var tbody = $('#eventsBody');
         tbody.html("");
 
         events.forEach(element => {
             eventsMap.set(element._uuid, element);
             tbody.append(
                 $(`
-                    <tr id='${element._uuid}'>
-                        <td> ${element.title} (${element.start} - ${element.end}) </td>
-                        <td>
-                            <div class='btn-group'>
-                                <button class='btn btn-sm btn-danger shadow-0'
-                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}'
-                                    onclick='createArrangementDialog_removeSimpleActivity("${element._uuid}")'>
-                                    <i class='fas fa-trash'></i>
-                                </button>
-                                <button class='btn btn-sm btn-success shadow-0'
-                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}'
-                                    onclick='createArrangementDialog_editSimpleActivity("${element._uuid}")'>
-                                    <i class='fas fa-edit'></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>`)
+                <div class="border border rounded p-3" id='${element._uuid}'>
+                    <h5 class="text-muted mb-0">
+                        ${element.title}
+                    </h5>
+                    ${element.start} - ${element.end}
+                    <div class="btn-group">
+                        <a href="#" class="btn btn-danger text-white"
+                            data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
+                            onclick='createArrangementDialog_removeSimpleActivity("${element._uuid}")'>
+                            Slett
+                        </a>
+                        <a href="#" class="btn btn-success text-white"
+                            data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                            onclick='createArrangementDialog_editSimpleActivity("${element._uuid}")'>
+                            Rediger
+                        </a>
+                    </div>
+                </div>
+                `)
             )
         })
     }
@@ -407,34 +383,95 @@
     function setSeries(series) {
         seriesMap = new Map();
 
-        var tbody = $('#seriesTbody');
+        var tbody = $('#timeplansBody');
         tbody.html("")
 
         series.forEach(element => {
             var uuid = crypto.randomUUID();
             seriesMap.set(element._uuid, element);
+            collisions_html = "";
+            console.log(element)
+            if (element.collisions !== undefined) {
+                var collisionsCounter = 0;
+                element.collisions.forEach(collisionRecord => {
+                    collisions_html += `
+                    <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}">
+                        <h5><i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikt på ${collisionRecord.contested_resource_name}</h5>
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="">
+                                    <div class="fw-bolder">${collisionRecord.event_a_title}</div> 
+                                    <h6>${collisionRecord.event_a_start} - ${collisionRecord.event_a_end}</h6>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <h3 class=" text-center"><i class="fas fa-arrow-right"></i></h3>
+                            </div>
+                            <div class="col-5">
+                                <div class="">
+                                    <div class="fw-bolder">${collisionRecord.event_b_title}</div>  
+                                    <h6>${collisionRecord.event_b_start} - ${collisionRecord.event_b_end}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix">
+                            <a href="#" class="btn btn-success text-white shadow-0"
+                                onclick='createArrangementDialog__breakOutEvent("${element._uuid}", ${collisionsCounter})'><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
+                            </a>
+                        </div>
+                    </div>
+                    `;
+                    collisionsCounter++;
+                })
+            }
 
             tbody.append(
                 $(`
-                    <tr id='${element._uuid}'>
-                        <td>
-                            ${element.time.title} --  ${element.pattern.pattern_type} (${element.pattern.pattern_routine}) - ${element.time.start} - ${element.time.end}
-                        </td>
-                        <td>
-                            <div class='btn-group'>
-                                <button class='btn btn-sm btn-danger shadow-0'
-                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}'
-                                    onclick='createArrangementDialog_removeSerie("${element._uuid}")'>
-                                    <i class='fas fa-trash'></i>
-                                </button>
-                                <button class='btn btn-sm btn-success shadow-0'
-                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}'
+                        <div class="rounded border  p-3 ps-4 pe-4" id='${element._uuid}'>
+                            <h5 class="mb-0 text-muted">${element.time.title}</h5>
+                            <h6 class="mb-0"><i class="fas fa-clock"></i> ${element.time.start} - ${element.time.end} </h6>
+                            <h6><i class="fas fa-redo"></i> ${element.pattern.pattern_type} (${element.pattern.pattern_routine})</h6>
+
+                            <div class="btn-group shadow-0 mb-2">
+                                <a href="#" class="btn btn-success text-white"
+                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
                                     onclick='createArrangementDialog_editSerie("${element._uuid}")'>
-                                    <i class='fas fa-edit'></i>
-                                </button>
+                                    <i class="fas fa-edit"></i>&nbsp; Rediger tidsplan
+                                </a>
+                                <a href="#" class="btn btn-danger text-white"
+                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
+                                    onclick='createArrangementDialog_removeSerie("${element._uuid}")'>
+                                    <i class="fas fa-trash"></i>&nbsp; Slett tidsplan
+                                </a>
                             </div>
-                        </td>
-                    </tr>`)
+                            <div class="accordion" id="accordion_series_${element._uuid}">
+                                <div class="accordion-item">
+                                  <h2 class="accordion-header" id="headingOne">
+                                    <a
+                                      class="accordion-button text-muted collapsed"
+                                      type="button"
+                                      data-mdb-toggle="collapse"
+                                      data-mdb-target="#collisionsCollapse_${element._uuid}"
+                                      aria-expanded="true"
+                                      aria-controls="collisionsCollapse_${element._uuid}"
+                                    >
+                                    <span class="bg-danger rounded-pill text-white p-1" id='${element._uuid}_collisionCounter'>${element.collisions.length}</span>
+                                    <i class="fas fa-exclamation-triangle ms-2"></i>&nbsp; Kollisjoner
+                                  </a>
+                                  </h2>
+                                  <div id="collisionsCollapse_${element._uuid}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-mdb-parent="#accordion_series_${element._uuid}">
+                                    <div class="accordion-body">
+                                        <div class="alert alert-danger small">
+                                            <strong>OBS: </strong> kollisjoner som ikke blir <abbr title="Bryt ut kollisjoner til enkle aktiviteter og løs kollisjonen">brutt ut</abbr> og løst vil ikke bli opprettet
+                                            når arrangementet opprettes.
+                                        </div>
+                                        ${collisions_html}
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                `)
             )
         });
     }
@@ -454,6 +491,16 @@
         document.dispatchEvent(
             new CustomEvent("arrangementCreator.newSimpleActivityDialog.trigger", { "detail": {
                 "event_uuid": uuid
+            } })
+        )
+    }
+
+    function createArrangementDialog__breakOutEvent(serie_uuid, collision_index) {
+        var serie = seriesMap.get(serie_uuid);
+        document.dispatchEvent(
+            new CustomEvent("arrangementCreator.breakOutActivityDialog.trigger", { "detail": {
+                "serie": serie,
+                "collision_index": collision_index,
             } })
         )
     }

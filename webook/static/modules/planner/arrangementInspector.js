@@ -1,11 +1,15 @@
-import { DialogManager, Dialog } from "./dialog_manager/dialogManager.js";
-import { SeriesUtil } from "./seriesutil.js"
+import { CollisionsUtil } from "./collisions_util.js";
+import { convertObjToFormData } from "./commonLib.js";
+import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
+import { PopulateCreateSerieDialogFromManifest } from "./form_populating_routines.js";
+import { QueryStore } from "./querystore.js";
 
 
 const MANAGER_NAME = "arrangementInspector"
 
 const MAIN_DIALOG = Symbol("mainDialog")
 const ADD_PLANNER_DIALOG = Symbol("addPlannerDialog")
+
 
 export class ArrangementInspector {
     constructor () {
@@ -47,6 +51,25 @@ export class ArrangementInspector {
             this.dialogManager.setContext({ arrangement: this.dialogManager.context.arrangement, serie: { guid: e.currentTarget.value } });
             this.dialogManager.openDialog( "orderPersonDialog" );
         })
+    }
+
+    async saveSerieWithCollisionResolutions (serie, csrf_token, arrangement_pk, collision_resolution_map) {
+        var solutionEventFormDatas = [];
+
+        for (var entry of collision_resolution_map) {
+            var solution = entry[1].solution;
+
+            if (solution === undefined) {
+                continue;
+            }
+
+            solutionEventFormDatas.push(solution);
+        }
+
+        return await Promise.all([
+            QueryStore.SaveSerie(serie, csrf_token, arrangement_pk),
+            QueryStore.SaveEvents(solutionEventFormDatas, csrf_token),
+        ])
     }
 
     _createDialogManager () {
@@ -154,8 +177,8 @@ export class ArrangementInspector {
                     new Dialog({
                         dialogElementId: "newTimePlanDialog",
                         triggerElementId: "mainPlannerDialog__newTimePlan",
+                        dialogElementId: "newTimePlanDialog",
                         htmlFabricator: async (context) => {
-                        dialogElementId:
                             return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&dialog=newTimePlanDialog&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
                                 .then(response => response.text());
                         },
@@ -175,110 +198,184 @@ export class ArrangementInspector {
                             this.dialogManager.reloadDialog("mainDialog"); 
                             this.dialogManager.closeDialog("newTimePlanDialog"); 
                         },
-                        dialogOptions: { width: 700 },
-                        onSubmit: async (context, details) => { 
+                        dialogOptions: { width: 700, modal:true },
+                        onSubmit: async (context, details) => {
+                            context.serie = details.serie;
+                            context.collision_resolution = new Map();
 
-                            var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
-                                var events = SeriesUtil.calculate_serie(serie);
-                                var formData = new FormData();
+                            var isInCollisionResolutionState = await CollisionsUtil.FireCollisionsSwal(
+                                details.serie,
+                                context.collision_resolution,
+                                details.csrf_token,
+                                "arrangementInspector.breakOutActivityDialog.trigger",
+                                context.arrangement.arrangement_pk,
+                                this.saveSerieWithCollisionResolutions,
+                                () => { this.dialogManager.closeDialog("newTimePlanDialog") }
+                            );
 
-                                formData.append("saveAsSerie", true); // Special parameter to instruct to save event batch as a serie.
-                                formData.append("manifest.pattern", serie.pattern.pattern_type);
-                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
-                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
-                                formData.append("manifest.startDate", serie.time_area.start_date);
-                                formData.append("manifest.startTime", serie.time.start);
-                                formData.append("manifest.endTime", serie.time.end);
-                                formData.append("manifest.ticketCode", serie.time.ticket_code);
-                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
-                                formData.append("manifest.title", serie.time.title);
-                                formData.append("manifest.title_en", serie.time.title_en);
-                                formData.append("manifest.rooms", serie.rooms);
-                                formData.append("manifest.people", serie.people);
-                                formData.append("manifest.displayLayouts", serie.display_layouts);
-
-                                switch(serie.pattern.pattern_type) {
-                                    case "daily":
-                                        if (serie.pattern.pattern_routine === "daily__every_x_day") {
-                                            formData.append("manifest.interval", serie.pattern.interval);
-                                        }
-                                        break;
-                                    case "weekly":
-                                        formData.append("manifest.interval", serie.pattern.week_interval);
-                                        var count = 0;
-                                        for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-                                            formData.append(`manifest.${day}`, serie.pattern.days.get(count));
-                                            count++;
-                                        }
-                                        break;
-                                    case "monthly":
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "month__every_x_day_every_y_month":
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                formData.append("manifest.day_of_month", serie.pattern.day_of_month);
-                                                break;
-                                            case "month__every_arbitrary_date_of_month":
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                break;
-                                        }
-                                        break;
-                                    case "yearly":
-                                        formData.append("manifest.interval", serie.pattern.year_interval);
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "yearly__every_x_of_month":
-                                                formData.append("manifest.day_of_month", serie.pattern.day_index);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                break;
-                                            case "yearly__every_arbitrary_weekday_in_month":
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                break;
-                                        }
-                                        break;
-                                }
-
-                                if (serie.time_area.stop_within !== undefined) {
-                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
-                                }
-                                if (serie.time_area.instances !== undefined) {
-                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
-                                }
-                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
-                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
-                                }
-
-                                for (let i = 0; i < events.length; i++) {
-                                    var event = events[i];
-                                    event.arrangement=arrangementId;
-                                    event.start = event.from.toISOString();
-                                    event.end=event.to.toISOString();
-                                    event.ticket_code = ticket_code;
-                                    event.expected_visitors = serie.time.expected_visitors;
-                                    event.rooms = serie.rooms;
-                                    event.people = serie.people;
-                                    
-                                    for (var key in event) {
-                                        formData.append("events[" + i + "]." + key, event[key]);
-                                    }
-                                }
-
-                                await fetch("/arrangement/planner/create_events/", {
-                                    method:"POST",
-                                    body: formData,
-                                    headers: {
-                                        "X-CSRFToken": csrf_token
-                                    },
-                                    credentials: 'same-origin',
-                                }).then(_ => { 
-                                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
-                                })
+                            if (isInCollisionResolutionState) {
+                                context.active_collision_route_parent_dialog_id = "newTimePlanDialog";
+                                return false;
                             }
 
-                            await registerSerie( details.serie, context.arrangement.arrangement_pk, details.csrf_token )
+                            QueryStore.SaveSerie(details.serie, details.csrf_token).then(_ => {
+                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                            }); 
                         }
+                    })
+                ],
+                [
+                    "breakOutActivityDialog",
+                    new Dialog({
+                        dialogElementId: "breakOutActivityDialog",
+                        triggerElementId: "breakOutActivityDialog",
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=0&managerName=arrangementInspector&dialog=breakOutActivityDialog&orderRoomDialog=orderRoomForLocalEventDialog&orderPersonDialog=orderPersonDialog&dialogTitle=Kollisjonshåndtering&dialogIcon=fa-code-branch')
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+                            /* 
+                                LastTriggererDetails is set when the dialog is called for, and not available
+                                in the subsequent callbacks versions of the context. We need to access this in  
+                                the OnSubmit callback so we set it as such. It might be more correct in the long
+                                run to make this remembered for the entire lifetime of the dialog instance, as to avoid
+                                these kinds of things.
+                            */
+                            context._lastTriggererDetails = context.lastTriggererDetails;
+                            context._lastTriggererDetails.serie = context.serie;
+                            var serie = context.serie;
+
+                            var collision_uuid = context._lastTriggererDetails.collision_uuid;
+                            var resolution_bundle = context.collision_resolution.get(collision_uuid); 
+                            var collision_record = resolution_bundle.collision;
+
+                            $('#ticket_code').val(serie.time.ticket_code).trigger('change');
+                            $('#title').val(serie.time.title).trigger('change');
+                            $('#title_en').attr('value', serie.time.title_en).trigger('change');
+                            $('#expected_visitors').attr('value', serie.time.expected_visitors).trigger('change');
+
+                            serie.display_layouts.split(",")
+                                .forEach(checkboxElement => {
+                                    $(`#${checkboxElement.value}_dlcheck`)
+                                        .prop( "checked", true );
+                                })
+                            
+                            // document.querySelectorAll("input[name='display_layouts']:checked")
+                            //     .forEach(checkboxElement => {
+                            //         $(`#${checkboxElement.value}_dlcheck`)
+                            //             .prop( "checked", true );
+                            //     })
+
+                            var splitDateFunc = function (strToDateSplit) {
+                                var date_str = strToDateSplit.split("T")[0];
+                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
+                                return [ date_str, time_str ];
+                            }
+
+                            var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
+                            var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
+                            $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
+                            $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
+                            $('#toDate').val(endTimeArtifacts[0]).trigger('change');
+                            $('#toTime').val(endTimeArtifacts[1]).trigger('change');
+                                
+                            // This ensures that english title is only obligatory IF a display layout has been selected.
+                            // dialogCreateEvent__evaluateEnTitleObligatory();
+
+                            if (serie.people.length > 0) {
+                                var peopleSelectContext = Object();
+                                peopleSelectContext.people = serie.people.join(",");
+                                peopleSelectContext.people_name_map = serie.people_name_map;
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementInspector.d1_peopleSelected",
+                                    { detail: {
+                                        context: peopleSelectContext
+                                    } }
+                                ));
+                            }
+                            if (serie.rooms.length > 0) {
+                                var roomSelectContext = Object();
+                                roomSelectContext.rooms = serie.rooms.join(",");
+                                roomSelectContext.room_name_map = serie.room_name_map;
+                                document.dispatchEvent(new CustomEvent(
+                                    "arrangementInspector.d1_roomsSelected",
+                                    { detail: {
+                                        context: roomSelectContext
+                                    } }
+                                ));
+                            }
+
+                            $('#event_uuid').val(crypto.randomUUID());
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
+                        },
+                        onUpdatedCallback: async (context) => {
+                        },
+                        onSubmit: async (context, details) => {
+                            context.csrf_token = details.csrf_token;
+
+                            if (context.events === undefined) {
+                                context.events = new Map();
+                            }
+                            if (details.event._uuid === undefined) {
+                                details.event._uuid = crypto.randomUUID();
+                            }
+
+                            details.event.is_resolution = true;
+                            details.event.associated_serie_internal_uuid = context._lastTriggererDetails.serie._uuid;
+
+                            var collision_state = context.collision_resolution.get(context._lastTriggererDetails.collision_uuid);
+
+                            details.event.fromDate = new Date(details.event.start).toISOString();
+                            details.event.toDate = new Date(details.event.end).toISOString();
+                            details.event.arrangement = context.arrangement.arrangement_pk;
+
+                            var formData = new FormData();
+                            for (var key in details.event) {
+                                formData.append(key, details.event[key])
+                            }
+                            
+                            var collisions_on_solution = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
+
+                            if (collisions_on_solution.length > 0) {
+                                CollisionsUtil.FireOneToOneCollisionWarningSwal(collisions_on_solution[0])
+                                    .then( async (_) => {
+                                        await CollisionsUtil.FireCollisionsSwal(
+                                            context.serie,
+                                            context.collision_resolution,
+                                            context.csrf_token,
+                                            "arrangementInspector.breakOutActivityDialog.trigger",
+                                            context.arrangement.arrangement_pk,
+                                            this.saveSerieWithCollisionResolutions,
+                                            () => { this.dialogManager.closeDialog(context.active_collision_route_parent_dialog_id); }
+                                        )
+                                        this.dialogManager.closeDialog("breakOutActivityDialog"); 
+                                    } );
+                                    
+                                return false;
+                            }
+
+                            collision_state.collision.is_resolved = true;
+                            collision_state.solution = details.event;
+
+                            await CollisionsUtil.FireCollisionsSwal(
+                                context.serie,
+                                context.collision_resolution,
+                                context.csrf_token,
+                                "arrangementInspector.breakOutActivityDialog.trigger",
+                                context.arrangement.arrangement_pk,
+                                this.saveSerieWithCollisionResolutions,
+                                () => { this.dialogManager.closeDialog(context.active_collision_route_parent_dialog_id); }
+
+                            )
+                            
+                            this.dialogManager.closeDialog("breakOutActivityDialog"); 
+                            
+                            document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
+                        },
+                        dialogOptions: { width: 700 }
                     })
                 ],
                 [
@@ -287,54 +384,35 @@ export class ArrangementInspector {
                         dialogElementId: "newSimpleActivityDialog",
                         triggerElementId: "mainPlannerDialog__newSimpleActivity",
                         htmlFabricator: async (context) => {
-                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + context.arrangement.slug + "&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
+                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + context.arrangement.slug + "&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog&dialog=newSimpleActivityDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: async (dialogManager, context) => { 
-                            var info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
-                            $('#title').attr('value', info.title);
-                            $('#title_en').attr('value', info.title_en);
-                            $('#ticket_code').attr('value', info.ticket_code);
-                            $('#expected_visitors').attr('value', info.expected_visitors);
-
-                            info.display_layouts.forEach(display_layout => {
-                                $('#' + ( display_layout - 1) + "_dlcheck")
-                                    .prop( "checked", true );
-                            })
+                        onRenderedCallback: () => { 
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
                         onUpdatedCallback: () => { 
                             this.dialogManager.reloadDialog("mainDialog"); 
                             this.dialogManager.closeDialog("newSimpleActivityDialog"); 
                         },
                         dialogOptions: { width: 500 },
-                        onSubmit: (context, details) => {
-                            var events = [] 
-                            events.push(details.event)
+                        onSubmit: async (context, details) => {
+                            details.event.startDate = (new Date(details.event.start)).toISOString();
+                            details.event.endDate = (new Date(details.event.end)).toISOString();
+                            details.event.arrangement = context.arrangement.arrangement_pk;
+                            details.event.id = 0;
+                            
+                            details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(convertObjToFormData(details.event), details.csrf_token);
 
-                            var registerEvents = async function (events, arrangementId, csrf_token, ticket_code) {
-                                var formData = new FormData();
-                                for (let i = 0; i < events.length; i++) {
-                                    var event = events[i];
-                                    event.arrangement = arrangementId;
-                                    event.id = 0;
-                                    for (var key in event) {
-                                        formData.append("events[" + i + "]." + key, event[key]);
-                                    }
-                                }
-
-                                await fetch("/arrangement/planner/create_events/", {
-                                    method:"POST",
-                                    body: formData,
-                                    headers: {
-                                        "X-CSRFToken": csrf_token
-                                    },
-                                    credentials: 'same-origin',
-                                }).then(_ => { 
-                                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
-                                })
+                            if (details.event.collisions.length > 0) {
+                                CollisionsUtil.FireOneToOneCollisionWarningSwal(details.event.collisions[0]);
+                                return false;
                             }
 
-                            registerEvents(events, context.arrangement.arrangement_pk, details.csrf_token);
+                            QueryStore.SaveEvents([ details.event ], details.csrf_token).then(_ => { 
+                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                            })
                         }
                     })
                 ],
@@ -354,254 +432,34 @@ export class ArrangementInspector {
                                 method: "GET"
                             }).then(response => response.json())
                             
-                            $('#serie_uuid').attr("value", context.lastTriggererDetails.event_serie_pk);
-                            $('#serie_title').val(manifest.title);
-                            $('#serie_title_en').attr("value", manifest.title_en);
-                            $('#serie_expected_visitors').attr("value", manifest.expected_visitors);
-                            $('#serie_ticket_code').attr("value", manifest.ticket_code);
-                            $('#area_start_date').attr("value", manifest.start_date);
-                            $('#serie_start').attr("value", manifest.start_time);
-                            $('#serie_end').attr("value", manifest.end_time);
-
-                            if (manifest.rooms.length > 0) {
-                                var roomSelectContext = Object();
-                                roomSelectContext.rooms = manifest.rooms.map(a => a.id).join(",");
-                                roomSelectContext.room_name_map = new Map();
-
-                                for (let i = 0; i < manifest.rooms.length; i++) {
-                                    let room = manifest.rooms[i];
-                                    roomSelectContext.room_name_map.set(String(room.id), room.name);
-                                }
-
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementInspector.d2_roomsSelected",
-                                    { detail: {
-                                        context: roomSelectContext
-                                    } }
-                                ));
-                            }
-                            if (manifest.people.length > 0) {
-                                var peopleSelectContext = Object();
-                                peopleSelectContext.people = manifest.people.map(a => a.id).join(",");
-                                peopleSelectContext.people_name_map = new Map();
-
-                                for (let i = 0; i < manifest.people.length; i++) {
-                                    let person = manifest.people[i];
-                                    peopleSelectContext.people_name_map.set(String(person.id), person.name);
-                                }
-
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementInspector.d2_peopleSelected",
-                                    { detail: {
-                                        context: peopleSelectContext
-                                    } }
-                                ));
-                            }
-
-                            manifest.display_layouts.forEach(display_layout => {
-                                $('#id_display_layouts_serie_planner_' + String(parseInt(display_layout.id)))
-                                    .prop( "checked", true );
-                            })
-
-                            switch(manifest.recurrence_strategy) {
-                                case "StopWithin":
-                                    $('#radio_timeAreaMethod_stopWithin').prop("checked", true).click();
-                                    $('#area_stopWithin').val(manifest.stop_within);
-                                    $('#area_stopWithin').removeAttr("disabled");
-                                    break;
-                                case "StopAfterXInstances":
-                                    $('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true).click();
-                                    $('#area_stopAfterXInstances').val(manifest.stop_after_x_occurences);
-                                    $('#area_stopAfterXInstances').removeAttr("disabled");
-                                    break;
-                                case "NoStopDate":
-                                    $('#radio_timeAreaMethod_noStopDate').prop("checked", true).click();
-                                    $('#area_noStop_projectXMonths').val(manifest.project_x_months_into_future);
-                                    $('#area_noStop_projectXMonths').removeAttr("disabled");
-                                    break;
-                            }
-
-                            switch (manifest.pattern) {
-                                case "daily":
-                                    $('#radio_pattern_daily').prop("checked", true).click();
-
-                                    switch(manifest.pattern_strategy) {
-                                        case "daily__every_x_day":
-                                            $('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
-                                            $('#every_x_day__interval').val(parseInt(manifest.strategy_specific.interval));
-                                            $('#every_x_day__interval').removeAttr("disabled");
-                                            break;
-                                        case "daily__every_weekday":
-                                            $('#radio_pattern_daily_every_weekday_subroute').prop("checked", true);
-                                            break;
-                                    }
-                                    break;
-                                case "weekly":
-                                    $('#radio_pattern_weekly').prop("checked", true).click();
-                                    $("#week_interval").val(parseInt(manifest.strategy_specific.interval));
-                                    
-                                    var days = [
-                                        $("#monday"),
-                                        $("#tuesday"),
-                                        $("#wednesday"),
-                                        $("#thursday"),
-                                        $("#friday"),
-                                        $("#saturday"),
-                                        $("#sunday"),
-                                    ]
-
-                                    for (var i = 0; i < manifest.strategy_specific.days.length; i++) {
-                                        if (manifest.strategy_specific.days[i] == true) {
-                                            days[i].attr("checked", true);
-                                        }
-                                    }
-
-                                    break;
-                                case "monthly":
-                                    $('#radio_pattern_monthly').prop("checked", true).click();
-                                    switch(manifest.pattern_strategy) {
-                                        case "month__every_x_day_every_y_month":
-                                            $('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
-                                            $('#every_x_day_every_y_month__day_of_month').val(manifest.strategy_specific.day_of_month);
-                                            $("#every_x_day_every_y_month__month_interval").val(parseInt(manifest.strategy_specific.interval));
-                                            break;
-                                        case "month__every_arbitrary_date_of_month":
-                                            $('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
-                                            $('#every_dynamic_date_of_month__arbitrator').val(manifest.strategy_specific.arbitrator);
-                                            $('#every_dynamic_date_of_month__weekday').val(manifest.strategy_specific.day_of_week);
-                                            $('#every_dynamic_date_of_month__month_interval').val(manifest.strategy_specific.interval);
-                                            break;
-                                    }
-                                    break;
-                                case "yearly":
-                                    $('#radio_pattern_yearly').prop("checked", true).click();
-                                    $('#pattern_yearly_const__year_interval').val(manifest.strategy_specific.interval);
-                                    switch(manifest.pattern_strategy) {
-                                        case "yearly__every_x_of_month":
-                                            $('#every_x_datemonth_of_year_radio').prop("checked", true);
-                                            $('#every_x_of_month__date').val(manifest.strategy_specific.day_of_month);
-                                            $('#every_x_of_month__month').val(manifest.strategy_specific.month);
-                                            break;
-                                        case "yearly__every_arbitrary_weekday_in_month":
-                                            $('#every_x_dynamic_day_in_month_radio').prop("checked", true);
-                                            $('#every_arbitrary_weekday_in_month__arbitrator').val(manifest.strategy_specific.arbitrator);
-                                            $('#every_arbitrary_weekday_in_month__weekday').val(manifest.strategy_specific.day_of_week);
-                                            $('#every_arbitrary_weekday_in_month__month').val(manifest.strategy_specific.month);                         
-                                            break;
-                                    }
-                                    break;
-                            }
-
-                            if (manifest.pattern !== "daily") {
-                                $('#patternRoute_daily').hide();
-                            }
+                            PopulateCreateSerieDialogFromManifest(manifest, context.lastTriggererDetails.event_serie_pk);
                          },
                         onUpdatedCallback: () => {
                             this.dialogManager.reloadDialog("mainDialog");
                             this.dialogManager.closeDialog("editEventSerieDialog");
                         },
-                        onSubmit:  async (context, details) => { 
-                            var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
-                                var events = SeriesUtil.calculate_serie(serie);
-                                var formData = new FormData();
+                        onSubmit: async (context, details) => { 
+                            context.serie = details.serie;
+                            context.collision_resolution = new Map();
+                            
+                            var isInCollisionResolutionState = await CollisionsUtil.FireCollisionsSwal(
+                                details.serie,
+                                context.collision_resolution,
+                                details.csrf_token,
+                                "arrangementInspector.breakOutActivityDialog.trigger",
+                                context.arrangement.arrangement_pk,
+                                this.saveSerieWithCollisionResolutions,
+                                () => { this.dialogManager.closeDialog("editEventSerieDialog"); },
+                            );
 
-                                formData.append("saveAsSerie", true); // Special parameter to instruct to save event batch as a serie.
-                                formData.append("predecessorSerie", serie._uuid); // The preceding serie must be removed.
-                                formData.append("manifest.pattern", serie.pattern.pattern_type);
-                                formData.append("manifest.patternRoutine", serie.pattern.pattern_routine);
-                                formData.append("manifest.timeAreaMethod", serie.time_area.method_name);
-                                formData.append("manifest.startDate", serie.time_area.start_date);
-                                formData.append("manifest.startTime", serie.time.start);
-                                formData.append("manifest.endTime", serie.time.end);
-                                formData.append("manifest.ticketCode", serie.time.ticket_code);
-                                formData.append("manifest.expectedVisitors", serie.time.expected_visitors);
-                                formData.append("manifest.title", serie.time.title);
-                                formData.append("manifest.title_en", serie.time.title_en);
-                                formData.append("manifest.rooms", serie.rooms);
-                                formData.append("manifest.people", serie.people);
-                                formData.append("manifest.displayLayouts", serie.display_layouts);
-
-                                switch(serie.pattern.pattern_type) {
-                                    case "daily":
-                                        if (serie.pattern.pattern_routine === "daily__every_x_day") {
-                                            formData.append("manifest.interval", serie.pattern.interval);
-                                        }
-                                        break;
-                                    case "weekly":
-                                        formData.append("manifest.interval", serie.pattern.week_interval);
-                                        var count = 0;
-                                        for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-                                            formData.append(`manifest.${day}`, serie.pattern.days.get(count));
-                                            count++;
-                                        }
-                                        break;
-                                    case "monthly":
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "month__every_x_day_every_y_month":
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                formData.append("manifest.day_of_month", serie.pattern.day_of_month);
-                                                break;
-                                            case "month__every_arbitrary_date_of_month":
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.interval", serie.pattern.interval);
-                                                break;
-                                        }
-                                        break;
-                                    case "yearly":
-                                        formData.append("manifest.interval", serie.pattern.year_interval);
-                                        switch (serie.pattern.pattern_routine) {
-                                            case "yearly__every_x_of_month":
-                                                formData.append("manifest.day_of_month", serie.pattern.day_index);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                break;
-                                            case "yearly__every_arbitrary_weekday_in_month":
-                                                formData.append("manifest.day_of_week", serie.pattern.weekday);
-                                                formData.append("manifest.month", serie.pattern.month);
-                                                formData.append("manifest.arbitrator", serie.pattern.arbitrator);
-                                                break;
-                                        }
-                                        break;
-                                }
-
-                                if (serie.time_area.stop_within !== undefined) {
-                                    formData.append("manifest.stopWithin", serie.time_area.stop_within);
-                                }
-                                if (serie.time_area.instances !== undefined) {
-                                    formData.append("manifest.stopAfterXInstances", serie.time_area.instances);
-                                }
-                                if (serie.time_area.projectionDistanceInMonths !== undefined) {
-                                    formData.append("manifest.projectionDistanceInMonths", serie.time_area.projectionDistanceInMonths);
-                                }
-
-                                for (let i = 0; i < events.length; i++) {
-                                    var event = events[i];
-                                    event.arrangement=arrangementId;
-                                    event.start = event.from.toISOString();
-                                    event.end=event.to.toISOString();
-                                    event.ticket_code = ticket_code;
-                                    event.expected_visitors = serie.time.expected_visitors;
-                                    event.rooms = serie.rooms;
-                                    event.people = serie.people;
-                                    
-                                    for (var key in event) {
-                                        formData.append("events[" + i + "]." + key, event[key]);
-                                    }
-                                }
-
-                                await fetch("/arrangement/planner/create_events/", {
-                                    method:"POST",
-                                    body: formData,
-                                    headers: {
-                                        "X-CSRFToken": csrf_token
-                                    },
-                                    credentials: 'same-origin',
-                                }).then(_ => { 
-                                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
-                                })
+                            if (isInCollisionResolutionState) {
+                                context.active_collision_route_parent_dialog_id = "editEventSerieDialog";
+                                return false;
                             }
 
-                            await registerSerie( details.serie, context.arrangement.arrangement_pk, details.csrf_token )
+                            return QueryStore.SaveSerie(details.serie, details.csrf_token, context.arrangement.arrangement_pk).then(_ => {
+                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                            });
                         },
                         dialogOptions: { width: 700 }
                     })
@@ -673,7 +531,10 @@ export class ArrangementInspector {
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 }
-                            }).then(_ => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderPersonDialog"); });
+                            }).then(_ => { 
+                                this.dialogManager.reloadDialog("mainDialog"); 
+                                this.dialogManager.closeDialog("orderPersonDialog"); 
+                            });
                         }
                     })
                 ],
@@ -700,8 +561,37 @@ export class ArrangementInspector {
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 }
-                            }).then(_ => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderRoomDialog"); });
-
+                            }).then(_ => { 
+                                this.dialogManager.reloadDialog("mainDialog"); 
+                                this.dialogManager.closeDialog("orderRoomDialog"); 
+                            });
+                        }
+                    })
+                ],
+                [
+                    "orderRoomForLocalEventDialog",
+                    new Dialog({
+                        dialogElementId: "orderRoomForLocalEventDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch(`/arrangement/planner/dialogs/order_room?event_pk=0&manager=${MANAGER_NAME}&dialog=orderRoomForLocalEventDialog`)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => {},
+                        dialogOptions: { width: 500 },
+                        onUpdatedCallback: () => { 
+                            toastr.success("Rom lagt til");
+                            this.dialogManager.closeDialog("orderRoomForLocalEventDialog");
+                        },
+                        onSubmit: (context, details) => { 
+                            context.rooms = details.formData.get("room_ids");
+                            context.room_name_map = details.room_name_map;
+                            
+                            document.dispatchEvent(new CustomEvent(
+                                `${MANAGER_NAME}.d1_roomsSelected`, 
+                                { detail: { context: context } }
+                            ));
                         }
                     })
                 ],

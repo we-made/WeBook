@@ -121,6 +121,9 @@ div.modal-body > .bootbox-close-button {
 
 .ui-dialog {
   background-color: white!important;
+  /* border: 2px solid darkslateblue!important; */
+  /* font-size: 1.125em!important; */
+  box-shadow: 0 1px 15px 1px  grey!important;
 }
 
 .ui-dialog.ui-widget.ui-widget-content {
@@ -163,10 +166,10 @@ div.modal-body > .bootbox-close-button {
 }
 
 .ui-dialog-title {
-  font-family: 'Akshar', sans-serif!important;
+  /* font-family: 'Akshar', sans-serif!important; */
 
   font-size: 24px;
-  font-weight: lighter;
+  font-weight: bold;
 }
 
 .ui-widget-header {
@@ -234,7 +237,7 @@ sidenav-primary .sidenav-link {
   background: skyblue;
   color: white;
 }
-.ui-dialog { z-index: 999999 !important ;}
+.ui-dialog { z-index: 100000000000 !important ;}
 /* .context-menu-root {
   background-color: #386080!important;
 }

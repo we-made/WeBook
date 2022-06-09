@@ -6,14 +6,14 @@ export const _NATIVE_PERSON = Symbol("NATIVE_PERSON");
 
 
 
-    /**
-     * The standard calendar color provider
-     */
-    export class StandardColorProvider {
-        getColor(arrangement) {
-            return "green";
-        }
+/**
+ * The standard calendar color provider
+ */
+export class StandardColorProvider {
+    getColor(arrangement) {
+        return "green";
     }
+}
 
 export class FullCalendarEvent {
     constructor ({title,
@@ -220,7 +220,7 @@ export class ArrangementStore extends BaseStore {
             start: arrangement.starts,
             resourceIds: arrangement.slug_list,
             end: arrangement.ends,
-            color:this.colorProvider.getColor(arrangement), //_this.plannerCalendar._getColorProvider().getColor(arrangement), //
+            color: this.colorProvider.getColor(arrangement),
             classNames: [ slugClass, pkClass ],
             extendedProps: {
                 location_name: arrangement.location,
@@ -309,7 +309,7 @@ export class ArrangementStore extends BaseStore {
      */
     remove(slug) {
         if (this._store.has(slug)) {
-
+            this._store.remove(slug);
         }
         else {
             console.error(`Can not remove arrangement with slug '${slug}', as slug is not known.`)
@@ -331,8 +331,7 @@ export class FullCalendarBased {
         });
 
         if (slug === undefined) {
-            console.error("Element does not have a valid slug.")
-            console.error(el);
+            console.error("Element does not have a valid slug.", el)
             return undefined;
         }
 
@@ -350,8 +349,7 @@ export class FullCalendarBased {
         });
 
         if (pk === undefined) {
-            console.error("Element does not have a valid pk.")
-            console.error(el);
+            console.error("Element does not have a valid pk.", el)
             return undefined;
         }
 
@@ -369,4 +367,14 @@ export class FullCalendarBased {
 
 export function writeSlugClass(slug) {
     return `slug:${slug}`;
+}
+
+export function convertObjToFormData(obj) {
+    var form_data = new FormData();
+    
+    for (var key in obj) {
+        form_data.append(key, obj[key]);
+    }
+    
+    return form_data;
 }
