@@ -21,7 +21,6 @@ class CollisionRecord:
     contested_resource_name: str
 
 
-Range = namedtuple('Range', ['start', 'end'])
 RoomCalendar = namedtuple('RoomCalendar', [ 'room', 'events' ])
 
 
