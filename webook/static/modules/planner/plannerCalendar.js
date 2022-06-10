@@ -1,4 +1,5 @@
 import { ArrangementInspector } from "./arrangementInspector.js";
+import { HeaderGenerator, ViewClassifiers } from "./calendar_utilities/header_generator.js";
 import {
     ArrangementStore, FullCalendarBased, LocationStore,
     PersonStore, StandardColorProvider, _FC_EVENT,
@@ -6,7 +7,6 @@ import {
 } from "./commonLib.js";
 import { EventInspector } from "./eventInspector.js";
 import { FilterDialog } from "./filterDialog.js";
-import { monthNames } from "./monthNames.js";
 
 
 export class PlannerCalendar extends FullCalendarBased {
@@ -25,6 +25,15 @@ export class PlannerCalendar extends FullCalendarBased {
         super();
 
         this.csrf_token = csrf_token;
+        
+        this._headerGenerator = new HeaderGenerator(
+            { customClassifications: new Map([
+                [ "customTimeGridMonth", ViewClassifiers.MONTH ],
+                [ "calendarDayGridMonth", ViewClassifiers.MONTH ],
+                [ "customTimelineMonth", ViewClassifiers.MONTH ],
+                [ "customTimelineYear", ViewClassifiers.YEAR ]
+            ]) }
+        );
         
         this._fcLicenseKey = licenseKey;
         this._fcCalendar = undefined;
@@ -256,14 +265,12 @@ export class PlannerCalendar extends FullCalendarBased {
                     $('#plannerCalendarHeader').text("");
                     $(".popover").popover('hide');
 
-                    if (dateInfo.view.type == "timelineMonth" || dateInfo.view.type == "customTimelineMonth" || dateInfo.view.type == "dayGridMonth" || dateInfo.view.type == "customTimeGridMonth") {
-                        console.log(dateInfo);
-                        var monthIndex = dateInfo.start.getMonth();
-                        if (dateInfo.start.getDate() !== 1) {
-                            monthIndex++;
-                        }
-                        $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
-                    }
+                    console.log("dateinfo", dateInfo)
+
+                    $('#plannerCalendarHeader').text(this._headerGenerator.generate(
+                        dateInfo.view.type,
+                        dateInfo.start,
+                    ));
                 },
                 customButtons: {
                     filterButton: {

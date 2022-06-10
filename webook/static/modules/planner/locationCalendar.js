@@ -1,7 +1,5 @@
-import { FullCalendarEvent, StandardColorProvider, _FC_EVENT, ArrangementStore, FullCalendarResource, FullCalendarBased, LocationStore, _FC_RESOURCE } from "./commonLib.js";
-
-import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
-import { monthNames } from "./monthNames.js";
+import { HeaderGenerator } from "./calendar_utilities/header_generator.js";
+import { ArrangementStore, FullCalendarBased, LocationStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
 
 
 export class LocationCalendar extends FullCalendarBased {
@@ -12,6 +10,8 @@ export class LocationCalendar extends FullCalendarBased {
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
         this.calendarFilter = calendarFilter;
+
+        this._headerGenerator = new HeaderGenerator();
 
         this._colorProviders = new Map();
         this._colorProviders.set("DEFAULT", new StandardColorProvider());
@@ -125,13 +125,10 @@ export class LocationCalendar extends FullCalendarBased {
                     $('#plannerCalendarHeader').text("");
                     $(".popover").popover('hide');
     
-                    if (dateInfo.view.type == "resourceTimelineMonth") {
-                        var monthIndex = dateInfo.start.getMonth();
-                        if (dateInfo.start.getDate() !== 1) {
-                            monthIndex++;
-                        }
-                        $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
-                    }
+                    $('#plannerCalendarHeader').text(this._headerGenerator.generate(
+                        dateInfo.view.type,
+                        dateInfo.start,
+                    ));
                 },
                 resources: async (fetchInfo, successCallback, failureCallback) => {
                     await _this._LOCATIONS_STORE._refreshStore();
