@@ -13,6 +13,8 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}people`, serie.people);
     formData.append(`${keyPrefix}displayLayouts`, serie.display_layouts);
     
+    console.log("serie.pattern.week_interval", serie.pattern.week_interval);
+
     switch(serie.pattern.pattern_type) {
         case "daily":
             if (serie.pattern.pattern_routine === "daily__every_x_day") {
@@ -20,7 +22,7 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
             }
             break;
         case "weekly":
-            formData.append("manifest.interval", serie.pattern.week_interval);
+            formData.append(`${keyPrefix}interval`, serie.pattern.week_interval);
             var count = 0;
             for (var day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
                 formData.append(`${keyPrefix}${day}`, serie.pattern.days.get(count));

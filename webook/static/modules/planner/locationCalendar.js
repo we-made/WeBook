@@ -1,7 +1,5 @@
-import { FullCalendarEvent, StandardColorProvider, _FC_EVENT, ArrangementStore, FullCalendarResource, FullCalendarBased, LocationStore, _FC_RESOURCE } from "./commonLib.js";
+import { ArrangementStore, FullCalendarBased, LocationStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
 
-import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
-import { monthNames } from "./monthNames.js";
 
 
 export class LocationCalendar extends FullCalendarBased {
@@ -130,7 +128,7 @@ export class LocationCalendar extends FullCalendarBased {
                         if (dateInfo.start.getDate() !== 1) {
                             monthIndex++;
                         }
-                        $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
+                        $('#plannerCalendarHeader').text(`${dateInfo.start.toLocaleString('default', { month: 'long' })} ${dateInfo.start.getFullYear()}`)
                     }
                 },
                 resources: async (fetchInfo, successCallback, failureCallback) => {
