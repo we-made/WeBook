@@ -179,12 +179,6 @@ export class ArrangementCreator {
                                 details.serie._uuid = crypto.randomUUID();
                             }
 
-                            
-                            var serieFData = serieConvert(details.serie, new FormData(), "");
-                            for (var pair of serieFData.entries()) {
-                                console.log(pair[0]+ ', ' + pair[1]); 
-                            }
-
                             details.serie.collisions = await CollisionsUtil.GetCollisionsForSerie(serieConvert(details.serie, new FormData(), ""), details.csrf_token);
                             context.series.set(details.serie._uuid, details.serie);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
