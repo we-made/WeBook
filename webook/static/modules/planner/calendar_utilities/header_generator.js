@@ -10,7 +10,7 @@ export class ViewClassifiers {
     static DAY  = Symbol("day");
 }
 
-class StandardGenerator {
+export class StandardGenerator {
     CLASSIFIER_MAP = new Map([
         [ViewClassifiers.YEAR, this.year],
         [ViewClassifiers.MONTH, this.month],
@@ -85,7 +85,7 @@ class StandardGenerator {
         ].join(".");
     }
 }
-    
+
 var BaseViewClassifications = new Map([
     /* DayGrid */
     [
