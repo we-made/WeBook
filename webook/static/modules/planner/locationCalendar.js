@@ -1,6 +1,8 @@
 import { FullCalendarEvent, StandardColorProvider, _FC_EVENT, ArrangementStore, FullCalendarResource, FullCalendarBased, LocationStore, _FC_RESOURCE } from "./commonLib.js";
 
 import { PlannerCalendarFilter } from "./plannerCalendarFilter.js";
+import { monthNames } from "./monthNames.js";
+
 
 export class LocationCalendar extends FullCalendarBased {
 
@@ -27,6 +29,10 @@ export class LocationCalendar extends FullCalendarBased {
         this.init()
     }
 
+    getFcCalendar() {
+        return this._fcCalendar;
+    }
+
     /**
      * Set a new active color provider, identified by the given key. 
      * Set color provider must have been registered on initialization of planner calendar.
@@ -50,11 +56,10 @@ export class LocationCalendar extends FullCalendarBased {
     }
 
     refresh() {
-        console.info("HIT REFRESH")
         this.init()
     }
 
-    init() {
+    async init() {
         let _this = this;
 
         if (this._fcCalendar === undefined) {
@@ -116,6 +121,18 @@ export class LocationCalendar extends FullCalendarBased {
                         },
                     }
                 ],
+                datesSet: (dateInfo) => {
+                    $('#plannerCalendarHeader').text("");
+                    $(".popover").popover('hide');
+    
+                    if (dateInfo.view.type == "resourceTimelineMonth") {
+                        var monthIndex = dateInfo.start.getMonth();
+                        if (dateInfo.start.getDate() !== 1) {
+                            monthIndex++;
+                        }
+                        $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
+                    }
+                },
                 resources: async (fetchInfo, successCallback, failureCallback) => {
                     await _this._LOCATIONS_STORE._refreshStore();
                     successCallback(_this._LOCATIONS_STORE.getAll({ get_as: _FC_RESOURCE }));
@@ -144,6 +161,9 @@ export class LocationCalendar extends FullCalendarBased {
                     return { domNodes: domNodes };
                 }
             });
+        }
+        else {
+            this._fcCalendar.refetchEvents();
         }
 
         this._fcCalendar.render();

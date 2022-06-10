@@ -1,5 +1,5 @@
 import { ArrangementStore, FullCalendarBased, PersonStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
-
+import { monthNames } from "./monthNames.js";
 
 export class PersonCalendar extends FullCalendarBased {
 
@@ -26,6 +26,10 @@ export class PersonCalendar extends FullCalendarBased {
         this.init()
     }
 
+    getFcCalendar() {
+        return this._fcCalendar;
+    }
+
     refresh() {
         this.init()
     }
@@ -34,7 +38,7 @@ export class PersonCalendar extends FullCalendarBased {
 
     }
 
-    init() {
+    async init() {
         let _this = this;
 
         if (this._fcCalendar === undefined) {
@@ -96,11 +100,26 @@ export class PersonCalendar extends FullCalendarBased {
                         },
                     }
                 ],
+                datesSet: (dateInfo) => {
+                    $('#plannerCalendarHeader').text("");
+                    $(".popover").popover('hide');
+    
+                    if (dateInfo.view.type == "resourceTimelineMonth") {
+                        var monthIndex = dateInfo.start.getMonth();
+                        if (dateInfo.start.getDate() !== 1) {
+                            monthIndex++;
+                        }
+                        $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
+                    }
+                },
                 resources: async (fetchInfo, successCallback, failureCallback) => {
                     await _this._STORE._refreshStore();
                     successCallback(_this._STORE.getAll({ get_as: _FC_RESOURCE }));
                 },
             });
+        }
+        else {
+            this._fcCalendar.refetchEvents();
         }
 
         this._fcCalendar.render();
