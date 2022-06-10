@@ -1,7 +1,6 @@
 import { HeaderGenerator } from "./calendar_utilities/header_generator.js";
 import { ArrangementStore, FullCalendarBased, PersonStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
 
-
 export class PersonCalendar extends FullCalendarBased {
 
     constructor ( {calendarElement, initialColorProvider="", colorProviders=[], calendarFilter=undefined  } = {} ) {
