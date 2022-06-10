@@ -76,6 +76,11 @@
             </div>
 
             <div class="form-group mt-3">
+                <label>{% trans "Room Name (English)" %}</label>
+                <input type="text" class="form-control" name="name_en" id="roomNameEnInput">
+            </div>
+
+            <div class="form-group mt-3">
                 <div class="form-check form-switch">
                     <label>Is Exclusive?</label>
                     <input class="form-check-input" name="is_exclusive" type="checkbox" role="switch" id="roomIsExclusive" />
@@ -135,13 +140,10 @@
                 'X-CSRFToken': '{% csrf_token %}'
             }
         }).then(function(response) {
-            console.log(response);
             if (response.ok) {
-                console.log("Response after room create is OK")
                 loadRoomsTableForLocation() // refresh rooms table to include our newly created room
             }
             else {
-                console.log(response)
                 throw "Response not OK."
             }
         }).catch(function(err) {

@@ -27,6 +27,18 @@
         </div>
 
         <div class="form-group mt-2 pt-3 pb-2">
+            <label for="{{ form.name_en.id_for_label }}" class="h5 d-block">
+                {{ form.name_en.label }}
+            </label>
+
+            <input type="text" class="form-control"
+                id="{{ form.name_en.id_for_label }}"
+                value="{{ form.name_en.value|default:'' }}"
+                name="{{ form.name_en.name }}"
+                placeholder="{% trans 'Room name (english)' %}..."/>
+        </div>
+
+        <div class="form-group mt-2 pt-3 pb-2">
             <label for="{{ form.max_capacity.id_for_label }}" class="h5 d-block">
                 {{ form.max_capacity.label }}
                 <i class="fas fa-asterisk float-end me-2"
