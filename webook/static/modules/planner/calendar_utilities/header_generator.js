@@ -84,14 +84,8 @@ class StandardGenerator {
             date.getFullYear(),
         ].join(".");
     }
-
-    _getWeekOfYearFromDate(date, dowOffset) {
-
-
-        return weeknum;
-    }
 }
-
+    
 var BaseViewClassifications = new Map([
     /* DayGrid */
     [
