@@ -80,7 +80,7 @@ export class ArrangementCreator {
                             var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
                                 var events = SeriesUtil.calculate_serie(serie);
                                 var formData = new FormData();
-                                
+
                                 formData = serieConvert(serie, formData);
 
                                 for (let i = 0; i < events.length; i++) {
@@ -178,7 +178,7 @@ export class ArrangementCreator {
                             if (details.serie._uuid === undefined) {
                                 details.serie._uuid = crypto.randomUUID();
                             }
-                            
+
                             details.serie.collisions = await CollisionsUtil.GetCollisionsForSerie(serieConvert(details.serie, new FormData(), ""), details.csrf_token);
                             context.series.set(details.serie._uuid, details.serie);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
@@ -430,7 +430,7 @@ export class ArrangementCreator {
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
                             
-                            details.event.collision = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
+                            details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
                                 var collision = details.event.collisions[0];

@@ -1,26 +1,21 @@
+import json
 from typing import Any
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import serializers
 from django.http import JsonResponse
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.core import serializers
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-)
-from django.core import serializers
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.views.generic.edit import DeleteView
-from webook.arrangement.models import Location, Room, BusinessHour
+
+from webook.arrangement.models import BusinessHour, Location, Room
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.generic_views.search_view import SearchView
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
-import json
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
 def get_section_manifest():
@@ -68,6 +63,7 @@ class RoomUpdateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Up
     fields = [
         "location",
         "name",
+        "name_en",
         "is_exclusive",
         "has_screen",
         "max_capacity",
@@ -83,6 +79,7 @@ class RoomCreateView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Cr
     fields = [
         "location",
         "name",
+        "name_en",
         "max_capacity",
         "has_screen",
         "is_exclusive",
