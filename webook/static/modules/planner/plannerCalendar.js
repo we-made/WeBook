@@ -6,12 +6,7 @@ import {
 } from "./commonLib.js";
 import { EventInspector } from "./eventInspector.js";
 import { FilterDialog } from "./filterDialog.js";
-
-
-
-const monthNames = ["Januar", "Februar", "Mars", "April", "Mai", "Juni",
-  "Juli", "August", "September", "Oktober", "November", "Desember"
-];
+import { monthNames } from "./monthNames.js";
 
 
 export class PlannerCalendar extends FullCalendarBased {
@@ -70,19 +65,12 @@ export class PlannerCalendar extends FullCalendarBased {
             this.init();
         });
         
-        this._listenToRefreshEvents();
         this._listenToInspectArrangementEvents();
         this._listenToInspectEvent();
     }
 
-    _listenToRefreshEvents() {
-        document.addEventListener("plannerCalendar.refreshNeeded", async () => {
-            await this.init();
-            /* Remove all shown popovers, if we refresh the events without doing this we'll be "pulling the rug" up from under the popovers, 
-            in so far as removing the elements they are anchored/bound to. In effect this puts the popover in a stuck state, in which it can't be hidden or
-            removed without refresh. Hence we do this. */
-            $(".popover").popover('hide');
-        });
+    getFcCalendar() {
+        return this._fcCalendar;
     }
 
     _listenToInspectArrangementEvents() {
@@ -232,193 +220,192 @@ export class PlannerCalendar extends FullCalendarBased {
         let _this = this;
 
         var initialView = 'timelineMonth';
-        if (this._fcCalendar !== undefined) {
-            initialView = this._fcCalendar.view.type;
-        }
 
-        this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
-            schedulerLicenseKey: this._fcLicenseKey,
-            initialView: initialView,
-            selectable: true,
-            weekNumbers: true,
-            navLinks: true,
-            minTime: "06:00",
-            themeSystem: 'bootstrap',
-            maxTime: "23:00",
-            slotEventOverlap: false,
-            locale: 'nb',
-            views: {
-                customTimeGridMonth: {
-                    type: "timeGrid",
-                    duration: { month: 1 },
-                    buttonText: "Tidsgrid Måned"
-                },
-                calendarDayGridMonth: {
-                    type: 'dayGridMonth',
-                    buttonText: 'Kalender'
-                },
-                customTimelineMonth: {
-                    type: 'timelineMonth',
-                    buttonText: 'Tidslinje - Måned'
-                },
-                customTimelineYear: {
-                    type: 'timelineYear',
-                    buttonText: 'Tidslinje - År'
-                }
-            },
-            datesSet: (dateInfo) => {
-                console.log(dateInfo)
-                $('#plannerCalendarHeader').text("");
-                $(".popover").popover('hide');
-
-                if (dateInfo.view.type == "timelineMonth" || dateInfo.view.type == "customTimelineMonth" || dateInfo.view.type == "dayGridMonth" || dateInfo.view.type == "customTimeGridMonth") {
-                    var monthIndex = dateInfo.start.getMonth();
-                    console.log(dateInfo.start.getDate());
-                    if (dateInfo.start.getDate() !== 1) {
-                        monthIndex++;
-                    }
-                    $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
-                }
-            },
-            customButtons: {
-                filterButton: {
-                    text: 'Filtrering',
-                    click: () => {
-                        this.filterDialog.openFilterDialog();
-                    }
-                },
-                arrangementsCalendarButton: {
-                    text: 'Arrangementer',
-                    click: () => {
-                        // $('#plannerCalendarHeader').text("");
-                        $('#overview-tab')[0].click();
-                    }
-                },
-                locationsCalendarButton: {
-                    text: 'Lokasjoner',
-                    click: () => {
-                        // $('#plannerCalendarHeader').text("");
-                        $('#locations-tab')[0].click();
-                    }
-                },
-                peopleCalendarButton: {
-                    text: 'Personer',
-                    click: () => {
-                        // $('#plannerCalendarHeader').text("");
-                        $('#people-tab')[0].click();
-                    }
-                }
-            },
-            headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
-            eventSources: [
-                {
-                    events: async (start, end, startStr, endStr, timezone) => {
-                        return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
-                            .then(_ => this.calendarFilter.getFilteredSlugs().map( function (slug) { return { id: slug, name: "" } }))
-                            .then(filterSet => _this._ARRANGEMENT_STORE.get_all(
-                                { 
-                                    get_as: _FC_EVENT, 
-                                    locations: this.$locationFilterSelectEl.val(),
-                                    arrangement_types: this.$arrangementTypeFilterSelectEl.val(),
-                                    audience_types: this.$audienceTypeFilterSelectEl.val(),
-                                    filterSet: filterSet
-                                }
-                            ));
+        if (this._fcCalendar === undefined) {
+            this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
+                schedulerLicenseKey: this._fcLicenseKey,
+                initialView: initialView,
+                selectable: true,
+                weekNumbers: true,
+                navLinks: true,
+                minTime: "06:00",
+                // themeSystem: 'bootstrap',
+                maxTime: "23:00",
+                slotEventOverlap: false,
+                locale: 'nb',
+                views: {
+                    customTimeGridMonth: {
+                        type: "timeGrid",
+                        duration: { month: 1 },
+                        buttonText: "Tidsgrid Måned"
                     },
-                }
-            ],
+                    calendarDayGridMonth: {
+                        type: 'dayGridMonth',
+                        buttonText: 'Kalender'
+                    },
+                    customTimelineMonth: {
+                        type: 'timelineMonth',
+                        buttonText: 'Tidslinje - Måned'
+                    },
+                    customTimelineYear: {
+                        type: 'timelineYear',
+                        buttonText: 'Tidslinje - År'
+                    }
+                },
+                datesSet: (dateInfo) => {
+                    $('#plannerCalendarHeader').text("");
+                    $(".popover").popover('hide');
 
-            eventDidMount: (arg) => {
-                this._bindPopover(arg.el);
-                this._bindInspectorTrigger(arg.el);
-
-                $.contextMenu({
-                    className: "",
-                    selector: ".fc-event",
-                    items: {
-                        arrangement_inspector: {
-                            name: "Inspiser arrangement",
-                            callback: (key, opt) => {
-                                var pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                                var arrangement = _this._ARRANGEMENT_STORE.get({
-                                    pk: pk,
-                                    get_as: _NATIVE_ARRANGEMENT
-                                });
-                        
-                                this.arrangementInspectorUtility.inspect(arrangement);
-                            }
-                        },
-                        event_inspector: {
-                            name: "Inspiser tidspunkt",
-                            callback: (key, opt) => {
-                                var pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                                this.eventInspectorUtility.inspect(pk);
-                            }
-                        },
-                        "section_sep_1": "---------",
-                        delete_arrangement: {
-                            name: "Slett arrangement",
-                            callback: (key, opt) => {
-                                Swal.fire({
-                                    title: 'Er du sikker?',
-                                    text: "Arrangementet og underliggende aktiviteter vil bli fjernet, og kan ikke hentes tilbake.",
-                                    icon: 'warning',
-                                    showCancelButton: true,
-                                    confirmButtonColor: '#3085d6',
-                                    cancelButtonColor: '#d33',
-                                    confirmButtonText: 'Ja',
-                                    cancelButtonText: 'Avbryt'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        var slug = _this._findSlugFromEl(opt.$trigger[0]);
-                                        fetch('/arrangement/arrangement/delete/' + slug, {
-                                            method: 'DELETE',
-                                            headers: {
-                                                "X-CSRFToken": this.csrf_token
-                                            }
-                                        }).then(_ => { 
-                                            document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
-                                        });
-                                    }
-                                })
-                            }
-                        },
-                        delete_event: {
-                            name: "Slett aktivitet",
-                            callback: (key, opt) => {
-                                Swal.fire({
-                                    title: 'Er du sikker?',
-                                    text: "Hendelsen kan ikke hentes tilbake.",
-                                    icon: 'warning',
-                                    showCancelButton: true,
-                                    confirmButtonColor: '#3085d6',
-                                    cancelButtonColor: '#d33',
-                                    confirmButtonText: 'Ja',
-                                    cancelButtonText: 'Avbryt'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        var pk = _this._findEventPkFromEl(opt.$trigger[0]);
-
-                                        var formData = new FormData();
-                                        formData.append("eventIds", String(pk));
-
-                                        fetch('/arrangement/planner/delete_events/', {
-                                            method: 'POST',
-                                            body: formData,
-                                            headers: {
-                                                "X-CSRFToken": this.csrf_token,
-                                            }
-                                        }).then(_ => { 
-                                            document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
-                                        });
-                                    }
-                                })
-                            }
+                    if (dateInfo.view.type == "timelineMonth" || dateInfo.view.type == "customTimelineMonth" || dateInfo.view.type == "dayGridMonth" || dateInfo.view.type == "customTimeGridMonth") {
+                        console.log(dateInfo);
+                        var monthIndex = dateInfo.start.getMonth();
+                        if (dateInfo.start.getDate() !== 1) {
+                            monthIndex++;
+                        }
+                        $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
+                    }
+                },
+                customButtons: {
+                    filterButton: {
+                        text: 'Filtrering',
+                        click: () => {
+                            this.filterDialog.openFilterDialog();
+                        }
+                    },
+                    arrangementsCalendarButton: {
+                        text: 'Arrangementer',
+                        click: () => {
+                            $('#overview-tab')[0].click();
+                        }
+                    },
+                    locationsCalendarButton: {
+                        text: 'Lokasjoner',
+                        click: () => {
+                            $('#locations-tab')[0].click();
+                        }
+                    },
+                    peopleCalendarButton: {
+                        text: 'Personer',
+                        click: () => {
+                            $('#people-tab')[0].click();
                         }
                     }
-                });
-            }
-        });
+                },
+                headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
+                eventSources: [
+                    {
+                        events: async (start, end, startStr, endStr, timezone) => {
+                            return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
+                                .then(_ => this.calendarFilter.getFilteredSlugs().map( function (slug) { return { id: slug, name: "" } }))
+                                .then(filterSet => _this._ARRANGEMENT_STORE.get_all(
+                                    { 
+                                        get_as: _FC_EVENT, 
+                                        locations: this.$locationFilterSelectEl.val(),
+                                        arrangement_types: this.$arrangementTypeFilterSelectEl.val(),
+                                        audience_types: this.$audienceTypeFilterSelectEl.val(),
+                                        filterSet: filterSet
+                                    }
+                                ));
+                        },
+                    }
+                ],
+
+                eventDidMount: (arg) => {
+                    this._bindPopover(arg.el);
+                    this._bindInspectorTrigger(arg.el);
+
+                    $.contextMenu({
+                        className: "",
+                        selector: ".fc-event",
+                        items: {
+                            arrangement_inspector: {
+                                name: "Inspiser arrangement",
+                                callback: (key, opt) => {
+                                    var pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                    var arrangement = _this._ARRANGEMENT_STORE.get({
+                                        pk: pk,
+                                        get_as: _NATIVE_ARRANGEMENT
+                                    });
+                            
+                                    this.arrangementInspectorUtility.inspect(arrangement);
+                                }
+                            },
+                            event_inspector: {
+                                name: "Inspiser tidspunkt",
+                                callback: (key, opt) => {
+                                    var pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                    this.eventInspectorUtility.inspect(pk);
+                                }
+                            },
+                            "section_sep_1": "---------",
+                            delete_arrangement: {
+                                name: "Slett arrangement",
+                                callback: (key, opt) => {
+                                    Swal.fire({
+                                        title: 'Er du sikker?',
+                                        text: "Arrangementet og underliggende aktiviteter vil bli fjernet, og kan ikke hentes tilbake.",
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ja',
+                                        cancelButtonText: 'Avbryt'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            var slug = _this._findSlugFromEl(opt.$trigger[0]);
+                                            fetch('/arrangement/arrangement/delete/' + slug, {
+                                                method: 'DELETE',
+                                                headers: {
+                                                    "X-CSRFToken": this.csrf_token
+                                                }
+                                            }).then(_ => { 
+                                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                                            });
+                                        }
+                                    })
+                                }
+                            },
+                            delete_event: {
+                                name: "Slett aktivitet",
+                                callback: (key, opt) => {
+                                    Swal.fire({
+                                        title: 'Er du sikker?',
+                                        text: "Hendelsen kan ikke hentes tilbake.",
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ja',
+                                        cancelButtonText: 'Avbryt'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            var pk = _this._findEventPkFromEl(opt.$trigger[0]);
+
+                                            var formData = new FormData();
+                                            formData.append("eventIds", String(pk));
+
+                                            fetch('/arrangement/planner/delete_events/', {
+                                                method: 'POST',
+                                                body: formData,
+                                                headers: {
+                                                    "X-CSRFToken": this.csrf_token,
+                                                }
+                                            }).then(_ => { 
+                                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                                            });
+                                        }
+                                    })
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+        }
+        else {
+            // initialView = this._fcCalendar.view.type;
+            this._fcCalendar.refetchEvents();
+        }
 
         this._fcCalendar.render();
     }
