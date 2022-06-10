@@ -1,5 +1,4 @@
 import { ArrangementStore, FullCalendarBased, PersonStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
-import { monthNames } from "./monthNames.js";
 
 export class PersonCalendar extends FullCalendarBased {
 
@@ -109,7 +108,7 @@ export class PersonCalendar extends FullCalendarBased {
                         if (dateInfo.start.getDate() !== 1) {
                             monthIndex++;
                         }
-                        $('#plannerCalendarHeader').text(`${monthNames[monthIndex]} ${dateInfo.start.getFullYear()}`)
+                        $('#plannerCalendarHeader').text(`${dateInfo.start.toLocaleString('default', { month: 'long' })} ${dateInfo.start.getFullYear()}`)
                     }
                 },
                 resources: async (fetchInfo, successCallback, failureCallback) => {
