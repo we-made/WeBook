@@ -265,8 +265,6 @@ export class PlannerCalendar extends FullCalendarBased {
                     $('#plannerCalendarHeader').text("");
                     $(".popover").popover('hide');
 
-                    console.log("dateinfo", dateInfo)
-
                     $('#plannerCalendarHeader').text(this._headerGenerator.generate(
                         dateInfo.view.type,
                         dateInfo.start,
