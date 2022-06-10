@@ -430,7 +430,7 @@ export class ArrangementCreator {
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
                             
-                            details.event.collision = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
+                            details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
                                 var collision = details.event.collisions[0];
