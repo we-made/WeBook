@@ -351,8 +351,8 @@ class Room(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         verbose_name_plural = _("Rooms")
 
     objects = ArchivedManager()
+    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=True, null=True)
 
-    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=False, null=True)
     location = models.ForeignKey(
         Location,
         verbose_name=_("Location"),
