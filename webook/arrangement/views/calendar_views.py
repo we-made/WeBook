@@ -33,6 +33,45 @@ class CalendarSectionManifestMixin:
         self.section = get_section_manifest()
 
 
+class ResourceSourceViewMixin(ListView):
+    def convert_resource_to_fc_resource(self, resource):
+        raise Exception("convert_resource_to_fc_resource not implemented")
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        return JsonResponse(
+            [ self.convert_resource_to_fc_resource(resource) for resource in self.get_queryset()], 
+            safe=False)
+
+
+class AllPeopleResourceSourceView(ResourceSourceViewMixin):
+    model = Person
+
+    def convert_resource_to_fc_resource(self, resource):
+        return {
+            "id": resource.slug,
+            "title": resource.full_name,
+        }
+
+
+class AllRoomsSourceView(ResourceSourceViewMixin):
+    model = Room
+
+    def convert_resource_to_fc_resource(self, resource):
+        return {
+            "id": resource.slug,
+            "title": resource.name,
+        }
+
+
+class AllLocationsSourceView(ResourceSourceViewMixin):
+    model = Location
+
+    def convert_resource_to_fc_resource(self, resource):
+        return {
+            "id": resource.slug,
+            "title": resource.name
+        }
+
 
 class EventSourceViewMixin(ListView):
     """ A mixin for views that serve the express purpose of serving events to FullCalendar calendars """
@@ -48,7 +87,7 @@ class EventSourceViewMixin(ListView):
             "title": event.title,
             "start": event.start,
             "end": event.end,
-            
+
         }
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
