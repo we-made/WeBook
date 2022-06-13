@@ -9,34 +9,6 @@
     <div id="day_calendar" class="mb-4"></div>
     
     <script>
-        var events=[ 
-            {
-                id: "make-coffee-01",
-                title: "Forelesning",
-                start: "2021-12-09T09:00:00",
-                end: "2021-12-09T14:00:00",
-                display:"auto",
-                backgroundColor:'pink',
-            },
-            {
-                id: "drink-some-tasty-coffee",
-                title: "Studier",
-                start: "2021-12-09T14:00:00",
-                end: "2021-12-09T16:00:00",
-                display:"auto",
-                backgroundColor:'green',
-            },
-            {
-                id: "nap",
-                title: "Fritid",
-                start: "2021-12-09T16:00:00",
-                end: "2021-12-09T23:00:00",
-                display:"auto",
-                backgroundColor:'orange',
-                textColor: "red",
-            }
-        ];
-
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('day_calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
