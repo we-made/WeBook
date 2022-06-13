@@ -1,8 +1,9 @@
 from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import SuspiciousOperation
 from django.views.generic import (
     DetailView,
     RedirectView,
@@ -46,7 +47,8 @@ class EventSourceViewMixin(ListView):
         return {
             "title": event.title,
             "start": event.start,
-            "end": event.end
+            "end": event.end,
+            
         }
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
@@ -78,8 +80,24 @@ class MyCalendarEventsSourceView(EventSourceViewMixin):
 
         return user.person.my_events
 
-
 my_calendar_events_source_view = MyCalendarEventsSourceView.as_view()
+
+
+class LocationEventSourceView(EventSourceViewMixin):
+    model = Event
+
+    def get_queryset(self):
+        location_slug = self.request.GET.get("location", None)
+
+        if location_slug is None:
+            raise SuspiciousOperation("No location supplied, please supply a location.")
+
+        location = Location.objects.get(slug=location_slug)
+
+        if location is None:
+            raise Http404(f"Location with slug {location_slug} does not exist")
+
+        return Event.objects.filter(rooms__in=[ room.id for room in location.rooms ])
 
 
 class CalendarSamplesOverview (LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView):
