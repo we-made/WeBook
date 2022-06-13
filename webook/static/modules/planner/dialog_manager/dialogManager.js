@@ -10,6 +10,7 @@
         this.onSubmit = onSubmit;
         this.onPreRefresh = onPreRefresh;
         this.dialogOptions = dialogOptions;
+        this._isRendering = false;
     }
 
     _$getDialogEl() {
@@ -18,20 +19,26 @@
 
     async render(context) {
         this.destroy();
-
-        if (this.isOpen() === false) {
-            $('body')
-                .append(await this.htmlFabricator(context))
-                .ready( () => {
-                    this._$getDialogEl().dialog( this.dialogOptions );
-                    this.onRenderedCallback(this, context);
-                    this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                        .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>")
-                        .click( () => {
-                            this.destroy();
-                        });
-                    
-                });
+        if (this._isRendering === false) {
+            this._isRendering = true;
+            if (this.isOpen() === false) {
+                $('body')
+                    .append(await this.htmlFabricator(context))
+                    .ready( () => {
+                        this._$getDialogEl().dialog( this.dialogOptions );
+                        this.onRenderedCallback(this, context);
+                        this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
+                            .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>")
+                            .click( () => {
+                                this.destroy();
+                            });
+                        
+                        this._isRendering = false;
+                    });
+            }
+        }
+        else {
+            console.warn("Dialog is already rendering...")
         }
     }
 
