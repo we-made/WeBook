@@ -52,8 +52,10 @@ class AllPeopleResourceSourceView(ResourceSourceViewMixin):
             "title": resource.full_name,
         }
 
+all_people_resource_source_view = AllPeopleResourceSourceView.as_view()
 
-class AllRoomsSourceView(ResourceSourceViewMixin):
+
+class AllRoomsResourceSourceView(ResourceSourceViewMixin):
     model = Room
 
     def convert_resource_to_fc_resource(self, resource):
@@ -62,8 +64,10 @@ class AllRoomsSourceView(ResourceSourceViewMixin):
             "title": resource.name,
         }
 
+all_rooms_resource_source_view = AllRoomsResourceSourceView.as_view()
 
-class AllLocationsSourceView(ResourceSourceViewMixin):
+
+class AllLocationsResourceSourceView(ResourceSourceViewMixin):
     model = Location
 
     def convert_resource_to_fc_resource(self, resource):
@@ -71,6 +75,8 @@ class AllLocationsSourceView(ResourceSourceViewMixin):
             "id": resource.slug,
             "title": resource.name
         }
+
+all_locations_resource_source_view = AllLocationsResourceSourceView.as_view()
 
 
 class EventSourceViewMixin(ListView):
