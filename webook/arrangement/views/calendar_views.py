@@ -122,7 +122,7 @@ class EventSourceViewMixin(ListView):
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.event_list = self.get_queryset()
-        evs = list(self.event_list.all())
+        
         if self.handle_time_constraints_on_get:
             start = self.request.GET.get("start", None)
             end = self.request.GET.get("end", None)
