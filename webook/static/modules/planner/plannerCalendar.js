@@ -315,6 +315,11 @@ export class PlannerCalendar extends FullCalendarBased {
                     }
                 ],
 
+                loading: function( isLoading ) {
+                    if (isLoading === false) {
+                        $(".popover").popover('hide');
+                    }
+                },
                 eventDidMount: (arg) => {
                     this._bindPopover(arg.el);
                     this._bindInspectorTrigger(arg.el);
