@@ -39,9 +39,15 @@ class ResourceSourceViewMixin(ListView):
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         return JsonResponse(
-            [ self.convert_resource_to_fc_resource(resource) for resource in self.get_queryset()], 
+            [ self.convert_resource_to_fc_resource(resource) for resource in self.get_queryset().all()], 
             safe=False)
 
+class RoomBasedResourceSourceView():
+    def convert_resource_to_fc_resource(self, resource):
+        return {
+            "id": resource.slug,
+            "title": resource.name,
+        }
 
 class AllPeopleResourceSourceView(ResourceSourceViewMixin):
     model = Person
@@ -77,6 +83,22 @@ class AllLocationsResourceSourceView(ResourceSourceViewMixin):
         }
 
 all_locations_resource_source_view = AllLocationsResourceSourceView.as_view()
+
+
+class RoomsOnLocationResourceSourceView(RoomBasedResourceSourceView, ResourceSourceViewMixin):
+    model = Room
+
+    def get_queryset(self):
+        location_slug = self.request.GET.get("location", None)
+
+        if location_slug is None:
+            raise SuspiciousOperation("No location supplied, please supply a location.")
+
+        location = Location.objects.get(slug=location_slug)
+
+        return location.rooms
+
+rooms_on_location_resource_source_view = RoomsOnLocationResourceSourceView.as_view()
 
 
 class EventSourceViewMixin(ListView):
