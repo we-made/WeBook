@@ -16,7 +16,14 @@
                 initialView: 'listDay',
                 height: 600,
                 navLinks:true,
-                events: events,
+                eventSources: [
+                    {
+                        events: async (times) => {
+                            return await fetch(`{% url 'arrangement:my_events_event_source' %}?start=${times.start.toISOString()}&end=${times.end.toISOString()}`)
+                                .then(response => response.json())
+                        },
+                    }
+                ],
                 locale: 'nb',
                 headerToolbar: {
                     left: 'prev,next today',
