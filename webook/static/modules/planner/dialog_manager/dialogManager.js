@@ -36,6 +36,9 @@
                         this._isRendering = false;
                     });
             }
+            else {
+                this._isRendering = false;
+            }
         }
         else {
             console.warn("Dialog is already rendering...")
