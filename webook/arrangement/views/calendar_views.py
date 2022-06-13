@@ -12,6 +12,7 @@ from django.views.generic import (
     TemplateView
 )
 from django.db.models import Q
+from webook.arrangement.exceptions import UserHasNoPersonException
 from webook.arrangement.models import Event, Location, Person, Room
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
@@ -73,8 +74,7 @@ class MyCalendarEventsSourceView(EventSourceViewMixin):
         user = self.request.user
 
         if user.person is None:
-            # TODO: do something! 
-            pass
+            raise UserHasNoPersonException("Can not get events for a user that has no person associated with it!")
 
         return user.person.my_events
 
