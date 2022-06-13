@@ -115,6 +115,11 @@
             navLinks:true,
             locale: 'nb',
 
+            events: async function () {
+                return await fetch('{% url "arrangement:events_on_location_source" %}?location={{ object.slug }}')
+                    .then(response => response.json())
+            },
+
             resources: async function () {
                 return await fetch('{% url "arrangement:rooms_on_location_resource_source" %}?location={{ object.slug }}')
                     .then(response => response.json())

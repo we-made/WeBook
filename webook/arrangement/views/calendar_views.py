@@ -115,12 +115,14 @@ class EventSourceViewMixin(ListView):
             "title": event.title,
             "start": event.start,
             "end": event.end,
-
+            "resourceIds": 
+                [ room.slug for room in event.rooms.all() ] +
+                [ person.slug for person in event.people.all () ]
         }
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.event_list = self.get_queryset()
-
+        evs = list(self.event_list.all())
         if self.handle_time_constraints_on_get:
             start = self.request.GET.get("start", None)
             end = self.request.GET.get("end", None)
@@ -163,8 +165,10 @@ class LocationEventSourceView(EventSourceViewMixin):
 
         if location is None:
             raise Http404(f"Location with slug {location_slug} does not exist")
+        room_ids = [ room.id for room in location.rooms.all() ]
+        return Event.objects.filter(rooms__in=room_ids)
 
-        return Event.objects.filter(rooms__in=[ room.id for room in location.rooms ])
+location_event_source_view = LocationEventSourceView.as_view()
 
 
 class CalendarSamplesOverview (LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView):

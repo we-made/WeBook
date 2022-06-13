@@ -49,6 +49,7 @@ from .calendar_views import (
     all_people_resource_source_view,
     all_locations_resource_source_view,
     rooms_on_location_resource_source_view,
+    location_event_source_view,
 )
 from .confirmation_views import (
     confirmation_request_accept_view,

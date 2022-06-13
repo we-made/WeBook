@@ -8,6 +8,7 @@ from webook.arrangement.views import (
     all_people_resource_source_view,
     all_rooms_resource_source_view,
     rooms_on_location_resource_source_view,
+    location_event_source_view,
 )
 
 
@@ -31,6 +32,11 @@ calendar_urls = [
         route="calendar/sources/my_events",
         view=my_calendar_events_source_view,
         name="my_events_event_source",
+    ),
+    path(
+        route="calendar/sources/location",
+        view=location_event_source_view,
+        name="events_on_location_source",
     ),
     path(
         route="calendar/resources/all_rooms",
