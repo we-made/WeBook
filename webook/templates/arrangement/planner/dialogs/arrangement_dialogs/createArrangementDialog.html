@@ -112,7 +112,24 @@
                                 name="{{ form.meeting_place.name }}"
                                 placeholder="{% trans 'Meeting place' %}..."/>
                             <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
-                                <i class="fas fa-building"></i>&nbsp; Møtested
+                                <i class="fas fa-building"></i>&nbsp; 🇳🇴&nbsp; Møtested
+                            </label>
+                        </div>
+                        {% if form.meeting_place.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.meeting_place.errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-2 form-outline">
+                            <input type="text"
+                                class="form-control"
+                                id="{{ form.meeting_place_en.id_for_label }}" 
+                                value="{{ form.meeting_place_en.value|default:'' }}"
+                                name="{{ form.meeting_place_en.name }}"
+                                placeholder="{% trans 'Meeting place' %}..."/>
+                            <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
+                                <i class="fas fa-building"></i>&nbsp; 🇬🇧&nbsp; Møtested
                             </label>
                         </div>
                         {% if form.meeting_place.errors|length > 0 %}
@@ -323,6 +340,7 @@
         formData.append("responsible",      $('#id_responsible').val());
         formData.append("ticket_code",      $('#id_ticket_code').val());
         formData.append("meeting_place",    $('#id_meeting_place').val());
+        formData.append("meeting_place_en", $('#id_meeting_place_en').val());
         formData.append("expected_visitors",$('#id_expected_visitors').val());
         formData.append("display_text",$('#id_display_text').val());
         formData.append("display_text_en",$('#id_display_text_en').val());

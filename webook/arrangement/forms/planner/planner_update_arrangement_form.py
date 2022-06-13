@@ -13,6 +13,7 @@ class PlannerUpdateArrangementModelForm(forms.ModelForm):
                     "location",
                     "ticket_code",
                     "meeting_place",
+                    "meeting_place_en",
                     "expected_visitors",
                     "display_layouts",
                     "display_text",
