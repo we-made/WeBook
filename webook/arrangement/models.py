@@ -253,6 +253,7 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     location = models.ForeignKey(to="Location", verbose_name=_("Location"), on_delete=models.CASCADE, related_name="arrangements")
 
     meeting_place = models.CharField(verbose_name=_("Meeting Place"), max_length=255, blank=True, null=True)
+    meeting_place_en = models.CharField(verbose_name=_("Meeting Place (English)"), max_length=255, blank=True, null=True)
 
     audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE, related_name="arrangements")
     arrangement_type = models.ForeignKey(to=ArrangementType, verbose_name=_("Arrangement Type"), on_delete=models.CASCADE, related_name="arrangements", null=True)

@@ -140,6 +140,23 @@
                     </tr>
                     <tr>
                         <td colspan='2'>
+                            <strong>Møtested (Engelsk):</strong>
+                            <input type="text"
+                                class="form-control"
+                                id="{{ form.meeting_place_en.id_for_label }}"
+                                value="{{ form.meeting_place_en.value|default:'' }}"
+                                name="{{ form.meeting_place_en.name }}"
+                                placeholder="{% trans 'Meeting place (english)' %}..."/>
+
+                            {% if form.meeting_place_en.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.meeting_place.errors }}
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan='2'>
                             <strong>Forventet antall besøkende:</strong>
                             <input type="number"
                                 min="0"
@@ -522,6 +539,7 @@
         formData.append("arrangement_type", $('#id_arrangement_type').val());
         formData.append("ticket_code",      $('#id_ticket_code').val());
         formData.append("meeting_place",    $('#id_meeting_place').val());
+        formData.append("meeting_place_en", $('#id_meeting_place_en').val());
         formData.append("expected_visitors",$('#id_expected_visitors').val());
         formData.append("actual_visitors",  $('#id_actual_visitors').val());
         formData.append("display_text",$('#id_display_text').val());
