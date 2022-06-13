@@ -1,0 +1,2 @@
+class UserHasNoPersonException(Exception):
+    pass

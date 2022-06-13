@@ -346,7 +346,7 @@
                                             data-mdb-parent="#accordion_{{event_serie.pk}}"
                                         >
                                             <div class="accordion-body">
-                                                <div id="uploadFilesToArrangementDialog" title="Last opp filer under '{{arrangement.name}}'" class="bg-white">
+                                                <div title="Last opp filer under '{{arrangement.name}}'" class="bg-white">
                                                     <button class="btn btn-sm btn-success float-end"
                                                         onclick="mainPlannerDialog__uploadFilesToEventSerie({{event_serie.pk}})">
                                                         <i class="fas fa-upload"></i>
@@ -478,11 +478,12 @@
         </div>
         <div id="tabs-5">
             <div class="clearfix">
-                <button class="btn btn-success btn-sm shadow-0 float-end"
-                        id="mainDialog__uploadFilesBtn">
+                <a class="btn btn-success btn-sm text-white shadow-0 float-end"
+                        id="mainDialog__uploadFilesBtn"
+                        href="#">
                     <i class="fas fa-upload"></i>
                     Upload file(s)
-                </button>
+                </a>
             </div>
 
             <div class="table-responsive">

@@ -40,7 +40,17 @@ from .audience_views import (
     audience_search_view,
     audience_update_view,
 )
-from .calendar_views import arrangement_calendar_view, calendar_samples_overview, drill_calendar_view
+from .calendar_views import ( 
+    arrangement_calendar_view, 
+    calendar_samples_overview, 
+    drill_calendar_view, 
+    my_calendar_events_source_view,
+    all_rooms_resource_source_view,
+    all_people_resource_source_view,
+    all_locations_resource_source_view,
+    rooms_on_location_resource_source_view,
+    location_event_source_view,
+)
 from .confirmation_views import (
     confirmation_request_accept_view,
     confirmation_request_deny_view,

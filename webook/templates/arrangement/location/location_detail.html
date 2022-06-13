@@ -106,8 +106,6 @@
 </div>
 
 <script>
-    var resources = JSON.parse(`{{ resources_json | safe }}`)
-
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('location_calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -117,7 +115,15 @@
             navLinks:true,
             locale: 'nb',
 
-            resources: resources
+            events: async function () {
+                return await fetch('{% url "arrangement:events_on_location_source" %}?location={{ object.slug }}')
+                    .then(response => response.json())
+            },
+
+            resources: async function () {
+                return await fetch('{% url "arrangement:rooms_on_location_resource_source" %}?location={{ object.slug }}')
+                    .then(response => response.json())
+            }
         });
         calendar.render();
         loadRoomsTableForLocation()

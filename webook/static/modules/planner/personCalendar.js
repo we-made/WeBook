@@ -102,6 +102,11 @@ export class PersonCalendar extends FullCalendarBased {
                         },
                     }
                 ],
+                loading: function( isLoading ) {
+                    if (isLoading === false) {
+                        $(".popover").popover('hide');
+                    }
+                },
                 datesSet: (dateInfo) => {
                     $('#plannerCalendarHeader').text("");
                     $(".popover").popover('hide');
