@@ -74,7 +74,12 @@
                         <td colspan="2">
                             <br>
                                 <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}: </label>
-                            {{ form.display_layouts_serie_planner }}
+                                <ul>
+                                    {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
+                                        <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
+                                        <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label></li>
+                                    {% endfor %}
+                                </ul>      
                         </td>
                     </tr>
                     </tbody>

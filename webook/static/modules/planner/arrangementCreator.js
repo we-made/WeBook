@@ -155,7 +155,7 @@ export class ArrangementCreator {
 
                                 document.querySelectorAll("input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
-                                        $('#id_display_layouts_serie_planner_' + String(parseInt(checkboxElement.value) - 1))
+                                        $('#id_display_layouts_serie_planner_' + checkboxElement.value)
                                             .prop( "checked", true );
                                     })
                                 
