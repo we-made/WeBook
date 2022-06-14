@@ -301,7 +301,6 @@ export class PlannerCalendar extends FullCalendarBased {
                     {
                         events: async (start, end, startStr, endStr, timezone) => {
                             return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
-                                // .then(_ => this.calendarFilter.getFilteredSlugs().map( function (slug) { return { id: slug, name: "" } }))
                                 .then(_ => this.calendarFilter.getFilterValues())
                                 .then(filterValues => _this._ARRANGEMENT_STORE.get_all(
                                     { 
