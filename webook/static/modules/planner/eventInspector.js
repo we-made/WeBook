@@ -16,8 +16,11 @@ export class EventInspector {
                         },
                         onRenderedCallback: () => { 
                             this.dialogManager._makeAware(); 
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
-                        dialogOptions: { width: 600, height: 700 },
+                        dialogOptions: { width: 700, heigth: 1000, modal: true },
                         onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("inspectEventDialog");
                         },
