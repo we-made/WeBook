@@ -21,6 +21,11 @@ class PlannerUpdateEventForm(forms.ModelForm):
             self.instance.rooms.add(*[int(x) for x in rooms_comma_separated_str.split(",")])
 
         if self.instance.serie is not None:
+            """ 
+            When a serie event has been edited it has become more specific - thus we want to degrade it to "association" status.
+            This means that the more specific changes made here will not be altered by serie edits, and this event will not be deleted
+            if the serie is.
+            """
             self.instance.degrade_to_association_status(commit=False)
 
         super().save(commit)
