@@ -56,7 +56,7 @@ from webook.arrangement.models import (
     RoomPreset,
 )
 from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
-from webook.arrangement.views.generic_views.json_form_view import JsonFormView
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.json_serial import json_serial
@@ -326,47 +326,15 @@ class PlanCreateEvents(LoginRequiredMixin, View):
 plan_create_events = PlanCreateEvents.as_view()
 
 
-class PlanUpdateEvent (LoginRequiredMixin, UpdateView):
+class PlanUpdateEvent (LoginRequiredMixin, UpdateView, JsonModelFormMixin):
     model = Event
     template_name="arrangement/event/event_form.html"
     form_class = PlannerUpdateEventForm
-
-    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        return super().post(request, *args, **kwargs)
-
-    def form_invalid(self, form) -> HttpResponse:
-        print(" >> UpdateEventForm invalid")
-        print(form.errors)
-        return super().form_invalid(form)
-
-    def get_success_url(self) -> str:
-        people = self.request.POST.get("people")
-        rooms = self.request.POST.get("rooms")
-
-        if ((people is None or people == "undefined") and (rooms is None or rooms == "undefined")):
-            return
-
-        obj = self.object
-        obj.people.clear()
-        obj.rooms.clear()
-
-        if (people is not None and len(people) > 0 and people != "undefined"):
-            people = people.split(',')
-            for personId in people:
-                obj.people.add(Person.objects.get(id=personId))
-        
-        if (rooms is not None and len(rooms) > 0 and rooms != "undefined"):
-            rooms = rooms.split(',')
-            for roomId in rooms:
-                obj.rooms.add(Room.objects.get(id=roomId))
-
-        obj.save()
 
 plan_update_event = PlanUpdateEvent.as_view()
 
 
 class PlanGetEvents (LoginRequiredMixin, ListView):
-    
     def get(self, request, *args, **kwargs):
         events = Event.objects.filter(arrangement_id=request.GET["arrangement_id"]).only("title", "start", "end", "color", "people", "rooms", "loose_requisitions", "sequence_guid")
         response = serializers.serialize("json", events, fields=["title", "start", "end", "color", "people", "rooms", "loose_requisitions", "sequence_guid"])
