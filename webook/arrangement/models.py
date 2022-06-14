@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
 import webook.screenshow.models as screen_models
-from webook.arrangement.managers import ArchivedManager
+from webook.arrangement.managers import ArchivedManager, EventManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 
 
@@ -864,6 +864,8 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         ( ARRANGEMENT_EVENT, ARRANGEMENT_EVENT ),
         ( HOLIDAY_EVENT, HOLIDAY_EVENT ),
     )
+
+    objects = EventManager()
 
     event_type = models.CharField(max_length=255, choices=EVENT_TYPE_CHOICES, default=ARRANGEMENT_EVENT)
 
