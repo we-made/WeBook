@@ -347,10 +347,6 @@ class PlanOrderService(LoginRequiredMixin, JsonFormView):
     form_class = LooselyOrderServiceForm
     template_name = "_blank.html"
 
-    def form_invalid(self, form) -> HttpResponse:
-        print(" >> OrderServiceForm invalid")
-        return super().form_invalid(form)
-
     def form_valid(self, form) -> HttpResponse:
         form.save()
         return super().form_valid(form)

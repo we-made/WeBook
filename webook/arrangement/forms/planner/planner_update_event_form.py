@@ -20,6 +20,9 @@ class PlannerUpdateEventForm(forms.ModelForm):
         if is_valid(rooms_comma_separated_str):
             self.instance.rooms.add(*[int(x) for x in rooms_comma_separated_str.split(",")])
 
+        if self.instance.serie is not None:
+            self.instance.degrade_to_association_status(commit=False)
+
         super().save(commit)
 
     class Meta:
