@@ -1,22 +1,17 @@
 from typing import Any
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import SuspiciousOperation
+from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import SuspiciousOperation
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-    TemplateView
-)
-from django.db.models import Q
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+
 from webook.arrangement.exceptions import UserHasNoPersonException
 from webook.arrangement.models import Event, Location, Person, Room
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
 def get_section_manifest():
