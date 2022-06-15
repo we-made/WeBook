@@ -42,7 +42,7 @@ const GENERATION_FUNCTIONS_FOR_PATTERNS_MAP = new Map([
     ["weekly__standard", (serie) => `Ukentlig hver ${getDaysStringFromDaysMap(serie.pattern.days)}`],
     ["month__every_x_day_every_y_month", (serie) => `Den ${serie.pattern.day_of_month} hver ${serie.pattern.interval} måned`],
     ["month__every_arbitrary_date_of_month", (serie) => `Hver ${ARBITRATOR_MAP.get(serie.pattern.arbitrator)} ${WEEKDAY_MAP.get(parseInt(serie.pattern.weekday))} hver ${serie.pattern.interval} måned`],
-    ["yearly__every_x_of_month", (serie) => `Den ${serie.pattern.year_interval} i ${MONTH_MAP.get(serie.pattern.month)} hvert ${serie.pattern.year_interval} år`],
+    ["yearly__every_x_of_month", (serie) => `Den ${serie.pattern.weekday} i ${MONTH_MAP.get(serie.pattern.month)} hvert ${serie.pattern.year_interval} år`],
     ["yearly__every_arbitrary_weekday_in_month", (serie) => `Den ${ARBITRATOR_MAP.get(serie.pattern.arbitrator)} ${WEEKDAY_MAP.get(parseInt(serie.pattern.weekday))} i ${MONTH_MAP.get(serie.pattern.month)} hvert ${serie.pattern.year_interval} år`],
 ])
 
