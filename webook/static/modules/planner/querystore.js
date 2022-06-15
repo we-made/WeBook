@@ -14,6 +14,10 @@ export class QueryStore {
         var formData = serieConvert(serie, new FormData());
         formData.append("saveAsSerie", true);
         var events = SeriesUtil.calculate_serie(serie);
+
+        if ("event_serie_pk" in serie) {
+            formData.append("predecessorSerie", serie.event_serie_pk);
+        } 
         
         events.forEach(function (event) { 
             event.arrangement = arrangement_pk;
