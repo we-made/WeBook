@@ -871,9 +871,11 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
     NO_ASSOCIATION = 'no_association'
     COLLISION_RESOLVED_ORIGINATING_OF_SERIE = 'collision_resolved_originating_of_serie'
+    DEGRADED_FROM_SERIE = 'degraded_from_serie'
     ASSOCIATION_TYPE_CHOICES = (
         ( NO_ASSOCIATION, NO_ASSOCIATION ),
-        ( COLLISION_RESOLVED_ORIGINATING_OF_SERIE, COLLISION_RESOLVED_ORIGINATING_OF_SERIE )
+        ( DEGRADED_FROM_SERIE, DEGRADED_FROM_SERIE ),
+        ( COLLISION_RESOLVED_ORIGINATING_OF_SERIE, COLLISION_RESOLVED_ORIGINATING_OF_SERIE ),
     )
     association_type = models.CharField(max_length=255, choices=ASSOCIATION_TYPE_CHOICES, default=NO_ASSOCIATION)
     associated_serie = models.ForeignKey(to="EventSerie", on_delete=models.RESTRICT, null=True, blank=True, related_name="associated_events")
@@ -902,6 +904,33 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
                                              related_name="events", blank=True)
+
+    def degrade_to_association_status(self, commit=True) -> None:
+        """Degrade this event to an associate of its serie, as opposed to a direct child
+        
+        Degradation of an event to an associate is done when the event has become more specific, or has mutated in such a way that 
+        it is not in uniform with the rest of the serie. In the cases where an event in a serie becomes more specific (breaks uniform)
+        it has become something of its own, and should be distinguished and not treated as a serie child.
+
+        parameters:
+            commit (bool): designates if the change should commited (saved)
+
+        raises:
+            ValueError: if this event is not degradable (not part of a serie directly), or has already been degraded
+
+        """
+        if self.serie is None:
+            raise ValueError("Can not degrade an event that is not a part of a serie")
+        if self.associated_serie is not None:
+            raise ValueError("This event has already been degraded")
+
+        self.associated_serie = self.serie
+        self.association_type = self.DEGRADED_FROM_SERIE
+        self.serie = None
+
+        if commit:
+            self.save()
+        
 
     def __str__(self):
         """Return title of event, with start and end times"""
