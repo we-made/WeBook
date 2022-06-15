@@ -439,6 +439,8 @@ export class ArrangementInspector {
                             this.dialogManager.closeDialog("editEventSerieDialog");
                         },
                         onSubmit: async (context, details) => { 
+                            details.serie.event_serie_pk = context.lastTriggererDetails.event_serie_pk;
+
                             context.serie = details.serie;
                             context.collision_resolution = new Map();
                             
