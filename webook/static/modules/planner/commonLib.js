@@ -262,9 +262,11 @@ export class ArrangementStore extends BaseStore {
         var arrangements = this._getStoreAsArray();
         var filteredArrangements = [];
 
+        var slugsConvert = filterSet.slugs.map( function (slug) { return { id: slug, name: "" } });
+
         var filterMap = new Map();
-        if (filterSet !== undefined) {
-            filterSet.forEach( (slug) => {
+        if (slugsConvert !== undefined) {
+            slugsConvert.forEach( (slug) => {
                 filterMap.set(slug.id, true);
             } )
         }
@@ -275,7 +277,14 @@ export class ArrangementStore extends BaseStore {
         arrangements.forEach ( (arrangement) => {
             var isWithinFilter =
                 (arrangementTypesMap === undefined  || arrangementTypesMap.has(arrangement.arrangement_type_slug) === true) &&
-                (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true);
+                (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true)
+
+
+            console.log(arrangement)
+
+            if (filterSet.showOnlyEventsWithNoRooms === true && arrangement.room_names.length > 0 && arrangement.room_names[0] !== null) {
+                isWithinFilter = false;
+            }
 
             arrangement.slug_list.forEach( (slug) => {
                 if (filterMap.has(slug) === true) {

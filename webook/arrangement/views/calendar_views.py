@@ -1,22 +1,19 @@
+import datetime
 from typing import Any
+
+from dateutil import parser
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import SuspiciousOperation
+from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import SuspiciousOperation
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-    TemplateView
-)
-from django.db.models import Q
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+
 from webook.arrangement.exceptions import UserHasNoPersonException
 from webook.arrangement.models import Event, Location, Person, Room
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
 def get_section_manifest():
@@ -102,11 +99,11 @@ rooms_on_location_resource_source_view = RoomsOnLocationResourceSourceView.as_vi
 
 
 class EventSourceViewMixin(ListView):
-    """ A mixin for views that serve the express purpose of serving events to FullCalendar calendars """
-
-    # Handle start and end constraining of the queryset in the GET method
-    # Set to False if you want to get all regardless of supplied time constraints, or do your own 
-    # handling of constraints in the get_queryset method.
+    """A mixin for views that serve the express purpose of serving events to FullCalendar calendars
+    
+    Attributes:
+        handle_time_constraints_on_get (bool): A boolean designating if datetime constraints should be handled in the GET method. Set to False if you want to get all regardless of supplied time constraints, or do your own handling of constraints in the get_queryset method.
+    """
     handle_time_constraints_on_get = True
 
     def convert_event_to_fc_event(self, event: Event):
@@ -128,7 +125,10 @@ class EventSourceViewMixin(ListView):
             end = self.request.GET.get("end", None)
 
             if start and end is not None:
-                self.event_list = self.event_list.filter( Q(start__lte = end) & Q(end__gte = start) )
+                self.event_list = self.event_list.get_in_period(
+                    start = parser.parse(start),
+                    end = parser.parse(end),
+                )
         
         if self.event_list.model is not Event:
             raise "Event source view mixin requires that the QuerySet is of the model Event"
