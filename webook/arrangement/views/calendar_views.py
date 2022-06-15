@@ -1,5 +1,7 @@
+import datetime
 from typing import Any
 
+from dateutil import parser
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import SuspiciousOperation
 from django.db.models import Q
@@ -123,7 +125,10 @@ class EventSourceViewMixin(ListView):
             end = self.request.GET.get("end", None)
 
             if start and end is not None:
-                self.event_list = self.event_list.filter( Q(start__lte = end) & Q(end__gte = start) )
+                self.event_list = self.event_list.get_in_period(
+                    start = parser.parse(start),
+                    end = parser.parse(end),
+                )
         
         if self.event_list.model is not Event:
             raise "Event source view mixin requires that the QuerySet is of the model Event"
