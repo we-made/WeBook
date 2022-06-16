@@ -9,7 +9,7 @@ import { SerieMetaTranslator } from "./serie_meta_translator.js";
 export class ArrangementCreator {
     constructor () {
         this.dialogManager = new DialogManager({
-            managerName: "arrangementCreator",  
+            managerName: "arrangementCreator",
             dialogs: [
                 [
                     "createArrangementDialog",
@@ -30,10 +30,10 @@ export class ArrangementCreator {
                             if (this.dialogManager.context.events !== undefined) {
                                 this.dialogManager.context.events = new Map();
                             }
-                            
+
                             this.dialogManager._makeAware();
                         },
-                        onSubmit: async (context, details) => { 
+                        onSubmit: async (context, details) => {
                             var csrf_token = details.formData.get("csrf_token");
                             var createArrangement = async function (formData, csrf_token) {
                                 var response = await fetch("/arrangement/arrangement/ajax/create", {
@@ -56,7 +56,7 @@ export class ArrangementCreator {
                                 for (let i = 0; i < events.length; i++) {
                                     var event = events[i];
                                     event.arrangement = arrangementId;
-                                    
+
                                     if (event.is_resolution && "associated_serie_internal_uuid" in event) {
                                         event.associated_serie_id = serieUUIDToIdMap.get(event.associated_serie_internal_uuid);
                                     }
@@ -73,7 +73,7 @@ export class ArrangementCreator {
                                         "X-CSRFToken": csrf_token
                                     },
                                     credentials: 'same-origin',
-                                }).then(_ => { 
+                                }).then(_ => {
                                     document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                                 })
                             }
@@ -111,12 +111,12 @@ export class ArrangementCreator {
                                     },
                                     credentials: 'same-origin',
                                 }).then(response => response.json())
-                                  .then(responseAsJson => { 
+                                  .then(responseAsJson => {
                                     document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                                     return responseAsJson.serie_id;
                                 });
                             }
-                            
+
                             var internalSerieUuidsMapToCreatedSerieIds = new Map(); // maps between our internal uuids used locally, to their "real" counter-parts in the back-end
                             createArrangement(details.formData, csrf_token)
                                 .then(async arrId => {
@@ -124,13 +124,13 @@ export class ArrangementCreator {
                                         var created_serie_id = await registerSerie(serie, arrId, csrf_token, details.formData.get("ticket_code"));
                                         internalSerieUuidsMapToCreatedSerieIds.set(String(serie._uuid), created_serie_id);
                                     }
-                                    
+
                                     if (details.events !== undefined) {
                                         registerEvents(details.events, arrId, csrf_token, internalSerieUuidsMapToCreatedSerieIds);
                                     }
                                 });
                         },
-                        onUpdatedCallback: () => { 
+                        onUpdatedCallback: () => {
                             toastr.success("Arrangement opprettet");
                             this.dialogManager.closeDialog("createArrangementDialog");
                         },
@@ -147,7 +147,7 @@ export class ArrangementCreator {
                             return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementCreator&dialog=newTimePlanDialog&orderRoomDialog=orderRoomDialog&orderPersonDialog=orderPersonDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: (dialogManager, context) => { 
+                        onRenderedCallback: (dialogManager, context) => {
                             if (context.lastTriggererDetails === undefined) {
                                 $('#serie_ticket_code').attr('value', $('#id_ticket_code')[0].value );
                                 $('#serie_title').attr('value', $('#id_name')[0].value );
@@ -159,18 +159,18 @@ export class ArrangementCreator {
                                         $('#id_display_layouts_serie_planner_' + checkboxElement.value)
                                             .prop( "checked", true );
                                     })
-                                
+
                                 $('#serie_uuid').val(crypto.randomUUID());
 
                                 return;
                             }
-                            
+
                             var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                             PopulateCreateSerieDialogFromSerie(serie);
                         },
-                        onUpdatedCallback: () => { 
+                        onUpdatedCallback: () => {
                             toastr.success("Tidsplan lagt til eller oppdatert i planen");
-                            this.dialogManager.closeDialog("newTimePlanDialog"); 
+                            this.dialogManager.closeDialog("newTimePlanDialog");
                         },
                         onSubmit: async (context, details) => {
                             details.serie.friendlyDesc = SerieMetaTranslator.generate(details.serie);
@@ -200,9 +200,9 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: (dialogManager, context) => {
-                            /* 
+                            /*
                                 LastTriggererDetails is set when the dialog is called for, and not available
-                                in the subsequent callbacks versions of the context. We need to access this in  
+                                in the subsequent callbacks versions of the context. We need to access this in
                                 the OnSubmit callback so we set it as such. It might be more correct in the long
                                 run to make this remembered for the entire lifetime of the dialog instance, as to avoid
                                 these kinds of things.
@@ -226,8 +226,8 @@ export class ArrangementCreator {
                             $('#breakOutActivityDialog').prepend( $(
                                 document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
                             ).addClass("mb-4"));
-                            
-                            
+
+
                             // document.querySelectorAll("input[name='display_layouts']:checked")
                             //     .forEach(checkboxElement => {
                             //         $(`#${checkboxElement.value}_dlcheck`)
@@ -247,8 +247,8 @@ export class ArrangementCreator {
                             $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
                             $('#toDate').val(endTimeArtifacts[0]).trigger('change');
                             $('#toTime').val(endTimeArtifacts[1]).trigger('change');
-                                
-                            // This ensures that english title is only obligatory IF a display layout has been selected.
+
+                            // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
                             // dialogCreateEvent__evaluateEnTitleObligatory();
 
                             if (serie.people.length > 0) {
@@ -281,7 +281,7 @@ export class ArrangementCreator {
                         },
                         onUpdatedCallback: () => {
                             toastr.success("Kollisjon løst, enkel aktivitet har blitt opprettet");
-                            this.dialogManager.closeDialog("breakOutActivityDialog"); 
+                            this.dialogManager.closeDialog("breakOutActivityDialog");
                         },
                         onSubmit: async (context, details) => {
                             if (context.events === undefined) {
@@ -303,13 +303,13 @@ export class ArrangementCreator {
                             var endDate = new Date(details.event.end);
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
-                            
+
                             details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
                                 var collision = details.event.collisions[0];
                                 await CollisionsUtil.FireOneToOneCollisionWarningSwal(collision);
-                                
+
                                 return false;
                             }
 
@@ -332,8 +332,8 @@ export class ArrangementCreator {
                             return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=0&managerName=arrangementCreator&dialog=newSimpleActivityDialog&orderRoomDialog=orderRoomDialog&orderPersonDialog=orderPersonDialog')
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: (dialogManager, context) => { 
-                            
+                        onRenderedCallback: (dialogManager, context) => {
+
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
@@ -342,15 +342,15 @@ export class ArrangementCreator {
                                 $('#title').attr('value', $('#id_name')[0].value );
                                 $('#title_en').attr('value', $('#id_name_en')[0].value );
                                 $('#expected_visitors').attr('value', $('#id_expected_visitors')[0].value );
-                                
+
                                 document.querySelectorAll("input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
                                         $(`#${checkboxElement.value}_dlcheck`)
                                             .prop( "checked", true );
                                     })
-                                    
-                                // This ensures that english title is only obligatory IF a display layout has been selected.
-                                dialogCreateEvent__evaluateEnTitleObligatory();
+
+                                // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
+                                //dialogCreateEvent__evaluateEnTitleObligatory();
 
                                 $('#event_uuid').val(crypto.randomUUID());
 
@@ -358,7 +358,7 @@ export class ArrangementCreator {
                             }
 
                             var event = context.events.get(context.lastTriggererDetails.event_uuid);
-                            
+
                             var splitDateFunc = function (strToDateSplit) {
                                 var date_str = strToDateSplit.split("T")[0];
                                 var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
@@ -411,9 +411,9 @@ export class ArrangementCreator {
                                 new mdb.Input(formOutline).init();
                             });
                         },
-                        onUpdatedCallback: () => { 
+                        onUpdatedCallback: () => {
                             toastr.success("Enkel aktivitet lagt til eller oppdatert i planen");
-                            this.dialogManager.closeDialog("newSimpleActivityDialog"); 
+                            this.dialogManager.closeDialog("newSimpleActivityDialog");
                         },
                         onSubmit: async (context, details) => {
                             if (context.events === undefined) {
@@ -432,7 +432,7 @@ export class ArrangementCreator {
                             var endDate = new Date(details.event.end);
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
-                            
+
                             details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
@@ -459,20 +459,20 @@ export class ArrangementCreator {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => { 
+                        onUpdatedCallback: () => {
                             toastr.success("Rom lagt til");
                             this.dialogManager.closeDialog("orderRoomDialog");
                         },
-                        onSubmit: (context, details) => { 
+                        onSubmit: (context, details) => {
                             context.rooms = details.formData.get("room_ids");
                             context.room_name_map = details.room_name_map;
-                            
+
                             document.dispatchEvent(new CustomEvent(
-                                `arrangementCreator.d1_roomsSelected`, 
+                                `arrangementCreator.d1_roomsSelected`,
                                 { detail: { context: context } }
                             ));
                             document.dispatchEvent(new CustomEvent(
-                                `arrangementCreator.d2_roomsSelected`, 
+                                `arrangementCreator.d2_roomsSelected`,
                                 { detail: { context: context } }
                             ));
                         }
@@ -490,7 +490,7 @@ export class ArrangementCreator {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => { 
+                        onUpdatedCallback: () => {
                             toastr.success("Personer lagt til");
                             this.dialogManager.closeDialog("orderPersonDialog");
                         },
@@ -498,7 +498,7 @@ export class ArrangementCreator {
                             var people_ids = details.formData.get("people_ids");
                             context.people = people_ids;
                             context.people_name_map = details.people_name_map;
-                            
+
                             document.dispatchEvent(new CustomEvent(
                                 "arrangementCreator.d1_peopleSelected",
                                 { detail: {
@@ -514,11 +514,11 @@ export class ArrangementCreator {
                         }
                     })
                 ]
-            ]            
+            ]
         })
     }
 
     open() {
         this.dialogManager.openDialog( "createArrangementDialog" );
-    }    
+    }
 }
