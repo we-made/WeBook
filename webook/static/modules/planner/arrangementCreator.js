@@ -3,6 +3,7 @@ import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
 import { PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
 import { serieConvert } from "./serieConvert.js";
 import { SeriesUtil } from "./seriesutil.js";
+import { SerieMetaTranslator } from "./serie_meta_translator.js";
 
 
 export class ArrangementCreator {
@@ -172,6 +173,8 @@ export class ArrangementCreator {
                             this.dialogManager.closeDialog("newTimePlanDialog"); 
                         },
                         onSubmit: async (context, details) => {
+                            details.serie.friendlyDesc = SerieMetaTranslator.generate(details.serie);
+
                             if (context.series === undefined) {
                                 context.series = new Map();
                             }
