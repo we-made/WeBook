@@ -246,3 +246,21 @@ sidenav-primary .sidenav-link {
   background-color: #5f7f99!important;
   color: white!important;
 } */
+
+
+/* 
+Z-Index modification to the timepicker-modal class (as used by MDBOOTSTRAP timepicker) so that they can appear
+over the JQUERY dialogs.
+*/
+.timepicker-modal {
+  z-index: 100000000001 !important ;
+}
+/* 
+.clickable-badge:hover {
+  background-color: #5cb85c ;
+} */
+
+.clickable-badge  {
+  line-height: 0;
+  font-size: unset;
+}

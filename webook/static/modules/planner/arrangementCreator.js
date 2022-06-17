@@ -160,12 +160,17 @@ export class ArrangementCreator {
                                     })
                                 
                                 $('#serie_uuid').val(crypto.randomUUID());
-
+                                document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                    new mdb.Input(formOutline).init();
+                                });
                                 return;
                             }
-                            
+
                             var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                             PopulateCreateSerieDialogFromSerie(serie);
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
                         onUpdatedCallback: () => { 
                             toastr.success("Tidsplan lagt til eller oppdatert i planen");
