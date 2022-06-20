@@ -8,6 +8,7 @@ from .calendar_urls import calendar_urls
 from .confirmation_urls import confirmation_urls
 from .dashboard_urls import dashboard_urls
 from .event_serie_urls import event_serie_urls
+from .event_urls import event
 from .insights_urls import insights_urls
 from .location_urls import location_urls
 from .note_urls import note_urls
@@ -42,3 +43,4 @@ urlpatterns.extend(arrangement_type_urls)
 urlpatterns.extend(room_preset_urls)
 urlpatterns.extend(event_serie_urls)
 urlpatterns.extend(analysis_urls)
+urlpatterns.extend(event_urls)

@@ -8,9 +8,7 @@ from django.views.generic import CreateView, DetailView, ListView, RedirectView,
 
 from webook.arrangement.forms.exclusivity_analysis.analyze_arrangement_form import AnalyzeArrangementForm
 from webook.arrangement.forms.exclusivity_analysis.analyze_non_existant_event import AnalyzeNonExistantEventForm
-from webook.arrangement.forms.exclusivity_analysis.analyze_non_existent_serie_manifest_form import (
-    AnalyzeNonExistentSerieManifestForm,
-)
+from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import SerieManifestForm
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.utils.collision_analysis import CollisionRecord, analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
@@ -27,7 +25,7 @@ class CollisionAnalysisFormView(JsonFormView):
 
 class AnalyzeNonExistentSerieManifest(LoginRequiredMixin, CollisionAnalysisFormView):
     """ Analyze a non-existent serie / plan manifest, and return JSON with collisions """
-    form_class = AnalyzeNonExistentSerieManifestForm
+    form_class = SerieManifestForm
 
     def form_valid(self, form) -> JsonResponse:
         manifest = form.as_plan_manifest()
@@ -40,10 +38,6 @@ class AnalyzeNonExistentSerieManifest(LoginRequiredMixin, CollisionAnalysisFormV
 
         records = analyze_collisions(calculated_serie)
         return JsonResponse( [ vars(record) for record in records ], safe=False )
-
-    def form_invalid(self, form) -> JsonResponse:
-        print(form.errors)
-        return super().form_invalid(form)
 
 analyze_non_existent_serie_manifest_view = AnalyzeNonExistentSerieManifest.as_view()
 

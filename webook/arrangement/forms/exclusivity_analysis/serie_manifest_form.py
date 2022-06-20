@@ -2,7 +2,9 @@ from django import forms
 
 from webook.arrangement.models import PlanManifest
 
-class AnalyzeNonExistentSerieManifestForm(forms.Form):
+
+class SerieManifestForm(forms.Form):
+    """  """
     pattern = forms.CharField(max_length=255)
     patternRoutine = forms.CharField(max_length=255)
     timeAreaMethod = forms.CharField(max_length=255)
@@ -34,6 +36,7 @@ class AnalyzeNonExistentSerieManifestForm(forms.Form):
     sunday = forms.BooleanField(required=False)
 
     def as_plan_manifest(self):
+        """Convert the SerieManifestForm to a valid PlanManifest """
         plan_manifest = PlanManifest()
         plan_manifest.pattern = self.cleaned_data["pattern"]
         plan_manifest.pattern_strategy = self.cleaned_data["patternRoutine"]
@@ -73,3 +76,5 @@ class AnalyzeNonExistentSerieManifestForm(forms.Form):
         return plan_manifest
 
 
+class CreateSerieForm(SerieManifestForm):
+    arrangement_slug = forms.SlugField()
