@@ -58,14 +58,15 @@ from .confirmation_views import (
     view_confirmation_request_view,
 )
 from .dashboard_views import dashboard_view
-from .event_serie_views import (
+from .event_views import (
     calculate_event_serie_preview_view,
     calculate_event_serie_view,
+    create_event_json_view,
+    create_event_serie_json_view,
     delete_event_serie_view,
     event_serie_delete_file_view,
     event_serie_manifest_view,
 )
-from .event_views import create_event_json_view, create_event_serie_json_view
 from .insights_views import global_timeline_view
 from .location_views import (
     location_create_view,
