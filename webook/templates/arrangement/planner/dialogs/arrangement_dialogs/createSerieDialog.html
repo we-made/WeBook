@@ -806,25 +806,6 @@
             time_area: area,
         }
 
-        var events = SeriesUtil.calculate_serie(serie);
-        let formData = new FormData();
-
-        var expected_visitors =  document.getElementById('serie_expected_visitors').value;
-
-        for (let i = 0; i < events.length; i++) {
-            var event = events[i];
-            event.arrangement = '{{arrangementPk}}';
-            event.start = event.from.toISOString();
-            event.end=event.to.toISOString();
-            event.ticket_code = event.ticket_code;
-            event.expected_visitors = expected_visitors;
-
-            
-            for (var key in event) {
-                formData.append("events[" + i + "]." + key, event[key]);
-            }
-        }
-
         var room_ids = Array.from($("#roomsTbody")[0].children).map(row => row.getAttribute("rowid"));
         var people_ids = Array.from($("#peopleTbody")[0].children).map(row => row.getAttribute("rowid"));
 

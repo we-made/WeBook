@@ -52,6 +52,11 @@ class DeleteEventSerie(LoginRequiredMixin, JsonArchiveView):
 delete_event_serie_view = DeleteEventSerie.as_view()
 
 
+class CalculateNonExistantSerie(LoginRequiredMixin, DetailView, JSONResponseMixin):
+    """ Calculate a serie or schedule which is not yet saved in the back-end with a manifest """
+    pass
+
+
 class CalculateEventSerieView(LoginRequiredMixin, DetailView, JSONResponseMixin):
     model = PlanManifest
     pk_url_kwarg = "pk"
@@ -62,7 +67,6 @@ class CalculateEventSerieView(LoginRequiredMixin, DetailView, JSONResponseMixin)
         
         if (event_serie is None):
             raise Http404("No event_serie found matching the query")
-
         
         return calculate_serie(event_serie.serie_plan_manifest)
 
