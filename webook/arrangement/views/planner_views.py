@@ -158,14 +158,6 @@ class PlanCreateEvent (LoginRequiredMixin, CreateView):
 plan_create_event = PlanCreateEvent.as_view()
 
 
-class PlanUpdateEvent (LoginRequiredMixin, UpdateView, JsonModelFormMixin):
-    model = Event
-    template_name="arrangement/event/event_form.html"
-    form_class = PlannerUpdateEventForm
-
-plan_update_event = PlanUpdateEvent.as_view()
-
-
 class PlanGetEvents (LoginRequiredMixin, ListView):
     def get(self, request, *args, **kwargs):
         events = Event.objects.filter(arrangement_id=request.GET["arrangement_id"]).only("title", "start", "end", "color", "people", "rooms", "loose_requisitions", "sequence_guid")
@@ -235,12 +227,6 @@ class PlanPeopleToRequisitionTableComponent(LoginRequiredMixin, ListView):
         return unique_people_to_requisition
 
 plan_people_to_requisition_component_view = PlanPeopleToRequisitionTableComponent.as_view()
-
-
-class PlanDeleteEvent (LoginRequiredMixin, JsonArchiveView):
-    model = Event
-
-plan_delete_event = PlanDeleteEvent.as_view()
 
 
 class PlanDeleteEvents (LoginRequiredMixin, View):

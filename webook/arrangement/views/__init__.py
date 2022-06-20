@@ -63,9 +63,11 @@ from .event_views import (
     calculate_event_serie_view,
     create_event_json_view,
     create_event_serie_json_view,
+    delete_event_json_view,
     delete_event_serie_view,
     event_serie_delete_file_view,
     event_serie_manifest_view,
+    update_event_json_view,
 )
 from .insights_views import global_timeline_view
 from .location_views import (
@@ -118,8 +120,6 @@ from .planner_views import (
     get_collision_analysis_view,
     plan_arrangement_view,
     plan_create_event,
-    plan_create_events,
-    plan_delete_event,
     plan_delete_events,
     plan_get_events,
     plan_get_loose_service_requisitions,
@@ -127,7 +127,6 @@ from .planner_views import (
     plan_order_service_view,
     plan_people_requisitions_component_view,
     plan_people_to_requisition_component_view,
-    plan_update_event,
     planner_arrangement_events_view,
     planner_calendar_filter_rooms_dialog_view,
     planner_calendar_order_people_for_event_form_view,

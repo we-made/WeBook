@@ -5,9 +5,11 @@ from webook.arrangement.views import (
     calculate_event_serie_view,
     create_event_json_view,
     create_event_serie_json_view,
+    delete_event_json_view,
     delete_event_serie_view,
     event_serie_delete_file_view,
     event_serie_manifest_view,
+    update_event_json_view,
 )
 
 event_urls = [
@@ -20,6 +22,16 @@ event_urls = [
         route="event/create",
         view=create_event_json_view,
         name="create_event",
+    ),
+    path(
+        route="planner/update_event/<int:pk>",
+        view=update_event_json_view,
+        name="plan_update_event",
+    ),
+    path(
+        route="planner/delete_event/<int:pk>",
+        view=delete_event_json_view,
+        name="plan_delete_event"
     ),
     path(
         route="eventSerie/files/delete/<int:pk>",

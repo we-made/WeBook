@@ -1,4 +1,5 @@
 from typing import Any
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import (
@@ -13,6 +14,7 @@ from django.views.generic import (
 )
 
 from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import CreateSerieForm, SerieManifestForm
+from webook.arrangement.forms.planner.planner_update_event_form import PlannerUpdateEventForm
 from webook.arrangement.models import Arrangement, Event, EventSerie, EventSerieFile, PlanManifest
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
@@ -65,6 +67,20 @@ class CreateEventJsonFormView(LoginRequiredMixin, CreateView, JsonModelFormMixin
 
 create_event_json_view = CreateEventJsonFormView.as_view()
 
+
+class UpdateEventJsonFormView(LoginRequiredMixin, UpdateView, JsonModelFormMixin):
+    """ Update event """
+    model = Event
+    form_class = PlannerUpdateEventForm
+
+update_event_json_view = UpdateEventJsonFormView.as_view()
+
+
+class DeleteEventJsonView(LoginRequiredMixin, JsonArchiveView):
+    """ Delete event """
+    model = Event
+
+delete_event_json_view = DeleteEventJsonView.as_view()
 
 class EventSerieDeleteFileView(LoginRequiredMixin, DeleteView):
     model = EventSerieFile
