@@ -41,6 +41,11 @@ class CreateEventSerieJsonFormView(LoginRequiredMixin, JsonFormView):
         serie.manifest = manifest
         serie.save()
 
+        pk_of_preceding_event_serie = form.cleaned_data["predecessorSerie"];
+        if (pk_of_preceding_event_serie):
+            predecessor_event_serie = EventSerie.objects.get(id=pk_of_preceding_event_serie)
+            predecessor_event_serie.archive(self.request.user.person)
+
         for ev in calculated_serie:
             if ev.is_collision:
                 continue

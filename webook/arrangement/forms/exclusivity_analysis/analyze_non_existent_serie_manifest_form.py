@@ -77,5 +77,5 @@ class SerieManifestForm(forms.Form):
 
 
 class CreateSerieForm(SerieManifestForm):
-    arrangement_slug = forms.SlugField()
-    
+    arrangementSlug = forms.SlugField()
+    predecessorSerie = forms.IntegerField()
