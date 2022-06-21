@@ -57,7 +57,7 @@ Date.prototype.addDays = function(days) {
  export class SeriesUtil {
 
     static calculate_serie (serie) {
-        
+
 
         const pattern_strategies = new Map();
         pattern_strategies.set(
@@ -169,9 +169,6 @@ Date.prototype.addDays = function(days) {
             */
             event_sample = Object.assign({}, event_sample);
             let result = pattern_strategy.run({cycle: cycle_cursor, start_date: date_cursor, event: event_sample});
-
-            console.log(date_cursor)
-            debugger;
 
             if (result === undefined || (Array.isArray(result) && result.length == 0)) {
                 cycle_cursor++;
@@ -302,7 +299,6 @@ Date.prototype.addDays = function(days) {
 
         let events = [];
         let y = 0;
-        debugger;
         for (let i = start_date.getDay(); i < 6; i++) {
             let day = days.get(i)
             if (day === true) {
