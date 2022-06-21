@@ -57,8 +57,6 @@ Date.prototype.addDays = function(days) {
  export class SeriesUtil {
 
     static calculate_serie (serie) {
-
-
         const pattern_strategies = new Map();
         pattern_strategies.set(
             "daily__every_x_day",
