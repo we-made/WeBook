@@ -211,12 +211,13 @@
     }
 
     $(document).ready(function () {
-        inspectEventDialog__evaluateEnTitleObligatory();
-
+        // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
+        //inspectEventDialog__evaluateEnTitleObligatory();
+        /*
         $("input[name='display_layouts'][type='checkbox']").on("change", (e) => {
             inspectEventDialog__evaluateEnTitleObligatory();
         });
-
+        */
         document.addEventListener("eventInspector.roomsUpdated", (e) => {
             roomsMap = e.detail.context.room_name_map;
             inspectEventDialog__setRooms(e.detail.context.rooms);
