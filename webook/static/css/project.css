@@ -255,12 +255,3 @@ over the JQUERY dialogs.
 .timepicker-modal {
   z-index: 100000000001 !important ;
 }
-/* 
-.clickable-badge:hover {
-  background-color: #5cb85c ;
-} */
-
-.clickable-badge  {
-  line-height: 0;
-  font-size: unset;
-}
