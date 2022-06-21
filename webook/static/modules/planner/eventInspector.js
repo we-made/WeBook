@@ -25,7 +25,6 @@ export class EventInspector {
                             this.dialogManager.closeDialog("inspectEventDialog");
                         },
                         onSubmit: async (context, details) => {
-                            console.log("details", details)
                             var url = '/arrangement/planner/update_event/' + context.event.pk;
                             await fetch(url, {
                                 method: "POST",

@@ -13,8 +13,9 @@ from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
 import webook.screenshow.models as screen_models
-from webook.arrangement.managers import ArchivedManager
+from webook.arrangement.managers import ArchivedManager, EventManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
+from webook.utils.manifest_describe import describe_manifest
 
 
 class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
@@ -865,13 +866,17 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         ( HOLIDAY_EVENT, HOLIDAY_EVENT ),
     )
 
+    objects = EventManager()
+
     event_type = models.CharField(max_length=255, choices=EVENT_TYPE_CHOICES, default=ARRANGEMENT_EVENT)
 
     NO_ASSOCIATION = 'no_association'
     COLLISION_RESOLVED_ORIGINATING_OF_SERIE = 'collision_resolved_originating_of_serie'
+    DEGRADED_FROM_SERIE = 'degraded_from_serie'
     ASSOCIATION_TYPE_CHOICES = (
         ( NO_ASSOCIATION, NO_ASSOCIATION ),
-        ( COLLISION_RESOLVED_ORIGINATING_OF_SERIE, COLLISION_RESOLVED_ORIGINATING_OF_SERIE )
+        ( DEGRADED_FROM_SERIE, DEGRADED_FROM_SERIE ),
+        ( COLLISION_RESOLVED_ORIGINATING_OF_SERIE, COLLISION_RESOLVED_ORIGINATING_OF_SERIE ),
     )
     association_type = models.CharField(max_length=255, choices=ASSOCIATION_TYPE_CHOICES, default=NO_ASSOCIATION)
     associated_serie = models.ForeignKey(to="EventSerie", on_delete=models.RESTRICT, null=True, blank=True, related_name="associated_events")
@@ -900,6 +905,33 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
                                              related_name="events", blank=True)
+
+    def degrade_to_association_status(self, commit=True) -> None:
+        """Degrade this event to an associate of its serie, as opposed to a direct child
+        
+        Degradation of an event to an associate is done when the event has become more specific, or has mutated in such a way that 
+        it is not in uniform with the rest of the serie. In the cases where an event in a serie becomes more specific (breaks uniform)
+        it has become something of its own, and should be distinguished and not treated as a serie child.
+
+        parameters:
+            commit (bool): designates if the change should commited (saved)
+
+        raises:
+            ValueError: if this event is not degradable (not part of a serie directly), or has already been degraded
+
+        """
+        if self.serie is None:
+            raise ValueError("Can not degrade an event that is not a part of a serie")
+        if self.associated_serie is not None:
+            raise ValueError("This event has already been degraded")
+
+        self.associated_serie = self.serie
+        self.association_type = self.DEGRADED_FROM_SERIE
+        self.serie = None
+
+        if commit:
+            self.save()
+        
 
     def __str__(self):
         """Return title of event, with start and end times"""
@@ -1011,6 +1043,7 @@ class RequisitionRecord (TimeStampedModel, ModelArchiveableMixin):
 
 class PlanManifest(TimeStampedModel):
     """ A time manifest is a manifest of the timeplan generation """
+
     expected_visitors = models.IntegerField(default=0)
     ticket_code = models.CharField(max_length=255, blank=True)
     title = models.CharField(max_length=255)
@@ -1047,6 +1080,23 @@ class PlanManifest(TimeStampedModel):
     rooms =  models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout)
+
+    @property
+    def schedule_description(self):
+        return describe_manifest(self)
+    
+    @property
+    def days(self):
+        return {
+            0: self.monday,
+            1: self.tuesday,
+            2: self.wednesday,
+            3: self.thursday,
+            4: self.friday,
+            5: self.saturday,
+            6: self.sunday
+        }
+        
 
 
 class EventSerie(TimeStampedModel, ModelArchiveableMixin):

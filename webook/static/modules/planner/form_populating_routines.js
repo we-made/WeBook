@@ -92,7 +92,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
             break;
         case "monthly":
             $('#radio_pattern_monthly').prop("checked", true).click();
-            
+
             switch(serie.pattern.pattern_routine) {
                 case "month__every_x_day_every_y_month":
                     $('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
@@ -139,8 +139,8 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
 }
 
 /**
- * 
- * @param {*} manifest 
+ *
+ * @param {*} manifest
  */
 export function PopulateCreateSerieDialogFromManifest(manifest,
                                           serie_uuid,) {
@@ -229,7 +229,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
         case "weekly":
             $('#radio_pattern_weekly').prop("checked", true).click();
             $("#week_interval").val(parseInt(manifest.strategy_specific.interval));
-            
+
             var days = [
                 $("#monday"),
                 $("#tuesday"),
@@ -276,7 +276,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
                     $('#every_x_dynamic_day_in_month_radio').prop("checked", true);
                     $('#every_arbitrary_weekday_in_month__arbitrator').val(manifest.strategy_specific.arbitrator);
                     $('#every_arbitrary_weekday_in_month__weekday').val(manifest.strategy_specific.day_of_week);
-                    $('#every_arbitrary_weekday_in_month__month').val(manifest.strategy_specific.month);                         
+                    $('#every_arbitrary_weekday_in_month__month').val(manifest.strategy_specific.month);
                     break;
             }
             break;
@@ -288,8 +288,8 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
 }
 
 /**
- * 
- * @param {*} event 
+ *
+ * @param {*} event
  */
 export function PopulateCreateEventDialog(event) {
     $('#ticket_code').val(serie.time.ticket_code ).trigger('change');
@@ -306,8 +306,8 @@ export function PopulateCreateEventDialog(event) {
     $('#breakOutActivityDialog').prepend( $(
         document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
     ).addClass("mb-4"));
-    
-    
+
+
     // document.querySelectorAll("input[name='display_layouts']:checked")
     //     .forEach(checkboxElement => {
     //         $(`#${checkboxElement.value}_dlcheck`)
@@ -325,10 +325,10 @@ export function PopulateCreateEventDialog(event) {
     var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
     $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
     $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
-    $('#toDate').val(endTimeArtifacts[0]).trigger('change');
+    $('#toDate').val(sendTimeArtifacts[0]).trigger('change');
     $('#toTime').val(endTimeArtifacts[1]).trigger('change');
-        
-    // This ensures that english title is only obligatory IF a display layout has been selected.
+
+    // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
     // dialogCreateEvent__evaluateEnTitleObligatory();
 
     if (serie.people.length > 0) {

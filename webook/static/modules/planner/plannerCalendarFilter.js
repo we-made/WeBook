@@ -13,6 +13,14 @@ class LocationFilterSet {
 }
 
 
+class FilterValues {
+    constructor (slugs, showOnlyEventsWithNoRooms) {
+        this.slugs = slugs;
+        this.showOnlyEventsWithNoRooms = showOnlyEventsWithNoRooms;
+    }
+}
+
+
 export class PlannerCalendarFilter {
     constructor () {
         this.dialogManager = new DialogManager({
@@ -37,10 +45,19 @@ export class PlannerCalendarFilter {
         });
 
         this.locationContext = new Map();
-        
+        this.showOnlyEventsWithNoRooms = false;
+
         this._listenToFilterRoomOnLocations();
         this._listenToRoomFilterUpdate();
         this._listenToLocationFilterUpdate();
+        this._listenToShowOnlyRoomsSwitch();
+    }
+
+    getFilterValues() {
+        return new FilterValues(
+            this.getFilteredSlugs(),
+            this.showOnlyEventsWithNoRooms,
+        );
     }
 
     getFilteredSlugs() {
@@ -50,10 +67,9 @@ export class PlannerCalendarFilter {
             if (value.isVisible === "false") {
                 slugs.push(value.slug);
             }
+
             slugs.push(...value.rooms);
         }
-
-        console.log(slugs)
 
         return slugs;
     }
@@ -63,6 +79,15 @@ export class PlannerCalendarFilter {
         this.dialogManager.openDialog( "roomFilterDialog" );
     }
     
+    _listenToShowOnlyRoomsSwitch () {
+        $('#plannerCalendarFilter_showOnlyRoomLessEvents').on('change', (e) =>{
+            this.showOnlyEventsWithNoRooms = $(e.currentTarget).is(':checked');
+            if (REFRESH_ON_CONTEXT_UPDATE) {
+                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+            }
+        })
+    }
+
     _listenToFilterRoomOnLocations () {
         $('.filterLocationBtn').on('click', (e) => {
             this.openRoomFilterDialog(e.currentTarget.value);

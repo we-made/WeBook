@@ -17,7 +17,7 @@
                         <td>
                             <input type="text" id="serie_title" class="form-control form-control-sm" tabindex="600" autocomplete="off" required />
                         </td>
-                    </tr> 
+                    </tr>
                     <tr>
                         <td>
                             <label>{% trans "Title" %} <em>(engelsk): </em></label>
@@ -30,7 +30,7 @@
                         <td>
                             <label>
                                 <i class="fas fa-clock"></i>
-                                {% trans "Start" %}: 
+                                {% trans "Start" %}:
                             </label>
                         </td>
                         <td>
@@ -41,7 +41,7 @@
                         <td>
                         <label>
                             <i class="fas fa-clock"></i>
-                            {% trans "Slutt" %}: 
+                            {% trans "Slutt" %}:
                             </label>
                         </td>
                         <td>
@@ -52,7 +52,7 @@
                         <td>
                         <label>
                             <i class="fas fa-receipt"></i>
-                            {% trans "Ticket Code" %}: 
+                            {% trans "Ticket Code" %}:
                             </label>
                         </td>
                         <td>
@@ -63,7 +63,7 @@
                         <td>
                         <label>
                             <i class="fas fa-users"></i>
-                            {% trans "Expected visitors" %}: 
+                            {% trans "Expected visitors" %}:
                         </label>
                         </td>
                         <td>
@@ -74,7 +74,12 @@
                         <td colspan="2">
                             <br>
                                 <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}: </label>
-                            {{ form.display_layouts_serie_planner }}
+                                <ul>
+                                    {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
+                                        <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
+                                        <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label></li>
+                                    {% endfor %}
+                                </ul>
                         </td>
                     </tr>
                     </tbody>
@@ -144,7 +149,7 @@
                             <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
                             <label>Every <input type="number" min="1"  id="every_x_day__interval" required /> day</label>
                         </div>
-                        
+
                         <div>
                             <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
                             <label>Every weekday</label>
@@ -166,7 +171,7 @@
 
                     <div id="patternRoute_monthly" style="display: none;">
                         <div>
-                            <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
+                            <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required />
                             Day <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> every <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> month
                         </div>
                         <div>
@@ -247,7 +252,7 @@
     document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
         peopleNameMap = e.detail.context.people_name_map;
         createSerieDialog__setPeople(e.detail.context.people);
-    }) 
+    })
     document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
         roomsNameMap = e.detail.context.room_name_map;
         createSerieDialog__setRooms(e.detail.context.rooms);
@@ -276,7 +281,7 @@
                             title='{% trans "Remove this room from the activity" %}'
                             onclick='createSerieDialog__removeAssociation(this)'>
                                 <i class='fas fa-trash'></i>
-                            </a> 
+                            </a>
                     </td>
                    </tr>`)
             )
@@ -297,7 +302,7 @@
                             title='{% trans "Remove this person from the activity" %}'
                             onclick='createSerieDialog__removeAssociation(this)'>
                                 <i class='fas fa-trash'></i>
-                            </a> 
+                            </a>
                     </td>
                    </tr>`)
             )
@@ -373,11 +378,14 @@
     }
 
     $(document).ready(function () {
+
+         // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
+        /*
         createSerieDialog__evaluateEnTitleObligatory();
         $("input[name='display_layouts_serie_planner'][type='checkbox']").on("change", (e) => {
             createSerieDialog__evaluateEnTitleObligatory();
         });
-
+        */
         new DayOfWeekSelectComponent('every_arbitrary_weekday_in_month__weekday');
         new MonthSelectComponent('every_arbitrary_weekday_in_month__month');
         new MonthSelectComponent('every_x_of_month__month');
@@ -402,14 +410,14 @@
     let patterns = new Map();
 
     patterns.set(
-        "1", 
-        { 
+        "1",
+        {
             route_fieldset: $("#patternRoute_daily"),
             name: "daily",
             sub_routed_by: 'pattern_daily_subroute',
             constant_fields: [],
             sub_routes: [
-                { 
+                {
                     strategy_name: "daily__every_x_day",
                     route: "pattern_daily_sub__every_x_day",
                     fields: [
@@ -425,7 +433,7 @@
         }
     );
     patterns.set(
-        "2", 
+        "2",
         {
             strategy_name: "weekly__standard",
             route_fieldset: $("#patternRoute_weekly"),
@@ -433,8 +441,8 @@
         }
     );
     patterns.set(
-        "3", 
-        { 
+        "3",
+        {
             route_fieldset: $("#patternRoute_monthly"),
             name: "monthly",
             sub_routed_by: 'pattern_monthly_subroute',
@@ -461,8 +469,8 @@
         }
     );
     patterns.set(
-        "4", 
-        { 
+        "4",
+        {
             route_fieldset: $("#patternRoute_yearly"),
             name: "yearly",
             sub_routed_by: 'pattern_yearly_subroute',
@@ -538,7 +546,7 @@
                 }
             }
         )
-        
+
         /* Handle user changing active pattern */
         $('input:radio[name="pattern"]').click(
             function() {
@@ -556,12 +564,12 @@
     class ValidatorFunctions {
         static __watchInputForValidityChange (element) {
             element.classList.add("border-danger");
-            
+
             element.addEventListener("change", (event) => {
                 if (event.target.checkValidity() === true) {
                     event.target.classList.remove("border-danger");
                     event.target.classList.add("border-success");
-                    
+
                     let alert = document.getElementsByClassName('form_alert')[0];
                     alert.classList.remove('text-danger');
                     alert.classList.add("text-success");
@@ -597,13 +605,13 @@
                 $('#headMockForm').find(':submit').click();
                 return false;
             }
-            
+
             return true;
         }
 
         static validate_pattern_radio() {
             let radio = document.querySelector('input[name="pattern"]');
-            
+
             if (radio.checkValidity() === false) {
                 $('#patternMockForm').find(':submit').click();
                 return false;
@@ -664,7 +672,7 @@
                 let alertText = document.createElement('div');
                 alertText.innerHTML = "<span class='text-danger form_alert'>" + area_start_date_el.validationMessage + "</span>";
                 area_start_date_el.parentNode.appendChild(alertText);
-                
+
                 return false;
             }
 
@@ -716,9 +724,9 @@
         }
 
         let pattern = {}
-        let active_pattern_key = $('input:radio[name="pattern"]:checked').val();                                                                                  
+        let active_pattern_key = $('input:radio[name="pattern"]:checked').val();
         let pattern_obj = patterns.get(`${active_pattern_key}`);
-  
+
 
         let headResult = ValidatorFunctions.validate_head();
         let patternResult = ValidatorFunctions.validate_pattern_radio();
@@ -730,7 +738,7 @@
         }
 
         // since weekly doesnt have any subroutings (only one option) we cant use the normal method
-        if (active_pattern_key !== "2") { 
+        if (active_pattern_key !== "2") {
             if (active_pattern_key == "4") {
                 pattern["year_interval"] = $('#pattern_yearly_const__year_interval').val();
             }
@@ -748,7 +756,7 @@
         else {
             pattern["week_interval"] = $('#week_interval').val();
             pattern.pattern_type = pattern_obj.name;
-            
+
             let days = new Map([
                 [0, $('#sunday').is(':checked')],
                 [1, $('#monday').is(':checked')],
@@ -767,22 +775,22 @@
 
         let area_methods = new Map();
         area_methods.set(
-            "1", 
-            { 
+            "1",
+            {
                 name: "StopWithin",
                 set: function () {
                     area.stop_within = $('#area_stopWithin').val();
                 }
             }
         );
-        area_methods.set("2", 
+        area_methods.set("2",
         {
             name: "StopAfterXInstances",
             set: function () {
                 area.instances = $('#area_stopAfterXInstances').val()
             }
         });
-        area_methods.set("3", 
+        area_methods.set("3",
         {
             name: "NoStopDate",
             set: function () {
@@ -794,7 +802,7 @@
         active_area_method.set();
         area.method_name = active_area_method.name;
         area.start_date = $('#area_start_date').val();
-        
+
         let serie = {
             time: time,
             pattern: pattern,
@@ -814,7 +822,7 @@
             event.ticket_code = event.ticket_code;
             event.expected_visitors = expected_visitors;
 
-            
+
             for (var key in event) {
                 formData.append("events[" + i + "]." + key, event[key]);
             }
@@ -837,7 +845,7 @@
 
         document.dispatchEvent(
             new CustomEvent(
-                "{{managerName}}.submit", 
+                "{{managerName}}.submit",
                 {
                     'detail': { 'dialog': "{{dialog}}", 'serie': serie, "csrf_token": "{{csrf_token}}" }
                 }
@@ -849,7 +857,7 @@
     function match_pattern_state_to_radio () {
         let active_pattern_key = $('input:radio[name="pattern"]:checked').val();
 
-        // Ensure that if the user closes the modal while working with it, they will 
+        // Ensure that if the user closes the modal while working with it, they will
         // come right back to the same pattern fieldset when re-opening it.
         if (active_pattern_key !== undefined && active_pattern_key !== "") {
             for (let i = 0; i < patterns.length; i++) {
@@ -867,10 +875,10 @@
         }
     }
 
-    /* 
+    /*
     Resets a patterns field values, and disables it. This affects all sub-routes of the pattern.
     */
-    function reset_pattern(ptrn) {  
+    function reset_pattern(ptrn) {
         if (ptrn.sub_routes !== undefined) {
             ptrn.sub_routes.forEach(function (sub_route) {
                 deactivate_pattern_subroute(sub_route);
@@ -881,7 +889,7 @@
         }
     }
 
-    /* 
+    /*
     Activate a sub route of a pattern. In practice removes the disabled attribute from the fields of this
     sub route.
     */
@@ -892,7 +900,7 @@
         }
     }
 
-    /* 
+    /*
     Deactivate a sub route of a pattern. In practice this adds the disabled attribute to the fields of this
     sub route.
     */
