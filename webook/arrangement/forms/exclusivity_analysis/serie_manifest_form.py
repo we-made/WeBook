@@ -8,6 +8,7 @@ from webook.utils.serie_calculator import calculate_serie
 
 
 class SerieManifestForm(forms.Form):
+    """ Form representing a serie manifest, tightly related to the model PlanManifest """
     pattern = forms.CharField(max_length=255)
     patternRoutine = forms.CharField(max_length=255)
     timeAreaMethod = forms.CharField(max_length=255)
