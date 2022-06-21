@@ -15,6 +15,7 @@ from django_extensions.db.models import TimeStampedModel
 import webook.screenshow.models as screen_models
 from webook.arrangement.managers import ArchivedManager, EventManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
+from webook.utils.manifest_describe import describe_manifest
 
 
 class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
@@ -1042,6 +1043,7 @@ class RequisitionRecord (TimeStampedModel, ModelArchiveableMixin):
 
 class PlanManifest(TimeStampedModel):
     """ A time manifest is a manifest of the timeplan generation """
+
     expected_visitors = models.IntegerField(default=0)
     ticket_code = models.CharField(max_length=255, blank=True)
     title = models.CharField(max_length=255)
@@ -1078,6 +1080,23 @@ class PlanManifest(TimeStampedModel):
     rooms =  models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout)
+
+    @property
+    def schedule_description(self):
+        return describe_manifest(self)
+    
+    @property
+    def days(self):
+        return {
+            0: self.monday,
+            1: self.tuesday,
+            2: self.wednesday,
+            3: self.thursday,
+            4: self.friday,
+            5: self.saturday,
+            6: self.sunday
+        }
+        
 
 
 class EventSerie(TimeStampedModel, ModelArchiveableMixin):

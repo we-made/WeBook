@@ -76,7 +76,7 @@ export class ArrangementInspector {
         return new DialogManager({
             managerName: MANAGER_NAME,
             dialogs: [
-                [ 
+                [
                     "mainDialog",
                     new Dialog({
                         dialogElementId: "mainDialog",
@@ -90,8 +90,8 @@ export class ArrangementInspector {
                             dialog._active_tab = active;
                         },
                         onRenderedCallback: (dialog) => {
-                            $('#tabs').tabs(); 
-    
+                            $('#tabs').tabs();
+
                             if (dialog._active_tab !== undefined) {
                                 $('#tabs').tabs("option", "active", dialog._active_tab);
                                 dialog._active_tab = undefined;
@@ -103,7 +103,7 @@ export class ArrangementInspector {
                             this._listenToOrderRoomForSingleEventBtnClick();
                             this._listenToOrderPersonForSingleEventeBtnClick();
                         },
-                        onSubmit: async (context, details) => { 
+                        onSubmit: async (context, details) => {
                             var getArrangementHtml = async function (slug, formData) {
                                 var response = await fetch("/arrangement/planner/dialogs/arrangement_information/" + slug, {
                                     method: 'POST',
@@ -115,10 +115,10 @@ export class ArrangementInspector {
                                 });
                                 return await response.text();
                             }
-    
+
                             var somehtml = await getArrangementHtml(context.arrangement.slug, details.formData);
                             this.dialogManager.reloadDialog("mainDialog", somehtml);
-    
+
                             document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                         },
                         onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
@@ -135,9 +135,9 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered"); },
-                        onUpdatedCallback: ( ) => { 
-                            this.dialogManager.reloadDialog("mainDialog"); 
-                            this.dialogManager.closeDialog("addPlannerDialog"); 
+                        onUpdatedCallback: ( ) => {
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("addPlannerDialog");
                             toastr.success("Planlegger(e) har blitt lagt til")
                         },
                         dialogOptions: { width: 700 }
@@ -182,7 +182,7 @@ export class ArrangementInspector {
                             return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&dialog=newTimePlanDialog&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: async (dialogManager, context) => { 
+                        onRenderedCallback: async (dialogManager, context) => {
                             var info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
                             $('#serie_title').attr('value', info.title);
                             $('#serie_title_en').attr('value', info.title_en);
@@ -194,9 +194,9 @@ export class ArrangementInspector {
                                     .prop( "checked", true );
                             })
                         },
-                        onUpdatedCallback: () => { 
-                            this.dialogManager.reloadDialog("mainDialog"); 
-                            this.dialogManager.closeDialog("newTimePlanDialog"); 
+                        onUpdatedCallback: () => {
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("newTimePlanDialog");
                         },
                         dialogOptions: { width: 700, modal:true },
                         onSubmit: async (context, details) => {
@@ -220,7 +220,7 @@ export class ArrangementInspector {
 
                             QueryStore.SaveSerie(details.serie, details.csrf_token, context.arrangement.arrangement_pk).then(_ => {
                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
-                            }); 
+                            });
                         }
                     })
                 ],
@@ -235,9 +235,9 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: (dialogManager, context) => {
-                            /* 
+                            /*
                                 LastTriggererDetails is set when the dialog is called for, and not available
-                                in the subsequent callbacks versions of the context. We need to access this in  
+                                in the subsequent callbacks versions of the context. We need to access this in
                                 the OnSubmit callback so we set it as such. It might be more correct in the long
                                 run to make this remembered for the entire lifetime of the dialog instance, as to avoid
                                 these kinds of things.
@@ -247,7 +247,7 @@ export class ArrangementInspector {
                             var serie = context.serie;
 
                             var collision_uuid = context._lastTriggererDetails.collision_uuid;
-                            var resolution_bundle = context.collision_resolution.get(collision_uuid); 
+                            var resolution_bundle = context.collision_resolution.get(collision_uuid);
                             var collision_record = resolution_bundle.collision;
 
                             $('#ticket_code').val(serie.time.ticket_code).trigger('change');
@@ -260,7 +260,7 @@ export class ArrangementInspector {
                                     $(`#${checkboxElement.value}_dlcheck`)
                                         .prop( "checked", true );
                                 })
-                            
+
                             // document.querySelectorAll("input[name='display_layouts']:checked")
                             //     .forEach(checkboxElement => {
                             //         $(`#${checkboxElement.value}_dlcheck`)
@@ -279,8 +279,8 @@ export class ArrangementInspector {
                             $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
                             $('#toDate').val(endTimeArtifacts[0]).trigger('change');
                             $('#toTime').val(endTimeArtifacts[1]).trigger('change');
-                                
-                            // This ensures that english title is only obligatory IF a display layout has been selected.
+
+                            // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
                             // dialogCreateEvent__evaluateEnTitleObligatory();
 
                             if (serie.people.length > 0) {
@@ -336,7 +336,7 @@ export class ArrangementInspector {
                             for (var key in details.event) {
                                 formData.append(key, details.event[key])
                             }
-                            
+
                             var collisions_on_solution = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (collisions_on_solution.length > 0) {
@@ -351,9 +351,9 @@ export class ArrangementInspector {
                                             this.saveSerieWithCollisionResolutions,
                                             () => { this.dialogManager.closeDialog(context.active_collision_route_parent_dialog_id); }
                                         )
-                                        this.dialogManager.closeDialog("breakOutActivityDialog"); 
+                                        this.dialogManager.closeDialog("breakOutActivityDialog");
                                     } );
-                                    
+
                                 return false;
                             }
 
@@ -370,9 +370,9 @@ export class ArrangementInspector {
                                 () => { this.dialogManager.closeDialog(context.active_collision_route_parent_dialog_id); }
 
                             )
-                            
-                            this.dialogManager.closeDialog("breakOutActivityDialog"); 
-                            
+
+                            this.dialogManager.closeDialog("breakOutActivityDialog");
+
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
                         dialogOptions: { width: 700 }
@@ -387,14 +387,14 @@ export class ArrangementInspector {
                             return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + context.arrangement.slug + "&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog&dialog=newSimpleActivityDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => { 
+                        onRenderedCallback: () => {
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
                         },
-                        onUpdatedCallback: () => { 
-                            this.dialogManager.reloadDialog("mainDialog"); 
-                            this.dialogManager.closeDialog("newSimpleActivityDialog"); 
+                        onUpdatedCallback: () => {
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("newSimpleActivityDialog");
                         },
                         dialogOptions: { width: 500 },
                         onSubmit: async (context, details) => {
@@ -402,7 +402,7 @@ export class ArrangementInspector {
                             details.event.endDate = (new Date(details.event.end)).toISOString();
                             details.event.arrangement = context.arrangement.arrangement_pk;
                             details.event.id = 0;
-                            
+
                             details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(convertObjToFormData(details.event), details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
@@ -410,7 +410,7 @@ export class ArrangementInspector {
                                 return false;
                             }
 
-                            QueryStore.SaveEvents([ details.event ], details.csrf_token).then(_ => { 
+                            QueryStore.SaveEvents([ details.event ], details.csrf_token).then(_ => {
                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                             })
                         }
@@ -431,19 +431,19 @@ export class ArrangementInspector {
                             var manifest = await fetch(`/arrangement/eventSerie/${context.lastTriggererDetails.event_serie_pk}/manifest`, {
                                 method: "GET"
                             }).then(response => response.json())
-                            
+
                             PopulateCreateSerieDialogFromManifest(manifest, context.lastTriggererDetails.event_serie_pk);
                          },
                         onUpdatedCallback: () => {
                             this.dialogManager.reloadDialog("mainDialog");
                             this.dialogManager.closeDialog("editEventSerieDialog");
                         },
-                        onSubmit: async (context, details) => { 
+                        onSubmit: async (context, details) => {
                             details.serie.event_serie_pk = context.lastTriggererDetails.event_serie_pk;
 
                             context.serie = details.serie;
                             context.collision_resolution = new Map();
-                            
+
                             var isInCollisionResolutionState = await CollisionsUtil.FireCollisionsSwal(
                                 details.serie,
                                 context.collision_resolution,
@@ -490,9 +490,9 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => { 
-                            this.dialogManager.reloadDialog("mainDialog"); 
-                            this.dialogManager.closeDialog("promotePlannerDialog"); 
+                        onUpdatedCallback: () => {
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("promotePlannerDialog");
                         },
                         dialogOptions: { width: 500 },
                     })
@@ -507,9 +507,9 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => { 
-                            this.dialogManager.reloadDialog("mainDialog"); 
-                            this.dialogManager.closeDialog("newNoteDialog");  
+                        onUpdatedCallback: () => {
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("newNoteDialog");
                         },
                         dialogOptions: { width: 500 },
                     })
@@ -533,9 +533,9 @@ export class ArrangementInspector {
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 }
-                            }).then(_ => { 
-                                this.dialogManager.reloadDialog("mainDialog"); 
-                                this.dialogManager.closeDialog("orderPersonDialog"); 
+                            }).then(_ => {
+                                this.dialogManager.reloadDialog("mainDialog");
+                                this.dialogManager.closeDialog("orderPersonDialog");
                             });
                         }
                     })
@@ -552,9 +552,9 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: () => { this.dialogManager._makeAware(); },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => { 
-                            this.dialogManager.reloadDialog("mainDialog"); 
-                            this.dialogManager.closeDialog("orderRoomDialog");  
+                        onUpdatedCallback: () => {
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("orderRoomDialog");
                         },
                         onSubmit: async (context, details) => {
                             fetch("/arrangement/planner/dialogs/order_rooms_form", {
@@ -563,9 +563,9 @@ export class ArrangementInspector {
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 }
-                            }).then(_ => { 
-                                this.dialogManager.reloadDialog("mainDialog"); 
-                                this.dialogManager.closeDialog("orderRoomDialog"); 
+                            }).then(_ => {
+                                this.dialogManager.reloadDialog("mainDialog");
+                                this.dialogManager.closeDialog("orderRoomDialog");
                             });
                         }
                     })
@@ -582,16 +582,16 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: () => {},
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => { 
+                        onUpdatedCallback: () => {
                             toastr.success("Rom lagt til");
                             this.dialogManager.closeDialog("orderRoomForLocalEventDialog");
                         },
-                        onSubmit: (context, details) => { 
+                        onSubmit: (context, details) => {
                             context.rooms = details.formData.get("room_ids");
                             context.room_name_map = details.room_name_map;
-                            
+
                             document.dispatchEvent(new CustomEvent(
-                                `${MANAGER_NAME}.d1_roomsSelected`, 
+                                `${MANAGER_NAME}.d1_roomsSelected`,
                                 { detail: { context: context } }
                             ));
                         }
@@ -657,20 +657,20 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => { 
+                        onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("nestedOrderRoomDialog");
                             toastr.success("Rom har blitt lagt til");
                         },
-                        onSubmit: (context, details) => { 
+                        onSubmit: (context, details) => {
                             context.rooms = details.formData.get("room_ids");
                             context.room_name_map = details.room_name_map;
-                            
+
                             document.dispatchEvent(new CustomEvent(
-                                `arrangementInspector.d1_roomsSelected`, 
+                                `arrangementInspector.d1_roomsSelected`,
                                 { detail: { context: context } }
                             ));
                             document.dispatchEvent(new CustomEvent(
-                                `arrangementInspector.d2_roomsSelected`, 
+                                `arrangementInspector.d2_roomsSelected`,
                                 { detail: { context: context } }
                             ));
                         }
@@ -688,7 +688,7 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => { 
+                        onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("nestedOrderPersonDialog");
                             toastr.success("Personer har blitt lagt til");
                         },
@@ -696,7 +696,7 @@ export class ArrangementInspector {
                             var people_ids = details.formData.get("people_ids");
                             context.people = people_ids;
                             context.people_name_map = details.people_name_map;
-                            
+
                             document.dispatchEvent(new CustomEvent(
                                 "arrangementInspector.d1_peopleSelected",
                                 { detail: {

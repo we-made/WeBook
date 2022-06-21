@@ -1,6 +1,6 @@
 {% load static i18n %}
 
-    
+
 
 <div id="{{dialog}}" title="<span class='badge badge-success'><i class='fas {{dialogIcon}}'></i></span>&nbsp; {{ dialogTitle }}">
     <div>
@@ -14,7 +14,7 @@
                     <div class="form-outline mb-2">
                         <input type="text" id="title" class="form-control" />
                         <label class="form-label" for="title">🇳🇴 Tittel på norsk</label>
-                    </div>        
+                    </div>
                 </div>
                 <div class="col-6">
                     <div class="form-outline mb-2">
@@ -112,7 +112,7 @@
                 </div>
                 </div>
             </div>
-        
+
             <div class="form-group mt-2">
                 <label class="d-block">Til <small class="text-muted float-end"> * Required</small></label>
                 <div class="row">
@@ -142,7 +142,7 @@
                         <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
                         <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
                     {% endfor %}
-                </ul>       
+                </ul>
             </div>
 
             <div class="row mt-4">
@@ -191,14 +191,15 @@
     var peopleNameMap = new Map();
     var roomsNameMap = new Map();
 
-    
+    // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
+    /*
     $(document).ready(function () {
         $("input[name='display_layouts_create_event'][type='checkbox']").on("change", (e) => {
             dialogCreateEvent__evaluateEnTitleObligatory();
         });
 
     })
-
+  */
 
     function dialogCreateEvent__evaluateEnTitleObligatory(){
         var $enTitleElement = $('#title_en');
@@ -215,7 +216,7 @@
     document.addEventListener("{{managerName}}.d1_peopleSelected", (e) => {
         peopleNameMap = e.detail.context.people_name_map;
         dialogCreateEvent__setPeople(e.detail.context.people);
-    }) 
+    })
     document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
         roomsNameMap = e.detail.context.room_name_map;
         dialogCreateEvent__setRooms(e.detail.context.rooms);
@@ -237,7 +238,7 @@
                             title='{% trans "Remove this room from the activity" %}'
                             onclick='dialogCreateEvent__removeAssociation(this)'>
                                 <i class='fas fa-trash'></i>
-                            </a> 
+                            </a>
                     </td>
                    </tr>`)
             )
@@ -258,7 +259,7 @@
                             title='{% trans "Remove this person from the activity" %}'
                             onclick='dialogCreateEvent__removeAssociation(this)'>
                                 <i class='fas fa-trash'></i>
-                            </a> 
+                            </a>
                     </td>
                    </tr>`)
             )
@@ -339,7 +340,7 @@
 
         document.dispatchEvent(
             new CustomEvent(
-                "{{managerName}}.submit", 
+                "{{managerName}}.submit",
                 {
                     'detail': { 'dialog': "{{dialog}}", 'event': qualifiedEvent, 'csrf_token': '{{ csrf_token }}' }
                 }
