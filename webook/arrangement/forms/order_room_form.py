@@ -1,5 +1,6 @@
 from django import forms
-from webook.arrangement.models import LooseServiceRequisition, ServiceType, Event, Person
+
+from webook.arrangement.models import Event, LooseServiceRequisition, Person, ServiceType
 
 
 class OrderRoomForEventForm(forms.Form):

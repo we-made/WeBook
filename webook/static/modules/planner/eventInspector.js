@@ -20,7 +20,7 @@ export class EventInspector {
                                 new mdb.Input(formOutline).init();
                             });
                         },
-                        dialogOptions: { width: 700, heigth: 1000, modal: true },
+                        dialogOptions: { width: 700, heigth: 1000 },
                         onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("inspectEventDialog");
                         },
