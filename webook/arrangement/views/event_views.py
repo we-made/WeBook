@@ -13,12 +13,13 @@ from django.views.generic import (
     View,
 )
 
+from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
 from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import CreateSerieForm, SerieManifestForm
-from webook.arrangement.forms.planner.planner_update_event_form import PlannerUpdateEventForm
-from webook.arrangement.models import Arrangement, Event, EventSerie, EventSerieFile, PlanManifest
+from webook.arrangement.models import Arrangement, Event, EventSerie, EventSerieFile, Person, PlanManifest, Room
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
+from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
 
@@ -28,39 +29,7 @@ class CreateEventSerieJsonFormView(LoginRequiredMixin, JsonFormView):
     form_class = CreateSerieForm
 
     def form_valid(self, form) -> JsonResponse:
-        manifest = form.as_plan_manifest()
-        calculated_serie = calculate_serie(manifest)
-
-        for ev in calculated_serie:
-            ev.rooms = [int(room.id) for room in manifest.rooms.all()]
-
-        _ = analyze_collisions(calculated_serie)
-
-        serie = EventSerie()
-        serie.arrangement = Arrangement.objects.get(slug=form.cleaned_data["arrangement_slug"])
-        serie.manifest = manifest
-        serie.save()
-
-        pk_of_preceding_event_serie = form.cleaned_data["predecessorSerie"];
-        if pk_of_preceding_event_serie:
-            predecessor_event_serie = EventSerie.objects.get(id=pk_of_preceding_event_serie)
-            predecessor_event_serie.archive(self.request.user.person)
-
-        for ev in calculated_serie:
-            if ev.is_collision:
-                continue
-            
-            event = Event()
-            event.title = manifest.title
-            event.title_en = manifest.title_en
-            event.ticket_code = manifest.ticket_code
-            event.rooms = manifest.rooms
-            event.people = manifest.people
-            event.display_layouts = manifest.display_layouts
-            event.expected_visitors = manifest.expected_visitors
-            event.serie = serie
-            event.save()
-        
+        form.save(form)
         return super().form_valid(form)
 
 create_event_serie_json_view = CreateEventSerieJsonFormView.as_view()
@@ -68,6 +37,7 @@ create_event_serie_json_view = CreateEventSerieJsonFormView.as_view()
 
 class CreateEventJsonFormView(LoginRequiredMixin, CreateView, JsonModelFormMixin):
     """ View for event creation """
+    form_class = CreateEventForm
     model = Event
 
 create_event_json_view = CreateEventJsonFormView.as_view()
@@ -76,7 +46,7 @@ create_event_json_view = CreateEventJsonFormView.as_view()
 class UpdateEventJsonFormView(LoginRequiredMixin, UpdateView, JsonModelFormMixin):
     """ Update event """
     model = Event
-    form_class = PlannerUpdateEventForm
+    form_class = UpdateEventForm
 
 update_event_json_view = UpdateEventJsonFormView.as_view()
 

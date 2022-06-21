@@ -24,16 +24,15 @@ from django.views.generic.edit import DeleteView, FormView
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.facilities.calendar import analysis_strategies
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
+from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.order_person_for_serie_form import OrderPersonForSerieForm
 from webook.arrangement.forms.order_person_form import OrderPersonForEventForm
 from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerieForm
 from webook.arrangement.forms.order_room_form import OrderRoomForEventForm
 from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
-from webook.arrangement.forms.planner.planner_create_event_form import PlannerCreateEventForm
 from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
 from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
-from webook.arrangement.forms.planner.planner_update_event_form import PlannerUpdateEventForm
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
@@ -382,7 +381,7 @@ get_arrangements_in_period_view = GetArrangementsInPeriod.as_view()
 
 
 class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
-    form_class = PlannerUpdateEventForm
+    form_class = UpdateEventForm
     model = Event
     pk_field="pk"
     pk_url_kwarg="pk"
@@ -463,7 +462,7 @@ arrangement_calendar_planner_dialog_view = PlannerArrangementCalendarPlannerDial
 class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateView):
     model = Event
     template_name="arrangement/planner/dialogs/arrangement_dialogs/dialog_create_event_arrangement.html"
-    form_class = PlannerCreateEventForm
+    form_class = CreateEventForm
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         return super().post(request, *args, **kwargs)

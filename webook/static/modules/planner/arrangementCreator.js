@@ -37,25 +37,28 @@ export class ArrangementCreator {
 
                             await fetch("/arrangement/arrangement/ajax/create", {
                                 method: 'POST',
-                                body: formData,
+                                body: details.formData,
                                 headers: {
                                     "X-CSRFToken": csrf_token
                                 },
                                 credentials: 'same-origin',
-                            }).then(response => response.json().arrangementPk)
-                              .then(arrId => {
+                            }).then(async response => await response.json())
+                              .then(async (arrId) => {
                                 for (var serie of details.series) {
                                     await QueryStore.SaveSerie(
                                         serie,
                                         csrf_token,
-                                        arrId,
+                                        arrId.arrangementPk,
                                     );
                                 }
                                 
                                 if (details.events !== undefined) {
-                                    details.events.forEach((event) => event.arrangementPk = arrId);
-                                    await QueryStore.SaveEvents(details.events, csrf_token, presetFormData);
+                                    details.events.forEach((event) => event.arrangement = arrId.arrangementPk);
+                                    await QueryStore.SaveEvents(details.events, csrf_token);
                                 }
+                              })
+                              .then(_ => {
+                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                               });
                         },
                         onUpdatedCallback: () => { 
@@ -107,8 +110,6 @@ export class ArrangementCreator {
                             if (details.serie._uuid === undefined) {
                                 details.serie._uuid = crypto.randomUUID();
                             }
-
-                            debugger;
 
                             details.serie.collisions = await CollisionsUtil.GetCollisionsForSerie(serieConvert(details.serie, new FormData(), ""), details.csrf_token);
                             context.series.set(details.serie._uuid, details.serie);

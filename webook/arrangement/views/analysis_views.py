@@ -32,7 +32,6 @@ class AnalyzeNonExistentSerieManifest(LoginRequiredMixin, CollisionAnalysisFormV
         calculated_serie = calculate_serie(manifest)
 
         rooms_list = [int(room.id) for room in manifest.rooms.all()]
-
         for ev in calculated_serie:
             ev.rooms = rooms_list
 
