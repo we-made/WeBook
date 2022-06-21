@@ -10,7 +10,6 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}title`, serie.time.title);
     formData.append(`${keyPrefix}title_en`, serie.time.title_en);
 
-    debugger;
     var splitAndAddCommaSeparatedStringToFormDataAsList = function (commaSeparatedString, key) {
         commaSeparatedString.split(",").forEach((artifact) => {
             formData.append(key + "[]", artifact);
