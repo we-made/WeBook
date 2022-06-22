@@ -40,16 +40,16 @@ from .audience_views import (
     audience_search_view,
     audience_update_view,
 )
-from .calendar_views import ( 
-    arrangement_calendar_view, 
-    calendar_samples_overview, 
-    drill_calendar_view, 
-    my_calendar_events_source_view,
-    all_rooms_resource_source_view,
-    all_people_resource_source_view,
+from .calendar_views import (
     all_locations_resource_source_view,
-    rooms_on_location_resource_source_view,
+    all_people_resource_source_view,
+    all_rooms_resource_source_view,
+    arrangement_calendar_view,
+    calendar_samples_overview,
+    drill_calendar_view,
     location_event_source_view,
+    my_calendar_events_source_view,
+    rooms_on_location_resource_source_view,
 )
 from .confirmation_views import (
     confirmation_request_accept_view,
@@ -58,12 +58,16 @@ from .confirmation_views import (
     view_confirmation_request_view,
 )
 from .dashboard_views import dashboard_view
-from .event_serie_views import (
+from .event_views import (
     calculate_event_serie_preview_view,
     calculate_event_serie_view,
+    create_event_json_view,
+    create_event_serie_json_view,
+    delete_event_json_view,
     delete_event_serie_view,
     event_serie_delete_file_view,
     event_serie_manifest_view,
+    update_event_json_view,
 )
 from .insights_views import global_timeline_view
 from .location_views import (
@@ -116,8 +120,6 @@ from .planner_views import (
     get_collision_analysis_view,
     plan_arrangement_view,
     plan_create_event,
-    plan_create_events,
-    plan_delete_event,
     plan_delete_events,
     plan_get_events,
     plan_get_loose_service_requisitions,
@@ -125,7 +127,6 @@ from .planner_views import (
     plan_order_service_view,
     plan_people_requisitions_component_view,
     plan_people_to_requisition_component_view,
-    plan_update_event,
     planner_arrangement_events_view,
     planner_calendar_filter_rooms_dialog_view,
     planner_calendar_order_people_for_event_form_view,

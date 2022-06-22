@@ -9,11 +9,21 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}expectedVisitors`, serie.time.expected_visitors);
     formData.append(`${keyPrefix}title`, serie.time.title);
     formData.append(`${keyPrefix}title_en`, serie.time.title_en);
-    formData.append(`${keyPrefix}rooms`, serie.rooms);
-    formData.append(`${keyPrefix}people`, serie.people);
-    formData.append(`${keyPrefix}displayLayouts`, serie.display_layouts);
+
+    var splitAndAddCommaSeparatedStringToFormDataAsList = function (commaSeparatedString, key) {
+        commaSeparatedString.split(",").forEach((artifact) => {
+            formData.append(key + "[]", artifact);
+        })
+    }
+    var convertListToFormDataList = function (list, key) {
+        list.forEach( (item) => {
+            formData.append(key + "[]", item);
+        } )
+    }
     
-    console.log("serie.pattern.week_interval", serie.pattern.week_interval);
+    convertListToFormDataList(serie.rooms, `${keyPrefix}rooms`);
+    convertListToFormDataList(serie.people, `${keyPrefix}people`);
+    splitAndAddCommaSeparatedStringToFormDataAsList(serie.display_layouts, `${keyPrefix}display_layouts`);
 
     switch(serie.pattern.pattern_type) {
         case "daily":

@@ -218,7 +218,7 @@ export class ArrangementInspector {
                                 return false;
                             }
 
-                            QueryStore.SaveSerie(details.serie, details.csrf_token).then(_ => {
+                            QueryStore.SaveSerie(details.serie, details.csrf_token, context.arrangement.arrangement_pk).then(_ => {
                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                             });
                         }

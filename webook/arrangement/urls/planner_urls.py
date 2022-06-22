@@ -1,48 +1,46 @@
 from unicodedata import name
+
 from django.urls import path
+
 from webook.arrangement import views
 from webook.arrangement.views import (
-    plan_arrangement_view,
-    plan_create_event,
-    plan_get_events,
-    plan_update_event,
-    plan_delete_event,
-    planner_view,
-    plan_delete_events,
-    plan_order_service_view,
-    plan_create_events,
-    get_collision_analysis_view,
-    plan_get_loose_service_requisitions,
-    plan_loose_service_requisitions_component_view,
-    plan_people_requisitions_component_view,
-    plan_people_to_requisition_component_view,
-    planner_calendar_view,
-    planner_arrangement_events_view,
-    get_arrangements_in_period_view,
-    arrangement_information_dialog_view,
-    arrangement_calendar_planner_dialog_view,
-    arrangement_create_simple_event_dialog_view,
-    arrangement_create_serie_dialog_view,
-    arrangement_promote_planner_dialog_view,
-    arrangement_new_note_dialog_view,
     arrangement_add_planner_dialog_view,
     arrangement_add_planners_form_view,
+    arrangement_calendar_planner_dialog_view,
+    arrangement_create_serie_dialog_view,
+    arrangement_create_simple_event_dialog_view,
+    arrangement_information_dialog_view,
+    arrangement_new_note_dialog_view,
+    arrangement_promote_planner_dialog_view,
     arrangement_remove_planners_form_view,
     create_arrangement_dialog_view,
-    planner_event_inspector_dialog_view,
+    get_arrangements_in_period_view,
+    get_collision_analysis_view,
+    plan_arrangement_view,
+    plan_create_event,
+    plan_delete_events,
+    plan_get_events,
+    plan_get_loose_service_requisitions,
+    plan_loose_service_requisitions_component_view,
+    plan_order_service_view,
+    plan_people_requisitions_component_view,
+    plan_people_to_requisition_component_view,
+    planner_arrangement_events_view,
     planner_calendar_filter_rooms_dialog_view,
-    planner_calendar_order_room_dialog_view,
+    planner_calendar_order_people_for_event_form_view,
     planner_calendar_order_person_dialog_view,
     planner_calendar_order_person_for_series_form_view,
-    planner_calendar_order_rooms_for_series_form_view,
+    planner_calendar_order_room_dialog_view,
     planner_calendar_order_room_for_event_form_view,
-    planner_calendar_order_people_for_event_form_view,
+    planner_calendar_order_rooms_for_series_form_view,
     planner_calendar_remove_person_from_event_form_view,
     planner_calendar_remove_room_from_event_form_view,
     planner_calendar_upload_file_to_arrangement_dialog_view,
     planner_calendar_upload_file_to_event_serie_dialog_view,
+    planner_calendar_view,
+    planner_event_inspector_dialog_view,
+    planner_view,
 )
-
 
 planner_urls = [
     path(
@@ -66,16 +64,6 @@ planner_urls = [
         name="plan_get_events",
     ),
     path(
-        route="planner/update_event/<int:pk>",
-        view=plan_update_event,
-        name="plan_update_event",
-    ),
-    path(
-        route="planner/delete_event/<int:pk>",
-        view=plan_delete_event,
-        name="plan_delete_event"
-    ),
-    path(
         route="planner/delete_events/",
         view=plan_delete_events,
         name="plan_delete_events",
@@ -84,11 +72,6 @@ planner_urls = [
         route="planner/order_service/",
         view=plan_order_service_view,
         name="plan_order_service",
-    ),
-    path(
-        route="planner/create_events/",
-        view=plan_create_events,
-        name="plan_create_events",
     ),
     path(
         route="planner/get_collision_analysis/",

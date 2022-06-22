@@ -1,5 +1,8 @@
+import { convertObjToFormData } from "./commonLib.js";
 import { serieConvert } from "./serieConvert.js";
-import { SeriesUtil } from "./seriesutil.js";
+
+
+const COMMA_SEPARATED_LIST_SPLITS = ["display_layouts", "rooms", "people"];
 
 /**
  * A store of common queries
@@ -10,28 +13,21 @@ export class QueryStore {
      * @param {*} serie the serie which we are to save
      * @param {*} csrf_token 
      */
-    static async SaveSerie(serie, csrf_token, arrangement_pk=0) {
-        var formData = serieConvert(serie, new FormData());
-        formData.append("saveAsSerie", true);
-        var events = SeriesUtil.calculate_serie(serie);
-
+    static async SaveSerie(serie, csrf_token, arrangement_pk = 0) {
+        var formData = serieConvert(serie, new FormData(), "");
+        formData.append("arrangementPk", arrangement_pk);
         if ("event_serie_pk" in serie) {
             formData.append("predecessorSerie", serie.event_serie_pk);
-        } 
-        
-        events.forEach(function (event) { 
-            event.arrangement = arrangement_pk;
-            event.expected_visitors = serie.time.expected_visitors;
-            event.start = event.from.toISOString();
-            event.end= event.to.toISOString();
-            event.ticket_code = serie.time.ticket_code;
-            event.expected_visitors = serie.time.expected_visitors;
-            event.rooms = serie.rooms;
-            event.people = serie.people;
-            event.display_layouts = serie.display_layouts;
-        });
+        }
 
-        return this.SaveEvents(events, csrf_token, formData);
+        return await fetch('/arrangement/event/create_serie', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                "X-CSRFToken": csrf_token
+            },
+            credentials: 'same-origin',
+        });
     }
 
     /**
@@ -41,7 +37,7 @@ export class QueryStore {
      * @param {*} preset_formdata Pass a custom FormData instance in to inject values, or let be undefined for standard
      * @returns {*} promise
      */
-    static async SaveEvents(events, csrf_token, preset_formdata=undefined) {
+    static async SaveEvents(events, csrf_token, preset_formdata = undefined) {
         var formData = preset_formdata !== undefined && preset_formdata instanceof FormData ? preset_formdata : new FormData();
         for (var i = 0; i < events.length; i++) {
             var event = events[i];
@@ -50,13 +46,36 @@ export class QueryStore {
             }
         }
 
-        return await fetch("/arrangement/planner/create_events/", {
-            method:"POST",
-            body: formData,
-            headers: {
-                "X-CSRFToken": csrf_token
-            },
-            credentials: 'same-origin',
-        });
+        var evMap = new Map();
+        for (var event_pair of formData.entries()) {
+            var key_without_index = event_pair[0].split(".")[1];
+            var index = event_pair[0].slice(6, 1)
+
+            var event = {};
+
+            if (evMap.has(index)) {
+                event = evMap.get(index);
+            }
+
+            if (COMMA_SEPARATED_LIST_SPLITS.includes(key_without_index)) {
+                event_pair[1] = event_pair[1].split(",");
+            }
+
+            event[key_without_index] = event_pair[1];
+            evMap.set(index, event);
+        }
+
+        for (const ev of evMap) {
+            var formData = convertObjToFormData(ev[1], true);
+
+            await fetch("/arrangement/event/create", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": csrf_token
+                },
+                credentials: 'same-origin',
+            })
+        }
     }
 }
