@@ -3,241 +3,230 @@
 
 <div id="{{dialog}}" title="<span class='badge badge-success'><i class='fas fa-clock'></i></span>&nbsp; Ny tidsplan">
     <div>
+        <div class="row">
+            <div class="col-12">
+                <form id="headMockForm">
+                    <input type="submit" style="display:none;" />
+        
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <div class="form-outline mb-2">
+                                        <input type="text" id="serie_title" class="form-control" />
+                                        <label class="form-label" for="serie_title">🇳🇴 Tittel på norsk</label>
+                                    </div>    
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-outline mb-2">
+                                        <input type="text" id="serie_title_en" class="form-control" />
+                                            <label class="form-label" for="serie_title_en">🇳🇴 Tittel på engelsk</label>
+                                    </div>  
+                                </div>
+                            </div>
+                
+                            <div class="row mb-2">
+                                <div class="col-5">
+                                    <div class="form-outline timepicker-inline-24 mb-2" id="serie_start_picker">
+                                        <input type="text" class="form-control" id="serie_start" />
+                                        <label class="form-label" for="serie_start"><i class="fas fa-clock"></i>&nbsp; Start <small>(<i>HH:mm</i>)</small></label>
+                                    </div>
+                                </div>
+                                <div class="col-2 text-center">
+                                    <h3><i class="fas fa-arrow-right text-muted"></i></h3>
+                                </div>
+                                <div class="col-5">
+                                    <div class="form-outline timepicker-inline-24 mb-2" id="serie_end_picker">
+                                        <input type="text" class="form-control" id="serie_end" />
+                                        <label class="form-label" for="serie_end"><i class="fas fa-clock"></i>&nbsp; Slutt <small>(<i>HH:mm</i>)</small></label>
+                                    </div>
+                                </div>
+                            </div>
+                
+                
+                            <div class="form-outline mb-3">
+                                <input type="text" id="serie_ticket_code" class="form-control" />
+                                    <label class="form-label" for="serie_ticket_code"><i class="fas fa-receipt"></i>&nbsp; Ticket Code</label>
+                            </div>        
+                            <div class="form-outline mb-2">
+                                <input type="text" id="serie_expected_visitors" class="form-control" />
+                                    <label class="form-label" for="serie_expected_visitors"><i class="fas fa-users"></i>&nbsp; Expected Visitors</label>
+                            </div>     
+                            
+                        </div>
+
+                        <div class="col-3">
+                            <fieldset>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h5><i class="fas fa-building text-muted"></i>&nbsp; Rom</h5>
+                                        <a class="btn btn-block btn-outline-dark btn-sm"
+                                            onclick="createSerieDialog__openAddRooms()"
+                                            type="button">
+                                            <i class="fas fa-plus text-success"></i>&nbsp;
+                                            Legg til rom
+                                        </a>
+                
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-sm">
+                                                <tbody id="roomsTbody"></tbody>
+                                            </table>
+                                        </div>
+
+                                        <hr>
+                                    </div>
+                                    <div class="col-12">
+                                        <h5><i class="fas fa-users text-muted"></i>&nbsp; Personer</h5>
+                
+                                        <a class="btn btn-block btn-outline-dark btn-sm"
+                                            onclick="createSerieDialog__openAddPeople()"
+                                            type="button">
+                                            <i class="fas fa-plus text-success"></i>&nbsp;
+                                            Legg til personer
+                                        </a>
+                
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-sm">
+                                                <tbody id="peopleTbody"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="mt-4">
+                            <h5><i class="fas fa-tv"></i>&nbsp; Vises på:</h5>
+                            {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
+                                <div class="badge border fw-light border-body text-muted rounded-pill clickable-badge p-3 m-1">
+                                    <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
+                                    <label for="id_display_layouts_serie_planner_{{choice_id}}">&nbsp;{{choice_label}}</label>
+                                </div>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+        
+                <fieldset>
+                    <h5><i class="fas fa-redo"></i>&nbsp; Pattern for recurring area</h5>
+                    <div class="row">
+                        <div class="col-3 border-end border-1">
+                            <form id="patternMockForm">
+                                <input type="submit" style="display:none;" />
+        
+                                <div>
+                                    <input type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daily</label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Weekly</label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Monthly</label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Yearly</label>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-9">
+                            <div id="patternRoute_daily">
+                                <div>
+                                    <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
+                                    <label>Every <input type="number" min="1"  id="every_x_day__interval" required /> day</label>
+                                </div>
+                                
+                                <div>
+                                    <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
+                                    <label>Every weekday</label>
+                                </div>
+                            </div>
+        
+                            <div id="patternRoute_weekly" style="display: none;">
+                                <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> week at:</label></div>
+                                <span id="day_checkbox_wrapper">
+                                    <input type="checkbox" id="monday"> <label>Monday</label>
+                                    <input type="checkbox" id="tuesday"> <label>Tuesday</label>
+                                    <input type="checkbox" id="wednesday"> <label>Wednesday</label>
+                                    <input type="checkbox" id="thursday"> <label>Thursday</label>
+                                    <input type="checkbox" id="friday"> <label>Friday</label>
+                                    <input type="checkbox" id="saturday"> <label>Saturday</label>
+                                    <input type="checkbox" id="sunday"> <label>Sunday</label>
+                                </span>
+                            </div>
+        
+                            <div id="patternRoute_monthly" style="display: none;">
+                                <div>
+                                    <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
+                                    Day <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> every <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> month
+                                </div>
+                                <div>
+                                    <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> The
+                                    <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
+                                    </select>
+                                    <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
+                                    </select>
+                                    every <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> months
+                                </div>
+                            </div>
+        
+                            <div id="patternRoute_yearly" style="display: none;">
+                                <div>
+                                    Happens every <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> year
+                                </div>
+                                <div>
+                                    <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
+                                    <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
+                                    <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
+                                    </select>
+                                </div>
+        
+                                <div>
+                                    <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Every:
+                                    <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
+                                    </select>
+                                    <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
+                                    </select>
+                                    in
+                                    <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+        
+                <fieldset>
+                    <h5><i class="fas fa-hourglass-end"></i>&nbsp; Area of recurrence</h5>
+                    <div class="row">
+                        <div class="col-3">
+                            <label>Start Date</label>
+                            <input type="date" id="area_start_date" required>
+                        </div>
+                        <div class="col-9" id="area_methods_wrapper">
+                            <div>
+                                <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
+                                Stop within: <input type="date" id="area_stopWithin" required>
+                            </div>
+        
+                            <div>
+                                <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
+                                <fieldset>
+                                    Stop after: <input type="number" min="1" id="area_stopAfterXInstances" required /> occurences
+                                </fieldset>
+                            </div>
+        
+                            <div>
+                                <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
+                                No stop date
+                                | Project <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> months into the future
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
         <input type="hidden" name="uuid" id="serie_uuid">
-        <form id="headMockForm">
-            <input type="submit" style="display:none;" />
 
-            <fieldset>
-                <table class="">
-                    <tbody>
-                    <tr>
-                        <td>
-                            <label>{% trans "Title" %}: </label>
-                        </td>
-                        <td>
-                            <input type="text" id="serie_title" class="form-control form-control-sm" tabindex="600" autocomplete="off" required />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>{% trans "Title" %} <em>(engelsk): </em></label>
-                        </td>
-                        <td>
-                            <input type="text" id="serie_title_en" class="form-control form-control-sm" tabindex="601" autocomplete="off" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>
-                                <i class="fas fa-clock"></i>
-                                {% trans "Start" %}:
-                            </label>
-                        </td>
-                        <td>
-                            <input type="time" id="serie_start" class="form-control form-control-sm" tabindex="602" required />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        <label>
-                            <i class="fas fa-clock"></i>
-                            {% trans "Slutt" %}:
-                            </label>
-                        </td>
-                        <td>
-                            <input type="time" id="serie_end" class="form-control form-control-sm" tabindex="603" required />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        <label>
-                            <i class="fas fa-receipt"></i>
-                            {% trans "Ticket Code" %}:
-                            </label>
-                        </td>
-                        <td>
-                            <input type="text" id="serie_ticket_code" class="form-control form-control-sm" tabindex="604" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        <label>
-                            <i class="fas fa-users"></i>
-                            {% trans "Expected visitors" %}:
-                        </label>
-                        </td>
-                        <td>
-                            <input type="number" id="serie_expected_visitors" class="form-control form-control-sm" tabindex="605" min="0" required />
-                        </td>
-                    </tr>
-                    <tr class="">
-                        <td colspan="2">
-                            <br>
-                                <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Show on:" %}: </label>
-                                <ul>
-                                    {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
-                                        <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
-                                        <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label></li>
-                                    {% endfor %}
-                                </ul>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-
-                <div class="row mt-4">
-                    <div class="col-6">
-                        <h4>Rom</h4>
-                        <a class="btn btn-block btn-success text-white shadow-0"
-                            onclick="createSerieDialog__openAddRooms()"
-                            type="button">
-                            <i class="fas fa-plus"></i>
-                            Legg til rom
-                        </a>
-
-                        <div class="table-responsive mt-2">
-                            <table class="table table-sm">
-                                <tbody id="roomsTbody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <h4>Personer</h4>
-
-                        <a class="btn btn-block btn-success text-white shadow-0"
-                            onclick="createSerieDialog__openAddPeople()"
-                            type="button">
-                            <i class="fas fa-plus"></i>
-                            Legg til personer
-                        </a>
-
-                        <div class="table-responsive mt-2">
-                            <table class="table table-sm">
-                                <tbody id="peopleTbody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
-        </form>
-
-        <fieldset>
-            <legend>Pattern for recurring area</legend>
-            <div class="row">
-                <div class="col-3 border-end border-1">
-                    <form id="patternMockForm">
-                        <input type="submit" style="display:none;" />
-
-                        <div>
-                            <input type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daily</label>
-                        </div>
-                        <div>
-                            <input type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Weekly</label>
-                        </div>
-                        <div>
-                            <input type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Monthly</label>
-                        </div>
-                        <div>
-                            <input type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Yearly</label>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="col-9">
-                    <div id="patternRoute_daily">
-                        <div>
-                            <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
-                            <label>Every <input type="number" min="1"  id="every_x_day__interval" required /> day</label>
-                        </div>
-
-                        <div>
-                            <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
-                            <label>Every weekday</label>
-                        </div>
-                    </div>
-
-                    <div id="patternRoute_weekly" style="display: none;">
-                        <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> week at:</label></div>
-                        <span id="day_checkbox_wrapper">
-                            <input type="checkbox" id="monday"> <label>Monday</label>
-                            <input type="checkbox" id="tuesday"> <label>Tuesday</label>
-                            <input type="checkbox" id="wednesday"> <label>Wednesday</label>
-                            <input type="checkbox" id="thursday"> <label>Thursday</label>
-                            <input type="checkbox" id="friday"> <label>Friday</label>
-                            <input type="checkbox" id="saturday"> <label>Saturday</label>
-                            <input type="checkbox" id="sunday"> <label>Sunday</label>
-                        </span>
-                    </div>
-
-                    <div id="patternRoute_monthly" style="display: none;">
-                        <div>
-                            <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required />
-                            Day <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> every <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> month
-                        </div>
-                        <div>
-                            <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> The
-                            <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
-                            </select>
-                            <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
-                            </select>
-                            every <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> months
-                        </div>
-                    </div>
-
-                    <div id="patternRoute_yearly" style="display: none;">
-                        <div>
-                            Happens every <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> year
-                        </div>
-                        <div>
-                            <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
-                            <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
-                            <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
-                            </select>
-                        </div>
-
-                        <div>
-                            <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Every:
-                            <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
-                            </select>
-                            <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
-                            </select>
-                            in
-                            <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </fieldset>
-
-        <fieldset>
-            <legend>Area of recurrence</legend>
-            <div class="row">
-                <div class="col-3">
-                    <label>Start Date</label>
-                    <input type="date" id="area_start_date" required>
-                </div>
-                <div class="col-9" id="area_methods_wrapper">
-                    <div>
-                        <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
-                        Stop within: <input type="date" id="area_stopWithin" required>
-                    </div>
-
-                    <div>
-                        <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
-                        <fieldset>
-                            Stop after: <input type="number" min="1" id="area_stopAfterXInstances" required /> occurences
-                        </fieldset>
-                    </div>
-
-                    <div>
-                        <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
-                        No stop date
-                        | Project <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> months into the future
-                    </div>
-                </div>
-            </div>
-        </fieldset>
 
         <div class="clearfix mt-3">
             <a class="btn btn-success btn-lg text-white float-end" type="button" id="submitBtn">Lagre</a>
@@ -401,6 +390,16 @@
             }
         }
     })
+    
+    const startTimePicker = new mdb.Timepicker(document.querySelector('#serie_start_picker'), {
+        format24:true,
+        inline: true,
+    });
+
+    const endTimePicker = new mdb.Timepicker(document.querySelector('#serie_end_picker'), {
+        format24:true,
+        inline: true,
+    });
 
     $('#submitBtn').on('click', () => {
         submit_serie();
