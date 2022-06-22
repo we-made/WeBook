@@ -193,6 +193,10 @@ export class ArrangementInspector {
                                 $('#id_display_layouts_serie_planner_' + ( display_layout - 1))
                                     .prop( "checked", true );
                             })
+
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
                         onUpdatedCallback: () => {
                             this.dialogManager.reloadDialog("mainDialog");
@@ -218,7 +222,7 @@ export class ArrangementInspector {
                                 return false;
                             }
 
-                            QueryStore.SaveSerie(details.serie, details.csrf_token).then(_ => {
+                            QueryStore.SaveSerie(details.serie, details.csrf_token, context.arrangement.arrangement_pk).then(_ => {
                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                             });
                         }
@@ -433,6 +437,9 @@ export class ArrangementInspector {
                             }).then(response => response.json())
 
                             PopulateCreateSerieDialogFromManifest(manifest, context.lastTriggererDetails.event_serie_pk);
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                          },
                         onUpdatedCallback: () => {
                             this.dialogManager.reloadDialog("mainDialog");

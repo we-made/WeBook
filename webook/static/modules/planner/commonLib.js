@@ -395,10 +395,18 @@ export function writeSlugClass(slug) {
     return `slug:${slug}`;
 }
 
-export function convertObjToFormData(obj) {
+export function convertObjToFormData(obj, convertArraysToList=false) {
     var form_data = new FormData();
-    
+
     for (var key in obj) {
+        if (convertArraysToList === true && Array.isArray(obj[key])) {
+            obj[key].forEach((val) => {
+                form_data.append(key + "[]", val);
+            });
+
+            continue;
+        }
+
         form_data.append(key, obj[key]);
     }
     

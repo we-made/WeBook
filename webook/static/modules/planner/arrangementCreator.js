@@ -1,6 +1,7 @@
 import { CollisionsUtil } from "./collisions_util.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
 import { PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
+import { QueryStore } from "./querystore.js";
 import { serieConvert } from "./serieConvert.js";
 import { SeriesUtil } from "./seriesutil.js";
 import { SerieMetaTranslator } from "./serie_meta_translator.js";
@@ -35,100 +36,32 @@ export class ArrangementCreator {
                         },
                         onSubmit: async (context, details) => {
                             var csrf_token = details.formData.get("csrf_token");
-                            var createArrangement = async function (formData, csrf_token) {
-                                var response = await fetch("/arrangement/arrangement/ajax/create", {
-                                    method: 'POST',
-                                    body: formData,
-                                    headers: {
-                                        "X-CSRFToken": csrf_token
-                                    },
-                                    credentials: 'same-origin',
-                                });
 
-                                var json = await response.text();
-                                var obj = JSON.parse(json);
-                                return obj.arrangementPk;
-                            };
-
-                            var registerEvents = async function (events, arrangementId, csrf_token, serieUUIDToIdMap) {
-                                var formData = new FormData();
-
-                                for (let i = 0; i < events.length; i++) {
-                                    var event = events[i];
-                                    event.arrangement = arrangementId;
-
-                                    if (event.is_resolution && "associated_serie_internal_uuid" in event) {
-                                        event.associated_serie_id = serieUUIDToIdMap.get(event.associated_serie_internal_uuid);
-                                    }
-
-                                    for (var key in event) {
-                                        formData.append("events[" + i + "]." + key, event[key]);
-                                    }
+                            await fetch("/arrangement/arrangement/ajax/create", {
+                                method: 'POST',
+                                body: details.formData,
+                                headers: {
+                                    "X-CSRFToken": csrf_token
+                                },
+                                credentials: 'same-origin',
+                            }).then(async response => await response.json())
+                              .then(async (arrId) => {
+                                for (var serie of details.series) {
+                                    await QueryStore.SaveSerie(
+                                        serie,
+                                        csrf_token,
+                                        arrId.arrangementPk,
+                                    );
                                 }
-
-                                await fetch("/arrangement/planner/create_events/", {
-                                    method:"POST",
-                                    body: formData,
-                                    headers: {
-                                        "X-CSRFToken": csrf_token
-                                    },
-                                    credentials: 'same-origin',
-                                }).then(_ => {
-                                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
-                                })
-                            }
-
-                            var registerSerie = async function (serie, arrangementId, csrf_token, ticket_code) {
-                                var events = SeriesUtil.calculate_serie(serie);
-                                var formData = new FormData();
-
-                                formData = serieConvert(serie, formData);
-
-                                for (let i = 0; i < events.length; i++) {
-                                    var event = events[i];
-                                    event.title_en = serie.time.title_en;
-                                    event.arrangement=arrangementId;
-                                    event.start = event.from.toISOString();
-                                    event.end = event.to.toISOString();
-                                    event.ticket_code = ticket_code;
-                                    event.expected_visitors = serie.time.expected_visitors;
-                                    event.rooms = serie.rooms;
-                                    event.people = serie.people;
-                                    event.display_layouts = serie.display_layouts;
-
-                                    for (var key in event) {
-                                        formData.append("events[" + i + "]." + key, event[key]);
-                                    }
+                                
+                                if (details.events !== undefined) {
+                                    details.events.forEach((event) => event.arrangement = arrId.arrangementPk);
+                                    await QueryStore.SaveEvents(details.events, csrf_token);
                                 }
-
-                                formData.append("saveAsSerie", true);
-
-                                return await fetch("/arrangement/planner/create_events/", {
-                                    method:"POST",
-                                    body: formData,
-                                    headers: {
-                                        "X-CSRFToken": csrf_token
-                                    },
-                                    credentials: 'same-origin',
-                                }).then(response => response.json())
-                                  .then(responseAsJson => {
-                                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
-                                    return responseAsJson.serie_id;
-                                });
-                            }
-
-                            var internalSerieUuidsMapToCreatedSerieIds = new Map(); // maps between our internal uuids used locally, to their "real" counter-parts in the back-end
-                            createArrangement(details.formData, csrf_token)
-                                .then(async arrId => {
-                                    for (const serie of details.series) {
-                                        var created_serie_id = await registerSerie(serie, arrId, csrf_token, details.formData.get("ticket_code"));
-                                        internalSerieUuidsMapToCreatedSerieIds.set(String(serie._uuid), created_serie_id);
-                                    }
-
-                                    if (details.events !== undefined) {
-                                        registerEvents(details.events, arrId, csrf_token, internalSerieUuidsMapToCreatedSerieIds);
-                                    }
-                                });
+                              })
+                              .then(_ => {
+                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                              });
                         },
                         onUpdatedCallback: () => {
                             toastr.success("Arrangement opprettet");
@@ -161,12 +94,17 @@ export class ArrangementCreator {
                                     })
 
                                 $('#serie_uuid').val(crypto.randomUUID());
-
+                                document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                    new mdb.Input(formOutline).init();
+                                });
                                 return;
                             }
 
                             var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                             PopulateCreateSerieDialogFromSerie(serie);
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
                         onUpdatedCallback: () => {
                             toastr.success("Tidsplan lagt til eller oppdatert i planen");

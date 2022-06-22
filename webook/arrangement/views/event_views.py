@@ -1,37 +1,61 @@
 from typing import Any
+
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
-from django.views import View
-from django.db.models import Q
-from django.core import serializers
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-    TemplateView
-)
-from django.views.generic.edit import DeleteView
-from requests import delete
-from webook.arrangement.forms.delete_arrangement_file_form import DeleteArrangementFileForm
-from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
-from webook.arrangement.forms.promote_planner_to_main_form import PromotePlannerToMainForm
-from webook.arrangement.forms.remove_planner_form import RemovePlannerForm
-from webook.arrangement.forms.add_planner_form import AddPlannerForm
-from webook.arrangement.models import Arrangement, ArrangementFile, EventSerie, EventSerieFile, Person, PlanManifest
-from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
-from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
-from webook.arrangement.views.generic_views.search_view import SearchView
-from webook.utils.meta_utils.meta_mixin import MetaMixin
-from django.views.generic.edit import FormView
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
-from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
-from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+    View,
+)
+
+from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
+from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import CreateSerieForm, SerieManifestForm
+from webook.arrangement.models import Arrangement, Event, EventSerie, EventSerieFile, Person, PlanManifest, Room
+from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
+from webook.screenshow.models import DisplayLayout
+from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
 
+
+class CreateEventSerieJsonFormView(LoginRequiredMixin, JsonFormView):
+    """ Create a new event serie / schedule """
+    form_class = CreateSerieForm
+
+    def form_valid(self, form) -> JsonResponse:
+        form.save(form)
+        return super().form_valid(form)
+
+create_event_serie_json_view = CreateEventSerieJsonFormView.as_view()
+
+
+class CreateEventJsonFormView(LoginRequiredMixin, CreateView, JsonModelFormMixin):
+    """ View for event creation """
+    form_class = CreateEventForm
+    model = Event
+
+create_event_json_view = CreateEventJsonFormView.as_view()
+
+
+class UpdateEventJsonFormView(LoginRequiredMixin, UpdateView, JsonModelFormMixin):
+    """ Update event """
+    model = Event
+    form_class = UpdateEventForm
+
+update_event_json_view = UpdateEventJsonFormView.as_view()
+
+
+class DeleteEventJsonView(LoginRequiredMixin, JsonArchiveView):
+    """ Delete event """
+    model = Event
+
+delete_event_json_view = DeleteEventJsonView.as_view()
 
 class EventSerieDeleteFileView(LoginRequiredMixin, DeleteView):
     model = EventSerieFile
@@ -62,7 +86,6 @@ class CalculateEventSerieView(LoginRequiredMixin, DetailView, JSONResponseMixin)
         
         if (event_serie is None):
             raise Http404("No event_serie found matching the query")
-
         
         return calculate_serie(event_serie.serie_plan_manifest)
 

@@ -292,7 +292,7 @@ Date.prototype.addDays = function(days) {
                 }
             }
 
-            start_date = start_date.addDays(7 * week_interval)
+            start_date = start_date.addDays(7 * parseInt(week_interval))
         }
 
         let events = [];

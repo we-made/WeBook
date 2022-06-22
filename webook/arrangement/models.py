@@ -897,8 +897,8 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     is_requisitionally_complete = models.BooleanField(verbose_name=_("Requisitions Finished"), default=False)
 
     arrangement = models.ForeignKey(to=Arrangement, on_delete=models.CASCADE, verbose_name=_("Arrangement"))
-    people = models.ManyToManyField(to=Person, verbose_name=_("People"), related_name="my_events")
-    rooms = models.ManyToManyField(to=Room, verbose_name=_("Rooms"))
+    people = models.ManyToManyField(to=Person, verbose_name=_("People"), related_name="my_events", blank=True)
+    rooms = models.ManyToManyField(to=Room, verbose_name=_("Rooms"), blank=True)
     loose_requisitions = models.ManyToManyField(to="LooseServiceRequisition", verbose_name=_("Loose service requisitions"), related_name="events")
     articles = models.ManyToManyField(to=Article, verbose_name=_("Articles"))
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))

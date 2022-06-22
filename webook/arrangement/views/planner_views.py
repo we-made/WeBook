@@ -24,16 +24,15 @@ from django.views.generic.edit import DeleteView, FormView
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.facilities.calendar import analysis_strategies
 from webook.arrangement.forms.add_planners_form import AddPlannersForm
+from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
 from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
 from webook.arrangement.forms.order_person_for_serie_form import OrderPersonForSerieForm
 from webook.arrangement.forms.order_person_form import OrderPersonForEventForm
 from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerieForm
 from webook.arrangement.forms.order_room_form import OrderRoomForEventForm
 from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
-from webook.arrangement.forms.planner.planner_create_event_form import PlannerCreateEventForm
 from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
 from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
-from webook.arrangement.forms.planner.planner_update_event_form import PlannerUpdateEventForm
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
@@ -158,182 +157,6 @@ class PlanCreateEvent (LoginRequiredMixin, CreateView):
 plan_create_event = PlanCreateEvent.as_view()
 
 
-class PlanCreateEvents(LoginRequiredMixin, View):
-    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        """ 
-            This is a temporary (TM) solution. I don't feel like this is the best we can do to solve this.
-            There ought to be a more generic way to solve this -- and it is quite weird that Django doesn't have any inbuilts
-            adressing this specific situation. 
-            querydict.getlist(key) unfortunately does not work in this situation, as it expects data like this:
-                fruit = "Apple"
-                fruit = "Orange"
-                And then you'd do: querydict.getlist("fruit"), and you're off to the market with your shopping list.
-            This doesn't translate well when we have a complex list of event objects that are indexed, as in the querydict our data exists like this:
-                event[0].id = "0", event[0].title = "Superduper event", event[1].id = "0" event[1].title = "Even better event"
-
-                Maybe i am missing something obvious? feels that way :D
-        """
-
-        created_event_ids = []
-        dto_events = []
-        counter = 0;
-        querydict = self.request.POST
-        get_post_value_or_none = lambda attr: querydict.get("events[" + str(counter) + "]." + attr, None)
-        get_post_value_list_or_none = lambda attr: querydict.getlist("events[" + str(counter) + "]." + attr, None)
-        # parse a string of ids to a list of ids, '1,2,3 -> [1,2,3], and avoid default str.split() behaviour of '' = ['']
-        parse_ids_string_to_list = lambda str_to_parse, separator=",": [x for x in str_to_parse.split(separator) if x] if str_to_parse else []
-        
-        capitalize_if_possible = lambda str_to_capitalize: str_to_capitalize.capitalize() if str_to_capitalize is not None else None
-
-        event_serie = None
-        plan_manifest = None
-        plan_manifest = querydict.get("manifest.pattern")
-
-        if querydict.get("saveAsSerie", None):
-            pk_of_preceding_event_serie = querydict.get("predecessorSerie", None);
-            if (pk_of_preceding_event_serie):
-                event_serie = EventSerie.objects.get(id=pk_of_preceding_event_serie)
-                event_serie.archive(self.request.user.person)
-
-            plan_manifest = PlanManifest()
-            plan_manifest.expected_visitors = querydict.get("manifest.expectedVisitors", None)
-            plan_manifest.ticket_code = querydict.get("manifest.ticketCode", None)
-            plan_manifest.title = querydict.get("manifest.title", None)
-            plan_manifest.title_en = querydict.get("manifest.title_en", None)
-            plan_manifest.pattern = querydict.get("manifest.pattern", None)
-            plan_manifest.pattern_strategy = querydict.get("manifest.patternRoutine", None)
-            plan_manifest.recurrence_strategy = querydict.get("manifest.timeAreaMethod", None)
-            plan_manifest.start_date = querydict.get("manifest.startDate", None)
-            plan_manifest.start_time = querydict.get("manifest.startTime", None)
-            plan_manifest.end_time = querydict.get("manifest.endTime", None)
-
-            plan_manifest.stop_within = querydict.get("manifest.stopWithin", None)
-            plan_manifest.project_x_months_into_future = querydict.get("manifest.projectionDistanceInMonths", None)
-            plan_manifest.stop_after_x_occurences = querydict.get("manifest.stopAfterXInstances", None)
-            
-            plan_manifest.interval = querydict.get("manifest.interval", None)
-            plan_manifest.day_of_month = querydict.get("manifest.day_of_month", None)
-            plan_manifest.arbitrator = querydict.get("manifest.arbitrator", None)
-            plan_manifest.day_of_week = querydict.get("manifest.day_of_week", None)
-            plan_manifest.month = querydict.get("manifest.month", None)
-
-            plan_manifest.monday = capitalize_if_possible(querydict.get("manifest.monday", None))
-            plan_manifest.tuesday = capitalize_if_possible(querydict.get("manifest.tuesday", None))
-            plan_manifest.wednesday = capitalize_if_possible(querydict.get("manifest.wednesday", None))
-            plan_manifest.thursday = capitalize_if_possible(querydict.get("manifest.thursday", None))
-            plan_manifest.friday = capitalize_if_possible(querydict.get("manifest.friday", None))
-            plan_manifest.saturday = capitalize_if_possible(querydict.get("manifest.saturday", None))
-            plan_manifest.sunday = capitalize_if_possible(querydict.get("manifest.sunday", None))
-
-            plan_manifest.save()
-
-            pm_rooms = querydict.get("manifest.rooms", None)
-            if pm_rooms:
-                for room_id in pm_rooms.split(","):
-                    plan_manifest.rooms.add(room_id)
-
-            pm_people = querydict.get("manifest.people", None)
-            if pm_people:
-                for person_id in pm_people.split(","):
-                    plan_manifest.people.add(person_id)
-
-            pm_display_layouts = querydict.get("manifest.displayLayouts", None)
-            if pm_display_layouts:
-                for display_layout_id in pm_display_layouts.split(","):
-                    plan_manifest.display_layouts.add(display_layout_id)
-
-            plan_manifest.save()
-
-            event_serie = EventSerie()
-            event_serie.serie_plan_manifest = plan_manifest
-            event_serie.arrangement_id = int(querydict.get("events[0].arrangement", None))
-            event_serie.save()
-
-        while (True):
-            if get_post_value_or_none("arrangement") is None:
-                break
-            
-            is_resolution = (is_resolution := get_post_value_or_none("is_resolution")) is not None and is_resolution.upper() == "TRUE"
-
-            dto_events.append(EventDTO(
-                arrangement_id = get_post_value_or_none("arrangement"),
-                is_resolution=is_resolution,
-                title = get_post_value_or_none("title"),
-                title_en = get_post_value_or_none("title_en"),
-                start=parser.parse(get_post_value_or_none("start")),
-                end=parser.parse(get_post_value_or_none("end")),
-                expected_visitors=get_post_value_or_none("expected_visitors"),
-                ticket_code=get_post_value_or_none("ticket_code"),
-                sequence_guid=get_post_value_or_none("sequence_guid"),
-                color=get_post_value_or_none("color"),
-                associated_serie_id=get_post_value_or_none("associated_serie_id"),
-                display_layouts=list(map(int, parse_ids_string_to_list(get_post_value_or_none("display_layouts")))),
-                people=list(map(int, parse_ids_string_to_list(get_post_value_or_none("people")))),
-                rooms=list(map(int, parse_ids_string_to_list(get_post_value_or_none("rooms")))),
-            ))
-
-            counter += 1
-        
-        analyze_collisions( dto_events, True )
-
-        for dto_event in dto_events:
-            if dto_event.is_collision:
-                continue
-
-            event = Event()
-
-            event.arrangement_id = dto_event.arrangement_id
-            event.title = dto_event.title
-            event.start = dto_event.start
-            event.end = dto_event.end
-            event.expected_visitors = dto_event.expected_visitors
-            event.ticket_code = dto_event.ticket_code
-            event.sequence_guid = dto_event.sequence_guid
-            event.color = dto_event.color
-
-            event.save()
-
-            for display_layout_id in dto_event.display_layouts:
-                event.display_layouts.add(display_layout_id)
-
-            for roomId in dto_event.rooms:
-                event.rooms.add(roomId)
-            
-            for personId in dto_event.people:
-                event.people.add(personId)
-
-            if dto_event.is_resolution and dto_event.associated_serie_id is not None:
-                # When we're posting up a resolution event on a conflict in a serie we're posting it individually as a single activity.
-                # Hence we can't look at the EventSerie, as it does not exist in this context. It is then expected
-                # that this serie_id is known and provided by the front end.
-                event.associated_serie_id = dto_event.associated_serie_id
-                event.association_type = Event.COLLISION_RESOLVED_ORIGINATING_OF_SERIE
-
-            event.save()
-            if event_serie is not None:
-                event_serie.events.add(event)
-            
-            created_event_ids.append(event.pk)
-
-        if event_serie:
-            event_serie.save()
-
-        return JsonResponse( {"created_x_events": 
-                               len(created_event_ids), 
-                               "is_sequence": bool(plan_manifest), 
-                               "serie_id": event_serie.id if event_serie is not None else None } )
-
-plan_create_events = PlanCreateEvents.as_view()
-
-
-class PlanUpdateEvent (LoginRequiredMixin, UpdateView, JsonModelFormMixin):
-    model = Event
-    template_name="arrangement/event/event_form.html"
-    form_class = PlannerUpdateEventForm
-
-plan_update_event = PlanUpdateEvent.as_view()
-
-
 class PlanGetEvents (LoginRequiredMixin, ListView):
     def get(self, request, *args, **kwargs):
         events = Event.objects.filter(arrangement_id=request.GET["arrangement_id"]).only("title", "start", "end", "color", "people", "rooms", "loose_requisitions", "sequence_guid")
@@ -403,12 +226,6 @@ class PlanPeopleToRequisitionTableComponent(LoginRequiredMixin, ListView):
         return unique_people_to_requisition
 
 plan_people_to_requisition_component_view = PlanPeopleToRequisitionTableComponent.as_view()
-
-
-class PlanDeleteEvent (LoginRequiredMixin, JsonArchiveView):
-    model = Event
-
-plan_delete_event = PlanDeleteEvent.as_view()
 
 
 class PlanDeleteEvents (LoginRequiredMixin, View):
@@ -564,7 +381,7 @@ get_arrangements_in_period_view = GetArrangementsInPeriod.as_view()
 
 
 class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
-    form_class = PlannerUpdateEventForm
+    form_class = UpdateEventForm
     model = Event
     pk_field="pk"
     pk_url_kwarg="pk"
@@ -645,7 +462,7 @@ arrangement_calendar_planner_dialog_view = PlannerArrangementCalendarPlannerDial
 class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateView):
     model = Event
     template_name="arrangement/planner/dialogs/arrangement_dialogs/dialog_create_event_arrangement.html"
-    form_class = PlannerCreateEventForm
+    form_class = CreateEventForm
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         return super().post(request, *args, **kwargs)
