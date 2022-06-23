@@ -188,7 +188,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 </span>
                 <span class='badge h6 badge-success'>
                     Hovedplanlegger:
-                    ${arrangement.mainPlannerName}
+                    ${arrangement.mainplannername}
                 </span>
                 <span class='badge h6 badge-secondary'>
                     Lokasjon: 
