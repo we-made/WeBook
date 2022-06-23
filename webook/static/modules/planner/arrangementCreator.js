@@ -56,7 +56,6 @@ export class ArrangementCreator {
                                 
                                 if (details.events !== undefined) {
                                     details.events.forEach((event) => event.arrangement = arrId.arrangementPk);
-                                    debugger;
                                     await QueryStore.SaveEvents(details.events, csrf_token);
                                 }
                               })

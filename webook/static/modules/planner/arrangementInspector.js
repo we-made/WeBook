@@ -448,8 +448,6 @@ export class ArrangementInspector {
                             this.dialogManager.closeDialog("editEventSerieDialog");
                         },
                         onSubmit: async (context, details) => {
-                            debugger;
-
                             details.serie.event_serie_pk = context.editing_serie_pk;
 
                             context.serie = details.serie;

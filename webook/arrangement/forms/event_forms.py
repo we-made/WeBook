@@ -18,7 +18,7 @@ _ALWAYS_FIELDS = ( "title",
 
 
 class BaseEventForm(forms.ModelForm):
-    def save(self, commit=True):
+    def save(self, commit: bool=True):
         if self.instance.serie is not None:
             """ 
             When a serie event has been edited it has become more specific - thus we want to degrade it to "association" status.
