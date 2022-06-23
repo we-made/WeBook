@@ -2,8 +2,8 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
     $('#serie_uuid').val(serie._uuid);
     $('#serie_title').val(serie.time.title);
     $('#serie_title_en').val(serie.time.title_en);
-    $('#serie_start').val(serie.time.start);
-    $('#serie_end').val(serie.time.end);
+    $('#serie_start').val(serie.time.start).change();
+    $('#serie_end').val(serie.time.end).change();
     $('#serie_ticket_code').val(serie.time.ticket_code);
     $('#serie_expected_visitors').val(serie.time.expected_visitors);
     $('#area_start_date').val(serie.time_area.start_date)
@@ -34,7 +34,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
     }
 
     serie.display_layouts.split(",").forEach(element => {
-        $('#id_display_layouts_serie_planner_' + String(parseInt(element) - 1))
+        $('#id_display_layouts_serie_planner_' + element)
             .prop( "checked", true );
     })
 
@@ -150,8 +150,8 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
     $('#serie_expected_visitors').attr("value", manifest.expected_visitors);
     $('#serie_ticket_code').attr("value", manifest.ticket_code);
     $('#area_start_date').attr("value", manifest.start_date);
-    $('#serie_start').attr("value", manifest.start_time);
-    $('#serie_end').attr("value", manifest.end_time);
+    $('#serie_start').val(manifest.start_time).change();
+    $('#serie_end').val(manifest.end_time).change();
 
     if (manifest.rooms.length > 0) {
         var roomSelectContext = Object();
@@ -189,7 +189,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
     }
 
     manifest.display_layouts.forEach(display_layout => {
-        $('#id_display_layouts_serie_planner_' + String(parseInt(display_layout.id)))
+        $('#id_display_layouts_serie_planner_' + display_layout.id)
             .prop( "checked", true );
     })
 

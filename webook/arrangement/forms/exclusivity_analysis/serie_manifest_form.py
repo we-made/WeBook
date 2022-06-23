@@ -19,9 +19,9 @@ class SerieManifestForm(forms.Form):
     expectedVisitors = forms.IntegerField(min_value=0)
     title = forms.CharField(max_length=512)
     title_en = forms.CharField(max_length=512, required=False)
-    rooms = forms.ModelMultipleChoiceField(queryset=Room.objects.all(), required=False)
-    people = forms.ModelMultipleChoiceField(queryset=Person.objects.all(), required=False)
-    display_layouts = forms.ModelMultipleChoiceField(queryset=DisplayLayout.objects.all(), required=False)
+    rooms = forms.CharField(max_length=5000, required=False)
+    people = forms.CharField(max_length=5000, required=False)
+    display_layouts = forms.CharField(max_length=5000, required=False)
     interval = forms.IntegerField(required=False)
     day_of_month = forms.IntegerField(required=False)
     arbitrator = forms.IntegerField(required=False)
@@ -70,10 +70,12 @@ class SerieManifestForm(forms.Form):
         plan_manifest.sunday = self.cleaned_data["sunday"]
         
         plan_manifest.save()
-        
-        plan_manifest.rooms.set(self.cleaned_data["rooms"])
-        plan_manifest.people.set(self.cleaned_data["people"])
-        plan_manifest.display_layouts.set(self.cleaned_data["display_layouts"])
+
+        parse_comma_sep_string = lambda comma_sep_str: [x for x in comma_sep_str.split(",") if x] if comma_sep_str else []
+
+        plan_manifest.rooms.set(parse_comma_sep_string(self.cleaned_data["rooms"]))
+        plan_manifest.people.set(parse_comma_sep_string(self.cleaned_data["people"]))
+        plan_manifest.display_layouts.set(parse_comma_sep_string(self.cleaned_data["display_layouts"]))
 
         plan_manifest.save()
 
@@ -84,7 +86,7 @@ class CreateSerieForm(SerieManifestForm):
     arrangementPk = forms.IntegerField()
     predecessorSerie = forms.IntegerField(required=False)
 
-    def save(self, form) -> JsonResponse:
+    def save(self, form, *args, **kwargs) -> JsonResponse:
         manifest = form.as_plan_manifest()
         calculated_serie = calculate_serie(manifest)
 
@@ -101,7 +103,7 @@ class CreateSerieForm(SerieManifestForm):
         pk_of_preceding_event_serie = form.cleaned_data["predecessorSerie"];
         if pk_of_preceding_event_serie:
             predecessor_event_serie = EventSerie.objects.get(id=pk_of_preceding_event_serie)
-            predecessor_event_serie.archive(self.request.user.person)
+            predecessor_event_serie.archive(kwargs["user"].person)
 
         room_ids = [room.id for room in manifest.rooms.all()]
         people_ids = [person.id for person in manifest.people.all()]

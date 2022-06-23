@@ -34,7 +34,7 @@ def _days_to_str(manifest) -> str:
     """
 
     # regex replaces the last , with and
-    return re.sub(r'(,)(?!.*\1)', ' and', ", ".join(map(lambda x: calendar.day_name[x], filter(lambda x: x == True, manifest.days))))
+    return re.sub(r'(,)(?!.*\1)', ' and', ", ".join(map(lambda x: calendar.day_name[x], filter(lambda x: manifest.days[x] == True, manifest.days))))
 
 
 describe_pattern = {
