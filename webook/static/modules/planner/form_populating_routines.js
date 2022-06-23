@@ -34,7 +34,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
     }
 
     serie.display_layouts.split(",").forEach(element => {
-        $('#id_display_layouts_serie_planner_' + String(parseInt(element) - 1))
+        $('#id_display_layouts_serie_planner_' + element)
             .prop( "checked", true );
     })
 
@@ -189,7 +189,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
     }
 
     manifest.display_layouts.forEach(display_layout => {
-        $('#id_display_layouts_serie_planner_' + String(parseInt(display_layout.id)))
+        $('#id_display_layouts_serie_planner_' + display_layout.id)
             .prop( "checked", true );
     })
 

@@ -432,11 +432,13 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback:  async (dialogManager, context) => {
-                            var manifest = await fetch(`/arrangement/eventSerie/${context.lastTriggererDetails.event_serie_pk}/manifest`, {
+                            context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk;
+
+                            var manifest = await fetch(`/arrangement/eventSerie/${context.editing_serie_pk}/manifest`, {
                                 method: "GET"
                             }).then(response => response.json())
 
-                            PopulateCreateSerieDialogFromManifest(manifest, context.lastTriggererDetails.event_serie_pk);
+                            PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk);
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
@@ -446,7 +448,7 @@ export class ArrangementInspector {
                             this.dialogManager.closeDialog("editEventSerieDialog");
                         },
                         onSubmit: async (context, details) => {
-                            details.serie.event_serie_pk = context.lastTriggererDetails.event_serie_pk;
+                            details.serie.event_serie_pk = context.editing_serie_pk;
 
                             context.serie = details.serie;
                             context.collision_resolution = new Map();
