@@ -161,7 +161,7 @@ def _pattern_strategy_weekly_standard(cycle: _CycleInstruction) -> List[_Event]:
     counter = 0
     for day in range(cycle.start_date.weekday(), 7):
         if day in cycle.days and cycle.days[day] == True:
-            adjusted_start_date = cycle.start_date + timedelta(days=counter)
+            adjusted_start_date = cycle.start_date + timedelta(days=counter-1)
             events.append(_Event(
                 title=cycle.event.title,
                 start=datetime.combine(adjusted_start_date, cycle.event.start),
