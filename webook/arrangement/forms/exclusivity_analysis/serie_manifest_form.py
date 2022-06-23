@@ -77,12 +77,6 @@ class SerieManifestForm(forms.Form):
         plan_manifest.people.set(parse_comma_sep_string(self.cleaned_data["people"]))
         plan_manifest.display_layouts.set(parse_comma_sep_string(self.cleaned_data["display_layouts"]))
 
-        print(self.cleaned_data["display_layouts"])
-        print(plan_manifest.display_layouts)
-        print(plan_manifest.rooms)
-        print(plan_manifest.people)
-        print(self.cleaned_data["display_layouts"])
-
         plan_manifest.save()
 
         return plan_manifest

@@ -192,7 +192,6 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
         $('#id_display_layouts_serie_planner_' + display_layout.id)
             .prop( "checked", true );
     })
-    debugger;
 
     switch(manifest.recurrence_strategy) {
         case "StopWithin":
