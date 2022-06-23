@@ -400,8 +400,9 @@ export function convertObjToFormData(obj, convertArraysToList=false) {
 
     for (var key in obj) {
         if (convertArraysToList === true && Array.isArray(obj[key])) {
+            var counter = 0;
             obj[key].forEach((val) => {
-                form_data.append(key + "[]", val);
+                form_data.append(`${key}`, val);
             });
 
             continue;

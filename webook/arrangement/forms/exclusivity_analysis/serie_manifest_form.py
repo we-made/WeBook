@@ -19,7 +19,7 @@ class SerieManifestForm(forms.Form):
     expectedVisitors = forms.IntegerField(min_value=0)
     title = forms.CharField(max_length=512)
     title_en = forms.CharField(max_length=512, required=False)
-    rooms = forms.CharField(max_length=5000, required=False)
+    rooms = forms.ModelMultipleChoiceField(queryset=Room.objects.all(), required=False)
     people = forms.CharField(max_length=5000, required=False)
     display_layouts = forms.CharField(max_length=5000, required=False)
     interval = forms.IntegerField(required=False)

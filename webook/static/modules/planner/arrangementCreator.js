@@ -56,6 +56,7 @@ export class ArrangementCreator {
                                 
                                 if (details.events !== undefined) {
                                     details.events.forEach((event) => event.arrangement = arrId.arrangementPk);
+                                    debugger;
                                     await QueryStore.SaveEvents(details.events, csrf_token);
                                 }
                               })
@@ -271,7 +272,6 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: (dialogManager, context) => {
-
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
