@@ -75,6 +75,12 @@ class SerieManifestForm(forms.Form):
         plan_manifest.people.set(self.cleaned_data["people"])
         plan_manifest.display_layouts.set(self.cleaned_data["display_layouts"])
 
+        print(self.cleaned_data["display_layouts"].all())
+        print(plan_manifest.display_layouts.all())
+        print(plan_manifest.rooms.all())
+        print(plan_manifest.people.all())
+        print(self.cleaned_data["display_layouts"])
+
         plan_manifest.save()
 
         return plan_manifest
@@ -84,7 +90,7 @@ class CreateSerieForm(SerieManifestForm):
     arrangementPk = forms.IntegerField()
     predecessorSerie = forms.IntegerField(required=False)
 
-    def save(self, form) -> JsonResponse:
+    def save(self, form, *args, **kwargs) -> JsonResponse:
         manifest = form.as_plan_manifest()
         calculated_serie = calculate_serie(manifest)
 
@@ -101,7 +107,7 @@ class CreateSerieForm(SerieManifestForm):
         pk_of_preceding_event_serie = form.cleaned_data["predecessorSerie"];
         if pk_of_preceding_event_serie:
             predecessor_event_serie = EventSerie.objects.get(id=pk_of_preceding_event_serie)
-            predecessor_event_serie.archive(self.request.user.person)
+            predecessor_event_serie.archive(kwargs["user"].person)
 
         room_ids = [room.id for room in manifest.rooms.all()]
         people_ids = [person.id for person in manifest.people.all()]

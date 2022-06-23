@@ -29,7 +29,7 @@ class CreateEventSerieJsonFormView(LoginRequiredMixin, JsonFormView):
     form_class = CreateSerieForm
 
     def form_valid(self, form) -> JsonResponse:
-        form.save(form)
+        form.save(form, user=self.request.user)
         return super().form_valid(form)
 
 create_event_serie_json_view = CreateEventSerieJsonFormView.as_view()
