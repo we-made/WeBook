@@ -19,9 +19,9 @@ class SerieManifestForm(forms.Form):
     expectedVisitors = forms.IntegerField(min_value=0)
     title = forms.CharField(max_length=512)
     title_en = forms.CharField(max_length=512, required=False)
-    rooms = forms.ModelMultipleChoiceField(queryset=Room.objects.all(), required=False)
-    people = forms.ModelMultipleChoiceField(queryset=Person.objects.all(), required=False)
-    display_layouts = forms.ModelMultipleChoiceField(queryset=DisplayLayout.objects.all(), required=False)
+    rooms = forms.CharField(max_length=5000, required=False)
+    people = forms.CharField(max_length=5000, required=False)
+    display_layouts = forms.CharField(max_length=5000, required=False)
     interval = forms.IntegerField(required=False)
     day_of_month = forms.IntegerField(required=False)
     arbitrator = forms.IntegerField(required=False)
@@ -70,15 +70,17 @@ class SerieManifestForm(forms.Form):
         plan_manifest.sunday = self.cleaned_data["sunday"]
         
         plan_manifest.save()
-        
-        plan_manifest.rooms.set(self.cleaned_data["rooms"])
-        plan_manifest.people.set(self.cleaned_data["people"])
-        plan_manifest.display_layouts.set(self.cleaned_data["display_layouts"])
 
-        print(self.cleaned_data["display_layouts"].all())
-        print(plan_manifest.display_layouts.all())
-        print(plan_manifest.rooms.all())
-        print(plan_manifest.people.all())
+        parse_comma_sep_string = lambda comma_sep_str: [x for x in comma_sep_str.split(",") if x] if comma_sep_str else []
+
+        plan_manifest.rooms.set(parse_comma_sep_string(self.cleaned_data["rooms"]))
+        plan_manifest.people.set(parse_comma_sep_string(self.cleaned_data["people"]))
+        plan_manifest.display_layouts.set(parse_comma_sep_string(self.cleaned_data["display_layouts"]))
+
+        print(self.cleaned_data["display_layouts"])
+        print(plan_manifest.display_layouts)
+        print(plan_manifest.rooms)
+        print(plan_manifest.people)
         print(self.cleaned_data["display_layouts"])
 
         plan_manifest.save()

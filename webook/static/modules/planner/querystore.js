@@ -20,10 +20,6 @@ export class QueryStore {
             formData.append("predecessorSerie", serie.event_serie_pk);
         }
 
-        for (var value of formData) {
-            console.log(value);
-        }
-
         return await fetch('/arrangement/event/create_serie', {
             method: 'POST',
             body: formData,
@@ -61,9 +57,19 @@ export class QueryStore {
                 event = evMap.get(index);
             }
 
-            if (COMMA_SEPARATED_LIST_SPLITS.includes(key_without_index)) {
-                event_pair[1] = event_pair[1].split(",");
+            if (key_without_index === "display_layouts") {
+                key_without_index = "display_layouts_cs";
             }
+            if (key_without_index === "rooms") {
+                key_without_index = "rooms_cs";
+            }
+            if (key_without_index === "people") {
+                key_without_index = "people_cs";
+            }
+
+            // if (COMMA_SEPARATED_LIST_SPLITS.includes(key_without_index)) {
+            //     event_pair[1] = event_pair[1].split(",");
+            // }
 
             event[key_without_index] = event_pair[1];
             evMap.set(index, event);

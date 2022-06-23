@@ -10,20 +10,24 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}title`, serie.time.title);
     formData.append(`${keyPrefix}title_en`, serie.time.title_en);
 
-    var splitAndAddCommaSeparatedStringToFormDataAsList = function (commaSeparatedString, key) {
-        commaSeparatedString.split(",").forEach((artifact) => {
-            formData.append(key + "[]", artifact);
-        })
-    }
-    var convertListToFormDataList = function (list, key) {
-        list.forEach( (item) => {
-            formData.append(key + "[]", item);
-        } )
-    }
+    // var splitAndAddCommaSeparatedStringToFormDataAsList = function (commaSeparatedString, key) {
+    //     commaSeparatedString.split(",").forEach((artifact) => {
+    //         formData.append(key + "[]", artifact);
+    //     })
+    // }
+    // var convertListToFormDataList = function (list, key) {
+    //     list.forEach( (item) => {
+    //         formData.append(key + "[]", item);
+    //     } )
+    // }
+
+    formData.append(`${keyPrefix}rooms`, serie.rooms.join(","));
+    formData.append(`${keyPrefix}people`, serie.people.join(","));
+    formData.append(`${keyPrefix}display_layouts`, serie.display_layouts);
     
-    convertListToFormDataList(serie.rooms, `${keyPrefix}rooms`);
-    convertListToFormDataList(serie.people, `${keyPrefix}people`);
-    splitAndAddCommaSeparatedStringToFormDataAsList(serie.display_layouts, `${keyPrefix}display_layouts`);
+    // convertListToFormDataList(serie.rooms, `${keyPrefix}rooms`);
+    // convertListToFormDataList(serie.people, `${keyPrefix}people`);
+    // splitAndAddCommaSeparatedStringToFormDataAsList(serie.display_layouts, `${keyPrefix}display_layouts`);
 
     switch(serie.pattern.pattern_type) {
         case "daily":

@@ -394,14 +394,16 @@
         formData.append("expected_visitors", $('#id_expected_visitors').val());
         formData.append("actual_visitors", $('#id_actual_visitors').val())
         formData.append("arrangement", '{{object.arrangement.pk}}');
-        formData.append("people",       inspectEventDialog__getSelectedPeopleIds());
-        formData.append("rooms",        inspectEventDialog__getSelectedRoomIds());
+        formData.append("people_cs",       inspectEventDialog__getSelectedPeopleIds().join(","));
+        formData.append("rooms_cs",        inspectEventDialog__getSelectedRoomIds().join(","));
         formData.append("csrf_token",   "{{ csrf_token }}");
 
         let displayLayouts = [];
         document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
-            formData.append("display_layouts", element.value);
+            // formData.append("display_layouts", element.value);
+            displayLayouts.push(element.value);
         })
+        formData.append("display_layouts_cs", displayLayouts.join(","));
 
         document.dispatchEvent(
             new CustomEvent("eventInspector.submit", { "detail": {
