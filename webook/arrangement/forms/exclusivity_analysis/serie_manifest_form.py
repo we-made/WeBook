@@ -71,7 +71,7 @@ class SerieManifestForm(forms.Form):
         
         plan_manifest.save()
 
-        parse_comma_sep_string = lambda comma_sep_str: [x for x in comma_sep_str.split(",") if x] if comma_sep_str else []
+        parse_comma_sep_string = lambda comma_sep_str: [int(x) for x in comma_sep_str.split(",") if x] if comma_sep_str else []
 
         plan_manifest.rooms.set(parse_comma_sep_string(self.cleaned_data["rooms"]))
         plan_manifest.people.set(parse_comma_sep_string(self.cleaned_data["people"]))
