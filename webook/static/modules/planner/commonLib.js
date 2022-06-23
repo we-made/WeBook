@@ -408,7 +408,9 @@ export function appendArrayToFormData(arrayToAppend, formDataToAppendTo, key) {
 
     if (arrayToAppend.length > 0) {
         arrayToAppend.forEach((item) => {
-            formDataToAppendTo.append(key, item);
+            if (item) {
+                formDataToAppendTo.append(key, item);
+            }
         });
     }
 }
