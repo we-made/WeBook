@@ -1,4 +1,5 @@
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
+import { QueryStore } from "./querystore.js";
 
 export class EventInspector {
     constructor () {
@@ -25,14 +26,8 @@ export class EventInspector {
                             this.dialogManager.closeDialog("inspectEventDialog");
                         },
                         onSubmit: async (context, details) => {
-                            var url = '/arrangement/planner/update_event/' + context.event.pk;
-                            await fetch(url, {
-                                method: "POST",
-                                body: details.formData,
-                                headers: {
-                                    "X-CSRFToken": details.csrf_token
-                                }
-                            }).then(_ => document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")));
+                            await QueryStore.SaveEvents( [context.event], details.csrf_token )
+                                .then(_ => document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")));
                         }
                     }),
                 ],
