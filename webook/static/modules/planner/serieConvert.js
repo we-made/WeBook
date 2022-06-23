@@ -1,3 +1,5 @@
+import { appendArrayToFormData } from "./commonLib.js";
+
 export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}pattern`, serie.pattern.pattern_type);
     formData.append(`${keyPrefix}patternRoutine`, serie.pattern.pattern_routine);
@@ -10,11 +12,9 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}title`, serie.time.title);
     formData.append(`${keyPrefix}title_en`, serie.time.title_en);
 
-    formData.append(`${keyPrefix}rooms`, serie.rooms);
-    formData.append(`${keyPrefix}people`, serie.people);
-    formData.append(`${keyPrefix}display_layouts`, serie.display_layouts.split(","));
-
-    debugger;
+    appendArrayToFormData(serie.rooms, formData, `${keyPrefix}rooms`);
+    appendArrayToFormData(serie.people, formData, `${keyPrefix}people`);
+    appendArrayToFormData(serie.display_layouts.split(","), formData, `${keyPrefix}display_layouts`)
 
     switch(serie.pattern.pattern_type) {
         case "daily":
