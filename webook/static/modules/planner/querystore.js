@@ -49,4 +49,18 @@ export class QueryStore {
             })
         }
     }
+
+
+    static async UpdateEvents (events, csrf_token) {
+        for (const formData of events.map((event) => convertObjToFormData(event, true))) {
+            await fetch("/arrangement/planner/update_event/" + formData.get("id"), {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": csrf_token
+                },
+                credentials: 'same-origin',
+            })
+        }
+    }
 }

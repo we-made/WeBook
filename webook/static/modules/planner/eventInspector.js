@@ -26,7 +26,7 @@ export class EventInspector {
                             this.dialogManager.closeDialog("inspectEventDialog");
                         },
                         onSubmit: async (context, details) => {
-                            await QueryStore.SaveEvents( [context.event], details.csrf_token )
+                            await QueryStore.UpdateEvents( [details.event], details.csrf_token )
                                 .then(_ => document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")));
                         }
                     }),

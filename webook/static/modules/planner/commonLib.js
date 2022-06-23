@@ -402,9 +402,15 @@ export function writeSlugClass(slug) {
  * @param {*String} key
  */
 export function appendArrayToFormData(arrayToAppend, formDataToAppendTo, key) {
-    arrayToAppend.forEach((item) => {
-        formDataToAppendTo.append(key, item);
-    });
+    if (Array.isArray(arrayToAppend) !== true) {
+        throw "Value of parameter arrayToAppend is not an array", arrayToAppend;
+    }
+
+    if (arrayToAppend.length > 0) {
+        arrayToAppend.forEach((item) => {
+            formDataToAppendTo.append(key, item);
+        });
+    }
 }
 
 export function convertObjToFormData(obj, convertArraysToList=false) {
@@ -412,7 +418,7 @@ export function convertObjToFormData(obj, convertArraysToList=false) {
 
     for (var key in obj) {
         if (convertArraysToList === true && Array.isArray(obj[key])) {
-            appendArrayToFormData(obj, formData, key)
+            appendArrayToFormData(obj[key], formData, key)
             continue;
         }
 
