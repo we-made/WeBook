@@ -318,6 +318,7 @@
 <script type="module">
     import { SeriesUtil } from "{% static 'modules/planner/seriesutil.js' %}";
     import { SelectComponent, MonthSelectComponent, YearSelectComponent } from "{% static 'modules/planner/selectcomponent.js' %}";
+    import { ExtendedTimepicker } from "{% static 'js/timepickerExtended.js' %}";
 
     class DayOfWeekSelectComponent extends SelectComponent {
         constructor (element_id) {
@@ -391,13 +392,22 @@
         }
     })
     
-    const startTimePicker = new mdb.Timepicker(document.querySelector('#serie_start_picker'), {
-        format24:true,
-        inline: true,
+    const startTimePicker = new ExtendedTimepicker({
+        timepickerWrapperElement: document.getElementById('serie_start_picker'),
+        timepickerInputElement: document.getElementById('serie_start'),
+        mdbOptions: {
+            format24:true,
+            inline: true,
+        }
     });
-    const endTimePicker = new mdb.Timepicker(document.querySelector('#serie_end_picker'), {
-        format24:true,
-        inline: true,
+
+    const endTimePicker = new ExtendedTimepicker({
+        timepickerWrapperElement: document.getElementById('serie_end_picker'),
+        timepickerInputElement: document.getElementById('serie_end'),
+        mdbOptions: {
+            format24:true,
+            inline: true,
+        }
     });
 
     $('#submitBtn').on('click', () => {
