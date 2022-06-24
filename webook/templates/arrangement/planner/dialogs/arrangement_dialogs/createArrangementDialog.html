@@ -408,8 +408,7 @@
             var uuid = crypto.randomUUID();
             seriesMap.set(element._uuid, element);
             collisions_html = "";
-            console.log(element)
-            if (element.collisions !== undefined) {
+            if (element.collisions !== undefined && element.collisions.length > 0) {
                 var collisionsCounter = 0;
                 element.collisions.forEach(collisionRecord => {
                     collisions_html += `

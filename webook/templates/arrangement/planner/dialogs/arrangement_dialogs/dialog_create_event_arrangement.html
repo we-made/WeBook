@@ -232,17 +232,16 @@
     }
 
     function dialogCreateEvent__getSelectedRoomIds() {
-        var room_ids = Array.from($("#roomsTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
-        return room_ids;
+        return Array.from($("#roomsTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
     }
 
     function dialogCreateEvent__getSelectedPeopleIds() {
-        var people_ids = Array.from($("#peopleTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
-        return people_ids;
+        return Array.from($("#peopleTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
     }
 
     function dialogCreateEvent__submit() {
         if (validateNewSimpleActivityForm() === false) {
+            console.warn("Validation failed.")
             return;
         }
 
@@ -261,13 +260,9 @@
             room_name_map: roomsNameMap,    // Kept due to edit - not pertinent for save
         }
 
-        console.log("qualifiedEvent", qualifiedEvent)
-
-        let displayLayouts = [];
-        document.querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked").forEach(element => {
-            displayLayouts.push(element.value)
-        })
-        qualifiedEvent.display_layouts = displayLayouts.join(",");
+        qualifiedEvent.display_layouts = 
+            [...document.querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
+                .map(element => element.value);
 
         document.dispatchEvent(
             new CustomEvent(
