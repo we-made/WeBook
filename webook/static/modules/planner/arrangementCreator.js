@@ -271,7 +271,6 @@ export class ArrangementCreator {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: (dialogManager, context) => {
-
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });

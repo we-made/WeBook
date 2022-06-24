@@ -395,20 +395,37 @@ export function writeSlugClass(slug) {
     return `slug:${slug}`;
 }
 
+/**
+ * Append a given array to the given formData instance
+ * @param {*Array} arrayToAppend 
+ * @param {*FormData} formDataToAppendTo 
+ * @param {*String} key
+ */
+export function appendArrayToFormData(arrayToAppend, formDataToAppendTo, key) {
+    if (Array.isArray(arrayToAppend) !== true) {
+        throw "Value of parameter arrayToAppend is not an array", arrayToAppend;
+    }
+
+    if (arrayToAppend.length > 0) {
+        arrayToAppend.forEach((item) => {
+            if (item) {
+                formDataToAppendTo.append(key, item);
+            }
+        });
+    }
+}
+
 export function convertObjToFormData(obj, convertArraysToList=false) {
-    var form_data = new FormData();
+    var formData = new FormData();
 
     for (var key in obj) {
         if (convertArraysToList === true && Array.isArray(obj[key])) {
-            obj[key].forEach((val) => {
-                form_data.append(key + "[]", val);
-            });
-
+            appendArrayToFormData(obj[key], formData, key)
             continue;
         }
 
-        form_data.append(key, obj[key]);
+        formData.append(key, obj[key]);
     }
     
-    return form_data;
+    return formData;
 }

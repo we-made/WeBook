@@ -381,35 +381,26 @@
             return;
         }
 
-        let formData = new FormData();
-        var start = new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString();
-        var end = new Date( $('#id_end_date').val() + "T" + $('#end_time').val() ).toISOString();
-
-        formData.append("id",           '{{object.pk}}');
-        formData.append("title",        $('#id_title').val());
-        formData.append("title_en",     $('#id_title_en').val());
-        formData.append("ticket_code",  $('#id_ticket_code').val())
-        formData.append("start",        start);
-        formData.append("end",          end);
-        formData.append("expected_visitors", $('#id_expected_visitors').val());
-        formData.append("actual_visitors", $('#id_actual_visitors').val())
-        formData.append("arrangement", '{{object.arrangement.pk}}');
-        formData.append("people_cs",       inspectEventDialog__getSelectedPeopleIds().join(","));
-        formData.append("rooms_cs",        inspectEventDialog__getSelectedRoomIds().join(","));
-        formData.append("csrf_token",   "{{ csrf_token }}");
-
-        let displayLayouts = [];
-        document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
-            // formData.append("display_layouts", element.value);
-            displayLayouts.push(element.value);
-        })
-        formData.append("display_layouts_cs", displayLayouts.join(","));
+        var qualifiedEvent = {
+            id: '{{object.pk}}',
+            title: $('#id_title').val(),
+            title_en: $('#id_title_en').val(),
+            ticket_code: $('#id_ticket_code').val(),
+            start: new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString(),
+            end: new Date( $('#id_end_date').val() + "T" + $('#end_time').val() ).toISOString(),
+            expected_visitors: $('#id_expected_visitors').val(),
+            actual_visitors: $('#id_actual_visitors').val(),
+            arrangement: '{{object.arrangement.pk}}',
+            people: inspectEventDialog__getSelectedPeopleIds(),
+            rooms: inspectEventDialog__getSelectedRoomIds(),
+            display_layouts: [...document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
+                                .map(element => element.value)
+        };
 
         document.dispatchEvent(
             new CustomEvent("eventInspector.submit", { "detail": {
                 dialog: "inspectEventDialog",
-                formData: formData,
-                event_pk: '{{ object.pk }}',
+                event: qualifiedEvent,
                 csrf_token: '{{ csrf_token }}',
             }})
         );
