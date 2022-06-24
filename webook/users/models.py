@@ -1,4 +1,3 @@
-import import
 import Person
 from autoslug import AutoSlugField
 from django.contrib.auth.base_user import BaseUserManager
