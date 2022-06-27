@@ -26,7 +26,13 @@ class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        model = kwargs.get("model")
+        manager_name = kwargs.get("manager_name")
+        if getattr(model, "all_objects", None) is not None:
+            manager_name = "all_objects"
+
+        super().__init__(*args, **kwargs, manager_name=manager_name)
+        
 
 
 class ModelArchiveableMixin(models.Model):

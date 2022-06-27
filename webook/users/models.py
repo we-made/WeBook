@@ -6,8 +6,9 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 import webook.arrangement.models
-import webook.users.media_pathing as media_path
 from webook.arrangement.models import Person
+import webook.users.media_pathing as media_path
+from autoslug import AutoSlugField
 
 
 class CustomUserManager(BaseUserManager):

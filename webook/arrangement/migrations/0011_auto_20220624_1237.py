@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('arrangement', '0010_auto_20220614_1230'),
     ]
-    
     operations = [
         migrations.AlterField(
             model_name='arrangement',
