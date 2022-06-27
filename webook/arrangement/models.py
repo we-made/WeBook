@@ -18,6 +18,17 @@ from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 from webook.utils.manifest_describe import describe_manifest
 
 
+class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
+    """
+        A subclassed AutoSlugField that can see both archived and non archived entities, thus
+        preventing slug collisions with entities that are archived.
+        Use in tandem with ModelArchiveableMixin.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 class ModelArchiveableMixin(models.Model):
     """ Mixin for making a model archivable """
 

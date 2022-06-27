@@ -1,5 +1,3 @@
-import import
-import Person
 from autoslug import AutoSlugField
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
@@ -8,8 +6,8 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 import webook.arrangement.models
-import webook.users.media_pathing as media_patfrom
-from autoslug import AutoSlugField
+import webook.users.media_pathing as media_path
+from webook.arrangement.models import Person
 
 
 class CustomUserManager(BaseUserManager):
