@@ -34,6 +34,7 @@ class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
         super().__init__(*args, **kwargs, manager_name=manager_name)
         
 
+
 class ModelArchiveableMixin(models.Model):
     """ Mixin for making a model archivable """
 
