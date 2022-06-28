@@ -419,9 +419,7 @@ export class ArrangementInspector {
                         onRenderedCallback:  async (dialogManager, context) => {
                             context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk;
 
-                            var manifest = await fetch(`/arrangement/eventSerie/${context.editing_serie_pk}/manifest`, {
-                                method: "GET"
-                            }).then(response => response.json())
+                            var manifest = QueryStore.GetSerieManifest(context.editing_serie_pk);
 
                             PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk);
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
