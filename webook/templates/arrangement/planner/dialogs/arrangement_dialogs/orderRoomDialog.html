@@ -91,30 +91,8 @@
 </div>
 
 <script>
-    function orderRoomDialog__getSelectedRoomIds() {
-        var checkboxes = $("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked");
-        var roomIds = []
-        for (let i = 0; i < checkboxes.length; i++) {
-            roomIds.push( {  id: checkboxes[i].value, text: checkboxes[i].getAttribute("room_name") })
-        }
-        return roomIds;
-    }
-
-    function orderRoomDialog__activateRoomIds(roomIds) {
-        var checkboxes = $("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked");
-        for (let i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].removeAttribute("checked");
-        }
-
-        var ids = roomIds.split(",");
-        for (let i = 0; i < ids.length; i++) {
-            var correspondingCheckbox = $("input[type=checkbox][name=orderRoomDialog__checkboxArray][value='" + ids[i] + "']");
-            console.log("set", correspondingCheckbox)
-            correspondingCheckbox.attr("checked", true);
-        }
-    }
-
     $(document).ready(function () {
+        listenToRoomsBeingSelectedByCheckbox();
         document.querySelectorAll('.form-outline').forEach((formOutline) => {
             new mdb.Input(formOutline).init();
         });
@@ -124,6 +102,52 @@
             $('#{{location.slug}}_roomsTable').DataTable();
         {% endfor %}
     })
+
+    var selectedRoomsMap = new Map();
+
+    /*
+    Set up a listener that listens to rooms being selected and deselected by the checkboxes in the dialog.
+    When selected these rooms will be added to the selectedRoomsMap, when deselected they will be removed from the map
+    This is necessary due to datatables wiping its elements when you search or paginate, so we want to persist our memory 
+    of these ids/rooms beyond the scope and whims of the datatable.
+    */
+    function listenToRoomsBeingSelectedByCheckbox() {
+        $("input[type=checkbox][name=orderRoomDialog__checkboxArray]").change((event) => {
+            if (event.currentTarget.checked === true)
+                selectedRoomsMap.set(event.currentTarget.value, event.currentTarget.getAttribute("room_name"));
+            else
+                selectedRoomsMap.delete(event.currentTarget.value);
+        });
+    }
+
+    /*
+    Get all rooms that have been selected by checkbox in the order room dialog
+    */
+    function orderRoomDialog__getSelectedRoomIds() {
+        return Array.from(selectedRoomsMap, 
+            ([name, value]) => ({id: name, text: value})
+        );
+    }
+
+    /*
+    Uncheck all checkboxes in the order room dialog
+    */
+    function orderRoomDialog__uncheckAll() {
+        [...$("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked")]
+            .forEach((checkboxElement) => { checkboxElement.removeAttribute("checked"); });
+    }
+
+    /*
+    Takes an array of room ids and checks their corresponding checkboxes in the room selector
+    */
+    function orderRoomDialog__activateRoomIds(roomIds) {
+        orderRoomDialog__uncheckAll();
+
+        roomIds.split(",").forEach((roomId) => {
+            $("input[type=checkbox][name=orderRoomDialog__checkboxArray][value='" + roomId + "']")
+                .attr("checked", true).change();
+        });
+    }
 
     {% if mode == 'serie' %}
     function orderRoomDialog__order() {
