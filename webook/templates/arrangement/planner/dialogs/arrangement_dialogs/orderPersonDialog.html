@@ -83,8 +83,6 @@
             var data = new FormData();
             var people_ids = orderPersonDialog__getSelectedPeopleIds();
 
-            console.log(people_ids);
-
             data.set("people_ids", people_ids.map( x => x.id ).join(","));
             data.set("event_pk", "{{event.pk}}");
 
