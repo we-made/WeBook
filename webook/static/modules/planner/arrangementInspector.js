@@ -148,7 +148,10 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered"); },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("addPlannerDialog"); },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("addPlannerDialog"); 
+                        },
                         dialogOptions: { width: 400 }
                     })
                 ],
@@ -163,7 +166,10 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Upload files to event serie dialog rendered") },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("uploadFilesToEventSerieDialog"); },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                            this.dialogManager.closeDialog("uploadFilesToEventSerieDialog"); 
+                        },
                         dialogOptions: { width: 400 },
                     })
                 ],
@@ -609,7 +615,10 @@ export class ArrangementInspector {
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 }
-                            }).then(_ => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderRoomForOneEventDialog"); });;
+                            }).then(_ => { 
+                                this.dialogManager.reloadDialog("mainDialog"); 
+                                this.dialogManager.closeDialog("orderRoomForOneEventDialog"); 
+                            });
                         }
                     })
                 ],
@@ -633,7 +642,10 @@ export class ArrangementInspector {
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 }
-                            }).then(_ => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("orderPersonForOneEventDialog"); });;
+                            }).then(_ => { 
+                                this.dialogManager.reloadDialog("mainDialog"); 
+                                this.dialogManager.closeDialog("orderPersonForOneEventDialog"); 
+                            });
                         }
                     })
                 ],
