@@ -7,9 +7,6 @@ import { QueryStore } from "./querystore.js";
 
 const MANAGER_NAME = "arrangementInspector"
 
-const MAIN_DIALOG = Symbol("mainDialog")
-const ADD_PLANNER_DIALOG = Symbol("addPlannerDialog")
-
 
 export class ArrangementInspector {
     constructor () {
@@ -59,9 +56,8 @@ export class ArrangementInspector {
         for (var entry of collision_resolution_map) {
             var solution = entry[1].solution;
 
-            if (solution === undefined) {
+            if (solution === undefined)
                 continue;
-            }
 
             solutionEventFormDatas.push(solution);
         }
@@ -86,8 +82,7 @@ export class ArrangementInspector {
                                     .then(response => response.text());
                         },
                         onPreRefresh: (dialog) => {
-                            var active = $('#tabs').tabs ( "option", "active" );
-                            dialog._active_tab = active;
+                            dialog._active_tab = $('#tabs').tabs ( "option", "active" );
                         },
                         onRenderedCallback: (dialog) => {
                             $('#tabs').tabs();
@@ -113,11 +108,11 @@ export class ArrangementInspector {
                                         "X-CSRFToken": formData.get("csrfmiddlewaretoken")
                                     }
                                 });
+
                                 return await response.text();
                             }
 
-                            var somehtml = await getArrangementHtml(context.arrangement.slug, details.formData);
-                            this.dialogManager.reloadDialog("mainDialog", somehtml);
+                            this.dialogManager.reloadDialog("mainDialog", await getArrangementHtml(context.arrangement.slug, details.formData));
 
                             document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                         },
@@ -265,12 +260,6 @@ export class ArrangementInspector {
                                         .prop( "checked", true );
                                 })
 
-                            // document.querySelectorAll("input[name='display_layouts']:checked")
-                            //     .forEach(checkboxElement => {
-                            //         $(`#${checkboxElement.value}_dlcheck`)
-                            //             .prop( "checked", true );
-                            //     })
-
                             var splitDateFunc = function (strToDateSplit) {
                                 var date_str = strToDateSplit.split("T")[0];
                                 var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
@@ -283,9 +272,6 @@ export class ArrangementInspector {
                             $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
                             $('#toDate').val(endTimeArtifacts[0]).trigger('change');
                             $('#toTime').val(endTimeArtifacts[1]).trigger('change');
-
-                            // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
-                            // dialogCreateEvent__evaluateEnTitleObligatory();
 
                             if (serie.people.length > 0) {
                                 var peopleSelectContext = Object();
@@ -345,7 +331,7 @@ export class ArrangementInspector {
 
                             if (collisions_on_solution.length > 0) {
                                 CollisionsUtil.FireOneToOneCollisionWarningSwal(collisions_on_solution[0])
-                                    .then( async (_) => {
+                                    .then(async (_) => {
                                         await CollisionsUtil.FireCollisionsSwal(
                                             context.serie,
                                             context.collision_resolution,
@@ -356,7 +342,7 @@ export class ArrangementInspector {
                                             () => { this.dialogManager.closeDialog(context.active_collision_route_parent_dialog_id); }
                                         )
                                         this.dialogManager.closeDialog("breakOutActivityDialog");
-                                    } );
+                                    });
 
                                 return false;
                             }
@@ -372,7 +358,6 @@ export class ArrangementInspector {
                                 context.arrangement.arrangement_pk,
                                 this.saveSerieWithCollisionResolutions,
                                 () => { this.dialogManager.closeDialog(context.active_collision_route_parent_dialog_id); }
-
                             )
 
                             this.dialogManager.closeDialog("breakOutActivityDialog");
@@ -693,7 +678,7 @@ export class ArrangementInspector {
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return await fetch(`/arrangement/planner/dialogs/order_person?event_pk=0&manager=arrangementInspector&dialog=nestedOrderPersonDialog&orderRoomDialog=orderRoomDialog&orderPersonDialog=orderPersonDialog`)
-                            .then(response => response.text());
+                                .then(response => response.text());
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
