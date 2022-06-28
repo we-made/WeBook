@@ -40,14 +40,25 @@
 </div>
 
 <script>
+    $(document).ready(function () {
+        listenToPeopleBeingSelectedByCheckbox();
+    })
+
+    var selectedPeopleMap = new Map();
+
+    function listenToPeopleBeingSelectedByCheckbox() {
+        $("input[type=checkbox][name=orderPersonDialog__checkboxArray]").change((event) => {
+            if (event.currentTarget.checked === true)
+                selectedPeopleMap.set(event.currentTarget.value, event.currentTarget.getAttribute("person_name"));
+            else
+                selectedPeopleMap.delete(event.currentTarget.value);
+        })
+    }
 
     function orderPersonDialog__getSelectedPeopleIds() {
-        var checkboxes = $("input[type=checkbox][name=orderPersonDialog__checkboxArray]:checked");
-        var peopleIds = []
-        for (let i = 0; i < checkboxes.length; i++) {
-            peopleIds.push( { id: checkboxes[i].value, text: checkboxes[i].getAttribute("person_name") } );
-        }
-        return peopleIds;
+        return Array.from(selectedPeopleMap,
+            ([name, value]) => ({id: name, text: value})
+        );
     }
 
     {% if mode == 'serie' %}
@@ -71,6 +82,8 @@
         function orderPersonDialog__order() {
             var data = new FormData();
             var people_ids = orderPersonDialog__getSelectedPeopleIds();
+
+            console.log(people_ids);
 
             data.set("people_ids", people_ids.map( x => x.id ).join(","));
             data.set("event_pk", "{{event.pk}}");
