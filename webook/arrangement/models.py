@@ -1109,6 +1109,33 @@ class EventSerie(TimeStampedModel, ModelArchiveableMixin):
             event.archive(person_archiving_this)
 
 
+class BaseFileRelAbstractModel(TimeStampedModel):
+    """
+    Abstract base model for standard file relationships with uploader
+    """
+
+    class Meta:
+        abstract = True
+
+    file = FileField(upload_to="files_%(class)s/")
+    uploader = models.ForeignKey(
+        to="Person",
+        on_delete=models.RESTRICT,
+        related_name="files_uploaded_to_%(class)s"
+    )
+
+    @property
+    def filename(self):
+        return os.path.basename(self.file.name)
+
+
+class EventFile (BaseFileRelAbstractModel, ModelArchiveableMixin):
+    event = models.ForeignKey(
+        to=Event,
+        on_delete=models.RESTRICT,
+        related_name="files"
+    )
+
 class EventSerieFile(TimeStampedModel, ModelArchiveableMixin):
     event_serie = models.ForeignKey(to=EventSerie, on_delete=models.RESTRICT, related_name="files")
     uploader = models.ForeignKey(to="Person", on_delete=models.RESTRICT, related_name="files_uploaded_to_series")
