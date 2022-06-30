@@ -352,11 +352,6 @@
         return true;
     }
 
-    function inspectEventDialog__initFilesDatatable(){
-        $('#inspectEventDialog__filesTable').DataTable().destroy();
-        $('#inspectEventDialog__filesTable').DataTable({"pageLength": 5});
-    }
-
     $(document).ready(function () {
         // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
         //inspectEventDialog__evaluateEnTitleObligatory();
@@ -365,7 +360,6 @@
             inspectEventDialog__evaluateEnTitleObligatory();
         });
         */
-        inspectEventDialog__initFilesDatatable();
         document.addEventListener("eventInspector.roomsUpdated", (e) => {
             roomsMap = e.detail.context.room_name_map;
             inspectEventDialog__setRooms(e.detail.context.rooms);
