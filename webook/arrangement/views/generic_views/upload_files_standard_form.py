@@ -1,3 +1,4 @@
+from django.forms import Form
 from django.http import JsonResponse
 
 from webook.arrangement.forms.upload_files_form import UploadFilesForm
@@ -29,7 +30,7 @@ class UploadFilesStandardFormView(JsonFormView):
 
     form_class = UploadFilesForm
 
-    def form_valid(self, form) -> JsonResponse:
+    def form_valid(self, form: Form) -> JsonResponse:
         form.save(
             model=self.model,
             file_relationship_model=self.file_relationship_model,

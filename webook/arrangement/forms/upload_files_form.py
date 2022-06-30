@@ -1,6 +1,8 @@
+from typing import List, Type
 from django import forms
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
-from webook.arrangement.models import Person
+from webook.arrangement.models import BaseFileRelAbstractModel, Person
 
 
 class UploadFilesForm(forms.Form):
@@ -20,11 +22,10 @@ class UploadFilesForm(forms.Form):
         raise TypeError("Could not get instance. Have you supplied a slug or a pk?")
             
 
-    def save(self, model, file_relationship_model, uploader: Person, files):
+    def save(self, model, file_relationship_model: Type[BaseFileRelAbstractModel], uploader: Person, files: List[InMemoryUploadedFile]):
         for file in files:
             f_rel = file_relationship_model()
             f_rel.associated_with = self._get_instance(model)
             f_rel.uploader = uploader
             f_rel.file = file
-            f_rel.save()
-        
+            f_rel.save()        
