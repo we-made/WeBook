@@ -24,6 +24,7 @@ from .arrangement_views import (
     arrangement_update_view,
     planners_on_arrangement_table_view,
     planners_on_arrangement_view,
+    arrangement_upload_files_json_form_view,
 )
 from .arrangementtype_views import (
     arrangement_type_create_view,
@@ -140,8 +141,6 @@ from .planner_views import (
     planner_calendar_order_rooms_for_series_form_view,
     planner_calendar_remove_person_from_event_form_view,
     planner_calendar_remove_room_from_event_form_view,
-    planner_calendar_upload_file_to_arrangement_dialog_view,
-    planner_calendar_upload_file_to_event_serie_dialog_view,
     planner_calendar_view,
     planner_event_inspector_dialog_view,
     planner_view,

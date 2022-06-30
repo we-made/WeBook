@@ -22,6 +22,7 @@ from webook.arrangement.forms.add_planner_form import AddPlannerForm
 from webook.arrangement.models import Arrangement, ArrangementFile, Person
 from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
+from webook.arrangement.views.generic_views.upload_files_standard_form import UploadFilesStandardFormView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -211,6 +212,13 @@ class ArrangementRemovePlannerFormView(LoginRequiredMixin, JsonFormView):
         return super().form_valid(form)
 
 arrangement_remove_planner_form_view = ArrangementRemovePlannerFormView.as_view()
+
+
+class ArrangementUploadFilesJsonFormView(LoginRequiredMixin, UploadFilesStandardFormView):
+    model = Arrangement
+    file_relationship_model = ArrangementFile
+
+arrangement_upload_files_json_form_view = ArrangementUploadFilesJsonFormView.as_view()
 
 
 class ArrangementDeleteFileView(LoginRequiredMixin, DeleteView):

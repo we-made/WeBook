@@ -293,16 +293,6 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
         return self.name
 
 
-class ArrangementFile(TimeStampedModel, ModelArchiveableMixin):
-    arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT, related_name="files")
-    uploader = models.ForeignKey(to="Person", on_delete=models.RESTRICT, related_name="files_uploaded_to_arrangements")
-    file = FileField(upload_to="arrangementFiles/")
-
-    @property
-    def filename(self):
-        return os.path.basename(self.file.name)
-
-
 class Location (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """Location represents a physical location, for instance a building.
     In practice a location is a group of rooms, primarily helpful in contextualization and filtering
@@ -1140,6 +1130,10 @@ class EventFile (BaseFileRelAbstractModel, ModelArchiveableMixin):
 
 class EventSerieFile(BaseFileRelAbstractModel, ModelArchiveableMixin):
     associated_with = models.ForeignKey(to=EventSerie, on_delete=models.RESTRICT, related_name="files")
+
+
+class ArrangementFile(BaseFileRelAbstractModel, ModelArchiveableMixin):
+    associated_with = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT, related_name="files")
 
 
 class LooseServiceRequisition(TimeStampedModel, ModelArchiveableMixin):

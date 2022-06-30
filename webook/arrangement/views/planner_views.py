@@ -808,44 +808,6 @@ class UploadFilesDialog(LoginRequiredMixin, TemplateView):
 upload_files_dialog = UploadFilesDialog.as_view()
 
 
-class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, JsonFormView):
-    form_class = UploadFilesToArrangementForm
-    template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToArrangementDialog.html"
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        arrangement_slug = self.request.GET.get("arrangement_slug")
-        if (arrangement_slug == False or arrangement_slug is None):
-            arrangement_slug = self.request.POST.get("arrangement_slug")
-        context["arrangement_slug"] = arrangement_slug
-        arrangement = Arrangement.objects.get(slug=arrangement_slug)
-        context["arrangement"] = arrangement
-        return context
-
-    def post(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-
-        arrangement_slug = request.POST.get("arrangement_slug")
-        arrangement = Arrangement.objects.filter(slug=arrangement_slug).first()
-
-        files = request.FILES.getlist('file_field')
-
-        if form.is_valid():
-            for f in files:
-                arrangement_file = ArrangementFile(
-                    arrangement = arrangement,
-                    uploader = request.user.person,
-                    file = f
-                )
-                arrangement_file.save()
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-planner_calendar_upload_file_to_arrangement_dialog_view = PlannerCalendarUploadFileToArrangementDialog.as_view()
-
-
 class PlanSerieForm(LoginRequiredMixin, FormView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
     form_class=PlannerPlanSerieForm
