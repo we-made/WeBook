@@ -76,7 +76,34 @@ export class EventInspector {
                             document.dispatchEvent(new CustomEvent("eventInspector.roomsUpdated", { detail: { context: context } }))
                         }
                     })
-                ]
+                ],
+                [
+                    "uploadFilesDialog",
+                    new Dialog({
+                        dialogElementId: "uploadFilesDialog",
+                        triggerElementId: "eventDialog_uploadFilesBtn",
+                        htmlFabricator: async (context) => {
+                            return await fetch(`/arrangement/planner/dialogs/upload_files_dialog?manager=eventInspector&dialog=uploadFilesDialog`)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: (dialogInstance, context) => {},
+                        dialogOptions: { width: 600 },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.closeDialog("uploadFilesDialog"); 
+                            this.dialogManager.reloadDialog("inspectEventDialog"); 
+                        },
+                        onSubmit: async (context, details) => {
+                            details.formData.append("pk", context.event.pk);
+                            await fetch(`/arrangement/event/${context.event.pk}/upload`, {
+                                method: 'POST',
+                                body: details.formData,
+                                headers: {
+                                    'X-CSRFToken': details.csrf_token
+                                }
+                            });
+                        }
+                    })
+                ],
             ]            
         })
     }

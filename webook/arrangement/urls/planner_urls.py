@@ -40,6 +40,7 @@ from webook.arrangement.views import (
     planner_calendar_view,
     planner_event_inspector_dialog_view,
     planner_view,
+    upload_files_dialog,
 )
 
 planner_urls = [
@@ -222,5 +223,10 @@ planner_urls = [
         route="planner/dialogs/upload_files_to_event_serie",
         view=planner_calendar_upload_file_to_event_serie_dialog_view,
         name="upload_files_to_event_serie"
+    ),
+    path(
+        route="planner/dialogs/upload_files_dialog",
+        view=upload_files_dialog,
+        name="upload_files_dialog",
     ),
 ]

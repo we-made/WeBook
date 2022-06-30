@@ -1117,7 +1117,8 @@ class BaseFileRelAbstractModel(TimeStampedModel):
     class Meta:
         abstract = True
 
-    file = FileField(upload_to="files_%(class)s/")
+    associated_with = None
+    file = FileField(upload_to="uploadedFiles/")
     uploader = models.ForeignKey(
         to="Person",
         on_delete=models.RESTRICT,
@@ -1130,7 +1131,7 @@ class BaseFileRelAbstractModel(TimeStampedModel):
 
 
 class EventFile (BaseFileRelAbstractModel, ModelArchiveableMixin):
-    event = models.ForeignKey(
+    associated_with = models.ForeignKey(
         to=Event,
         on_delete=models.RESTRICT,
         related_name="files"

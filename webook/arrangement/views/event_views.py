@@ -15,9 +15,21 @@ from django.views.generic import (
 
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
 from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import CreateSerieForm, SerieManifestForm
-from webook.arrangement.models import Arrangement, Event, EventSerie, EventSerieFile, Person, PlanManifest, Room
+from webook.arrangement.forms.upload_files_form import UploadFilesForm
+from webook.arrangement.models import (
+    Arrangement,
+    Event,
+    EventFile,
+    EventSerie,
+    EventSerieFile,
+    Person,
+    PlanManifest,
+    Room,
+)
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
+from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.generic_views.upload_files_standard_form import UploadFilesStandardFormView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
@@ -60,6 +72,23 @@ class DeleteEventJsonView(LoginRequiredMixin, JsonArchiveView):
     model = Event
 
 delete_event_json_view = DeleteEventJsonView.as_view()
+
+
+class UploadFilesToEventJsonFormView(LoginRequiredMixin, UploadFilesStandardFormView):
+    """FormView that handles file uploads to an event"""
+    model = Event
+    file_relationship_model = EventFile
+
+upload_files_to_event_json_form_view = UploadFilesToEventJsonFormView.as_view()
+
+
+class DeleteFileFromEventView(LoginRequiredMixin, JsonDeleteView):
+    """View that provides functionality for deleting a file from an event"""
+    model = EventFile
+    pk_url_kwarg = "pk"
+
+delete_file_from_event_view = DeleteFileFromEventView.as_view()
+
 
 class EventSerieDeleteFileView(LoginRequiredMixin, DeleteView):
     model = EventSerieFile

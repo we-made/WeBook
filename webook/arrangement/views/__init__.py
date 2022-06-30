@@ -65,9 +65,11 @@ from .event_views import (
     create_event_serie_json_view,
     delete_event_json_view,
     delete_event_serie_view,
+    delete_file_from_event_view,
     event_serie_delete_file_view,
     event_serie_manifest_view,
     update_event_json_view,
+    upload_files_to_event_json_form_view,
 )
 from .insights_views import global_timeline_view
 from .location_views import (
@@ -142,6 +144,7 @@ from .planner_views import (
     planner_calendar_view,
     planner_event_inspector_dialog_view,
     planner_view,
+    upload_files_dialog,
 )
 from .requisition_views import (
     cancel_service_requisition_form_view,

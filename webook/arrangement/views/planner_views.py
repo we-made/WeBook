@@ -829,6 +829,21 @@ class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, JsonFormVi
 planner_calendar_upload_file_to_event_serie_dialog_view = PlannerCalendarUploadFileToEventSerieDialog.as_view()
 
 
+class UploadFilesDialog(LoginRequiredMixin, TemplateView):
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        
+        context["dialog"] = self.request.GET.get("dialog", "uploadFilesDialog")
+        if "manager" in self.request.GET:
+            context["manager"] = self.request.GET.get("manager")
+        
+        return context
+
+upload_files_dialog = UploadFilesDialog.as_view()
+
+
 class PlannerCalendarUploadFileToArrangementDialog(LoginRequiredMixin, JsonFormView):
     form_class = UploadFilesToArrangementForm
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToArrangementDialog.html"
