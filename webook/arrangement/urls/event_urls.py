@@ -12,6 +12,7 @@ from webook.arrangement.views import (
     event_serie_manifest_view,
     update_event_json_view,
     upload_files_to_event_json_form_view,
+    upload_files_to_event_serie_json_form_view,
 )
 
 event_urls = [
@@ -49,6 +50,11 @@ event_urls = [
         route="eventSerie/files/delete/<int:pk>",
         view=event_serie_delete_file_view,
         name="event_serie_delete_file",
+    ),
+    path(
+        route="eventSerie/<int:pk>/files/upload",
+        view=upload_files_to_event_serie_json_form_view,
+        name="upload_files_to_event_serie"
     ),
     path(
         route="eventSerie/delete/<int:pk>",

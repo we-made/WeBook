@@ -90,14 +90,16 @@ class DeleteFileFromEventView(LoginRequiredMixin, JsonDeleteView):
 delete_file_from_event_view = DeleteFileFromEventView.as_view()
 
 
-class EventSerieDeleteFileView(LoginRequiredMixin, DeleteView):
-    model = EventSerieFile
-    template_name = "_blank.html"
+class UploadFilesToEventSerieJsonFormView(LoginRequiredMixin, UploadFilesStandardFormView):
+    model = EventSerie
+    file_relationship_model = EventSerieFile
 
-    def delete(self, request, *args, **kwargs):
-        self.get_object().delete()
-        payload = { 'delete': 'ok' }
-        return JsonResponse(payload)
+upload_files_to_event_serie_json_form_view = UploadFilesToEventSerieJsonFormView.as_view()
+
+
+class EventSerieDeleteFileView(LoginRequiredMixin, JsonDeleteView):
+    model = EventSerieFile
+    pk_url_kwarg = "pk"
 
 event_serie_delete_file_view = EventSerieDeleteFileView.as_view()
 

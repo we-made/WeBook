@@ -164,11 +164,26 @@ export class ArrangementInspector {
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/upload_files_to_event_serie?event_serie_pk=" + context.lastTriggererDetails.event_serie_pk)
+                            // return await fetch("/arrangement/planner/dialogs/upload_files_to_event_serie?event_serie_pk=" + context.lastTriggererDetails.event_serie_pk)
+                            //     .then(response => response.text());
+                            return await fetch(`/arrangement/planner/dialogs/upload_files_dialog?manager=arrangementInspector&dialog=uploadFilesToEventSerieDialog`)
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Upload files to event serie dialog rendered") },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); this.dialogManager.closeDialog("uploadFilesToEventSerieDialog"); },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                            this.dialogManager.closeDialog("uploadFilesToEventSerieDialog"); 
+                        },
+                        onSubmit: async (context, details) => {
+                            details.formData.append("pk", context.lastTriggererDetails.event_serie_pk);
+                            await fetch(`/arrangement/eventSerie/${context.lastTriggererDetails.event_serie_pk}/files/upload`, {
+                                method: 'POST',
+                                body: details.formData,
+                                headers: {
+                                    'X-CSRFToken': details.csrf_token
+                                }
+                            });
+                        },
                         dialogOptions: { width: 400 },
                     })
                 ],

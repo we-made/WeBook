@@ -793,42 +793,6 @@ class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, JsonFormVie
 planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFromEventFormView.as_view()
 
 
-class PlannerCalendarUploadFileToEventSerieDialog(LoginRequiredMixin, JsonFormView):
-    form_class = UploadFilesToEventSerieForm
-    template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesToEventSerieDialog.html"
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        event_serie_pk = self.request.GET.get("event_serie_pk")
-        context["event_serie_pk"] = event_serie_pk
-        event_serie = EventSerie.objects.get(pk=event_serie_pk)
-        context["event_serie"] = event_serie
-        return context
-
-    def post(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-
-        event_serie_pk = request.POST.get("event_serie_pk")
-        event_serie = EventSerie.objects.get(pk=event_serie_pk)
-
-        files = request.FILES.getlist("file_field")
-
-        if form.is_valid():
-            for f in files:
-                event_serie_file = EventSerieFile(
-                    event_serie=event_serie,
-                    uploader=request.user.person,
-                    file=f
-                )
-                event_serie_file.save()
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-planner_calendar_upload_file_to_event_serie_dialog_view = PlannerCalendarUploadFileToEventSerieDialog.as_view()
-
-
 class UploadFilesDialog(LoginRequiredMixin, TemplateView):
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesDialog.html"
 

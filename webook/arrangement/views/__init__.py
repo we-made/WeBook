@@ -70,6 +70,7 @@ from .event_views import (
     event_serie_manifest_view,
     update_event_json_view,
     upload_files_to_event_json_form_view,
+    upload_files_to_event_serie_json_form_view,
 )
 from .insights_views import global_timeline_view
 from .location_views import (

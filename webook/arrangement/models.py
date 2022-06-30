@@ -1137,14 +1137,9 @@ class EventFile (BaseFileRelAbstractModel, ModelArchiveableMixin):
         related_name="files"
     )
 
-class EventSerieFile(TimeStampedModel, ModelArchiveableMixin):
-    event_serie = models.ForeignKey(to=EventSerie, on_delete=models.RESTRICT, related_name="files")
-    uploader = models.ForeignKey(to="Person", on_delete=models.RESTRICT, related_name="files_uploaded_to_series")
-    file = FileField(upload_to="serieFiles/")
 
-    @property
-    def filename(self):
-        return os.path.basename(self.file.name)
+class EventSerieFile(BaseFileRelAbstractModel, ModelArchiveableMixin):
+    associated_with = models.ForeignKey(to=EventSerie, on_delete=models.RESTRICT, related_name="files")
 
 
 class LooseServiceRequisition(TimeStampedModel, ModelArchiveableMixin):
