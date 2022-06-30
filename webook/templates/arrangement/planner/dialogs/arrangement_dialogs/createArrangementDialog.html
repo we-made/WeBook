@@ -265,7 +265,6 @@
 
         document.addEventListener("{{managerName}}.contextUpdated", (e) => {
             if (e.detail.context.series !== undefined) {
-                debugger;
                 setSeries(e.detail.context.series);
             }
             if (e.detail.context.events !== undefined) {
@@ -479,14 +478,12 @@
     }
 
     function createArrangementDialog_removeSerie(uuid) {
-        debugger;
         $('#' + uuid).remove();
         seriesMap.delete(uuid);
     }
 
 
     function createArrangementDialog_removeSimpleActivity(uuid) {
-        debugger;
         $('#' + uuid).remove();
         eventsMap.delete(uuid);
     }
