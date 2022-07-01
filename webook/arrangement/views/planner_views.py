@@ -333,7 +333,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                 LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                                 LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                                 LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                                LEFT JOIN arrangement_eventserie as evserie on evserie.arrangement_id = ev.serie_id
+                                LEFT JOIN arrangement_eventserie as evserie on evserie.id = ev.serie_id
                                 WHERE arr.is_archived = false AND ev.start > %s AND ev.end < %s AND ev.is_archived = false
                                 GROUP BY event_pk, audience.icon_class, audience.name, audience.slug,
                             resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
@@ -357,7 +357,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                             LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                             LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                            LEFT JOIN arrangement_eventserie as evserie on evserie.arrangement_id = ev.serie_id
+                            LEFT JOIN arrangement_eventserie as evserie on evserie.id = ev.serie_id
                             WHERE arr.is_archived = 0 AND ev.start > %s AND ev.end < %s
                             GROUP BY event_pk''', [start, end]
                 )

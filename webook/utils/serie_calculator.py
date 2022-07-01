@@ -355,8 +355,10 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
 
             if scope.instance_limit != 0:
                 instance_cursor += 1
-            
+
             cycle_cursor += 1
     
+    events = list(filter(lambda e: e.start.date() < scope.stop_within_date.date(), events))
+
     return events
     

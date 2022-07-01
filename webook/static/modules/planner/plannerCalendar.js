@@ -195,6 +195,7 @@ export class PlannerCalendar extends FullCalendarBased {
             </span>`
         }
 
+
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
             content: `

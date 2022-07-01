@@ -19,6 +19,28 @@
         </div>
     </div>
 
+    <div class="mb-3">
+        {% if event.serie %}
+        <span class="badge badge-secondary shadow-2"
+            data-mdb-toggle="tooltip"
+            title="Aktiviteten er en del av en serie">
+            <h4 class="mb-0"><i class="fas fa-redo"></i></h4>
+        </span>
+        {% elif event.associated_serie and event.association_type == "degraded_from_serie" %}
+        <span class="badge badge-warning shadow-2"
+            data-mdb-toggle="tooltip"
+            title="Aktiviteten er brutt ut av en serie">
+            <h4 class="mb-0"><i class="fas fa-redo"></i> <i class="fas fa-times"></i></h4>
+        </span>
+        {% else %}
+        <span class="badge badge-success shadow-2"
+            data-mdb-toggle="tooltip"
+            title="Aktiviteten er enkeltstående, det vil si ikke del av en serie">
+            <h4 class="mb-0"><i class="fas fa-calendar"></i></h4>
+        </span>
+        {% endif %}
+    </div>
+
     <ul class="nav nav-tabs mb-3" id="ex1" role="tablist">
         <li class="nav-item" role="presentation">
         <a

@@ -3,7 +3,6 @@ import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
 import { PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
 import { QueryStore } from "./querystore.js";
 import { serieConvert } from "./serieConvert.js";
-import { SeriesUtil } from "./seriesutil.js";
 import { SerieMetaTranslator } from "./serie_meta_translator.js";
 
 
@@ -98,9 +97,13 @@ export class ArrangementCreator {
                                     new mdb.Input(formOutline).init();
                                 });
                             }
-
-                            var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
-                            PopulateCreateSerieDialogFromSerie(serie);
+                            else {
+                                if (context.series !== undefined) {
+                                    var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
+                                    PopulateCreateSerieDialogFromSerie(serie);
+                                }
+                            }
+                            
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });

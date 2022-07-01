@@ -442,11 +442,10 @@ export class ArrangementInspector {
                             return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementInspector&dialog=editEventSerieDialog&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback:  async (dialogManager, context) => {
+                        onRenderedCallback: async (dialogManager, context) => {
                             context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk;
 
-                            var manifest = QueryStore.GetSerieManifest(context.editing_serie_pk);
-
+                            var manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
                             PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk);
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
