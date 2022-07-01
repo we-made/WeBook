@@ -109,6 +109,8 @@ export class PlannerCalendarFilter {
             });
             this.locationContext.set(sampleLocationSlug, locationFilterSet);
 
+            this.dialogManager.closeDialog( "roomFilterDialog" );
+
             if (REFRESH_ON_CONTEXT_UPDATE) {
                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
             }

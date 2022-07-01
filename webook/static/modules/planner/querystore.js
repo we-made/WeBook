@@ -63,4 +63,16 @@ export class QueryStore {
             })
         }
     }
+
+
+    /**
+     * Get the serie manifest for a given serie identified by serie_pk
+     * @param {*} serie_pk 
+     * @returns 
+     */
+    static async GetSerieManifest(serie_pk) {
+        return await fetch(`/arrangement/eventSerie/${serie_pk}/manifest`, {
+            method: "GET"
+        }).then(response => response.json());
+    }
 }

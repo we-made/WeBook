@@ -317,9 +317,9 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
         with connection.cursor() as cursor:
             if (db_vendor == 'postgresql'):
                 cursor.execute(
-                    f'''    SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, (resp.first_name || ' ' || resp.last_name) as mainPlannerName,
-                                arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts,
-                                ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
+                    f'''    SELECT audience.icon_class as audience_icon, arr.name as arrangement_name, audience.name as audience, audience.slug as audience_slug, (resp.first_name || ' ' || resp.last_name) as mainPlannerName,
+                                arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts, arr.created as created_when, ev.association_type as association_type,
+                                ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug, evserie.id as evserie_id,
                                 array_agg( DISTINCT room.name) as room_names,
                                 array_agg( DISTINCT participants.first_name || ' ' || participants.last_name ) as people_names,
                                 (loc.slug || ',' || array_to_string(array_agg(DISTINCT room.slug ), ',') || ',' || array_to_string(array_agg(DISTINCT participants.slug), ',')) as slug_list
@@ -333,16 +333,17 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                 LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                                 LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                                 LEFT JOIN arrangement_room as room on room.id = evr.room_id
+                                LEFT JOIN arrangement_eventserie as evserie on evserie.arrangement_id = ev.serie_id
                                 WHERE arr.is_archived = false AND ev.start > %s AND ev.end < %s AND ev.is_archived = false
                                 GROUP BY event_pk, audience.icon_class, audience.name, audience.slug,
                             resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
-                            loc.name, loc.slug, arrtype.name, arrtype.slug
+                            loc.name, loc.slug, arrtype.name, arrtype.slug, evserie.id
                             ''', [start, end] )
             elif (db_vendor == 'sqlite'):
                 cursor.execute(
-                    f'''	SELECT audience.icon_class as audience_icon, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
-                            arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts,
-                            ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug,
+                    f'''	SELECT audience.icon_class as audience_icon, arr.name as arrangement_name, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
+                            arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts, arr.created as created_when, ev.association_type as association_type,
+                            ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug, evserie.id as evserie_id,
                             GROUP_CONCAT( DISTINCT room.name) as room_names, 
                             GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
                             (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
@@ -356,6 +357,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
                             LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
                             LEFT JOIN arrangement_room as room on room.id = evr.room_id
+                            LEFT JOIN arrangement_eventserie as evserie on evserie.arrangement_id = ev.serie_id
                             WHERE arr.is_archived = 0 AND ev.start > %s AND ev.end < %s
                             GROUP BY event_pk''', [start, end]
                 )
