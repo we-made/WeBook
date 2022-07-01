@@ -1,29 +1,24 @@
-from ast import Delete
 import json
+from ast import Delete
 from pipes import Template
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
+from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-)
-from django.views.generic.edit import FormView
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, FormView
+
 from webook.arrangement.forms.post_note_form import PostNoteForm
-from webook.arrangement.models import Location, Note, Event
-from django.core.serializers.json import DjangoJSONEncoder
+from webook.arrangement.models import Event, Location, Note
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
-from django.core import serializers
-from django.http import JsonResponse
 from webook.utils.meta_utils.typeToModels import getEntityTypeToModelsDict
 
 
@@ -45,21 +40,25 @@ class GetNotesForEntityView (ListView):
     template_name = "arrangement/notes/notes_on_entity.html"
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        entityType = self.request.GET.get("entityType")
-        entityPk = self.request.GET.get("entityPk")
+        entity_type = self.request.GET.get("entityType")
+        entity_pk = self.request.GET.get("entityPk")
 
-        model = getEntityTypeToModelsDict()[entityType]
-        modelInstance = model.objects.filter(pk=entityPk).first()
-        qs = modelInstance.notes.select_related('author').all()
+        model = getEntityTypeToModelsDict()[entity_type]
+        model_instance = model.objects.filter(pk=entity_pk).first()
+        qs = model_instance.notes.select_related('author').all()
 
         return qs
 
     def get(self, request, *args, **kwargs):
-        qs = self.get_queryset()
         notes = []
-        for note in qs:
-            notes.append({"author": note.author.full_name, "content": note.content, "pk": note.pk, "created": note.created})
+        for note in self.get_queryset():
+            notes.append(
+                {
+                    "author": note.author.full_name, 
+                    "content": note.content, 
+                    "pk": note.pk, 
+                    "created": note.created
+                })
         return JsonResponse(json.dumps(notes, cls=DjangoJSONEncoder), safe=False)
 
 get_notes_view = GetNotesForEntityView.as_view()
@@ -67,14 +66,12 @@ get_notes_view = GetNotesForEntityView.as_view()
 
 class PostNoteView (JsonFormView):
     form_class = PostNoteForm
-    template_name = "_blank.html"
 
     def form_valid(self, form):
         form.save_note(self.request.user.person)
         return super().form_valid(form)
     
     def form_invalid(self, form):
-        print(form.errors)
         return super().form_invalid(form)
 
 post_note_view = PostNoteView.as_view()
