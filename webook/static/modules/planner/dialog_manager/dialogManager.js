@@ -203,14 +203,13 @@ export class DialogManager {
 
         this._dialogRepository.forEach(( value, key, map) => {
             if (value.triggerByEvent === true) {
-
                 var triggerName = value.dialogElementId;
                 if (value.customTriggerName !== undefined) {
                     triggerName = value.customTriggerName;
                 }
 
-                document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (detail) => {
-                    this.context.lastTriggererDetails = detail.detail;
+                document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
+                    this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
                 });
             }

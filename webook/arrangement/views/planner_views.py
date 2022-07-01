@@ -33,6 +33,7 @@ from webook.arrangement.forms.order_room_form import OrderRoomForEventForm
 from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
 from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
 from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
+from webook.arrangement.forms.post_note_form import CreateNoteForm, UpdateNoteForm
 from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
 from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
 from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
@@ -48,6 +49,7 @@ from webook.arrangement.models import (
     EventSerieFile,
     Location,
     LooseServiceRequisition,
+    Note,
     Person,
     PlanManifest,
     RequisitionRecord,
@@ -545,7 +547,8 @@ class PlannerArrangementPromotePlannerDialog(LoginRequiredMixin, TemplateView):
 arrangement_promote_planner_dialog_view = PlannerArrangementPromotePlannerDialog.as_view()
 
 
-class PlannerArrangementNewNoteDialog(LoginRequiredMixin, TemplateView):
+class PlannerArrangementNewNoteDialog(LoginRequiredMixin, FormView):
+    form_class = CreateNoteForm
     template_name="arrangement/planner/dialogs/arrangement_dialogs/newNoteDialog.html"
 
     def get_context_data(self, **kwargs):
@@ -553,9 +556,26 @@ class PlannerArrangementNewNoteDialog(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         arrangement = Arrangement.objects.get(slug=arrangement_slug)
         context["arrangementPk"] = arrangement.pk
+        context["dialog"] = self.request.GET.get("dialog", "newNoteDialog")
+        context["manager"] = self.request.GET.get("manager", None)
         return context
 
 arrangement_new_note_dialog_view = PlannerArrangementNewNoteDialog.as_view()
+
+
+class PlannerArrangementEditNoteDialog(LoginRequiredMixin, UpdateView, JsonModelFormMixin):
+    form_class = UpdateNoteForm
+    pk_url_kwarg = "pk"
+    model = Note
+    template_name="arrangement/planner/dialogs/arrangement_dialogs/newNoteDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["dialog"] = self.request.GET.get("dialog", "editNoteDialog")
+        context["manager"] = self.request.GET.get("manager", None)
+        return context
+
+planner_arrangement_edit_note_dialog_view = PlannerArrangementEditNoteDialog.as_view()
 
 
 class PlannerArrangementAddPlannerDialog(LoginRequiredMixin, TemplateView):
