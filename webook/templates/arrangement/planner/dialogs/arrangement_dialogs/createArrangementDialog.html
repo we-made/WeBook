@@ -293,21 +293,7 @@
         return true;
     }
 
-    function has_plans () {
-        let has_plans = false;
-
-        console.log("SeriesMap", seriesMap);
-        console.log("EventsMap", eventsMap)
-
-        if (seriesMap !== undefined && seriesMap.size > 0) {
-            has_plans = true;
-        }
-        if (eventsMap !== undefined && eventsMap.size > 0) {
-            has_plans = true;
-        }
-
-        return has_plans;
-    }
+    var has_plans = () => seriesMap !== undefined && seriesMap.size > 0 || eventsMap !== undefined && eventsMap.size > 0;
 
     function createArrangementDialog_submit() {
 
@@ -354,13 +340,12 @@
     }
 
     function setEvents(events) {
-        eventsMap = new Map();
+        eventsMap = events;
 
         var tbody = $('#eventsBody');
         tbody.html("");
 
         events.forEach(element => {
-            eventsMap.set(element._uuid, element);
             tbody.append(
                 $(`
                 <div class="border border rounded p-3" id='${element._uuid}'>
@@ -387,14 +372,12 @@
     }
 
     function setSeries(series) {
-        seriesMap = new Map();
-
+        seriesMap = series;
+        
         var tbody = $('#timeplansBody');
         tbody.html("")
 
         series.forEach(element => {
-            var uuid = crypto.randomUUID();
-            seriesMap.set(element._uuid, element);
             collisions_html = "";
             if (element.collisions !== undefined && element.collisions.length > 0) {
                 var collisionsCounter = 0;
