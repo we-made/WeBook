@@ -606,7 +606,10 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { this.dialogManager._makeAware(); },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.closeDialog("orderRoomForOneEventDialog");
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                        },
                         dialogOptions: { width: 500 },
                         onSubmit: async (context, details) => {
                             fetch("/arrangement/planner/dialogs/order_rooms_for_event_form", {
@@ -634,7 +637,10 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: () => { this.dialogManager._makeAware(); },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.closeDialog("orderPersonForOneEventDialog");
+                            this.dialogManager.reloadDialog("mainDialog"); 
+                        },
                         onSubmit: async (context, details) => {
                             fetch("/arrangement/planner/dialogs/order_people_for_event_form", {
                                 method: "POST",
