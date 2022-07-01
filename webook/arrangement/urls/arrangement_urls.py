@@ -13,6 +13,7 @@ from webook.arrangement.views import (
     arrangement_create_json_view,
     arrangement_delete_file_view,
     arrangement_recurring_information_json_view,
+    arrangement_upload_files_json_form_view,
 )
 
 
@@ -73,8 +74,13 @@ arrangement_urls = [
         name="arrangement_ajax_create",
     ),
     path(
+        route="arrangement/files/upload",
+        view=arrangement_upload_files_json_form_view,
+        name="arrangement_file_upload",
+    ),
+    path(
         route="arrangement/files/delete/<int:pk>",
         view=arrangement_delete_file_view,
         name="arrangement_file_delete",
-    )
+    ),
 ]

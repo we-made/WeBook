@@ -1,0 +1,48 @@
+{% load static i18n %}
+
+
+<div id="{{ dialog }}" title="{% trans 'Upload files' %}" class="bg-white">
+    <form action="" enctype="application/x-www-form-urlencoded" id="uploadFilesDialogForm">
+        <div class="file-upload-wrapper">
+            <input type="file"
+                id="input-file-now"
+                name="file_field"
+                class="file-upload-input"
+                multiple="true"
+                data-mdb-file-upload="file-upload" />
+        </div>
+
+        {% csrf_token %}
+
+        <div class="clearfix">
+            <button class="btn btn-sm btn-block btn-secondary float-end shadow-0"
+                type="submit">
+                <i class="fa fa-upload"></i>
+                {% trans "Upload" %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        const fileUploadEl = document.querySelector("#input-file-now");
+        const fileUploadInstance = new FileUpload(fileUploadEl);
+
+        $('#uploadFilesDialogForm').on('submit', function (e) {
+            e.preventDefault();
+            e.returnValue = false;
+
+            var form = $('#uploadFilesDialogForm')[0];
+            var formData = new FormData(form);
+            
+            document.dispatchEvent(
+                new CustomEvent("{{manager}}.submit", { "detail": {
+                    dialog: '{{dialog}}',
+                    formData: formData,
+                    csrf_token: '{% csrf_token %}',
+                }})
+            );
+        });
+    });
+</script>

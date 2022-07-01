@@ -156,54 +156,93 @@ export class PlannerCalendar extends FullCalendarBased {
             end.getSeconds().toString().padStart(2, '0')}`
 
 
-        var roomsListHtml = "<ul>";
+        var roomsListHtml = "<div>";
         arrangement.room_names.forEach( (roomName) => {
             if (roomName !== null) {
-                roomsListHtml += "<li>" + roomName + "</li>";
+                roomsListHtml += "<span class='chip'>" + roomName + "</span>";
             }
         });
-        roomsListHtml += "</ul>";
-        if (roomsListHtml !== "<ul></ul>") {
-            roomsListHtml = "<h6>Rom:</h6>" + roomsListHtml
+        roomsListHtml += "</div>";
+        if (roomsListHtml !== "<div></div>") {
+            roomsListHtml = "<h6><i class='fas fa-building'></i>&nbsp; Rom:</h6>" + roomsListHtml
         }
 
-        var peopleListHtml = "<ul>";
+        var peopleListHtml = "<div>";
         arrangement.people_names.forEach( (personName) => {
             if (personName !== null) {
-                peopleListHtml += "<li>" + personName + "</li>";
+                peopleListHtml += "<span class='chip'>" + personName + "</span>";
             }
         })
-        peopleListHtml += "</ul>";
-        if (peopleListHtml !== "<ul></ul>") {
-            peopleListHtml = "<h6>Personer:</h6>" + peopleListHtml;
+        peopleListHtml += "</div>";
+        if (peopleListHtml !== "<div></div>") {
+            peopleListHtml = "<h6><i class='fas fa-users'></i>&nbsp; Personer:</h6>" + peopleListHtml;
         }
+
+        var badgesHtml = "";
+        if (arrangement.evserie_id !== null) {
+            badgesHtml += `<span class="badge badge-secondary"><i class='fas fa-redo'></i></span>`;
+        }
+        else if (arrangement.evserie_id === null && arrangement.association_type === "degraded_from_serie") {
+            badgesHtml += `
+            <span class="badge badge-warning">
+                <i class='fas fa-redo'></i> <i class='fas fa-times'></i>
+            </span>`
+        }
+        else {
+            badgesHtml += `
+            <span class="badge badge-success">
+                <i class='fas fa-calendar'></i>
+            </span>`
+        }
+
 
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
             content: `
-                <span class='badge h6 badge-lg badge-info'>
-                    Målgruppe: 
-                    <i class='${arrangement.audience_icon}'></i>&nbsp;
-                    ${arrangement.audience}
-                </span>
-                <span class='badge h6 badge-success'>
-                    Hovedplanlegger:
-                    ${arrangement.mainplannername}
-                </span>
-                <span class='badge h6 badge-secondary'>
-                    Lokasjon: 
-                    ${arrangement.location}
-                </span>
-                <span class='badge h6 badge-secondary'>
-                    Arrangementstype: 
-                    ${arrangement.arrangement_type}
-                </span>
-                <h5 class='mb-0 mt-2'>${arrangement.name}</h5>
+                <h5 class='mb-0 mt-2 fw-bold'>${arrangement.name}</h5>
+                <div>
+                    ${arrangement.arrangement_name}
+                </div>
                 <em class='small'>${start} - ${end}</em>
+
+                ${badgesHtml}
+
+                <hr>
+                <div class='row'>
+                    <div class='col-6 text-center'>
+                        <div class='text-center'>
+                            <i class='fas fa-theater-masks'></i>&nbsp;
+                        </div>
+                        ${arrangement.audience}
+                    </div>
+                    <div class='col-6 text-center'>
+                        <div class='text-center'>
+                            <i class='fas fa-user'></i>&nbsp;
+                        </div>
+                        ${arrangement.mainplannername}
+                    </div>
+                    <div class='col-6 mt-2 text-center'>
+                        <div class='text-center'>
+                            <i class='fas fa-building'></i>&nbsp; 
+                        </div>
+                        ${arrangement.location}
+                    </div>
+                    <div class='col-6 mt-2 text-center'>
+                        <div class='text-center'>
+                            <i class='fas fa-cog'></i>&nbsp;
+                        </div>
+                        ${arrangement.arrangement_type}
+                    </div>
+                </div>
+                <hr>
 
                 ${roomsListHtml}
                 
                 ${peopleListHtml}
+
+                <div class='text-end small'>
+                    <em>Opprettet ${arrangement.created_when}</em>
+                </div>
                 `,
             html: true,
         })

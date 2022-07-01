@@ -3,7 +3,6 @@ import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
 import { PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
 import { QueryStore } from "./querystore.js";
 import { serieConvert } from "./serieConvert.js";
-import { SeriesUtil } from "./seriesutil.js";
 import { SerieMetaTranslator } from "./serie_meta_translator.js";
 
 
@@ -97,11 +96,14 @@ export class ArrangementCreator {
                                 document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                     new mdb.Input(formOutline).init();
                                 });
-                                return;
                             }
-
-                            var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
-                            PopulateCreateSerieDialogFromSerie(serie);
+                            else {
+                                if (context.series !== undefined) {
+                                    var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
+                                    PopulateCreateSerieDialogFromSerie(serie);
+                                }
+                            }
+                            
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
@@ -165,14 +167,6 @@ export class ArrangementCreator {
                                 document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
                             ).addClass("mb-4"));
 
-
-                            // document.querySelectorAll("input[name='display_layouts']:checked")
-                            //     .forEach(checkboxElement => {
-                            //         $(`#${checkboxElement.value}_dlcheck`)
-                            //             .prop( "checked", true );
-                            //     })
-
-
                             var splitDateFunc = function (strToDateSplit) {
                                 var date_str = strToDateSplit.split("T")[0];
                                 var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
@@ -185,9 +179,6 @@ export class ArrangementCreator {
                             $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
                             $('#toDate').val(endTimeArtifacts[0]).trigger('change');
                             $('#toTime').val(endTimeArtifacts[1]).trigger('change');
-
-                            // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
-                            // dialogCreateEvent__evaluateEnTitleObligatory();
 
                             if (serie.people.length > 0) {
                                 var peopleSelectContext = Object();
@@ -286,12 +277,7 @@ export class ArrangementCreator {
                                             .prop( "checked", true );
                                     })
 
-                                // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
-                                //dialogCreateEvent__evaluateEnTitleObligatory();
-
                                 $('#event_uuid').val(crypto.randomUUID());
-
-                                return;
                             }
 
                             var event = context.events.get(context.lastTriggererDetails.event_uuid);

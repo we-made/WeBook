@@ -42,7 +42,9 @@ export class EventInspector {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => {  },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.closeDialog("orderPersonDialog");
+                        },
                         onSubmit: (context, details) => {
                             var people_ids = details.formData.get("people_ids");
                             context.people = people_ids;
@@ -68,7 +70,9 @@ export class EventInspector {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
-                        onUpdatedCallback: () => { this.dialogManager.closeDialog("orderRoomDialog"); },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.closeDialog("orderRoomDialog"); 
+                        },
                         onSubmit: (context, details) => { 
                             context.rooms = details.formData.get("room_ids");
                             context.room_name_map = details.room_name_map;
@@ -76,7 +80,34 @@ export class EventInspector {
                             document.dispatchEvent(new CustomEvent("eventInspector.roomsUpdated", { detail: { context: context } }))
                         }
                     })
-                ]
+                ],
+                [
+                    "uploadFilesDialog",
+                    new Dialog({
+                        dialogElementId: "uploadFilesDialog",
+                        triggerElementId: "eventDialog_uploadFilesBtn",
+                        htmlFabricator: async (context) => {
+                            return await fetch(`/arrangement/planner/dialogs/upload_files_dialog?manager=eventInspector&dialog=uploadFilesDialog`)
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: (dialogInstance, context) => {},
+                        dialogOptions: { width: 600 },
+                        onUpdatedCallback: () => { 
+                            this.dialogManager.closeDialog("uploadFilesDialog"); 
+                            this.dialogManager.reloadDialog("inspectEventDialog"); 
+                        },
+                        onSubmit: async (context, details) => {
+                            details.formData.append("pk", context.event.pk);
+                            await fetch(`/arrangement/event/${context.event.pk}/upload`, {
+                                method: 'POST',
+                                body: details.formData,
+                                headers: {
+                                    'X-CSRFToken': details.csrf_token
+                                }
+                            });
+                        }
+                    })
+                ],
             ]            
         })
     }

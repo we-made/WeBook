@@ -1,12 +1,18 @@
 <div id="{{dialog}}" title="{% if mode == 'serie' %}Bestill person{% else %}Bestill person for '{{event.title}}'{% endif %}">
-    <div class='bg-white p-2 border border-1'>
+    <div>
         {% if mode == 'serie' %}
         <div class="alert alert-danger">
             <strong>Merk: </strong> du bestiller personer for hele serien.
         </div>
         {% endif %}
 
-        <table class="table table-sm table-striped">
+        <table class="table table-sm " id="orderPersonDialog__table">
+            <thead>
+                <tr>
+                    <th>
+                    </th>
+                </tr>
+            </thead>
             <tbody>
                 {% for person in people %}
                     <tr>
@@ -34,20 +40,35 @@
         </div>
 
         <div class="clearfix">
-            <button class="btn btn-sm btn-success shadow-0 float-end" onclick="orderPersonDialog__order()">Bestill valgte personer</button>
+            <a class="btn text-white btn-success shadow-0 float-end" onclick="orderPersonDialog__order()"><i class="fas fa-check"></i>&nbsp; Legg til valgte personer</a>
         </div>
     </div>
 </div>
 
 <script>
+    $(document).ready(function () {
+        listenToPeopleBeingSelectedByCheckbox();
+    })
+
+    var selectedPeopleMap = new Map();
+
+    function listenToPeopleBeingSelectedByCheckbox() {
+        $("input[type=checkbox][name=orderPersonDialog__checkboxArray]").change((event) => {
+            if (event.currentTarget.checked === true)
+                selectedPeopleMap.set(event.currentTarget.value, event.currentTarget.getAttribute("person_name"));
+            else
+                selectedPeopleMap.delete(event.currentTarget.value);
+        })
+    }
+
+    $(document).ready(function () {
+        $("#orderPersonDialog__table").DataTable();
+    })
 
     function orderPersonDialog__getSelectedPeopleIds() {
-        var checkboxes = $("input[type=checkbox][name=orderPersonDialog__checkboxArray]:checked");
-        var peopleIds = []
-        for (let i = 0; i < checkboxes.length; i++) {
-            peopleIds.push( { id: checkboxes[i].value, text: checkboxes[i].getAttribute("person_name") } );
-        }
-        return peopleIds;
+        return Array.from(selectedPeopleMap,
+            ([name, value]) => ({id: name, text: value})
+        );
     }
 
     {% if mode == 'serie' %}
