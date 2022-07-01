@@ -173,15 +173,9 @@ Date.prototype.addDays = function(days) {
                 continue;
             }
 
-            if (scope.stop_within_date !== undefined) {
-                if (result.from >= scope.stop_within_date) {
-                    break;
-                }
-            }
-            if (scope.instance_limit !== undefined && scope.instance_limit !== undefined) {
-                if (instance_cursor > scope.instance_limit) {
-                    break;
-                }
+            if (scope.stop_within_date !== undefined && result.from >= scope.stop_within_date ||
+                scope.instance_limit !== undefined && scope.instance_limit !== undefined && instance_cursor > scope.instance_limit) {
+                break;
             }
 
             let move_cursor_to = date_cursor

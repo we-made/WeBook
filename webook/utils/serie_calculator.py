@@ -144,6 +144,8 @@ def _pattern_strategy_daily_every_weekday(cycle: _CycleInstruction) -> _Event:
     cycle.event.start = datetime.combine(cycle.start_date, cycle.event.start)
     cycle.event.end = datetime.combine(cycle.start_date, cycle.event.end)
 
+    cycle.start_date += relativedelta(days=1)
+
     return cycle.event
 
 
@@ -153,15 +155,16 @@ def _pattern_strategy_weekly_standard(cycle: _CycleInstruction) -> List[_Event]:
         For example; every 2 weeks on monday and friday
     """
     if cycle.cycle != 0:
-        if  cycle.start_date.weekday() != 0:
-            cycle.start_date += timedelta(days = (cycle.start_date.weekday() - 1) * -1 )
+        weekday = cycle.start_date.weekday()
+        if cycle.start_date.weekday() != 0:
+            cycle.start_date += timedelta(days = cycle.start_date.weekday() * -1 )
         cycle.start_date += timedelta(7 * cycle.interval)
     
     events = []
     counter = 0
     for day in range(cycle.start_date.weekday(), 7):
         if day in cycle.days and cycle.days[day] == True:
-            adjusted_start_date = cycle.start_date + timedelta(days=counter-1)
+            adjusted_start_date = cycle.start_date + timedelta(days=counter)
             events.append(_Event(
                 title=cycle.event.title,
                 start=datetime.combine(adjusted_start_date, cycle.event.start),
@@ -330,7 +333,7 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
                 day_index=serie_manifest.day_of_month,
                 month=serie_manifest.month,
             )
-
+            
             result = pattern_strategy( cycle_instruction )
 
             if result is None or ( isinstance(result, list) and len(result) == 0 ):
@@ -344,7 +347,11 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
                 date_cursor = result.end
                 events.append(result)
 
-            date_cursor += timedelta(days=1)
+                if serie_manifest.pattern_strategy == "daily__every_weekday":
+                    # if the pattern is daily__every_weekday we can't rely on new event end time to move the date cursor
+                    # this because the daily generates event in one day, so the date does not change. hence we +1
+                    # we could also do +1 if result.end.date() != date_cursor.date() but this would cause duplicates for mondays after weekends
+                    date_cursor += relativedelta(days=1)
 
             if scope.instance_limit != 0:
                 instance_cursor += 1
