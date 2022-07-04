@@ -259,7 +259,6 @@
                             <button class=" btn btn-sm shadow-0 btn-success btn-block"
                                     type="button"
                                     onclick="mainPlannerDialog__updateArrangementInfo()">
-                                <!-- <i class='fas fa-check'></i> -->
                                 Lagre endringer
                             </button>
                         </td>
@@ -290,10 +289,9 @@
                         </div>
                     </div>
 
-                    <!-- &nbsp;|&nbsp;
-                    <a href='#' class='text-primary' id='mainPlannerDialog__showInCalendarForm'><i class='fas fa-calendar'></i>&nbsp; Vis i kalenderform</a> -->
                     <thead>
                     </thead>
+
                     <tbody>
                         {% for event_serie in object.series.all %}
                         <tr>
@@ -324,7 +322,6 @@
                                         </button>
                                     </div>
 
-
                                     <div class="accordion accordion-flush" id="accordion_{{event_serie.pk}}">
                                         <div class="accordion-item">
                                         <h6 class="accordion-header" id="flush-headingOne">
@@ -334,17 +331,15 @@
                                             data-mdb-toggle="collapse"
                                             data-mdb-target="#flush-collapseOne_{{event_serie.pk}}"
                                             aria-expanded="false"
-                                            aria-controls="flush-collapseOne"
-                                            >
-                                            <i class="fas fa-file"></i>&nbsp; Filer
+                                            aria-controls="flush-collapseOne">
+                                                <i class="fas fa-file"></i>&nbsp; Filer
                                             </button>
                                         </h6>
                                         <div
                                             id="flush-collapseOne_{{event_serie.pk}}"
                                             class="accordion-collapse collapse"
                                             aria-labelledby="flush-headingOne"
-                                            data-mdb-parent="#accordion_{{event_serie.pk}}"
-                                        >
+                                            data-mdb-parent="#accordion_{{event_serie.pk}}">
                                             <div class="accordion-body">
                                                 <div title="Last opp filer under '{{arrangement.name}}'" class="bg-white">
                                                     <button class="btn btn-sm btn-success float-end"
@@ -364,7 +359,6 @@
                                                                 <tr>
                                                                     <td>{{file.filename}}</td>
                                                                     <td>
-
                                                                         <button class="btn btn-danger btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
                                                                             data-mdb-toggle="tooltip"
                                                                             title="{% trans 'Delete this file' %}"
@@ -394,8 +388,7 @@
                                             data-mdb-toggle="collapse"
                                             data-mdb-target="#flush-collapseTwo_{{event_serie.pk}}"
                                             aria-expanded="false"
-                                            aria-controls="flush-collapseTwo_{{event_serie.pk}}"
-                                            >
+                                            aria-controls="flush-collapseTwo_{{event_serie.pk}}">
                                                 <i class="fas fa-calendar"></i>&nbsp; Aktiviteter
                                             </button>
                                         </h6>
@@ -403,23 +396,18 @@
                                             id="flush-collapseTwo_{{event_serie.pk}}"
                                             class="accordion-collapse collapse"
                                             aria-labelledby="flush-headingTwo"
-                                            data-mdb-parent="#accordion_{{event_serie.pk}}"
-                                        >
+                                            data-mdb-parent="#accordion_{{event_serie.pk}}">
                                             <div class="accordion-body">
                                                 <table class="table">
                                                     <tbody>
                                                         {% for event in event_serie.events.all %}
 
                                                         <tr>
-
                                                             <td>
                                                                 <div>
-
                                                                     {{event}}
-
                                                                 </div>
                                                             </td>
-
                                                             <td>
                                                                 <div class="btn-group">
                                                                     <button class="btn btn-sm btn-danger"
@@ -438,97 +426,141 @@
                                                             </td>
                                                         </tr>
                                                         {% endfor %}
-
                                                     </tbody>
                                                 </table>
-
                                             </div>
                                         </div>
-                                        </div>
                                     </div>
-                                  </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="tabs-3">
+        <div class="clearfix">
+            <a class="text-white btn btn-success shadow-0 mb-2 float-end" id="mainPlannerDialog__newNoteBtn">
+                <i class="fas fa-feather"></i>
+                Nytt notat
+            </a>
+        </div>
+
+        {% for note in object.notes.all %}
+            <div class="shadow-3 p-3 border-bottom {% if note.has_personal_information %}border-warning{% else %}border-success{% endif %}" id="note_{{note.pk}}">
+                {{note.content|safe}}
+
+                <div class="clearfix">
+                    <em class="text-muted small float-start"></em>
+                    <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created }}</em>
+                </div>
+                
+                <hr>
+
+                <div class="clearfix">
+                    <div class="btn-group float-end">
+                        <a href="#" class="btn btn-danger text-white"
+                            onclick="deleteNote( {{note.pk}} )">
+                            <i class="fas fa-trash"></i>
+                        </a>
+
+                        <a href="#" class="btn btn-success text-white"
+                            onclick="updateNoteDialog( {{note.pk}} )">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    </div>
+
+                    {% if note.has_personal_information %}
+                        <i class="fas fa-shield-alt text-warning h3 float-start"></i> 
+                    {% endif %}
+
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div id="tabs-4">
+        Kvitteringer...
+    </div>
+    <div id="tabs-5">
+        <div class="clearfix">
+            <a class="btn btn-success btn-sm text-white shadow-0 float-end"
+                    id="mainDialog__uploadFilesBtn"
+                    href="#">
+                <i class="fas fa-upload"></i>
+                Upload file(s)
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Filename</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for file in arrangement.files.all %}
+                        <tr>
+                            <td>
+                                <button class="btn btn-danger btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
+                                    data-mdb-toggle="tooltip"
+                                    title="{% trans 'Delete this file' %}"
+                                    onclick="mainPlannerDialog__deleteFile( {{ file.pk }} )">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <a class="btn btn-success btn-sm text-white" style="border-radius: 50%!important; padding: 0.7rem;"
+                                    data-mdb-toggle="tooltip"
+                                    title="{% trans 'Download this file' %}"
+                                    href="/media/{{file.file}}" download>
+                                    <i class="fas fa-download"></i>
+                                </a>
                             </td>
+                            <td>{{ file.filename }}</td>
                         </tr>
                     {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div id="tabs-3">
-            <div class="clearfix">
-                <button class="text-white btn btn-sm btn-success shadow-0 mb-2 float-end" id="mainPlannerDialog__newNoteBtn">Nytt notat</button>
-            </div>
-
-            {% for note in object.notes.all %}
-                <div class="border bg-light p-2">
-                    {{note.content}}
-
-                    <div class="clearfix">
-                        {% if note.has_personal_information %}
-                            <i class="fas fa-user-secret text-info"></i>
-                        {% endif %}
-                        <em class="text-muted small float-start"></em>
-                        <em class="text-muted small float-end">{{note.author}}</em>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-        <div id="tabs-4">
-            Kvitteringer...
-        </div>
-        <div id="tabs-5">
-            <div class="clearfix">
-                <a class="btn btn-success btn-sm text-white shadow-0 float-end"
-                        id="mainDialog__uploadFilesBtn"
-                        href="#">
-                    <i class="fas fa-upload"></i>
-                    Upload file(s)
-                </a>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Filename</th>
-                            <!-- <th>Uploader</th> -->
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for file in arrangement.files.all %}
-
-                            <tr>
-                                <td>
-
-                                    <button class="btn btn-danger btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
-                                        data-mdb-toggle="tooltip"
-                                        title="{% trans 'Delete this file' %}"
-                                        onclick="mainPlannerDialog__deleteFile( {{ file.pk }} )">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <a class="btn btn-success btn-sm text-white" style="border-radius: 50%!important; padding: 0.7rem;"
-                                        data-mdb-toggle="tooltip"
-                                        title="{% trans 'Download this file' %}"
-                                        href="/media/{{file.file}}" download>
-                                        <i class="fas fa-download"></i>
-                                </a>
-                                </td>
-                                <td>{{ file.filename }}</td>
-                            </tr>
-
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 
 <script>
+
+    function updateNoteDialog(note_pk) {
+        document.dispatchEvent(
+            new CustomEvent("arrangementInspector.editNoteDialog.trigger", { "detail": {
+                "note_pk": note_pk
+            }})
+        )
+    }
+
+    function deleteNote(note_pk) {
+        Swal.fire({
+            title: 'Er du sikker?',
+            text: "Er du sikker på at du ønsker å slette dette notatet?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Slett',
+            cancelButtonText: 'Avbryt',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/arrangement/note/delete/' + note_pk, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{csrf_token}}',
+                    }
+                }).then(response => { document.getElementById('note_' + note_pk).remove(); });     
+            }
+        });
+    }
+
     function mainPlannerDialog__updateArrangementInfo() {
         var csrf_token="{{csrf_token}}"
 

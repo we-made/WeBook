@@ -22,9 +22,9 @@ from .arrangement_views import (
     arrangement_remove_planner_form_view,
     arrangement_search_view,
     arrangement_update_view,
+    arrangement_upload_files_json_form_view,
     planners_on_arrangement_table_view,
     planners_on_arrangement_view,
-    arrangement_upload_files_json_form_view,
 )
 from .arrangementtype_views import (
     arrangement_type_create_view,
@@ -131,6 +131,7 @@ from .planner_views import (
     plan_order_service_view,
     plan_people_requisitions_component_view,
     plan_people_to_requisition_component_view,
+    planner_arrangement_edit_note_dialog_view,
     planner_arrangement_events_view,
     planner_calendar_filter_rooms_dialog_view,
     planner_calendar_order_people_for_event_form_view,

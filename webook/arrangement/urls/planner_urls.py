@@ -25,6 +25,7 @@ from webook.arrangement.views import (
     plan_order_service_view,
     plan_people_requisitions_component_view,
     plan_people_to_requisition_component_view,
+    planner_arrangement_edit_note_dialog_view,
     planner_arrangement_events_view,
     planner_calendar_filter_rooms_dialog_view,
     planner_calendar_order_people_for_event_form_view,
@@ -216,5 +217,10 @@ planner_urls = [
         route="planner/dialogs/upload_files_dialog",
         view=upload_files_dialog,
         name="upload_files_dialog",
+    ),
+    path(
+        route="planner/dialogs/edit_note/<int:pk>",
+        view=planner_arrangement_edit_note_dialog_view,
+        name="edit_note_dialog",
     ),
 ]

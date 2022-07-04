@@ -520,13 +520,47 @@ export class ArrangementInspector {
                         dialogElementId: "newNoteDialog",
                         triggerElementId: "mainPlannerDialog__newNoteBtn",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/new_note?slug=" + context.arrangement.slug + "&managerName=" + MANAGER_NAME)
+                            return await fetch("/arrangement/planner/dialogs/new_note?slug=" + context.arrangement.slug + "&manager=" + MANAGER_NAME + "&entityType=arrangement")
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
                         onUpdatedCallback: () => {
                             this.dialogManager.reloadDialog("mainDialog");
                             this.dialogManager.closeDialog("newNoteDialog");
+                        },
+                        onSubmit: async (context, details) => {
+                            await fetch('/arrangement/note/post', {
+                                method: 'POST',
+                                body: details.formData,
+                                credentials: 'same-origin',
+                            }).then(response => console.log("response", response));
+                        },
+                        dialogOptions: { width: 500 },
+                    })
+                ],
+                [
+                    "editNoteDialog",
+                    new Dialog({
+                        dialogElementId: "editNoteDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await fetch("/arrangement/planner/dialogs/edit_note/" + context.lastTriggererDetails.note_pk + "?manager=" + MANAGER_NAME + "&dialog=editNoteDialog")
+                                .then(response => response.text());
+                        },
+                        onRenderedCallback: () => { console.info("Rendered"); },
+                        onUpdatedCallback: () => {
+                            this.dialogManager.reloadDialog("mainDialog");
+                            this.dialogManager.closeDialog("editNoteDialog");
+                        },
+                        onSubmit: async (context, details) => {
+                            await fetch('/arrangement/planner/dialogs/edit_note/' + details.formData.get("id"), {
+                                method: 'POST',
+                                body: details.formData, 
+                                headers: {
+                                    'X-CSRFToken': details.csrf_token,
+                                }
+                            })
                         },
                         dialogOptions: { width: 500 },
                     })
@@ -740,7 +774,7 @@ export class ArrangementInspector {
                             ));
                         }
                     })
-                ]
+                ],
             ]}
         )
     }
