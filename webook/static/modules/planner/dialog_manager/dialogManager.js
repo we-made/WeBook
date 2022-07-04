@@ -28,7 +28,7 @@
                         this._$getDialogEl().dialog( this.dialogOptions );
                         this.onRenderedCallback(this, context);
                         this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                            .html("<i class='fas fa-times text-danger' style='font-size: 24px'></i>")
+                            .html("<i class='fas fa-times text-danger float-end' style='font-size: 24px'></i>")
                             .click( () => {
                                 this.destroy();
                             });
