@@ -540,12 +540,25 @@
     }
 
     function deleteNote(note_pk) {
-        fetch('/arrangement/note/delete/' + note_pk, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': '{{csrf_token}}',
+        Swal.fire({
+            title: 'Er du sikker?',
+            text: "Er du sikker på at du ønsker å slette dette notatet?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Slett',
+            cancelButtonText: 'Avbryt',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/arrangement/note/delete/' + note_pk, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{csrf_token}}',
+                    }
+                }).then(response => { document.getElementById('note_' + note_pk).remove(); });     
             }
-        }).then(response => { document.getElementById('note_' + note_pk).remove(); });
+        });
     }
 
     function mainPlannerDialog__updateArrangementInfo() {
