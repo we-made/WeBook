@@ -265,6 +265,7 @@ export class ArrangementCreator {
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
+
                             if (context.lastTriggererDetails === undefined) {
                                 $('#ticket_code').attr('value', $('#id_ticket_code')[0].value );
                                 $('#title').attr('value', $('#id_name')[0].value );
@@ -278,6 +279,8 @@ export class ArrangementCreator {
                                     })
 
                                 $('#event_uuid').val(crypto.randomUUID());
+
+                                return;
                             }
 
                             var event = context.events.get(context.lastTriggererDetails.event_uuid);
