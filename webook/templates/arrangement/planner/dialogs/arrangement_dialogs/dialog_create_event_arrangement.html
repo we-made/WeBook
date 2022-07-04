@@ -3,114 +3,237 @@
 
 
 <div id="{{dialog}}" title="<span class='badge badge-success'><i class='fas {{dialogIcon}}'></i></span>&nbsp; {{ dialogTitle }}">
-    <div>
-        <form id="newSimpleActivityForm">
-            <input type="submit" style="display:none;" />
-
-            <input type="hidden" name="uuid" id="event_uuid">
-
-            <div class="row">
-                <div class="col-6">
-                    <div class="form-outline mb-2">
-                        <input type="text" id="title" class="form-control" />
-                        <label class="form-label" for="title">🇳🇴 Tittel på norsk</label>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="form-outline mb-2">
-                        <input type="text" id="title_en" class="form-control" />
-                        <label class="form-label" for="title_en">🇬🇧 Tittel på engelsk</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-outline mb-2">
-                <input type="text" id="ticket_code" class="form-control" />
-                <label class="form-label" for="ticket_code"><i class="fas fa-receipt text-info"></i>&nbsp; Billetkode</label>
-            </div>
-
-            <div class="form-outline mb-2">
-                <input type="text" id="expected_visitors" class="form-control" />
-                <label class="form-label" for="expected_visitors"><i class="fas fa-users text-info"></i>&nbsp; Forventet antall besøkende</label>
-            </div>
-
-            <div class="form-group mt-2">
-                <label for=""><i class="fas fa-calendar text-muted"></i>&nbsp; Fra</label>
+    <div class="row">
+        <div class="col-6">
+            <form id="newSimpleActivityForm">
+                <input type="submit" style="display:none;" />
+    
+                <input type="hidden" name="uuid" id="event_uuid">
+                
+                <h5>
+                    Informasjon
+                </h5>
                 <div class="row">
                     <div class="col-6">
-                        <div class="form-outline">
-                            <input type="date" id="fromDate" class="form-control" />
+                        <div class="form-outline mb-2">
+                            <input type="text" id="title" class="form-control" />
+                            <label class="form-label" for="title">🇳🇴 Tittel på norsk</label>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="form-outline">
-                            <input type="time" id="fromTime" class="form-control" />
+                        <div class="form-outline mb-2">
+                            <input type="text" id="title_en" class="form-control" />
+                            <label class="form-label" for="title_en">🇬🇧 Tittel på engelsk</label>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="form-group mt-2">
-                <label for=""><i class="fas fa-calendar text-muted"></i>&nbsp; Til</label>
-                <div class="row">
-                    <div class="col-6">
-                        <div class="form-outline">
-                            <input type="date" id="toDate" class="form-control" />
+    
+                <div class="form-outline mb-2">
+                    <input type="text" id="ticket_code" class="form-control" />
+                    <label class="form-label" for="ticket_code"><i class="fas fa-receipt text-info"></i>&nbsp; Billetkode</label>
+                </div>
+    
+                <div class="form-outline mb-2">
+                    <input type="text" id="expected_visitors" class="form-control" />
+                    <label class="form-label" for="expected_visitors"><i class="fas fa-users text-info"></i>&nbsp; Forventet antall besøkende</label>
+                </div>
+    
+                <h5 class="mt-3">
+                    Tider
+                </h5>
+                <div class="form-group mt-2">
+                    <label for=""><i class="fas fa-calendar text-muted"></i>&nbsp; Fra</label>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-outline">
+                                <input type="date" id="fromDate" class="form-control" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-outline">
-                            <input type="time" id="toTime" class="form-control" />
+                        <div class="col-6">
+                            <div class="form-outline">
+                                <input type="time" id="fromTime" class="form-control" />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="form-group mt-3">
-                <label class="d-block"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Show on:" %}</label>
-                <ul>
-                    {% for choice_id, choice_label in form.display_layouts.field.choices %}
-                        <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
-                        <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
-                    {% endfor %}
-                </ul>
-            </div>
+    
+                <div class="form-group mt-2">
+                    <label for=""><i class="fas fa-calendar text-muted"></i>&nbsp; Til</label>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-outline">
+                                <input type="date" id="toDate" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-outline">
+                                <input type="time" id="toTime" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <h5 class="mt-3">
+                    Skjermvisning
+                </h5>
+                <div class="form-group mt-3">
+                    <label class="d-block"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Show on:" %}</label>
+                    <ul>
+                        {% for choice_id, choice_label in form.display_layouts.field.choices %}
+                            <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
+                            <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
+                        {% endfor %}
+                    </ul>
+                </div>
 
-            <div class="row mt-4">
-                <div class="col-6">
-                    <h5><i class="fas fa-building text-muted"></i>&nbsp; Rom</h5>
-                    <a class="btn btn-block text-white btn-success shadow-0"
+            </form>
+        </div>
+        <div class="col-6">
+            <div class="accordion accordion-flush" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h5 class="accordion-header">
+                        <button
+                          class="accordion-button collapsed"
+                          type="button"
+                          data-mdb-toggle="collapse"
+                          data-mdb-target="#activityAccordions-people"
+                          aria-expanded="false"
+                          aria-controls="activityAccordions-people">
+                          <div class="badge badge-secondary" id="peopleCounter">0</div>
+                          &nbsp;<i class="fas fa-users"></i>&nbsp;
+                          Personer
+                        </button>
+                    </h5>
+                    <div
+                      id="activityAccordions-people"
+                      class="accordion-collapse collapse"
+                      aria-labelledby="activityAccordions-people"
+                      data-mdb-parent="#accordionFlushExample">
+  
+                      <div class="accordion-body">
+                          <a class="btn btn-block btn-success shadow-0 text-white"
+                          onclick="dialogCreateEvent_openAddPeople()"
+                          type="button">
+                              <i class="fas fa-plus"></i>
+                              Legg til personer
+                          </a>
+  
+                          <div class="mt-2 table-responsive">
+                              <table class="table-sm table">
+                                  <tbody id="peopleTbody__d1">
+                                  </tbody>
+                              </table>
+                          </div>
+                      </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h5 class="accordion-header">
+                        <button
+                          class="accordion-button collapsed"
+                          type="button"
+                          data-mdb-toggle="collapse"
+                          data-mdb-target="#activityAccordions-rooms"
+                          aria-expanded="false"
+                          aria-controls="activityAccordions-rooms">
+                          <div class="badge badge-secondary" id="roomsCounter">0</div>
+                          &nbsp;<i class="fas fa-building"></i>&nbsp;
+                          Rom
+                        </button>
+                    </h5>
+                    <div
+                      id="activityAccordions-rooms"
+                      class="accordion-collapse collapse"
+                      aria-labelledby="activityAccordions-rooms"
+                      data-mdb-parent="#accordionFlushExample">
+  
+                      <div class="accordion-body">
+                        <a class="btn btn-block text-white btn-success shadow-0"
                         onclick="dialogCreateEvent__openAddRooms()"
                         type="button">
-                        <i class="fas fa-plus"></i>
-                        Legg til rom
-                    </a>
+                            <i class="fas fa-plus"></i>
+                            Legg til rom
+                        </a>
 
-                    <div class="mt-2 table-responsive">
-                        <table class="table-sm table">
-                            <tbody id="roomsTbody__d1">
-                            </tbody>
-                        </table>
+                        <div class="mt-2 table-responsive">
+                            <table class="table-sm table">
+                                <tbody id="roomsTbody__d1">
+                                </tbody>
+                            </table>
+                        </div>
+                      </div>
                     </div>
                 </div>
-                <div class="col-6">
-                    <h5><i class="fas fa-users text-muted"></i>&nbsp; Personer</h5>
-                    <a class="btn btn-block btn-success shadow-0 text-white"
-                        onclick="dialogCreateEvent_openAddPeople()"
-                        type="button">
-                        <i class="fas fa-plus"></i>
-                        Legg til personer
-                    </a>
-
-                    <div class="mt-2 table-responsive">
-                        <table class="table-sm table">
-                            <tbody id="peopleTbody__d1">
-                            </tbody>
-                        </table>
+                <div class="accordion-item">
+                    <h5 class="accordion-header" id="flush-headingOne">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-mdb-toggle="collapse"
+                        data-mdb-target="#flush-collapseOne"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOne"
+                      >
+                        <i class="fas fa-clock"></i>&nbsp; Buffere
+                      </button>
+                    </h5>
+                    <div
+                      id="flush-collapseOne"
+                      class="accordion-collapse collapse"
+                      aria-labelledby="flush-headingOne"
+                      data-mdb-parent="#accordionFlushExample"
+                    >
+                      <div class="accordion-body">
+                          <div class="alert alert-info small">
+                              <i class="fas fa-info-circle"></i>
+                              Buffere blir opprettet som egne hendelser før og etter aktiviteten.
+                          </div>
+              
+                          <table class="table">
+                              <thead></thead>
+                              <tbody>
+                                  <tr>
+                                      <th colspan="3" class="fw-bold">Buffer før aktiviteten:</th>
+                                  </tr>
+                                  <tr>
+                                      <td>
+                                          Fra
+                                          <div class="form-outline">
+                                              <input type="time" id="" class="form-control" />
+                                          </div>
+                                      </td>
+                                      <td>
+                                          Til
+                                          <div class="form-outline">
+                                              <input type="time" id="" class="form-control" />
+                                          </div>
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <th colspan="3" class="fw-bold">Buffer etter aktiviteten:</th>
+                                  </tr>
+                                  <tr>
+                                      <td>
+                                          Fra
+                                          <div class="form-outline">
+                                              <input type="time" id="" class="form-control" />
+                                          </div>
+                                      </td>
+                                      <td>
+                                          Til
+                                          <div class="form-outline">
+                                              <input type="time" id="" class="form-control" />
+                                          </div>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>            
+                      </div>
                     </div>
-                </div>
-            </div>
-        </form>
+                  </div>
+              </div>
+        </div>
+
         <div class="clearfix">
             <a class="mt-2 float-end btn btn-lg btn-success text-white" onclick="dialogCreateEvent__submit()"><i class="fas fa-save"></i>&nbsp; Lagre</a>
         </div>
@@ -121,16 +244,6 @@
 <script>
     var peopleNameMap = new Map();
     var roomsNameMap = new Map();
-
-    // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
-    /*
-    $(document).ready(function () {
-        $("input[name='display_layouts_create_event'][type='checkbox']").on("change", (e) => {
-            dialogCreateEvent__evaluateEnTitleObligatory();
-        });
-
-    })
-  */
 
     function dialogCreateEvent__evaluateEnTitleObligatory(){
         var $enTitleElement = $('#title_en');
@@ -147,10 +260,12 @@
     document.addEventListener("{{managerName}}.d1_peopleSelected", (e) => {
         peopleNameMap = e.detail.context.people_name_map;
         dialogCreateEvent__setPeople(e.detail.context.people);
+        document.getElementById('peopleCounter').innerText = $('#peopleTbody__d1').children().length;
     })
     document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
         roomsNameMap = e.detail.context.room_name_map;
         dialogCreateEvent__setRooms(e.detail.context.rooms);
+        document.getElementById('roomsCounter').innerText = $('#roomsTbody__d1').children().length;
     })
 
     function dialogCreateEvent__setRooms(rooms) {
