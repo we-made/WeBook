@@ -1,8 +1,8 @@
 <div id="{{dialog}}" title="<span class='badge badge-success'><i class='fas fa-feather'></i></span>&nbsp; {% if not form.instance.id %}Nytt notat{% else %}Rediger notat{% endif %}">
     <form id="noteForm">
         <input type="hidden" name="id" value="{{ form.instance.id }}">
-        <input type="hidden" name="entityPk" value="{{arrangementPk}}">
-        <input type="hidden" name="entityType" value="arrangement">
+        <input type="hidden" name="entityPk" value="{{ entity_pk }}">
+        <input type="hidden" name="entityType" value="{{ entity_type }}">
 
         <div id="{{ form.content.id_for_label }}">
             {% if form.content.value %}

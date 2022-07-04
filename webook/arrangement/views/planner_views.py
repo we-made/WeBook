@@ -551,13 +551,41 @@ class PlannerArrangementNewNoteDialog(LoginRequiredMixin, FormView):
     form_class = CreateNoteForm
     template_name="arrangement/planner/dialogs/arrangement_dialogs/newNoteDialog.html"
 
+    def _try_get_instance(self):
+        """Attempt to get the instance on which this note is to be attached to"""
+        instance_type_name = self.request.GET.get("entityType", None)
+        if not instance_type_name:
+            raise Exception("instance_type invalid")
+        
+        instance_type = None
+        if instance_type_name == "arrangement":
+            instance_type = Arrangement
+        elif instance_type_name == "event":
+            instance_type = Event
+        else:
+            raise Exception("Instance type not supported")
+
+        slug = self.request.GET.get("slug", None)
+        pk = self.request.GET.get("pk", None)
+
+        if slug is not None:
+            return instance_type.objects.get(slug=slug)
+        if pk is not None:
+            return instance_type.objects.get(id=pk)
+        
+        raise Exception("Slug and PK are both empty or None, please supply either a valid PK or a valid slug")
+
+
     def get_context_data(self, **kwargs):
-        arrangement_slug = self.request.GET.get("slug")
         context = super().get_context_data(**kwargs)
-        arrangement = Arrangement.objects.get(slug=arrangement_slug)
-        context["arrangementPk"] = arrangement.pk
+
+        instance = self._try_get_instance()
+        
+        context["entity_pk"] = instance.pk
+        context["entity_type"] = self.request.GET.get("entityType")
         context["dialog"] = self.request.GET.get("dialog", "newNoteDialog")
         context["manager"] = self.request.GET.get("manager", None)
+
         return context
 
 arrangement_new_note_dialog_view = PlannerArrangementNewNoteDialog.as_view()

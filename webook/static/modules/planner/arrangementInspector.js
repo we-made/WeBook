@@ -520,7 +520,7 @@ export class ArrangementInspector {
                         dialogElementId: "newNoteDialog",
                         triggerElementId: "mainPlannerDialog__newNoteBtn",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/new_note?slug=" + context.arrangement.slug + "&manager=" + MANAGER_NAME)
+                            return await fetch("/arrangement/planner/dialogs/new_note?slug=" + context.arrangement.slug + "&manager=" + MANAGER_NAME + "&entityType=arrangement")
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
