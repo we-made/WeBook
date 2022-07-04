@@ -66,7 +66,9 @@
                                             <i class="fas fa-plus text-success"></i>&nbsp;
                                             Legg til rom
                                         </a>
-                
+                                        
+                                        <div id="roomChips"></div>
+
                                         <div class="table-responsive mt-2">
                                             <table class="table table-sm">
                                                 <tbody id="roomsTbody"></tbody>
@@ -256,24 +258,23 @@
     }
 
     function createSerieDialog__setRooms(rooms) {
-        var tbody = $('#roomsTbody');
-        tbody.empty();
+        var wrapper = $('#roomChips');
+        wrapper.empty();
 
         var ids = rooms.split(",");
 
         ids.forEach(id => {
-            tbody.append(
-                $(`<tr rowid='${id}'>
-                    <td>${roomsNameMap.get(id)}</td>
-                    <td> <a href='#' class='text-danger'
+            wrapper.append(
+                `<span class='chip' rowid='${id}'>
+                    ${roomsNameMap.get(id)}
+                     <a href='#' class='text-danger'
                             data-mdb-toggle='tooltip'
                             title='{% trans "Remove this room from the activity" %}'
                             onclick='createSerieDialog__removeAssociation(this)'>
-                                <i class='fas fa-trash'></i>
-                            </a>
-                    </td>
-                   </tr>`)
-            )
+                                <i class='fas fa-times'></i>
+                            </a>                    
+                 </span>`
+            );
         });
     }
 

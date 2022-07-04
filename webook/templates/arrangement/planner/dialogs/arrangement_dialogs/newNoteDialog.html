@@ -10,12 +10,13 @@
             {% endif %}
         </div>
 
-        {{form.has_personal_information}}
-
-        <!-- <div class="form-check form-switch mt-2 mb-2">
-            <input class="form-check-input" type="checkbox" value="" name="{{form.has_personal_information.name}}" id="{{ form.has_personal_information.id_for_label }}" />
-            <label class="form-check-label" for="{{form.has_personal_information.id_for_label}}">Inneholder personlig informasjon</label>
-        </div> -->
+        <div class="mt-3">
+            <i class="fas fa-shield-alt"></i>
+            {{form.has_personal_information}}
+            <label for="{{form.has_personal_information.id_for_label}}">
+                Inneholder personlig informasjon?
+            </label>
+        </div>
         
         <div class="clearfix">
             <a class="float-end text-white btn btn-success" onclick="submitNote()" type="button">
