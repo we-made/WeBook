@@ -13,7 +13,7 @@ from django.views.generic import CreateView, DetailView, ListView, RedirectView,
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import DeleteView, FormView
 
-from webook.arrangement.forms.post_note_form import PostNoteForm
+from webook.arrangement.forms.post_note_form import CreateNoteForm
 from webook.arrangement.models import Event, Location, Note
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
@@ -43,11 +43,9 @@ class GetNotesForEntityView (ListView):
         entity_type = self.request.GET.get("entityType")
         entity_pk = self.request.GET.get("entityPk")
 
-        model = getEntityTypeToModelsDict()[entity_type]
-        model_instance = model.objects.filter(pk=entity_pk).first()
-        qs = model_instance.notes.select_related('author').all()
+        model_instance = getEntityTypeToModelsDict()[entity_type].objects.filter(pk=entity_pk).first()
 
-        return qs
+        return model_instance.notes.select_related('author').all()
 
     def get(self, request, *args, **kwargs):
         notes = []
@@ -65,10 +63,10 @@ get_notes_view = GetNotesForEntityView.as_view()
 
 
 class PostNoteView (JsonFormView):
-    form_class = PostNoteForm
+    form_class = CreateNoteForm
 
     def form_valid(self, form):
-        form.save_note(self.request.user.person)
+        form.save(self.request.user.person)
         return super().form_valid(form)
 
 post_note_view = PostNoteView.as_view()
