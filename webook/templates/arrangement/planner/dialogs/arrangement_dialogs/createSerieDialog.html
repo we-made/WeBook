@@ -86,6 +86,8 @@
                                             <i class="fas fa-plus text-success"></i>&nbsp;
                                             Legg til personer
                                         </a>
+
+                                        <div id="peopleChips"></div>
                 
                                         <div class="table-responsive mt-2">
                                             <table class="table table-sm">
@@ -261,9 +263,7 @@
         var wrapper = $('#roomChips');
         wrapper.empty();
 
-        var ids = rooms.split(",");
-
-        ids.forEach(id => {
+        rooms.split(",").forEach(id => {
             wrapper.append(
                 `<span class='chip' rowid='${id}'>
                     ${roomsNameMap.get(id)}
@@ -279,40 +279,34 @@
     }
 
     function createSerieDialog__setPeople(people) {
-        var tbody = $('#peopleTbody');
-        tbody.empty();
-        var ids = people.split(",");
+        var wrapper = $('#peopleChips');
+        wrapper.empty();
 
-        ids.forEach(id => {
-            tbody.append(
-                $(`<tr rowid='${id}'>
-                    <td>${peopleNameMap.get(id)}</td>
-                    <td> <a href='#' class='text-danger'
+        people.split(",").forEach(id => {
+            wrapper.append(
+                `<span class='chip' rowid='${id}'>
+                    ${peopleNameMap.get(id)}
+                     <a href='#' class='text-danger'
                             data-mdb-toggle='tooltip'
-                            title='{% trans "Remove this person from the activity" %}'
+                            title='{% trans "Remove this room from the activity" %}'
                             onclick='createSerieDialog__removeAssociation(this)'>
-                                <i class='fas fa-trash'></i>
-                            </a>
-                    </td>
-                   </tr>`)
+                                <i class='fas fa-times'></i>
+                            </a>                    
+                 </span>`
             )
-        });
+        })
     }
 
     function createSerieDialog__removeAssociation(a) {
-        var row = $(a).closest("tr")[0];
-        var rowid = row.getAttribute("rowid");
-        row.remove();
+        $(a).parent().remove();
     }
 
     function createSerieDialog__getSelectedRoomIds() {
-        var room_ids = Array.from($("#roomsTbody")[0].children).map(row => row.getAttribute("rowid"));
-        return room_ids;
+        return Array.from($("#roomChips")[0].children).map(row => row.getAttribute("rowid"));
     }
 
-    function dialogCreateEvent__getSelectedPeopleIds() {
-        var people_ids = Array.from($("#peopleTbody")[0].children).map(row => row.getAttribute("rowid"));
-        return people_ids;
+    function createSerieDialog__getSelectedPeopleIds() {
+        return Array.from($("#peopleChips")[0].children).map(row => row.getAttribute("rowid"));
     }
 </script>
 
@@ -369,14 +363,6 @@
     }
 
     $(document).ready(function () {
-
-         // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
-        /*
-        createSerieDialog__evaluateEnTitleObligatory();
-        $("input[name='display_layouts_serie_planner'][type='checkbox']").on("change", (e) => {
-            createSerieDialog__evaluateEnTitleObligatory();
-        });
-        */
         new DayOfWeekSelectComponent('every_arbitrary_weekday_in_month__weekday');
         new MonthSelectComponent('every_arbitrary_weekday_in_month__month');
         new MonthSelectComponent('every_x_of_month__month');
@@ -818,17 +804,14 @@
             time_area: area,
         }
 
-        var room_ids = Array.from($("#roomsTbody")[0].children).map(row => row.getAttribute("rowid"));
-        var people_ids = Array.from($("#peopleTbody")[0].children).map(row => row.getAttribute("rowid"));
-
         var display_layouts = [];
         document.querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
             display_layouts.push(element.value)
         })
 
         serie._uuid = $('#serie_uuid').val();
-        serie.rooms = room_ids;
-        serie.people = people_ids;
+        serie.rooms = createSerieDialog__getSelectedRoomIds();;
+        serie.people = createSerieDialog__getSelectedPeopleIds();;
         serie.room_name_map = roomsNameMap;
         serie.people_name_map = peopleNameMap;
         serie.display_layouts = display_layouts.join(",");
