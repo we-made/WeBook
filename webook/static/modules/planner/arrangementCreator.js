@@ -266,8 +266,6 @@ export class ArrangementCreator {
                                 new mdb.Input(formOutline).init();
                             });
 
-                            debugger;
-
                             if (context.lastTriggererDetails === undefined) {
                                 $('#ticket_code').attr('value', $('#id_ticket_code')[0].value );
                                 $('#title').attr('value', $('#id_name')[0].value );
