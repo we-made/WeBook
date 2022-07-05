@@ -1,9 +1,10 @@
+from __future__ import annotations
 import datetime
 import os
 from argparse import ArgumentError
 from email.policy import default
 from enum import Enum
-
+from typing import Optional, Tuple
 from autoslug import AutoSlugField
 from django.db import models
 from django.db.models import FileField
@@ -17,6 +18,16 @@ from webook.arrangement.managers import ArchivedManager, EventManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 from webook.utils.manifest_describe import describe_manifest
 
+
+class BufferFieldsMixin(models.Model):
+    """Mixin for the common fields for buffer functionality"""
+    before_buffer_start = models.TimeField(null=True, blank=True)
+    before_buffer_end = models.TimeField(null=True, blank=True)
+    after_buffer_start = models.TimeField(null=True, blank=True)
+    after_buffer_end = models.TimeField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
 
 class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
     """
@@ -808,7 +819,7 @@ class ServiceProvidable(TimeStampedModel, ModelArchiveableMixin):
         return f"{self.service_name} of type {self.service_type} provided by {self.organization.name}"
 
 
-class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArchiveableMixin):
+class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArchiveableMixin, BufferFieldsMixin):
     """The event model represents an event, or happening that takes place in a set span of time, and which may
     reserve certain resources for use in that span of time (such as a room, or a person etc..).
 
@@ -872,6 +883,21 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     association_type = models.CharField(max_length=255, choices=ASSOCIATION_TYPE_CHOICES, default=NO_ASSOCIATION)
     associated_serie = models.ForeignKey(to="EventSerie", on_delete=models.RESTRICT, null=True, blank=True, related_name="associated_events")
 
+    buffer_before_event = models.ForeignKey(
+        to="Event",
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="before_buffer_for"
+    )
+    buffer_after_event = models.ForeignKey(
+        to="Event",
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="after_buffer_for"
+    )
+
     serie = models.ForeignKey(to="EventSerie", on_delete=models.RESTRICT, null=True, blank=True, related_name="events")
 
     title = models.CharField(verbose_name=_("Title"), max_length=255)
@@ -897,6 +923,47 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
                                              related_name="events", blank=True)
 
+    def refresh_buffers(self) -> Tuple[Optional[Event], Optional[Event]]:
+        """Manage buffers from the event instance, returning them in a tuple form
+        
+        returns:
+            A tuple consisting of two possibly None Event instances. The first item of the tuple is the pre-activity buffer,
+            and the second item is the post-activity buffer. Either may be None if their requisite values are not defined.
+
+        """
+
+        if self.buffer_before_event:
+            self.buffer_before_event.delete()
+        if self.buffer_after_event:
+            self.buffer_after_event.delete()
+
+        before_activity_buffer = after_activity_buffer = None
+
+        title = "Buffer for " + self.title
+
+        if self.before_buffer_start and self.before_buffer_end:
+            before_activity_buffer = Event()
+            before_activity_buffer.title = title
+            before_activity_buffer.arrangement = self.arrangement   
+            before_activity_buffer.start = datetime.datetime.combine(self.start, self.before_buffer_start)
+            before_activity_buffer.end = datetime.datetime.combine(self.start, self.before_buffer_end)
+            before_activity_buffer.save()
+            before_activity_buffer.rooms.set(self.rooms.all())
+            before_activity_buffer.people.set(self.people.all())
+            before_activity_buffer.save()
+        if self.after_buffer_start and self.after_buffer_end:
+            after_activity_buffer = Event()
+            after_activity_buffer.title = title
+            after_activity_buffer.arrangement = self.arrangement
+            after_activity_buffer.start = datetime.datetime.combine(self.end, self.after_buffer_start)
+            after_activity_buffer.end = datetime.datetime.combine(self.end, self.after_buffer_end)
+            after_activity_buffer.save()
+            after_activity_buffer.rooms.set(self.rooms.all())
+            after_activity_buffer.people.set(self.people.all())
+            after_activity_buffer.save()
+
+        return (before_activity_buffer, after_activity_buffer)
+
     def degrade_to_association_status(self, commit=True) -> None:
         """Degrade this event to an associate of its serie, as opposed to a direct child
         
@@ -921,8 +988,7 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         self.serie = None
 
         if commit:
-            self.save()
-        
+            self.save()    
 
     def __str__(self):
         """Return title of event, with start and end times"""
@@ -1032,7 +1098,7 @@ class RequisitionRecord (TimeStampedModel, ModelArchiveableMixin):
             return self.service_requisition
 
 
-class PlanManifest(TimeStampedModel):
+class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     """ A time manifest is a manifest of the timeplan generation """
 
     expected_visitors = models.IntegerField(default=0)
@@ -1086,8 +1152,7 @@ class PlanManifest(TimeStampedModel):
             4: self.friday,
             5: self.saturday,
             6: self.sunday
-        }
-        
+        } 
 
 
 class EventSerie(TimeStampedModel, ModelArchiveableMixin):

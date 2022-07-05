@@ -1,6 +1,6 @@
 import { CollisionsUtil } from "./collisions_util.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
-import { PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
+import { PopulateCreateEventDialog, PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
 import { QueryStore } from "./querystore.js";
 import { serieConvert } from "./serieConvert.js";
 import { SerieMetaTranslator } from "./serie_meta_translator.js";
@@ -282,56 +282,8 @@ export class ArrangementCreator {
 
                                 return;
                             }
-
-                            var event = context.events.get(context.lastTriggererDetails.event_uuid);
-
-                            var splitDateFunc = function (strToDateSplit) {
-                                var date_str = strToDateSplit.split("T")[0];
-                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
-                                return [ date_str, time_str ];
-                            }
-                            var startTimeArtifacts = splitDateFunc(event.start);
-                            var endTimeArtifacts = splitDateFunc(event.end);
-
-                            $('#event_uuid').val(event._uuid);
-                            $('#title').val(event.title);
-                            $('#title_en').val(event.title_en);
-                            $('#ticket_code').val(event.ticket_code);
-                            $('#expected_visitors').val(event.expected_visitors);
-                            $('#fromDate').val(startTimeArtifacts[0]);
-                            $('#fromTime').val(startTimeArtifacts[1]);
-                            $('#toDate').val(endTimeArtifacts[0]);
-                            $('#toTime').val(endTimeArtifacts[1]);
-
-                            event.display_layouts.split(",").forEach(element => {
-                                $(`#${String(parseInt(element))}_dlcheck`)
-                                    .prop( "checked", true );
-                            })
-
-                            // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
-                            // has "selected" rooms as they would through the dialog interface.
-                            if (event.people.length > 0) {
-                                var peopleSelectContext = Object();
-                                peopleSelectContext.people = event.people.join(",");
-                                peopleSelectContext.people_name_map = event.people_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d1_peopleSelected",
-                                    { detail: {
-                                        context: peopleSelectContext
-                                    } }
-                                ));
-                            }
-                            if (event.rooms.length > 0) {
-                                var roomSelectContext = Object();
-                                roomSelectContext.rooms = event.rooms.join(",");
-                                roomSelectContext.room_name_map = event.room_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d1_roomsSelected",
-                                    { detail: {
-                                        context: roomSelectContext
-                                    } }
-                                ));
-                            }
+                            
+                            PopulateCreateEventDialog(context.events.get(context.lastTriggererDetails.event_uuid));
 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();

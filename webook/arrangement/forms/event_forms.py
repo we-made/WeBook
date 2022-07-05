@@ -1,3 +1,5 @@
+from datetime import datetime
+from typing import Optional, Tuple
 from django import forms
 from django.forms import CharField, fields
 
@@ -14,7 +16,11 @@ _ALWAYS_FIELDS = ( "title",
                    "sequence_guid",
                    "display_layouts",
                    "people",
-                   "rooms",)
+                   "rooms",
+                   "before_buffer_start",
+                   "before_buffer_end",
+                   "after_buffer_start",
+                   "after_buffer_end",)
 
 
 class BaseEventForm(forms.ModelForm):
@@ -27,8 +33,14 @@ class BaseEventForm(forms.ModelForm):
             """
             self.instance.degrade_to_association_status(commit=False)
 
+        if self.instance.buffer_before_event:
+            self.instance.buffer_before_event.delete()
+        if self.instance.buffer_after_event:
+            self.instance.buffer_after_event.delete()
+
         super().save(commit)
 
+        _ : Tuple[Optional[Event], Optional[Event]] = self.instance.refresh_buffers()
 
     class Meta:
         model = Event

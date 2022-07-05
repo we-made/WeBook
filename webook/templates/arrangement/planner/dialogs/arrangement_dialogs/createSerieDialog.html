@@ -2,14 +2,14 @@
 
 
 <div id="{{dialog}}" title="<span class='badge badge-success'><i class='fas fa-clock'></i></span>&nbsp; Ny tidsplan">
-    <div>
+    <div style="max-height: 700px; overflow:scroll;">
         <div class="row">
             <div class="col-12">
                 <form id="headMockForm">
                     <input type="submit" style="display:none;" />
         
                     <div class="row">
-                        <div class="col-8">
+                        <div class="col-7">
                             <div class="row mb-2">
                                 <div class="col-12">
                                     <div class="form-outline mb-2">
@@ -55,180 +55,343 @@
                             
                         </div>
 
-                        <div class="col-3">
-                            <fieldset>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <h5><i class="fas fa-building text-muted"></i>&nbsp; Rom</h5>
-                                        <a class="btn btn-block btn-outline-dark btn-sm"
-                                            onclick="createSerieDialog__openAddRooms()"
-                                            type="button">
-                                            <i class="fas fa-plus text-success"></i>&nbsp;
+                        <div class="col-5">
+                            <div class="accordion accordion-flush" id="createSerieDialog_accordion">
+                                <div class="accordion-item">
+                                    <h5 class="accordion-header">
+                                        <button
+                                          class="accordion-button collapsed"
+                                          type="button"
+                                          data-mdb-toggle="collapse"
+                                          data-mdb-target="#createSerieDialogAccordion-people"
+                                          aria-expanded="false"
+                                          aria-controls="createSerieDialogAccordion-people">
+                                          <div class="badge badge-secondary" id="peopleCounter">0</div>
+                                          &nbsp;<i class="fas fa-users"></i>&nbsp;
+                                          Personer
+                                        </button>
+                                    </h5>
+                                    <div
+                                      id="createSerieDialogAccordion-people"
+                                      class="accordion-collapse collapse"
+                                      aria-labelledby="createSerieDialogAccordion-people"
+                                      data-mdb-parent="#createSerieDialog_accordion">
+                  
+                                      <div class="accordion-body">
+                                          <a class="btn btn-block btn-success shadow-0 text-white"
+                                          onclick="createSerieDialog__openAddPeople()"
+                                          type="button">
+                                              <i class="fas fa-plus"></i>
+                                              Legg til personer
+                                          </a>
+                  
+                                          <div id="peopleChips"></div>
+                                      </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h5 class="accordion-header">
+                                        <button
+                                          class="accordion-button collapsed"
+                                          type="button"
+                                          data-mdb-toggle="collapse"
+                                          data-mdb-target="#createSerieDialogAccordion-rooms"
+                                          aria-expanded="false"
+                                          aria-controls="createSerieDialogAccordion-rooms">
+                                          <div class="badge badge-secondary" id="roomsCounter">0</div>
+                                          &nbsp;<i class="fas fa-building"></i>&nbsp;
+                                          Rom
+                                        </button>
+                                    </h5>
+                                    <div
+                                      id="createSerieDialogAccordion-rooms"
+                                      class="accordion-collapse collapse"
+                                      aria-labelledby="createSerieDialogAccordion-rooms"
+                                      data-mdb-parent="#createSerieDialog_accordion">
+                  
+                                      <div class="accordion-body">
+                                        <a class="btn btn-block text-white btn-success shadow-0"
+                                        onclick="createSerieDialog__openAddRooms()"
+                                        type="button">
+                                            <i class="fas fa-plus"></i>
                                             Legg til rom
                                         </a>
-                                        
+                
                                         <div id="roomChips"></div>
-
-                                        <div class="table-responsive mt-2">
-                                            <table class="table table-sm">
-                                                <tbody id="roomsTbody"></tbody>
-                                            </table>
-                                        </div>
-
-                                        <hr>
-                                    </div>
-                                    <div class="col-12">
-                                        <h5><i class="fas fa-users text-muted"></i>&nbsp; Personer</h5>
-                
-                                        <a class="btn btn-block btn-outline-dark btn-sm"
-                                            onclick="createSerieDialog__openAddPeople()"
-                                            type="button">
-                                            <i class="fas fa-plus text-success"></i>&nbsp;
-                                            Legg til personer
-                                        </a>
-                
-                                        <div class="table-responsive mt-2">
-                                            <table class="table table-sm">
-                                                <tbody id="peopleTbody"></tbody>
-                                            </table>
-                                        </div>
+                                      </div>
                                     </div>
                                 </div>
-                            </fieldset>
-                        </div>
-                        <div class="mt-4">
-                            <h5><i class="fas fa-tv"></i>&nbsp; Vises på:</h5>
-                            {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
-                                <div class="badge border fw-light border-body text-muted rounded-pill clickable-badge p-3 m-1">
-                                    <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
-                                    <label for="id_display_layouts_serie_planner_{{choice_id}}">&nbsp;{{choice_label}}</label>
-                                </div>
-                            {% endfor %}
-                            </ul>
+                              </div>
                         </div>
                     </div>
                 </form>
-        
-                <fieldset>
-                    <h5><i class="fas fa-redo"></i>&nbsp; Pattern for recurring area</h5>
-                    <div class="row">
-                        <div class="col-3 border-end border-1">
-                            <form id="patternMockForm">
-                                <input type="submit" style="display:none;" />
-        
-                                <div>
-                                    <input type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daily</label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Weekly</label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Monthly</label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Yearly</label>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="col-9">
-                            <div id="patternRoute_daily">
-                                <div>
-                                    <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
-                                    <label>Every <input type="number" min="1"  id="every_x_day__interval" required /> day</label>
-                                </div>
-                                
-                                <div>
-                                    <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
-                                    <label>Every weekday</label>
-                                </div>
-                            </div>
-        
-                            <div id="patternRoute_weekly" style="display: none;">
-                                <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> week at:</label></div>
-                                <span id="day_checkbox_wrapper">
-                                    <input type="checkbox" id="monday"> <label>Monday</label>
-                                    <input type="checkbox" id="tuesday"> <label>Tuesday</label>
-                                    <input type="checkbox" id="wednesday"> <label>Wednesday</label>
-                                    <input type="checkbox" id="thursday"> <label>Thursday</label>
-                                    <input type="checkbox" id="friday"> <label>Friday</label>
-                                    <input type="checkbox" id="saturday"> <label>Saturday</label>
-                                    <input type="checkbox" id="sunday"> <label>Sunday</label>
-                                </span>
-                            </div>
-        
-                            <div id="patternRoute_monthly" style="display: none;">
-                                <div>
-                                    <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
-                                    Day <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> every <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> month
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> The
-                                    <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
-                                    </select>
-                                    <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
-                                    </select>
-                                    every <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> months
-                                </div>
-                            </div>
-        
-                            <div id="patternRoute_yearly" style="display: none;">
-                                <div>
-                                    Happens every <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> year
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
-                                    <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
-                                    <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
-                                    </select>
-                                </div>
-        
-                                <div>
-                                    <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Every:
-                                    <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
-                                    </select>
-                                    <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
-                                    </select>
-                                    in
-                                    <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
-        
-                <fieldset>
-                    <h5><i class="fas fa-hourglass-end"></i>&nbsp; Area of recurrence</h5>
-                    <div class="row">
-                        <div class="col-3">
-                            <label>Start Date</label>
-                            <input type="date" id="area_start_date" required>
-                        </div>
-                        <div class="col-9" id="area_methods_wrapper">
-                            <div>
-                                <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
-                                Stop within: <input type="date" id="area_stopWithin" required>
-                            </div>
-        
-                            <div>
-                                <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
-                                <fieldset>
-                                    Stop after: <input type="number" min="1" id="area_stopAfterXInstances" required /> occurences
-                                </fieldset>
-                            </div>
-        
-                            <div>
-                                <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
-                                No stop date
-                                | Project <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> months into the future
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
             </div>
         </div>
         <input type="hidden" name="uuid" id="serie_uuid">
 
+        <div class="accordion accordion-flush" id="createSerieDialog_accordion2">
+            <div class="accordion-item">
+                <h5 class="accordion-header">
+                    <button
+                        class="accordion-button"
+                        type="button"
+                        data-mdb-toggle="collapse"
+                        data-mdb-target="#createSerieDialog_screensAccordion"
+                        aria-expanded="false"
+                        aria-controls="createSerieDialog-screensAccordion">
+
+                        <i class="fas fa-tv"></i>&nbsp; Vises på
+                    </button>
+                </h5>
+
+                <div 
+                    id="createSerieDialog_screensAccordion"
+                    class="accordion-collapse show"
+                    aria-labelledby="createSerieDialog-screensAccordion"
+                    data-mdb-parent="#createSerieDialog_accordion2">
+
+                    <div class="accordion-body">
+                        {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
+                            <div class="badge border fw-light border-body text-muted rounded-pill clickable-badge p-3 m-1">
+                                <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
+                                <label for="id_display_layouts_serie_planner_{{choice_id}}">&nbsp;{{choice_label}}</label>
+                            </div>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h5 class="accordion-header">
+                    <button 
+                        class="accordion-button"
+                        type="button"
+                        data-mdb-toggle="collapse"
+                        data-mdb-target="#createSerieDialog_patternAccordion">
+                        
+                        <i class="fas fa-redo"></i>&nbsp; Mønster for gjentagende område
+                    </button>
+                </h5>
+
+                <div 
+                    id="createSerieDialog_patternAccordion"
+                    class="accordion-collapse show"
+                    aria-labelledby="createSerieDialog-patternAccordion"
+                    data-mdb-parent="#createSerieDialog_accordion2">
+
+                    <div class="accordion-body">
+                        <fieldset>
+                            <div class="row">
+                                <div class="col-3 border-end border-1">
+                                    <form id="patternMockForm">
+                                        <input type="submit" style="display:none;" />
+                
+                                        <div>
+                                            <input type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daily</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Weekly</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Monthly</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Yearly</label>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-9">
+                                    <div id="patternRoute_daily">
+                                        <div>
+                                            <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
+                                            <label>Every <input type="number" min="1"  id="every_x_day__interval" required /> day</label>
+                                        </div>
+                                        
+                                        <div>
+                                            <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
+                                            <label>Every weekday</label>
+                                        </div>
+                                    </div>
+                
+                                    <div id="patternRoute_weekly" style="display: none;">
+                                        <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> week at:</label></div>
+                                        <span id="day_checkbox_wrapper">
+                                            <input type="checkbox" id="monday"> <label>Monday</label>
+                                            <input type="checkbox" id="tuesday"> <label>Tuesday</label>
+                                            <input type="checkbox" id="wednesday"> <label>Wednesday</label>
+                                            <input type="checkbox" id="thursday"> <label>Thursday</label>
+                                            <input type="checkbox" id="friday"> <label>Friday</label>
+                                            <input type="checkbox" id="saturday"> <label>Saturday</label>
+                                            <input type="checkbox" id="sunday"> <label>Sunday</label>
+                                        </span>
+                                    </div>
+                
+                                    <div id="patternRoute_monthly" style="display: none;">
+                                        <div>
+                                            <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
+                                            Day <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> every <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> month
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> The
+                                            <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
+                                            </select>
+                                            <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
+                                            </select>
+                                            every <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> months
+                                        </div>
+                                    </div>
+                
+                                    <div id="patternRoute_yearly" style="display: none;">
+                                        <div>
+                                            Happens every <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> year
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
+                                            <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
+                                            <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
+                                            </select>
+                                        </div>
+                
+                                        <div>
+                                            <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Every:
+                                            <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
+                                            </select>
+                                            <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
+                                            </select>
+                                            in
+                                            <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h5 class="accordion-header">
+                    <button 
+                        class="accordion-button"
+                        type="button"
+                        data-mdb-toggle="collapse"
+                        data-mdb-target="#createSerieDialog_recurrenceAreaAccordion">
+                        
+                        <i class="fas fa-hourglass-end"></i>&nbsp; Gjentagelsesområde
+                    </button>
+                </h5>
+
+                <div 
+                    id="createSerieDialog_recurrenceAreaAccordion"
+                    class="accordion-collapse show"
+                    aria-labelledby="createSerieDialog_recurrenceAreaAccordion"
+                    data-mdb-parent="#createSerieDialog_accordion2">
+                    
+                    <div class="accordion-body">
+                        <fieldset>
+                            <div class="row">
+                                <div class="col-3">
+                                    <label>Start Date</label>
+                                    <input type="date" id="area_start_date" required>
+                                </div>
+                                <div class="col-9" id="area_methods_wrapper">
+                                    <div>
+                                        <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
+                                        Stop within: <input type="date" id="area_stopWithin" required>
+                                    </div>
+                
+                                    <div>
+                                        <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
+                                        <fieldset>
+                                            Stop after: <input type="number" min="1" id="area_stopAfterXInstances" required /> occurences
+                                        </fieldset>
+                                    </div>
+                
+                                    <div>
+                                        <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
+                                        No stop date
+                                        | Project <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> months into the future
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h5 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-mdb-toggle="collapse"
+                    data-mdb-target="#flush-collapseOne"
+                    aria-expanded="false"
+                    aria-controls="flush-collapseOne"
+                  >
+                    <i class="fas fa-clock"></i>&nbsp; Buffers
+                  </button>
+                </h5>
+                <div
+                  id="flush-collapseOne"
+                  class="accordion-collapse collapse"
+                  aria-labelledby="flush-headingOne"
+                  data-mdb-parent="#createSerieDialog_accordion2"
+                >
+                  <div class="accordion-body">
+                      <div class="alert alert-info small">
+                          <h6><i class="fas fa-info-circle"></i>&nbsp; Buffere blir opprettet som egne hendelser før og etter aktiviteten.</h6>
+                          Lar du være å definere fra eller til for enten før eller etter så vil det ikke bli lagt inn en buffer
+                          for den perioden det gjelder. Så du kan velge å bare komplett definere en bufferaktivitet før aktiviteten,
+                          og unnlate å definere for etter aktiviteten, i det tilfelle vil det bare bli opprettet en buffer hendelse før
+                          aktiviteten tar sted.
+                      </div>
+          
+                      <table class="table table-sm">
+                          <thead></thead>
+                          <tbody>
+                              <tr>
+                                  <th colspan="3" class="fw-bold">Buffer før aktiviteten:</th>
+                              </tr>
+                              <tr>
+                                  <td>
+                                      Fra
+                                      <div class="form-outline">
+                                          <input type="time" id="buffer_before_start" class="form-control" />
+                                      </div>
+                                  </td>
+                                  <td>
+                                      Til
+                                      <div class="form-outline">
+                                          <input type="time" id="buffer_before_end" class="form-control" />
+                                      </div>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <th colspan="3" class="fw-bold">Buffer etter aktiviteten:</th>
+                              </tr>
+                              <tr>
+                                  <td>
+                                      Fra
+                                      <div class="form-outline">
+                                          <input type="time" id="buffer_after_start" class="form-control" />
+                                      </div>
+                                  </td>
+                                  <td>
+                                      Til
+                                      <div class="form-outline">
+                                          <input type="time" id="buffer_after_end" class="form-control" />
+                                      </div>
+                                  </td>
+                              </tr>
+                          </tbody>
+                      </table>            
+                  </div>
+                </div>
+              </div>
+        </div>
 
         <div class="clearfix mt-3">
             <a class="btn btn-success btn-lg text-white float-end" type="button" id="submitBtn">Lagre</a>
@@ -243,10 +406,12 @@
     document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
         peopleNameMap = e.detail.context.people_name_map;
         createSerieDialog__setPeople(e.detail.context.people);
+        document.getElementById('peopleCounter').innerText = $('#peopleChips').children().length;
     })
     document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
         roomsNameMap = e.detail.context.room_name_map;
         createSerieDialog__setRooms(e.detail.context.rooms);
+        document.getElementById('roomsCounter').innerText = $('#roomChips').children().length;
     })
 
     function createSerieDialog__openAddRooms() {
@@ -261,9 +426,7 @@
         var wrapper = $('#roomChips');
         wrapper.empty();
 
-        var ids = rooms.split(",");
-
-        ids.forEach(id => {
+        rooms.split(",").forEach(id => {
             wrapper.append(
                 `<span class='chip' rowid='${id}'>
                     ${roomsNameMap.get(id)}
@@ -279,40 +442,34 @@
     }
 
     function createSerieDialog__setPeople(people) {
-        var tbody = $('#peopleTbody');
-        tbody.empty();
-        var ids = people.split(",");
+        var wrapper = $('#peopleChips');
+        wrapper.empty();
 
-        ids.forEach(id => {
-            tbody.append(
-                $(`<tr rowid='${id}'>
-                    <td>${peopleNameMap.get(id)}</td>
-                    <td> <a href='#' class='text-danger'
+        people.split(",").forEach(id => {
+            wrapper.append(
+                `<span class='chip' rowid='${id}'>
+                    ${peopleNameMap.get(id)}
+                     <a href='#' class='text-danger'
                             data-mdb-toggle='tooltip'
-                            title='{% trans "Remove this person from the activity" %}'
+                            title='{% trans "Remove this room from the activity" %}'
                             onclick='createSerieDialog__removeAssociation(this)'>
-                                <i class='fas fa-trash'></i>
-                            </a>
-                    </td>
-                   </tr>`)
+                                <i class='fas fa-times'></i>
+                            </a>                    
+                 </span>`
             )
-        });
+        })
     }
 
     function createSerieDialog__removeAssociation(a) {
-        var row = $(a).closest("tr")[0];
-        var rowid = row.getAttribute("rowid");
-        row.remove();
+        $(a).parent().remove();
     }
 
     function createSerieDialog__getSelectedRoomIds() {
-        var room_ids = Array.from($("#roomsTbody")[0].children).map(row => row.getAttribute("rowid"));
-        return room_ids;
+        return Array.from($("#roomChips")[0].children).map(row => row.getAttribute("rowid"));
     }
 
-    function dialogCreateEvent__getSelectedPeopleIds() {
-        var people_ids = Array.from($("#peopleTbody")[0].children).map(row => row.getAttribute("rowid"));
-        return people_ids;
+    function createSerieDialog__getSelectedPeopleIds() {
+        return Array.from($("#peopleChips")[0].children).map(row => row.getAttribute("rowid"));
     }
 </script>
 
@@ -369,20 +526,15 @@
     }
 
     $(document).ready(function () {
-
-         // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
-        /*
-        createSerieDialog__evaluateEnTitleObligatory();
-        $("input[name='display_layouts_serie_planner'][type='checkbox']").on("change", (e) => {
-            createSerieDialog__evaluateEnTitleObligatory();
-        });
-        */
         new DayOfWeekSelectComponent('every_arbitrary_weekday_in_month__weekday');
         new MonthSelectComponent('every_arbitrary_weekday_in_month__month');
         new MonthSelectComponent('every_x_of_month__month');
         new DayOfWeekSelectComponent('every_dynamic_date_of_month__weekday');
         new ArbitratorSelectComponent('every_dynamic_date_of_month__arbitrator');
         new ArbitratorSelectComponent('every_arbitrary_weekday_in_month__arbitrator');
+
+        _listenToStartChangeAndUpdateBufferValues();
+        _listenToEndChangeAndUpdateBufferValues();
 
         var selects = $(".newTimePlanDialog_select");
         for (let i = 0; i < selects.length; i++) {
@@ -392,6 +544,18 @@
             }
         }
     })
+
+    function _listenToStartChangeAndUpdateBufferValues() {
+        document.getElementById('serie_start').addEventListener('change', (event) => {
+            document.getElementById('buffer_before_end').value = event.target.value;
+        });
+    }
+    
+    function _listenToEndChangeAndUpdateBufferValues() {
+        document.getElementById('serie_end').addEventListener('change', (event) => {
+            document.getElementById('buffer_after_start').value = event.target.value;
+        })
+    }
     
     const startTimePicker = new ExtendedTimepicker({
         timepickerWrapperElement: document.getElementById('serie_start_picker'),
@@ -736,7 +900,6 @@
         let active_pattern_key = $('input:radio[name="pattern"]:checked').val();
         let pattern_obj = patterns.get(`${active_pattern_key}`);
 
-
         let headResult = ValidatorFunctions.validate_head();
         let patternResult = ValidatorFunctions.validate_pattern_radio();
         let patternRouteResult = ValidatorFunctions.validate_pattern_route(pattern_obj);
@@ -818,17 +981,28 @@
             time_area: area,
         }
 
-        var room_ids = Array.from($("#roomsTbody")[0].children).map(row => row.getAttribute("rowid"));
-        var people_ids = Array.from($("#peopleTbody")[0].children).map(row => row.getAttribute("rowid"));
-
         var display_layouts = [];
         document.querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
             display_layouts.push(element.value)
         })
 
+        serie.buffer = {}
+        if ( $('#buffer_before_start').val() && $('#buffer_before_end').val() ) {
+            serie.buffer.before = {
+                start: $('#buffer_before_start').val(),
+                end: $('#buffer_before_end').val(),
+            }
+        }
+        if ( $('#buffer_after_start').val() && $('#buffer_after_end').val() ) {
+            serie.buffer.after = {
+                start: $('#buffer_after_start').val(),
+                end: $('#buffer_after_end').val(),
+            }
+        }
+
         serie._uuid = $('#serie_uuid').val();
-        serie.rooms = room_ids;
-        serie.people = people_ids;
+        serie.rooms = createSerieDialog__getSelectedRoomIds();
+        serie.people = createSerieDialog__getSelectedPeopleIds();
         serie.room_name_map = roomsNameMap;
         serie.people_name_map = peopleNameMap;
         serie.display_layouts = display_layouts.join(",");

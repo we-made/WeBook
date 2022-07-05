@@ -6,7 +6,11 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
     $('#serie_end').val(serie.time.end).change();
     $('#serie_ticket_code').val(serie.time.ticket_code);
     $('#serie_expected_visitors').val(serie.time.expected_visitors);
-    $('#area_start_date').val(serie.time_area.start_date)
+    $('#area_start_date').val(serie.time_area.start_date);
+    $('#buffer_before_start').val(serie.buffer.before.start);
+    $('#buffer_before_end').val(serie.buffer.before.end);
+    $('#buffer_after_start').val(serie.buffer.after.start);
+    $('#buffer_after_end').val(serie.buffer.after.end);
 
     // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
     // has "selected" rooms as they would through the dialog interface.
@@ -292,49 +296,44 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
  * @param {*} event
  */
 export function PopulateCreateEventDialog(event) {
-    $('#ticket_code').val(serie.time.ticket_code ).trigger('change');
-    $('#title').val(serie.time.title ).trigger('change');
-    $('#title_en').attr('value', serie.time.title_en ).trigger('change');
-    $('#expected_visitors').attr('value', serie.time.expected_visitors ).trigger('change');
-
-    serie.display_layouts.split(",")
-        .forEach(checkboxElement => {
-            $(`#${checkboxElement.value}_dlcheck`)
-                .prop( "checked", true );
-        })
-
-    $('#breakOutActivityDialog').prepend( $(
-        document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
-    ).addClass("mb-4"));
-
-
-    // document.querySelectorAll("input[name='display_layouts']:checked")
-    //     .forEach(checkboxElement => {
-    //         $(`#${checkboxElement.value}_dlcheck`)
-    //             .prop( "checked", true );
-    //     })
-
-
     var splitDateFunc = function (strToDateSplit) {
         var date_str = strToDateSplit.split("T")[0];
         var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
         return [ date_str, time_str ];
     }
+    var startTimeArtifacts = splitDateFunc(event.start);
+    var endTimeArtifacts = splitDateFunc(event.end);
 
-    var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
-    var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
-    $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
-    $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
-    $('#toDate').val(sendTimeArtifacts[0]).trigger('change');
-    $('#toTime').val(endTimeArtifacts[1]).trigger('change');
+    $('#event_uuid').val(event._uuid);
+    $('#title').val(event.title);
+    $('#title_en').val(event.title_en);
+    $('#ticket_code').val(event.ticket_code);
+    $('#expected_visitors').val(event.expected_visitors);
+    $('#fromDate').val(startTimeArtifacts[0]);
+    $('#fromTime').val(startTimeArtifacts[1]);
+    $('#toDate').val(endTimeArtifacts[0]);
+    $('#toTime').val(endTimeArtifacts[1]);
+    $('#buffer_before_start').val(event.before_buffer_start);
+    $('#buffer_before_end').val(event.before_buffer_end);
+    $('#buffer_after_start').val(event.after_buffer_start);
+    $('#buffer_after_end').val(event.after_buffer_end);
 
-    // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
-    // dialogCreateEvent__evaluateEnTitleObligatory();
+    if (Array.isArray(event.display_layouts)) {
+        event.display_layouts.forEach(element => {
+            $(`#${String(parseInt(element))}_dlcheck`)
+                .prop( "checked", true );
+        })
+    }
+    else {
+        throw "Display layouts must be an array";
+    }
 
-    if (serie.people.length > 0) {
+    // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
+    // has "selected" rooms as they would through the dialog interface.
+    if (event.people.length > 0) {
         var peopleSelectContext = Object();
-        peopleSelectContext.people = serie.people.join(",");
-        peopleSelectContext.people_name_map = serie.people_name_map;
+        peopleSelectContext.people = event.people.join(",");
+        peopleSelectContext.people_name_map = event.people_name_map;
         document.dispatchEvent(new CustomEvent(
             "arrangementCreator.d1_peopleSelected",
             { detail: {
@@ -342,10 +341,10 @@ export function PopulateCreateEventDialog(event) {
             } }
         ));
     }
-    if (serie.rooms.length > 0) {
+    if (event.rooms.length > 0) {
         var roomSelectContext = Object();
-        roomSelectContext.rooms = serie.rooms.join(",");
-        roomSelectContext.room_name_map = serie.room_name_map;
+        roomSelectContext.rooms = event.rooms.join(",");
+        roomSelectContext.room_name_map = event.room_name_map;
         document.dispatchEvent(new CustomEvent(
             "arrangementCreator.d1_roomsSelected",
             { detail: {
@@ -353,6 +352,4 @@ export function PopulateCreateEventDialog(event) {
             } }
         ));
     }
-
-    $('#event_uuid').val(crypto.randomUUID());
 }

@@ -14,7 +14,12 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
 
     appendArrayToFormData(serie.rooms, formData, `${keyPrefix}rooms`);
     appendArrayToFormData(serie.people, formData, `${keyPrefix}people`);
-    appendArrayToFormData(serie.display_layouts.split(","), formData, `${keyPrefix}display_layouts`)
+    appendArrayToFormData(serie.display_layouts.split(","), formData, `${keyPrefix}display_layouts`);
+
+    formData.append(`${keyPrefix}before_buffer_start`, serie.buffer.before.start);
+    formData.append(`${keyPrefix}before_buffer_end`, serie.buffer.before.end);
+    formData.append(`${keyPrefix}after_buffer_start`, serie.buffer.after.start);
+    formData.append(`${keyPrefix}after_buffer_end`, serie.buffer.after.end);
 
     switch(serie.pattern.pattern_type) {
         case "daily":

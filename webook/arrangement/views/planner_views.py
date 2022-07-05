@@ -483,53 +483,7 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
 
         return context
 
-    def get_success_url(self) -> str:
-        people = self.request.POST.get("people")
-        rooms = self.request.POST.get("rooms")
-
-        if ((people is None or people == "undefined") and (rooms is None or rooms == "undefined")):
-            return
-
-        obj = self.object
-        obj.people.clear()
-        obj.rooms.clear()
-
-        if (people is not None and len(people) > 0 and people != "undefined"):
-            people = people.split(',')
-            for personId in people:
-                obj.people.add(Person.objects.get(id=personId))
-        
-        if (rooms is not None and len(rooms) > 0 and rooms != "undefined"):
-            rooms = rooms.split(',')
-            for roomId in rooms:
-                obj.rooms.add(Room.objects.get(id=roomId))
-
-        obj.save()
-
 arrangement_create_simple_event_dialog_view = PlannerArrangementCreateSimpleEventDialogView.as_view()
-
-
-# class PlannerArrangementCreateSerieDialog(LoginRequiredMixin, TemplateView):
-#     template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
-
-#     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-#         context = super().get_context_data(**kwargs)
-#         if "slug" in self.request.GET:
-#             arrangement_slug = self.request.GET.get("slug")
-#             arrangement = Arrangement.objects.get(slug=arrangement_slug)
-#             context["arrangementPk"] = arrangement.pk
-#         else: context["arrangementPk"] = 0
-
-#         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
-#         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
-
-#         if "managerName" in self.request.GET:
-#             context["managerName"] = self.request.GET.get("managerName")
-#         else: print("No manager name.")
-
-#         return context
-
-# arrangement_create_serie_dialog_view = PlannerArrangementCreateSerieDialog.as_view()
 
 
 class PlannerArrangementPromotePlannerDialog(LoginRequiredMixin, TemplateView):

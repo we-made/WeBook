@@ -1,3 +1,4 @@
+from datetime import datetime
 from django import forms
 from django.http import JsonResponse
 
@@ -39,6 +40,11 @@ class SerieManifestForm(forms.Form):
     saturday = forms.BooleanField(required=False)
     sunday = forms.BooleanField(required=False)
 
+    before_buffer_start = forms.TimeField(required=False)
+    before_buffer_end = forms.TimeField(required=False)
+    after_buffer_start = forms.TimeField(required=False)
+    after_buffer_end = forms.TimeField(required=False)
+
     def as_plan_manifest(self):
         """Convert the SerieManifestForm to a valid PlanManifest """
         plan_manifest = PlanManifest()
@@ -52,6 +58,11 @@ class SerieManifestForm(forms.Form):
         plan_manifest.expected_visitors = self.cleaned_data["expectedVisitors"]
         plan_manifest.title = self.cleaned_data["title"]
         plan_manifest.title_en = self.cleaned_data["title_en"]
+
+        plan_manifest.before_buffer_start = self.cleaned_data["before_buffer_start"]
+        plan_manifest.before_buffer_end = self.cleaned_data["before_buffer_end"]
+        plan_manifest.after_buffer_start = self.cleaned_data["after_buffer_start"]
+        plan_manifest.after_buffer_end = self.cleaned_data["after_buffer_end"]
 
         plan_manifest.interval = self.cleaned_data["interval"]
         plan_manifest.day_of_month = self.cleaned_data["day_of_month"]
@@ -122,6 +133,24 @@ class CreateSerieForm(SerieManifestForm):
             event.serie = serie
             event.start = ev.start
             event.end = ev.end
+
+            if manifest.before_buffer_start and manifest.before_buffer_end:
+                before_buffer_event = Event()
+                before_buffer_event.title = "Buffer for " + event.title
+                before_buffer_event.arrangement = serie.arrangement
+                before_buffer_event.start = datetime.combine(event.start, manifest.before_buffer_start)
+                before_buffer_event.end = datetime.combine(event.end, manifest.before_buffer_end)
+                event.buffer_before_event = before_buffer_event
+                create_events.append(before_buffer_event)
+
+            if manifest.after_buffer_start and manifest.after_buffer_end:
+                after_buffer_event = Event()
+                after_buffer_event.title = "Buffer for " + event.title
+                after_buffer_event.arrangement = serie.arrangement
+                after_buffer_event.start = datetime.combine(event.end, manifest.after_buffer_start)
+                after_buffer_event.end = datetime.combine(event.end, manifest.after_buffer_end)
+                event.buffer_after_event = after_buffer_event
+                create_events.append(after_buffer_event)
 
             create_events.append(event)
 

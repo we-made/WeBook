@@ -199,13 +199,13 @@
                                       <td>
                                           Fra
                                           <div class="form-outline">
-                                              <input type="time" id="" class="form-control" />
+                                              <input type="time" id="buffer_before_start" class="form-control" />
                                           </div>
                                       </td>
                                       <td>
                                           Til
                                           <div class="form-outline">
-                                              <input type="time" id="" class="form-control" />
+                                              <input type="time" id="buffer_before_end" class="form-control" />
                                           </div>
                                       </td>
                                   </tr>
@@ -216,13 +216,13 @@
                                       <td>
                                           Fra
                                           <div class="form-outline">
-                                              <input type="time" id="" class="form-control" />
+                                              <input type="time" id="buffer_after_start" class="form-control" />
                                           </div>
                                       </td>
                                       <td>
                                           Til
                                           <div class="form-outline">
-                                              <input type="time" id="" class="form-control" />
+                                              <input type="time" id="buffer_after_end" class="form-control" />
                                           </div>
                                       </td>
                                   </tr>
@@ -244,6 +244,23 @@
 <script>
     var peopleNameMap = new Map();
     var roomsNameMap = new Map();
+
+    $(document).ready(function () {
+        dialogCreateEvent_listenToStartChangeAndUpdateBufferValues();
+        dialogCreateEvent_listenToEndChangeAndUpdateBufferValues();
+    })
+
+    function dialogCreateEvent_listenToStartChangeAndUpdateBufferValues() {
+        document.getElementById('fromTime').addEventListener('change', (event) => {
+            document.getElementById('buffer_before_end').value = event.target.value;
+        });
+    }
+    
+    function dialogCreateEvent_listenToEndChangeAndUpdateBufferValues() {
+        document.getElementById('toTime').addEventListener('change', (event) => {
+            document.getElementById('buffer_after_start').value = event.target.value;
+        });
+    }
 
     function dialogCreateEvent__evaluateEnTitleObligatory(){
         var $enTitleElement = $('#title_en');
@@ -373,7 +390,11 @@
             people: dialogCreateEvent__getSelectedPeopleIds(),
             people_name_map: peopleNameMap, // Kept due to edit - not pertinent for save
             room_name_map: roomsNameMap,    // Kept due to edit - not pertinent for save
-        }
+            before_buffer_start: document.getElementById('buffer_before_start').value,
+            before_buffer_end: document.getElementById('buffer_before_end').value,
+            after_buffer_start: document.getElementById('buffer_after_start').value,
+            after_buffer_end: document.getElementById('buffer_after_end').value,
+        };
 
         qualifiedEvent.display_layouts = 
             [...document.querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
