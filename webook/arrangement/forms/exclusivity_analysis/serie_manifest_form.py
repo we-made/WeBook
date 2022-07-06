@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from django import forms
 from django.http import JsonResponse
 
@@ -133,6 +134,11 @@ class CreateSerieForm(SerieManifestForm):
             event.serie = serie
             event.start = ev.start
             event.end = ev.end
+
+            event.before_buffer_start = manifest.before_buffer_start
+            event.before_buffer_end = manifest.before_buffer_end
+            event.after_buffer_start = manifest.after_buffer_start
+            event.after_buffer_end = manifest.after_buffer_end
 
             if manifest.before_buffer_start and manifest.before_buffer_end:
                 before_buffer_event = Event()

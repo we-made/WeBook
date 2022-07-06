@@ -424,6 +424,11 @@ export function convertObjToFormData(obj, convertArraysToList=false) {
             continue;
         }
 
+        if (obj[key] instanceof Date) {
+            formData.append(key, obj[key].toISOString());
+            continue;
+        }
+
         formData.append(key, obj[key]);
     }
     

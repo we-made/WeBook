@@ -1,5 +1,6 @@
 import { appendArrayToFormData } from "./commonLib.js";
 
+
 export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}pattern`, serie.pattern.pattern_type);
     formData.append(`${keyPrefix}patternRoutine`, serie.pattern.pattern_routine);
