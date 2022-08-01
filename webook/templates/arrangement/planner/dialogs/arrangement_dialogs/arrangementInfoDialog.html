@@ -3,7 +3,7 @@
 
 <div id="mainDialog" title="{{object.name}}">
 
-    <button class="btn btn-danger mb-3" onclick="mainPlannerDialog_deleteArrangement()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
+    <button class="btn btn-webook mb-3" onclick="mainPlannerDialog_deleteArrangement()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
 
     <div id="tabs" class="light-tabs">
         <ul>
@@ -208,16 +208,16 @@
                         </td>
                         <td>
                         <div>
-                        <a href='#' class='shadow-0 text-white btn btn-success btn-block mb-2 btn-sm' id='mainDialog__addPlannerBtn'>
+                        <a href='#' class='shadow-0 text-white btn btn-webook btn-block mb-2 btn-sm' id='mainDialog__addPlannerBtn'>
                             <i class='fas fa-plus'></i>
                             Legg til planlegger
                         </a>
                     </div>
                     <div>
-                        <a href='#' class='shadow-0 text-white btn btn-danger btn-block btn-sm' id='mainDialog_removePlannerBtn'
+                        <a href='#' class='shadow-0 text-white btn btn-webook btn-block btn-sm' id='mainDialog_removePlannerBtn'
                             onclick="mainPlannerDialog__removePlanners()">
                             <i class='fas fa-trash'></i>
-                            Fjern valgte
+                            Fjern valgte planleggere
                         </a>
                     </div>
                     <div>
@@ -308,16 +308,18 @@
                                     </div>
 
                                     <div class="mt-2">
-                                        <button class="btn btn-sm btn-danger"
+                                        <button class="btn btn-sm btn-webook text-white"
                                             data-mdb-toggle="tooltip"
                                             title="Delete this time plan"
                                             onclick="mainPlannerDialog_deleteEventSerie({{event_serie.pk}})">
+                                            <i class="fas fa-trash"></i>
                                             Slett
                                         </button>
-                                        <button class="btn btn-sm btn-success"
+                                        <button class="btn btn-sm  btn-webook text-white"
                                             data-mdb-toggle="tooltip"
                                             title="Edit this time plan"
                                             onclick="mainPlannerDialog__openEditSerie({{event_serie.pk}})">
+                                            <i class="fas fa-edit"></i>
                                             Rediger
                                         </button>
                                     </div>
@@ -442,7 +444,7 @@
     </div>
     <div id="tabs-3">
         <div class="clearfix">
-            <a class="text-white btn btn-success shadow-0 mb-2 float-end" id="mainPlannerDialog__newNoteBtn">
+            <a class="text-white btn btn-webook shadow-0 mb-2 float-end" id="mainPlannerDialog__newNoteBtn">
                 <i class="fas fa-feather"></i>
                 Nytt notat
             </a>

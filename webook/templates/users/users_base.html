@@ -29,7 +29,7 @@
     <div class="d-inline-block h5 mb-0">
     </div>
 
-    <ul class="nav light-tabs text-white nav-tabs mb-3 mt-0 bg-white" id="myTab0" role="tablist">
+    <ul class="nav webook-tabs nav-tabs mb-3 mt-0" id="myTab0" role="tablist">
       <a class="nav-link {% if request.get_full_path == overview_url %}active{% endif %}"
           id="v-tabs-overview-tab"
           href="{% url 'users:detail' request.user.slug  %}"
@@ -71,8 +71,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-12 mt-sm-4 mt-lg-0">
+    <div class="">
       {% block inner %}{% endblock %}
     </div>
-  </div>
 {% endblock %}

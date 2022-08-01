@@ -42,6 +42,7 @@
 
     <!-- This file stores project-specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
+    <link href="{% static 'css/nasj_style.css' %}" rel="stylesheet">
 
 
     <script
@@ -79,16 +80,16 @@
     <header>
       <!-- Sidenav -->
       
-      <nav id="sidenav-1" style="background-color:darkslateblue; color:white" class="sidenav ps sidenav-primary sidenav-dark" data-mdb-mode="side" data-mdb-hidden="false" data-mdb-accordion="true" style="width: 240px; height: 100vh; position: fixed; transition: all 0.3s linear 0s; ">
+      <nav id="sidenav-1" style="background-color: #f7f5f4;" class="sidenav ps sidenav-primary sidenav-dark" data-mdb-mode="side" data-mdb-hidden="false" data-mdb-accordion="true" style="width: 240px; height: 100vh; position: fixed; transition: all 0.3s linear 0s; ">
         <a class="ripple d-flex justify-content-center py-4" href="#!" data-mdb-ripple-color="primary">
           <!-- <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" width="150px" draggable="false"> -->
         </a>
 
 
-
+<!-- 
         <div style="" class="text-center">
           <i class="fas fa-gem h1 text-white"></i>
-        </div>
+        </div> -->
 
         <div class="text-center p-2 fw-bold h3 text-uppercase application-title">
           {{ APP_TITLE }}
@@ -96,7 +97,7 @@
         <div class="text-center">
           {% now "jS F Y" %}
         </div>
-        <div style="background-color: #6A5DB8; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;" class="p-1 text-center text-uppercase">
+        <div style=" font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;" class="p-1 text-center text-uppercase">
           Nasjonalmuseet
         </div>
         
@@ -194,33 +195,33 @@
         <!-- Sidenav -->
 
       <!-- Navbar -->
-      <nav id="main-navbar" class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #6A5DB8      ;">
+      <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: #f7f5f4;">
         <!-- Container wrapper -->
         <div class="container-fluid">
           <!-- Toggler -->
-          <button data-mdb-toggle="sidenav" data-mdb-target="#sidenav-1" class="btn shadow-0 p-0 me-3 d-block text-white" aria-controls="#sidenav-1" aria-haspopup="true" aria-expanded="false">
+          <button data-mdb-toggle="sidenav" data-mdb-target="#sidenav-1" class="btn shadow-0 p-0 me-3 d-block" aria-controls="#sidenav-1" aria-haspopup="true" aria-expanded="false">
             <i class="fas fa-bars fa-lg" aria-hidden="true"></i>
           </button>
 
           <!-- Search form -->
           <form class="d-none d-md-flex input-group w-auto my-auto">
             <input autocomplete="off" type="search" class="form-control rounded" placeholder="{% blocktrans %}Search (ctrl + &quot;/&quot; to focus){% endblocktrans %}" style="min-width: 225px">
-            <span class="input-group-text border-0"><i class="fas fa-search text-white" aria-hidden="true"></i></span>
+            <span class="input-group-text border-0"><i class="fas fa-search" aria-hidden="true"></i></span>
           </form>
 
           <!-- Right links -->
           <ul class="navbar-nav ms-auto d-flex flex-row">
 
-            <form class="d-none d-md-flex me-5 input-group w-auto my-auto">
+            <!-- <form class="d-none d-md-flex me-5 input-group w-auto my-auto">
               <div class="form-check form-switch" data-mdb-toggle="tooltip"
                   title="Activate Zen Mode, which will hide sidebars and increase the width of the current view">
                 <input class="form-check-input" type="checkbox" role="switch" id="zenModeCheckbox" />
-                <label class="form-check-label text-white header-fonted" for="zenModeCheckbox">
+                <label class="form-check-label header-fonted" for="zenModeCheckbox">
                   <i class="fas fa-user-ninja"></i>
                   ZEN MODE
                 </label>
               </div>
-            </form>
+            </form> -->
 
             <!-- Notification dropdown -->
             <li class="nav-item dropdown">
@@ -241,8 +242,7 @@
             <div class="btn-group shadow-0">
               <button
                 type="button"
-                class="btn ms-3 btn-primary text-white fw-bold dropdown-toggle"
-                style="border-radius: 0px; background-color: #4b6f8c;"
+                class="btn ms-3 btn-webook text-white fw-bold dropdown-toggle"
                 data-mdb-toggle="dropdown"
                 aria-expanded="false"
               >

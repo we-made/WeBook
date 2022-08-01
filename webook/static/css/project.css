@@ -182,10 +182,10 @@ sidenav-primary .sidenav-link {
   font-size: 18px!important;
 }
 
-.sidenav-primary .sidenav-link.active {
+/* .sidenav-primary .sidenav-link.active {
   color:white;
   background-color: #6A5DB8;
-}
+} */
 
 .sidenav-primary .sidenav-link#hover {
   color:#5f7f99;

@@ -18,7 +18,7 @@
     <div class="col-4">
         {% if SHOW_CREATE_BUTTON %}
         <div class="clearfix">
-            <a class="btn  btn-success shadow-0 btn-lg mb-2 float-end"
+            <a class="btn btn-webook shadow-0 btn-lg mb-2 float-end"
                 href="{% url CRUDL_MAP.create_url %}">
                 <i class="fas fa-plus"></i>&nbsp;
                 {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
@@ -75,21 +75,21 @@
                 {% if SHOW_OPTIONS and CRUDL_MAP is not None %}
                 <td>
                     {% if CRUDL_MAP.detail_url %}
-                        <a class="btn btn-link text-info noBoxShadow" href="{% url CRUDL_MAP.detail_url row.slug %}"
+                        <a class="btn btn-webook noBoxShadow" href="{% url CRUDL_MAP.detail_url row.slug %}"
                             data-mdb-toggle="tooltip" title="Show this {{ ENTITY_NAME_SINGULAR }}">
                             <i class="fa fa-eye"></i>&nbsp;
                             {% trans "Show" %}
                         </a>
                     {% endif %}
                     {% if CRUDL_MAP.edit_url %}
-                        <a class="btn btn-link text-success noBoxShadow" href="{% url CRUDL_MAP.edit_url row.slug %}"
+                        <a class="btn btn-webook noBoxShadow" href="{% url CRUDL_MAP.edit_url row.slug %}"
                             data-mdb-toggle="tooltip" title="Edit this {{ ENTITY_NAME_SINGULAR }}">
                             <i class="fa fa-edit"></i>&nbsp;
                             {% trans "Edit" %}
                         </a>
                     {% endif %}
                     {% if CRUDL_MAP.delete_url %}
-                        <a class="btn btn-link text-danger noBoxShadow" href="{% url CRUDL_MAP.delete_url row.slug %}"
+                        <a class="btn btn-webook noBoxShadow" href="{% url CRUDL_MAP.delete_url row.slug %}"
                             data-mdb-toggle="tooltip" title="Delete this {{ ENTITY_NAME_SINGULAR }}">
                             <i class="fa fa-trash"></i>&nbsp;
                             {% trans "Delete" %}
@@ -111,13 +111,20 @@
         const dt = $('#entitiesTable').DataTable( {
             dom: 'Brtip',
             buttons: [
-                'copy', 'csv', 'excel', 'pdf', 'print'
+                { extend: 'copy', className: 'btn-webook' },
+                { extend: 'excel', className: 'btn-webook' },
+                { extend: 'pdf', className: 'btn-webook' },
+                { extend: 'print', className: 'btn-webook' }
             ]
         } );
 
         document.getElementById('datatable-search-input').addEventListener('input', (e) => {
            dt.search(e.target.value).draw();
         })
+
+        $('.btn-webook').each(function () { 
+            $(this).removeClass("btn-secondary");
+        });
     })
 </script>
 

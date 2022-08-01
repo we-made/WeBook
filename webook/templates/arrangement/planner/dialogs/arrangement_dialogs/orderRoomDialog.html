@@ -10,7 +10,7 @@
             <h5>Aktiver presets</h5>
 
             {% for preset in room_presets %}
-                <a href="#" class="btn btn-info text-white shadow-0"
+                <a href="#" class="btn btn-webook text-white shadow-0"
                     rooms="{{preset.room_ids}}"
                     onclick="orderRoomDialog__activateRoomIds(this.getAttribute('rooms'))">
                     {{preset.name}}
@@ -84,7 +84,7 @@
             </div>
     </div>
     <div class="clearfix">
-        <a class="btn btn-success text-white float-end shadow-0" type="button" onclick="orderRoomDialog__order()">
+        <a class="btn btn-webook text-white float-end shadow-0" type="button" onclick="orderRoomDialog__order()">
             <i class="fas fa-check"></i>&nbsp; Legg til valgte rom
         </a>
     </div>

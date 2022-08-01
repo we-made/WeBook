@@ -30,56 +30,25 @@
     }
 </style>
 
-<h1 class="header-fonted">Planlegger</h1>
 <div class="clearfix">
-    <div class="fc mb-0 p-0 float-start">
-        <div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr mb-0">
-            <div class="fc-button-group">
-                <a class="fc-button fc-button-primary fc-arrangementsCalendarButton-button"
-                   id="newArrangementBtn"> 
-                   <i class="fas fa-plus"></i>&nbsp;
-                    Planlegg nytt arrangement
-                </a>
+    <div class="float-start">
+        <div class="row">
+            <div class="col-4">
+                <div id="dateNavigationPicker">
+                    <div class="form-outline datepicker">
+                        <input type="text" class="form-control form-control-lg" />
+                        <label for="dateNavigationPicker" class="form-label">Dato</label>
+                      </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
-
-
-
-{% endblock %}
-
-{% block content %}
-
-<div class="row">
-    <div class="col-2">
-        <div  id="dateNavigationPicker">
-            <div class="form-outline datepicker">
-                <input type="text" class="form-control form-control-lg" />
-                <label for="dateNavigationPicker" class="form-label">Dato</label>
-              </div>
-        </div>
-
-        <!-- <div class="mt-4">
-            <span class="dayCircle active fw-bold">M</span>
-            <span class="dayCircle active fw-bold">T</span>
-            <span class="dayCircle active fw-bold">O</span>
-            <span class="dayCircle active fw-bold">T</span>
-            <span class="dayCircle active fw-bold">F</span>
-            <span class="dayCircle fw-bold">L</span>
-            <span class="dayCircle fw-bold">S</span>
-        </div> -->
-
-
-        <div class="mt-4" id="plannerCalendarFilter">
-            <div class="mb-2">
+            <div class="col-4">
                 <select class="select form-control" id="plannerCalendarFilter_arrangementTypes" data-mdb-placeholder="Filtrer blant arrangementstyper..." multiple>
                     {% for arrangement_type in ARRANGEMENT_TYPES %}
                         <option value="{{arrangement_type.slug}}">{{arrangement_type}}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div>
+            <div class="col-4">
                 <select class="select" id="plannerCalendarFilter_audiences" data-mdb-placeholder="Filtrer blant målgrupper..."  multiple>
                     {% for audience in AUDIENCES %}
                         <option value="{{audience.slug}}">{{audience}}</option>
@@ -87,40 +56,59 @@
                 </select>
             </div>
         </div>
-        <div class="mt-4" id="plannerCalendarFilter">
-            <h4>Lokasjoner</h4>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="plannerCalendarFilter_showOnlyRoomLessEvents" />
-                <label class="form-check-label" for="plannerCalendarFilter_showOnlyRoomLessEvents">Vis bare aktiviteter uten tildelt rom</label>
-            </div>
 
-            <div class="mt-2">
-                <table class="table table-sm" id="filter_locationsTable">
-                    <tbody>
-                        {% for location in LOCATIONS %}
-                            <tr>
-                                <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input" name="filterLocationsCheckboxArray" type="checkbox" value="{{location.slug}}" id="locationFilterCheckBox_{{location_slug}}" checked/>
-                                        <label class="form-check-label" for="locationFilterCheckBox_{{location_slug}}">{{location}}</label>
-                                    </div>
-                                </td>
 
-                                <td>
-                                    <button class="btn shadow-0 btn-success btn-sm filterLocationBtn" value="{{location.slug}}"
-                                        data-mdb-toggle="tooltip" type="button"
-                                        title="Filtrer rom under denne lokasjonen.">
-                                        Filtrer rom
-                                </button>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
-    <div class="col-10">
+
+    <div class="float-end">
+        <button class="btn btn-webook" id="newArrangementBtn">
+            <i class="fas fa-plus"></i>&nbsp;
+            Planlegg nytt arrangement
+        </button>
+    </div>
+</div>
+
+<div class="mt-4" id="plannerCalendarFilter">
+    <h4>Lokasjoner</h4>
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="plannerCalendarFilter_showOnlyRoomLessEvents" />
+        <label class="form-check-label" for="plannerCalendarFilter_showOnlyRoomLessEvents">Vis bare aktiviteter uten tildelt rom</label>
+    </div>
+
+    <div class="mt-2">
+        <table class="table table-sm" id="filter_locationsTable">
+            <tbody>
+                {% for location in LOCATIONS %}
+                    <tr>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" name="filterLocationsCheckboxArray" type="checkbox" value="{{location.slug}}" id="locationFilterCheckBox_{{location_slug}}" checked/>
+                                <label class="form-check-label" for="locationFilterCheckBox_{{location_slug}}">{{location}}</label>
+                            </div>
+                        </td>
+
+                        <td>
+                            <button class="btn shadow-0 btn-webook btn-sm filterLocationBtn" value="{{location.slug}}"
+                                data-mdb-toggle="tooltip" type="button"
+                                title="Filtrer rom under denne lokasjonen.">
+                                <i class="fas fa-filter"></i>
+                                
+                        </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
         <h2 id="plannerCalendarHeader"></h2>
         <div class="clearfix">
             <div class="float-start">
@@ -385,7 +373,6 @@
         // new mdb.Datepicker(document.getElementById('dateNavigationPicker'))
 
         document.getElementById('dateNavigationPicker').addEventListener('dateChange.mdb.datepicker', (e) => {
-            console.log("dateChange.mdb.datepicker", e)
             activeCalendar.getFcCalendar().gotoDate(e.date);
             activeDate = e.date;
         });
@@ -395,9 +382,7 @@
         })
 
         document.addEventListener('plannerCalendar.calendarChange', function (e) {
-            console.log("PLANNERCALENDAR.CALENDARCHANGE", activeDate, e.detail)
             activeCalendar = e.detail.changeTo;
-            console.log("One of a kind;", activeDate)
             activeCalendar.getFcCalendar().gotoDate(activeDate);
         })
 
@@ -409,7 +394,6 @@
             }));
 
             mainCalendarFilterWrapper.show();
-            // plannerCalendar.refresh();
         })
         $('#locations-tab')[0].addEventListener('shown.mdb.tab', (event) => {
             document.dispatchEvent(new CustomEvent('plannerCalendar.calendarChange', {
