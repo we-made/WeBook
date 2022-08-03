@@ -1,6 +1,75 @@
 {% extends "arrangement/meta_base.html" %}
 {% load static i18n %}
 
+{% block superheader %}
+<div class="sticky-top wb-bg-secondary border-bottom pt-1">
+    <nav class="navbar navbar-expand-lg navbar-light wb-sub-bar pb-0 shadow-0 pt-0">
+        <!-- Container wrapper -->
+    
+        <div class="container-fluid p-0">
+    
+          <!-- Collapsible wrapper -->
+          <div
+            class="collapse navbar-collapse p-0 "
+            id="navbarCenteredExample"
+          >
+            <div class="row" style="flex-basis: 100%">
+                <div class="col-4">
+                    <div class="btn-group ms-2 shadow-0">
+                        <button class="btn  wb-btn-main shadow-0">
+                            I dag
+                        </button>
+                        <button class="btn  wb-btn-main shadow-0">
+                            <h5 class="mb-0"><</h5>
+                        </button>
+                        <button class="btn wb-btn-main shadow-0" id="plannerCalendarHeader">
+                        </button>
+                        <button class="btn   wb-btn-main shadow-0">
+                            <h5 class="mb-0"> > </h5>
+                        </button>
+                        <button class="btn wb-btn-main shadow-0 ">
+                            Gå til dato
+                        </button>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <ul class="navbar-nav justify-content-center">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#"
+                                onclick="$('#overview-tab')[0].click();">
+                                <i class="fas fa-flask"></i>&nbsp;
+                                Arrangementer
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="#"
+                                onclick="$('#locations-tab')[0].click();">
+                                <i class="fas fa-building"></i>&nbsp;
+                                Lokasjoner
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="#"
+                                onclick="$('#people-tab')[0].click();">
+                                <i class="fas fa-users"></i>&nbsp;
+                                Personer
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-4">
+                    <button class="btn wb-btn-main float-end" id="newArrangementBtn">
+                        <i class="fas fa-plus"></i>&nbsp;
+                        Planlegg nytt arrangement
+                    </button>
+                </div>
+            </div>
+          </div>
+        </div>
+    </nav>
+</div>
+{% endblock %}
+
 {% block noheader %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -29,6 +98,7 @@
         box-shadow: 0px 0px 0px 0px #000;
     }
 </style>
+
 
 <div class="mt-4" id="plannerCalendarFilter">
     <div class="row">
@@ -88,22 +158,12 @@
     </div>
 </div>
 
-<div class="clearfix mt-3">
-    <div class="">
-        <button class="btn btn-webook" id="newArrangementBtn">
-            <i class="fas fa-plus"></i>&nbsp;
-            Planlegg nytt arrangement
-        </button>
-    </div>
-</div>
-
 {% endblock %}
 
 {% block content %}
 
 <div class="row">
     <div class="col-12">
-        <h2 id="plannerCalendarHeader"></h2>
         <div class="clearfix">
             <div class="float-start">
                 <ul class="nav nav-tabs rounded-top mt-4 fc-tabs" style="display: none;" id="navTabs" role="tablist">
@@ -150,7 +210,7 @@
 <script>
     $(document).ready(function () {
         document.dispatchEvent(new CustomEvent("preferSidebarHidden"));
-    })
+    });
 </script>
 
 <script type="module">

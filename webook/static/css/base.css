@@ -17,6 +17,11 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+.wb-sub-bar {
+    font-size: large;
+    font-weight: bold;
+}
+
 #main-navbar .nav-link {
     font-size: larger;
     padding: 0.4em;

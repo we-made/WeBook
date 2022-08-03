@@ -45,7 +45,7 @@ export class PersonCalendar extends FullCalendarBased {
 
         if (this._fcCalendar === undefined) {
             this._fcCalendar = new FullCalendar.Calendar(_this._calendarElement, {
-                headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'resourceTimelineMonth,resourceTimelineWeek' },
+                headerToolbar: { left: 'resourceTimelineMonth,resourceTimelineWeek' , center: '', right: '' },
                 initialView: 'resourceTimelineMonth',
                 selectable: true,
                 customButtons: {
@@ -55,24 +55,6 @@ export class PersonCalendar extends FullCalendarBased {
                             this.filterDialog.openFilterDialog();
                         }
                     },
-                    arrangementsCalendarButton: {
-                        text: 'Arrangementer',
-                        click: () => {
-                            $('#overview-tab')[0].click();
-                        }
-                    },
-                    locationsCalendarButton: {
-                        text: 'Lokasjoner',
-                        click: () => {
-                            $('#locations-tab')[0].click();
-                        }
-                    },
-                    peopleCalendarButton: {
-                        text: 'Personer',
-                        click: () => {
-                            $('#people-tab')[0].click();
-                        }
-                    }
                 },
                 views: {
                     resourceTimelineMonth: {

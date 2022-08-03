@@ -316,26 +316,8 @@ export class PlannerCalendar extends FullCalendarBased {
                             this.filterDialog.openFilterDialog();
                         }
                     },
-                    arrangementsCalendarButton: {
-                        text: 'Arrangementer',
-                        click: () => {
-                            $('#overview-tab')[0].click();
-                        }
-                    },
-                    locationsCalendarButton: {
-                        text: 'Lokasjoner',
-                        click: () => {
-                            $('#locations-tab')[0].click();
-                        }
-                    },
-                    peopleCalendarButton: {
-                        text: 'Personer',
-                        click: () => {
-                            $('#people-tab')[0].click();
-                        }
-                    }
                 },
-                headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
+                headerToolbar: { left: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear' , center: '', right: '' },
                 eventSources: [
                     {
                         events: async (start, end, startStr, endStr, timezone) => {
