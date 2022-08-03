@@ -20,12 +20,63 @@ export class PlannerCalendar extends FullCalendarBased {
         $arrangementTypeFilterSelectEl=undefined,
         $audienceTypeFilterSelectEl=undefined,
         csrf_token=undefined, calendarFilter=undefined,
-        licenseKey=undefined } = {}) {
+        licenseKey=undefined,
+        navigationHeaderWrapperElement = undefined, } = {},) {
 
-        super();
+        super(navigationHeaderWrapperElement);
+
+        this.viewButtons = new Map([
+            [1, {
+                "key": 1,
+                "title": "Dag",
+                "isParent": false,
+                "view": "timeGridDay",
+                "parent": undefined,
+                "weight": 100,
+            }],
+            [2, {
+                "key": 2,
+                "title": "Måned",
+                "isParent": true,
+                "view": undefined,
+                "parent": undefined,
+                "weight": 200,
+            }],
+            [3, {
+                "key": 3,
+                "title": "Tidslinje",
+                "isParent": false,
+                "view": "timelineMonth",
+                "parent": 2,
+                "weight": undefined,
+            }],
+            [4, {
+                "key": 4,
+                "title": "Grid",
+                "isParent": false,
+                "view": "dayGridMonth",
+                "parent": 2,
+                "weight": undefined,
+            }],
+            [5, {
+                "key": 5,
+                "title": "Uke",
+                "isParent": false,
+                "view": "timeGridWeek",
+                "parent": undefined,
+                "weight": 300,
+            }],
+            [6, {
+                "key": 6,
+                "title": "År",
+                "isParent": false,
+                "view": "timelineYear",
+                "parent": undefined,
+                "weight": 400,
+            }],
+        ]);
 
         this.csrf_token = csrf_token;
-        
         this._headerGenerator = new HeaderGenerator(
             { customClassifications: new Map([
                 [ "customTimeGridMonth", ViewClassifiers.MONTH ],
@@ -317,7 +368,7 @@ export class PlannerCalendar extends FullCalendarBased {
                         }
                     },
                 },
-                headerToolbar: { left: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear' , center: '', right: '' },
+                headerToolbar: { left: '' , center: '', right: '' },
                 eventSources: [
                     {
                         events: async (start, end, startStr, endStr, timezone) => {

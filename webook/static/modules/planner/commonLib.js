@@ -324,8 +324,91 @@ export class ArrangementStore extends BaseStore {
 }
 
 export class FullCalendarBased {
-    constructor() {
+    constructor(navigationHeaderWrapperElement = undefined) {
+        this._instanceUUID = self.crypto.randomUUID();
+        this.navigationHeaderWrapperElement = navigationHeaderWrapperElement;
+
         this._listenToRefreshEvents();
+        this._listenToViewNavigationEvents();
+    }
+
+    renderNavigationButtons() {
+        var navigationBundle = this._getNavigationButtons();
+        this._navigationButtonElements = navigationBundle.wrapper;
+        this._viewsToNavigationButtonsMap = navigationBundle.viewsToButtonMap;
+        
+        this.navigationHeaderWrapperElement.html("");
+        this.navigationHeaderWrapperElement.append(this._navigationButtonElements);
+        
+        document.dispatchEvent(new CustomEvent(this._instanceUUID + '_callForFullCalendarViewRender', {
+            "detail": { "view": this.getFcCalendar().view.type }
+        }))
+    }
+
+    _getNavigationButtons() {
+        var _this = this;
+
+        var buttons = Array.from(this.viewButtons.values());
+
+        var navCompare = (a, b) => {
+            if (a.weight < b.weight) {
+                return -1;
+            }
+            if (a.weight > b.weight) {
+                return 1;
+            }
+
+            return 0;
+        }
+
+        buttons.sort( navCompare );
+
+        var renderButtons = (button, buttons, subnesting = false) => {
+            var resultingElement = undefined;
+
+            if (button.isParent) {
+                var dropdownWrapperElement = $("<div class='dropdown'></div>");
+                var mainButton = $("<a class='btn btn-white dropdown-toggle shadow-0 border' role='button' data-mdb-toggle='dropdown'>" + button.title + "</a>");
+                var dropdownMenu = $("<ul class='dropdown-menu'></ul>")
+
+                var children = buttons.filter( (a) => a.parent === button.key );
+                children.forEach(function (childButton) {
+                    dropdownMenu.append(renderButtons(childButton, buttons, true));
+                })
+
+                dropdownWrapperElement.append(mainButton);
+                dropdownWrapperElement.append(dropdownMenu);
+
+                return dropdownWrapperElement;
+            }
+            else if (button.parent !== undefined) {
+                resultingElement = $("<li><a class='dropdown-item' id='"  + _this._instanceUUID + "_" + button.view +  "' href='#'>" + button.title + "</a></li>");
+            }
+            else {
+                resultingElement = $("<button class='btn border btn-white' id='"  + _this._instanceUUID + "_" + button.view  + "'>" + button.title + "</button>");
+            }
+
+            if (button.onclick === undefined) {
+                resultingElement.click(function (event) {
+                    document.dispatchEvent(
+                        new CustomEvent(_this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": button.view } })
+                    );
+                });
+            }
+            else {
+                resultingElement.onclick = button.onclick;
+            }
+            
+            return resultingElement;
+        }
+
+        var wrapper = $("<div class='btn-group shadow-0 fc-custom-navigation-buttons'></div>")
+        buttons.filter((x) => x.parent === undefined).forEach(function (button) {
+            var result = renderButtons(button, buttons);
+            wrapper.append(result);
+        });
+
+        return { "wrapper": wrapper, "viewsToButtonMap": undefined };
     }
 
     _listenToRefreshEvents() {
@@ -336,6 +419,38 @@ export class FullCalendarBased {
             removed without refresh. Hence we do this. */
             $(".popover").popover('hide');
         });
+    }
+
+    _listenToViewNavigationEvents() {
+        var _this = this;
+        document.addEventListener(this._instanceUUID + '_callForFullCalendarViewRender', function(event) {
+            for (let i = 0; i < _this._navigationButtonElements.children().length > 0; i++) {
+                var childEl = _this._navigationButtonElements.children()[i];
+
+                if (childEl.tagName === "BUTTON") {
+                    childEl.classList.remove("active");
+                }
+                else {
+                    $(childEl).children("a.btn")[0].classList.remove("active");
+                }
+            }
+
+            var parentTriggerElement = document.getElementById(_this._instanceUUID + "_" + event.detail.view)
+
+            var buttonElement = undefined;
+            if (parentTriggerElement.tagName === "A") {
+                buttonElement = $(parentTriggerElement).closest("div.dropdown").children("a.btn")[0]
+            }
+            else {
+                buttonElement = parentTriggerElement;
+            }
+
+            if (buttonElement.classList.contains("active") === false) {
+                buttonElement.classList.add("active");
+            }
+
+            _this.getFcCalendar().changeView(event.detail.view);
+        })
     }
 
     _findSlugFromEl(el) { 

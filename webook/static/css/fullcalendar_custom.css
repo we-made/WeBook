@@ -14,3 +14,37 @@
     background-color: var(--MAIN-COLOR) !important;
     color: white!important;
 }
+
+.fc-custom-navigation-buttons button {
+    font-weight: normal!important;
+    background-color: white!important;
+    color:var(--FC-TEXT-COLOR)!important;
+    border-color: var(--BORDER-STANDARD-COLOR)!important;
+    box-shadow: none!important;
+    font-size: large!important;
+    text-transform: none!important;
+    padding: .5rem 1.5rem .5rem!important;
+    font-weight: bolder!important;
+}
+
+.fc-custom-navigation-buttons a.btn {
+    font-weight: normal!important;
+    background-color: white!important;
+    color:var(--FC-TEXT-COLOR)!important;
+    border-color: var(--BORDER-STANDARD-COLOR)!important;
+    box-shadow: none!important;
+    font-size: large!important;
+    text-transform: none!important;
+    padding: .5rem 1.5rem .5rem!important;
+    font-weight: bolder!important;
+}
+
+.fc-custom-navigation-buttons button.active {
+    background-color: var(--MAIN-COLOR) !important;
+    color: white!important;
+}
+
+.fc-custom-navigation-buttons a.btn.active {
+    background-color: var(--MAIN-COLOR) !important;
+    color: white!important;
+}

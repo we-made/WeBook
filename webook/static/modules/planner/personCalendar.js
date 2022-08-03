@@ -3,8 +3,32 @@ import { ArrangementStore, FullCalendarBased, PersonStore, StandardColorProvider
 
 export class PersonCalendar extends FullCalendarBased {
 
-    constructor ( {calendarElement, initialColorProvider="", colorProviders=[], calendarFilter=undefined  } = {} ) {
-        super();
+    constructor ( {calendarElement, initialColorProvider="", colorProviders=[], calendarFilter=undefined,  navigationHeaderWrapperElement = undefined } = {} ) {
+        super(navigationHeaderWrapperElement);
+
+        this.viewButtons = new Map([
+            [
+                1, {
+                    "key": 1,
+                    "title": "Måned",
+                    "isParent": false,
+                    "view": "resourceTimelineMonth",
+                    "parent": undefined,
+                    "weight": 100,
+                }
+            ],
+            [
+                2, {
+                    "key": 2,
+                    "title": "Uke",
+                    "isParent": false,
+                    "view": "resourceTimelineWeek",
+                    "parent": undefined,
+                    "weight": 200,
+                }
+            ]
+        ])
+
 
         this._fcCalendar = undefined;
         this._calendarElement = calendarElement;
@@ -45,7 +69,7 @@ export class PersonCalendar extends FullCalendarBased {
 
         if (this._fcCalendar === undefined) {
             this._fcCalendar = new FullCalendar.Calendar(_this._calendarElement, {
-                headerToolbar: { left: 'resourceTimelineMonth,resourceTimelineWeek' , center: '', right: '' },
+                headerToolbar: { left: '' , center: '', right: '' },
                 initialView: 'resourceTimelineMonth',
                 selectable: true,
                 customButtons: {

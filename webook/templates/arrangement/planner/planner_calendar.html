@@ -190,6 +190,10 @@
             </div>
         </div>
         
+        <div id="planner__viewNavigationHeader">
+
+        </div>
+
         <div class="tab-content" id="calendars">
             <div class="tab-pane show active" id="universeCalendar" role="tabpanel" aria-labelledby="universeCalendar-tab">
                 <div id="arrangementPlannerCalendar"></div>
@@ -425,9 +429,9 @@
             csrf_token: '{{ csrf_token }}',
             calendarFilter: filter,
             licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+            navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
         });
 
-        // var filter = new PlannerCalendarFilter();
         var locationsCalendar = new LocationCalendar({
             calendarElement: document.getElementById('locationsPlannerCalendar'),
             colorProviders: [ 
@@ -436,8 +440,10 @@
                 { key: "arrangement", provider: new ColorByArrangementProvider() },
             ],
             initialColorProvider: "arrangement",
-            calendarFilter: filter
+            calendarFilter: filter,
+            navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
         });
+
         var peopleCalendar = new PersonCalendar({
             calendarElement: document.getElementById('peoplePlannerCalendar'),
             colorProviders: [ 
@@ -446,11 +452,13 @@
                 { key: "arrangement", provider: new ColorByArrangementProvider() },
             ],
             initialColorProvider: "arrangement",
-            calendarFilter: filter
-
+            calendarFilter: filter,
+            navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
         });
 
         activeCalendar = plannerCalendar; // default active calendar
+        activeCalendar.renderNavigationButtons();
+
 
         var mainCalendarFilterWrapper = $('#plannerCalendarFilter');
         
@@ -466,7 +474,9 @@
         document.addEventListener('plannerCalendar.calendarChange', function (e) {
             activeCalendar = e.detail.changeTo;
             activeCalendar.getFcCalendar().gotoDate(activeDate);
+            activeCalendar.renderNavigationButtons();
         })
+
 
         $('#overview-tab')[0].addEventListener('shown.mdb.tab', (event) => {
             document.dispatchEvent(new CustomEvent('plannerCalendar.calendarChange', {
