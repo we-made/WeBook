@@ -187,9 +187,10 @@
 
       <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light wb-bg-secondary shadow-0 header-padded-in">
         <div class="container-fluid">
-          <button onclick="sidenavHide()" class="btn shadow-0 p-0 me-3 d-block text-dark" aria-controls="#sidenav-1" aria-haspopup="true" aria-expanded="false">
-            <i class="fas fa-bars fa-lg" aria-hidden="true"></i>&nbsp;&nbsp; <span class="h6 fw-bold">Sidemeny</span>
+          <button onclick="sidenavToggle()" class="btn shadow-0 p-0 me-3 d-block text-dark" aria-controls="#sidenav-1" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-bars fa-lg" aria-hidden="true"></i>&nbsp;&nbsp; <span class="h6 fw-bold" id="sidemenuToggleText"></span>
           </button>
+
           <ul class="navbar-nav ms-auto d-flex flex-row">
             <!-- Search form -->
             <form class="d-none d-md-flex input-group w-auto my-auto">
@@ -339,20 +340,6 @@
 
       <script>
         $(document).ready(function() {
-          $('#zenModeCheckbox').change(function () {
-            if (this.checked) {
-              console.log("<< Zen Mode Activated >>")
-              $('#mainBodyContainer').removeClass("container-sidebar-padded-in");
-              document.dispatchEvent(new Event("zenmode.activated"))
-              sidebarInstance.hide();
-            }
-            else {
-              console.log("<< Zen Mode Deactivated >>")
-              $('#mainBodyContainer').addClass("container-sidebar-padded-in");
-              sidebarInstance.show();
-            }
-          });
-
           var queuedMessages = JSON.parse(document.getElementById('queuedMessages').textContent);
           tagToToastrFuncMap = new Map([
             [
@@ -383,66 +370,73 @@
         })
 
         var sidenavIsHidden = false;
-
-        function sidenavHide() {
+        function sidenavToggle() {
           if (!sidenavIsHidden) {
             $('#mainBodyContainer').removeClass("container-sidebar-padded-in");
             $('#top-navbar').removeClass('header-padded-in');
             sidebarInstance.hide();
             sidenavIsHidden = true;
+            $('#sidemenuToggleText').text("{% trans 'Show sidemenu' %}");
           }
           else {
             $('#mainBodyContainer').addClass("container-sidebar-padded-in");
             $('#top-navbar').addClass('header-padded-in');
             sidebarInstance.show();
             sidenavIsHidden = false;
+            $('#sidemenuToggleText').text("{% trans 'Hide sidemenu' %}");
           }
         }
 
-          const sidenav = document.getElementById("sidenav-1");
-          const sidebarInstance = mdb.Sidenav.getInstance(sidenav);
+        const sidenav = document.getElementById("sidenav-1");
+        const sidebarInstance = mdb.Sidenav.getInstance(sidenav);
 
-          let innerWidth = null;
+        let innerWidth = null;
 
-          const setMode = (e) => {
-            // Check necessary for Android devices
-            if (window.innerWidth === innerWidth || sidenavIsHidden) {
-              return;
-            }
-
-            innerWidth = window.innerWidth;
-
-            if (window.innerWidth < 1400) {
-              sidebarInstance.changeMode("over");
-              sidebarInstance.hide();
-            } else {
-              sidebarInstance.changeMode("side");
-              sidebarInstance.show();
-            }
-          };
-
-          setMode();
-
-          // Event listeners
-          window.addEventListener("resize", setMode);
-
-          toastr.options = {
-            "closeButton": false,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": false,
-            "positionClass": "toast-bottom-right",
-            "preventDuplicates": false,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
+        const setMode = (e) => {
+          // Check necessary for Android devices
+          if (window.innerWidth === innerWidth || sidenavIsHidden) {
+            return;
           }
+
+          innerWidth = window.innerWidth;
+
+          if (window.innerWidth < 1400) {
+            sidebarInstance.changeMode("over");
+            sidebarInstance.hide();
+            $('#sidemenuToggleText').text("{% trans 'Show sidemenu' %}");
+          } else {
+            sidebarInstance.changeMode("side");
+            sidebarInstance.show();
+            $('#sidemenuToggleText').text("{% trans 'Hide sidemenu' %}");
+          }
+        };
+
+        setMode();
+
+        // Event listeners
+        window.addEventListener("resize", setMode);
+
+        document.addEventListener("preferSidebarHidden", () => {
+          sidenavToggle();
+        });
+
+        toastr.options = {
+          "closeButton": false,
+          "debug": false,
+          "newestOnTop": false,
+          "progressBar": false,
+          "positionClass": "toast-bottom-right",
+          "preventDuplicates": false,
+          "onclick": null,
+          "showDuration": "300",
+          "hideDuration": "1000",
+          "timeOut": "5000",
+          "extendedTimeOut": "1000",
+          "showEasing": "swing",
+          "hideEasing": "linear",
+          "showMethod": "fadeIn",
+          "hideMethod": "fadeOut"
+        }
       </script>
     {% endblock javascript %}
   </body>

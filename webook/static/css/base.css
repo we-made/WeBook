@@ -24,6 +24,15 @@
     padding-right: 0.9em;
 }
 
+.wb-alert-secondary {
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.wb-alert-main {
+    background-color: var(--MAIN-COLOR);
+    color:white;
+}
+
 .form-label {
     font-size: large;
     margin-bottom: 0;
