@@ -16,18 +16,24 @@
             <div class="row" style="flex-basis: 100%">
                 <div class="col-4">
                     <div class="btn-group ms-2 shadow-0">
-                        <button class="btn  wb-btn-main shadow-0">
+                        <button class="btn  wb-btn-main shadow-0"
+                            id="planner__todayButton">
                             I dag
                         </button>
-                        <button class="btn  wb-btn-main shadow-0">
+                        <button class="btn  wb-btn-main shadow-0"
+                            id="planner__moveBackOneIntervalButton">
                             <h5 class="mb-0"><</h5>
                         </button>
-                        <button class="btn wb-btn-main shadow-0" id="plannerCalendarHeader">
+                        <button class="btn wb-btn-main shadow-0" id="plannerCalendarHeader"
+                            id="planner__currentCursorDateButton">
                         </button>
-                        <button class="btn   wb-btn-main shadow-0">
+                        <button class="btn   wb-btn-main shadow-0"
+                            id="planner__moveForwardOneIntervalButton">
                             <h5 class="mb-0"> > </h5>
                         </button>
-                        <button class="btn wb-btn-main shadow-0 ">
+                        <button class="btn wb-btn-main shadow-0"
+                            type="button"
+                            id="planner__goToDateButton">
                             Gå til dato
                         </button>
                     </div>
@@ -104,12 +110,6 @@
     <div class="row">
         <div class="col-2">
             <h4>Filter</h4>
-            <div id="dateNavigationPicker">
-                <div class="form-outline datepicker">
-                    <input type="text" class="form-control form-control-lg" />
-                    <label for="dateNavigationPicker" class="form-label">Dato</label>
-                </div>
-            </div>
 
             <div class="form-group mt-2">
                 <select class="select form-control form-control-lg mt-2" id="plannerCalendarFilter_arrangementTypes" data-mdb-placeholder="Filtrer blant arrangementstyper..." multiple>
@@ -372,6 +372,35 @@
     var activeCalendar;
     var activeDate = new Date();
 
+    document.getElementById('planner__todayButton').addEventListener('click', (event) => {
+        activeCalendar.getFcCalendar().today();
+        activeDate = activeCalendar.getFcCalendar().getDate();
+    });
+    document.getElementById('planner__moveBackOneIntervalButton').addEventListener('click', (event) => {
+        activeCalendar.getFcCalendar().prev();
+        activeDate = activeCalendar.getFcCalendar().getDate();
+    });
+    document.getElementById('planner__moveForwardOneIntervalButton').addEventListener('click', (event) => {
+        activeCalendar.getFcCalendar().next();
+        activeDate = activeCalendar.getFcCalendar().getDate();
+    });
+    document.getElementById('planner__goToDateButton').addEventListener('click', (event) => {
+        Swal.fire({
+            title: 'Gå til dato',
+            html: "<input type='date' id='swalGoToDate' class='form-control'></input>",
+            showCancelButton: true,
+            confirmButtonText: 'Gå til dato',
+            cancelButtonText: 'Avbryt',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var date = new Date(document.getElementById('swalGoToDate').value);
+                activeDate = date;
+                activeCalendar.getFcCalendar().gotoDate(activeDate);
+            }
+        })
+    });
+    
+
     document.addEventListener('DOMContentLoaded', function() {
         arrangementCreator = new ArrangementCreator();
         _listenToLocationCheckboxes();
@@ -428,13 +457,6 @@
         $('#calendarFocusSelect').on("change", function () {
             plannerCalendar.setActiveColorProvider(this.value);
             plannerCalendar.refresh();
-        });
-
-        // new mdb.Datepicker(document.getElementById('dateNavigationPicker'))
-
-        document.getElementById('dateNavigationPicker').addEventListener('dateChange.mdb.datepicker', (e) => {
-            activeCalendar.getFcCalendar().gotoDate(e.date);
-            activeDate = e.date;
         });
 
         document.addEventListener('zenmode.activated', (event) => {
