@@ -509,29 +509,6 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
 arrangement_create_simple_event_dialog_view = PlannerArrangementCreateSimpleEventDialogView.as_view()
 
 
-# class PlannerArrangementCreateSerieDialog(LoginRequiredMixin, TemplateView):
-#     template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
-
-#     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-#         context = super().get_context_data(**kwargs)
-#         if "slug" in self.request.GET:
-#             arrangement_slug = self.request.GET.get("slug")
-#             arrangement = Arrangement.objects.get(slug=arrangement_slug)
-#             context["arrangementPk"] = arrangement.pk
-#         else: context["arrangementPk"] = 0
-
-#         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
-#         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
-
-#         if "managerName" in self.request.GET:
-#             context["managerName"] = self.request.GET.get("managerName")
-#         else: print("No manager name.")
-
-#         return context
-
-# arrangement_create_serie_dialog_view = PlannerArrangementCreateSerieDialog.as_view()
-
-
 class PlannerArrangementPromotePlannerDialog(LoginRequiredMixin, TemplateView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/promotePlannerDialog.html"
 

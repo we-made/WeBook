@@ -368,7 +368,8 @@ export class PlannerCalendar extends FullCalendarBased {
                         selector: ".fc-event",
                         items: {
                             arrangement_inspector: {
-                                name: "Inspiser arrangement",
+                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
+                                isHtmlName: true,
                                 callback: (key, opt) => {
                                     var pk = _this._findEventPkFromEl(opt.$trigger[0]);
                                     var arrangement = _this._ARRANGEMENT_STORE.get({
@@ -380,7 +381,8 @@ export class PlannerCalendar extends FullCalendarBased {
                                 }
                             },
                             event_inspector: {
-                                name: "Inspiser tidspunkt",
+                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
+                                isHtmlName: true,
                                 callback: (key, opt) => {
                                     var pk = _this._findEventPkFromEl(opt.$trigger[0]);
                                     this.eventInspectorUtility.inspect(pk);
@@ -388,7 +390,8 @@ export class PlannerCalendar extends FullCalendarBased {
                             },
                             "section_sep_1": "---------",
                             delete_arrangement: {
-                                name: "Slett arrangement",
+                                name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
+                                isHtmlName: true,
                                 callback: (key, opt) => {
                                     Swal.fire({
                                         title: 'Er du sikker?',
@@ -415,7 +418,8 @@ export class PlannerCalendar extends FullCalendarBased {
                                 }
                             },
                             delete_event: {
-                                name: "Slett aktivitet",
+                                name: "<i class='fas fa-trash'></i>&nbsp; Slett aktivitet",
+                                isHtmlName: true,
                                 callback: (key, opt) => {
                                     Swal.fire({
                                         title: 'Er du sikker?',

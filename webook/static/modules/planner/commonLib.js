@@ -279,9 +279,6 @@ export class ArrangementStore extends BaseStore {
                 (arrangementTypesMap === undefined  || arrangementTypesMap.has(arrangement.arrangement_type_slug) === true) &&
                 (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true)
 
-
-            console.log(arrangement)
-
             if (filterSet.showOnlyEventsWithNoRooms === true && arrangement.room_names.length > 0 && arrangement.room_names[0] !== null) {
                 isWithinFilter = false;
             }

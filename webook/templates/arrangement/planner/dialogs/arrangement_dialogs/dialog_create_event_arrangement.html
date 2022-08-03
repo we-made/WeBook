@@ -78,10 +78,9 @@
             <div class="row mt-4">
                 <div class="col-6">
                     <h5><i class="fas fa-building text-muted"></i>&nbsp; Rom</h5>
-                    <a class="btn btn-block text-white btn-success shadow-0"
+                    <a class="btn btn-block wb-btn-secondary shadow-0"
                         onclick="dialogCreateEvent__openAddRooms()"
                         type="button">
-                        <i class="fas fa-plus"></i>
                         Legg til rom
                     </a>
 
@@ -94,10 +93,9 @@
                 </div>
                 <div class="col-6">
                     <h5><i class="fas fa-users text-muted"></i>&nbsp; Personer</h5>
-                    <a class="btn btn-block btn-success shadow-0 text-white"
+                    <a class="btn btn-block wb-btn-secondary shadow-0"
                         onclick="dialogCreateEvent_openAddPeople()"
                         type="button">
-                        <i class="fas fa-plus"></i>
                         Legg til personer
                     </a>
 
@@ -111,7 +109,17 @@
             </div>
         </form>
         <div class="clearfix">
-            <a class="mt-2 float-end btn btn-lg btn-success text-white" onclick="dialogCreateEvent__submit()"><i class="fas fa-save"></i>&nbsp; Lagre</a>
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary btn-lg"
+                    onclick="window.dialogApi.close('{{managerName}}', '{{dialog}}')">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+
+                <a class="mt-2 btn wb-btn-main" onclick="dialogCreateEvent__submit()">
+                    <i class="fas fa-check"></i>&nbsp; Lagre
+                </a>
+            </div>
         </div>
     </div>
 </div>

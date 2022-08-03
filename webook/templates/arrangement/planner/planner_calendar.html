@@ -30,78 +30,72 @@
     }
 </style>
 
-<div class="clearfix">
-    <div class="float-start">
-        <div class="row">
-            <div class="col-4">
-                <div id="dateNavigationPicker">
-                    <div class="form-outline datepicker">
-                        <input type="text" class="form-control form-control-lg" />
-                        <label for="dateNavigationPicker" class="form-label">Dato</label>
-                      </div>
+<div class="mt-4" id="plannerCalendarFilter">
+    <div class="row">
+        <div class="col-2">
+            <h4>Filter</h4>
+            <div id="dateNavigationPicker">
+                <div class="form-outline datepicker">
+                    <input type="text" class="form-control form-control-lg" />
+                    <label for="dateNavigationPicker" class="form-label">Dato</label>
                 </div>
             </div>
-            <div class="col-4">
-                <select class="select form-control" id="plannerCalendarFilter_arrangementTypes" data-mdb-placeholder="Filtrer blant arrangementstyper..." multiple>
+
+            <div class="form-group mt-2">
+                <select class="select form-control form-control-lg mt-2" id="plannerCalendarFilter_arrangementTypes" data-mdb-placeholder="Filtrer blant arrangementstyper..." multiple>
                     {% for arrangement_type in ARRANGEMENT_TYPES %}
                         <option value="{{arrangement_type.slug}}">{{arrangement_type}}</option>
                     {% endfor %}
                 </select>
-            </div>
-            <div class="col-4">
-                <select class="select" id="plannerCalendarFilter_audiences" data-mdb-placeholder="Filtrer blant målgrupper..."  multiple>
+            </div>  
+
+            <div class="form-group mt-2">
+                <select class="select form-control form-control-lg mt-2" id="plannerCalendarFilter_audiences" data-mdb-placeholder="Filtrer blant målgrupper..."  multiple>
                     {% for audience in AUDIENCES %}
                         <option value="{{audience.slug}}">{{audience}}</option>
                     {% endfor %}
                 </select>
             </div>
+
+            <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="plannerCalendarFilter_showOnlyRoomLessEvents" />
+                <label class="form-check-label" for="plannerCalendarFilter_showOnlyRoomLessEvents">Vis bare aktiviteter uten tildelt rom</label>
+            </div>
         </div>
-
-
+        <div class="col-10">
+            <h4>Lokasjoner</h4>
+            <div class="row">
+                {% for location in LOCATIONS %}
+                    <div class="col-3">
+                        <div class="card shadow-0 wb-bg-secondary">
+                            <div class="card-body">
+                                <h3>{{location}}</h3>
+                                <div class="form-check">
+                                    <input class="form-check-input" name="filterLocationsCheckboxArray" type="checkbox" value="{{location.slug}}" id="locationFilterCheckBox_{{location_slug}}" checked/>
+                                    <label class="form-check-label" for="locationFilterCheckBox_{{location_slug}}">Vis i kalender</label>
+                                </div>
+                                <button class="btn shadow-0 mt-3 btn-webook btn-sm filterLocationBtn" value="{{location.slug}}"
+                                    data-mdb-toggle="tooltip" type="button"
+                                    title="Filtrer rom under denne lokasjonen.">
+                                    <i class="fas fa-filter"></i> Filtrer på rom
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="float-end">
+<div class="clearfix mt-3">
+    <div class="">
         <button class="btn btn-webook" id="newArrangementBtn">
             <i class="fas fa-plus"></i>&nbsp;
             Planlegg nytt arrangement
         </button>
     </div>
 </div>
-
-<div class="mt-4" id="plannerCalendarFilter">
-    <h4>Lokasjoner</h4>
-    <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="plannerCalendarFilter_showOnlyRoomLessEvents" />
-        <label class="form-check-label" for="plannerCalendarFilter_showOnlyRoomLessEvents">Vis bare aktiviteter uten tildelt rom</label>
-    </div>
-
-    <div class="mt-2">
-        <table class="table table-sm" id="filter_locationsTable">
-            <tbody>
-                {% for location in LOCATIONS %}
-                    <tr>
-                        <td>
-                            <div class="form-check">
-                                <input class="form-check-input" name="filterLocationsCheckboxArray" type="checkbox" value="{{location.slug}}" id="locationFilterCheckBox_{{location_slug}}" checked/>
-                                <label class="form-check-label" for="locationFilterCheckBox_{{location_slug}}">{{location}}</label>
-                            </div>
-                        </td>
-
-                        <td>
-                            <button class="btn shadow-0 btn-webook btn-sm filterLocationBtn" value="{{location.slug}}"
-                                data-mdb-toggle="tooltip" type="button"
-                                title="Filtrer rom under denne lokasjonen.">
-                                <i class="fas fa-filter"></i>
-                                
-                        </button>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
 
 {% endblock %}
 
@@ -154,6 +148,11 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <script type="module">
+
+$( function() {
+    $( "#c-datepicker" ).datepicker();
+  } );
+
     import { PlannerCalendar } from "{% static 'modules/planner/plannerCalendar.js' %}";
     import { LocationCalendar } from "{% static 'modules/planner/locationCalendar.js' %}";
     import { PersonCalendar } from "{% static 'modules/planner/personCalendar.js' %}";

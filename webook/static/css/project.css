@@ -1,9 +1,11 @@
 /* These styles are generated from project.scss. */
 
-body {
-  font-family: 'Lato', sans-serif;
-}
+@import url("base.css");
+@import url("fullcalendar_custom.css");
 
+body {
+  font-family: 'Inter', sans-serif;
+}
 
 .alert-debug {
   color: black;
@@ -81,7 +83,6 @@ div.modal-body > .bootbox-close-button {
   font-family: 'Akshar', sans-serif!important;
 }
 
-
 .list-group-light > .list-group-item.active {
   background-color: whitesmoke;
   color:black;
@@ -91,14 +92,6 @@ div.modal-body > .bootbox-close-button {
 }
 .list-group > .list-group-item{
   margin: 0.1em;
-}
-
-.header-fonted {
-  /* font-family: 'Akshar', sans-serif!important; */
-}
-
-.light-tabs {
-  /* background-color: aqua; */
 }
 
 .light-tabs .nav-link.active {
@@ -121,15 +114,15 @@ div.modal-body > .bootbox-close-button {
 
 .ui-dialog {
   background-color: white!important;
-  /* border: 2px solid darkslateblue!important; */
-  /* font-size: 1.125em!important; */
-  box-shadow: 0 1px 15px 1px  grey!important;
+  box-shadow: 0 1px 20px 1px  grey!important;
+  border: solid 1px var(--DIALOG-BORDER-COLOR);
+  border-radius: 15px!important;
 }
 
 .ui-dialog.ui-widget.ui-widget-content {
   background:none; /* and no special background for the dialog */
 }
-.ui-widget-overlay.ui-front { /* you want this */
+.ui-widget-overlay.ui-front {
   opacity:.75;
 }
 
@@ -166,8 +159,6 @@ div.modal-body > .bootbox-close-button {
 }
 
 .ui-dialog-title {
-  /* font-family: 'Akshar', sans-serif!important; */
-
   font-size: 24px;
   font-weight: bold;
 }
@@ -182,15 +173,10 @@ sidenav-primary .sidenav-link {
   font-size: 18px!important;
 }
 
-/* .sidenav-primary .sidenav-link.active {
-  color:white;
-  background-color: #6A5DB8;
-} */
 
 .sidenav-primary .sidenav-link#hover {
   color:#5f7f99;
   background-color: #4b6f8c;
-
 }
 
 .fc-tabs {

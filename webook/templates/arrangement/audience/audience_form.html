@@ -39,20 +39,21 @@
  
 
                 <div class="float-end">
-                    <a class="btn btn-lg btn-webook me-3" onClick="window.history.back(); return false;">
+                    <a class="btn btn-lg wb-btn-secondary me-3" onClick="window.history.back(); return false;">
                         <i class="fas fa-times"></i>&nbsp;
                         {% trans "Cancel" %}
                     </a>
 
                     {% if not form.instance.id %}
-                    <button type="submit" class="btn btn-lg btn-webook" value="submitAndNew" name="submitAndNew"
+                    <button type="submit" class="btn btn-lg wb-btn-main" value="submitAndNew" name="submitAndNew"
                         data-mdb-toggle="tooltip" title="{% trans 'Save and then create a new audience' %}">
                         {% trans "Save, and new" %}
                     </button>
                     {% endif %}
 
-                    <button type="submit" class="btn btn-lg btn-webook" value="submit" name="submit"
+                    <button type="submit" class="btn btn-lg wb-btn-main" value="submit" name="submit"
                         data-mdb-toggle="tooltip" title="{% trans 'Create a new audience based on your input' %}">
+                        <i class="fas fa-check"></i>&nbsp; 
                         {% trans "Save" %}
                     </button>
                 </div>

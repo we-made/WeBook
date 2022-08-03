@@ -28,7 +28,7 @@
                         this._$getDialogEl().dialog( this.dialogOptions );
                         this.onRenderedCallback(this, context);
                         this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                            .html("<i class='fas fa-times text-danger float-end' style='font-size: 24px'></i>")
+                            .html("<span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
                             .click( () => {
                                 this.destroy();
                             });
@@ -118,8 +118,9 @@ export class DialogManager {
 
         this._listenForUpdatedEvent();
         this._listenForSubmitEvent();
-        this._listenForCloseEvent();
+        this._listenForCloseAllEvent();
         this._listenForReloadEvent();
+        this._listenForCloseDialogEvent();
 
         this._dialogRepository = new Map(dialogs);
         this.context = {};
@@ -153,7 +154,13 @@ export class DialogManager {
         })
     }
 
-    _listenForCloseEvent() {
+    _listenForCloseDialogEvent() {
+        document.addEventListener(`${this.managerName}.closeDialog`, (e) => {
+            this.closeDialog(e.detail.dialog);
+        })
+    }
+
+    _listenForCloseAllEvent() {
         document.addEventListener(`${this.managerName}.close`, (e) => {
             this.closeAllDialogs();
         })

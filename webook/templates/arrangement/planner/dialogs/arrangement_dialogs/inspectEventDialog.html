@@ -1,47 +1,33 @@
 {% load static i18n %}
 
 
-<div id="inspectEventDialog" title="<span class='badge badge-success'><i class='fas fa-edit'></i></span>&nbsp; Rediger aktivitet {{ form.title.value }}">
-    <button class="btn btn-webook mb-3" onclick="inspectEventDialog__delete()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
+<div id="inspectEventDialog" title="{{ form.title.value }}">
 
-    <div class="alert border col-auto  mb-4">
-        <div class="row">
-            <div class="col-6">
-                <h4 class="mb-0 d-inline fw-lighter">Aktivitet i:</h4>
-                <h6 class="mb-0  fw-bolder">{{ object.arrangement.name }}</h6>
-            </div>
-            <div class="col-6">
-                <button class="btn btn-webook"
-                        onclick="triggerFocusTo('{{object.arrangement.slug}}', '{{object.pk}}')">
-                    Åpne arrangement
-                </button>
-            </div>
+    <!-- <div class="clearfix mb-2">
+        <div class="float-start">
+            {% if event.serie %}
+            <span class="badge badge-white wb-bg-secondary text-muted"
+                data-mdb-toggle="tooltip"
+                title="Aktiviteten er en del av en serie">
+                <h4 class="mb-0"><i class="fas fa-redo"></i></h4>
+            </span>
+            {% elif event.associated_serie and event.association_type == "degraded_from_serie" %}
+            <span class="badge badge-white wb-bg-secondary text-muted"
+                data-mdb-toggle="tooltip"
+                title="Aktiviteten er brutt ut av en serie">
+                <h4 class="mb-0"><i class="fas fa-redo"></i> <i class="fas fa-times"></i></h4>
+            </span>
+            {% else %}
+            <span class="badge badge-white wb-bg-secondary text-muted"
+                data-mdb-toggle="tooltip"
+                title="Aktiviteten er enkeltstående, det vil si ikke del av en serie">
+                <h4 class="mb-0"><i class="fas fa-calendar"></i></h4>
+            </span>
+            {% endif %}
         </div>
-    </div>
+    </div> -->
 
-    <div class="mb-3">
-        {% if event.serie %}
-        <span class="badge badge-secondary shadow-2"
-            data-mdb-toggle="tooltip"
-            title="Aktiviteten er en del av en serie">
-            <h4 class="mb-0"><i class="fas fa-redo"></i></h4>
-        </span>
-        {% elif event.associated_serie and event.association_type == "degraded_from_serie" %}
-        <span class="badge badge-warning shadow-2"
-            data-mdb-toggle="tooltip"
-            title="Aktiviteten er brutt ut av en serie">
-            <h4 class="mb-0"><i class="fas fa-redo"></i> <i class="fas fa-times"></i></h4>
-        </span>
-        {% else %}
-        <span class="badge badge-success shadow-2"
-            data-mdb-toggle="tooltip"
-            title="Aktiviteten er enkeltstående, det vil si ikke del av en serie">
-            <h4 class="mb-0"><i class="fas fa-calendar"></i></h4>
-        </span>
-        {% endif %}
-    </div>
-
-    <ul class="nav nav-tabs mb-3" id="ex1" role="tablist">
+    <ul class="nav nav-tabs webook-tabs mb-3" id="ex1" role="tablist">
         <li class="nav-item" role="presentation">
             <a
             class="nav-link active"
@@ -50,9 +36,13 @@
             href="#ex1-tabs-1"
             role="tab"
             aria-controls="ex1-tabs-1"
-            aria-selected="true"
-            >
-            <i class="fas fa-info-circle"></i>&nbsp; Aktivitet
+            aria-selected="true">
+            Aktivitet
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a href="#tab-resources" role="tab" data-mdb-toggle="tab" class="nav-link" id="tab-resource">
+                Rom & Personer
             </a>
         </li>
         <li class="nav-item" role="presentation">
@@ -63,8 +53,8 @@
                 href="#ex1-tabs-2"
                 role="tab"
                 aria-controls="ex1-tabs-2"
-                aria-selected="false"
-                ><i class="fas fa-folder"></i>&nbsp; Filer
+                aria-selected="false">
+                Filer
             </a>
         </li>
         <li class="nav-item" role="presentation">
@@ -75,8 +65,13 @@
                 href="#ex1-tabs-3"
                 role="tab"
                 aria-controls="ex1-tabs-3"
-                aria-selected="false"
-                ><i class="fas fa-comment"></i>&nbsp; Notater
+                aria-selected="false">
+                Notater
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a href="#tab-details" role="tab" data-mdb-toggle="tab" class="nav-link" id="tab-detailss">
+                Detaljer
             </a>
         </li>
     </ul>
@@ -93,7 +88,8 @@
             <div>
                 <div>
                     <div>
-                        <div class="form-outline">
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="{{ form.title.id_for_label }}">   Tittel på norsk</label>
                             <input type="text"
                                 class="form-control form-control-md"
                                 id="{{ form.title.id_for_label }}" 
@@ -101,7 +97,6 @@
                                 name="{{ form.title.name }}"
                                 autocomplete="off"
                                 />
-                            <label class="form-label" for="{{ form.title.id_for_label }}">🇳🇴 Tittel på norsk</label>
                         </div>
                         {% if form.title.errors|length > 0 %}
                             <div class="alert alert-danger">
@@ -110,7 +105,8 @@
                         {% endif %}
                     </div>
                     <div class="mt-2">
-                        <div class="form-outline mb-3">
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="{{ form.title_en.id_for_label }}">Tittel på engelsk</label>
                             <input type="text"
                                 class="form-control form-control-md"
                                 id="{{ form.title_en.id_for_label }}" 
@@ -118,7 +114,6 @@
                                 name="{{ form.title_en.name }}"
                                 autocomplete="off"
                                 />
-                            <label class="form-label" for="{{ form.title_en.id_for_label }}">🇬🇧 Tittel på engelsk</label>
                         </div>
                         {% if form.title_en.errors|length > 0 %}
                             <div class="alert alert-danger">
@@ -131,7 +126,8 @@
                         <div class="row">
                             <div class="col-6">
                                 <div >
-                                    <div class="form-outline mb-3">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="{{ form.expected_visitors.id_for_label }}">Forventet besøk</label>
                                         <input type="text"
                                             class="form-control form-control-md"
                                             id="{{ form.expected_visitors.id_for_label }}" 
@@ -139,7 +135,6 @@
                                             name="{{ form.expected_visitors.name }}"
                                             autocomplete="off"
                                             />
-                                        <label class="form-label" for="{{ form.expected_visitors.id_for_label }}"><i class="fas fa-users"></i>&nbsp; Expected visitors</label>
                                     </div>
                                     {% if form.expected_visitors.errors|length > 0 %}
                                         <div class="alert alert-danger">
@@ -150,7 +145,8 @@
                             </div>
                             <div class="col-6">
                                 <div>
-                                    <div class="form-outline mb-3">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="{{ form.actual_visitors.id_for_label }}">Faktisk besøk</label>
                                         <input type="text"
                                             class="form-control form-control-md"
                                             id="{{ form.actual_visitors.id_for_label }}" 
@@ -158,7 +154,6 @@
                                             name="{{ form.actual_visitors.name }}"
                                             autocomplete="off"
                                             />
-                                        <label class="form-label" for="{{ form.actual_visitors.id_for_label }}"><i class="fas fa-users"></i>&nbsp; Actual visitors</label>
                                     </div>
                                     {% if form.actual_visitors.errors|length > 0 %}
                                         <div class="alert alert-danger">
@@ -168,8 +163,25 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <!-- <label for="" class="form-label h5">Startdato og tidspunk</label> -->
+                                <div class="form-outline datetimepicker">
+                                    <input type="text" class="form-control" value="22/12/2020, 14:12:56" id="datetimepickerExample" />
+                                    <label for="datetimepickerExample" class="form-label h5">Startdato og tidspunkt</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <!-- <label for="" class="form-label h5">Startdato og tidspunk</label> -->
+                                <div class="form-outline datetimepicker">
+                                    <input type="text" class="form-control" value="22/12/2020, 14:12:56" id="datetimepickerExample" />
+                                    <label for="datetimepickerExample" class="form-label h5">Sluttdato og tidspunkt</label>
+                                </div>
+                            </div>
+                        </div>
     
-                        <div class="form-outline mb-3">
+                        <!-- <div class="form-outline mb-3">
                             <input type="text"
                                 class="form-control form-control-md"
                                 id="{{ form.ticket_code.id_for_label }}" 
@@ -177,16 +189,34 @@
                                 name="{{ form.ticket_code.name }}"
                                 autocomplete="off"
                                 />
-                            <label class="form-label" for="{{ form.ticket_code.id_for_label }}"><i class="fas fa-receipt"></i>&nbsp; Billetkode</label>
+                            <label class="form-label" for="{{ form.ticket_code.id_for_label }}">Billetkode</label>
                         </div>
                         {% if form.ticket_code.errors|length > 0 %}
                             <div class="alert alert-danger">
                                 {{ form.ticket_code.errors }}
                             </div>
-                        {% endif %}
+                        {% endif %} -->
                     </div>
-    
                     <div class="mt-2">
+                        <label class="d-block form-label">{% trans "Vises på skjerm:" %}</label>
+                        {{form.display_layouts}}
+                    </div>  
+    
+                    <div class="alert col-auto mb-4 wb-bg-secondary">
+                        <div class="clearfix">
+                            <div class="float-start">
+                                <h6 class="mb-0 d-inline fw-lighter">Tilhører arrangement:</h4>
+                                <h4 class="mb-0">{{ object.arrangement.name }}</h6>
+                            </div>
+                            <button class="btn wb-btn-main float-end shadow-0"
+                                    type="button"
+                                    onclick="triggerFocusTo('{{object.arrangement.slug}}', '{{object.pk}}')">
+                                Gå til arrangement
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- <div class="mt-2">
                         <h6><i class="fas fa-calendar text-muted"></i>&nbsp; Fra</h6>
                         <div class="row">
                             <div class="col-8">
@@ -200,9 +230,9 @@
                                         value="{{ start_t|date:'H:i' }}">
                             </div>
                         </div>
-                    </div>
+                    </div> -->
     
-                    <div class="mt-2">
+                    <!-- <div class="mt-2">
                         <h6><i class="fas fa-calendar text-muted"></i>&nbsp; Til</h6>
                         <div class="row">
                             <div class="col-8">
@@ -222,89 +252,17 @@
                         <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Vises på skjermen:" %}</label>
                         {{form.display_layouts}}
                         
-                    </div>
+                    </div> -->
     
-                    <div class="row">
-                        <div class="col-6">
-                            <div class=" mb-2 mt-4">
-                                <h5> <i class="fas fa-building text-muted"></i> Rom</h5>
-                                <a class="btn btn-sm btn-webook text-white"
-                                    id="inspectEventDialog_addRoomsBtn"
-                                    type="button">
-                                    + Legg til nye rom
-                                </a>
-                            </div>
-                            <hr>
-                
-                            <div class="table-responsive">
-                                <table class="table table-sm table-borderless">
-                                    <tbody id="roomsTableBody">
-                                        {% for room in object.rooms.all %}
-                                        <tr rowid="{{room.pk}}">
-                                            <td>{{room}}</td>
-                                            <td>
-                                                <a href="#" class="text-danger"
-                                                    data-mdb-toggle="tooltip"
-                                                    onclick="inspectEventDialog__removeAssociation(this)"
-                                                    title="{% trans 'Remove this room from the activity' %}">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="cmb-2 mt-4">
-                                <h5> <i class="fas fa-user text-muted"></i> People</h5>
-                                <a class="btn btn-sm btn-webook text-white"
-                                    id="inspectEventDialog_addPeopleBtn"
-                                    type="button">
-                                    + Legg til nye personer
-                                </a>
-                            </div>
-                
-                            <hr>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-borderless">
-                                    <tbody id="peopleTableBody">
-                                        {% for person in object.people.all %}
-                                            <tr rowid="{{person.pk}}">
-                                                <td>{{person}}</td>
-                                                <td>
-                                                    <a href="#" class="text-danger"
-                                                        data-mdb-toggle="tooltip"
-                                                        onclick="inspectEventDialog__removeAssociation(this)"
-                                                        title="{% trans 'Remove this person from the activity' %}">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </form>
-        <div class="clearfix">
-            <div class="float-end">
-                <a class="btn btn-md btn-webook text-white"><i class="fas fa-times"></i>&nbsp; Avbryt</a>
-                <a class="btn btn-md btn-webook text-white" type="button" onclick="inspectEventDialog__save()"><i class="fas fa-save"></i>&nbsp; Lagre</a>
-            </div>
-        </div>
         </div>
         <div class="tab-pane fade" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
             <div class="clearfix">
-                <div class="float-start">
-                    <h5><i class="fas fa-folder"></i>&nbsp; Filer</h5>
-                </div>
                 <div class="float-end">
-                    <a class="btn btn-webook text-white" id="eventDialog_uploadFilesBtn"><i class="fas fa-upload"></i>&nbsp; Last opp fil(er)</a>
+                    <a class="btn wb-btn-main" id="eventDialog_uploadFilesBtn"><i class="fas fa-upload"></i>&nbsp; Last opp fil(er)</a>
                 </div>
             </div>
             <div>
@@ -322,8 +280,10 @@
                                 <td>{{file.filename}}</td>
                                 <td><i class="text-muted">Av {{file.uploader.full_name}} den {{file.created}}</i></td>
                                 <td>
-                                    <a class="btn btn-success rounded-pill text-white" href="/media/{{file.file}}" download><i class="fas fa-download"></i></a>
-                                    <a class="btn btn-danger rounded-pill text-white"
+                                    <a class="btn wb-btn-secondary rounded-pill" href="/media/{{file.file}}" download>
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <a class="btn wb-btn-secondary rounded-pill"
                                         onclick="inspectEventDialog__deleteFile( {{file.pk}} )">
                                         <i class="fas fa-trash"></i>
                                     </a>
@@ -335,9 +295,94 @@
             </div>
         </div>
 
+        <div class="tab-pane fade" id="tab-resources" role="tabpanel">
+            <div class="row">
+                <div class="col-lg-6 col-sm-12">
+                    <div class=" mb-2 mt-4">
+                        <label class="form-label">Rom</label>
+                        <a class="btn btn-sm btn-link wb-bg-secondary float-end"
+                            id="inspectEventDialog_addRoomsBtn"
+                            type="button">
+                            Legg til nye rom
+                        </a>
+                    </div>
+                    <hr>
+        
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless">
+                            <tbody id="roomsTableBody">
+                                {% for room in object.rooms.all %}
+                                <tr rowid="{{room.pk}}">
+                                    <td>{{room}}</td>
+                                    <td>
+                                        <a href="#" class="text-danger"
+                                            data-mdb-toggle="tooltip"
+                                            onclick="inspectEventDialog__removeAssociation(this)"
+                                            title="{% trans 'Remove this room from the activity' %}">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-sm-12">
+                    <div class="cmb-2 mt-4">
+                        <label class="form-label">Personer</label>
+                        <a class="btn btn-sm btn-link wb-bg-secondary float-end"
+                            id="inspectEventDialog_addPeopleBtn"
+                            type="button">
+                            Legg til nye personer
+                        </a>
+                    </div>
+        
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless">
+                            <tbody id="peopleTableBody">
+                                {% for person in object.people.all %}
+                                    <tr rowid="{{person.pk}}">
+                                        <td>{{person}}</td>
+                                        <td>
+                                            <a href="#" class="text-danger"
+                                                data-mdb-toggle="tooltip"
+                                                onclick="inspectEventDialog__removeAssociation(this)"
+                                                title="{% trans 'Remove this person from the activity' %}">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-details" role="tabpanel">
+            <div class="form-group mb-3">
+                <label class="form-label" for="{{ form.ticket_code.id_for_label }}">Billetkode</label>
+                <input type="text"
+                    class="form-control form-control-md"
+                    id="{{ form.ticket_code.id_for_label }}" 
+                    value="{{ form.ticket_code.value|default:'' }}"
+                    name="{{ form.ticket_code.name }}"
+                    autocomplete="off"
+                    />
+            </div>
+            {% if form.ticket_code.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.ticket_code.errors }}
+                </div>
+            {% endif %}
+        </div>
+
         <div class="tab-pane fade" id="ex1-tabs-3" role="tabpanel" aria-labelledby="ex1-tabs-3">
             <div class="clearfix">
-                <a class="text-white btn btn-webook shadow-0 mb-2 float-end" id="inspectEventDialog__newNoteBtn">
+                <a class="btn wb-btn-main shadow-0 mb-2 float-end" id="inspectEventDialog__newNoteBtn">
                     <i class="fas fa-feather"></i>
                     Nytt notat
                 </a>
@@ -355,13 +400,13 @@
                 <hr>
 
                 <div class="clearfix">
-                    <div class="btn-group float-end">
-                        <a href="#" class="btn btn-danger text-white"
+                    <div class="float-end">
+                        <a href="#" class="btn wb-btn-secondary"
                             onclick="deleteNote( {{note.pk}} )">
                             <i class="fas fa-trash"></i>
                         </a>
 
-                        <a href="#" class="btn btn-success text-white"
+                        <a href="#" class="btn wb-btn-secondary"
                             onclick="updateNoteDialog( {{note.pk}} )">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -370,13 +415,27 @@
                     {% if note.has_personal_information %}
                         <i class="fas fa-shield-alt text-warning h3 float-start"></i> 
                     {% endif %}
-
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
 
+    <div class="clearfix border-top pt-3">
+        <div class="float-start">
+            <a href="#" class="btn btn-link" onclick="inspectEventDialog__delete()">
+                <i class="fas fa-trash"></i>&nbsp; Slett denne aktiviteten
+            </a>
+        </div>
+        <div class="float-end">
+            <a href="#" class="btn wb-btn-secondary btn-lg"
+                onclick="window.dialogApi.close('eventInspector', 'inspectEventDialog')">
+                <i class="fas fa-times"></i>
+                Avbryt
+            </a>
+            <a class="btn btn-md wb-btn-main" type="button" onclick="inspectEventDialog__save()"><i class="fas fa-save"></i>&nbsp; Lagre</a>
+        </div>
+    </div>
 
 </div>
 
@@ -457,13 +516,6 @@
     }
 
     $(document).ready(function () {
-        // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
-        //inspectEventDialog__evaluateEnTitleObligatory();
-        /*
-        $("input[name='display_layouts'][type='checkbox']").on("change", (e) => {
-            inspectEventDialog__evaluateEnTitleObligatory();
-        });
-        */
         document.addEventListener("eventInspector.roomsUpdated", (e) => {
             roomsMap = e.detail.context.room_name_map;
             inspectEventDialog__setRooms(e.detail.context.rooms);

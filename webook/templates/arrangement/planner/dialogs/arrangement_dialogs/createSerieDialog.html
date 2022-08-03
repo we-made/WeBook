@@ -33,7 +33,7 @@
                                     </div>
                                 </div>
                                 <div class="col-2 text-center">
-                                    <h3><i class="fas fa-arrow-right text-muted"></i></h3>
+                                    <h3><i class="fas fa-arrow-right wb-text-main"></i></h3>
                                 </div>
                                 <div class="col-5">
                                     <div class="form-outline timepicker-inline-24 mb-2" id="serie_end_picker">
@@ -42,8 +42,7 @@
                                     </div>
                                 </div>
                             </div>
-                
-                
+            
                             <div class="form-outline mb-3">
                                 <input type="text" id="serie_ticket_code" class="form-control" />
                                     <label class="form-label" for="serie_ticket_code"><i class="fas fa-receipt"></i>&nbsp; Ticket Code</label>
@@ -60,10 +59,9 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <h5><i class="fas fa-building text-muted"></i>&nbsp; Rom</h5>
-                                        <a class="btn btn-block btn-webook text-white btn-sm"
+                                        <a class="btn btn-block wb-btn-secondary btn-sm"
                                             onclick="createSerieDialog__openAddRooms()"
                                             type="button">
-                                            <!-- <i class="fas fa-plus text-success"></i>&nbsp; -->
                                             Legg til rom
                                         </a>
                                         
@@ -80,10 +78,9 @@
                                     <div class="col-12">
                                         <h5><i class="fas fa-users text-muted"></i>&nbsp; Personer</h5>
                 
-                                        <a class="btn btn-block btn-webook text-white btn-sm"
+                                        <a class="btn btn-block wb-btn-secondary btn-sm"
                                             onclick="createSerieDialog__openAddPeople()"
                                             type="button">
-                                            <!-- <i class="fas fa-plus text-success"></i>&nbsp; -->
                                             Legg til personer
                                         </a>
 
@@ -101,7 +98,7 @@
                         <div class="mt-4">
                             <h5><i class="fas fa-tv"></i>&nbsp; Vises på:</h5>
                             {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
-                                <div class="badge border fw-light border-body text-muted rounded-pill clickable-badge p-3 m-1">
+                                <div class="badge wb-bg-secondary fw-light border-body text-muted rounded-pill clickable-badge p-3 m-1">
                                     <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
                                     <label for="id_display_layouts_serie_planner_{{choice_id}}">&nbsp;{{choice_label}}</label>
                                 </div>
@@ -233,12 +230,21 @@
 
 
         <div class="clearfix mt-3">
-            <a class="btn btn-webook btn-lg text-white float-end" type="button" id="submitBtn">Lagre</a>
+            <a class="btn wb-btn-main btn-lg float-end" type="button" id="submitBtn">
+                <i class="fas fa-check"></i>
+                Lagre
+            </a>
+            <a href="#" class="btn wb-btn-secondary btn-lg float-end"
+                onclick="window.dialogApi.close('{{managerName}}', '{{dialog}}')">
+                <i class="fas fa-times"></i>
+                Avbryt
+            </a>
         </div>
     </div>
 </div>
 
 <script>
+
     var peopleNameMap = new Map();
     var roomsNameMap = new Map();
 

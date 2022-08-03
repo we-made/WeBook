@@ -1,0 +1,133 @@
+:root {
+    --MAIN-COLOR: #231f20;
+    --SECONDARY-COLOR: rgb(247, 245, 244);
+    --MAIN-HOVER: white;
+    --SECONDARY-HOVER: var(--MAIN-COLOR);
+    
+    --CONTEXT-MENU-BACKGROUND-COLOR: var(--MAIN-COLOR);
+    --CONTEXT-MENU-HOVER-COLOR: var(--MAIN-COLOR);
+    --CONTEXT-MENU-TEXT-COLOR: white;
+    --CONTEXT-MENU-HOVER-COLOR: #4C4345;
+
+    --WEAK-TEXT-COLOR: #BBBAB6;
+    --ACTIVE-TEXT-COLOR: #231F20;
+    --BORDER-STANDARD-COLOR: gainsboro;
+    --FC-TEXT-COLOR: #292929;
+    
+    --DIALOG-BORDER-COLOR: #DEDFE3;
+}
+
+#main-navbar .nav-link {
+    font-size: larger;
+    padding: 0.4em;
+    padding-left: 0.9em;
+    padding-right: 0.9em;
+}
+
+.form-label {
+    font-size: large;
+    margin-bottom: 0;
+}
+
+.context-menu-item:hover{
+    background-color: var(--SECONDARY-COLOR)!important;
+    color: var(--MAIN-COLOR)!important;
+}
+
+.wb-bg-main {
+    background-color: var(--MAIN-COLOR);
+}
+
+.wb-bg-secondary {
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.wb-text-main {
+    color: var(--MAIN-COLOR);
+}
+
+.wb-text-secondary {
+    color: var(--SECONDARY-COLOR);
+}
+
+.wb-btn-main {
+    background-color: var(--MAIN-COLOR);
+    color: white !important;
+    border-radius: 0.5em;
+    box-shadow: none;
+    font-size: medium;
+    text-transform: none;
+    padding: .5rem 1.5rem .5rem;
+}
+
+.wb-btn-main:hover {
+    color: var(--MAIN-HOVER);
+}
+
+.wb-btn-secondary {
+    background-color: var(--SECONDARY-COLOR);
+    color:var(--MAIN-COLOR)!important;
+    border-radius: 0.5em;
+    box-shadow: none;
+    font-size: medium;
+    text-transform: none;
+    padding: .5rem 1.5rem .5rem;
+}
+
+.wb-btn-secondary:hover {
+    color: var(--SECONDARY-HOVER);
+}
+
+.wb-std-tabs {
+    border-bottom: solid 1px grey;
+}
+
+.wb-std-tabs > .nav-link {
+    font-weight: bold;
+    font-size: 1em;
+    text-transform: none;
+    font-size:medium!important;
+    font-weight: bolder;
+}
+
+.wb-std-tabs > .nav-item > .nav-link.active {
+    color: black;
+    border-color: black;
+}
+
+.wb-std-tabs > .nav-item > .nav-link:hover {
+    color: black;
+    border-color: black;
+    background-color: white;
+}
+
+.dialogCloseButton > i {
+    background-color: var(--SECONDARY-COLOR);
+    padding: 1em;
+    border-radius: 50%;
+    font-size: 11px;
+    color: --WEAK-TEXT-COLOR;
+}
+
+.wb-sidenav {
+    background-color: white;
+}
+
+.wb-sidenav .sidenav-link {
+    font-size: medium;
+}
+
+.wb-sidenav .sidenav-link.active {
+    border: solid 1px var(--BORDER-STANDARD-COLOR)!important;
+    font-weight: bolder;
+    background-color: var(--SECONDARY-COLOR)!important;
+}
+
+.wb-sidenav .sidenav-link.active:hover {
+    border: solid 1px var(--BORDER-STANDARD-COLOR)!important;
+    background-color: white;
+}
+
+.interactiveTable tr:hover {
+    background-color: var(--SECONDARY-COLOR);
+}

@@ -10,7 +10,7 @@
             {% trans "Are you sure you want to delete" %} <i>'{{ ENTITY_NAME }}'</i> ?<br>
             {% trans "This action can not be reversed." %}
         </h5>
-        <a class="btn btn-webook" href="{{ RETURN_URL }}"><i class="fas fa-times"></i>&nbsp; {% trans "Cancel" %}</a>
-        <button class="btn btn-webook" type="submit"><i class="fas fa-trash"></i>&nbsp; {% trans "Delete" %}</button>
+        <a class="btn wb-btn-secondary" href="{{ RETURN_URL }}"><i class="fas fa-times"></i>&nbsp; {% trans "Cancel" %}</a>
+        <button class="btn wb-btn-main" type="submit"><i class="fas fa-trash"></i>&nbsp; {% trans "Delete" %}</button>
     </form>
 {% endblock %}
