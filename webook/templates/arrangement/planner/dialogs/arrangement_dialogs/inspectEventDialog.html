@@ -2,43 +2,74 @@
 
 
 <div id="inspectEventDialog" title="<span class='badge badge-success'><i class='fas fa-edit'></i></span>&nbsp; Rediger aktivitet {{ form.title.value }}">
-    <button class="btn btn-danger mb-3" onclick="inspectEventDialog__delete()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
+    
+    <div class="clearfix">
+        <div class="float-start">
+            <button class="btn btn-danger mb-3" onclick="inspectEventDialog__delete()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
+        </div>
 
-    <div class="alert border col-auto  mb-4">
+        <div class="float-end">
+            {% if event.serie %}
+            <span class="badge badge-secondary shadow-2"
+                data-mdb-toggle="tooltip"
+                title="Aktiviteten er en del av en serie">
+                <h4 class="mb-0"><i class="fas fa-redo"></i></h4>
+            </span>
+            {% elif event.associated_serie and event.association_type == "degraded_from_serie" %}
+            <span class="badge badge-warning shadow-2"
+                data-mdb-toggle="tooltip"
+                title="Aktiviteten er brutt ut av en serie">
+                <h4 class="mb-0"><i class="fas fa-redo"></i> <i class="fas fa-times"></i></h4>
+            </span>
+            {% else %}
+            <span class="badge badge-success shadow-2"
+                data-mdb-toggle="tooltip"
+                title="Aktiviteten er enkeltstående, det vil si ikke del av en serie">
+                <h4 class="mb-0"><i class="fas fa-calendar"></i></h4>
+            </span>
+            {% endif %}
+            
+            {% if object.is_buffer_event %}
+            <span class="badge badge-warning shadow-2"
+                data-mdb-toggle="tooltip"
+                title="Denne aktiviteten er en opprigg/nedrigg hendelse">
+                <h4 class="mb-0"><i class="fas fa-tools"></i></h4>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="alert border col-auto  mb-4 text-white"
+        style="background-color: #343d52;">
         <div class="row">
             <div class="col-6">
                 <h4 class="mb-0 d-inline fw-lighter">Aktivitet i:</h4>
                 <h6 class="mb-0  fw-bolder">{{ object.arrangement.name }}</h6>
             </div>
             <div class="col-6">
-                <button class="btn btn-outline-dark"
+                <div class="float-end">
+                    <button class="btn btn-outline-white"
                         onclick="triggerFocusTo('{{object.arrangement.slug}}', '{{object.pk}}')">
-                    Åpne arrangement
-                </button>
+                        Åpne arrangement
+                    </button>
+                </div>
             </div>
-        </div>
-    </div>
+            {% if object.is_buffer_event %}
+            <div class="col-12 text-end">
+                <hr>
+                <em class="small ">
+                <i class="fas fa-tools"></i>
+                {% if object.before_buffer_for.exists %}
+                    Opprigg for <a href='#' onclick="inspectEventDialog__inspectOtherEvent({{object.before_buffer_for.get.id}})" class="text-primary">{{ object.before_buffer_for.get.title }}</a>
+                {% endif %}
 
-    <div class="mb-3">
-        {% if event.serie %}
-        <span class="badge badge-secondary shadow-2"
-            data-mdb-toggle="tooltip"
-            title="Aktiviteten er en del av en serie">
-            <h4 class="mb-0"><i class="fas fa-redo"></i></h4>
-        </span>
-        {% elif event.associated_serie and event.association_type == "degraded_from_serie" %}
-        <span class="badge badge-warning shadow-2"
-            data-mdb-toggle="tooltip"
-            title="Aktiviteten er brutt ut av en serie">
-            <h4 class="mb-0"><i class="fas fa-redo"></i> <i class="fas fa-times"></i></h4>
-        </span>
-        {% else %}
-        <span class="badge badge-success shadow-2"
-            data-mdb-toggle="tooltip"
-            title="Aktiviteten er enkeltstående, det vil si ikke del av en serie">
-            <h4 class="mb-0"><i class="fas fa-calendar"></i></h4>
-        </span>
-        {% endif %}
+                {% if object.after_buffer_for.exists %}
+                    Nedrigg for <a href='#' onclick="inspectEventDialog__inspectOtherEvent({{object.after_buffer_for.get.id}})" class="text-primary">{{ object.after_buffer_for.get.title }}</a>
+                {% endif %}
+                </span>
+            </div>
+            {% endif %}
+        </div>
     </div>
 
     <ul class="nav nav-tabs mb-3" id="ex1" role="tablist">
@@ -88,7 +119,7 @@
                 role="tab"
                 aria-controls="ex1-tabs-3"
                 aria-selected="false"
-                ><i class="fas fa-clock"></i>&nbsp; Buffer
+                ><i class="fas fa-tools"></i>&nbsp; Opprigg & Nedrigg
             </a>
         </li>
     </ul>
@@ -205,12 +236,12 @@
                             <div class="col-8">
                                 <input type="date" class="form-control"
                                         name="{{form.start.name}}_date" id="{{form.start.id_for_label}}_date"
-                                        value="{{ start_t|date:'Y-m-d' }}">
+                                        value="{{ form.start.value|date:'Y-m-d' }}">
                             </div>
                             <div class="col-4">
                                 <input type="time" class="form-control"
                                         name="{{ form.start.name }}_time" id="{{ form.start.name }}_time"
-                                        value="{{ start_t|date:'H:i' }}">
+                                        value="{{ form.start.value|date:'H:i' }}">
                             </div>
                         </div>
                     </div>
@@ -221,12 +252,12 @@
                             <div class="col-8">
                                 <input type="date" class="form-control"
                                         name="{{ form.end.name }}_date" id="{{ form.end.id_for_label }}_date"
-                                        value="{{ end_t|date:'Y-m-d' }}">
+                                        value="{{ form.end.value|date:'Y-m-d' }}">
                             </div>
                             <div class="col-4">
                                 <input type="time" class="form-control"
                                         name="{{form.end.name}}_time" id="{{ form.end.name }}_time"
-                                        value="{{ end_t|date:'H:i' }}" >
+                                        value="{{ form.end.value|date:'H:i' }}" >
                             </div>
                         </div>
                     </div>
@@ -234,7 +265,6 @@
                     <div class="mt-2">
                         <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Vises på skjermen:" %}</label>
                         {{form.display_layouts}}
-                        
                     </div>
     
                     <div class="row">
@@ -390,56 +420,91 @@
         </div>
 
         <div class="tab-pane fade" id="ex1-tabs-4" role="tabpanel" aria-labelledby="ex1-tabs-4">
-            <div class="alert alert-info small">
-                <i class="fas fa-info-circle"></i>
-                Buffere blir opprettet som egne hendelser før og etter aktiviteten.
-            </div>
-
-            <table class="table">
-                <thead></thead>
-                <tbody>
-                    <tr>
-                        <th colspan="3" class="fw-bold">Buffer før aktiviteten:</th>
-                    </tr>
-                    <tr>
-                        <td>
-                            Fra ({{ form.before_buffer_start.value }})
-                            <div class="form-outline">
-                                <input type="time" id="buffer_before_start" value="{{ form.before_buffer_start.value }}" class="form-control" />
-                            </div>
-                        </td>
-                        <td>
-                            Til ({{ form.before_buffer_end.value }})
-                            <div class="form-outline">
-                                <input type="time" id="buffer_before_end" value="{{ form.before_buffer_end.value }}" class="form-control" />
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th colspan="3" class="fw-bold">Buffer etter aktiviteten:</th>
-                    </tr>
-                    <tr>
-                        <td>
-                            Fra ({{ form.after_buffer_start.value }})
-                            <div class="form-outline">
-                                <input type="time" id="buffer_after_start" value="{{ form.after_buffer_start.value }}" class="form-control" />
-                            </div>
-                        </td>
-                        <td>
-                            Til ({{ form.after_buffer_end.value }})
-                            <div class="form-outline">
-                                <input type="time" id="buffer_after_end" value="{{ form.after_buffer_end.value }}" class="form-control" />
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="clearfix">
-                <div class="float-end">
-                    <a class="btn btn-md btn-success text-white" type="button" onclick="inspectEventDialog__save()"><i class="fas fa-save"></i>&nbsp; Lagre</a>
+            {% if not object.is_buffer_event %}
+                <div class="alert alert-info small">
+                    <i class="fas fa-info-circle"></i>
+                    Rigg "buffere" blir opprettet som egne hendelser før og etter aktiviteten.
+                    <div>
+                        Det betyr at om du endrer tidene på aktivitetene så vil denne forandringen også reflekteres her.
+                        Vis versa så kan du også endre tidene her, og det vil endre tidene på rigging aktivitetene.
+                    </div>
                 </div>
+
+                <table class="table table-bordered table-sm">
+                    <thead></thead>
+                    <tbody>
+                        <tr style="background-color: whitesmoke;">
+                            <th colspan="3" class="fw-bold">
+                                {% if object.buffer_before_event %}
+                                <div class="clearfix">
+                                    <h5 class="float-start">Opprigg</h6>
+
+                                    <div class="float-end">
+                                        <a href="#" onclick="inspectEventDialog__inspectOtherEvent({{object.buffer_before_event.pk}})" class="btn btn-sm btn-white">Åpne aktivitet</a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                Fra
+                                <div class="form-outline">
+                                    <input type="time" id="buffer_before_start" value="{{ form.before_buffer_start.value|date:'H:i' }}" class="form-control" />
+                                </div>
+                            </td>
+                            <td>
+                                Til
+                                <div class="form-outline">
+                                    <input type="time" id="buffer_before_end" value="{{ form.before_buffer_end.value|date:'H:i' }}" class="form-control" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="background-color: whitesmoke;">
+                            <th colspan="3" class="fw-bold" 
+                            style="justify-content: center; align-items:center;">
+                                {% if object.buffer_after_event %}
+                                <h5 class="float-start">Nedrigg</h5>
+                                <a href="#" class="btn btn-sm btn-white float-end" onclick="inspectEventDialog__inspectOtherEvent({{object.buffer_after_event.pk}})">Åpne aktivitet</a>
+                                {% endif %}
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                Fra
+                                <div class="form-outline">
+                                    <input type="time" id="buffer_after_start" value="{{ form.after_buffer_start.value|date:'H:i' }}" class="form-control" />
+                                </div>
+                            </td>
+                            <td>
+                                Til
+                                <div class="form-outline">
+                                    <input type="time" id="buffer_after_end" value="{{ form.after_buffer_end.value|date:'H:i' }}" class="form-control" />
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="clearfix">
+                    <div class="float-end">
+                        <a class="btn btn-md btn-success text-white" type="button" onclick="inspectEventDialog__save()"><i class="fas fa-save"></i>&nbsp; Lagre</a>
+                    </div>
+                </div>
+            {% else %}
+            <div class="p-3">
+                <h3 class="text-center text-muted"><i class="fas fa-info-circle"></i></h3>
+                <hr>
+                <h6 class="text-center">Denne hendelsen er en opprigg/nedrigg hendelse og du kan dermed ikke definere opprigg/nedrigg tider på denne hendelsen.</h6>
+                
+                <h6 class="mt-4 text-center">
+                    Om du ønsker å endre tider på opprigg/nedrigg så kan du redigere tiden på denne aktiviteten. Denne forandringen vil speiles 
+                    til opprigg/nedrigg tidene definert på "hoved-aktiviteten" som disse rigg aktivitetene omhandler.
+                </h6>
             </div>
+            {% endif %}
         </div>
     </div>
 
@@ -450,6 +515,14 @@
 <script>
     var peopleMap = new Map();
     var roomsMap = new Map();
+
+    function inspectEventDialog__inspectOtherEvent(eventId) {
+        document.dispatchEvent(
+            new CustomEvent("eventInspector.inspectEventDialog.trigger", { "detail": {
+                pk: eventId
+            }})
+        )
+    }
 
     function inspectEventDialog__deleteFile(fileId) {
         fetch(`/arrangement/event/{{object.pk}}/files/${fileId}/delete`, {
@@ -649,7 +722,11 @@
             people: inspectEventDialog__getSelectedPeopleIds(),
             rooms: inspectEventDialog__getSelectedRoomIds(),
             display_layouts: [...document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
-                                .map(element => element.value)
+                                .map(element => element.value),
+            before_buffer_start: $('#buffer_before_start').val() != undefined ? $('#buffer_before_start').val() : "",
+            before_buffer_end: $('#buffer_before_end').val() != undefined ? $('#buffer_before_end').val() : "",
+            after_buffer_start: $('#buffer_after_start').val() != undefined ? $('#buffer_after_start').val() : "",
+            after_buffer_end: $('#buffer_after_end').val() != undefined ? $('#buffer_after_end').val() : "",
         };
 
         document.dispatchEvent(

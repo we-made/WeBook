@@ -434,3 +434,11 @@ export function convertObjToFormData(obj, convertArraysToList=false) {
     
     return formData;
 }
+
+/**
+ * Get the clients timezone
+ * @returns string with the clients timezone
+ */
+export function getClientTimezone() {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}

@@ -11,7 +11,12 @@ export class EventInspector {
                     new Dialog({
                         dialogElementId: "inspectEventDialog",
                         triggerElementId: "_inspectEventDialog",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
+                            if (context.lastTriggererDetails !== undefined && context.lastTriggererDetails.pk !== undefined) {
+                                context.event.pk = context.lastTriggererDetails.pk;
+                            }
+
                             return await fetch("/arrangement/planner/dialogs/event_inspector/" + context.event.pk)
                                 .then(response => response.text());
                         },

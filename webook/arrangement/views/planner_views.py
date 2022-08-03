@@ -391,17 +391,6 @@ class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
     pk_url_kwarg="pk"
     template_name="arrangement/planner/dialogs/arrangement_dialogs/inspectEventDialog.html"
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        ctx = super().get_context_data(**kwargs)
-        obj = self.get_object()
-
-        # This is stupid, even for me.
-        # Needs to be refactored promptly!!
-        ctx["start_t"] = obj.start + timedelta(hours=2)
-        ctx["end_t"] = obj.end + timedelta(hours=2)
-
-        return ctx
-
 planner_event_inspector_dialog_view = PlannerEventInspectorDialogView.as_view()
 
 
@@ -413,7 +402,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/arrangementInfoDialog.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context =  super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         arrangement_in_focus = self.get_object()
         sets = {}

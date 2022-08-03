@@ -2,8 +2,12 @@ from datetime import datetime
 from typing import Optional, Tuple
 from django import forms
 from django.forms import CharField, fields
+import pytz
+from django.utils import timezone as dj_timezone
+
 
 from webook.arrangement.models import Event
+from webook.utils.utc_to_current import utc_to_current
 
 _ALWAYS_FIELDS = ( "title",
                    "title_en",
@@ -24,6 +28,12 @@ _ALWAYS_FIELDS = ( "title",
 
 
 class BaseEventForm(forms.ModelForm):
+
+    before_buffer_start = forms.TimeField(required=False)
+    before_buffer_end = forms.TimeField(required=False)
+    after_buffer_start = forms.TimeField(required=False)
+    after_buffer_end = forms.TimeField(required=False)
+
     def save(self, commit: bool=True):
         if self.instance.serie is not None:
             """ 
@@ -33,12 +43,21 @@ class BaseEventForm(forms.ModelForm):
             """
             self.instance.degrade_to_association_status(commit=False)
 
-        if self.instance.buffer_before_event:
-            self.instance.buffer_before_event.delete()
-        if self.instance.buffer_after_event:
-            self.instance.buffer_after_event.delete()
-
         super().save(commit)
+
+        current_tz = pytz.timezone(dj_timezone.get_current_timezone().key)
+
+        if self.instance.is_buffer_event:
+            if self.instance.before_buffer_for.exists():
+                pre_buffering_event = self.instance.before_buffer_for.get()
+                pre_buffering_event.before_buffer_start = utc_to_current(self.instance.start).strftime("%H:%M")
+                pre_buffering_event.before_buffer_end = utc_to_current(self.instance.end).strftime("%H:%M")
+                pre_buffering_event.save()
+            if self.instance.after_buffer_for.exists():
+                post_buffering_event = self.instance.after_buffer_for.get()
+                post_buffering_event.after_buffer_start = utc_to_current(self.instance.start).strftime("%H:%M")
+                post_buffering_event.after_buffer_end = utc_to_current(self.instance.end).strftime("%H:%M")
+                post_buffering_event.save()
 
         _ : Tuple[Optional[Event], Optional[Event]] = self.instance.refresh_buffers()
 

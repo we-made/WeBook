@@ -4,6 +4,7 @@ from datetime import datetime, time, timedelta
 from typing import List, Optional
 
 from dateutil.relativedelta import *
+from pytz import timezone
 
 from webook.arrangement.models import PlanManifest
 
@@ -52,6 +53,7 @@ class _CycleInstruction:
     day_of_week: Optional[int]
     day_index: Optional[int]
     month: Optional[int]
+    tz: timezone
 
 
 @dataclass
@@ -61,6 +63,7 @@ class _RecurrenceInstruction:
     stop_within_date: datetime
     instances: Optional[int]
     projection_distance_in_months: Optional[int]
+    tz: timezone
 
 
 def _days_to_dict (serie_manifest: PlanManifest) -> dict:
@@ -141,8 +144,8 @@ def _pattern_strategy_daily_every_weekday(cycle: _CycleInstruction) -> _Event:
     while cycle.start_date.weekday() in [5,6]:
         cycle.start_date += timedelta(days = 1)
 
-    cycle.event.start = datetime.combine(cycle.start_date, cycle.event.start)
-    cycle.event.end = datetime.combine(cycle.start_date, cycle.event.end)
+    cycle.event.start = cycle.tz.localize(datetime.combine(cycle.start_date, cycle.event.start))
+    cycle.event.end = cycle.tz.localize(datetime.combine(cycle.start_date, cycle.event.end))
 
     cycle.start_date += relativedelta(days=1)
 
@@ -247,7 +250,7 @@ def _area_strategy_stopwithin(recurrence_instructions: _RecurrenceInstruction) -
     """
     return _Scope(
         start_date=recurrence_instructions.start_date,
-        stop_within_date=datetime.combine(recurrence_instructions.stop_within_date, datetime.max.time()),
+        stop_within_date=recurrence_instructions.tz.localize(datetime.combine(recurrence_instructions.stop_within_date, datetime.max.time())),
         instance_limit=0
     )
 
@@ -271,7 +274,7 @@ def _area_strategy_no_stop_date(recurrence_instructions: _RecurrenceInstruction)
     """
     # We -1 from month move-forward to account for zero-indexing.
     tmp = recurrence_instructions.start_date + relativedelta(month = recurrence_instructions.start_date.month + ( recurrence_instructions.projection_distance_in_months - 1)) 
-    stop_within_date = datetime.combine(tmp.replace( day = calendar.monthrange( tmp.year, tmp.month )[1] ), datetime.max.time())
+    stop_within_date = recurrence_instructions.tz.localize(datetime.combine(tmp.replace( day = calendar.monthrange( tmp.year, tmp.month )[1] ), datetime.max.time()))
 
     return _Scope(
         start_date=recurrence_instructions.start_date,
@@ -297,7 +300,7 @@ _area_strategies = {
 }
 
 
-def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
+def calculate_serie(serie_manifest: PlanManifest, tz=timezone("Europe/Oslo")) -> List[_Event]:
     """ 
         Takes a serie manifest (PlanManifest) and calculates it, and returns the resulting events of said calculation.
     """
@@ -307,6 +310,7 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
         stop_within_date = serie_manifest.stop_within,
         instances = serie_manifest.stop_after_x_occurences,
         projection_distance_in_months = serie_manifest.project_x_months_into_future,
+        tz=tz
     )
 
     area_strategy = _area_strategies[serie_manifest.recurrence_strategy]
@@ -315,7 +319,7 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
 
     events = []
 
-    date_cursor = datetime.combine(scope.start_date, datetime.min.time())
+    date_cursor = tz.localize(datetime.combine(scope.start_date, datetime.min.time()))
     instance_cursor = 0 
     cycle_cursor = 0
 
@@ -332,6 +336,7 @@ def calculate_serie(serie_manifest: PlanManifest) -> List[_Event]:
                 day_of_week=serie_manifest.day_of_week,
                 day_index=serie_manifest.day_of_month,
                 month=serie_manifest.month,
+                tz=tz
             )
             
             result = pattern_strategy( cycle_instruction )

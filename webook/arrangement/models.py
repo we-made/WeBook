@@ -6,6 +6,7 @@ from argparse import ArgumentError
 from email.policy import default
 from enum import Enum
 from typing import Optional, Tuple
+from django.conf import settings
 
 import pytz
 from autoslug import AutoSlugField
@@ -20,7 +21,7 @@ import webook.screenshow.models as screen_models
 from webook.arrangement.managers import ArchivedManager, EventManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 from webook.utils.manifest_describe import describe_manifest
-
+from django.utils import timezone as dj_timezone
 
 class BufferFieldsMixin(models.Model):
     """Mixin for the common fields for buffer functionality"""
@@ -926,6 +927,11 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
                                              related_name="events", blank=True)
 
+    @property
+    def is_buffer_event(self) -> bool:
+        """Returns a bool indicating if this event is a buffer event for another event or not"""
+        return self.before_buffer_for.exists() or self.after_buffer_for.exists()
+
     def refresh_buffers(self) -> Tuple[Optional[Event], Optional[Event]]:
         """Manage buffers from the event instance, returning them in a tuple form
         
@@ -934,36 +940,41 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             and the second item is the post-activity buffer. Either may be None if their requisite values are not defined.
 
         """
+        current_tz = pytz.timezone(dj_timezone.get_current_timezone().key)
 
         if self.buffer_before_event:
-            self.buffer_before_event.delete()
+            self.buffer_before_event.archive(None)
+            self.buffer_befor_event = None
         if self.buffer_after_event:
-            self.buffer_after_event.delete()
+            self.buffer_after_event.archive(None)
+            self.buffer_after_event = None
 
         before_activity_buffer = after_activity_buffer = None
 
-        title = "Buffer for " + self.title
-
         if self.before_buffer_start and self.before_buffer_end:
             before_activity_buffer = Event()
-            before_activity_buffer.title = title
+            before_activity_buffer.title = "Opprigg for " + self.title
             before_activity_buffer.arrangement = self.arrangement   
-            before_activity_buffer.start = datetime.datetime.combine(self.start, self.before_buffer_start)
-            before_activity_buffer.end = datetime.datetime.combine(self.start, self.before_buffer_end)
+            before_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.start, self.before_buffer_start))
+            before_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.start, self.before_buffer_end))
             before_activity_buffer.save()
             before_activity_buffer.rooms.set(self.rooms.all())
             before_activity_buffer.people.set(self.people.all())
             before_activity_buffer.save()
+            self.buffer_before_event = before_activity_buffer
+            self.save()
         if self.after_buffer_start and self.after_buffer_end:
             after_activity_buffer = Event()
-            after_activity_buffer.title = title
+            after_activity_buffer.title = "Nedrigg for " + self.title
             after_activity_buffer.arrangement = self.arrangement
-            after_activity_buffer.start = datetime.datetime.combine(self.end, self.after_buffer_start)
-            after_activity_buffer.end = datetime.datetime.combine(self.end, self.after_buffer_end)
+            after_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.end, self.after_buffer_start))
+            after_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.end, self.after_buffer_end))
             after_activity_buffer.save()
             after_activity_buffer.rooms.set(self.rooms.all())
             after_activity_buffer.people.set(self.people.all())
             after_activity_buffer.save()
+            self.buffer_after_event = after_activity_buffer
+            self.save()
 
         return (before_activity_buffer, after_activity_buffer)
 
@@ -1140,6 +1151,15 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     rooms =  models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout)
+
+    timezone = models.CharField(
+        default=settings.TIME_ZONE,
+        max_length=124,
+    )
+
+    @property
+    def tz(self):
+        return pytz.timezone(self.timezone)
 
     @property
     def schedule_description(self):

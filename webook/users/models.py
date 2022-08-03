@@ -1,9 +1,11 @@
 from autoslug import AutoSlugField
+from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+import pytz
 
 import webook.arrangement.models
 from webook.arrangement.models import Person
@@ -55,6 +57,9 @@ class User(AbstractUser):
 
     person = models.ForeignKey(Person, blank=True, null=True, on_delete=models.RESTRICT)
     slug = AutoSlugField(populate_from="_get_slug", blank=True, unique=True)
+
+    TIMEZONE_CHOICES = zip(pytz.all_timezones, pytz.all_timezones)
+    timezone = models.CharField(max_length=255, default=settings.USER_DEFAULT_TIMEZONE)
 
     objects = CustomUserManager()
 
