@@ -8,7 +8,7 @@ class TimezoneMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.user:
+        if request.user.pk:
             timezone.activate(zoneinfo.ZoneInfo(request.user.timezone))
         else:
             timezone.deactivate()
