@@ -86,85 +86,18 @@
 <script src="https://dragselect.com/v2/ds.min.js"></script>
 <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
 
-<style>
-    legend.group-border {
-        font-family: 'Roboto', sans-serif;
-        font-size: 1.2em !important;
-        font-weight: bold !important;
-        text-align: left !important;
-        width: auto;
-        padding: 0 10px;
-        border-bottom: none;
-    }
-    fieldset.group-border {
-        border: 1px groove #ddd !important;
-        padding: 0 1.4em 1.4em 1.4em !important;
-        margin: 0 0 1.5em 0 !important;
-        -webkit-box-shadow: 0px 0px 0px 0px #000;
-        box-shadow: 0px 0px 0px 0px #000;
-    }
-</style>
-
 
 <div class="mt-4" id="plannerCalendarFilter">
     <div class="row">
         <div class="col-4">
     
         </div>
-        <!-- <div class="col-10">
-            <h4>Lokasjoner</h4>
-            <div class="row">
-                {% for location in LOCATIONS %}
-                    <div class="col-3">
-                        <div class="card shadow-0 wb-bg-secondary">
-                            <div class="card-body">
-                                <h3>{{location}}</h3>
-                                <div class="form-check">
-                                    <input class="form-check-input" name="filterLocationsCheckboxArray" type="checkbox" value="{{location.slug}}" id="locationFilterCheckBox_{{location_slug}}" checked/>
-                                    <label class="form-check-label" for="locationFilterCheckBox_{{location_slug}}">Vis i kalender</label>
-                                </div>
-                                <button class="btn shadow-0 mt-3 btn-webook btn-sm filterLocationBtn" value="{{location.slug}}"
-                                    data-mdb-toggle="tooltip" type="button"
-                                    title="Filtrer rom under denne lokasjonen.">
-                                    <i class="fas fa-filter"></i> Filtrer på rom
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div> -->
     </div>
 </div>
 
 {% endblock %}
 
 {% block content %}
-
-<style>
-      .popover_wrapper {
-        position: relative;
-        display: inline-block;
-      }
-
-      .popover_content {
-        visibility: hidden;
-        position: absolute;
-        box-shadow: 0 1px 20px 1px  grey!important;
-        left: -45rem;
-        transform: translate(0, 10px);
-        background-color: white;
-        padding: 1.5rem;
-        border: solid 1px grey;
-      }
-      
-      .popover_wrapper.active .popover_content {
-        z-index: 10;
-        width: 45rem;
-        visibility: visible;
-        transition: all 0.5s cubic-bezier(0.75, -0.02, 0.2, 0.97);
-      }
-</style>
 
 <div class="row">
     <div class="col-12">
@@ -188,9 +121,6 @@
                         </a>
                     </li>
                 </ul>
-            </div>
-            <div class="float-end">
-        
             </div>
         </div>
         
@@ -224,14 +154,12 @@
                         <i class="fas fa-building"></i>&nbsp;
                         Arrangementstyper
                         <i class="fas fa-angle-down"></i>
-
                     </button>
                     <span id="arrangement-type-popover-filter-content">
                     </span>
                 </div>
             </div>
         </div>
-
 
         <div class="tab-content" id="calendars">
             <div class="tab-pane show active" id="universeCalendar" role="tabpanel" aria-labelledby="universeCalendar-tab">

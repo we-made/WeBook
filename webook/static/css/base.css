@@ -159,3 +159,27 @@
 .interactiveTable tr:hover {
     background-color: var(--SECONDARY-COLOR);
 }
+
+
+.popover_wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+.popover_content {
+    visibility: hidden;
+    position: absolute;
+    box-shadow: 0 1px 20px 1px  grey!important;
+    left: -45rem;
+    transform: translate(0, 10px);
+    background-color: white;
+    padding: 1.5rem;
+    border: solid 1px grey;
+}
+
+.popover_wrapper.active .popover_content {
+    z-index: 10;
+    width: 45rem;
+    visibility: visible;
+    transition: all 0.5s cubic-bezier(0.75, -0.02, 0.2, 0.97);
+}
