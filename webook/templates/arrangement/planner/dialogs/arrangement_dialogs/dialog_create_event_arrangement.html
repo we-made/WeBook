@@ -384,27 +384,28 @@
             return;
         }
 
+        let $dialog = $('#{{dialog}}');
         let qualifiedEvent = {
-            _uuid: $('#event_uuid').val(),
-            title: $('#title').val(),
-            title_en: $('#title_en').val(),
-            ticket_code: $('#ticket_code').val(),
-            expected_visitors: $('#expected_visitors').val(),
-            start: new Date( $('#fromDate').val() + "T" + $('#fromTime').val() ),
-            end: new Date( $('#toDate').val() + "T" + $('#toTime').val() ),
-            arrangement: 0,
-            rooms: dialogCreateEvent__getSelectedRoomIds(),
-            people: dialogCreateEvent__getSelectedPeopleIds(),
-            people_name_map: peopleNameMap, // Kept due to edit - not pertinent for save
-            room_name_map: roomsNameMap,    // Kept due to edit - not pertinent for save
-            before_buffer_start: document.getElementById('buffer_before_start').value,
-            before_buffer_end: document.getElementById('buffer_before_end').value,
-            after_buffer_start: document.getElementById('buffer_after_start').value,
-            after_buffer_end: document.getElementById('buffer_after_end').value,
+            _uuid:                      $dialog.find('#event_uuid').val(),
+            title:                      $dialog.find('#title').val(),
+            title_en:                   $dialog.find('#title_en').val(),
+            ticket_code:                $dialog.find('#ticket_code').val(),
+            expected_visitors:          $dialog.find('#expected_visitors').val(),
+            start:                      new Date( $dialog.find('#fromDate').val()   + "T" + $dialog.find('#fromTime').val() ),
+            end:                        new Date( $dialog.find('#toDate').val()     + "T" + $dialog.find('#toTime').val() ),
+            arrangement:                0,
+            rooms:                      dialogCreateEvent__getSelectedRoomIds(),
+            people:                     dialogCreateEvent__getSelectedPeopleIds(),
+            people_name_map:            peopleNameMap,      // Kept due to edit - not pertinent for save
+            room_name_map:              roomsNameMap,       // Kept due to edit - not pertinent for save
+            before_buffer_start:        $dialog.find('#buffer_before_start').val() ?? "",
+            before_buffer_end:          $dialog.find('#buffer_before_end').val() ?? "",
+            after_buffer_start:         $dialog.find('#buffer_after_start').val() ?? "",
+            after_buffer_end:           $dialog.find('#buffer_after_end').val() ?? "",
         };
 
         qualifiedEvent.display_layouts = 
-            [...document.querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
+            [...document.querySelectorAll("#{{dialog}} input[name='display_layouts_create_event'][type='checkbox']:checked")]
                 .map(element => element.value);
 
         document.dispatchEvent(

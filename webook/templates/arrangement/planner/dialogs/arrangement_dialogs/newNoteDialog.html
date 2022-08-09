@@ -43,8 +43,9 @@
     })
 
     function submitNote() {
+        let $dialog = $('#{{dialog}}');
         let data = new FormData(
-            document.getElementById('noteForm')
+            $dialog.find('#noteForm')[0]
         );
         data.append("content", editor.root.innerHTML);
         data.append('csrfmiddlewaretoken', "{{ csrf_token }}");

@@ -7,10 +7,10 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
     $('#serie_ticket_code').val(serie.time.ticket_code);
     $('#serie_expected_visitors').val(serie.time.expected_visitors);
     $('#area_start_date').val(serie.time_area.start_date);
-    $('#buffer_before_start').val(serie.buffer.before.start);
-    $('#buffer_before_end').val(serie.buffer.before.end);
-    $('#buffer_after_start').val(serie.buffer.after.start);
-    $('#buffer_after_end').val(serie.buffer.after.end);
+    $('#buffer_before_start').val(serie.buffer.before?.start);
+    $('#buffer_before_end').val(serie.buffer.before?.end);
+    $('#buffer_after_start').val(serie.buffer.after?.start);
+    $('#buffer_after_end').val(serie.buffer.after?.end);
 
     // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
     // has "selected" rooms as they would through the dialog interface.

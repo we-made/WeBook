@@ -27,6 +27,10 @@ serie_calculator.py
 """
 
 
+class LikelyInfiniteLoopException(Exception):
+    pass
+
+
 @dataclass
 class _Scope:
     start_date: datetime
@@ -129,10 +133,10 @@ def _pattern_strategy_daily_every_x_day(cycle: _CycleInstruction) -> _Event:
         interval (or more aptly a spacer).
     """
     if cycle.cycle != 0:
-        cycle.start_date += timedelta(days = cycle.interval - 1)
+        cycle.start_date += timedelta(days = cycle.interval)
     
-    cycle.event.start = datetime.combine(cycle.start_date, cycle.event.start)
-    cycle.event.end = datetime.combine(cycle.start_date, cycle.event.end)
+    cycle.event.start = cycle.tz.localize(datetime.combine(cycle.start_date, cycle.event.start))
+    cycle.event.end = cycle.tz.localize(datetime.combine(cycle.start_date, cycle.event.end))
 
     return cycle.event
 
@@ -170,8 +174,8 @@ def _pattern_strategy_weekly_standard(cycle: _CycleInstruction) -> List[_Event]:
             adjusted_start_date = cycle.start_date + timedelta(days=counter)
             events.append(_Event(
                 title=cycle.event.title,
-                start=datetime.combine(adjusted_start_date, cycle.event.start),
-                end=datetime.combine(adjusted_start_date, cycle.event.end)
+                start=cycle.tz.localize(datetime.combine(adjusted_start_date, cycle.event.start)),
+                end=cycle.tz.localize(datetime.combine(adjusted_start_date, cycle.event.end)),
             ))
         
         counter += 1
@@ -192,8 +196,8 @@ def _pattern_strategy_every_x_day_every_y_month(cycle: _CycleInstruction) -> _Ev
         return
 
     adjusted_date = cycle.start_date.replace(day=cycle.day_of_month)
-    cycle.event.start = datetime.combine(adjusted_date, cycle.event.start)
-    cycle.event.end = datetime.combine(adjusted_date, cycle.event.end)
+    cycle.event.start = cycle.tz.localize(datetime.combine(adjusted_date, cycle.event.start))
+    cycle.event.end = cycle.tz.localize(datetime.combine(adjusted_date, cycle.event.end))
 
     return cycle.event
 
@@ -207,8 +211,8 @@ def _pattern_strategy_every_arbitrary_date_of_month(cycle: _CycleInstruction) ->
         cycle.start_date = cycle.start_date + relativedelta( months = cycle.interval )
     
     date = _day_seek(cycle.start_date, int(cycle.arbitrator), cycle.day_of_week)
-    cycle.event.start = datetime.combine(date, cycle.event.start)
-    cycle.event.end = datetime.combine(date, cycle.event.end)
+    cycle.event.start = cycle.tz.localize(datetime.combine(date, cycle.event.start))
+    cycle.event.end = cycle.tz.localize(datetime.combine(date, cycle.event.end))
     cycle.start_date = date
 
     return cycle.event
@@ -223,8 +227,8 @@ def _pattern_strategy_yearly_every_x_of_month(cycle: _CycleInstruction) -> _Even
         cycle.start_date = cycle.start_date + relativedelta(year = cycle.start_date.year + cycle.interval)
     
     cycle.start_date = cycle.start_date.replace(month=cycle.month, day=cycle.day_index)
-    cycle.event.start = datetime.combine(cycle.start_date, cycle.event.start)
-    cycle.event.end = datetime.combine(cycle.start_date, cycle.event.end)
+    cycle.event.start = cycle.tz.localize(datetime.combine(cycle.start_date, cycle.event.start))
+    cycle.event.end = cycle.tz.localize(datetime.combine(cycle.start_date, cycle.event.end))
 
     return cycle.event
 
@@ -238,8 +242,7 @@ def _pattern_strategy_arbitrary_weekday_in_month(cycle: _CycleInstruction) -> _E
         cycle.start_date = cycle.start_date + relativedelta(year = cycle.start_date.year + cycle.interval)
     
     date = _day_seek(cycle.start_date.replace(month=cycle.month), int(cycle.arbitrator), cycle.day_of_week)
-    cycle.event.start = datetime.combine(date, cycle.event.start)
-    cycle.event.end = datetime.combine(date, cycle.event.end)
+    cycle.event.end = cycle.tz.localize(datetime.combine(date, cycle.event.end))
 
     return cycle.event
 
@@ -325,6 +328,9 @@ def calculate_serie(serie_manifest: PlanManifest, tz=timezone("Europe/Oslo")) ->
 
     while (scope.stop_within_date is not None and date_cursor < scope.stop_within_date
             or (scope.instance_limit != 0 and scope.instance_limit >= (instance_cursor + 1))):
+            if cycle_cursor > 15000:
+                raise LikelyInfiniteLoopException("calculate_serie is in a likely infinite loop, as defined by threshold")
+
             cycle_instruction = _CycleInstruction(
                 cycle=cycle_cursor,
                 start_date=date_cursor,
@@ -363,7 +369,7 @@ def calculate_serie(serie_manifest: PlanManifest, tz=timezone("Europe/Oslo")) ->
 
             cycle_cursor += 1
     
-    events = list(filter(lambda e: e.start.date() < scope.stop_within_date.date(), events))
+    events = list(filter(lambda e: e.start.date() <= scope.stop_within_date.date(), events))
 
     return events
     

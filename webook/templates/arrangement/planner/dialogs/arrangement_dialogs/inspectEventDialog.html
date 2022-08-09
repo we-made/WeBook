@@ -457,12 +457,6 @@
                         </tr>
                     </tbody>
                 </table>
-
-                <!-- <div class="clearfix">
-                    <div class="float-end">
-                        <a class="btn btn-md btn-success text-white" type="button" onclick="inspectEventDialog__save()"><i class="fas fa-save"></i>&nbsp; Lagre</a>
-                    </div>
-                </div> -->
             {% else %}
             <div class="p-3">
                 <h3 class="text-center text-muted"><i class="fas fa-info-circle"></i></h3>
@@ -704,24 +698,25 @@
         let dateTimeStartMdbInstance = mdb.Datetimepicker.getInstance(document.getElementById('startDateTime'));
         let dateTimeEndMdbInstance = mdb.Datetimepicker.getInstance(document.getElementById('endDateTime'));
 
+        let $dialog = $('#inspectEventDialog');
         let qualifiedEvent = {
-            id: '{{object.pk}}',
-            title: $('#id_title').val(),
-            title_en: $('#id_title_en').val(),
-            ticket_code: $('#id_ticket_code').val(),
-            start: getDateISOStringFromMdbDateTimePickerInstance(dateTimeStartMdbInstance),
-            end: getDateISOStringFromMdbDateTimePickerInstance(dateTimeEndMdbInstance),
-            expected_visitors: $('#id_expected_visitors').val(),
-            actual_visitors: $('#id_actual_visitors').val(),
-            arrangement: '{{object.arrangement.pk}}',
-            people: inspectEventDialog__getSelectedPeopleIds(),
-            rooms: inspectEventDialog__getSelectedRoomIds(),
-            display_layouts: [...document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
-                                .map(element => element.value),
-            before_buffer_start: $('#buffer_before_start').val() != undefined ? $('#buffer_before_start').val() : "",
-            before_buffer_end: $('#buffer_before_end').val() != undefined ? $('#buffer_before_end').val() : "",
-            after_buffer_start: $('#buffer_after_start').val() != undefined ? $('#buffer_after_start').val() : "",
-            after_buffer_end: $('#buffer_after_end').val() != undefined ? $('#buffer_after_end').val() : "",
+            id:                 '{{object.pk}}',
+            title:              $dialog.find('#id_title').val(),
+            title_en:           $dialog.find('#id_title_en').val(),
+            ticket_code:        $dialog.find('#id_ticket_code').val(),
+            start:              getDateISOStringFromMdbDateTimePickerInstance(dateTimeStartMdbInstance),
+            end:                getDateISOStringFromMdbDateTimePickerInstance(dateTimeEndMdbInstance),
+            expected_visitors:  $dialog.find('#id_expected_visitors').val(),
+            actual_visitors:    $dialog.find('#id_actual_visitors').val(),
+            arrangement:        '{{object.arrangement.pk}}',
+            people:             inspectEventDialog__getSelectedPeopleIds(),
+            rooms:              inspectEventDialog__getSelectedRoomIds(),
+            display_layouts:    [...document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
+                                    .map(element => element.value),
+            before_buffer_start:$dialog.find('#buffer_before_start').val() != undefined ? $('#buffer_before_start').val() : "",
+            before_buffer_end:  $dialog.find('#buffer_before_end').val() != undefined ? $('#buffer_before_end').val() : "",
+            after_buffer_start: $dialog.find('#buffer_after_start').val() != undefined ? $('#buffer_after_start').val() : "",
+            after_buffer_end:   $dialog.find('#buffer_after_end').val() != undefined ? $('#buffer_after_end').val() : "",
         };
 
         document.dispatchEvent(

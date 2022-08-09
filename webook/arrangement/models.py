@@ -99,7 +99,7 @@ class ModelTicketCodeMixin(models.Model):
 
 class ModelVisitorsMixin(models.Model):
     expected_visitors = models.IntegerField(verbose_name=_("Expected visitors"), default=0)
-    actual_visitors = models.IntegerField(verbose_name=_("Actual visitors"), default=0)
+    actual_visitors = models.IntegerField(verbose_name=_("Actual visitors"), default=0, blank=True, null=True)
 
     class Meta:
         abstract = True

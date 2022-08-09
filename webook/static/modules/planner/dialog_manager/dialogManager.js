@@ -126,6 +126,10 @@ export class DialogManager {
         this._dialogRepository = new Map(dialogs);
         this.context = {};
     }
+    
+    $getDialogElement(dialogId) {
+        return this._dialogRepository.get(dialogId)._$getDialogEl();
+    }
 
     setContext(ctxObj) {
         this.context = ctxObj;
@@ -217,6 +221,7 @@ export class DialogManager {
                 }
 
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
+                    console.log(`${this.managerName}.${triggerName}.trigger`, event.detail);
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
                 });

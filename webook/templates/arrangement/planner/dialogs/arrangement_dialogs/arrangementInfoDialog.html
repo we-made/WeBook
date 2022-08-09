@@ -533,7 +533,7 @@
             </div>
             
             {% for note in object.notes.all %}
-            <div class="shadow-3 p-3 wb-bg-secondary border-bottom {% if note.has_personal_information %}border-warning{% else %}border-success{% endif %}" id="note_{{note.pk}}">
+            <div class="shadow-3 p-3 border-bottom {% if note.has_personal_information %}border-warning{% else %}border-success{% endif %}" id="note_{{note.pk}}">
                 {{note.content|safe}}
 
                 <div class="clearfix">
@@ -676,19 +676,20 @@
         let csrf_token="{{csrf_token}}"
 
         let formData = new FormData();
-        formData.append("name",             $('#id_name').val());
-        formData.append("name_en",          $('#id_name_en').val());
-        formData.append("audience",         $('#id_audience').val());
-        formData.append("location",         $('#id_location').val());
-        formData.append("arrangement_type", $('#id_arrangement_type').val());
-        formData.append("ticket_code",      $('#id_ticket_code').val());
-        formData.append("meeting_place",    $('#id_meeting_place').val());
-        formData.append("meeting_place_en", $('#id_meeting_place_en').val());
-        formData.append("expected_visitors",$('#id_expected_visitors').val());
-        formData.append("actual_visitors",  $('#id_actual_visitors').val());
-        formData.append("display_text",$('#id_display_text').val());
-        formData.append("display_text_en",$('#id_display_text_en').val());
-        formData.append("csrfmiddlewaretoken","{{ csrf_token }}");
+        var $dialog = $('#mainDialog');
+        formData.append("name",                 $dialog.find('#id_name').val());
+        formData.append("name_en",              $dialog.find('#id_name_en').val());
+        formData.append("audience",             $dialog.find('#id_audience').val());
+        formData.append("location",             $dialog.find('#id_location').val());
+        formData.append("arrangement_type",     $dialog.find('#id_arrangement_type').val());
+        formData.append("ticket_code",          $dialog.find('#id_ticket_code').val());
+        formData.append("meeting_place",        $dialog.find('#id_meeting_place').val());
+        formData.append("meeting_place_en",     $dialog.find('#id_meeting_place_en').val());
+        formData.append("expected_visitors",    $dialog.find('#id_expected_visitors').val());
+        formData.append("actual_visitors",      $dialog.find('#id_actual_visitors').val());
+        formData.append("display_text",         $dialog.find('#id_display_text').val());
+        formData.append("display_text_en",      $dialog.find('#id_display_text_en').val());
+        formData.append("csrfmiddlewaretoken",  "{{ csrf_token }}");
 
         let displayLayouts = [];
         document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {

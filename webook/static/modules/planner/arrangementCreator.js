@@ -81,18 +81,26 @@ export class ArrangementCreator {
                         },
                         onRenderedCallback: (dialogManager, context) => {
                             if (context.lastTriggererDetails === undefined) {
-                                $('#serie_ticket_code').attr('value', $('#id_ticket_code')[0].value );
-                                $('#serie_title').attr('value', $('#id_name')[0].value );
-                                $('#serie_title_en').attr('value', $('#id_name_en')[0].value );
-                                $('#serie_expected_visitors').attr('value', $('#id_expected_visitors')[0].value );
+                                let $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
+                                let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
 
-                                document.querySelectorAll("input[name='display_layouts']:checked")
+                                $thisDialog.find('#serie_ticket_code')
+                                    .attr('value', $mainDialog.find('#id_ticket_code')[0].value);
+                                $thisDialog.find('#serie_title')
+                                    .attr('value', $mainDialog.find('#id_name')[0].value);
+                                $thisDialog.find('#serie_title_en')
+                                    .attr('value', $mainDialog.find('#id_name_en')[0].value);
+                                $thisDialog.find('#serie_expected_visitors')
+                                    .attr('value', $mainDialog.find('#id_expected_visitors')[0].value);
+
+                                document.querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
-                                        $('#id_display_layouts_serie_planner_' + checkboxElement.value)
+                                        $thisDialog.find('#id_display_layouts_serie_planner_' + checkboxElement.value)
                                             .prop( "checked", true );
                                     })
 
-                                $('#serie_uuid').val(crypto.randomUUID());
+                                $thisDialog.children('#serie_uuid').val(crypto.randomUUID());
+
                                 document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                     new mdb.Input(formOutline).init();
                                 });
@@ -152,10 +160,10 @@ export class ArrangementCreator {
                             let serie = context.lastTriggererDetails.serie;
                             let collisionRecord = serie.collisions[context.lastTriggererDetails.collision_index];
 
-                            $('#ticket_code').val(serie.time.ticket_code ).trigger('change');
-                            $('#title').val(serie.time.title ).trigger('change');
-                            $('#title_en').attr('value', serie.time.title_en ).trigger('change');
-                            $('#expected_visitors').attr('value', serie.time.expected_visitors ).trigger('change');
+                            $('#ticket_code').val(serie.time.ticket_code).trigger('change');
+                            $('#title').val(serie.time.title).trigger('change');
+                            $('#title_en').attr('value', serie.time.title_en).trigger('change');
+                            $('#expected_visitors').attr('value', serie.time.expected_visitors).trigger('change');
 
                             serie.display_layouts.split(",")
                                 .forEach(checkboxElement => {
@@ -262,18 +270,21 @@ export class ArrangementCreator {
                             });
 
                             if (context.lastTriggererDetails === undefined) {
-                                $('#ticket_code').attr('value', $('#id_ticket_code')[0].value );
-                                $('#title').attr('value', $('#id_name')[0].value );
-                                $('#title_en').attr('value', $('#id_name_en')[0].value );
-                                $('#expected_visitors').attr('value', $('#id_expected_visitors')[0].value );
+                                let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
+                                let $simpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
 
-                                document.querySelectorAll("input[name='display_layouts']:checked")
+                                $simpleActivityDialog.find('#ticket_code').attr('value',         $mainDialog.find('#id_ticket_code').val() );
+                                $simpleActivityDialog.find('#title').attr('value',               $mainDialog.find('#id_name').val() );
+                                $simpleActivityDialog.find('#title_en').attr('value',            $mainDialog.find('#id_name_en').val() );
+                                $simpleActivityDialog.find('#expected_visitors').attr('value',   $mainDialog.find('#id_expected_visitors').val() );
+
+                                document.querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
-                                        $(`#${checkboxElement.value}_dlcheck`)
+                                        $simpleActivityDialog.find(`#${checkboxElement.value}_dlcheck`)
                                             .prop( "checked", true );
                                     })
 
-                                $('#event_uuid').val(crypto.randomUUID());
+                                $simpleActivityDialog.find('#event_uuid').val(crypto.randomUUID());
 
                                 return;
                             }

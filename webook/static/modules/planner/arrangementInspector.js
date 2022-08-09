@@ -205,15 +205,17 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: async (dialogManager, context) => {
                             let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
-                            $('#serie_title').attr('value', info.title);
-                            $('#serie_title_en').attr('value', info.title_en);
-                            $('#serie_ticket_code').attr('value', info.ticket_code);
-                            $('#serie_expected_visitors').attr('value', info.expected_visitors);
+
+                            let $newTimePlanDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
+                            $newTimePlanDialog.find('#serie_title').attr('value', info.title);
+                            $newTimePlanDialog.find('#serie_title_en').attr('value', info.title_en);
+                            $newTimePlanDialog.find('#serie_ticket_code').attr('value', info.ticket_code);
+                            $newTimePlanDialog.find('#serie_expected_visitors').attr('value', info.expected_visitors);
 
                             info.display_layouts.forEach(display_layout => {
-                                $('#id_display_layouts_serie_planner_' + ( display_layout - 1))
+                                $newTimePlanDialog.find('#id_display_layouts_serie_planner_' + ( display_layout - 1))
                                     .prop( "checked", true );
-                            })
+                            });
 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
@@ -397,7 +399,20 @@ export class ArrangementInspector {
                             return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + context.arrangement.slug + "&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog&dialog=newSimpleActivityDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => {
+                        onRenderedCallback: async (dialogManager, context) => {
+                            let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
+
+                            let $newSimpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
+                            $newSimpleActivityDialog.find("#title").attr("value", info.title);
+                            $newSimpleActivityDialog.find("#title_en").attr("value", info.title_en);
+                            $newSimpleActivityDialog.find("#ticket_code").attr("value", info.ticket_code);
+                            $newSimpleActivityDialog.find("#expected_visitors").attr("value", info.expected_visitors);
+
+                            info.display_layouts.forEach(display_layout => {
+                                $newSimpleActivityDialog.find('#' + display_layout + "_dlcheck")
+                                    .prop("checked", true);
+                            });
+
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
