@@ -162,7 +162,7 @@
                                 Skjerm
                             </h5>
                             <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
-                                            {{form.display_layouts}}
+                            {{form.display_layouts}}
         
                             <div class="mb-2 form-outline">
                                 <input type="text"
@@ -217,32 +217,40 @@
                 </div>
 
                 <h5 class="mt-3 mb-0">Tidsplaner: </h5>
-                <a class="btn btn-md btn-success text-white btn-block shadow-0 mb-2" id="createArrangementDialog_createSerie">
-                    <i class="fas fa-calendar-week"></i>
+                <a class="btn btn-md wb-btn-secondary btn-block shadow-0 mb-2" id="createArrangementDialog_createSerie">
                     Ny tidsplan
                 </a>
 
                 <div id="timeplansBody"></div>
 
                 <h5 class="mt-3">Enkle aktiviteter: </h5>
-                <a class="btn btn-md btn-success shadow-0 text-white btn-block mb-2" id="createArrangementDialog_createSimpleActivity">
-                    <i class="fas fa-calendar-plus"></i>
+                <a class="btn btn-md wb-btn-secondary shadow-0 btn-block mb-2" id="createArrangementDialog_createSimpleActivity">
                     Ny enkel aktivitet
                 </a>
 
                 <div id="eventsBody"></div>
             </div>
         </div>
-        <a class="btn btn-lg shadow-0 text-white btn-success btn-block"
-            onclick="createArrangementDialog_submit()">
-            <i class="fas fa-save"></i>
-            Opprett Arrangement
-        </a>
+
+        <div class="clearfix">
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary btn-lg"
+                    onclick="window.dialogApi.close('{{managerName}}', 'createArrangementDialog')">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+                <a class="btn btn-lg shadow-0 wb-btn-main"
+                    onclick="createArrangementDialog_submit()">
+                    <i class="fas fa-check"></i>
+                    Opprett Arrangement
+                </a>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script>
-
     var seriesMap;
     var eventsMap;
 
@@ -305,7 +313,7 @@
             return;
         }
 
-        var formData = new FormData();
+        let formData = new FormData();
         formData.append("name",             $('#id_name').val());
         formData.append("name_en",          $('#id_name_en').val());
         formData.append("audience",         $('#id_audience').val());
@@ -326,8 +334,8 @@
 
         formData.append("csrf_token",       "{{csrf_token}}");
 
-        var seriesArray = seriesMap !== undefined ? Array.from(seriesMap.values()) : [];
-        var eventsArray = eventsMap !== undefined ? Array.from(eventsMap.values()) : [];
+        let seriesArray = seriesMap !== undefined ? Array.from(seriesMap.values()) : [];
+        let eventsArray = eventsMap !== undefined ? Array.from(eventsMap.values()) : [];
 
         document.dispatchEvent(
             new CustomEvent("{{managerName}}.submit", { "detail": {
@@ -342,7 +350,7 @@
     function setEvents(events) {
         eventsMap = events;
 
-        var tbody = $('#eventsBody');
+        let tbody = $('#eventsBody');
         tbody.html("");
 
         events.forEach(element => {
@@ -353,13 +361,13 @@
                         ${element.title}
                     </h5>
                     ${element.start.toLocaleString()} - ${element.end.toLocaleString()}
-                    <div class="btn-group">
-                        <a href="#" class="btn btn-danger text-white"
+                    <div class="btn-group shadow-0">
+                        <a href="#" class="btn wb-btn-secondary"
                             data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
                             onclick='createArrangementDialog_removeSimpleActivity("${element._uuid}")'>
                             Slett
                         </a>
-                        <a href="#" class="btn btn-success text-white"
+                        <a href="#" class="btn wb-btn-secondary"
                             data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
                             onclick='createArrangementDialog_editSimpleActivity("${element._uuid}")'>
                             Rediger
@@ -374,13 +382,13 @@
     function setSeries(series) {
         seriesMap = series;
         
-        var tbody = $('#timeplansBody');
+        let tbody = $('#timeplansBody');
         tbody.html("")
 
         series.forEach(element => {
             collisions_html = "";
             if (element.collisions !== undefined && element.collisions.length > 0) {
-                var collisionsCounter = 0;
+                let collisionsCounter = 0;
                 element.collisions.forEach(collisionRecord => {
                     collisions_html += `
                     <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}">
@@ -403,7 +411,7 @@
                             </div>
                         </div>
                         <div class="clearfix">
-                            <a href="#" class="btn btn-success text-white shadow-0"
+                            <a href="#" class="btn wb-btn-secondary shadow-0"
                                 onclick='createArrangementDialog__breakOutEvent("${element._uuid}", ${collisionsCounter})'><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
                             </a>
                         </div>
@@ -421,12 +429,12 @@
                             <h6><i class="fas fa-redo"></i> ${element.friendlyDesc}</h6>
 
                             <div class="btn-group shadow-0 mb-2">
-                                <a href="#" class="btn btn-success text-white"
+                                <a href="#" class="btn wb-btn-secondary"
                                     data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
                                     onclick='createArrangementDialog_editSerie("${element._uuid}")'>
                                     <i class="fas fa-edit"></i>&nbsp; Rediger tidsplan
                                 </a>
-                                <a href="#" class="btn btn-danger text-white"
+                                <a href="#" class="btn wb-btn-secondary"
                                     data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
                                     onclick='createArrangementDialog_removeSerie("${element._uuid}")'>
                                     <i class="fas fa-trash"></i>&nbsp; Slett tidsplan
@@ -484,7 +492,7 @@
     }
 
     function createArrangementDialog__breakOutEvent(serie_uuid, collision_index) {
-        var serie = seriesMap.get(serie_uuid);
+        let serie = seriesMap.get(serie_uuid);
         document.dispatchEvent(
             new CustomEvent("arrangementCreator.breakOutActivityDialog.trigger", { "detail": {
                 "serie": serie,

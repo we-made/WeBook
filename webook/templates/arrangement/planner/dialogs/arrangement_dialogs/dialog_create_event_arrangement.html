@@ -1,7 +1,6 @@
 {% load static i18n %}
 
 
-
 <div id="{{dialog}}" title="<span class='badge badge-success'><i class='fas {{dialogIcon}}'></i></span>&nbsp; {{ dialogTitle }}">
     <div class="row">
         <div class="col-6">
@@ -111,10 +110,9 @@
                       data-mdb-parent="#accordionFlushExample">
   
                       <div class="accordion-body">
-                          <a class="btn btn-block btn-success shadow-0 text-white"
+                          <a class="btn btn-block wb-btn-secondary shadow-0"
                           onclick="dialogCreateEvent_openAddPeople()"
                           type="button">
-                              <i class="fas fa-plus"></i>
                               Legg til personer
                           </a>
   
@@ -148,10 +146,9 @@
                       data-mdb-parent="#accordionFlushExample">
   
                       <div class="accordion-body">
-                        <a class="btn btn-block text-white btn-success shadow-0"
+                        <a class="btn btn-block wb-btn-secondary shadow-0"
                         onclick="dialogCreateEvent__openAddRooms()"
                         type="button">
-                            <i class="fas fa-plus"></i>
                             Legg til rom
                         </a>
 
@@ -235,7 +232,17 @@
         </div>
 
         <div class="clearfix">
-            <a class="mt-2 float-end btn btn-lg btn-success text-white" onclick="dialogCreateEvent__submit()"><i class="fas fa-save"></i>&nbsp; Lagre</a>
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary btn-lg"
+                    onclick="window.dialogApi.close('{{managerName}}', '{{dialog}}')">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+
+                <a class="mt-2 btn wb-btn-main" onclick="dialogCreateEvent__submit()">
+                    <i class="fas fa-check"></i>&nbsp; Lagre
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -286,10 +293,10 @@
     })
 
     function dialogCreateEvent__setRooms(rooms) {
-        var tbody = $('#roomsTbody__d1');
+        let tbody = $('#roomsTbody__d1');
         tbody.empty();
 
-        var ids = rooms.split(",");
+        let ids = rooms.split(",");
 
         ids.forEach(id => {
             tbody.append(
@@ -309,9 +316,9 @@
     }
 
     function dialogCreateEvent__setPeople(people) {
-        var tbody = $('#peopleTbody__d1');
+        let tbody = $('#peopleTbody__d1');
         tbody.empty();
-        var ids = people.split(",");
+        let ids = people.split(",");
 
         ids.forEach(id => {
             tbody.append(
@@ -350,8 +357,8 @@
     }
 
     function dialogCreateEvent__removeAssociation(a) {
-        var row = $(a).closest("tr")[0];
-        var rowid = row.getAttribute("rowid");
+        let row = $(a).closest("tr")[0];
+        let rowid = row.getAttribute("rowid");
         row.remove();
     }
 
@@ -377,7 +384,7 @@
             return;
         }
 
-        var qualifiedEvent = {
+        let qualifiedEvent = {
             _uuid: $('#event_uuid').val(),
             title: $('#title').val(),
             title_en: $('#title_en').val(),

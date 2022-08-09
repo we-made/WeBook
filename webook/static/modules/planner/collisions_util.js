@@ -31,7 +31,7 @@ export class CollisionsUtil {
      * @returns array of collision records, if any. Alternatively if no collisions an empty array.
      */
     static async GetCollisionsForSerie(formData, csrf_token) {
-        var responseObj = await fetch("/arrangement/analysis/analyzeNonExistentSerie", {
+        let responseObj = await fetch("/arrangement/analysis/analyzeNonExistentSerie", {
             method: 'POST',
             body: formData,
             headers: {
@@ -52,7 +52,7 @@ export class CollisionsUtil {
      * @returns 
      */
     static async GetCollisionsForEvent(formData, csrf_token) {
-        var responseObj = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
+        let responseObj = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
             method: 'POST',
             body: formData,
             headers: {
@@ -74,7 +74,7 @@ export class CollisionsUtil {
      * @returns 
      */
     static _GenerateCollisionSwalTableRowHtml(collision, uuid, name_of_event_to_trigger_on_resolve) {
-        var generateNonResolvedBtnHtmlFunc = function (uuid) {
+        const generateNonResolvedBtnHtmlFunc = function (uuid) {
             return `
                 <button class="btn btn-lg btn-success"
                     onclick='document.dispatchEvent(
@@ -87,7 +87,7 @@ export class CollisionsUtil {
             `
         }
 
-        var generateResolvedBtnHtmlFunc = function () {
+        const generateResolvedBtnHtmlFunc = function () {
             return `
                 <div class='alert alert-success fw-bold text-center'>
                     Løst
@@ -182,8 +182,8 @@ export class CollisionsUtil {
                              arrangement_pk,
                              on_confirmed,
                              after_on_confirmed_is_done,) {
-        var collisions = [];
-        var is_reading_from_resolution_map = false;
+        let collisions = [];
+        let is_reading_from_resolution_map = false;
 
         if (collision_resolution.size > 0) {
             collisions = Array.from(collision_resolution.entries());
@@ -202,11 +202,11 @@ export class CollisionsUtil {
         */
 
         if (collisions.length > 0) {
-            var trHtml = "";
+            let trHtml = "";
 
             collisions.forEach(function (collision) {
-                var uuid = "";
-                var collision_record = undefined;
+                let uuid = "";
+                let collision_record = undefined;
 
                 if (is_reading_from_resolution_map) {
                     uuid = collision[0];

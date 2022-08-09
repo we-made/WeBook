@@ -15,7 +15,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
     // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
     // has "selected" rooms as they would through the dialog interface.
     if (serie.people.length > 0) {
-        var peopleSelectContext = Object();
+        let peopleSelectContext = Object();
         peopleSelectContext.people = serie.people.join(",");
         peopleSelectContext.people_name_map = serie.people_name_map;
         document.dispatchEvent(new CustomEvent(
@@ -26,7 +26,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
         ));
     }
     if (serie.rooms.length > 0) {
-        var roomSelectContext = Object();
+        let roomSelectContext = Object();
         roomSelectContext.rooms = serie.rooms.join(",");
         roomSelectContext.room_name_map = serie.room_name_map;
         document.dispatchEvent(new CustomEvent(
@@ -78,7 +78,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
             $('#radio_pattern_weekly').prop("checked", true);
             $("#week_interval").val(serie.pattern.week_interval);
 
-            var days = [
+            const days = [
                 $("#monday"),
                 $("#tuesday"),
                 $("#wednesday"),
@@ -158,7 +158,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
     $('#serie_end').val(manifest.end_time).change();
 
     if (manifest.rooms.length > 0) {
-        var roomSelectContext = Object();
+        let roomSelectContext = Object();
         roomSelectContext.rooms = manifest.rooms.map(a => a.id).join(",");
         roomSelectContext.room_name_map = new Map();
 
@@ -175,7 +175,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
         ));
     }
     if (manifest.people.length > 0) {
-        var peopleSelectContext = Object();
+        let peopleSelectContext = Object();
         peopleSelectContext.people = manifest.people.map(a => a.id).join(",");
         peopleSelectContext.people_name_map = new Map();
 
@@ -234,7 +234,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
             $('#radio_pattern_weekly').prop("checked", true).click();
             $("#week_interval").val(parseInt(manifest.strategy_specific.interval));
 
-            var days = [
+            const days = [
                 $("#monday"),
                 $("#tuesday"),
                 $("#wednesday"),
@@ -244,7 +244,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
                 $("#sunday"),
             ]
 
-            for (var i = 0; i < manifest.strategy_specific.days.length; i++) {
+            for (let i = 0; i < manifest.strategy_specific.days.length; i++) {
                 if (manifest.strategy_specific.days[i] == true) {
                     days[i].attr("checked", true);
                 }
@@ -296,23 +296,26 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
  * @param {*} event
  */
 export function PopulateCreateEventDialog(event) {
-    var splitDateFunc = function (strToDateSplit) {
-        var date_str = strToDateSplit.split("T")[0];
-        var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
-        return [ date_str, time_str ];
+    let parseDateOrStringToArtifacts = function (dateOrString) {
+        if (dateOrString instanceof String)
+            return Utils.splitStrDate(dateOrString);
+        else if (dateOrString instanceof Date)
+            return Utils.splitDateIntoDateAndTimeStrings(event.start);
+        else throw "Invalid value or type"
     }
-    var startTimeArtifacts = splitDateFunc(event.start);
-    var endTimeArtifacts = splitDateFunc(event.end);
+
+    let [fromDate, fromTime]    = parseDateOrStringToArtifacts(event.start);
+    let [toDate, toTime]        = parseDateOrStringToArtifacts(event.end);
 
     $('#event_uuid').val(event._uuid);
     $('#title').val(event.title);
     $('#title_en').val(event.title_en);
     $('#ticket_code').val(event.ticket_code);
     $('#expected_visitors').val(event.expected_visitors);
-    $('#fromDate').val(startTimeArtifacts[0]);
-    $('#fromTime').val(startTimeArtifacts[1]);
-    $('#toDate').val(endTimeArtifacts[0]);
-    $('#toTime').val(endTimeArtifacts[1]);
+    $('#fromDate').val(fromDate);
+    $('#fromTime').val(fromTime);
+    $('#toDate').val(toDate);
+    $('#toTime').val(toTime);
     $('#buffer_before_start').val(event.before_buffer_start);
     $('#buffer_before_end').val(event.before_buffer_end);
     $('#buffer_after_start').val(event.after_buffer_start);

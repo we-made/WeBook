@@ -2,454 +2,538 @@
 
 
 <div id="mainDialog" title="{{object.name}}">
+    <button class="btn wb-btn-main mb-3" onclick="mainPlannerDialog_deleteArrangement()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
 
-    <button class="btn btn-danger mb-3" onclick="mainPlannerDialog_deleteArrangement()"><i class="fas fa-trash"></i>&nbsp; Slett</button>
+    <ul class="nav nav-tabs webook-tabs">
+        <!-- Information/General -->
+        <li class="nav-item" role="presentation">
+            <a  href="#arrangementInfoDialog_tabs_information"
+                class="nav-link active"
+                role="tab"
+                data-mdb-toggle="tab">
+                Informasjon
+            </a>
+        </li>
+        <!-- Timeslots -->
+        <li class="nav-item" role="presentation">
+            <a href="#arrangementInfoDialog_tabs_timeslots"
+                class="nav-link"
+                role="tab"
+                data-mdb-toggle="tab">
+                Tidspunkter
+            </a>
+        </li>
+        <!-- Notes -->
+        <li class="nav-item" role="presentation">
+            <a href="#arrangementInfoDialog_tabs_notes"
+                class="nav-link"
+                role="tab"
+                data-mdb-toggle="tab">
+                Notater
+            </a>
+        </li>
+        <!-- Receipts -->
+        <!-- <li class="nav-item" role="presentation">
+            <a href="#arrangementInfoDialog_tabs_receipts"
+                class="nav-link"
+                role="tab"
+                data-mdb-toggle="tab">
+                Kvitteringer
+            </a>
+        </li> -->
+        <!-- Files -->
+        <li class="nav-item" role="presentation">
+            <a href="#arrangementInfoDialog_tabs_files"
+                class="nav-link"
+                role="tab"
+                data-mdb-toggle="tab">
+                Filer
+            </a>
+        </li>
+    </ul>
 
-    <div id="tabs" class="light-tabs">
-        <ul>
-            <li>
-                <a href="#tabs-1">
-                    <i class="fas fa-info-circle"></i>&nbsp;
-                    Informasjon
-                </a>
-            </li>
-            <li>
-                <a href="#tabs-2">
-                    <i class="fas fa-calendar"></i>&nbsp;
-                    Tidspunkter
-                </a>
-            </li>
-            <li>
-                <a href="#tabs-3">
-                    <i class="fas fa-comment"></i>&nbsp;
-                    Notater
-                </a>
-            </li>
-            <li>
-                <a href="#tabs-4">
-                    <i class="fas fa-receipt"></i>&nbsp;
-                    Kvitteringer
-                </a>
-            </li>
-            <li>
-                <a href="#tabs-5">
-                    <i class="fas fa-file"></i>&nbsp;
-                    Filer
-                </a>
-            </li>
-
-        </ul>
-        <div id="tabs-1">
-            <table class='table table-sm'>
-                <tbody>
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Navn:</strong>
+    <div class="tab-content pt-4">
+        <!-- Information / General Tab -->
+        <div class="tab-pane fade show active" id="arrangementInfoDialog_tabs_information" role="tabpanel">
+            <h3>Generelt</h3>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12">
+                        <div>
+                            <label class="form-label">Navn:</label>
                             <input type="text"
                                 class="form-control"
                                 id="{{ form.name.id_for_label }}"
                                 value="{{ form.name.value|default:'' }}"
                                 name="{{ form.name.name }}"
                                 placeholder="{% trans 'Name of the arrangement' %}..."/>
-                            <br>
-                            <strong class="mt-3">Navn (<em class="small">Engelsk</em>):</strong>
+                            
+                            {% if form.name.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.name.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="form-label">Navn (<em class="small">Engelsk</em>):</label>
                             <input type="text"
                                 class="form-control"
                                 id="{{ form.name_en.id_for_label }}"
                                 value="{{ form.name_en.value|default:'' }}"
                                 name="{{ form.name_en.name }}"
                                 placeholder="{% trans 'Name of the arrangement (in english)' %}..."/>
-
-                            {% if form.name.errors|length > 0 %}
+        
+                            {% if form.name_en.errors|length > 0 %}
                                 <div class="alert alert-danger">
                                     {{ form.name_en.errors }}
                                 </div>
                             {% endif %}
-                        </td>
-                    </tr>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <br>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <label for="" class="form-label">Målgruppe:</label>
+                                    </td>
+                                    <td>
+                                        {{ form.audience }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="" class="form-label">Lokasjon:</label>
+                                    </td>
+                                    <td>
+                                        {{ form.location }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="" class="form-label">Arrangementstype:</label>
+                                    </td>
+                                    <td>
+                                        {{ form.arrangement_type }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Målgruppe:</strong>
-                            {{ form.audience }}
+            <div class="form-group mt-3">
+                <h3>Detaljer</h3>
+                <label class="form-label">Billettkode:</label>
+                <input type="text"
+                    class="form-control"
+                    id="{{ form.ticket_code.id_for_label }}"
+                    value="{{ form.ticket_code.value|default:'' }}"
+                    name="{{ form.ticket_code.name }}"
+                    placeholder="{% trans 'Ticket code' %}..."/>
 
-                            {% if form.audience.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.audience.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3">
-                            <strong>Lokasjon</strong>
-                            {{ form.location }}
+                {% if form.ticket_code.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        {{ form.ticket_code.errors }}
+                    </div>
+                {% endif %}
+            </div>
 
-                            {% if form.location.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.location.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Arrangementstype:</strong>
-                            {{ form.arrangement_type }}
+            <div class="form-group mt-2">
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12">
+                        <label class="form-label">Møtested:</label>
+                        <input type="text"
+                            class="form-control"
+                            id="{{ form.meeting_place.id_for_label }}"
+                            value="{{ form.meeting_place.value|default:'' }}"
+                            name="{{ form.meeting_place.name }}"
+                            placeholder="{% trans 'Meeting place' %}..."/>
+        
+                        {% if form.meeting_place.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.meeting_place.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <label class="form-label">Møtested (Engelsk):</label>
+                        <input type="text"
+                            class="form-control"
+                            id="{{ form.meeting_place_en.id_for_label }}"
+                            value="{{ form.meeting_place_en.value|default:'' }}"
+                            name="{{ form.meeting_place_en.name }}"
+                            placeholder="{% trans 'Meeting place (english)' %}..."/>
 
-                            {% if form.arrangement_type.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.arrangement_type.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Billettkode:</strong>
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.ticket_code.id_for_label }}"
-                                value="{{ form.ticket_code.value|default:'' }}"
-                                name="{{ form.ticket_code.name }}"
-                                placeholder="{% trans 'Ticket code' %}..."/>
+                        {% if form.meeting_place_en.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.meeting_place.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
-                            {% if form.ticket_code.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.ticket_code.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Møtested:</strong>
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.meeting_place.id_for_label }}"
-                                value="{{ form.meeting_place.value|default:'' }}"
-                                name="{{ form.meeting_place.name }}"
-                                placeholder="{% trans 'Meeting place' %}..."/>
+            <div class="form-group mt-2">
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12">
+                        <label class="form-label">Forventet antall besøkende:</label>
+                        <input type="number"
+                            min="0"
+                            class="form-control"
+                            id="{{ form.expected_visitors.id_for_label }}"
+                            value="{{ form.expected_visitors.value|default:'' }}"
+                            name="{{ form.expected_visitors.name }}"
+                            placeholder="{% trans 'Forventet antall besøkende' %}..."/>
+        
+                        {% if form.expected_visitors.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.expected_visitors.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <label class="form-label">Faktisk antall besøkende:</label>
+                        <input type="number"
+                            min="0"
+                            class="form-control"
+                            id="{{ form.actual_visitors.id_for_label }}"
+                            value="{{ form.actual_visitors.value|default:'' }}"
+                            name="{{ form.actual_visitors.name }}"
+                            placeholder="{% trans 'Faktisk antall besøkende' %}..."/>
 
-                            {% if form.meeting_place.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.meeting_place.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Møtested (Engelsk):</strong>
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.meeting_place_en.id_for_label }}"
-                                value="{{ form.meeting_place_en.value|default:'' }}"
-                                name="{{ form.meeting_place_en.name }}"
-                                placeholder="{% trans 'Meeting place (english)' %}..."/>
+                        {% if form.actual_visitors.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.actual_visitors.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
-                            {% if form.meeting_place_en.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.meeting_place.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Forventet antall besøkende:</strong>
-                            <input type="number"
-                                min="0"
-                                class="form-control"
-                                id="{{ form.expected_visitors.id_for_label }}"
-                                value="{{ form.expected_visitors.value|default:'' }}"
-                                name="{{ form.expected_visitors.name }}"
-                                placeholder="{% trans 'Forventet antall besøkende' %}..."/>
+            <div class="form-group mt-3">
+                <h3>Planleggere</h3>
+                <label class='form-label'>Hovedplanlegger:</label> 
+                <em>{{ object.responsible.full_name }}</em> 
+                <a href='#' id="mainPlannerDialog__promotePlannerBtn" class='text-primary'>
+                    (Endre...)
+                </a>
+            </div>
 
-                            {% if form.expected_visitors.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.expected_visitors.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan='2'>
-                            <strong>Faktisk antall besøkende:</strong>
-                            <input type="number"
-                                min="0"
-                                class="form-control"
-                                id="{{ form.actual_visitors.id_for_label }}"
-                                value="{{ form.actual_visitors.value|default:'' }}"
-                                name="{{ form.actual_visitors.name }}"
-                                placeholder="{% trans 'Faktisk antall besøkende' %}..."/>
-
-                            {% if form.actual_visitors.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.actual_visitors.errors }}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan='3'>
-                            <span class='fw-bolder'>Hovedplanlegger:</span> <em>{{ object.responsible.full_name }}</em> <a href='#' id="mainPlannerDialog__promotePlannerBtn" class='text-primary'>(Endre...)</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>Planleggere:</strong><br>
-                            <select multiple id="mainPlannerDialog_plannersSelect">
+            <div class="form-group mt-2">
+                <label class="form-label">Planleggere:</label>
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12">
+                        <div>
+                            <select multiple id="mainPlannerDialog_plannersSelect" class="form-control">
                                 <option value="MAIN" data-toggle="tooltip" title="Hovedplanlegger" disabled>{{object.responsible}}</option>
                                 {% for planner in object.planners.all %}
                                     <option value="{{planner.pk}}">{{planner}}</option>
                                 {% endfor %}
                             </select>
-                        </td>
-                        <td>
-                        <div>
-                        <a href='#' class='shadow-0 text-white btn btn-success btn-block mb-2 btn-sm' id='mainDialog__addPlannerBtn'>
-                            <i class='fas fa-plus'></i>
-                            Legg til planlegger
-                        </a>
+                        </div>
                     </div>
-                    <div>
-                        <a href='#' class='shadow-0 text-white btn btn-danger btn-block btn-sm' id='mainDialog_removePlannerBtn'
-                            onclick="mainPlannerDialog__removePlanners()">
-                            <i class='fas fa-trash'></i>
-                            Fjern valgte
-                        </a>
-                    </div>
-                    <div>
-                    </div>
-                </td>
+                    <div class="col-lg-6 col-sm-12">
 
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="">Vises på skjermen: </label>
-                            {{ form.display_layouts }}
-                        </td>
-                        <td colspan='2'>
-                            <strong>Skjermtekst:</strong>
+                        <div>
+                            <a href='#' class='shadow-0 btn wb-btn-secondary btn-block mb-2 btn-sm' id='mainDialog__addPlannerBtn'>
+                                <i class='fas fa-plus'></i>
+                                Legg til planlegger
+                            </a>
+                        </div>
+                        <div>
+                            <a href='#' class='shadow-0 btn wb-btn-secondary btn-block btn-sm' id='mainDialog_removePlannerBtn'
+                                onclick="mainPlannerDialog__removePlanners()">
+                                <i class='fas fa-trash'></i>
+                                Fjern valgte planleggere
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-3">
+                <h3>Skjermvisning</h3>
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12">
+                        <label class="form-label">Vises på skjermen: </label>
+                        {{ form.display_layouts }}
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <div>
+                            <label class="form-label">Skjermtekst:</label>
                             <input type="text"
                                 class="form-control"
                                 id="{{ form.display_text.id_for_label }}"
                                 value="{{ form.display_text.value|default:'' }}"
                                 name="{{ form.display_text.name }}"
                                 placeholder="{% trans 'Custom text for display' %}..."/>
-                            <br>
-                            <strong class="mt-3">Skjermtekst (<em class="small">Engelsk</em>):</strong>
+                            
+                            {% if form.display_text.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    {{ form.display_text.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="form-label mt-2">Skjermtekst (<em class="small">Engelsk</em>):</label>
                             <input type="text"
                                 class="form-control"
                                 id="{{ form.display_text_en.id_for_label }}"
                                 value="{{ form.display_text_en.value|default:'' }}"
                                 name="{{ form.display_text_en.name }}"
                                 placeholder="{% trans 'Custom text for display (in english)' %}..."/>
-
-                            {% if form.display_text.errors|length > 0 %}
+    
+                            {% if form.display_text_en.errors|length > 0 %}
                                 <div class="alert alert-danger">
                                     {{ form.display_text_en.errors }}
                                 </div>
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan='3'>
-                            <button class=" btn btn-sm shadow-0 btn-success btn-block"
-                                    type="button"
-                                    onclick="mainPlannerDialog__updateArrangementInfo()">
-                                Lagre endringer
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-        {{ form.errors }}
-
-        </div>
-        <div id="tabs-2">
-            <div class="table-responsive" style="max-height: 480px;">
-                <table class='table'>
-
-                    <div class="row mb-2">
-                        <div class="col-6">
-                            <button class="playfulButton playfulButton-green" id='mainPlannerDialog__newTimePlan'>
-                                <div class="icon"><i class="fas fa-plus"></i></div>
-                                Ny tidsplan
-                            </button>
-
-                        </div>
-                        <div class="col-6">
-                            <button class="playfulButton playfulButton-green" id='mainPlannerDialog__newSimpleActivity'>
-                                <div class="icon"><i class="fas fa-plus"></i></div>
-                                Ny enkel aktivitet
-                            </button>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <thead>
-                    </thead>
 
-                    <tbody>
-                        {% for event_serie in object.series.all %}
-                        <tr>
-                            <td>
-                                <div class="shadow-4 border p-4">
-                                    <h5>{{event_serie.serie_plan_manifest.title}} -- {{event.serie.pk}}</h5>
-                                    <div>
-                                        <div>
-                                            <i class="fas fa-redo"></i> {{ event_serie.serie_plan_manifest.schedule_description }}
-                                        </div>
-                                        <div>
-                                            <i class="fas fa-clock"></i> {{event_serie.serie_plan_manifest.start_time}} - {{event_serie.serie_plan_manifest.end_time}}
-                                        </div>
-                                    </div>
+            {{ form.errors }}
 
-                                    <div class="mt-2">
-                                        <button class="btn btn-sm btn-danger"
-                                            data-mdb-toggle="tooltip"
-                                            title="Delete this time plan"
-                                            onclick="mainPlannerDialog_deleteEventSerie({{event_serie.pk}})">
-                                            Slett
-                                        </button>
-                                        <button class="btn btn-sm btn-success"
-                                            data-mdb-toggle="tooltip"
-                                            title="Edit this time plan"
-                                            onclick="mainPlannerDialog__openEditSerie({{event_serie.pk}})">
-                                            Rediger
-                                        </button>
-                                    </div>
+            <div class="clearfix  border-top pt-3">
+                <div class="float-end">
+                    <a href="#" class="btn wb-btn-secondary btn-lg"
+                        onclick="window.dialogApi.close('arrangementInspector', 'mainDialog')">
+                        <i class="fas fa-times"></i>
+                        Avbryt
+                    </a>
+                    
+                    <a class="btn shadow-0 wb-btn-main" href="#"
+                        onclick="mainPlannerDialog__updateArrangementInfo()">
+                        <i class="fas fa-check"></i>
+                        Lagre endringer
+                    </a>
+                </div>
+            </div>
+        </div>
+        
 
-                                    <div class="accordion accordion-flush" id="accordion_{{event_serie.pk}}">
-                                        <div class="accordion-item">
-                                        <h6 class="accordion-header" id="flush-headingOne">
-                                            <button
-                                            class="accordion-button collapsed"
-                                            type="button"
-                                            data-mdb-toggle="collapse"
-                                            data-mdb-target="#flush-collapseOne_{{event_serie.pk}}"
-                                            aria-expanded="false"
-                                            aria-controls="flush-collapseOne">
-                                                <i class="fas fa-file"></i>&nbsp; Filer
-                                            </button>
-                                        </h6>
-                                        <div
-                                            id="flush-collapseOne_{{event_serie.pk}}"
-                                            class="accordion-collapse collapse"
-                                            aria-labelledby="flush-headingOne"
-                                            data-mdb-parent="#accordion_{{event_serie.pk}}">
-                                            <div class="accordion-body">
-                                                <div title="Last opp filer under '{{arrangement.name}}'" class="bg-white">
-                                                    <button class="btn btn-sm btn-success float-end"
-                                                        onclick="mainPlannerDialog__uploadFilesToEventSerie({{event_serie.pk}})">
-                                                        <i class="fas fa-upload"></i>
-                                                        Last opp fil(er)
+        <!-- Timeslots Tab -->
+        <div class="tab-pane fade" id="arrangementInfoDialog_tabs_timeslots" role="tabpanel">
+            <div class="clearfix">
+                <div class="float-end">
+                    <a class="btn wb-btn-main" id='mainPlannerDialog__newTimePlan'>
+                        Ny tidsplan
+                    </a>
+                    <a class="btn wb-btn-main" id='mainPlannerDialog__newSimpleActivity'>
+                        Ny enkel aktivitet
+                    </a>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs webook-tabs mt-1" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a href="#timeslots_tabs_series" class="nav-link active" data-mdb-toggle="tab">
+                        Tidsplaner
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a href="#timeslots_tabs_activities" class="nav-link" data-mdb-toggle="tab">
+                        Aktiviteter
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Series Tab -->
+                <div class="tab-pane fade show active" id="timeslots_tabs_series"role="tabpanel">
+                     <div class="table-responsive">
+                        <table class='table'>
+                            <thead>
+                            </thead>
+            
+                            <tbody>
+                                {% for event_serie in object.series.all %}
+                                <tr>
+                                    <td>
+                                        <div class="p-4 border rounded-6">
+                                            <h5>{{event_serie.serie_plan_manifest.title}}</h5>
+                                            <div>
+                                                <div>
+                                                    <i class="fas fa-redo"></i> {{ event_serie.serie_plan_manifest.schedule_description }}
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-clock"></i> {{event_serie.serie_plan_manifest.start_time}} - {{event_serie.serie_plan_manifest.end_time}}
+                                                </div>
+                                            </div>
+            
+                                            <div class="mt-2">
+                                                <button class="btn btn-sm wb-btn-secondary"
+                                                    data-mdb-toggle="tooltip"
+                                                    title="Delete this time plan"
+                                                    onclick="mainPlannerDialog_deleteEventSerie({{event_serie.pk}})">
+                                                    <i class="fas fa-trash"></i>
+                                                    Slett
+                                                </button>
+                                                <button class="btn btn-sm wb-btn-secondary"
+                                                    data-mdb-toggle="tooltip"
+                                                    title="Edit this time plan"
+                                                    onclick="mainPlannerDialog__openEditSerie({{event_serie.pk}})">
+                                                    <i class="fas fa-edit"></i>
+                                                    Rediger
+                                                </button>
+                                            </div>
+            
+                                            <div class="accordion accordion-flush" id="accordion_{{event_serie.pk}}">
+                                                <div class="accordion-item">
+                                                <h6 class="accordion-header" id="flush-headingOne">
+                                                    <button
+                                                    class="accordion-button collapsed"
+                                                    type="button"
+                                                    data-mdb-toggle="collapse"
+                                                    data-mdb-target="#flush-collapseOne_{{event_serie.pk}}"
+                                                    aria-expanded="false"
+                                                    aria-controls="flush-collapseOne">
+                                                        <i class="fas fa-file"></i>&nbsp; Filer
                                                     </button>
-                                                    <table class="table table-sm">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Filnavn</th>
-                                                                <th>Valg</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for file in event_serie.files.all %}
+                                                </h6>
+                                                <div
+                                                    id="flush-collapseOne_{{event_serie.pk}}"
+                                                    class="accordion-collapse collapse"
+                                                    aria-labelledby="flush-headingOne"
+                                                    data-mdb-parent="#accordion_{{event_serie.pk}}">
+                                                    <div class="accordion-body">
+                                                        <div title="Last opp filer under '{{arrangement.name}}'" class="bg-white">
+                                                            <button class="btn btn-sm wb-btn-secondary float-end"
+                                                                onclick="mainPlannerDialog__uploadFilesToEventSerie({{event_serie.pk}})">
+                                                                <i class="fas fa-upload"></i>
+                                                                Last opp fil(er)
+                                                            </button>
+                                                            <table class="table table-sm">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Filnavn</th>
+                                                                        <th>Valg</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for file in event_serie.files.all %}
+                                                                        <tr>
+                                                                            <td>{{file.filename}}</td>
+                                                                            <td>
+                                                                                <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
+                                                                                    data-mdb-toggle="tooltip"
+                                                                                    title="{% trans 'Delete this file' %}"
+                                                                                    onclick="mainPlannerDialog__deleteFile( {{ file.pk }}, 'event_serie' )">
+                                                                                    <i class="fas fa-trash"></i>
+                                                                                </a>
+                                                                                <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
+                                                                                    data-mdb-toggle="tooltip"
+                                                                                    title="{% trans 'Download this file' %}"
+                                                                                    href="/media/{{file.file}}" download>
+                                                                                    <i class="fas fa-download"></i>
+                                                                                </a>
+                                                                            </td>
+                                                                        </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                                <div class="accordion-item">
+                                                <h6 class="accordion-header" id="flush-headingTwo">
+                                                    <button
+                                                    class="accordion-button collapsed"
+                                                    type="button"
+                                                    data-mdb-toggle="collapse"
+                                                    data-mdb-target="#flush-collapseTwo_{{event_serie.pk}}"
+                                                    aria-expanded="false"
+                                                    aria-controls="flush-collapseTwo_{{event_serie.pk}}">
+                                                        <i class="fas fa-calendar"></i>&nbsp; Aktiviteter
+                                                    </button>
+                                                </h6>
+                                                <div
+                                                    id="flush-collapseTwo_{{event_serie.pk}}"
+                                                    class="accordion-collapse collapse"
+                                                    aria-labelledby="flush-headingTwo"
+                                                    data-mdb-parent="#accordion_{{event_serie.pk}}">
+                                                    <div class="accordion-body">
+                                                        <table class="table table-sm interactiveTable">
+                                                            <tbody>
+                                                                {% for event in event_serie.events.all %}
                                                                 <tr>
-                                                                    <td>{{file.filename}}</td>
                                                                     <td>
-                                                                        <button class="btn btn-danger btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
-                                                                            data-mdb-toggle="tooltip"
-                                                                            title="{% trans 'Delete this file' %}"
-                                                                            onclick="mainPlannerDialog__deleteFile( {{ file.pk }}, 'event_serie' )">
-                                                                            <i class="fas fa-trash"></i>
-                                                                        </button>
-                                                                        <a class="btn btn-success btn-sm text-white" style="border-radius: 50%!important; padding: 0.7rem;"
-                                                                            data-mdb-toggle="tooltip"
-                                                                            title="{% trans 'Download this file' %}"
-                                                                            href="/media/{{file.file}}" download>
-                                                                            <i class="fas fa-download"></i>
-                                                                    </a>
+                                                                        <div>
+                                                                            {{event}}
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
-                                                            {% endfor %}
-                                                        </tbody>
-                                                    </table>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        </div>
-                                        <div class="accordion-item">
-                                        <h6 class="accordion-header" id="flush-headingTwo">
-                                            <button
-                                            class="accordion-button collapsed"
-                                            type="button"
-                                            data-mdb-toggle="collapse"
-                                            data-mdb-target="#flush-collapseTwo_{{event_serie.pk}}"
-                                            aria-expanded="false"
-                                            aria-controls="flush-collapseTwo_{{event_serie.pk}}">
-                                                <i class="fas fa-calendar"></i>&nbsp; Aktiviteter
-                                            </button>
-                                        </h6>
-                                        <div
-                                            id="flush-collapseTwo_{{event_serie.pk}}"
-                                            class="accordion-collapse collapse"
-                                            aria-labelledby="flush-headingTwo"
-                                            data-mdb-parent="#accordion_{{event_serie.pk}}">
-                                            <div class="accordion-body">
-                                                <table class="table">
-                                                    <tbody>
-                                                        {% for event in event_serie.events.all %}
-
-                                                        <tr>
-                                                            <td>
-                                                                <div>
-                                                                    {{event}}
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <div class="btn-group">
-                                                                    <button class="btn btn-sm btn-danger"
-                                                                        data-mdb-toggle="tooltip"
-                                                                        title="{% trans 'Delete this activity' %}"
-                                                                        onclick="mainPlannerDialog__deleteActivity({{event.pk}})">
-                                                                        Slett
-                                                                    </button>
-                                                                    <button class="btn btn-sm btn-success"
-                                                                        data-mdb-toggle="tooltip"
-                                                                        title"{% trans 'Edit this activity' %}"
-                                                                        onclick="mainPlannerDialog__openEditEvent({{event.pk}});">
-                                                                        Rediger
-                                                                    </button>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div id="tabs-3">
-        <div class="clearfix">
-            <a class="text-white btn btn-success shadow-0 mb-2 float-end" id="mainPlannerDialog__newNoteBtn">
-                <i class="fas fa-feather"></i>
-                Nytt notat
-            </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <!-- Activities/Events Tab -->
+                <div class="tab-pane fade" id="timeslots_tabs_activities" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-sm interactiveTable" id="eventsTable">
+                            <thead>
+                                <tr class="wb-bg-secondary">
+                                    <th>
+                                        Aktivitet
+                                    </th>
+                                    <th>
+                                        Del av serie?
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in object.event_set.all %}
+                                    <tr id="eventsTable_event_{{event.pk}}"
+                                        onclick="mainPlannerDialog__inspectOtherEvent({{event.pk}})">
+                                        <td>{{event}}</td>
+                                        <td>
+                                            {% if event.serie %}
+                                                <i class="fas fa-check text-success"></i>
+                                            {% else %}
+                                                <i class="fas fa-times text-danger"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        {% for note in object.notes.all %}
-            <div class="shadow-3 p-3 border-bottom {% if note.has_personal_information %}border-warning{% else %}border-success{% endif %}" id="note_{{note.pk}}">
+        <!-- Notes Tab -->
+        <div class="tab-pane fade" id="arrangementInfoDialog_tabs_notes" role="tabpanel">
+            <div class="clearfix">
+                <a class="btn wb-btn-main shadow-0 mb-2 float-end" id="mainPlannerDialog__newNoteBtn">
+                    <i class="fas fa-feather"></i>
+                    Nytt notat
+                </a>
+            </div>
+            
+            {% for note in object.notes.all %}
+            <div class="shadow-3 p-3 wb-bg-secondary border-bottom {% if note.has_personal_information %}border-warning{% else %}border-success{% endif %}" id="note_{{note.pk}}">
                 {{note.content|safe}}
 
                 <div class="clearfix">
@@ -460,13 +544,13 @@
                 <hr>
 
                 <div class="clearfix">
-                    <div class="btn-group float-end">
-                        <a href="#" class="btn btn-danger text-white"
+                    <div class="float-end">
+                        <a href="#" class="btn wb-btn-main"
                             onclick="deleteNote( {{note.pk}} )">
                             <i class="fas fa-trash"></i>
                         </a>
 
-                        <a href="#" class="btn btn-success text-white"
+                        <a href="#" class="btn wb-btn-main"
                             onclick="updateNoteDialog( {{note.pk}} )">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -478,58 +562,77 @@
 
                 </div>
             </div>
-        {% endfor %}
-    </div>
-    <div id="tabs-4">
-        Kvitteringer...
-    </div>
-    <div id="tabs-5">
-        <div class="clearfix">
-            <a class="btn btn-success btn-sm text-white shadow-0 float-end"
-                    id="mainDialog__uploadFilesBtn"
-                    href="#">
-                <i class="fas fa-upload"></i>
-                Upload file(s)
-            </a>
+            {% endfor %}
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Filename</th>
-                    </tr>
-                </thead>
+        <!-- Receipts Tab -->
+        <!-- <div class="tab-pane fade" id="arrangementInfoDialog_tabs_receipts" role="tabpanel">
+            Kvitteringer...
+        </div> -->
 
-                <tbody>
-                    {% for file in arrangement.files.all %}
+        <!-- Files Tab -->
+        <div class="tab-pane fade" id="arrangementInfoDialog_tabs_files" role="tabpanel">
+            <div class="clearfix">
+                <a class="btn wb-btn-main shadow-0 float-end"
+                        id="mainDialog__uploadFilesBtn"
+                        href="#">
+                    <i class="fas fa-upload"></i>
+                    Upload file(s)
+                </a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
                         <tr>
-                            <td>
-                                <button class="btn btn-danger btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
-                                    data-mdb-toggle="tooltip"
-                                    title="{% trans 'Delete this file' %}"
-                                    onclick="mainPlannerDialog__deleteFile( {{ file.pk }} )">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                <a class="btn btn-success btn-sm text-white" style="border-radius: 50%!important; padding: 0.7rem;"
-                                    data-mdb-toggle="tooltip"
-                                    title="{% trans 'Download this file' %}"
-                                    href="/media/{{file.file}}" download>
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </td>
-                            <td>{{ file.filename }}</td>
+                            <th></th>
+                            <th>Fil</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+    
+                    <tbody>
+                        {% for file in arrangement.files.all %}
+                            <tr>
+                                <td>
+                                    <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
+                                        data-mdb-toggle="tooltip"
+                                        title="{% trans 'Delete this file' %}"
+                                        onclick="mainPlannerDialog__deleteFile( {{ file.pk }} )">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
+                                        data-mdb-toggle="tooltip"
+                                        title="{% trans 'Download this file' %}"
+                                        href="/media/{{file.file}}" download>
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </td>
+                                <td>{{ file.filename }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 
 <script>
+    $(document).ready(function () {
+        {% for event in object.event_set.all %}
+            new mdb.Popover(document.getElementById('eventsTable_event_{{event.pk}}'), {
+                container: document.getElementById('mainDialog'),
+                trigger: 'hover',
+                html: true,
+                content: `
+                    <h5 class='mb-0 mt-0 fw-bold'>{{event.title}}</h5>
+
+                    {{event.start}} - {{event.end}}
+                `
+            })
+        {% endfor %}
+    })
 
     function updateNoteDialog(note_pk) {
         document.dispatchEvent(
@@ -561,10 +664,18 @@
         });
     }
 
+    function mainPlannerDialog__inspectOtherEvent(eventId) {
+        document.dispatchEvent(
+            new CustomEvent("eventInspector.inspectEventDialog.trigger", { "detail": {
+                pk: eventId
+            }})
+        )
+    }
+    
     function mainPlannerDialog__updateArrangementInfo() {
-        var csrf_token="{{csrf_token}}"
+        let csrf_token="{{csrf_token}}"
 
-        var formData = new FormData();
+        let formData = new FormData();
         formData.append("name",             $('#id_name').val());
         formData.append("name_en",          $('#id_name_en').val());
         formData.append("audience",         $('#id_audience').val());
@@ -612,7 +723,7 @@
             cancelButtonText: 'Avbryt'
         }).then((result) => {
             if (result.isConfirmed) {
-                var formData = new FormData();
+                let formData = new FormData();
                 formData.append("eventIds", String(activity_pk));
                 formData.append("csrfmiddlewaretoken", "{{CSRF_TOKEN}}")
                 fetch('/arrangement/planner/delete_events/', {
@@ -716,7 +827,7 @@
             cancelButtonText: 'Avbryt'
         }).then((result) => {
             if (result.isConfirmed) {
-                var urlToDelete = "/arrangement/arrangement/files/delete/";
+                let urlToDelete = "/arrangement/arrangement/files/delete/";
                 if (type_discriminator !== undefined && type_discriminator == "event_serie") {
                     urlToDelete = "/arrangement/eventSerie/files/delete/"
                 }
@@ -739,7 +850,7 @@
     }
 
     function mainPlannerDialog__removeRoomFromEvent(event_pk, room_pk) {
-        var formData = new FormData();
+        let formData = new FormData();
         formData.set("event_pk", event_pk);
         formData.set("room_pk", room_pk)
 
@@ -760,7 +871,7 @@
     }
 
     function mainPlannerDialog__removePersonFromEvent(event_pk, person_pk) {
-        var formData = new FormData();
+        let formData = new FormData();
         formData.set("event_pk", event_pk);
         formData.set("person_pk", person_pk)
 
@@ -781,8 +892,8 @@
     }
 
     function mainPlannerDialog__removePlanners() {
-        var planners = $('#mainPlannerDialog_plannersSelect').val().join(",");
-        var formData = new FormData()
+        let planners = $('#mainPlannerDialog_plannersSelect').val().join(",");
+        let formData = new FormData()
         formData.append("planner_ids", planners);
         formData.append("arrangement_slug", "{{arrangement.slug}}")
 

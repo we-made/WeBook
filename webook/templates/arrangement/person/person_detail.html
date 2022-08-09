@@ -3,117 +3,284 @@
 
 
 {% block beneath_breadcrumbs_block %}
-    <a class="btn btn-danger">
-        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
+    <a class="btn btn-webook">
+        {% trans "Delete" %}
     </a>
-    <a class="btn btn-success"
+    <a class="btn btn-webook"
         href="{% url 'arrangement:person_edit' object.slug %}">
-        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
+        {% trans "Edit" %}
     </a>
 {% endblock %}
 
 {% block content %}
 
+<div class="row mb-3">
+    <div class="col-2">
+        <div class="p-4 rounded-6" style="background-color:#f7f5f4;">
+            <div class="clearfix">
+                <div class="float-start">
+                    <h3 class="mb-0 ms-3">
+                    </h3>
+                </div>
+                
+                <div class="float-end">
+                    <h3 class="mb-0">{{object.personal_email}}</h3>
+                </div>
+            </div>
+
+            <div class="clearfix">
+                <div class="float-end">
+                    <h6 class="mb-0 text-uppercase fw-bolder">@ PERSONAL EMAIL</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-2">
+        <div class="p-4 rounded-6"  style="background-color:#f7f5f4;">
+            <div class="clearfix">
+                <div class="float-start">
+                    <h3 class="mb-0 ms-3">
+                    </h3>
+                </div>
+                
+                <div class="float-end">
+                    <h3 class="mb-0">{{object.birth_date}}</h3>
+                </div>
+            </div>
+
+            <div class="clearfix">
+                <div class="float-end">
+                    <h6 class="mb-0 text-uppercase fw-bolder">BIRTH DATE</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-2">
+        <div class="p-4 rounded-6" style="background-color:#f7f5f4;">
+            <div class="clearfix">
+                <div class="float-start">
+                    <h3 class="mb-0 ms-3">
+                    </h3>
+                </div>
+                
+                <div class="float-end">
+                    <h3 class="mb-0">
+                        {% if object.user_set.exists %}
+                            <span class="text-success"><i class="fas fa-check"></i> YES</span>
+                        {% else %}
+                            <span class="text-danger"><i class="fas fa-times"></i> NO</span>
+                        {% endif %}
+                    </h3>
+                </div>
+            </div>
+
+            <div class="clearfix">
+                <div class="float-end">
+                    <h6 class="mb-0 text-uppercase fw-bolder">HAS USER?</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs navs -->
+<ul class="nav nav-tabs webook-tabs mb-3" id="ex1" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a
+        class="nav-link active"
+        id="ex1-tab-1"
+        data-mdb-toggle="tab"
+        href="#ex1-tabs-1"
+        role="tab"
+        aria-controls="ex1-tabs-1"
+        aria-selected="true"
+        >About</a
+      >
+    </li>
+    <li class="nav-item" role="presentation">
+      <a
+        class="nav-link"
+        id="ex1-tab-2"
+        data-mdb-toggle="tab"
+        href="#ex1-tabs-2"
+        role="tab"
+        aria-controls="ex1-tabs-2"
+        aria-selected="false"
+        >User Account</a
+      >
+    </li>
+    <!-- <li class="nav-item" role="presentation">
+      <a
+        class="nav-link"
+        id="ex1-tab-3"
+        data-mdb-toggle="tab"
+        href="#ex1-tabs-3"
+        role="tab"
+        aria-controls="ex1-tabs-3"
+        aria-selected="false"
+        >Organizations</a
+      >
+    </li> -->
+    <li class="nav-item" role="presentation">
+        <a
+          class="nav-link"
+          id="ex1-tab-4"
+          data-mdb-toggle="tab"
+          href="#ex1-tabs-4"
+          role="tab"
+          aria-controls="ex1-tabs-4"
+          aria-selected="false"
+          >Calendar</a
+        >
+      </li>
+  </ul>
+  <!-- Tabs navs -->
+  
+  <!-- Tabs content -->
+  <div class="tab-content" id="ex1-content">
+    <div
+      class="tab-pane fade show active"
+      id="ex1-tabs-1"
+      role="tabpanel"
+      aria-labelledby="ex1-tab-1"
+    >
+        <div>
+            <h5>
+                {% trans "Name" %}
+            </h5>
+            <span>{{ object.full_name }}</span>
+        </div>
+
+        <div class="mt-3">
+            <h5>
+                <i>@</i>
+                {% trans "Personal Email" %}
+            </h5>
+            <span>{{ object.personal_email }}</span>
+        </div>
+
+        <div class="mt-3">
+            <h5>
+                <i class="fas fa-calendar"></i>
+                {% trans "Date of birth" %}
+            </h5>
+            <span>{{ object.birth_date }}</span>
+        </div>
+
+        <div class="mt-3">
+            <h5>
+                {% trans "Has user?" %}
+            </h5>
+            <span>
+                {% if object.user_set.exists %}
+                    <i class="fas fa-check text-success"></i>
+                {% else %}
+                    <i class="fas fa-times text-danger"></i>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
+        <section>
+            <h5 class="mt-4">Provision user</h5>
+            <p>{% trans "Provision a user account for this person, that they can use to log in with." %}
+            </p>
+            <button class="btn btn-webook">
+                {% trans "Provision user" %}
+            </button>
+        </section>
+
+        <section>
+            <h5 class="mt-4">{% trans "Associate with user" %}</h5>
+            <p>
+                {% trans "Associate this person with an existing user account." %}
+            </p>
+            <a class="btn btn-webook"
+               href="{% url 'arrangement:associate_person_with_user' slug=object.slug %}">
+                {% trans "Associate with user" %}
+            </a>
+        </section>
+
+        <section>
+            <h5 class="mt-4">{% trans "Associate with organization" %}</h5>
+            <p>
+                {% trans "Associate this person with an organization." %}
+            </p>
+            <button class="btn btn-webook">
+                {% trans "Associate with organization" %}
+            </button>
+        </section>
+    </div>
+    <div class="tab-pane fade" id="ex1-tabs-3" role="tabpanel" aria-labelledby="ex1-tab-3">
+
+        {% if object.organizations.all|length %}
+            <em>{% trans "This person is a member of the following organizations:" %}</em>
+            {% for organization in object.organizations.all %}
+                <ul class="mt-3">
+                    <li>
+                        <a href="{% url 'arrangement:organization_detail' organization.slug %}">
+                            <i class="fa fa-link"></i>
+                            {{organization.name }}
+                        </a>
+                    </li>
+                </ul>
+            {% endfor %}
+
+        {% else %}
+            <div class="alert alert-warning">
+                {% trans "This person is not a member of any organizations" %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="tab-pane fade" id="ex1-tabs-4" role="tabpanel" aria-labelledby="ex1-tab-4">
+        <div id="person_calendar">
+
+        </div>
+    </div>
+  </div>
+  <!-- Tabs content -->
+
 <section>
     <div class="row">
         <div class="col-3">
-            <h4>
-                <i class="fas fa-cogs"></i>
-                {% trans "Actions" %}
-            </h4>
 
-            <section>
-                <h5 class="mt-4">Provision user</h5>
-                <p>{% trans "Provision a user account for this person, that they can use to log in with." %}
-                </p>
-                <button class="btn btn-outline-dark btn-block"">
-                    {% trans "Provision user" %}
-                </button>
-            </section>
-
-            <section>
-                <h5 class="mt-4">{% trans "Associate with user" %}</h5>
-                <p>
-                    {% trans "Associate this person with an existing user account." %}
-                </p>
-                <button class="btn btn-outline-dark btn-block"">
-                    {% trans "Associate with user" %}
-                </button>
-            </section>
-
-            <section>
-                <h5 class="mt-4">{% trans "Associate with organization" %}</h5>
-                <p>
-                    {% trans "Associate this person with an organization." %}
-                </p>
-                <button class="btn btn-outline-dark btn-block">
-                    {% trans "Associate with organization" %}
-                </button>
-            </section>
         </div>
         <div class="col-3 ps-5">
-            <h4 class="mb-4">
-                <i class="fas fa-info"></i>&nbsp; 
-                {% trans "Personalia" %}
-            </h4>
-            <div>
-                <h5>
-                    {% trans "Name" %}
-                </h5>
-                <span>{{ object.full_name }}</span>
-            </div>
 
-            <div class="mt-3">
-                <h5>
-                    <i>@</i>
-                    {% trans "Personal Email" %}
-                </h5>
-                <span>{{ object.personal_email }}</span>
-            </div>
-
-            <div class="mt-3">
-                <h5>
-                    <i class="fas fa-calendar"></i>
-                    {% trans "Date of birth" %}
-                </h5>
-                <span>{{ object.birth_date }}</span>
-            </div>
-
-            <div class="mt-3">
-                <h5>
-                    {% trans "Has user?" %}
-                </h5>
-                <span>
-                    <i class="fas fa-times text-danger"></i>
-                </span>
-            </div>
         </div>
         <div class="col-6">
-            <h4 class="mb-4">
-                <i class="fas fa-dollar-sign"></i>&nbsp; 
-                {% trans "Organizations" %}
-            </h4>
 
-            {% if object.organizations.all|length %}
-                <em>{% trans "This person is a member of the following organizations:" %}</em>
-                {% for organization in object.organizations.all %}
-                    <ul class="mt-3">
-                        <li>
-                            <a href="{% url 'arrangement:organization_detail' organization.slug %}">
-                                <i class="fa fa-link"></i>
-                                {{organization.name }}
-                            </a>
-                        </li>
-                    </ul>
-                {% endfor %}
-
-            {% else %}
-                <div class="alert alert-warning">
-                    {% trans "This person is not a member of any organizations" %}
-                </div>
-            {% endif %}
         </div>
     </div>
 </section>
+
+
+<script>
+    var calendar;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('person_calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            schedulerLicenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+            height: 600,
+            navLinks:true,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            }
+        });
+
+        calendar.render();
+    });
+
+    $('#ex1-tabs-4')[0].addEventListener('shown.mdb.tab', (event) => {
+        calendar.refresh();
+    })
+</script>
 
 {% endblock %}

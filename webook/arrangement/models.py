@@ -932,6 +932,20 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         """Returns a bool indicating if this event is a buffer event for another event or not"""
         return self.before_buffer_for.exists() or self.after_buffer_for.exists()
 
+    @property
+    def buffer_for(self) -> Event:
+        """ 
+        Get the event which this event is buffering (if any) 
+        :return: Event
+        :raises: Exception
+        """ 
+        if self.before_buffer_for.exists():
+            return self.before_buffer_for.get
+        elif self.after_buffer_for.exists():
+            return self.after_buffer_for.get
+        else:
+            raise Exception("Can not get buffering-for event since the event is not buffering any other event.")
+
     def refresh_buffers(self) -> Tuple[Optional[Event], Optional[Event]]:
         """Manage buffers from the event instance, returning them in a tuple form
         

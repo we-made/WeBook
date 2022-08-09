@@ -3,10 +3,10 @@
 
 
 {% block beneath_breadcrumbs_block %}
-    <a class="btn btn-danger">
+    <a class="btn btn-webook">
         <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
     </a>
-    <a class="btn btn-success"
+    <a class="btn btn-webook"
     href="{% url 'arrangement:room_edit' object.slug %}">
         <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
     </a>
@@ -44,7 +44,7 @@
     </section>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('room_calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',

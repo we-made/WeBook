@@ -12,10 +12,6 @@
         <div class="form-group mt-2 pt-3 pb-2">
             <label for="{{ form.name.id_for_label }}" class="h5 d-block">
                 {{ form.name.label }}
-                <i class="fas fa-asterisk float-end me-2"
-                    data-toggle="tooltip" title="* {% trans 'This field is mandatory' %}"></i>
-                <i class="fas fa-quote-right float-end me-2"
-                    data-toggle="tooltip" title="* {% trans 'This field expects text' %}"></i>
             </label>
 
 
@@ -41,10 +37,6 @@
         <div class="form-group mt-2 pt-3 pb-2">
             <label for="{{ form.max_capacity.id_for_label }}" class="h5 d-block">
                 {{ form.max_capacity.label }}
-                <i class="fas fa-asterisk float-end me-2"
-                    data-toggle="tooltip" title="* {% trans 'This field is mandatory' %}"></i>
-                <i class="fas float-end me-2"
-                    data-toggle="tooltip" title="* {% trans 'This field expects text' %}">0</i>
             </label>
 
 
@@ -58,10 +50,6 @@
         <div class="form-group mt-2 pt-3 pb-2">
             <label for="{{ form.max_capacity.id_for_label }}" class="h5 d-block">
                 {{ form.max_capacity.label }}
-                <i class="fas fa-asterisk float-end me-2"
-                    data-toggle="tooltip" title="* {% trans 'This field is mandatory' %}"></i>
-                <i class="fas float-end me-2"
-                    data-toggle="tooltip" title="* {% trans 'This field expects text' %}">0</i>
             </label>
 
 
@@ -87,16 +75,23 @@
 
 
         <div class="mt-3">
-            <button type="submit" class="btn btn-success">
-                {% trans "Save" %}
-            </button>
-            <a class="btn btn-danger" onClick="window.history.back();return false;">
-                {% trans "Cancel" %}
-            </a>
 
-            <button type="reset" class="btn btn-warning float-end">
+
+            <button type="reset" class="btn wb-bg-secondary shadow-0">
+                <i class="fas fa-redo"></i>&nbsp; 
                 {% trans "Reset Form" %}
             </button>
+
+            <div class="float-end">
+                <a class="btn wb-btn-secondary" onClick="window.history.back();return false;">
+                    <i class="fas fa-times"></i>&nbsp; 
+                    {% trans "Cancel" %}
+                </a>
+                <a type="submit" class="btn wb-btn-main">
+                    <i class="fas fa-check"></i>&nbsp; 
+                    {% trans "Save" %}
+                </a>
+            </div>
         </div>
     </form>
 {% endblock %}
