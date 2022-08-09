@@ -430,14 +430,14 @@
 
                             <div class="btn-group shadow-0 mb-2">
                                 <a href="#" class="btn wb-btn-secondary"
-                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
-                                    onclick='createArrangementDialog_editSerie("${element._uuid}")'>
-                                    <i class="fas fa-edit"></i>&nbsp; Rediger tidsplan
-                                </a>
-                                <a href="#" class="btn wb-btn-secondary"
                                     data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
                                     onclick='createArrangementDialog_removeSerie("${element._uuid}")'>
                                     <i class="fas fa-trash"></i>&nbsp; Slett tidsplan
+                                </a>
+                                <a href="#" class="btn wb-btn-secondary"
+                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                                    onclick='createArrangementDialog_editSerie("${element._uuid}")'>
+                                    <i class="fas fa-edit"></i>&nbsp; Rediger tidsplan
                                 </a>
                             </div>
                             <div class="accordion" id="accordion_series_${element._uuid}">
