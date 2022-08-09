@@ -159,7 +159,7 @@
 
     {% if mode == 'serie' %}
     function orderRoomDialog__order() {
-        var data = new FormData();
+        let data = new FormData();
         data.set("room_ids", orderRoomDialog__getSelectedRoomIds()
                                 .map( x => x.id )
                                 .join(","));
@@ -179,8 +179,8 @@
     }
     {% else %}
     function orderRoomDialog__order() {
-        var data = new FormData();
-        var room_ids = orderRoomDialog__getSelectedRoomIds();
+        let data = new FormData();
+        let room_ids = orderRoomDialog__getSelectedRoomIds();
 
         data.set("room_ids", room_ids.map( x => x.id ).join(","));
         data.set("event_pk", "{{event.pk}}");

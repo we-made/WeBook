@@ -81,7 +81,7 @@
 
     {% if mode == 'serie' %}
         function orderPersonDialog__order() {
-            var data = new FormData();
+            let data = new FormData();
             data.set("people_ids", orderPersonDialog__getSelectedPeopleIds()
                                     .map( x => x.id )
                                     .join(","));
@@ -98,8 +98,8 @@
         }
     {% else %}
         function orderPersonDialog__order() {
-            var data = new FormData();
-            var people_ids = orderPersonDialog__getSelectedPeopleIds();
+            let data = new FormData();
+            let people_ids = orderPersonDialog__getSelectedPeopleIds();
 
             data.set("people_ids", people_ids.map( x => x.id ).join(","));
             data.set("event_pk", "{{event.pk}}");

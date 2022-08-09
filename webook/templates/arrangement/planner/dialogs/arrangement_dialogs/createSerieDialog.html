@@ -266,7 +266,7 @@
     }
 
     function createSerieDialog__setRooms(rooms) {
-        var wrapper = $('#roomChips');
+        let wrapper = $('#roomChips');
         wrapper.empty();
 
         rooms.split(",").forEach(id => {
@@ -285,7 +285,7 @@
     }
 
     function createSerieDialog__setPeople(people) {
-        var wrapper = $('#peopleChips');
+        let wrapper = $('#peopleChips');
         wrapper.empty();
 
         people.split(",").forEach(id => {
@@ -357,8 +357,8 @@
     }
 
     function createSerieDialog__evaluateEnTitleObligatory() {
-        var $enTitleElement = $('#serie_title_en');
-        var countSeletedDisplayLayouts = $("input[name='display_layouts_serie_planner'][type='checkbox']:checked").length;
+        let $enTitleElement = $('#serie_title_en');
+        let countSeletedDisplayLayouts = $("input[name='display_layouts_serie_planner'][type='checkbox']:checked").length;
 
         if (countSeletedDisplayLayouts === 0) {
             $enTitleElement.removeAttr("required");
@@ -376,9 +376,9 @@
         new ArbitratorSelectComponent('every_dynamic_date_of_month__arbitrator');
         new ArbitratorSelectComponent('every_arbitrary_weekday_in_month__arbitrator');
 
-        var selects = $(".newTimePlanDialog_select");
+        let selects = $(".newTimePlanDialog_select");
         for (let i = 0; i < selects.length; i++) {
-            var select = selects[i];
+            let select = selects[i];
             if (select.hasAttribute("init_value")) {
                 select.value = select.getAttribute("init_value");
             }
@@ -810,7 +810,7 @@
             time_area: area,
         }
 
-        var display_layouts = [];
+        let display_layouts = [];
         document.querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
             display_layouts.push(element.value)
         })

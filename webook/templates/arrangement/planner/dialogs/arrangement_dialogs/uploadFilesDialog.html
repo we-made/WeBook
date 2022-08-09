@@ -41,8 +41,8 @@
             e.preventDefault();
             e.returnValue = false;
 
-            var form = $('#uploadFilesDialogForm')[0];
-            var formData = new FormData(form);
+            let form = $('#uploadFilesDialogForm')[0];
+            let formData = new FormData(form);
             
             document.dispatchEvent(
                 new CustomEvent("{{manager}}.submit", { "detail": {

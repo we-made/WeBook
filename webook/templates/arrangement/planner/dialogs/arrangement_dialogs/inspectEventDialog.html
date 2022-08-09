@@ -466,9 +466,7 @@
         let tbody = $('#roomsTableBody');
         tbody.empty();
 
-        let ids = rooms.split(",");
-
-        ids.forEach(id => {
+        rooms.split(",").forEach(id => {
             tbody.append(
                 $(`<tr rowid='${id}'>
                     <td>${roomsMap.get(id)}</td>
@@ -487,9 +485,7 @@
         let tbody = $('#peopleTableBody');
         tbody.empty();
 
-        let ids = people.split(",");
-
-        ids.forEach(id => {
+        people.split(",").forEach(id => {
             tbody.append(
                 $(`<tr rowid='${id}'>
                     <td>${peopleMap.get(id)}</td>
@@ -537,7 +533,7 @@
                     }
                 }).then(_ => {
                     document.dispatchEvent(new Event("eventInspector.close"));
-                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                 });
             }
         })
@@ -574,8 +570,6 @@
             display_layouts: [...document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
                                 .map(element => element.value)
         };
-
-        console.log(qualifiedEvent)
 
         document.dispatchEvent(
             new CustomEvent("eventInspector.submit", { "detail": {

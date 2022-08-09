@@ -37,11 +37,8 @@
 
 <script>
     function addPlannerDialog__addPlanners() {
-        console.log($('#addPlannersDialog_plannersSelect').val());
-
-        var planners = $('#addPlannersDialog_plannersSelect').val().join(",");
-        console.log(planners)
-        var formData = new FormData()
+        let planners = $('#addPlannersDialog_plannersSelect').val().join(",");
+        let formData = new FormData()
         formData.append("planner_ids", planners);
         formData.append("arrangement_slug", "{{arrangement.slug}}")
 

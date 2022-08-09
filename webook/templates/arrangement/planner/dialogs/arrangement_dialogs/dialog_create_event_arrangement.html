@@ -129,18 +129,6 @@
     var peopleNameMap = new Map();
     var roomsNameMap = new Map();
 
-    function dialogCreateEvent__evaluateEnTitleObligatory(){
-        var $enTitleElement = $('#title_en');
-            var countSeletedDisplayLayouts = $("input[name='display_layouts_create_event'][type='checkbox']:checked").length;
-
-            if (countSeletedDisplayLayouts === 0) {
-                $enTitleElement.removeAttr("required");
-            }
-            else {
-                $enTitleElement.attr("required", true);
-            }
-    }
-
     document.addEventListener("{{managerName}}.d1_peopleSelected", (e) => {
         peopleNameMap = e.detail.context.people_name_map;
         dialogCreateEvent__setPeople(e.detail.context.people);
@@ -151,10 +139,10 @@
     })
 
     function dialogCreateEvent__setRooms(rooms) {
-        var tbody = $('#roomsTbody__d1');
+        let tbody = $('#roomsTbody__d1');
         tbody.empty();
 
-        var ids = rooms.split(",");
+        let ids = rooms.split(",");
 
         ids.forEach(id => {
             tbody.append(
@@ -174,9 +162,9 @@
     }
 
     function dialogCreateEvent__setPeople(people) {
-        var tbody = $('#peopleTbody__d1');
+        let tbody = $('#peopleTbody__d1');
         tbody.empty();
-        var ids = people.split(",");
+        let ids = people.split(",");
 
         ids.forEach(id => {
             tbody.append(
@@ -215,8 +203,8 @@
     }
 
     function dialogCreateEvent__removeAssociation(a) {
-        var row = $(a).closest("tr")[0];
-        var rowid = row.getAttribute("rowid");
+        let row = $(a).closest("tr")[0];
+        let rowid = row.getAttribute("rowid");
         row.remove();
     }
 
@@ -242,7 +230,7 @@
             return;
         }
 
-        var qualifiedEvent = {
+        let qualifiedEvent = {
             _uuid: $('#event_uuid').val(),
             title: $('#title').val(),
             title_en: $('#title_en').val(),

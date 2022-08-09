@@ -636,9 +636,7 @@
 
 <script>
     $(document).ready(function () {
-        var ev = undefined;
         {% for event in object.event_set.all %}
-            
             new mdb.Popover(document.getElementById('eventsTable_event_{{event.pk}}'), {
                 container: document.getElementById('mainDialog'),
                 trigger: 'hover',
@@ -683,9 +681,9 @@
     }
 
     function mainPlannerDialog__updateArrangementInfo() {
-        var csrf_token="{{csrf_token}}"
+        let csrf_token="{{csrf_token}}"
 
-        var formData = new FormData();
+        let formData = new FormData();
         formData.append("name",             $('#id_name').val());
         formData.append("name_en",          $('#id_name_en').val());
         formData.append("audience",         $('#id_audience').val());
@@ -733,7 +731,7 @@
             cancelButtonText: 'Avbryt'
         }).then((result) => {
             if (result.isConfirmed) {
-                var formData = new FormData();
+                let formData = new FormData();
                 formData.append("eventIds", String(activity_pk));
                 formData.append("csrfmiddlewaretoken", "{{CSRF_TOKEN}}")
                 fetch('/arrangement/planner/delete_events/', {
@@ -837,7 +835,7 @@
             cancelButtonText: 'Avbryt'
         }).then((result) => {
             if (result.isConfirmed) {
-                var urlToDelete = "/arrangement/arrangement/files/delete/";
+                let urlToDelete = "/arrangement/arrangement/files/delete/";
                 if (type_discriminator !== undefined && type_discriminator == "event_serie") {
                     urlToDelete = "/arrangement/eventSerie/files/delete/"
                 }
@@ -860,7 +858,7 @@
     }
 
     function mainPlannerDialog__removeRoomFromEvent(event_pk, room_pk) {
-        var formData = new FormData();
+        let formData = new FormData();
         formData.set("event_pk", event_pk);
         formData.set("room_pk", room_pk)
 
@@ -881,7 +879,7 @@
     }
 
     function mainPlannerDialog__removePersonFromEvent(event_pk, person_pk) {
-        var formData = new FormData();
+        let formData = new FormData();
         formData.set("event_pk", event_pk);
         formData.set("person_pk", person_pk)
 
@@ -902,8 +900,8 @@
     }
 
     function mainPlannerDialog__removePlanners() {
-        var planners = $('#mainPlannerDialog_plannersSelect').val().join(",");
-        var formData = new FormData()
+        let planners = $('#mainPlannerDialog_plannersSelect').val().join(",");
+        let formData = new FormData()
         formData.append("planner_ids", planners);
         formData.append("arrangement_slug", "{{arrangement.slug}}")
 
