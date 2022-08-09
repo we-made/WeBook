@@ -2,31 +2,6 @@
 
 
 <div id="inspectEventDialog" title="{{ form.title.value }}">
-
-    <!-- <div class="clearfix mb-2">
-        <div class="float-start">
-            {% if event.serie %}
-            <span class="badge badge-white wb-bg-secondary text-muted"
-                data-mdb-toggle="tooltip"
-                title="Aktiviteten er en del av en serie">
-                <h4 class="mb-0"><i class="fas fa-redo"></i></h4>
-            </span>
-            {% elif event.associated_serie and event.association_type == "degraded_from_serie" %}
-            <span class="badge badge-white wb-bg-secondary text-muted"
-                data-mdb-toggle="tooltip"
-                title="Aktiviteten er brutt ut av en serie">
-                <h4 class="mb-0"><i class="fas fa-redo"></i> <i class="fas fa-times"></i></h4>
-            </span>
-            {% else %}
-            <span class="badge badge-white wb-bg-secondary text-muted"
-                data-mdb-toggle="tooltip"
-                title="Aktiviteten er enkeltstående, det vil si ikke del av en serie">
-                <h4 class="mb-0"><i class="fas fa-calendar"></i></h4>
-            </span>
-            {% endif %}
-        </div>
-    </div> -->
-
     <ul class="nav nav-tabs webook-tabs mb-3" id="ex1" role="tablist">
         <li class="nav-item" role="presentation">
             <a
@@ -166,36 +141,23 @@
 
                         <div class="row mt-2">
                             <div class="col-6">
-                                <!-- <label for="" class="form-label h5">Startdato og tidspunk</label> -->
-                                <div class="form-outline datetimepicker">
-                                    <input type="text" class="form-control" value="22/12/2020, 14:12:56" id="datetimepickerExample" />
+                                <div class="form-outline datetimepicker" id="startDateTime"
+                                    data-mdb-default-date="{{object.start|date:'m/d/Y' }}" 
+                                    data-mdb-default-time="{{object.start|date:'h:i:s' }}">
+                                    <input type="text" class="form-control" id="startDateTimeInput" 
+                                        value="{{ object.start|date:'d.m.Y h:i:s' }}"/>
                                     <label for="datetimepickerExample" class="form-label h5">Startdato og tidspunkt</label>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <!-- <label for="" class="form-label h5">Startdato og tidspunk</label> -->
-                                <div class="form-outline datetimepicker">
-                                    <input type="text" class="form-control" value="22/12/2020, 14:12:56" id="datetimepickerExample" />
+                                <div class="form-outline datetimepicker" id="endDateTime"
+                                    data-mdb-default-date="{{object.end|date:'d/m/Y' }}" 
+                                    data-mdb-default-time="{{object.end|date:'h:i:s' }}">
+                                    <input type="text" class="form-control" id="endDateTimeInput" value="{{ object.end|date:'d.m.Y h:i:s' }}" />
                                     <label for="datetimepickerExample" class="form-label h5">Sluttdato og tidspunkt</label>
                                 </div>
                             </div>
                         </div>
-    
-                        <!-- <div class="form-outline mb-3">
-                            <input type="text"
-                                class="form-control form-control-md"
-                                id="{{ form.ticket_code.id_for_label }}" 
-                                value="{{ form.ticket_code.value|default:'' }}"
-                                name="{{ form.ticket_code.name }}"
-                                autocomplete="off"
-                                />
-                            <label class="form-label" for="{{ form.ticket_code.id_for_label }}">Billetkode</label>
-                        </div>
-                        {% if form.ticket_code.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.ticket_code.errors }}
-                            </div>
-                        {% endif %} -->
                     </div>
                     <div class="mt-2">
                         <label class="d-block form-label">{% trans "Vises på skjerm:" %}</label>
@@ -215,46 +177,6 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- <div class="mt-2">
-                        <h6><i class="fas fa-calendar text-muted"></i>&nbsp; Fra</h6>
-                        <div class="row">
-                            <div class="col-8">
-                                <input type="date" class="form-control"
-                                        name="{{form.start.name}}_date" id="{{form.start.id_for_label}}_date"
-                                        value="{{ start_t|date:'Y-m-d' }}">
-                            </div>
-                            <div class="col-4">
-                                <input type="time" class="form-control"
-                                        name="{{ form.start.name }}_time" id="{{ form.start.name }}_time"
-                                        value="{{ start_t|date:'H:i' }}">
-                            </div>
-                        </div>
-                    </div> -->
-    
-                    <!-- <div class="mt-2">
-                        <h6><i class="fas fa-calendar text-muted"></i>&nbsp; Til</h6>
-                        <div class="row">
-                            <div class="col-8">
-                                <input type="date" class="form-control"
-                                        name="{{ form.end.name }}_date" id="{{ form.end.id_for_label }}_date"
-                                        value="{{ end_t|date:'Y-m-d' }}">
-                            </div>
-                            <div class="col-4">
-                                <input type="time" class="form-control"
-                                        name="{{form.end.name}}_time" id="{{ form.end.name }}_time"
-                                        value="{{ end_t|date:'H:i' }}" >
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="mt-2">
-                        <label class="d-block"><i class='fas fa-desktop'></i>&nbsp; {% trans "Vises på skjermen:" %}</label>
-                        {{form.display_layouts}}
-                        
-                    </div> -->
-    
-
                 </div>
             </div>
         </form>
@@ -484,8 +406,8 @@
     }
 
     function inspectEventDialog__evaluateEnTitleObligatory() {
-        var $enTitleElement = $('#id_title_en');
-        var countSeletedDisplayLayouts = $("input[name='display_layouts'][type='checkbox']:checked").length;
+        let $enTitleElement = $('#id_title_en');
+        let countSeletedDisplayLayouts = $("input[name='display_layouts'][type='checkbox']:checked").length;
 
         if (countSeletedDisplayLayouts === 0) {
             $enTitleElement.removeAttr("required");
@@ -516,6 +438,15 @@
     }
 
     $(document).ready(function () {
+        new mdb.Datetimepicker(document.getElementById('startDateTime', {
+            container: '#inspectEventDialog',
+            format: 'dd-mm-yyyy',
+        }));
+        new mdb.Datetimepicker(document.getElementById('endDateTime', {
+            container: '#inspectEventDialog',
+            format: 'dd-mm-yyyy',
+        }));
+
         document.addEventListener("eventInspector.roomsUpdated", (e) => {
             roomsMap = e.detail.context.room_name_map;
             inspectEventDialog__setRooms(e.detail.context.rooms);
@@ -527,17 +458,15 @@
     })
 
     function inspectEventDialog__removeAssociation(a) {
-        var row = $(a).closest("tr");
+        let row = $(a).closest("tr");
         row.remove();
     }
 
     function inspectEventDialog__setRooms(rooms) {
-        console.log("rooms", rooms)
+        let tbody = $('#roomsTableBody');
+        tbody.empty();
 
-        var tbody = $('#roomsTableBody');
-        tbody.empty(); // remove child elements
-
-        var ids = rooms.split(",");
+        let ids = rooms.split(",");
 
         ids.forEach(id => {
             tbody.append(
@@ -555,10 +484,10 @@
     }
 
     function inspectEventDialog__setPeople(people) {
-        var tbody = $('#peopleTableBody');
-        tbody.empty(); // remove child elements
+        let tbody = $('#peopleTableBody');
+        tbody.empty();
 
-        var ids = people.split(",");
+        let ids = people.split(",");
 
         ids.forEach(id => {
             tbody.append(
@@ -576,19 +505,16 @@
     }
 
     function inspectEventDialog__getSelectedRoomIds() {
-        var room_ids = Array.from($("#roomsTableBody")[0].children).map(row => row.getAttribute("rowid"));
-        console.log("Rooms", room_ids);
+        let room_ids = Array.from($("#roomsTableBody")[0].children).map(row => row.getAttribute("rowid"));
         return room_ids;
     }
 
     function inspectEventDialog__getSelectedPeopleIds() {
-        var people_ids = Array.from($("#peopleTableBody")[0].children).map(row => row.getAttribute("rowid"));
-        console.log("People", people_ids)
+        let people_ids = Array.from($("#peopleTableBody")[0].children).map(row => row.getAttribute("rowid"));
         return people_ids;
     }
 
     function inspectEventDialog__delete() {
-
         Swal.fire({
             title: 'Er du sikker?',
             text: "Hendelsen kan ikke hentes tilbake.",
@@ -622,13 +548,24 @@
             return;
         }
 
-        var qualifiedEvent = {
+        const getDateISOStringFromMdbDateTimePickerInstance = function (mdbDatetimePicker) {
+            console.log(mdbDatetimePicker._datepicker._selectedDate)
+            let isoStr = (mdbDatetimePicker._datepicker._selectedDate ??
+                            new Date(mdbDatetimePicker._dateValue + " " + mdbDatetimePicker._timeValue)).toISOString();
+            console.log(isoStr)
+            return isoStr;
+        }
+
+        let dateTimeStartMdbInstance = mdb.Datetimepicker.getInstance(document.getElementById('startDateTime'));
+        let dateTimeEndMdbInstance = mdb.Datetimepicker.getInstance(document.getElementById('endDateTime'));
+
+        let qualifiedEvent = {
             id: '{{object.pk}}',
             title: $('#id_title').val(),
             title_en: $('#id_title_en').val(),
             ticket_code: $('#id_ticket_code').val(),
-            start: new Date( $('#id_start_date').val() + "T" + $('#start_time').val() ).toISOString(),
-            end: new Date( $('#id_end_date').val() + "T" + $('#end_time').val() ).toISOString(),
+            start: getDateISOStringFromMdbDateTimePickerInstance(dateTimeStartMdbInstance),
+            end: getDateISOStringFromMdbDateTimePickerInstance(dateTimeEndMdbInstance),
             expected_visitors: $('#id_expected_visitors').val(),
             actual_visitors: $('#id_actual_visitors').val(),
             arrangement: '{{object.arrangement.pk}}',
@@ -637,6 +574,8 @@
             display_layouts: [...document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
                                 .map(element => element.value)
         };
+
+        console.log(qualifiedEvent)
 
         document.dispatchEvent(
             new CustomEvent("eventInspector.submit", { "detail": {

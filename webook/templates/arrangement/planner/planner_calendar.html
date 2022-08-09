@@ -108,31 +108,10 @@
 
 <div class="mt-4" id="plannerCalendarFilter">
     <div class="row">
-        <div class="col-2">
-            <h4>Filter</h4>
-
-            <div class="form-group mt-2">
-                <select class="select form-control form-control-lg mt-2" id="plannerCalendarFilter_arrangementTypes" data-mdb-placeholder="Filtrer blant arrangementstyper..." multiple>
-                    {% for arrangement_type in ARRANGEMENT_TYPES %}
-                        <option value="{{arrangement_type.slug}}">{{arrangement_type}}</option>
-                    {% endfor %}
-                </select>
-            </div>  
-
-            <div class="form-group mt-2">
-                <select class="select form-control form-control-lg mt-2" id="plannerCalendarFilter_audiences" data-mdb-placeholder="Filtrer blant målgrupper..."  multiple>
-                    {% for audience in AUDIENCES %}
-                        <option value="{{audience.slug}}">{{audience}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-check form-switch mt-2">
-                <input class="form-check-input" type="checkbox" role="switch" id="plannerCalendarFilter_showOnlyRoomLessEvents" />
-                <label class="form-check-label" for="plannerCalendarFilter_showOnlyRoomLessEvents">Vis bare aktiviteter uten tildelt rom</label>
-            </div>
+        <div class="col-4">
+    
         </div>
-        <div class="col-10">
+        <!-- <div class="col-10">
             <h4>Lokasjoner</h4>
             <div class="row">
                 {% for location in LOCATIONS %}
@@ -154,13 +133,38 @@
                     </div>
                 {% endfor %}
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 
 {% endblock %}
 
 {% block content %}
+
+<style>
+      .popover_wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      .popover_content {
+        visibility: hidden;
+        position: absolute;
+        box-shadow: 0 1px 20px 1px  grey!important;
+        left: -45rem;
+        transform: translate(0, 10px);
+        background-color: white;
+        padding: 1.5rem;
+        border: solid 1px grey;
+      }
+      
+      .popover_wrapper.active .popover_content {
+        z-index: 10;
+        width: 45rem;
+        visibility: visible;
+        transition: all 0.5s cubic-bezier(0.75, -0.02, 0.2, 0.97);
+      }
+</style>
 
 <div class="row">
     <div class="col-12">
@@ -190,9 +194,44 @@
             </div>
         </div>
         
-        <div id="planner__viewNavigationHeader">
+        <div class="clearfix">
+            <div class="float-start">
+                <div id="planner__viewNavigationHeader">
+                </div>
+            </div>
+            <div class="float-end d-inline">
 
+                <div id="location-and-rooms-popover-filter" class="mb-2  d-inline">
+                    <button class="btn wb-btn-secondary" id="location-and-rooms-popover-filter-trigger">
+                        <i class="fas fa-building"></i>&nbsp;
+                        Lokasjoner & Rom&nbsp;
+                        <i class="fas fa-angle-down"></i>
+                    </button>
+                    <span id="location-and-rooms-popover-filter-content">
+                    </span>
+                </div>
+                <div id="audience-popover-filter" class="mb-2  d-inline">
+                    <button class="btn wb-btn-secondary" id="audience-popover-filter-trigger">
+                        <i class="fas fa-building"></i>&nbsp;
+                        Målgruppe
+                        <i class="fas fa-angle-down"></i>
+                    </button>
+                    <span id="audience-popover-filter-content">
+                    </span>
+                </div>
+                <div id="arrangement-type-popover-filter" class="mb-2  d-inline">
+                    <button class="btn wb-btn-secondary" id="arrangement-type-popover-filter-trigger">
+                        <i class="fas fa-building"></i>&nbsp;
+                        Arrangementstyper
+                        <i class="fas fa-angle-down"></i>
+
+                    </button>
+                    <span id="arrangement-type-popover-filter-content">
+                    </span>
+                </div>
+            </div>
         </div>
+
 
         <div class="tab-content" id="calendars">
             <div class="tab-pane show active" id="universeCalendar" role="tabpanel" aria-labelledby="universeCalendar-tab">
@@ -222,9 +261,124 @@
     import { LocationCalendar } from "{% static 'modules/planner/locationCalendar.js' %}";
     import { PersonCalendar } from "{% static 'modules/planner/personCalendar.js' %}";
     import { ArrangementCreator } from "{% static 'modules/planner/arrangementCreator.js' %}";
-    import { PlannerCalendarFilter } from "{% static 'modules/planner/plannerCalendarFilter.js' %}";
+    import { AdvancedCategoricalFilter } from "{% static 'js/advancedCategoricalFilter.js' %}";
+    import { CalendarFilter } from "{% static 'modules/planner/commonLib.js' %}";
 
-    var colorSwatch = [
+    let activeCalendar;
+    let calendarFilter = new CalendarFilter( (filter) => { activeCalendar.init(); } );
+
+    let arrangementTypePopFilter = new AdvancedCategoricalFilter({
+        triggerMode: AdvancedCategoricalFilter.TRIGGERMODE_ONUPDATE,
+        triggerElement: document.getElementById('arrangement-type-popover-filter-trigger'),
+        wrapperElement: document.getElementById('arrangement-type-popover-filter-content'),
+        onSubmit: function (data) {
+            let arrangementTypeSlugs = data[0].items.filter( (item) => item.active ).map( (item) => item.key );
+            calendarFilter.filterArrangementTypes(arrangementTypeSlugs);
+        },
+        data: [
+            {
+                key: 'arrangement_types',
+                category: 'Arrangement Types',
+                items: [
+                    {% for arrangement_type in ARRANGEMENT_TYPES %}
+                        {
+                            key: '{{arrangement_type.slug}}',
+                            text: '{{arrangement_type.name}}',
+                            active: false,
+                        },
+                    {% endfor %}
+                ]
+            }
+        ],
+        selectionPresets: []
+    })
+
+    let audiencePopFilter = new AdvancedCategoricalFilter({
+        triggerMode: AdvancedCategoricalFilter.TRIGGERMODE_ONUPDATE,
+        triggerElement: document.getElementById('audience-popover-filter-trigger'),
+        wrapperElement: document.getElementById('audience-popover-filter-content'),
+        onSubmit: function (data) {
+            let audienceSlugs = data[0].items.filter( (item) => item.active ).map( (item) => item.key );
+            calendarFilter.filterAudiences(audienceSlugs);
+        },
+        data: [
+            {
+                key: "audiences",
+                category: "Audiences",
+                items: [
+                {% for audience in AUDIENCES %}
+                    {
+                        key: "{{audience.slug}}",
+                        text: "{{audience.name}}",
+                        active: false,
+                    },
+                {% endfor %}
+                ]
+            }
+
+        ],
+        selectionPresets: []
+    })
+
+    let locationAndRoomsPopFilter = new AdvancedCategoricalFilter({
+        triggerMode: AdvancedCategoricalFilter.TRIGGERMODE_ONUPDATE,
+        triggerElement: document.getElementById('location-and-rooms-popover-filter-trigger'),
+        wrapperElement: document.getElementById('location-and-rooms-popover-filter-content'),
+        onSubmit: function (data) {
+            let roomSlugs = [];
+            let locationSlugs = [];
+            let totalItemsCount = 0;
+
+            data.forEach(function (category) {
+                totalItemsCount += category.items.length;
+                let notSelectedRoomSlugs = category.items.filter(x => x.active === false).map(x => x.key);
+                if (category.items.length == notSelectedRoomSlugs.length) {
+                    locationSlugs.push(category.category);
+                }
+
+                roomSlugs = roomSlugs.concat(notSelectedRoomSlugs);
+            });
+
+            if (totalItemsCount === roomSlugs.length) {
+                roomSlugs = [];
+                locationSlugs = [];
+            }
+
+            calendarFilter.filterRooms(roomSlugs, false);
+            calendarFilter.filterLocations(locationSlugs);
+        },
+        data: [
+            {% for location in LOCATIONS %}
+                {
+                    "key": "{{location.slug}}",
+                    "category": "{{location}}",
+                    "items": [
+                        {% for room in location.rooms.all %}
+                            {
+                                "key": "{{ room.slug }}",
+                                "text": "{{ room.name }}",
+                                "active": false,
+                            },
+                        {% endfor %}
+                    ]
+                },
+            {% endfor %}
+        ],
+        selectionPresets: [
+            {% for preset in ROOM_PRESETS %}
+            {
+                "title": "{{ preset.name }}",
+                "activates": [
+                    {% for room in preset.rooms.all %}
+                        "{{room.slug}}",
+                    {% endfor %}
+                ]
+            },
+            {% endfor %}
+        ],
+    });
+
+    const colorSwatch = [
         "#63b598", "#ce7d78", "#ea9e70", "#a48a9e", "#c6e1e8", "#648177", "#0d5ac1",
         "#f205e6", "#1c0365", "#14a9ad", "#4ca2f9", "#a4e43f", "#d298e2", "#6119d0",
         "#d2737d", "#c0a43c", "#f2510e", "#651be6", "#79806e", "#61da5e", "#cd2f00",
@@ -267,11 +421,11 @@
     ]
 
     function _listenToLocationCheckboxes () {
-        var checkboxes = document.querySelectorAll("input[type=checkbox][name=filterLocationsCheckboxArray]");
+        let checkboxes = document.querySelectorAll("input[type=checkbox][name=filterLocationsCheckboxArray]");
 
         checkboxes.forEach(function (checkbox) {
             checkbox.addEventListener('change', function () {
-                var slugs = Array.from(checkboxes)
+                let slugs = Array.from(checkboxes)
                     .map(i => i.checked + "|" + i.value)
                 document.dispatchEvent(
                     new CustomEvent("plannerCalendar.filter.updateLocationFilter", { "detail": {
@@ -290,7 +444,7 @@
 
         _pickUniqueColor() {
             for (let i = 0; i < colorSwatch.length; i++) {
-                var color = colorSwatch[i];
+                let color = colorSwatch[i];
                 if (this._pickedColors.has(color) === false) {
                     this._pickedColors.set(color, true);
                     return color;
@@ -305,7 +459,7 @@
                 return this._seenArrangements.get(arrangement.slug);
             }
 
-            var color = this._pickUniqueColor();
+            let color = this._pickUniqueColor();
 
             this._seenArrangements.set(arrangement.slug, color);
             return color;
@@ -320,7 +474,7 @@
 
         _pickUniqueColor() {
             for (let i = 0; i < colorSwatch.length; i++) {
-                var color = colorSwatch[i];
+                let color = colorSwatch[i];
                 if (this._pickedColors.has(color) === false) {
                     this._pickedColors.set(color, true);
                     return color;
@@ -335,7 +489,7 @@
                 return this._seenPlanners.get(arrangement.mainPlannerName);
             }
 
-            var color = this._pickUniqueColor();
+            let color = this._pickUniqueColor();
 
             this._seenPlanners.set(arrangement.mainPlannerName, color);
             return color;
@@ -350,7 +504,7 @@
 
         _pickUniqueColor() {
             for (let i = 0; i < colorSwatch.length; i++) {
-                var color = colorSwatch[i];
+                let color = colorSwatch[i];
                 if (this._pickedColors.has(color) === false) {
                     this._pickedColors.set(color, true);
                     return color;
@@ -365,28 +519,31 @@
                 return this._seenAudiences.get(arrangement.audience);
             }
 
-            var color = this._pickUniqueColor();
+            let color = this._pickUniqueColor();
 
             this._seenAudiences.set(arrangement.audience, color);
             return color;
         }
     }
 
-    var arrangementCreator;
-    var activeCalendar;
-    var activeDate = new Date();
+    let arrangementCreator;
+    let activeDate = new Date();
 
     document.getElementById('planner__todayButton').addEventListener('click', (event) => {
-        activeCalendar.getFcCalendar().today();
-        activeDate = activeCalendar.getFcCalendar().getDate();
+        let activeFcCalendar = activeCalendar.getFcCalendar();
+        activeFcCalendar.today();
+        activeDate = activeFcCalendar.getDate();
     });
     document.getElementById('planner__moveBackOneIntervalButton').addEventListener('click', (event) => {
-        activeCalendar.getFcCalendar().prev();
-        activeDate = activeCalendar.getFcCalendar().getDate();
+        let activeFcCalendar = activeCalendar.getFcCalendar();
+        activeFcCalendar.prev();
+        activeDate = activeFcCalendar.getDate();
     });
     document.getElementById('planner__moveForwardOneIntervalButton').addEventListener('click', (event) => {
-        activeCalendar.getFcCalendar().next();
-        activeDate = activeCalendar.getFcCalendar().getDate();
+        let activeFcCalendar = activeCalendar.getFcCalendar();
+        activeFcCalendar.next();
+        activeDate = activeFcCalendar.getDate();
+        console.log("ActiveDate: ", activeDate);
     });
     document.getElementById('planner__goToDateButton').addEventListener('click', (event) => {
         Swal.fire({
@@ -397,7 +554,7 @@
             cancelButtonText: 'Avbryt',
         }).then((result) => {
             if (result.isConfirmed) {
-                var date = new Date(document.getElementById('swalGoToDate').value);
+                let date = new Date(document.getElementById('swalGoToDate').value);
                 activeDate = date;
                 activeCalendar.getFcCalendar().gotoDate(activeDate);
             }
@@ -412,9 +569,7 @@
             arrangementCreator.open();
         })
 
-        var filter = new PlannerCalendarFilter()
-
-        var plannerCalendar = new PlannerCalendar({
+        let plannerCalendar = new PlannerCalendar({
             calendarElement: document.getElementById('arrangementPlannerCalendar'),
             eventsSrcUrl: "{% url 'arrangement:arrangement_events' %}",
             colorProviders: [ 
@@ -427,12 +582,12 @@
             $arrangementTypeFilterSelectEl: $("#plannerCalendarFilter_arrangementTypes"),
             $audienceTypeFilterSelectEl: $("#plannerCalendarFilter_audiences"),
             csrf_token: '{{ csrf_token }}',
-            calendarFilter: filter,
+            calendarFilter: calendarFilter,
             licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
             navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
         });
 
-        var locationsCalendar = new LocationCalendar({
+        let locationsCalendar = new LocationCalendar({
             calendarElement: document.getElementById('locationsPlannerCalendar'),
             colorProviders: [ 
                 { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
@@ -440,11 +595,12 @@
                 { key: "arrangement", provider: new ColorByArrangementProvider() },
             ],
             initialColorProvider: "arrangement",
-            calendarFilter: filter,
+            licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+            calendarFilter: calendarFilter,
             navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
         });
 
-        var peopleCalendar = new PersonCalendar({
+        let peopleCalendar = new PersonCalendar({
             calendarElement: document.getElementById('peoplePlannerCalendar'),
             colorProviders: [ 
                 { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
@@ -452,15 +608,15 @@
                 { key: "arrangement", provider: new ColorByArrangementProvider() },
             ],
             initialColorProvider: "arrangement",
-            calendarFilter: filter,
+            calendarFilter: calendarFilter,
+            licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
             navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
         });
 
         activeCalendar = plannerCalendar; // default active calendar
         activeCalendar.renderNavigationButtons();
 
-
-        var mainCalendarFilterWrapper = $('#plannerCalendarFilter');
+        let mainCalendarFilterWrapper = $('#plannerCalendarFilter');
         
         $('#calendarFocusSelect').on("change", function () {
             plannerCalendar.setActiveColorProvider(this.value);
@@ -472,11 +628,12 @@
         })
 
         document.addEventListener('plannerCalendar.calendarChange', function (e) {
+            console.log(">> plannerCalendar.calendarChange", e);
+
             activeCalendar = e.detail.changeTo;
             activeCalendar.getFcCalendar().gotoDate(activeDate);
             activeCalendar.renderNavigationButtons();
-        })
-
+        });
 
         $('#overview-tab')[0].addEventListener('shown.mdb.tab', (event) => {
             document.dispatchEvent(new CustomEvent('plannerCalendar.calendarChange', {
@@ -486,7 +643,8 @@
             }));
 
             mainCalendarFilterWrapper.show();
-        })
+            plannerCalendar.refresh();
+        });
         $('#locations-tab')[0].addEventListener('shown.mdb.tab', (event) => {
             document.dispatchEvent(new CustomEvent('plannerCalendar.calendarChange', {
                 detail: {
@@ -496,7 +654,7 @@
 
             mainCalendarFilterWrapper.hide();
             locationsCalendar.refresh();
-        })
+        });
         $('#people-tab')[0].addEventListener('shown.mdb.tab', (event) => {
             document.dispatchEvent(new CustomEvent('plannerCalendar.calendarChange', {
                 detail: {
@@ -506,7 +664,7 @@
 
             mainCalendarFilterWrapper.hide();
             peopleCalendar.refresh();
-        })
+        });
     });
 </script>
 

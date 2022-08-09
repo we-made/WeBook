@@ -261,6 +261,7 @@ class PlannerCalendarView (LoginRequiredMixin, PlannerSectionManifestMixin, Meta
         context["PEOPLE"] = Person.objects.all()
         context["ARRANGEMENT_TYPES"] = ArrangementType.objects.all()
         context["AUDIENCES"] = Audience.objects.all()
+        context["ROOM_PRESETS"] = RoomPreset.objects.all()
         return context
 
 planner_calendar_view = PlannerCalendarView.as_view()
@@ -413,7 +414,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/arrangementInfoDialog.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context =  super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         arrangement_in_focus = self.get_object()
         sets = {}

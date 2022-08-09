@@ -14,7 +14,7 @@ export class QueryStore {
      * @param {*} csrf_token 
      */
     static async SaveSerie(serie, csrf_token, arrangement_pk = 0) {
-        var formData = serieConvert(serie, new FormData(), "");
+        let formData = serieConvert(serie, new FormData(), "");
         formData.append("arrangementPk", arrangement_pk);
         if ("event_serie_pk" in serie) {
             formData.append("predecessorSerie", serie.event_serie_pk);

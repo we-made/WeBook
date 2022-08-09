@@ -11,7 +11,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
     // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
     // has "selected" rooms as they would through the dialog interface.
     if (serie.people.length > 0) {
-        var peopleSelectContext = Object();
+        let peopleSelectContext = Object();
         peopleSelectContext.people = serie.people.join(",");
         peopleSelectContext.people_name_map = serie.people_name_map;
         document.dispatchEvent(new CustomEvent(
@@ -22,7 +22,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
         ));
     }
     if (serie.rooms.length > 0) {
-        var roomSelectContext = Object();
+        let roomSelectContext = Object();
         roomSelectContext.rooms = serie.rooms.join(",");
         roomSelectContext.room_name_map = serie.room_name_map;
         document.dispatchEvent(new CustomEvent(
@@ -74,7 +74,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
             $('#radio_pattern_weekly').prop("checked", true);
             $("#week_interval").val(serie.pattern.week_interval);
 
-            var days = [
+            const days = [
                 $("#monday"),
                 $("#tuesday"),
                 $("#wednesday"),
@@ -154,7 +154,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
     $('#serie_end').val(manifest.end_time).change();
 
     if (manifest.rooms.length > 0) {
-        var roomSelectContext = Object();
+        let roomSelectContext = Object();
         roomSelectContext.rooms = manifest.rooms.map(a => a.id).join(",");
         roomSelectContext.room_name_map = new Map();
 
@@ -171,7 +171,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
         ));
     }
     if (manifest.people.length > 0) {
-        var peopleSelectContext = Object();
+        let peopleSelectContext = Object();
         peopleSelectContext.people = manifest.people.map(a => a.id).join(",");
         peopleSelectContext.people_name_map = new Map();
 
@@ -230,7 +230,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
             $('#radio_pattern_weekly').prop("checked", true).click();
             $("#week_interval").val(parseInt(manifest.strategy_specific.interval));
 
-            var days = [
+            const days = [
                 $("#monday"),
                 $("#tuesday"),
                 $("#wednesday"),
@@ -240,7 +240,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
                 $("#sunday"),
             ]
 
-            for (var i = 0; i < manifest.strategy_specific.days.length; i++) {
+            for (let i = 0; i < manifest.strategy_specific.days.length; i++) {
                 if (manifest.strategy_specific.days[i] == true) {
                     days[i].attr("checked", true);
                 }
@@ -307,32 +307,16 @@ export function PopulateCreateEventDialog(event) {
         document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
     ).addClass("mb-4"));
 
+    let { fromDate, fromTime }  = Utils.splitDateFunc(collision_record.event_a_start);
+    let { toDate, toTime }      = Utils.splitDateFunc(collision_record.event_a_end);
 
-    // document.querySelectorAll("input[name='display_layouts']:checked")
-    //     .forEach(checkboxElement => {
-    //         $(`#${checkboxElement.value}_dlcheck`)
-    //             .prop( "checked", true );
-    //     })
-
-
-    var splitDateFunc = function (strToDateSplit) {
-        var date_str = strToDateSplit.split("T")[0];
-        var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
-        return [ date_str, time_str ];
-    }
-
-    var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
-    var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
-    $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
-    $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
-    $('#toDate').val(sendTimeArtifacts[0]).trigger('change');
-    $('#toTime').val(endTimeArtifacts[1]).trigger('change');
-
-    // NOT USED This ensures that english title is only obligatory IF a display layout has been selected.
-    // dialogCreateEvent__evaluateEnTitleObligatory();
+    $('#fromDate').val(fromDate).trigger('change');
+    $('#fromTime').val(fromTime).trigger('change');
+    $('#toDate').val(toDate).trigger('change');
+    $('#toTime').val(toTime).trigger('change');
 
     if (serie.people.length > 0) {
-        var peopleSelectContext = Object();
+        let peopleSelectContext = Object();
         peopleSelectContext.people = serie.people.join(",");
         peopleSelectContext.people_name_map = serie.people_name_map;
         document.dispatchEvent(new CustomEvent(
@@ -343,7 +327,7 @@ export function PopulateCreateEventDialog(event) {
         ));
     }
     if (serie.rooms.length > 0) {
-        var roomSelectContext = Object();
+        let roomSelectContext = Object();
         roomSelectContext.rooms = serie.rooms.join(",");
         roomSelectContext.room_name_map = serie.room_name_map;
         document.dispatchEvent(new CustomEvent(

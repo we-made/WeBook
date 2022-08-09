@@ -104,14 +104,16 @@ export class LocationStore extends BaseStore {
         this._store = new Map();
     }
     
-    getAll({ get_as } = {}) {
-        var resources = this._getStoreAsArray();
+    getAll({ get_as, filteredLocations, filteredRooms } = {}) {
+        let resources = this._getStoreAsArray();
+
+        if (filteredLocations) {
+            let slugsToIgnoreMap = new Map(filteredLocations.concat(filteredRooms).map(x => [x, true]))
+            resources = resources.filter(x => !slugsToIgnoreMap.has(x.id));
+        }
+
         if (get_as === _FC_RESOURCE) {
-            let fcResources = [];
-            for (let i = 0; i < resources.length; i++) {
-                fcResources.push(this._mapToFullCalendarResource(resources[i]));
-            }
-            return fcResources;
+            return resources.map((nativeResource) => this._mapToFullCalendarResource(nativeResource));
         }
         else if (get_as === _NATIVE_LOCATION) {
             return resources;
@@ -153,13 +155,9 @@ export class PersonStore extends BaseStore {
     }
 
     getAll({ get_as } = {}) {
-        var resources = this._getStoreAsArray();
+        let resources = this._getStoreAsArray();
         if (get_as === _FC_RESOURCE) {
-            let fcResources = [];
-            for (let i = 0; i < resources.length; i++) {
-                fcResources.push(this._mapToFullCalendarResource(resources[i]));
-            }
-            return fcResources;
+            return resources.map( (nativeResource) => this._mapToFullCalendarResource(nativeResource) );
         }
         else if (get_as === _NATIVE_LOCATION) {
             return resources;
@@ -186,7 +184,7 @@ export class ArrangementStore extends BaseStore {
     _refreshStore(time, end) {
         this._flushStore();
 
-        var query_string = "";
+        let query_string = "";
         if (time !== undefined) {
             query_string = `?start=${time.startStr}&end=${time.endStr}`;
         }
@@ -243,7 +241,7 @@ export class ArrangementStore extends BaseStore {
             return;
         }
 
-        var arrangement = this._store.get(parseInt(pk));
+        let arrangement = this._store.get(parseInt(pk));
         
         if (get_as === _FC_EVENT) {
             return this._mapArrangementToFullCalendarEvent(arrangement);
@@ -259,23 +257,16 @@ export class ArrangementStore extends BaseStore {
      * @returns An array of arrangements, whose form depends on get_as param.
      */
     get_all({ get_as, locations=undefined, arrangement_types=undefined, audience_types=undefined, filterSet=undefined } = {}) {
-        var arrangements = this._getStoreAsArray();
-        var filteredArrangements = [];
+        let arrangements = this._getStoreAsArray();
+        let filteredArrangements = [];
 
-        var slugsConvert = filterSet.slugs.map( function (slug) { return { id: slug, name: "" } });
+        let filterMap = new Map(filterSet.map( (slug) => slug.id, true));
 
-        var filterMap = new Map();
-        if (slugsConvert !== undefined) {
-            slugsConvert.forEach( (slug) => {
-                filterMap.set(slug.id, true);
-            } )
-        }
-
-        var arrangementTypesMap =   arrangement_types !== undefined && arrangement_types.length > 0 ? new Map(arrangement_types.map(i => [i, true])) : undefined;
-        var audienceTypesMap =      audience_types !== undefined && audience_types.length > 0 ? new Map(audience_types.map(i => [i, true])) : undefined;
+        let arrangementTypesMap =   arrangement_types !== undefined && arrangement_types.length > 0 ? new Map(arrangement_types.map(i => [i, true])) : undefined;
+        let audienceTypesMap =      audience_types !== undefined && audience_types.length > 0 ? new Map(audience_types.map(i => [i, true])) : undefined;
 
         arrangements.forEach ( (arrangement) => {
-            var isWithinFilter =
+            let isWithinFilter =
                 (arrangementTypesMap === undefined  || arrangementTypesMap.has(arrangement.arrangement_type_slug) === true) &&
                 (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true)
 
@@ -297,7 +288,7 @@ export class ArrangementStore extends BaseStore {
         arrangements = filteredArrangements;
 
         if (get_as === _FC_EVENT) {
-            var mappedEvents = [];
+            let mappedEvents = [];
             arrangements.forEach( (arrangement) => {
                 mappedEvents.push( this._mapArrangementToFullCalendarEvent(arrangement) );
             });
@@ -323,6 +314,45 @@ export class ArrangementStore extends BaseStore {
     }
 }
 
+
+export class CalendarFilter {
+    constructor (onFilterUpdated) {
+        this.onFilterUpdated = onFilterUpdated;
+
+        this.locations = [];
+        this.rooms = [];
+        this.audiences = [];
+        this.arrangementTypes = [];
+        
+        this.showOnlyEventsWithNoRooms = false;
+    }
+
+    filterLocations (locationSlugs, runOnFilterUpdate=true) {
+        this.locations = locationSlugs;
+        if (runOnFilterUpdate)
+            this.onFilterUpdated(this);
+    }
+
+    filterRooms (roomSlugs, runOnFilterUpdate=true) {
+        this.rooms = roomSlugs;
+        if (runOnFilterUpdate)
+            this.onFilterUpdated(this);
+    }
+
+    filterAudiences (audienceSlugs, runOnFilterUpdate=true) {
+        this.audiences = audienceSlugs;
+        if (runOnFilterUpdate)
+            this.onFilterUpdated(this);
+    }
+
+    filterArrangementTypes (arrangementTypeSlugs, runOnFilterUpdate=true) {
+        this.arrangementTypes = arrangementTypeSlugs;
+        if (runOnFilterUpdate)
+            this.onFilterUpdated(this);
+    }
+}
+
+
 export class FullCalendarBased {
     constructor(navigationHeaderWrapperElement = undefined) {
         this._instanceUUID = self.crypto.randomUUID();
@@ -333,7 +363,7 @@ export class FullCalendarBased {
     }
 
     renderNavigationButtons() {
-        var navigationBundle = this._getNavigationButtons();
+        let navigationBundle = this._getNavigationButtons();
         this._navigationButtonElements = navigationBundle.wrapper;
         this._viewsToNavigationButtonsMap = navigationBundle.viewsToButtonMap;
         
@@ -346,11 +376,11 @@ export class FullCalendarBased {
     }
 
     _getNavigationButtons() {
-        var _this = this;
+        const _this = this;
 
-        var buttons = Array.from(this.viewButtons.values());
+        let buttons = Array.from(this.viewButtons.values());
 
-        var navCompare = (a, b) => {
+        const navCompare = (a, b) => {
             if (a.weight < b.weight) {
                 return -1;
             }
@@ -363,15 +393,15 @@ export class FullCalendarBased {
 
         buttons.sort( navCompare );
 
-        var renderButtons = (button, buttons, subnesting = false) => {
-            var resultingElement = undefined;
+        const renderButtons = (button, buttons, subnesting = false) => {
+            let resultingElement = null;
 
             if (button.isParent) {
-                var dropdownWrapperElement = $("<div class='dropdown'></div>");
-                var mainButton = $("<a class='btn btn-white dropdown-toggle shadow-0 border' role='button' data-mdb-toggle='dropdown'>" + button.title + "</a>");
-                var dropdownMenu = $("<ul class='dropdown-menu'></ul>")
+                let dropdownWrapperElement = $("<div class='dropdown'></div>");
+                let mainButton = $("<a class='btn btn-white dropdown-toggle shadow-0 border' role='button' data-mdb-toggle='dropdown'>" + button.title + "</a>");
+                let dropdownMenu = $("<ul class='dropdown-menu'></ul>")
 
-                var children = buttons.filter( (a) => a.parent === button.key );
+                let children = buttons.filter( (a) => a.parent === button.key );
                 children.forEach(function (childButton) {
                     dropdownMenu.append(renderButtons(childButton, buttons, true));
                 })
@@ -402,9 +432,9 @@ export class FullCalendarBased {
             return resultingElement;
         }
 
-        var wrapper = $("<div class='btn-group shadow-0 fc-custom-navigation-buttons'></div>")
+        let wrapper = $("<div class='btn-group shadow-0 fc-custom-navigation-buttons'></div>")
         buttons.filter((x) => x.parent === undefined).forEach(function (button) {
-            var result = renderButtons(button, buttons);
+            let result = renderButtons(button, buttons);
             wrapper.append(result);
         });
 
@@ -422,10 +452,10 @@ export class FullCalendarBased {
     }
 
     _listenToViewNavigationEvents() {
-        var _this = this;
+        const _this = this;
         document.addEventListener(this._instanceUUID + '_callForFullCalendarViewRender', function(event) {
             for (let i = 0; i < _this._navigationButtonElements.children().length > 0; i++) {
-                var childEl = _this._navigationButtonElements.children()[i];
+                let childEl = _this._navigationButtonElements.children()[i];
 
                 if (childEl.tagName === "BUTTON") {
                     childEl.classList.remove("active");
@@ -435,9 +465,9 @@ export class FullCalendarBased {
                 }
             }
 
-            var parentTriggerElement = document.getElementById(_this._instanceUUID + "_" + event.detail.view)
+            let parentTriggerElement = document.getElementById(_this._instanceUUID + "_" + event.detail.view)
 
-            var buttonElement = undefined;
+            let buttonElement = undefined;
             if (parentTriggerElement.tagName === "A") {
                 buttonElement = $(parentTriggerElement).closest("div.dropdown").children("a.btn")[0]
             }
@@ -454,17 +484,17 @@ export class FullCalendarBased {
     }
 
     _findSlugFromEl(el) { 
-        var slug = undefined;
+        let slug = null;
 
         el.classList.forEach((classToEvaluate) => {
-            var classSplit = classToEvaluate.split(":");
+            let classSplit = classToEvaluate.split(":");
         
             if (classSplit.length > 1 && classSplit[0] == "slug") {
                 slug = classSplit[1];
             }
         });
 
-        if (slug === undefined) {
+        if (slug === null) {
             console.error("Element does not have a valid slug.", el)
             return undefined;
         }
@@ -473,10 +503,10 @@ export class FullCalendarBased {
     }
 
     _findEventPkFromEl(el) {
-        var pk = undefined;
+        let pk = undefined;
 
         el.classList.forEach((classToEvaluate) => {
-            var classSplit = classToEvaluate.split(":");
+            let classSplit = classToEvaluate.split(":");
             if (classSplit.length > 1 && classSplit[0] == "pk") {
                 pk = classSplit[1];
             }
@@ -528,9 +558,9 @@ export function appendArrayToFormData(arrayToAppend, formDataToAppendTo, key) {
 }
 
 export function convertObjToFormData(obj, convertArraysToList=false) {
-    var formData = new FormData();
+    let formData = new FormData();
 
-    for (var key in obj) {
+    for (let key in obj) {
         if (convertArraysToList === true && Array.isArray(obj[key])) {
             appendArrayToFormData(obj[key], formData, key)
             continue;

@@ -15,6 +15,7 @@ class PlannerUpdateArrangementModelForm(forms.ModelForm):
                     "meeting_place",
                     "meeting_place_en",
                     "expected_visitors",
+                    "actual_visitors",
                     "display_layouts",
                     "display_text",
                     "display_text_en",)

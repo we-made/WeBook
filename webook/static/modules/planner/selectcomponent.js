@@ -7,7 +7,7 @@ export class SelectComponent {
     }
 
     insert_options () {
-        var carriedValue = this.$element.val();
+        let carriedValue = this.$element.val();
 
         for (let [key, value] of this.options) {
             let option = document.createElement('option');

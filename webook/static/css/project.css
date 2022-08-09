@@ -224,6 +224,17 @@ sidenav-primary .sidenav-link {
   color: white;
 }
 .ui-dialog { z-index: 100000000000 !important ;}
+.datepicker-modal-container { 
+  z-index: 100000000001 !important; 
+  border: solid 1px var(--MAIN-COLOR);
+}
+.timepicker-container {
+  z-index: 100000000002 !important; 
+  border: solid 1px var(--MAIN-COLOR);
+}
+.timepicker-wrapper {
+  z-index: 100000000002 !important;
+}
 /* .context-menu-root {
   background-color: #386080!important;
 }

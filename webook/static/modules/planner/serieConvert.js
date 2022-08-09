@@ -24,8 +24,8 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
             break;
         case "weekly":
             formData.append(`${keyPrefix}interval`, serie.pattern.week_interval);
-            var count = 0;
-            for (var day of ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]) {
+            let count = 0;
+            for (const day of ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]) {
                 formData.append(`${keyPrefix}${day}`, serie.pattern.days.get(count));
                 count++;
             }

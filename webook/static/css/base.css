@@ -17,6 +17,20 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+.clickable-badge {
+    border: solid 0.5px gainsboro;
+    /* font-size: medium; */
+}
+
+.clickable-badge:hover {
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.clickable-badge.active {
+    background-color: var(--SECONDARY-COLOR);
+    border-color:gainsboro;
+}
+
 .wb-sub-bar {
     font-size: large;
     font-weight: bold;

@@ -49,7 +49,7 @@ function parseEvent(eventObjToParse) {
 }
 
 Date.prototype.addDays = function(days) {
-    var date = new Date(this.valueOf());
+    let date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
     return date;
 }
@@ -215,7 +215,7 @@ class LooseRequisitionsComponentManager {
 
     _bind() {
         $('.requisitionServiceBtn').on("click", function () {
-            var pk =  $(this).attr("value");
+            let pk =  $(this).attr("value");
             location.href="/arrangement/requisition/" + pk + "/order?lreq_id=" + pk
         });
     }
@@ -258,8 +258,8 @@ class PeopleToRequisitionComponentManager {
     _bind() {
         let _this = this;
         $('.initiatePersonRequisitionBtn').on("click", function () {
-            var pk =  $(this).attr("value");
-            var formData = new FormData();
+            let pk =  $(this).attr("value");
+            let formData = new FormData();
             formData.append("person_id", pk)
             formData.append("arrangement_id", _this._planner.arrangement_id);
 
@@ -303,7 +303,7 @@ class CollisionAnalyzer {
             .then(respJson => JSON.parse(respJson))
             .then(obj => {
                 for (let i = 0; i < obj.length; i++) {
-                    var parsedEvent = parseEvent(obj[i]);
+                    let parsedEvent = parseEvent(obj[i]);
                     parsedEvent.color = "#f5f5f5";
                     parsedEvent.borderColor = "red";
                     parsedEvent.is_shadow = true;
@@ -488,7 +488,7 @@ class ContextSynchronicityManager {
         for (let i = 0; i < events.length; i++) {
             let id = this.uuid_to_id_map.get(event.id);
             let convertedEvent  = this._convertEvent(id, events[i], this.arrangement_id)
-            for (var key in convertedEvent) {
+            for (let key in convertedEvent) {
                 formData.append("events[" + i + "]." + key, convertedEvent[key]);
             }
         }
@@ -629,7 +629,7 @@ class LocalPlannerContext {
     }
 
     remove_shadowed_events() {
-        var _events = this.events;
+        let _events = this.events;
 
         this.events.forEach(function (value, key, map) {
             if (value.is_shadow === true) {
@@ -1716,7 +1716,7 @@ class CalendarManager extends RendererBase {
         console.log(events);
         for (let i = 0; i < events.length; i++) {
             let event = events[i];
-            var classNames = ["uuid_" + event.id, (event.sequence_guid !== undefined ? "seq_" + event.sequence_guid : "")]
+            let classNames = ["uuid_" + event.id, (event.sequence_guid !== undefined ? "seq_" + event.sequence_guid : "")]
             if (event.extra_classes !== undefined) {
                 classNames = classNames.concat(event.extra_classes);
             }

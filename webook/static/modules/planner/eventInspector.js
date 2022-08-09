@@ -46,7 +46,7 @@ export class EventInspector {
                             this.dialogManager.closeDialog("orderPersonDialog");
                         },
                         onSubmit: (context, details) => {
-                            var people_ids = details.formData.get("people_ids");
+                            let people_ids = details.formData.get("people_ids");
                             context.people = people_ids;
                             context.people_name_map = details.people_name_map;
                             

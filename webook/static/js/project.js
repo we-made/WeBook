@@ -16,17 +16,36 @@ function Utils() {
 Utils.prototype = {
     constructor: Utils,
     isElementInView: function (element, fullyInView) {
-        var pageTop = $(window).scrollTop();
-        var pageBottom = pageTop + $(window).height();
-        var elementTop = $(element).offset().top;
-        var elementBottom = elementTop + $(element).height();
+        let pageTop = $(window).scrollTop();
+        let pageBottom = pageTop + $(window).height();
+        let elementTop = $(element).offset().top;
+        let elementBottom = elementTop + $(element).height();
 
         if (fullyInView === true) {
             return ((pageTop < elementTop) && (pageBottom > elementBottom));
         } else {
             return ((elementTop <= pageBottom) && (elementBottom >= pageTop));
         }
+    },
+    /**
+     * Split a string formatted like a valid date ( with a T in the middle ) into an array of 
+     * date value and time value.
+     * @param {*} strToDateSplit 
+     * @returns Array
+     */
+    splitStrDate(strToDateSplit) {
+        if (!(strToDateSplit instanceof String)) {
+            throw "Received strToDateSplit is not a string", strToDateSplit;
+        }
+        if (!strToDateSplit) {
+            throw "strToDateSplit is not a valid value", strToDateSplit;
+        }
+
+        let date_str = strToDateSplit.split("T")[0];
+        let time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
+
+        return [ date_str, time_str ];
     }
 }
 
-var Utils = new Utils();
+window.Utils = new Utils();

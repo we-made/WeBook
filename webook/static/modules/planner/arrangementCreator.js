@@ -34,7 +34,7 @@ export class ArrangementCreator {
                             this.dialogManager._makeAware();
                         },
                         onSubmit: async (context, details) => {
-                            var csrf_token = details.formData.get("csrf_token");
+                            let csrf_token = details.formData.get("csrf_token");
 
                             await fetch("/arrangement/arrangement/ajax/create", {
                                 method: 'POST',
@@ -45,7 +45,7 @@ export class ArrangementCreator {
                                 credentials: 'same-origin',
                             }).then(async response => await response.json())
                               .then(async (arrId) => {
-                                for (var serie of details.series) {
+                                for (let serie of details.series) {
                                     await QueryStore.SaveSerie(
                                         serie,
                                         csrf_token,
@@ -99,7 +99,7 @@ export class ArrangementCreator {
                             }
                             else {
                                 if (context.series !== undefined) {
-                                    var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
+                                    let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                                     PopulateCreateSerieDialogFromSerie(serie);
                                 }
                             }
@@ -149,8 +149,8 @@ export class ArrangementCreator {
                             */
                             context._lastTriggererDetails = context.lastTriggererDetails;
 
-                            var serie = context.lastTriggererDetails.serie;
-                            var collision_record = serie.collisions[context.lastTriggererDetails.collision_index];
+                            let serie = context.lastTriggererDetails.serie;
+                            let collisionRecord = serie.collisions[context.lastTriggererDetails.collision_index];
 
                             $('#ticket_code').val(serie.time.ticket_code ).trigger('change');
                             $('#title').val(serie.time.title ).trigger('change');
@@ -167,21 +167,16 @@ export class ArrangementCreator {
                                 document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
                             ).addClass("mb-4"));
 
-                            var splitDateFunc = function (strToDateSplit) {
-                                var date_str = strToDateSplit.split("T")[0];
-                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
-                                return [ date_str, time_str ];
-                            }
+                            let { fromDate, fromTime }  = Utils.splitDateFunc(collisionRecord.event_a_start);
+                            let { toDate, toTime }      = Utils.splitDateFunc(collisionRecord.event_a_end);
 
-                            var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
-                            var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
-                            $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
-                            $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
-                            $('#toDate').val(endTimeArtifacts[0]).trigger('change');
-                            $('#toTime').val(endTimeArtifacts[1]).trigger('change');
+                            $('#fromDate').val(fromDate).trigger('change');
+                            $('#fromTime').val(fromTime).trigger('change');
+                            $('#toDate').val(toDate).trigger('change');
+                            $('#toTime').val(toTime).trigger('change');
 
                             if (serie.people.length > 0) {
-                                var peopleSelectContext = Object();
+                                let peopleSelectContext = Object();
                                 peopleSelectContext.people = serie.people.join(",");
                                 peopleSelectContext.people_name_map = serie.people_name_map;
                                 document.dispatchEvent(new CustomEvent(
@@ -192,7 +187,7 @@ export class ArrangementCreator {
                                 ));
                             }
                             if (serie.rooms.length > 0) {
-                                var roomSelectContext = Object();
+                                let roomSelectContext = Object();
                                 roomSelectContext.rooms = serie.rooms.join(",");
                                 roomSelectContext.room_name_map = serie.room_name_map;
                                 document.dispatchEvent(new CustomEvent(
@@ -223,20 +218,20 @@ export class ArrangementCreator {
                             details.event.is_resolution = true;
                             details.event.associated_serie_internal_uuid = context._lastTriggererDetails.serie._uuid;
 
-                            var formData = new FormData();
-                            for (var key in details.event) {
+                            let formData = new FormData();
+                            for (let key in details.event) {
                                 formData.append(key, details.event[key])
                             }
 
-                            var startDate = new Date(details.event.start);
-                            var endDate = new Date(details.event.end);
+                            let startDate = new Date(details.event.start);
+                            let endDate = new Date(details.event.end);
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
 
                             details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
-                                var collision = details.event.collisions[0];
+                                let collision = details.event.collisions[0];
                                 await CollisionsUtil.FireOneToOneCollisionWarningSwal(collision);
 
                                 return false;
@@ -283,25 +278,20 @@ export class ArrangementCreator {
                                 return;
                             }
 
-                            var event = context.events.get(context.lastTriggererDetails.event_uuid);
+                            let event = context.events.get(context.lastTriggererDetails.event_uuid);
 
-                            var splitDateFunc = function (strToDateSplit) {
-                                var date_str = strToDateSplit.split("T")[0];
-                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
-                                return [ date_str, time_str ];
-                            }
-                            var startTimeArtifacts = splitDateFunc(event.start);
-                            var endTimeArtifacts = splitDateFunc(event.end);
+                            let { fromDate, fromTime }  = Utils.splitDateFunc(event.start);
+                            let { toDate, toTime }      = Utils.splitDateFunc(event.end); 
 
                             $('#event_uuid').val(event._uuid);
                             $('#title').val(event.title);
                             $('#title_en').val(event.title_en);
                             $('#ticket_code').val(event.ticket_code);
                             $('#expected_visitors').val(event.expected_visitors);
-                            $('#fromDate').val(startTimeArtifacts[0]);
-                            $('#fromTime').val(startTimeArtifacts[1]);
-                            $('#toDate').val(endTimeArtifacts[0]);
-                            $('#toTime').val(endTimeArtifacts[1]);
+                            $('#fromDate').val(fromDate);
+                            $('#fromTime').val(fromTime);
+                            $('#toDate').val(toDate);
+                            $('#toTime').val(toTime);
 
                             event.display_layouts.split(",").forEach(element => {
                                 $(`#${String(parseInt(element))}_dlcheck`)
@@ -311,7 +301,7 @@ export class ArrangementCreator {
                             // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
                             // has "selected" rooms as they would through the dialog interface.
                             if (event.people.length > 0) {
-                                var peopleSelectContext = Object();
+                                let peopleSelectContext = Object();
                                 peopleSelectContext.people = event.people.join(",");
                                 peopleSelectContext.people_name_map = event.people_name_map;
                                 document.dispatchEvent(new CustomEvent(
@@ -322,7 +312,7 @@ export class ArrangementCreator {
                                 ));
                             }
                             if (event.rooms.length > 0) {
-                                var roomSelectContext = Object();
+                                let roomSelectContext = Object();
                                 roomSelectContext.rooms = event.rooms.join(",");
                                 roomSelectContext.room_name_map = event.room_name_map;
                                 document.dispatchEvent(new CustomEvent(
@@ -349,20 +339,20 @@ export class ArrangementCreator {
                                 details.event._uuid = crypto.randomUUID();
                             }
 
-                            var formData = new FormData();
-                            for (var key in details.event) {
+                            let formData = new FormData();
+                            for (let key in details.event) {
                                 formData.append(key, details.event[key])
                             }
 
-                            var startDate = new Date(details.event.start);
-                            var endDate = new Date(details.event.end);
+                            let startDate = new Date(details.event.start);
+                            let endDate = new Date(details.event.end);
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
 
                             details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
-                                var collision = details.event.collisions[0];
+                                let collision = details.event.collisions[0];
                                 await CollisionsUtil.FireOneToOneCollisionWarningSwal(collision);
                                 return false;
                             }
@@ -421,7 +411,7 @@ export class ArrangementCreator {
                             this.dialogManager.closeDialog("orderPersonDialog");
                         },
                         onSubmit: (context, details) => {
-                            var people_ids = details.formData.get("people_ids");
+                            let people_ids = details.formData.get("people_ids");
                             context.people = people_ids;
                             context.people_name_map = details.people_name_map;
 
