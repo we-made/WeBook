@@ -74,7 +74,6 @@
       $('#arrrangementNotesWrapper').load('{% url "arrangement:notes_on_entity_component" %}?entityType=arrangement&entityPk={{object.pk}}');
       $('#arrangement_ordersWrapper').load('{% url "arrangement:requisitions_on_arrangement" %}?arrangementId={{object.pk}}');
       $('#arrangement_plannersWrapper').load('{% url "arrangement:planners_on_arrangement" %}?arrangementId={{object.pk}}');
-      // $('#arrangementDetailsWrapper').load('{% url "arrangement:arrangement_edit" slug=object.slug %}')
     });
 
     function bind_global_hotkeys() {
