@@ -1,5 +1,6 @@
-import zoneinfo
+# import zoneinfo
 
+import pytz
 from django.utils import timezone
 
 
@@ -9,7 +10,7 @@ class TimezoneMiddleware:
 
     def __call__(self, request):
         if request.user.pk:
-            timezone.activate(zoneinfo.ZoneInfo(request.user.timezone))
+            timezone.activate(pytz.timezone(request.user.timezone))
         else:
             timezone.deactivate()
 
