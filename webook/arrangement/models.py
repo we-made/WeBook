@@ -6,14 +6,15 @@ from argparse import ArgumentError
 from email.policy import default
 from enum import Enum
 from typing import Optional, Tuple
-from django.conf import settings
 
 import pytz
 from autoslug import AutoSlugField
+from django.conf import settings
 from django.db import models
 from django.db.models import FileField
 from django.db.models.deletion import RESTRICT
 from django.urls import reverse
+from django.utils import timezone as dj_timezone
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
@@ -21,7 +22,7 @@ import webook.screenshow.models as screen_models
 from webook.arrangement.managers import ArchivedManager, EventManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 from webook.utils.manifest_describe import describe_manifest
-from django.utils import timezone as dj_timezone
+
 
 class BufferFieldsMixin(models.Model):
     """Mixin for the common fields for buffer functionality"""
@@ -47,7 +48,7 @@ class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
             manager_name = "all_objects"
 
         super().__init__(*args, **kwargs, manager_name=manager_name)
-        
+
 
 
 class ModelArchiveableMixin(models.Model):
@@ -288,9 +289,6 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
     show_on_multimedia_screen = models.BooleanField(verbose_name=_("Show on multimedia screen"), default=False)
-
-    display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
-    display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layout"), related_name="arrangements", blank=True)
 
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
@@ -926,6 +924,8 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
                                              related_name="events", blank=True)
+    display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
+    display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
 
     @property
     def is_buffer_event(self) -> bool:
@@ -994,8 +994,8 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
     def degrade_to_association_status(self, commit=True) -> None:
         """Degrade this event to an associate of its serie, as opposed to a direct child
-        
-        Degradation of an event to an associate is done when the event has become more specific, or has mutated in such a way that 
+
+        Degradation of an event to an associate is done when the event has become more specific, or has mutated in such a way that
         it is not in uniform with the rest of the serie. In the cases where an event in a serie becomes more specific (breaks uniform)
         it has become something of its own, and should be distinguished and not treated as a serie child.
 
@@ -1016,7 +1016,7 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         self.serie = None
 
         if commit:
-            self.save()    
+            self.save()
 
     def __str__(self):
         """Return title of event, with start and end times"""
@@ -1178,7 +1178,7 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     @property
     def schedule_description(self):
         return describe_manifest(self)
-    
+
     @property
     def days(self):
         return {

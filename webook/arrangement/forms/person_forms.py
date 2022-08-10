@@ -6,7 +6,7 @@ from webook.users.models import User
 
 
 class AssociatePersonWithUserForm(forms.ModelForm):
-    user_set = forms.ModelChoiceField(queryset = User.objects.filter( Q(person__isnull=True) ))
+    user_set = forms.ModelChoiceField(queryset = User.objects.filter(person__isnull=True))
     
     class Meta:
         model = Person

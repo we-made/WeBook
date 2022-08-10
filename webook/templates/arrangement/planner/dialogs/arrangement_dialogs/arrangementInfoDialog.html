@@ -262,39 +262,6 @@
                         <label class="form-label">Vises på skjermen: </label>
                         {{ form.display_layouts }}
                     </div>
-                    <div class="col-lg-6 col-sm-12">
-                        <div>
-                            <label class="form-label">Skjermtekst:</label>
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.display_text.id_for_label }}"
-                                value="{{ form.display_text.value|default:'' }}"
-                                name="{{ form.display_text.name }}"
-                                placeholder="{% trans 'Custom text for display' %}..."/>
-                            
-                            {% if form.display_text.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.display_text.errors }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div>
-                            <label class="form-label mt-2">Skjermtekst (<em class="small">Engelsk</em>):</label>
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.display_text_en.id_for_label }}"
-                                value="{{ form.display_text_en.value|default:'' }}"
-                                name="{{ form.display_text_en.name }}"
-                                placeholder="{% trans 'Custom text for display (in english)' %}..."/>
-    
-                            {% if form.display_text_en.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.display_text_en.errors }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -540,7 +507,7 @@
                     <em class="text-muted small float-start"></em>
                     <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created }}</em>
                 </div>
-                
+
                 <hr>
 
                 <div class="clearfix">
@@ -557,7 +524,7 @@
                     </div>
 
                     {% if note.has_personal_information %}
-                        <i class="fas fa-shield-alt text-warning h3 float-start"></i> 
+                        <i class="fas fa-shield-alt text-warning h3 float-start"></i>
                     {% endif %}
 
                 </div>
@@ -659,7 +626,7 @@
                     headers: {
                         'X-CSRFToken': '{{csrf_token}}',
                     }
-                }).then(response => { document.getElementById('note_' + note_pk).remove(); });     
+                }).then(response => { document.getElementById('note_' + note_pk).remove(); });
             }
         });
     }
@@ -687,8 +654,6 @@
         formData.append("meeting_place_en",     $dialog.find('#id_meeting_place_en').val());
         formData.append("expected_visitors",    $dialog.find('#id_expected_visitors').val());
         formData.append("actual_visitors",      $dialog.find('#id_actual_visitors').val());
-        formData.append("display_text",         $dialog.find('#id_display_text').val());
-        formData.append("display_text_en",      $dialog.find('#id_display_text_en').val());
         formData.append("csrfmiddlewaretoken",  "{{ csrf_token }}");
 
         let displayLayouts = [];
