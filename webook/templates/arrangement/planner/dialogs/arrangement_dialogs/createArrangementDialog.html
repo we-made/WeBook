@@ -326,7 +326,6 @@
                     <h5 class="text-muted mb-0">
                         ${element.title}
                     </h5>
-<<<<<<< HEAD
                     ${element.start.toLocaleString()} - ${element.end.toLocaleString()}
                     <div class="btn-group shadow-0">
                         <a href="#" class="btn wb-btn-secondary"
@@ -336,17 +335,6 @@
                         </a>
                         <a href="#" class="btn wb-btn-secondary"
                             data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
-=======
-                    ${element.start} - ${element.end}
-                    <div class="btn-group">
-                        <a href="#" class="btn btn-danger text-white"
-                            data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}'
-                            onclick='createArrangementDialog_removeSimpleActivity("${element._uuid}")'>
-                            Slett
-                        </a>
-                        <a href="#" class="btn btn-success text-white"
-                            data-toggle='tooltip' title='{% trans "Edit this serie" %}'
->>>>>>> development
                             onclick='createArrangementDialog_editSimpleActivity("${element._uuid}")'>
                             Rediger
                         </a>
@@ -359,13 +347,8 @@
 
     function setSeries(series) {
         seriesMap = series;
-<<<<<<< HEAD
         
         let tbody = $('#timeplansBody');
-=======
-
-        var tbody = $('#timeplansBody');
->>>>>>> development
         tbody.html("")
 
         series.forEach(element => {
@@ -412,18 +395,8 @@
                             <h6><i class="fas fa-redo"></i> ${element.friendlyDesc}</h6>
 
                             <div class="btn-group shadow-0 mb-2">
-<<<<<<< HEAD
                                 <a href="#" class="btn wb-btn-secondary"
                                     data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
-=======
-                                <a href="#" class="btn btn-success text-white"
-                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}'
-                                    onclick='createArrangementDialog_editSerie("${element._uuid}")'>
-                                    <i class="fas fa-edit"></i>&nbsp; Rediger tidsplan
-                                </a>
-                                <a href="#" class="btn btn-danger text-white"
-                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}'
->>>>>>> development
                                     onclick='createArrangementDialog_removeSerie("${element._uuid}")'>
                                     <i class="fas fa-trash"></i>&nbsp; Slett tidsplan
                                 </a>
