@@ -2,62 +2,64 @@
 {% load static i18n %}
 
 {% block superheader %}
-<div class="sticky-top wb-bg-secondary border-bottom pt-1">
-    <nav class="navbar navbar-expand-lg navbar-light wb-sub-bar pb-0 shadow-0 pt-0">
-        <!-- Container wrapper -->
-    
+
+<div class="sticky-top border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white p-2 pb-0 wb-sub-bar shadow-0">
         <div class="container-fluid p-0">
-    
-          <!-- Collapsible wrapper -->
           <div
             class="collapse navbar-collapse p-0 "
             id="navbarCenteredExample"
           >
-            <div class="row" style="flex-basis: 100%">
+            <div class="row calendar-btn-nav" style="flex-basis: 100%;">
                 <div class="col-4">
-                    <div class="btn-group ms-2 shadow-0">
-                        <button class="btn  wb-btn-main shadow-0"
-                            id="planner__todayButton">
-                            I dag
-                        </button>
-                        <button class="btn  wb-btn-main shadow-0"
+                    <div class="btn-group border-0 wb-btn-white shadow-0">
+                        <button class="btn border-0 wb-large-btn wb-btn-white shadow-0"
+                            data-mdb-toggle="tooltip"
+                            title="Naviger ett steg tilbake"
                             id="planner__moveBackOneIntervalButton">
-                            <h5 class="mb-0"><</h5>
+                            <h5 class="mb-0"> <i class="fas fa-angle-left"></i> </h5>
                         </button>
-                        <button class="btn wb-btn-main shadow-0" id="plannerCalendarHeader"
-                            id="planner__currentCursorDateButton">
-                        </button>
-                        <button class="btn   wb-btn-main shadow-0"
+                        <button class="btn border-0 wb-large-btn wb-btn-white shadow-0"
+                            data-mdb-toggle="tooltip"
+                            title="Naviger ett steg tilbake"
                             id="planner__moveForwardOneIntervalButton">
-                            <h5 class="mb-0"> > </h5>
-                        </button>
-                        <button class="btn wb-btn-main shadow-0"
-                            type="button"
-                            id="planner__goToDateButton">
-                            Gå til dato
+                            <h5 class="mb-0"> <i class="fas fa-angle-right"></i> </h5>
                         </button>
                     </div>
+
+                    <span  style="font-size: large!important;;" class="me-5 ms-5">
+                        <span id="plannerCalendarHeader"></span>
+                    </span>
+
+                    <button class="btn wb-large-btn wb-btn-secondary border-0 shadow-0"
+                        id="planner__todayButton">
+                        I dag
+                    </button>
+                    <button class="btn  wb-large-btn  wb-btn-secondary border-0  shadow-0"
+                        type="button"
+                        id="planner__goToDateButton">
+                        <i class="fas fa-door"></i>
+                        Gå til dato
+                    </button>
                 </div>
                 <div class="col-4">
-                    <ul class="navbar-nav justify-content-center">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#"
-                                onclick="$('#overview-tab')[0].click();">
-                                <i class="fas fa-flask"></i>&nbsp;
+                    <ul class="nav nav-tabs webook-tabs border-0 justify-content-center" id="sectionNav">
+                        <li class="nav-item" role="presentation">
+                            <a href="#" onclick="$('#overview-tab')[0].click(); setNavActive(this);" class="nav-link active">
+                                <i class="fas fa-mask"></i>&nbsp; 
                                 Arrangementer
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="#"
-                                onclick="$('#locations-tab')[0].click();">
-                                <i class="fas fa-building"></i>&nbsp;
+                        <li class="nav-item" role="presentation">
+                            <a href="#" role="presentation" class="nav-link"
+                                onclick="$('#locations-tab')[0].click(); setNavActive(this);">
+                                <i class="fas fa-building"></i>&nbsp; 
                                 Lokasjoner
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="#"
-                                onclick="$('#people-tab')[0].click();">
-                                <i class="fas fa-users"></i>&nbsp;
+                        <li class="nav-item" role="presentation">
+                            <a href="#" onclick="$('#people-tab')[0].click(); setNavActive(this);" class="nav-link">
+                                <i class="fas fa-users"></i>&nbsp; 
                                 Personer
                             </a>
                         </li>
@@ -65,8 +67,7 @@
                 </div>
                 <div class="col-4">
                     <button class="btn wb-btn-main float-end" id="newArrangementBtn">
-                        <i class="fas fa-plus"></i>&nbsp;
-                        Planlegg nytt arrangement
+                        <i class="fas fa-plus"></i>&nbsp; Nytt arrangement
                     </button>
                 </div>
             </div>
@@ -132,17 +133,16 @@
             <div class="float-end d-inline">
 
                 <div id="location-and-rooms-popover-filter" class="mb-2  d-inline">
-                    <button class="btn wb-btn-secondary" id="location-and-rooms-popover-filter-trigger">
-                        <i class="fas fa-building"></i>&nbsp;
-                        Lokasjoner & Rom&nbsp;
-                        <i class="fas fa-angle-down"></i>
+                    <button class="btn wb-btn-white wb-large-btn btn-lg" id="location-and-rooms-popover-filter-trigger">
+                        <i class="fas fa-building text-dark"></i>&nbsp;
+                        Lokasjoner & Rom
                     </button>
                     <span id="location-and-rooms-popover-filter-content">
                     </span>
                 </div>
                 <div id="audience-popover-filter" class="mb-2  d-inline">
-                    <button class="btn wb-btn-secondary" id="audience-popover-filter-trigger">
-                        <i class="fas fa-building"></i>&nbsp;
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" id="audience-popover-filter-trigger">
+                        <i class="fas fa-mask text-dark"></i>&nbsp;
                         Målgruppe
                         <i class="fas fa-angle-down"></i>
                     </button>
@@ -150,8 +150,8 @@
                     </span>
                 </div>
                 <div id="arrangement-type-popover-filter" class="mb-2  d-inline">
-                    <button class="btn wb-btn-secondary" id="arrangement-type-popover-filter-trigger">
-                        <i class="fas fa-building"></i>&nbsp;
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" id="arrangement-type-popover-filter-trigger">
+                        <i class="fas fa-cog text-dark"></i>&nbsp;
                         Arrangementstyper
                         <i class="fas fa-angle-down"></i>
                     </button>
@@ -182,6 +182,11 @@
     $(document).ready(function () {
         document.dispatchEvent(new CustomEvent("preferSidebarHidden"));
     });
+
+    function setNavActive(triggeredBy) {
+        document.querySelectorAll('#sectionNav .nav-link').forEach( (el) => el.classList.remove("active") );
+        triggeredBy.classList.add("active");
+    }
 </script>
 
 <script type="module">

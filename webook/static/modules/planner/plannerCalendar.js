@@ -316,7 +316,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 weekNumbers: true,
                 navLinks: true,
                 minTime: "06:00",
-                // themeSystem: 'bootstrap',
+                themeSystem: 'bootstrap5',
                 maxTime: "23:00",
                 slotEventOverlap: false,
                 locale: 'nb',

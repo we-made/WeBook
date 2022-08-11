@@ -92,6 +92,33 @@
     color: var(--MAIN-HOVER);
 }
 
+.calendar-btn-nav button {
+    font-size: large;
+}
+
+
+.wb-large-btn {
+    font-size: large !important;
+    font-weight: bold!important;
+    text-transform: none;
+}
+
+.fc-custom-navigation-buttons :nth-child(n+2) {
+    margin-left: 0.6em;
+}
+
+.wb-btn-white {
+    background-color: white;
+    border: solid 0.05em var(--BORDER-STANDARD-COLOR);
+    box-shadow: none;
+    font-weight: 600;
+}
+
+.wb-btn-white:hover {
+    box-shadow: none;
+    background-color: var(--SECONDARY-COLOR);
+}
+
 .wb-btn-secondary {
     background-color: var(--SECONDARY-COLOR);
     color:var(--MAIN-COLOR)!important;
@@ -121,6 +148,7 @@
 .wb-std-tabs > .nav-item > .nav-link.active {
     color: black;
     border-color: black;
+    border-width: 100px;
 }
 
 .wb-std-tabs > .nav-item > .nav-link:hover {
@@ -146,9 +174,10 @@
 }
 
 .wb-sidenav .sidenav-link.active {
-    border: solid 1px var(--BORDER-STANDARD-COLOR)!important;
+    /* border: solid 1px var(--BORDER-STANDARD-COLOR)!important; */
     font-weight: bolder;
-    background-color: var(--SECONDARY-COLOR)!important;
+    border: none;
+    /* background-color: var(--SECONDARY-COLOR)!important; */
 }
 
 .wb-sidenav .sidenav-link.active:hover {

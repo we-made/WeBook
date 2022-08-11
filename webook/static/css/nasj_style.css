@@ -24,7 +24,7 @@
 
 .webook-tabs > .nav-item > .nav-link.active {
     color: var(--ACTIVE-TEXT-COLOR);
-    border-color: var(--ACTIVE-TEXT-COLOR);
+    border-bottom: solid 3.2px var(--ACTIVE-TEXT-COLOR);
 }
 
 .webook-tabs > .nav-item > .nav-link:hover {
@@ -35,7 +35,7 @@
 
 .sidenav-primary .sidenav-link.active {
     color: #231f20;
-    border: solid 0.1em #3f3a3b;
+    /* border: solid 0.1em #3f3a3b; */
     border-color: #231f20;
     background-color: white;
 }

@@ -397,8 +397,8 @@ export class FullCalendarBased {
             let resultingElement = null;
 
             if (button.isParent) {
-                let dropdownWrapperElement = $("<div class='dropdown'></div>");
-                let mainButton = $("<a class='btn btn-white dropdown-toggle shadow-0 border' role='button' data-mdb-toggle='dropdown'>" + button.title + "</a>");
+                let dropdownWrapperElement = $("<div class='dropdown d-inline'></div>");
+                let mainButton = $("<a class='btn btn-lg wb-btn-white wb-large-btn dropdown-toggle shadow-0 border' role='button' data-mdb-toggle='dropdown'>" + button.title + "</a>");
                 let dropdownMenu = $("<ul class='dropdown-menu'></ul>")
 
                 let children = buttons.filter( (a) => a.parent === button.key );
@@ -415,7 +415,7 @@ export class FullCalendarBased {
                 resultingElement = $("<li><a class='dropdown-item' id='"  + _this._instanceUUID + "_" + button.view +  "' href='#'>" + button.title + "</a></li>");
             }
             else {
-                resultingElement = $("<button class='btn border btn-white' id='"  + _this._instanceUUID + "_" + button.view  + "'>" + button.title + "</button>");
+                resultingElement = $("<button class='btn btn-lg wb-btn-white wb-large-btn' id='"  + _this._instanceUUID + "_" + button.view  + "'>" + button.title + "</button>");
             }
 
             if (button.onclick === undefined) {
@@ -432,7 +432,7 @@ export class FullCalendarBased {
             return resultingElement;
         }
 
-        let wrapper = $("<div class='btn-group shadow-0 fc-custom-navigation-buttons'></div>")
+        let wrapper = $("<div class='shadow-0 fc-custom-navigation-buttons'></div>")
         buttons.filter((x) => x.parent === undefined).forEach(function (button) {
             let result = renderButtons(button, buttons);
             wrapper.append(result);
