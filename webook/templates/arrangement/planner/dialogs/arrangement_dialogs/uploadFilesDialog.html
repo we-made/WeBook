@@ -1,7 +1,7 @@
 {% load static i18n %}
 
 
-<div id="{{ dialog }}" title="<i class='fa fa-upload'></i>&nbsp; {% trans 'Upload files' %}" class="bg-white">
+<div id="{{ dialog }}" title="{% trans 'Upload files' %}" class="bg-white">
     <form action="" enctype="application/x-www-form-urlencoded" id="uploadFilesDialogForm">
         <div class="file-upload-wrapper">
             <input type="file"
