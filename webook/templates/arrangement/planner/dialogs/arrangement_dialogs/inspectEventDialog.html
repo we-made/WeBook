@@ -688,10 +688,8 @@
         }
 
         const getDateISOStringFromMdbDateTimePickerInstance = function (mdbDatetimePicker) {
-            console.log(mdbDatetimePicker._datepicker._selectedDate)
             let isoStr = (mdbDatetimePicker._datepicker._selectedDate ??
                             new Date(mdbDatetimePicker._dateValue + " " + mdbDatetimePicker._timeValue)).toISOString();
-            console.log(isoStr)
             return isoStr;
         }
 
