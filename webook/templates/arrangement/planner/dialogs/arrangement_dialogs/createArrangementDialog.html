@@ -188,7 +188,7 @@
                 <div id="timeplansBody"></div>
 
                 <h5 class="mt-3">Enkle aktiviteter: </h5>
-                <a class="btn btn-md wb-btn-secondary shadow-0 btn-block mb-2" id="createArrangementDialog_createSimpleActivity">
+                <a class="btn btn-md wb-btn-secondary shadow-0 btn-block mb-2" d-trigger="createSimpleActivity">
                     Ny enkel aktivitet
                 </a>
 
@@ -450,6 +450,9 @@
             },
             editSimpleActivity(dialog, { uuid } = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { event_uuid: uuid });
+            },
+            createSimpleActivity(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { $parent: dialog.dialogElement })
             },
             breakOutEvent(dialog, { serieUuid, collisionIndex } = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementCreator", "breakOutActivityDialog", { 

@@ -295,7 +295,7 @@ export class ArrangementCreator {
                                 new mdb.Input(formOutline).init();
                             });
 
-                            if (context.lastTriggererDetails === undefined) {
+                            if (context.lastTriggererDetails?.event_uuid === undefined) {
                                 let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
                                 let $simpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
 

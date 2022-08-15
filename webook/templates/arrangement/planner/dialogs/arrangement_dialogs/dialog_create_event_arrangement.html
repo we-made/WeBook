@@ -3,45 +3,39 @@
 
 <div id="{{dialogId}}" class="{{discriminator}}" title="{{ dialogTitle }}">
     <div class="row">
-        <div class="col-6">
+        <div class="col-12">
             <form id="newSimpleActivityForm">
                 <input type="submit" name="submit" style="display:none;" />
     
                 <input type="hidden" name="uuid" id="event_uuid">
                 
-                <h5>
-                    Informasjon
-                </h5>
                 <div class="row">
-                    <div class="col-6">
-                        <div class="form-outline mb-2">
+                    <div class="col-12">
+                        <div class="form-group mb-2">
+                            <label class="form-label" for="title">Tittel (Norsk)</label>
                             <input type="text" id="title" name="title" class="form-control" />
-                            <label class="form-label" for="title">🇳🇴 Tittel på norsk</label>
                         </div>
                     </div>
-                    <div class="col-6">
-                        <div class="form-outline mb-2">
+                    <div class="col-12">
+                        <div class="form-group mb-2">
+                            <label class="form-label" for="title_en">Tittel (Engelsk)</label>
                             <input type="text" id="title_en" name="title_en" class="form-control" />
-                            <label class="form-label" for="title_en">🇬🇧 Tittel på engelsk</label>
                         </div>
                     </div>
                 </div>
     
-                <div class="form-outline mb-2">
+                <div class="form-group mb-2">
+                    <label class="form-label" for="ticket_code"><i class="fas fa-receipt"></i>&nbsp; Billetkode</label>
                     <input type="text" id="ticket_code" name="ticket_code" class="form-control" />
-                    <label class="form-label" for="ticket_code"><i class="fas fa-receipt text-info"></i>&nbsp; Billetkode</label>
                 </div>
     
-                <div class="form-outline mb-2">
+                <div class="form-group mb-2">
+                    <label class="form-label" for="expected_visitors"><i class="fas fa-users"></i>&nbsp; Forventet antall besøkende</label>
                     <input type="text" id="expected_visitors" name="expected_visitors" class="form-control" />
-                    <label class="form-label" for="expected_visitors"><i class="fas fa-users text-info"></i>&nbsp; Forventet antall besøkende</label>
                 </div>
     
-                <h5 class="mt-3">
-                    Tider
-                </h5>
                 <div class="form-group mt-2">
-                    <label for=""><i class="fas fa-calendar text-muted"></i>&nbsp; Fra</label>
+                    <label for="" class="form-label"><i class="fas fa-calendar text-muted"></i>&nbsp; Fra</label>
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
@@ -57,7 +51,7 @@
                 </div>
     
                 <div class="form-group mt-2">
-                    <label for=""><i class="fas fa-calendar text-muted"></i>&nbsp; Til</label>
+                    <label for="" class="form-label"><i class="fas fa-calendar text-muted"></i>&nbsp; Til</label>
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
@@ -72,11 +66,9 @@
                     </div>
                 </div>
     
-                <h5 class="mt-3">
-                    Skjermvisning
-                </h5>
+                {% if form.display_layouts.field.choices %}
                 <div class="form-group mt-3">
-                    <label class="d-block"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Show on:" %}</label>
+                    <label class="d-block form-label"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Show on:" %}</label>
                     <ul>
                         {% for choice_id, choice_label in form.display_layouts.field.choices %}
                             <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
@@ -84,10 +76,11 @@
                         {% endfor %}
                     </ul>
                 </div>
+                {% endif %}
 
             </form>
         </div>
-        <div class="col-6">
+        <div class="col-12">
             <div class="accordion accordion-flush" id="accordionFlushExample">
                 <div class="accordion-item">
                     <h5 class="accordion-header">
@@ -287,7 +280,7 @@
                     tbody.append(
                         $(`<tr rowid='${id}'>
                             <td> <input type='checkbox' /> </td>
-                            <td>${roomsNameMap.get(id)}</td>
+                            <td>${dialog.data.roomsNameMap.get(id)}</td>
                             <td> <a href='#' class='text-danger'
                                     data-mdb-toggle='tooltip'
                                     title='{% trans "Remove this room from the activity" %}'
@@ -307,7 +300,7 @@
                 ids.forEach(id => {
                     tbody.append(
                         $(`<tr rowid='${id}'>
-                            <td>${peopleNameMap.get(id)}</td>
+                            <td>${dialog.data.peopleNameMap.get(id)}</td>
                             <td> <a href='#' class='text-danger'
                                     data-mdb-toggle='tooltip'
                                     title='{% trans "Remove this person from the activity" %}'

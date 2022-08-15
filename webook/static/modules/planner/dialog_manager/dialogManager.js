@@ -253,6 +253,15 @@ export class DialogManager {
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
                     console.log(`${this.managerName}.${triggerName}.trigger`, event.detail);
                     this.context.lastTriggererDetails = event.detail;
+                    let parent = event.detail.$parent;
+                    if (parent)
+                        value.dialogOptions = { 
+                            dialogClass: "slave-dialog",
+                            position: { my: "left top", at: "right top", of: parent.parentNode },
+                            height: parent.parentNode.offsetHeight,
+                            width: 600,
+                        }
+                        console.log("options", value.dialogOptions)
                     value.render(this.context);
                 });
             }

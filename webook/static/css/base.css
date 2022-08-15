@@ -212,3 +212,8 @@
     visibility: visible;
     transition: all 0.5s cubic-bezier(0.75, -0.02, 0.2, 0.97);
 }
+
+.slave-dialog {
+    box-shadow: none;
+    background-color: var(--SECONDARY-COLOR)!important;
+}
