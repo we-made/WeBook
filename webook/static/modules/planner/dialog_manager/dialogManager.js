@@ -45,6 +45,10 @@
         }
     }
 
+    changeTitle(newTitle) {
+        this._$getDialogEl().dialog('option', 'title', newTitle);
+    }
+
     async refresh(context, html) {
         if (this.isOpen() === true) {
             if (this.onPreRefresh !== undefined) {
@@ -59,8 +63,10 @@
             let holderEl = document.createElement("span");
             holderEl.innerHTML = html;
 
-            document.querySelector("#" + this.dialogElementId).innerHTML 
-                = holderEl.querySelector("#" + this.dialogElementId).innerHTML;
+            let activeDialog = document.querySelector("#" + this.dialogElementId);
+            let tmpDialog = holderEl.querySelector("#" + this.dialogElementId);
+            activeDialog.innerHTML = tmpDialog.innerHTML;
+            this.changeTitle(tmpDialog.getAttribute("title"));
 
             this.onRenderedCallback(this, context);
 
@@ -127,6 +133,19 @@ export class DialogManager {
         this.context = {};
     }
     
+    async loadDialogHtml( 
+            { url, managerName, dialogId, dialogTitle=undefined, customParameters=undefined } = {}) {
+        const params = new URLSearchParams({
+            managerName: managerName,
+            dialogId: dialogId,
+            dialogTitle: dialogTitle,
+            ...customParameters
+        });
+
+        let mutated_url = `${url}?${params.toString()}`;
+        return await fetch(mutated_url).then(response => response.text());
+    }
+
     $getDialogElement(dialogId) {
         return this._dialogRepository.get(dialogId)._$getDialogEl();
     }

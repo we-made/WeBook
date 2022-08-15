@@ -1,4 +1,4 @@
-<div id="addPlannerDialog" title="Add planners">
+<div id="{{dialogId}}" class="{{discriminator}}" title="Add planners">
     <div>
         <div>
             <select id="addPlannersDialog_plannersSelect" multiple
@@ -26,7 +26,8 @@
                 <a
                     type="button"
                     class="btn wb-btn-main float-end"
-                    onclick="addPlannerDialog__addPlanners()">
+                    d-trigger="submit"
+                    d-arg-arrangement_slug="{{arrangement.slug}}">
                     <i class="fas fa-check"></i>
                     Legg til valgte planleggere
                 </a>
@@ -36,26 +37,25 @@
 </div>
 
 <script>
-    function addPlannerDialog__addPlanners() {
-        let $dialog = $('#addPlannerDialog');
+    $(document).ready(function () {
+        new Dialog({
+            managerName: '{{managerName}}',
+            dialogId: '{{dialogId}}',
+            discriminator: '{{discriminator}}',
+            postInit: function (dialog) {},
+            methods: {
+                submit(dialog, { arrangementSlug } = {}, triggeredByElement) {
+                    let planners = dialog.$dialogElement.find("#addPlannersDialog_plannersSelect").val().join(","); 
 
-        let planners = $dialog.find('#addPlannersDialog_plannersSelect').val().join(",");
-        let formData = new FormData()
-        formData.append("planner_ids", planners);
-        formData.append("arrangement_slug", "{{arrangement.slug}}")
-
-        fetch('{% url "arrangement:arrangement_add_planners_form" %}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                "X-CSRFToken": '{{csrf_token}}'
-            }
-        }).then(_ => {
-            document.dispatchEvent(
-                new CustomEvent("arrangementInspector.hasBeenUpdated", {'detail': {
-                    dialog: "addPlannerDialog",
-                }})
-            )
+                    dialog.raiseSubmitEvent({
+                        plannerIds: planners, 
+                        arrangementSlug: arrangementSlug, 
+                        csrf_token: '{{csrf_token}}' 
+                    });
+                },
+            },
+            data: {}
         })
-    }
+    })
+
 </script>

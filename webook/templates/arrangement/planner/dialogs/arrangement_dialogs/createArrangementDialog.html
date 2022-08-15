@@ -1,9 +1,7 @@
 {% load static i18n %}
 
 
-<div id="createArrangementDialog" class="uiDialog"
-     title="Planlegg nytt arrangement">
-
+<div id="{{dialogId}}" class="{{discriminator}}" title="Planlegg nytt arrangement">
     <div class="dialogBodyWrapper">
         <div class="row">
             <div class="col-6">
@@ -201,12 +199,12 @@
         <div class="clearfix">
             <div class="float-end">
                 <a href="#" class="btn wb-btn-secondary btn-lg"
-                    onclick="window.dialogApi.close('{{managerName}}', 'createArrangementDialog')">
+                    d-trigger="close">
                     <i class="fas fa-times"></i>
                     Avbryt
                 </a>
                 <a class="btn btn-lg shadow-0 wb-btn-main"
-                    onclick="createArrangementDialog_submit()">
+                    d-trigger="submit">
                     <i class="fas fa-check"></i>
                     Opprett Arrangement
                 </a>
@@ -217,262 +215,256 @@
 </div>
 
 <script>
-    var seriesMap;
-    var eventsMap;
 
-    $(document).ready(function () {
-        document.querySelectorAll('.form-outline').forEach((formOutline) => {
-            new mdb.Input(formOutline).init();
-        });
+    new Dialog({
+        managerName: '{{managerName}}',
+        dialogId: '{{dialogId}}',
+        discriminator: '{{discriminator}}',
+        postInit: function (dialog) {
+            dialog.$dialogElement[0].querySelectorAll('.form-outline').forEach((formOutline) => {
+                new mdb.Input(formOutline).init();
+            });
+            new mdb.Select(dialog.$dialogElement[0].querySelector('#createArrangementDialog #{{ form.audience.id_for_label }}'), {
+                container: '#createArrangementDialog'
+            });
+            new mdb.Select(dialog.$dialogElement[0].querySelector('#createArrangementDialog #{{ form.location.id_for_label }}'), {
+                container: '#createArrangementDialog'
+            });
+            new mdb.Select(dialog.$dialogElement[0].querySelector('#createArrangementDialog #{{ form.responsible.id_for_label }}'), {
+                container: '#createArrangementDialog'
+            });
+            new mdb.Select(dialog.$dialogElement[0].querySelector('#createArrangementDialog #{{ form.arrangement_type.id_for_label }}'), {
+                container: '#createArrangementDialog'
+            });
 
-        new mdb.Select(document.querySelector('#createArrangementDialog #{{ form.audience.id_for_label }}'), {
-            container: '#createArrangementDialog'
-        })
-        new mdb.Select(document.querySelector('#createArrangementDialog #{{ form.location.id_for_label }}'), {
-            container: '#createArrangementDialog'
-        })
-        new mdb.Select(document.querySelector('#createArrangementDialog #{{ form.responsible.id_for_label }}'), {
-            container: '#createArrangementDialog'
-        })
-        new mdb.Select(document.querySelector('#createArrangementDialog #{{ form.arrangement_type.id_for_label }}'), {
-            container: '#createArrangementDialog'
-        })
+            document.addEventListener("{{managerName}}.contextUpdated", (e) => {
+                if (e.detail.context.series !== undefined) {
+                    dialog.setSeries( { series: e.detail.context.series });
+                }
+                if (e.detail.context.events !== undefined) {
+                    dialog.setEvents( {events: e.detail.context.events });
+                }
+            });
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            validate(dialog, {} = {}, triggeredByElement) {
+                let field_elements = dialog.$safeGet('#arrangementInfoForm').find("input, select");
+                let isInvalid = false;
 
-        document.addEventListener("{{managerName}}.contextUpdated", (e) => {
-            if (e.detail.context.series !== undefined) {
-                setSeries(e.detail.context.series);
-            }
-            if (e.detail.context.events !== undefined) {
-                setEvents(e.detail.context.events);
-            }
-        })
-    })
+                for (let i = 0; i < field_elements.length; i++) {
+                    if (field_elements[i].checkValidity() === false) {
+                        isInvalid = true;
+                        break;
+                    }
+                }
 
-    function validate_arrangement_info_form() {
-        let field_elements = $('#arrangementInfoForm').find("input, select");
+                if (isInvalid) {
+                    dialog.$safeGet('#arrangementInfoForm').find(':submit').click();
+                    return false;
+                }
 
-        let isInvalid = false;
+                return true;
+            },
+            has_plans(dialog, {} = {}, triggeredByElement) { 
+                return dialog.data.seriesMap !== undefined && dialog.data.seriesMap.size > 0 || 
+                    dialog.data.eventsMap !== undefined && dialog.data.eventsMap.size > 0;
+            },
+            submit(dialog, {} = {}, triggeredByElement) {
+                if (dialog.validate() === false) {
+                    return;
+                }
+                if (dialog.has_plans() === false) {
+                    toastr.warning("Plan(er) må opprettes før vi kan opprette arragementet - du må sette tider.");
+                    return;
+                }
 
-        for (let i = 0; i < field_elements.length; i++) {
-            if (field_elements[i].checkValidity() === false) {
-                isInvalid = true;
-                break;
-            }
-        }
+                let formData = new FormData();
+                formData.append("name",             dialog.interior.id_name.value);
+                formData.append("name_en",          dialog.interior.id_name_en.value);
+                formData.append("audience",         dialog.interior.id_audience.value);
+                formData.append("location",         dialog.interior.id_location.value);
+                formData.append("arrangement_type", dialog.interior.id_arrangement_type.value);
+                formData.append("responsible",      dialog.interior.id_responsible.value);
+                formData.append("ticket_code",      dialog.interior.id_ticket_code.value);
+                formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
+                formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
+                formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
 
-        if (isInvalid) {
-            $('#arrangementInfoForm').find(':submit').click();
-            return false;
-        }
-
-        return true;
-    }
-
-    var has_plans = () => seriesMap !== undefined && seriesMap.size > 0 || eventsMap !== undefined && eventsMap.size > 0;
-
-    function createArrangementDialog_submit() {
-
-        if (validate_arrangement_info_form() === false) {
-            return;
-        }
-        if (has_plans() === false) {
-            toastr.warning("Plan(er) må opprettes før vi kan opprette arragementet - du må sette tider.");
-            return;
-        }
-
-        let formData = new FormData();
-        var $dialog = $('#createArrangementDialog');
-        formData.append("name",             $dialog.find('#id_name').val());
-        formData.append("name_en",          $dialog.find('#id_name_en').val());
-        formData.append("audience",         $dialog.find('#id_audience').val());
-        formData.append("location",         $dialog.find('#id_location').val());
-        formData.append("arrangement_type", $dialog.find('#id_arrangement_type').val());
-        formData.append("responsible",      $dialog.find('#id_responsible').val());
-        formData.append("ticket_code",      $dialog.find('#id_ticket_code').val());
-        formData.append("meeting_place",    $dialog.find('#id_meeting_place').val());
-        formData.append("meeting_place_en", $dialog.find('#id_meeting_place_en').val());
-        formData.append("expected_visitors",$dialog.find('#id_expected_visitors').val());
-
-        let displayLayouts = [];
-        document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
-            formData.append("display_layouts", element.value);
-        })
-
-        formData.append("csrf_token",       "{{csrf_token}}");
-
-        let seriesArray = seriesMap !== undefined ? Array.from(seriesMap.values()) : [];
-        let eventsArray = eventsMap !== undefined ? Array.from(eventsMap.values()) : [];
-
-        document.dispatchEvent(
-            new CustomEvent("{{managerName}}.submit", { "detail": {
-                dialog: "createArrangementDialog",
-                formData: formData,
-                series: seriesArray,
-                events: eventsArray,
-            }})
-        );
-    }
-
-    function setEvents(events) {
-        eventsMap = events;
-
-        let tbody = $('#eventsBody');
-        tbody.html("");
-
-        events.forEach(element => {
-            tbody.append(
-                $(`
-                <div class="border border rounded p-3" id='${element._uuid}'>
-                    <h5 class="text-muted mb-0">
-                        ${element.title}
-                    </h5>
-                    ${element.start.toLocaleString()} - ${element.end.toLocaleString()}
-                    <div class="btn-group shadow-0">
-                        <a href="#" class="btn wb-btn-secondary"
-                            data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
-                            onclick='createArrangementDialog_removeSimpleActivity("${element._uuid}")'>
-                            Slett
-                        </a>
-                        <a href="#" class="btn wb-btn-secondary"
-                            data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
-                            onclick='createArrangementDialog_editSimpleActivity("${element._uuid}")'>
-                            Rediger
-                        </a>
-                    </div>
-                </div>
-                `)
-            )
-        })
-    }
-
-    function setSeries(series) {
-        seriesMap = series;
-        
-        let tbody = $('#timeplansBody');
-        tbody.html("")
-
-        series.forEach(element => {
-            collisions_html = "";
-            if (element.collisions !== undefined && element.collisions.length > 0) {
-                let collisionsCounter = 0;
-                element.collisions.forEach(collisionRecord => {
-                    collisions_html += `
-                    <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}">
-                        <h5><i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikt på ${collisionRecord.contested_resource_name}</h5>
-                        <div class="row">
-                            <div class="col-5">
-                                <div class="">
-                                    <div class="fw-bolder">${collisionRecord.event_a_title}</div>
-                                    <h6>${collisionRecord.event_a_start} - ${collisionRecord.event_a_end}</h6>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <h3 class=" text-center"><i class="fas fa-arrow-right"></i></h3>
-                            </div>
-                            <div class="col-5">
-                                <div class="">
-                                    <div class="fw-bolder">${collisionRecord.event_b_title}</div>
-                                    <h6>${collisionRecord.event_b_start} - ${collisionRecord.event_b_end}</h6>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix">
-                            <a href="#" class="btn wb-btn-secondary shadow-0"
-                                onclick='createArrangementDialog__breakOutEvent("${element._uuid}", ${collisionsCounter})'><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
-                            </a>
-                        </div>
-                    </div>
-                    `;
-                    collisionsCounter++;
+                let displayLayouts = [];
+                dialog.$dialogElement[0].querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
+                    formData.append("display_layouts", element.value);
                 })
-            }
 
-            tbody.append(
-                $(`
-                        <div class="rounded border  p-3 ps-4 pe-4" id='${element._uuid}'>
-                            <h5 class="mb-0 text-muted">${element.time.title}</h5>
-                            <h6 class="mb-0"><i class="fas fa-clock"></i> ${element.time.start} - ${element.time.end} </h6>
-                            <h6><i class="fas fa-redo"></i> ${element.friendlyDesc}</h6>
+                formData.append("csrf_token",       "{{csrf_token}}");
 
-                            <div class="btn-group shadow-0 mb-2">
+                let seriesArray = dialog.data.seriesMap !== undefined ? Array.from(dialog.data.seriesMap.values()) : [];
+                let eventsArray = dialog.data.eventsMap !== undefined ? Array.from(dialog.data.eventsMap.values()) : [];
+
+                document.dispatchEvent(
+                    new CustomEvent("{{managerName}}.submit", { "detail": {
+                        dialog: "createArrangementDialog",
+                        formData: formData,
+                        series: seriesArray,
+                        events: eventsArray,
+                    }})
+                );
+            },
+            setEvents(dialog, { events } = {}, triggeredByElement) {
+                dialog.data.eventsMap = events;
+                let tbody = dialog.$safeGet('#eventsBody');
+                tbody.html("");
+
+                events.forEach(element => {
+                    tbody.append(
+                        $(`
+                        <div class="border border rounded p-3" id='${element._uuid}'>
+                            <h5 class="text-muted mb-0">
+                                ${element.title}
+                            </h5>
+                            ${element.start.toLocaleString()} - ${element.end.toLocaleString()}
+                            <div class="btn-group shadow-0">
                                 <a href="#" class="btn wb-btn-secondary"
-                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
-                                    onclick='createArrangementDialog_removeSerie("${element._uuid}")'>
-                                    <i class="fas fa-trash"></i>&nbsp; Slett tidsplan
+                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}'
+                                    d-trigger='removeSimpleActivity'
+                                    d-arg-uuid='${element._uuid}'>
+                                    Slett
                                 </a>
                                 <a href="#" class="btn wb-btn-secondary"
                                     data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
-                                    onclick='createArrangementDialog_editSerie("${element._uuid}")'>
-                                    <i class="fas fa-edit"></i>&nbsp; Rediger tidsplan
+                                    d-trigger='editSimpleActivity'
+                                    d-arg-uuid='${element._uuid}'>
+                                    Rediger
                                 </a>
                             </div>
-                            <div class="accordion" id="accordion_series_${element._uuid}">
-                                <div class="accordion-item">
-                                  <h2 class="accordion-header" id="headingOne">
-                                    <a
-                                      class="accordion-button text-muted collapsed"
-                                      type="button"
-                                      data-mdb-toggle="collapse"
-                                      data-mdb-target="#collisionsCollapse_${element._uuid}"
-                                      aria-expanded="true"
-                                      aria-controls="collisionsCollapse_${element._uuid}"
-                                    >
-                                    <span class="bg-danger rounded-pill text-white p-1" id='${element._uuid}_collisionCounter'>${element.collisions.length}</span>
-                                    <i class="fas fa-exclamation-triangle ms-2"></i>&nbsp; Kollisjoner
-                                  </a>
-                                  </h2>
-                                  <div id="collisionsCollapse_${element._uuid}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-mdb-parent="#accordion_series_${element._uuid}">
-                                    <div class="accordion-body">
-                                        <div class="alert alert-danger small">
-                                            <strong>OBS: </strong> kollisjoner som ikke blir <abbr title="Bryt ut kollisjoner til enkle aktiviteter og løs kollisjonen">brutt ut</abbr> og løst vil ikke bli opprettet
-                                            når arrangementet opprettes.
+                        </div>
+                        `)
+                    )
+                })
+            },
+            setSeries(dialog, { series } = {}, triggeredByElement) {
+                dialog.data.seriesMap = series;
+        
+                let tbody = dialog.$safeGet('#timeplansBody');
+                tbody.html("")
+
+                console.log(series);
+
+                series.forEach(element => {
+                    collisions_html = "";
+                    if (element.collisions !== undefined && element.collisions.length > 0) {
+                        let collisionsCounter = 0;
+                        element.collisions.forEach(collisionRecord => {
+                            collisions_html += `
+                            <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}">
+                                <h5><i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikt på ${collisionRecord.contested_resource_name}</h5>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <div class="">
+                                            <div class="fw-bolder">${collisionRecord.event_a_title}</div>
+                                            <h6>${collisionRecord.event_a_start} - ${collisionRecord.event_a_end}</h6>
                                         </div>
-                                        ${collisions_html}
                                     </div>
-                                  </div>
+                                    <div class="col-2">
+                                        <h3 class=" text-center"><i class="fas fa-arrow-right"></i></h3>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="">
+                                            <div class="fw-bolder">${collisionRecord.event_b_title}</div>
+                                            <h6>${collisionRecord.event_b_start} - ${collisionRecord.event_b_end}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix">
+                                    <a href="#" class="btn wb-btn-secondary shadow-0"
+                                        onclick='createArrangementDialog__breakOutEvent("${element._uuid}", ${collisionsCounter})'><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
+                                    </a>
                                 </div>
                             </div>
-                        </div>
-                `)
-            )
-        });
-    }
+                            `;
+                            collisionsCounter++;
+                        })
+                    }
 
-    function createArrangementDialog_removeSerie(uuid) {
-        $('#' + uuid).remove();
-        seriesMap.delete(uuid);
-    }
+                    tbody.append(
+                        $(`
+                                <div class="rounded border p-3 ps-4 pe-4" id='${element._uuid}'>
+                                    <h5 class="mb-0 text-muted">${element.time.title}</h5>
+                                    <h6 class="mb-0"><i class="fas fa-clock"></i> ${element.time.start} - ${element.time.end} </h6>
+                                    <h6><i class="fas fa-redo"></i> ${element.friendlyDesc}</h6>
 
-
-    function createArrangementDialog_removeSimpleActivity(uuid) {
-        $('#' + uuid).remove();
-        eventsMap.delete(uuid);
-    }
-
-    function createArrangementDialog_editSimpleActivity(uuid) {
-        document.dispatchEvent(
-            new CustomEvent("arrangementCreator.newSimpleActivityDialog.trigger", { "detail": {
-                "event_uuid": uuid
-            } })
-        )
-    }
-
-    function createArrangementDialog__breakOutEvent(serie_uuid, collision_index) {
-        let serie = seriesMap.get(serie_uuid);
-        document.dispatchEvent(
-            new CustomEvent("arrangementCreator.breakOutActivityDialog.trigger", { "detail": {
-                "serie": serie,
-                "collision_index": collision_index,
-            } })
-        )
-    }
-
-    function createArrangementDialog_editSerie(uuid) {
-        document.dispatchEvent(
-            new CustomEvent("arrangementCreator.newTimePlanDialog.trigger", { "detail": {
-                "serie_uuid": uuid
-            } })
-        )
-    }
-
+                                    <div class="btn-group shadow-0 mb-2">
+                                        <a href="#" class="btn wb-btn-secondary"
+                                            data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
+                                            d-trigger='removeSerie'
+                                            d-arg-uuid='${element._uuid}'>
+                                            <i class="fas fa-trash"></i>&nbsp; Slett tidsplan
+                                        </a>
+                                        <a href="#" class="btn wb-btn-secondary"
+                                            data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                                            d-trigger='editSerie'
+                                            d-arg-uuid='"${element._uuid}"'>
+                                            <i class="fas fa-edit"></i>&nbsp; Rediger tidsplan
+                                        </a>
+                                    </div>
+                                    <div class="accordion" id="accordion_series_${element._uuid}">
+                                        <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingOne">
+                                            <a
+                                            class="accordion-button text-muted collapsed"
+                                            type="button"
+                                            data-mdb-toggle="collapse"
+                                            data-mdb-target="#collisionsCollapse_${element._uuid}"
+                                            aria-expanded="true"
+                                            aria-controls="collisionsCollapse_${element._uuid}"
+                                            >
+                                            <span class="bg-danger rounded-pill text-white p-1" id='${element._uuid}_collisionCounter'>${element.collisions.length}</span>
+                                            <i class="fas fa-exclamation-triangle ms-2"></i>&nbsp; Kollisjoner
+                                        </a>
+                                        </h2>
+                                        <div id="collisionsCollapse_${element._uuid}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-mdb-parent="#accordion_series_${element._uuid}">
+                                            <div class="accordion-body">
+                                                <div class="alert alert-danger small">
+                                                    <strong>OBS: </strong> kollisjoner som ikke blir <abbr title="Bryt ut kollisjoner til enkle aktiviteter og løs kollisjonen">brutt ut</abbr> og løst vil ikke bli opprettet
+                                                    når arrangementet opprettes.
+                                                </div>
+                                                ${collisions_html}
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        `)
+                    )
+                });
+            },
+            removeSerie(dialog, { uuid } = {}, triggeredByElement) {
+                console.log(`#${uuid}`)
+                dialog.$dialogElement.find(`#${uuid}`).remove();
+                dialog.data.seriesMap.delete(uuid);
+            },
+            removeSimpleActivity(dialog, { uuid } = {}, triggeredByElement) {
+                dialog.$dialogElement.find(`#${uuid}`).remove();
+                dialog.data.eventsMap.delete(uuid);
+            },
+            editSimpleActivity(dialog, { uuid } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { event_uuid: uuid });
+            },
+            breakOutEvent(dialog, { serieUuid, collisionIndex } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementCreator", "breakOutActivityDialog", { 
+                    serie: seriesMap.get(serieUuid), 
+                    collision_index: collisionIndex,
+                });
+            },
+            editSerie(dialog, { uuid } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementCreator", "newTimePlanDialog", { serie_uuid: uuid });
+            },
+        },
+        data: {
+            seriesMap: new Map(),
+            eventsMap: new Map(),
+        },
+    });
 </script>

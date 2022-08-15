@@ -17,8 +17,11 @@ export class ArrangementCreator {
                         dialogElementId: "createArrangementDialog",
                         triggerElementId: "_createArrangementDialog",
                         htmlFabricator: async (context) => {
-                            return await fetch('/arrangement/planner/dialogs/create_arrangement?managerName=arrangementCreator')
-                                    .then(response => response.text());
+                            return this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/create_arrangement',
+                                dialogId: "createArrangementDialog",
+                                managerName: "arrangementCreator",
+                            });
                         },
                         onPreRefresh: (dialog) => {
                             dialog._active_tab = active;
@@ -99,7 +102,7 @@ export class ArrangementCreator {
                                             .prop( "checked", true );
                                     })
 
-                                $thisDialog.children('#serie_uuid').val(crypto.randomUUID());
+                                $thisDialog.find('#serie_uuid').val(crypto.randomUUID());
 
                                 document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                     new mdb.Input(formOutline).init();
@@ -144,8 +147,16 @@ export class ArrangementCreator {
                         triggerElementId: "breakOutActivityDialog",
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=0&managerName=arrangementCreator&dialog=breakOutActivityDialog&orderRoomDialog=orderRoomDialog&orderPersonDIalog=orderPersonDialog&dialogTitle=Kollisjonshåndtering&dialogIcon=fa-code-branch')
-                                .then(response => response.text());
+                            return this.dialogManager.loadDialogHtml({
+                                url: "/arrangement/planner/dialogs/create_simple_event",
+                                dialogId: "breakOutActivityDialog",
+                                managerName: "arrangementCreator",
+                                customParameters: {
+                                    slug: 0,
+                                    orderPersonDialog: "orderPersonDialog",
+                                    orderRoomDialog: "orderRoomDialog",
+                                }
+                            })
                         },
                         onRenderedCallback: (dialogManager, context) => {
                             /*
@@ -261,8 +272,16 @@ export class ArrangementCreator {
                         triggerElementId: "createArrangementDialog_createSimpleActivity",
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=0&managerName=arrangementCreator&dialog=newSimpleActivityDialog&orderRoomDialog=orderRoomDialog&orderPersonDialog=orderPersonDialog')
-                                .then(response => response.text());
+                            return await this.dialogManager.loadDialogHtml({
+                                url: "/arrangement/planner/dialogs/create_simple_event",
+                                dialogId: "newSimpleActivityDialog",
+                                managerName: "arrangementCreator",
+                                customParameters: {
+                                    slug: 0,
+                                    orderPersonDialog: "orderPersonDialog",
+                                    orderRoomDialog: "orderRoomDialog",
+                                }
+                            });
                         },
                         onRenderedCallback: (dialogManager, context) => {
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
@@ -338,8 +357,14 @@ export class ArrangementCreator {
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return await fetch(`/arrangement/planner/dialogs/order_room?event_pk=0&manager=arrangementCreator&dialog=orderRoomDialog`)
-                                .then(response => response.text());
+                            return await this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/order_room',
+                                dialogId: 'orderRoomDialog',
+                                managerName: 'arrangementCreator',
+                                customParameters: {
+                                    event_pk: 0
+                                }
+                            })
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
@@ -369,8 +394,14 @@ export class ArrangementCreator {
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return await fetch(`/arrangement/planner/dialogs/order_person?event_pk=0&manager=arrangementCreator&dialog=orderPersonDialog`)
-                            .then(response => response.text());
+                            return this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/order_person',
+                                managerName: 'arrangementCreator',
+                                dialogId: 'orderPersonDialog',
+                                customParameters: {
+                                    event_pk: 0
+                                }
+                            });
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },

@@ -52,7 +52,27 @@ Utils.prototype = {
         let date_str = str.split("T")[0];
         let time_str = new Date(str).toTimeString().split(' ')[0];
         return [ date_str, time_str ];
-    }
+    },
+
+    convertObjToFormData(obj, convertArraysToList=false) {
+        let formData = new FormData();
+    
+        for (let key in obj) {
+            if (convertArraysToList === true && Array.isArray(obj[key])) {
+                appendArrayToFormData(obj[key], formData, key)
+                continue;
+            }
+    
+            if (obj[key] instanceof Date) {
+                formData.append(key, obj[key].toISOString());
+                continue;
+            }
+    
+            formData.append(key, obj[key]);
+        }
+        
+        return formData;
+    },
 }
 
 window.Utils = new Utils();

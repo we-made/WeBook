@@ -1,4 +1,5 @@
-<div id="{{dialog}}" title="{% if mode == 'serie' %}Bestill rom{% else %}Bestill rom for '{{event.title}}'{% endif %}">
+<div id="{{dialogId}}" class="{{discriminator}}"
+    title="{% if mode == 'serie' %}Bestill rom{% else %}Bestill rom for '{{event.title}}'{% endif %}">
     <div>
         {% if mode == "serie" %}
         <div class="alert alert-danger">
@@ -11,8 +12,8 @@
 
             {% for preset in room_presets %}
                 <a href="#" class="btn wb-btn-secondary shadow-0"
-                    rooms="{{preset.room_ids}}"
-                    onclick="orderRoomDialog__activateRoomIds(this.getAttribute('rooms'))">
+                    d-arg-room_ids="{{preset.room_ids}}"
+                    d-trigger="activateRoomIds">
                     {{preset.name}}
                 </a>
             {% endfor %}
@@ -86,12 +87,12 @@
     <div class="clearfix">
         <div class="float-end">
             <a href="#" class="btn wb-btn-secondary btn-lg"
-                onclick="window.dialogApi.close('{{manager}}', '{{dialog}}')">
+                d-trigger="close">
                 <i class="fas fa-times"></i>
                 Avbryt
             </a>
 
-            <a class="btn wb-btn-main shadow-0" type="button" onclick="orderRoomDialog__order()">
+            <a class="btn wb-btn-main shadow-0" type="button" d-trigger="order">
                 <i class="fas fa-check"></i>&nbsp; Legg til valgte rom
             </a>
         </div>
@@ -99,108 +100,98 @@
 </div>
 
 <script>
-    $(document).ready(function () {
-        listenToRoomsBeingSelectedByCheckbox();
-        document.querySelectorAll('.form-outline').forEach((formOutline) => {
-            new mdb.Input(formOutline).init();
-        });
+    new Dialog({
+        dialogId: '{{dialogId}}',
+        managerName: '{{managerName}}',
+        discriminator: '{{discriminator}}',
+        postInit: function (dialog) {
+            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                new mdb.Input(formOutline).init();
+            });
 
-        {% for location in locations %}
+            {% for location in locations %}
             $('#{{location.slug}}_roomsTable').DataTable().destroy();
             $('#{{location.slug}}_roomsTable').DataTable();
-        {% endfor %}
-    })
+            {% endfor %}
 
-    var selectedRoomsMap = new Map();
+            /*
+            Set up a listener that listens to rooms being selected and deselected by the checkboxes in the dialog.
+            When selected these rooms will be added to the selectedRoomsMap, when deselected they will be removed from the map
+            This is necessary due to datatables wiping its elements when you search or paginate, so we want to persist our memory 
+            of these ids/rooms beyond the scope and whims of the datatable.
+            */
+            dialog.$safeGet("input[type=checkbox][name=orderRoomDialog__checkboxArray]").change((event) => {
+                if (event.currentTarget.checked === true)
+                    dialog.data.selectedRoomsMap.set(event.currentTarget.value, event.currentTarget.getAttribute("room_name"));
+                else
+                    dialog.data.selectedRoomsMap.delete(event.currentTarget.value);
+            });
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            /* Get all rooms that have been selected by checkbox in the order room dialog */
+            getSelectedRoomIds(dialog, {} = {}, triggeredByElement) {
+                return Array.from(dialog.data.selectedRoomsMap, 
+                    ([name, value]) => ({id: name, text: value})
+                );
+            },
+            /* Uncheck all checkboxes in the order room dialog */
+            uncheckAll(dialog, {} = {}, triggeredByElement) {
+                [...dialog.$safeGet("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked")]
+                    .forEach((checkboxElement) => { checkboxElement.removeAttribute("checked"); });
+            },        
+            /* Takes an array of room ids and checks their corresponding checkboxes in the room selector */
+            activateRoomIds(dialog, {roomIds} = {}, triggeredByElement) {
+                dialog.uncheckAll();
+                roomIds.split(",").forEach((roomId) => {
+                    dialog.$safeGet("input[type=checkbox][name=orderRoomDialog__checkboxArray][value='" + roomId + "']")
+                            .attr("checked", true).change();
+                });
+            },
+            {% if mode == 'serie' %}
+            order(dialog, {} = {}, triggeredByElement) {
+                let formData = new FormData();
+                formData.set("room_ids", dialog.getSelectedRoomIds()
+                                        .map( x => x.id )
+                                        .join(","));
+                formData.set("serie_guid", "{{serie_guid}}");
+            
+                dialog.$safeGet('#roomsTable').DataTable().destroy();
 
-    /*
-    Set up a listener that listens to rooms being selected and deselected by the checkboxes in the dialog.
-    When selected these rooms will be added to the selectedRoomsMap, when deselected they will be removed from the map
-    This is necessary due to datatables wiping its elements when you search or paginate, so we want to persist our memory 
-    of these ids/rooms beyond the scope and whims of the datatable.
-    */
-    function listenToRoomsBeingSelectedByCheckbox() {
-        $("input[type=checkbox][name=orderRoomDialog__checkboxArray]").change((event) => {
-            if (event.currentTarget.checked === true)
-                selectedRoomsMap.set(event.currentTarget.value, event.currentTarget.getAttribute("room_name"));
-            else
-                selectedRoomsMap.delete(event.currentTarget.value);
-        });
-    }
+                dialog.raiseSubmitEvent({
+                    mode: "serie",
+                    formData: formData,
+                    csrf_token: "{{csrf_token}}",
+                });
+            },
+            {% else %}
+            order(dialog, {} = {}, triggeredByElement) {
+                let formData = new FormData();
+                let room_ids = dialog.getSelectedRoomIds();
 
-    /*
-    Get all rooms that have been selected by checkbox in the order room dialog
-    */
-    function orderRoomDialog__getSelectedRoomIds() {
-        return Array.from(selectedRoomsMap, 
-            ([name, value]) => ({id: name, text: value})
-        );
-    }
+                formData.set("room_ids", room_ids.map( x => x.id ).join(","));
+                formData.set("event_pk", "{{event.pk}}");
 
-    /*
-    Uncheck all checkboxes in the order room dialog
-    */
-    function orderRoomDialog__uncheckAll() {
-        [...$("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked")]
-            .forEach((checkboxElement) => { checkboxElement.removeAttribute("checked"); });
-    }
+                let room_name_map = new Map();
+                room_ids.forEach(element => {
+                    room_name_map.set(element.id, element.text);
+                });
+                
+                dialog.$safeGet('#roomsTable').DataTable().destroy();
 
-    /*
-    Takes an array of room ids and checks their corresponding checkboxes in the room selector
-    */
-    function orderRoomDialog__activateRoomIds(roomIds) {
-        orderRoomDialog__uncheckAll();
-
-        roomIds.split(",").forEach((roomId) => {
-            $("input[type=checkbox][name=orderRoomDialog__checkboxArray][value='" + roomId + "']")
-                .attr("checked", true).change();
-        });
-    }
-
-    {% if mode == 'serie' %}
-    function orderRoomDialog__order() {
-        let data = new FormData();
-        data.set("room_ids", orderRoomDialog__getSelectedRoomIds()
-                                .map( x => x.id )
-                                .join(","));
-        data.set("serie_guid", "{{serie_guid}}");
-    
-
-        $('#roomsTable').DataTable().destroy();
-
-        document.dispatchEvent(
-            new CustomEvent("{{manager}}.submit", { "detail": {
-                dialog: "{{dialog}}",
-                mode: 'serie',
-                formData: data,
-                csrf_token: '{{csrf_token}}',
-            }})
-        );
-    }
-    {% else %}
-    function orderRoomDialog__order() {
-        let data = new FormData();
-        let room_ids = orderRoomDialog__getSelectedRoomIds();
-
-        data.set("room_ids", room_ids.map( x => x.id ).join(","));
-        data.set("event_pk", "{{event.pk}}");
-
-        room_name_map = new Map();
-        room_ids.forEach(element => {
-            room_name_map.set(element.id, element.text);
-        })
-        
-        $('#roomsTable').DataTable().destroy();
-
-        document.dispatchEvent(
-            new CustomEvent("{{manager}}.submit", { "detail": {
-                dialog: "{{dialog}}",
-                mode: 'event',
-                formData: data,
-                csrf_token: '{{csrf_token}}',
-                room_name_map: room_name_map,
-            }})
-        );
-    }
-    {% endif %}
+                dialog.raiseSubmitEvent({
+                    mode: "event",
+                    formData: formData,
+                    csrf_token: "{{csrf_token}}",
+                    room_name_map: room_name_map
+                });
+            },
+            {% endif %}
+        },
+        data: {
+            selectedRoomsMap: new Map(),
+        },
+    });
 </script>

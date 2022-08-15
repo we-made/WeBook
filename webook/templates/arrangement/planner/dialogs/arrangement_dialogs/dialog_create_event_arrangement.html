@@ -1,7 +1,7 @@
 {% load static i18n %}
 
 
-<div id="{{dialog}}" title="{{ dialogTitle }}">
+<div id="{{dialogId}}" class="{{discriminator}}" title="{{ dialogTitle }}">
     <div class="row">
         <div class="col-6">
             <form id="newSimpleActivityForm">
@@ -111,7 +111,7 @@
   
                       <div class="accordion-body">
                           <a class="btn btn-block wb-btn-secondary shadow-0"
-                          onclick="dialogCreateEvent_openAddPeople()"
+                          d-trigger="triggerAddPeople"
                           type="button">
                               Legg til personer
                           </a>
@@ -147,7 +147,7 @@
   
                       <div class="accordion-body">
                         <a class="btn btn-block wb-btn-secondary shadow-0"
-                        onclick="dialogCreateEvent__openAddRooms()"
+                        d-trigger="triggerAddRooms"
                         type="button">
                             Legg til rom
                         </a>
@@ -234,12 +234,12 @@
         <div class="clearfix">
             <div class="float-end">
                 <a href="#" class="btn wb-btn-secondary btn-lg"
-                    onclick="window.dialogApi.close('{{managerName}}', '{{dialog}}')">
+                    d-trigger="close">
                     <i class="fas fa-times"></i>
                     Avbryt
                 </a>
 
-                <a class="mt-2 btn wb-btn-main" onclick="dialogCreateEvent__submit()">
+                <a class="mt-2 btn wb-btn-main" d-trigger="submit">
                     <i class="fas fa-check"></i>&nbsp; Lagre
                 </a>
             </div>
@@ -249,172 +249,148 @@
 
 
 <script>
-    var peopleNameMap = new Map();
-    var roomsNameMap = new Map();
+    new Dialog({
+        dialogId: '{{ dialogId }}',
+        managerName: '{{ managerName }}',
+        postInit: function (dialog) {
+            dialog.$safeGet("#fromTime").on("change", (event) => {
+                dialog.$safeGet("#buffer_before_end").val(event.target.value);
+            });
+            dialog.$safeGet("#toTime").on("change", (event) => {
+                dialog.$safeGet("#buffer_after_start").val(event.target.value);
+            });
 
-    $(document).ready(function () {
-        dialogCreateEvent_listenToStartChangeAndUpdateBufferValues();
-        dialogCreateEvent_listenToEndChangeAndUpdateBufferValues();
-    })
+            document.addEventListener("{{managerName}}.d1_peopleSelected", (e) => {
+                dialog.data.peopleNameMap = e.detail.context.people_name_map;
+                dialog.setPeople({ people: e.detail.context.people });
+                dialog.$safeGet("#peopleCounter").text(dialog.$safeGet("#peopleTbody__d1").children().length);
+            });
+            document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
+                dialog.data.roomsNameMap = e.detail.context.room_name_map;
+                dialog.setRooms({ rooms: e.detail.context.rooms });
 
-    function dialogCreateEvent_listenToStartChangeAndUpdateBufferValues() {
-        document.getElementById('fromTime').addEventListener('change', (event) => {
-            document.getElementById('buffer_before_end').value = event.target.value;
-        });
-    }
-    
-    function dialogCreateEvent_listenToEndChangeAndUpdateBufferValues() {
-        document.getElementById('toTime').addEventListener('change', (event) => {
-            document.getElementById('buffer_after_start').value = event.target.value;
-        });
-    }
+                dialog.$safeGet("#roomsCounter").text(dialog.$safeGet("#roomsTbody__d1").children().length);
+            });
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            setRooms(dialog, { rooms } = {}, triggeredByElement) {
+                let tbody = dialog.$safeGet('#roomsTbody__d1');
+                tbody.empty();
 
-    function dialogCreateEvent__evaluateEnTitleObligatory(){
-        var $enTitleElement = $('#title_en');
-            var countSeletedDisplayLayouts = $("input[name='display_layouts_create_event'][type='checkbox']:checked").length;
+                let ids = rooms.split(",");
+                ids.forEach(id => {
+                    tbody.append(
+                        $(`<tr rowid='${id}'>
+                            <td> <input type='checkbox' /> </td>
+                            <td>${roomsNameMap.get(id)}</td>
+                            <td> <a href='#' class='text-danger'
+                                    data-mdb-toggle='tooltip'
+                                    title='{% trans "Remove this room from the activity" %}'
+                                    d-trigger='removeAssociation'>
+                                        <i class='fas fa-trash'></i>
+                                    </a>
+                            </td>
+                        </tr>`)
+                    )
+                });
+            },
+            setPeople(dialog, { people } = {}, triggeredByElement) {
+                let tbody = dialog.$safeGet('#peopleTbody__d1');
+                tbody.empty();
 
-            if (countSeletedDisplayLayouts === 0) {
-                $enTitleElement.removeAttr("required");
-            }
-            else {
-                $enTitleElement.attr("required", true);
-            }
-    }
-
-    document.addEventListener("{{managerName}}.d1_peopleSelected", (e) => {
-        peopleNameMap = e.detail.context.people_name_map;
-        dialogCreateEvent__setPeople(e.detail.context.people);
-        document.getElementById('peopleCounter').innerText = $('#peopleTbody__d1').children().length;
-    })
-    document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
-        roomsNameMap = e.detail.context.room_name_map;
-        dialogCreateEvent__setRooms(e.detail.context.rooms);
-        document.getElementById('roomsCounter').innerText = $('#roomsTbody__d1').children().length;
-    })
-
-    function dialogCreateEvent__setRooms(rooms) {
-        let tbody = $('#roomsTbody__d1');
-        tbody.empty();
-
-        let ids = rooms.split(",");
-
-        ids.forEach(id => {
-            tbody.append(
-                $(`<tr rowid='${id}'>
-                    <td> <input type='checkbox' /> </td>
-                    <td>${roomsNameMap.get(id)}</td>
-                    <td> <a href='#' class='text-danger'
-                            data-mdb-toggle='tooltip'
-                            title='{% trans "Remove this room from the activity" %}'
-                            onclick='dialogCreateEvent__removeAssociation(this)'>
-                                <i class='fas fa-trash'></i>
-                            </a>
-                    </td>
-                   </tr>`)
-            )
-        });
-    }
-
-    function dialogCreateEvent__setPeople(people) {
-        let tbody = $('#peopleTbody__d1');
-        tbody.empty();
-        let ids = people.split(",");
-
-        ids.forEach(id => {
-            tbody.append(
-                $(`<tr rowid='${id}'>
-                    <td>${peopleNameMap.get(id)}</td>
-                    <td> <a href='#' class='text-danger'
-                            data-mdb-toggle='tooltip'
-                            title='{% trans "Remove this person from the activity" %}'
-                            onclick='dialogCreateEvent__removeAssociation(this)'>
-                                <i class='fas fa-trash'></i>
-                            </a>
-                    </td>
-                   </tr>`)
-            )
-        });
-    }
-
-    function validateNewSimpleActivityForm() {
-        let field_elements = $('#newSimpleActivityForm').find("input, select");
-
-        let isInvalid = false;
-
-        for (let i = 0; i < field_elements.length; i++) {
-            if (field_elements[i].checkValidity() === false) {
-                isInvalid = true;
-                break;
-            }
-        }
-
-        if (isInvalid) {
-            $('#newSimpleActivityForm').find(':submit').click();
-            return false;
-        }
-
-        return true;
-    }
-
-    function dialogCreateEvent__removeAssociation(a) {
-        let row = $(a).closest("tr")[0];
-        let rowid = row.getAttribute("rowid");
-        row.remove();
-    }
-
-    function dialogCreateEvent__openAddRooms() {
-        document.dispatchEvent(new Event("{{managerName}}.{{orderRoomDialog}}.trigger"));
-    }
-
-    function dialogCreateEvent_openAddPeople() {
-        document.dispatchEvent(new Event("{{managerName}}.{{orderPersonDialog}}.trigger"));
-    }
-
-    function dialogCreateEvent__getSelectedRoomIds() {
-        return Array.from($("#roomsTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
-    }
-
-    function dialogCreateEvent__getSelectedPeopleIds() {
-        return Array.from($("#peopleTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
-    }
-
-    function dialogCreateEvent__submit() {
-        if (validateNewSimpleActivityForm() === false) {
-            console.warn("Validation failed.")
-            return;
-        }
-
-        let $dialog = $('#{{dialog}}');
-        let qualifiedEvent = {
-            _uuid:                      $dialog.find('#event_uuid').val(),
-            title:                      $dialog.find('#title').val(),
-            title_en:                   $dialog.find('#title_en').val(),
-            ticket_code:                $dialog.find('#ticket_code').val(),
-            expected_visitors:          $dialog.find('#expected_visitors').val(),
-            start:                      new Date( $dialog.find('#fromDate').val()   + "T" + $dialog.find('#fromTime').val() ),
-            end:                        new Date( $dialog.find('#toDate').val()     + "T" + $dialog.find('#toTime').val() ),
-            arrangement:                0,
-            rooms:                      dialogCreateEvent__getSelectedRoomIds(),
-            people:                     dialogCreateEvent__getSelectedPeopleIds(),
-            people_name_map:            peopleNameMap,      // Kept due to edit - not pertinent for save
-            room_name_map:              roomsNameMap,       // Kept due to edit - not pertinent for save
-            before_buffer_start:        $dialog.find('#buffer_before_start').val() ?? "",
-            before_buffer_end:          $dialog.find('#buffer_before_end').val() ?? "",
-            after_buffer_start:         $dialog.find('#buffer_after_start').val() ?? "",
-            after_buffer_end:           $dialog.find('#buffer_after_end').val() ?? "",
-        };
-
-        qualifiedEvent.display_layouts = 
-            [...document.querySelectorAll("#{{dialog}} input[name='display_layouts_create_event'][type='checkbox']:checked")]
-                .map(element => element.value);
-
-        document.dispatchEvent(
-            new CustomEvent(
-                "{{managerName}}.submit",
-                {
-                    'detail': { 'dialog': "{{dialog}}", 'event': qualifiedEvent, 'csrf_token': '{{ csrf_token }}' }
+                let ids = people.split(",");
+                ids.forEach(id => {
+                    tbody.append(
+                        $(`<tr rowid='${id}'>
+                            <td>${peopleNameMap.get(id)}</td>
+                            <td> <a href='#' class='text-danger'
+                                    data-mdb-toggle='tooltip'
+                                    title='{% trans "Remove this person from the activity" %}'
+                                    d-trigger="removeAssociation">
+                                        <i class='fas fa-trash'></i>
+                                    </a>
+                            </td>
+                        </tr>`)
+                    )
+                });
+            },
+            submit(dialog, {} = {}, triggeredByElement) {
+                if (dialog.validate() === false) {
+                    console.warn("Validation failed.")
+                    return;
                 }
-            )
-        );
-    }
+
+                let qualifiedEvent = {
+                    _uuid:                      dialog.interior.event_uuid.value,
+                    title:                      dialog.interior.title.value,
+                    title_en:                   dialog.interior.title_en.value,
+                    ticket_code:                dialog.interior.ticket_code.value,
+                    expected_visitors:          dialog.interior.expected_visitors.value,
+                    start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
+                    end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
+                    arrangement:                0,
+                    rooms:                      dialogCreateEvent__getSelectedRoomIds(),
+                    people:                     dialogCreateEvent__getSelectedPeopleIds(),
+                    people_name_map:            peopleNameMap,      // Kept due to edit - not pertinent for save
+                    room_name_map:              roomsNameMap,       // Kept due to edit - not pertinent for save
+                    before_buffer_start:        dialog.interior.buffer_before_start.value ?? "",
+                    before_buffer_end:          dialog.interior.buffer_before_end.value ?? "",
+                    after_buffer_start:         dialog.interior.buffer_after_start.value ?? "",
+                    after_buffer_end:           dialog.interior.buffer_after_end.value ?? "",
+                };
+
+                qualifiedEvent.display_layouts = 
+                    [...dialog.$dialogElement[0].querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
+                        .map(element => element.value);
+
+
+                dialog.raiseSubmitEvent({
+                    event: qualifiedEvent,
+                    csrf_token: '{{csrf_token}}',
+                });
+            },
+            validate(dialog, {} = {}, triggeredByElement) {
+                let field_elements = dialog.$safeGet('#newSimpleActivityForm').find("input, select");
+                let isInvalid = false;
+
+                for (let i = 0; i < field_elements.length; i++) {
+                    if (field_elements[i].checkValidity() === false) {
+                        isInvalid = true;
+                        break;
+                    }
+                }
+
+                if (isInvalid) {
+                    dialog.$safeGet('#newSimpleActivityForm').find(':submit').click();
+                    return false;
+                }
+
+                return true;
+            },
+            removeAssociation(dialog, {} = {}, triggeredByElement) {
+                let row = $(triggeredByElement).closest("tr")[0];
+                let rowid = row.getAttribute("rowid");
+                row.remove();
+            },
+            triggerAddRooms(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", {});
+            },
+            triggerAddPeople(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", {});
+            },
+            getSelectedRoomIds (dialog, {} = {}, triggeredByElement) {
+                return Array.from(dialog.$safeGet("#roomsTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+            },
+            getSelectedPeopleIds(dialog, {} = {}, triggeredByElement) {
+                return Array.from(dialog.$safeGet("#peopleTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+            },
+        },
+        data: {
+            peopleNameMap: new Map(),
+            roomsNameMap: new Map(),
+        }
+    });
 </script>

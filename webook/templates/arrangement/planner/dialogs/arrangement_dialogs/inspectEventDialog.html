@@ -1,6 +1,7 @@
 {% load static i18n %}
 
-<div id="inspectEventDialog" title="{{ form.title.value }}">
+<div id="{{dialogId}}" title="{{ form.title.value }}"
+    class="{{discriminator}}">
     <ul class="nav nav-tabs webook-tabs mb-3" id="ex1" role="tablist">
         <li class="nav-item" role="presentation">
             <a
@@ -72,7 +73,6 @@
             <input type="submit" style="display:none;" />
             <div>
                 <div>
-
                     <div class="row">
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
@@ -183,7 +183,9 @@
                             </div>
                             <button class="btn wb-btn-main float-end shadow-0"
                                     type="button"
-                                    onclick="triggerFocusTo('{{object.arrangement.slug}}', '{{object.pk}}')">
+                                    d-trigger="openInspectArrangementDialog"
+                                    d-arg-slug="{{ object.arrangement.slug }}"
+                                    d-arg-event_pk="{{ object.pk }}">
                                 Gå til arrangement
                             </button>
                         </div>
@@ -217,7 +219,8 @@
                                         <i class="fas fa-download"></i>
                                     </a>
                                     <a class="btn wb-btn-secondary rounded-pill"
-                                        onclick="inspectEventDialog__deleteFile( {{file.pk}} )">
+                                        d-arg-file_id="{{file.pk}}"
+                                        d-trigger="deleteFile">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
@@ -250,7 +253,7 @@
                                     <td>
                                         <a href="#" class="text-danger"
                                             data-mdb-toggle="tooltip"
-                                            onclick="inspectEventDialog__removeAssociation(this)"
+                                            d-trigger="i"
                                             title="{% trans 'Remove this room from the activity' %}">
                                             <i class="fas fa-trash"></i>
                                         </a>
@@ -281,7 +284,7 @@
                                         <td>
                                             <a href="#" class="text-danger"
                                                 data-mdb-toggle="tooltip"
-                                                onclick="inspectEventDialog__removeAssociation(this)"
+                                                d-trigger="removeAssociation"
                                                 title="{% trans 'Remove this person from the activity' %}">
                                                 <i class="fas fa-trash"></i>
                                             </a>
@@ -335,12 +338,14 @@
                 <div class="clearfix">
                     <div class="float-end">
                         <a href="#" class="btn wb-btn-secondary"
-                            onclick="deleteNote( {{note.pk}} )">
+                            d-trigger="deleteNote"
+                            d-arg-note_pk="{{ note.pk }}">
                             <i class="fas fa-trash"></i>
                         </a>
 
                         <a href="#" class="btn wb-btn-secondary"
-                            onclick="updateNoteDialog( {{note.pk}} )">
+                            d-trigger="updateNoteDialog"
+                            d-arg-note_pk="{{note.pk}}">
                             <i class="fas fa-edit"></i>
                         </a>
                     </div>
@@ -374,7 +379,12 @@
                                     <h5 class="float-start mb-0">Opprigg</h6>
 
                                     <div class="float-end">
-                                        <a href="#" onclick="inspectEventDialog__inspectOtherEvent({{object.buffer_before_event.pk}})" class="btn btn-sm btn-white">Åpne aktivitet</a>
+                                        <a href="#" 
+                                            d-trigger="inspectOtherEvent"
+                                            d-arg-event_id="{{ object.buffer_before_event.pk }}"
+                                            class="btn btn-sm btn-white">
+                                            Åpne aktivitet
+                                        </a>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -400,7 +410,11 @@
                             style="justify-content: center; align-items:center;">
                                 {% if object.buffer_after_event %}
                                 <h5 class="float-start mb-0">Nedrigg</h5>
-                                <a href="#" class="btn btn-sm btn-white float-end" onclick="inspectEventDialog__inspectOtherEvent({{object.buffer_after_event.pk}})">Åpne aktivitet</a>
+                                <a href="#" class="btn btn-sm btn-white float-end" 
+                                    d-trigger="inspectOtherEvent"
+                                    d-arg-event_id="{{ object.buffer_before_event.pk }}">
+                                    Åpne aktivitet
+                                </a>
                                 {% endif %}
                             </th>
                         </tr>
@@ -434,7 +448,9 @@
 
                 <div class="d-flex justify-content-center">
                     <button class="btn wb-btn-secondary"
-                        onclick="inspectEventDialog__inspectOtherEvent({{ object.buffer_for.pk }})">
+                            type="button"
+                            d-trigger="inspectOtherEvent"
+                            d-arg-event_id="{{ object.buffer_before_event.pk }}">
                         Åpne hovedaktivitet
                     </button>
                 </div>
@@ -446,7 +462,8 @@
 
     <div class="clearfix border-top pt-3">
         <div class="float-start">
-            <a href="#" class="btn btn-link" onclick="inspectEventDialog__delete()">
+            <a href="#" class="btn btn-link"
+                d-trigger="delete">
                 <i class="fas fa-trash"></i>&nbsp; Slett denne aktiviteten
             </a>
         </div>
@@ -456,93 +473,233 @@
                 <i class="fas fa-times"></i>
                 Avbryt
             </a>
-            <a class="btn btn-md wb-btn-main" type="button" onclick="inspectEventDialog__save()"><i class="fas fa-save"></i>&nbsp; Lagre</a>
+            <a class="btn btn-md wb-btn-main" type="button" d-trigger="save">
+                <i class="fas fa-save"></i>&nbsp; Lagre
+            </a>
         </div>
     </div>
 </div>
 
+
 <script>
-    var peopleMap = new Map();
-    var roomsMap = new Map();
+    new Dialog({
+        managerName: '{{managerName}}',
+        dialogId: '{{dialogId}}',
+        discriminator: '{{discriminator}}',
+        postInit: function (dialog) {
+            document.addEventListener("eventInspector.roomsUpdated", (e) => {
+                dialog.data.roomsMap = e.detail.context.room_name_map;
+                dialog.setRooms(e.detail.context.rooms);
+            });
 
-    function inspectEventDialog__inspectOtherEvent(eventId) {
-        document.dispatchEvent(
-            new CustomEvent("eventInspector.inspectEventDialog.trigger", { "detail": {
-                pk: eventId
-            }})
-        )
-    }
-
-    function inspectEventDialog__deleteFile(fileId) {
-        fetch(`/arrangement/event/{{object.pk}}/files/${fileId}/delete`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        }).then(a => a.text()).then(a =>  document.getElementById('fileRow_' + fileId).remove() );
-    }
-
-    function updateNoteDialog(note_pk) {
-        document.dispatchEvent(
-            new CustomEvent("eventInspector.editNoteDialog.trigger", { "detail": {
-                "note_pk": note_pk
-            }})
-        )
-    }
-
-    function deleteNote(note_pk) {
-        Swal.fire({
-            title: 'Er du sikker?',
-            text: "Er du sikker på at du ønsker å slette dette notatet?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Slett',
-            cancelButtonText: 'Avbryt',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch('/arrangement/note/delete/' + note_pk, {
+            document.addEventListener("eventInspector.peopleUpdated", (e) => {
+                dialog.data.peopleMap = e.detail.context.people_name_map;
+                dialog.setPeople(e.detail.context.people);
+            });
+        },
+        methods: {
+            /* Open an event inspection dialog for another event */
+            inspectOtherEvent: function (dialog, { eventId } = {}) {
+                dialog.raiseTriggerEvent(dialog.managerName, "{{dialogId}}", { pk: eventId });
+            },
+            /* Delete a file, identified by the given fileId */
+            deleteFile: (dialog, { fileId } = {}) => {
+                fetch(`/arrangement/event/{{object.pk}}/files/${fileId}/delete`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRFToken': '{{csrf_token}}',
+                        'X-CSRFToken': '{{ csrf_token }}'
                     }
-                }).then(response => { document.getElementById('note_' + note_pk).remove(); });     
-            }
-        });
-    }
+                }).then(a => a.text())
+                  .then(a => dialog.$safeGet('#fileRow_' + fileId).remove());
+            },
+            /* Open dialog for editing a note, identified by note_pk */
+            updateNoteDialog: (dialog, { notePk } = {}) => {
+                dialog.raiseTriggerEvent("eventInspector", "editNoteDialog", { "note_pk": notePk })
+            },
+            /* Delete a note, identified by note_pk */
+            deleteNote: (dialog, { notePk } = {}) => {
+                Swal.fire({
+                    title: 'Er du sikker?',
+                    text: "Er du sikker på at du ønsker å slette dette notatet?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Slett',
+                    cancelButtonText: 'Avbryt',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('/arrangement/note/delete/' + note_pk, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRFToken': '{{csrf_token}}',
+                            }
+                        }).then(response => { dialog.$safeGet('note_' + note_pk).remove(); });     
+                    }
+                });
+            },
+            /* Check if the form is valid, the resulting bool is True if yes, False if not */
+            validate: (dialog) => {
+                let field_elements = dialog.$dialogElement.find("input, select");
 
-    function inspectEventDialog__evaluateEnTitleObligatory() {
-        let $enTitleElement = $('#id_title_en');
-        let countSeletedDisplayLayouts = $("input[name='display_layouts'][type='checkbox']:checked").length;
+                let isInvalid = false;
 
-        if (countSeletedDisplayLayouts === 0) {
-            $enTitleElement.removeAttr("required");
-        }
-        else {
-            $enTitleElement.attr("required", true);
-        }
-    }
+                for (let i = 0; i < field_elements.length; i++) {
+                    if (field_elements[i].checkValidity() === false) {
+                        isInvalid = true;
+                        break;
+                    }
+                }
 
-    function inspectEventDialog__validate() {
-        let field_elements = $('#inspectEventForm').find("input, select");
+                if (isInvalid) {
+                    $('#inspectEventForm').find(':submit').click();
+                    return false;
+                }
 
-        let isInvalid = false;
+                return true;
+            },
+            /* Set rooms */
+            setRooms: (dialog, rooms) => {
+                let tbody = dialog.$safeGet('#roomsTableBody');
+                tbody.empty();
 
-        for (let i = 0; i < field_elements.length; i++) {
-            if (field_elements[i].checkValidity() === false) {
-                isInvalid = true;
-                break;
-            }
-        }
+                console.log(rooms)
 
-        if (isInvalid) {
-            $('#inspectEventForm').find(':submit').click();
-            return false;
-        }
+                rooms.split(",").forEach(id => {
+                    tbody.append(
+                        $(`<tr rowid='${id}'>
+                            <td>${dialog.data.roomsMap.get(id)}</td>
+                            <td>
+                                <a href="#" class="text-danger"
+                                            data-mdb-toggle="tooltip"
+                                            d-trigger="removeAssociation"
+                                            title="{% trans 'Remove this room from the activity' %}">
+                                            <i class="fas fa-trash"></i>
+                            </td>
+                        </tr>`));
+                });
+            },
+            /* Set people */
+            setPeople: (dialog, people) => {
+                let tbody = dialog.$safeGet('#peopleTableBody');
+                tbody.empty();
 
-        return true;
-    }
+                people.split(",").forEach(id => {
+                    tbody.append(
+                        $(`<tr rowid='${id}'>
+                            <td>${dialog.data.peopleMap.get(id)}</td>
+                            <td>
+                                <a href="#" class="text-danger"
+                                            data-mdb-toggle="tooltip"
+                                            d-trigger="removeAssociation"
+                                            title="{% trans 'Remove this person from the activity' %}">
+                                            <i class="fas fa-trash"></i>
+                            </td>
+                        </tr>`) );
+                });
+            },
+            /* Remove association from DOM */
+            removeAssociation: (dialog, {}, triggeredByElement) => {
+                let row = $(triggeredByElement).closest("tr");
+                row.remove();
+            },
+            /* Gets and returns an array containing the IDs of all selected rooms */
+            getSelectedRoomIds: (dialog) => {
+                let room_ids = Array.from(dialog.$safeGet("#roomsTableBody")[0].children)
+                                    .map(row => row.getAttribute("rowid"))
+                return room_ids;
+            },
+            /* Gets and returns an array containing the IDs of all selected people */
+            getSelectedPeopleIds: (dialog) => {
+                let people_ids = Array.from(dialog.$safeGet("#peopleTableBody")[0].children)
+                                    .map(row => row.getAttribute("rowid"));
+                return people_ids;
+            },
+            /* Open dialog for inspecting an arrangement */
+            openInspectArrangementDialog: (dialog, { slug, eventPk } = {}) => {
+                document.dispatchEvent(
+                    new CustomEvent(
+                        "plannerCalendar.inspectThisArrangement",
+                        { detail: { slug: slug, event_pk: eventPk } }
+                    )
+                )
+            },
+            /* Delete this current event */
+            delete: (dialog) => {
+                Swal.fire({
+                    title: 'Er du sikker?',
+                    text: "Hendelsen kan ikke hentes tilbake.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ja',
+                    cancelButtonText: 'Avbryt'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let formData = new FormData();
+                        formData.append("eventIds", "{{object.pk}}");
+
+                        fetch('/arrangement/planner/delete_events/', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                "X-CSRFToken": '{{ csrf_token }}',
+                            }
+                        }).then(_ => {
+                            dialog.closeMe();
+                            document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                        });
+                    }
+                })
+            },
+            /* Save the changes made to this event */
+            save: (dialog) => {
+                if (dialog.validate() === false) {
+                    return;
+                }
+
+                const getDateISOStringFromMdbDateTimePickerInstance = function (mdbDatetimePicker) {
+                    let isoStr = (mdbDatetimePicker._datepicker._selectedDate ??
+                                    new Date(mdbDatetimePicker._dateValue + " " + mdbDatetimePicker._timeValue)).toISOString();
+                    return isoStr;
+                }
+                let a = dialog.$safeGet('#startDateTime')[0];
+                let b = dialog.$safeGet('#endDateTime')[0];
+                let dateTimeStartMdbInstance = mdb.Datetimepicker.getInstance(a);
+                let dateTimeEndMdbInstance = mdb.Datetimepicker.getInstance(b);
+
+                let qualifiedEvent = {
+                    id:                 '{{object.pk}}',
+                    title:              dialog.interior.id_title.value,
+                    title_en:           dialog.interior.id_title_en.value,
+                    ticket_code:        dialog.interior.id_ticket_code.value,
+                    start:              getDateISOStringFromMdbDateTimePickerInstance(dateTimeStartMdbInstance),
+                    end:                getDateISOStringFromMdbDateTimePickerInstance(dateTimeEndMdbInstance),
+                    expected_visitors:  dialog.interior.id_expected_visitors.value,
+                    actual_visitors:    dialog.interior.id_actual_visitors.value,
+                    arrangement:        '{{object.arrangement.pk}}',
+                    people:             dialog.getSelectedPeopleIds(),
+                    rooms:              dialog.getSelectedRoomIds(),
+                    display_layouts:    [...document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
+                                            .map(element => element.value),
+                    before_buffer_start: dialog.interior.buffer_before_start != undefined ? dialog.interior.buffer_before_start.value : "", 
+                    before_buffer_end:  dialog.interior.buffer_before_end != undefined ? dialog.interior.buffer_before_end.value : "",
+                    after_buffer_start: dialog.buffer_after_start != undefined ? dialog.interior.buffer_after_start.value : "",
+                    after_buffer_end: dialog.interior.buffer_after_end != undefined ? dialog.interior.buffer_after_end.value : "",
+                };
+
+                dialog.raiseSubmitEvent({
+                    event: qualifiedEvent,
+                    csrf_token: '{{ csrf_token }}',
+                });
+            },
+        },
+        data: {
+            peopleMap: new Map(),
+            roomsMap: new Map(),
+        },
+    })
 
     $(document).ready(function () {
         new mdb.Datetimepicker(document.getElementById('startDateTime', {
@@ -554,165 +711,6 @@
             format: 'dd-mm-yyyy',
         }));
 
-        document.addEventListener("eventInspector.roomsUpdated", (e) => {
-            roomsMap = e.detail.context.room_name_map;
-            inspectEventDialog__setRooms(e.detail.context.rooms);
-        })
-        document.addEventListener("eventInspector.peopleUpdated", (e) => {
-            peopleMap = e.detail.context.people_name_map;
-            inspectEventDialog__setPeople(e.detail.context.people);
-        });
-    })
-
-    function inspectEventDialog__removeAssociation(a) {
-        let row = $(a).closest("tr");
-        row.remove();
-    }
-
-    function inspectEventDialog__setRooms(rooms) {
-        let tbody = $('#roomsTableBody');
-        tbody.empty();
-
-        rooms.split(",").forEach(id => {
-            tbody.append(
-                $(`<tr rowid='${id}'>
-                    <td>${roomsMap.get(id)}</td>
-                    <td>
-                        <a href="#" class="text-danger"
-                                    data-mdb-toggle="tooltip"
-                                    onclick="inspectEventDialog__removeAssociation(this)"
-                                    title="{% trans 'Remove this room from the activity' %}">
-                                    <i class="fas fa-trash"></i>
-                    </td>
-                   </tr>`) );
-        });
-    }
-
-    function inspectEventDialog__setPeople(people) {
-        let tbody = $('#peopleTableBody');
-        tbody.empty();
-
-        people.split(",").forEach(id => {
-            tbody.append(
-                $(`<tr rowid='${id}'>
-                    <td>${peopleMap.get(id)}</td>
-                    <td>
-                        <a href="#" class="text-danger"
-                                    data-mdb-toggle="tooltip"
-                                    onclick="inspectEventDialog__removeAssociation(this)"
-                                    title="{% trans 'Remove this person from the activity' %}">
-                                    <i class="fas fa-trash"></i>
-                    </td>
-                   </tr>`) );
-        });
-    }
-
-    function inspectEventDialog__getSelectedRoomIds() {
-        let room_ids = Array.from($("#roomsTableBody")[0].children).map(row => row.getAttribute("rowid"));
-        return room_ids;
-    }
-
-    function inspectEventDialog__getSelectedPeopleIds() {
-        let people_ids = Array.from($("#peopleTableBody")[0].children).map(row => row.getAttribute("rowid"));
-        return people_ids;
-    }
-
-    function inspectEventDialog__delete() {
-        Swal.fire({
-            title: 'Er du sikker?',
-            text: "Hendelsen kan ikke hentes tilbake.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ja',
-            cancelButtonText: 'Avbryt'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                let formData = new FormData();
-                formData.append("eventIds", "{{object.pk}}");
-
-                fetch('/arrangement/planner/delete_events/', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        "X-CSRFToken": '{{ csrf_token }}',
-                    }
-                }).then(_ => {
-                    document.dispatchEvent(new Event("eventInspector.close"));
-                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
-                });
-            }
-        })
-    }
-
-    function inspectEventDialog__save() {
-        if (inspectEventDialog__validate() === false) {
-            return;
-        }
-
-        const getDateISOStringFromMdbDateTimePickerInstance = function (mdbDatetimePicker) {
-            let isoStr = (mdbDatetimePicker._datepicker._selectedDate ??
-                            new Date(mdbDatetimePicker._dateValue + " " + mdbDatetimePicker._timeValue)).toISOString();
-            return isoStr;
-        }
-
-        let $dialog = $('#inspectEventDialog');
-
-        let dateTimeStartMdbInstance = mdb.Datetimepicker.getInstance($dialog.find('#startDateTime')[0]);
-        let dateTimeEndMdbInstance = mdb.Datetimepicker.getInstance($dialog.find('#endDateTime'));
-
-        let qualifiedEvent = {
-            id:                 '{{object.pk}}',
-            title:              $dialog.find('#id_title').val(),
-            title_en:           $dialog.find('#id_title_en').val(),
-            ticket_code:        $dialog.find('#id_ticket_code').val(),
-            start:              getDateISOStringFromMdbDateTimePickerInstance(dateTimeStartMdbInstance),
-            end:                getDateISOStringFromMdbDateTimePickerInstance(dateTimeEndMdbInstance),
-            expected_visitors:  $dialog.find('#id_expected_visitors').val(),
-            actual_visitors:    $dialog.find('#id_actual_visitors').val(),
-            arrangement:        '{{object.arrangement.pk}}',
-            people:             inspectEventDialog__getSelectedPeopleIds(),
-            rooms:              inspectEventDialog__getSelectedRoomIds(),
-            display_layouts:    [...document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
-                                    .map(element => element.value),
-            before_buffer_start:$dialog.find('#buffer_before_start').val() != undefined ? $('#buffer_before_start').val() : "",
-            before_buffer_end:  $dialog.find('#buffer_before_end').val() != undefined ? $('#buffer_before_end').val() : "",
-            after_buffer_start: $dialog.find('#buffer_after_start').val() != undefined ? $('#buffer_after_start').val() : "",
-            after_buffer_end:   $dialog.find('#buffer_after_end').val() != undefined ? $('#buffer_after_end').val() : "",
-        };
-
-        document.dispatchEvent(
-            new CustomEvent("eventInspector.submit", { "detail": {
-                dialog: "inspectEventDialog",
-                event: qualifiedEvent,
-                csrf_token: '{{ csrf_token }}',
-            }})
-        );
-    }
-
-    function triggerFocusTo(slug, event_pk) {
-        document.dispatchEvent(
-            new CustomEvent(
-                "plannerCalendar.inspectThisArrangement",
-                { detail: { slug: slug, event_pk: event_pk } }
-            )
-        )
-    }
-
-    function removePerson(el) {
-      let key = $(el).attr("person-key");
-      peopleMap.delete(parseInt(key));
-      el.remove();
-    }
-
-    function removeRoom(el) {
-      let key = $(el).attr("room-key");
-      roomsMap.delete(parseInt(key));
-      el.remove();
-    }
-
-    $(document).ready(function () {
         const personAsyncFilter = async (query) => {
         const url = `{% url "arrangement:search_people_ajax_view" %}?term=${encodeURI(query)}`;
         const response = await fetch(url);
