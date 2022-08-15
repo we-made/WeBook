@@ -781,13 +781,13 @@
             dialog.matchAreaStateToRadio();
 
             /* Handle user changing active pattern */
-            $('#area_stopWithin').attr("disabled", "");
-            $('#area_stopAfterXInstances').attr("disabled", "");
-            $('#area_noStop_projectXMonths').attr("disabled", "");
+            dialog.$('#area_stopWithin').attr("disabled", "");
+            dialog.$('#area_stopAfterXInstances').attr("disabled", "");
+            dialog.$('#area_noStop_projectXMonths').attr("disabled", "");
 
             /* Initialization of state */
             dialog.data.patterns.forEach(function (pattern) {
-                $('input:radio[name="' + pattern.sub_routed_by + '"]').change(
+                dialog.$('input:radio[name="' + pattern.sub_routed_by + '"]').change(
                     function () {
                         dialog.resetPattern({ pattern: pattern });
                         let sub = pattern.sub_routes[$(this).val()];
@@ -801,7 +801,7 @@
                     })
                 }
 
-                let already_active_radio = $('input:radio[name="' + pattern.sub_routed_by + '"]:checked').val();
+                let already_active_radio = dialog.$('input:radio[name="' + pattern.sub_routed_by + '"]:checked').val();
                 if (already_active_radio !== undefined && already_active_radio !== "") {
                     dialog.activatePatternSubroute({ subroute: pattern.sub_routes[already_active_radio]} )
                 }

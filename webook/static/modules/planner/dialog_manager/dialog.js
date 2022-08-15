@@ -199,7 +199,7 @@ class Dialog {
      * Assimilate the consumers supplied methods into the dialog. We need to proxy them, so as 
      * to provide "this" to each dialog.
      */
-    _assimilateMethods() {
+    _assimilateMethods() {  
         for (const method in this._methods) {
             this.constructor.prototype[method] = 
                 function () { 
