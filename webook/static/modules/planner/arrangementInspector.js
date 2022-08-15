@@ -461,6 +461,8 @@ export class ArrangementInspector {
                         },
                         dialogOptions: { width: 500 },
                         onSubmit: async (context, details) => {
+                            console.log(">> onsubmit")
+
                             details.event.startDate = (new Date(details.event.start)).toISOString();
                             details.event.endDate = (new Date(details.event.end)).toISOString();
                             details.event.arrangement = context.arrangement.arrangement_pk;

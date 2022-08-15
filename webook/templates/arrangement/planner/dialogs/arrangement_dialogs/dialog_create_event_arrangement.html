@@ -239,7 +239,7 @@
                     Avbryt
                 </a>
 
-                <a class="mt-2 btn wb-btn-main" d-trigger="submit">
+                <a class="mt-2 btn wb-btn-main" d-trigger="submit" href="#">
                     <i class="fas fa-check"></i>&nbsp; Lagre
                 </a>
             </div>
@@ -249,9 +249,10 @@
 
 
 <script>
-    new Dialog({
+    var _dialog = new Dialog({
         dialogId: '{{ dialogId }}',
         managerName: '{{ managerName }}',
+        discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
             dialog.$safeGet("#fromTime").on("change", (event) => {
                 dialog.$safeGet("#buffer_before_end").val(event.target.value);
@@ -332,10 +333,10 @@
                     start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
                     end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
                     arrangement:                0,
-                    rooms:                      dialogCreateEvent__getSelectedRoomIds(),
-                    people:                     dialogCreateEvent__getSelectedPeopleIds(),
-                    people_name_map:            peopleNameMap,      // Kept due to edit - not pertinent for save
-                    room_name_map:              roomsNameMap,       // Kept due to edit - not pertinent for save
+                    rooms:                      dialog.getSelectedRoomIds(),
+                    people:                     dialog.getSelectedPeopleIds(),
+                    people_name_map:            dialog.data.peopleNameMap,      // Kept due to edit - not pertinent for save
+                    room_name_map:              dialog.data.roomsNameMap,       // Kept due to edit - not pertinent for save
                     before_buffer_start:        dialog.interior.buffer_before_start.value ?? "",
                     before_buffer_end:          dialog.interior.buffer_before_end.value ?? "",
                     after_buffer_start:         dialog.interior.buffer_after_start.value ?? "",
@@ -345,7 +346,6 @@
                 qualifiedEvent.display_layouts = 
                     [...dialog.$dialogElement[0].querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
                         .map(element => element.value);
-
 
                 dialog.raiseSubmitEvent({
                     event: qualifiedEvent,

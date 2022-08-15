@@ -168,7 +168,10 @@ class Dialog {
     _assimilateMethods() {
         for (const method in this._methods) {
             this.constructor.prototype[method] = 
-                function () { return this._methods[method](this, ...arguments) };
+                function () { 
+                    console.log("proxy call", method)
+                    return this._methods[method](this, ...arguments); 
+                };
         }
     }
 
