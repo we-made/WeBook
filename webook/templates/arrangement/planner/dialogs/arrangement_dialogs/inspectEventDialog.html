@@ -699,11 +699,11 @@
 
     $(document).ready(function () {
         new mdb.Datetimepicker(document.getElementById('startDateTime', {
-            container: '#{{dialogId}}.{{discriminator}}',
+            container: "[id='{{dialogId}}'][class='{{discriminator}}']",
             format: 'dd-mm-yyyy',
         }));
         new mdb.Datetimepicker(document.getElementById('endDateTime', {
-            container: '#{{dialogId}}.{{discriminator}}',
+            container: "[id='{{dialogId}}'][class='{{discriminator}}']",
             format: 'dd-mm-yyyy',
         }));
 
