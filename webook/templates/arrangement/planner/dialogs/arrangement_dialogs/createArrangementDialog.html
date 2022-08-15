@@ -181,7 +181,7 @@
                 </div>
 
                 <h5 class="mt-3 mb-0">Tidsplaner: </h5>
-                <a class="btn btn-md wb-btn-secondary btn-block shadow-0 mb-2" id="createArrangementDialog_createSerie">
+                <a class="btn btn-md wb-btn-secondary btn-block shadow-0 mb-2" d-trigger="createSerie">
                     Ny tidsplan
                 </a>
 
@@ -461,8 +461,11 @@
                 });
             },
             editSerie(dialog, { uuid } = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("arrangementCreator", "newTimePlanDialog", { serie_uuid: uuid });
+                dialog.raiseTriggerEvent("arrangementCreator", "newTimePlanDialog", { serie_uuid: uuid, $parent: dialog.dialogElement });
             },
+            createSerie(dialog, {}={}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementCreator", "newTimePlanDialog", { $parent: dialog.dialogElement })
+            }
         },
         data: {
             seriesMap: new Map(),

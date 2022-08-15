@@ -223,3 +223,10 @@ class Dialog {
         this.interior = interior;
     }
 }
+
+
+class DialogStepper {
+    constructor(steps) {
+
+    }
+}

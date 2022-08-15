@@ -8,51 +8,48 @@
                     <input type="submit" style="display:none;" />
         
                     <div class="row">
-                        <div class="col-7">
+                        <div class="col-12">
                             <div class="row mb-2">
                                 <div class="col-12">
-                                    <div class="form-outline mb-2">
+                                    <div class="form-group mb-2">
+                                        <label class="form-label" for="serie_title">Tittel på norsk</label>
                                         <input type="text" id="serie_title" class="form-control" />
-                                        <label class="form-label" for="serie_title">🇳🇴 Tittel på norsk</label>
                                     </div>    
                                 </div>
                                 <div class="col-12">
-                                    <div class="form-outline mb-2">
+                                    <div class="form-group mb-2">
+                                        <label class="form-label" for="serie_title_en">Tittel på engelsk</label>
                                         <input type="text" id="serie_title_en" class="form-control" />
-                                        <label class="form-label" for="serie_title_en">🇬🇧 Tittel på engelsk</label>
                                     </div>  
                                 </div>
                             </div>
                 
                             <div class="row mb-2">
-                                <div class="col-5">
-                                    <div class="form-outline timepicker-inline-24 mb-2" id="serie_start_picker">
+                                <div class="col-6">
+                                    <div class="form-group timepicker-inline-24 mb-2" id="serie_start_picker">
+                                        <label class="form-label" for="serie_start">Start <small>(<i>HH:mm</i>)</small></label>
                                         <input type="text" class="form-control" id="serie_start" />
-                                        <label class="form-label" for="serie_start"><i class="fas fa-clock"></i>&nbsp; Start <small>(<i>HH:mm</i>)</small></label>
                                     </div>
                                 </div>
-                                <div class="col-2 text-center">
-                                    <h3><i class="fas fa-arrow-right wb-text-main"></i></h3>
-                                </div>
-                                <div class="col-5">
-                                    <div class="form-outline timepicker-inline-24 mb-2" id="serie_end_picker">
+                                <div class="col-6">
+                                    <div class="form-group timepicker-inline-24 mb-2" id="serie_end_picker">
+                                        <label class="form-label" for="serie_end">Slutt <small>(<i>HH:mm</i>)</small></label>
                                         <input type="text" class="form-control" id="serie_end" />
-                                        <label class="form-label" for="serie_end"><i class="fas fa-clock"></i>&nbsp; Slutt <small>(<i>HH:mm</i>)</small></label>
                                     </div>
                                 </div>
                             </div>
             
-                            <div class="form-outline mb-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="serie_ticket_code">Ticket Code</label>
                                 <input type="text" id="serie_ticket_code" class="form-control" />
-                                    <label class="form-label" for="serie_ticket_code"><i class="fas fa-receipt"></i>&nbsp; Ticket Code</label>
                             </div>        
-                            <div class="form-outline mb-2">
+                            <div class="form-group mb-2">
+                                <label class="form-label" for="serie_expected_visitors">Expected Visitors</label>
                                 <input type="text" id="serie_expected_visitors" class="form-control" />
-                                    <label class="form-label" for="serie_expected_visitors"><i class="fas fa-users"></i>&nbsp; Expected Visitors</label>
                             </div>
                         </div>
 
-                        <div class="col-5">
+                        <div class="col-12">
                             <div class="accordion accordion-flush" id="createSerieDialog_accordion">
                                 <div class="accordion-item">
                                     <h5 class="accordion-header">

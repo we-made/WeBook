@@ -214,6 +214,9 @@
 }
 
 .slave-dialog {
-    box-shadow: none;
+    box-shadow: 10px 1px 20px 1px  grey!important;
     background-color: var(--SECONDARY-COLOR)!important;
+    border: none!important;
+    margin-left: 20px!important;
+    border-left: 1px solid black!important;
 }

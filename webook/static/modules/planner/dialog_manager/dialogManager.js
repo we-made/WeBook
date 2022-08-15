@@ -253,8 +253,18 @@ export class DialogManager {
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
                     console.log(`${this.managerName}.${triggerName}.trigger`, event.detail);
                     this.context.lastTriggererDetails = event.detail;
+                    value.render(this.context);
+
                     let parent = event.detail.$parent;
-                    if (parent)
+                    let current = $(value._$getDialogEl());
+                    if (parent) {
+                        $(parent).on("dialogdrag", function (event, ui) {
+                            $(value._$getDialogEl()).dialog("option", "position", { my: "left top", at: "right top", of: parent.parentNode });
+                        });
+                        current.on("dialogdrag", function (event, ui) {
+                            console.log("current drag")
+                            $(parent).dialog("option","position", { my: "right top", at: "left top", of: current[0].parentNode } )
+                        });
                         value.dialogOptions = { 
                             dialogClass: "slave-dialog",
                             position: { my: "left top", at: "right top", of: parent.parentNode },
@@ -262,7 +272,7 @@ export class DialogManager {
                             width: 600,
                         }
                         console.log("options", value.dialogOptions)
-                    value.render(this.context);
+                    }
                 });
             }
         });
