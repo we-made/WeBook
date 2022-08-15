@@ -225,16 +225,16 @@
                 new mdb.Input(formOutline).init();
             });
             new mdb.Select(dialog.querySelector('#{{ form.audience.id_for_label }}'), {
-                container: '#{{dialogId}}.{{discriminator}}'
+                container: "[id='#{{dialogId}}'][class='.{{discriminator}}']"
             });
             new mdb.Select(dialog.querySelector('#{{ form.location.id_for_label }}'), {
-                container: '#{{dialogId}}.{{discriminator}}'
+                container: "[id='#{{dialogId}}'][class='.{{discriminator}}']"
             });
             new mdb.Select(dialog.querySelector('#{{ form.responsible.id_for_label }}'), {
-                container: '#{{dialogId}}.{{discriminator}}'
+                container: "[id='#{{dialogId}}'][class='.{{discriminator}}']"
             });
             new mdb.Select(dialog.querySelector('#{{ form.arrangement_type.id_for_label }}'), {
-                container: '#{{dialogId}}.{{discriminator}}'
+                container: "[id='#{{dialogId}}'][class='.{{discriminator}}']"
             });
 
             document.addEventListener("{{managerName}}.contextUpdated", (e) => {
