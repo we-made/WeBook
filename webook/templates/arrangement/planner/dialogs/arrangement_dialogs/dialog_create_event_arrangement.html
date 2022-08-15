@@ -1,7 +1,7 @@
 {% load static i18n %}
 
 
-<div id="{{dialogId}}" class="{{discriminator}}" title="{{ dialogTitle }}">
+<div id="{{dialogId}}" class="{{discriminator}}" title="">
     <div class="row">
         <div class="col-6">
             <form id="newSimpleActivityForm">
@@ -249,7 +249,7 @@
 
 
 <script>
-    var _dialog = new Dialog({
+    new Dialog({
         dialogId: '{{ dialogId }}',
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',

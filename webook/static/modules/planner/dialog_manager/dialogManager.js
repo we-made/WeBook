@@ -149,7 +149,7 @@ export class DialogManager {
         const params = new URLSearchParams({
             managerName: managerName,
             dialogId: dialogId,
-            dialogTitle: dialogTitle,
+            title: dialogTitle,
             ...customParameters
         });
 
@@ -178,6 +178,10 @@ export class DialogManager {
             console.error(`Dialog with key ${dialogId} does not exist. Repository: `, this._dialogRepository);
         }
     }
+
+    setTitle(dialogId, newTitle) {
+        this._dialogRepository.get(dialogId)._$getDialogEl().dialog("option", "title", newTitle);
+    } 
 
     closeDialog(dialogId) {
         this._dialogRepository.get(dialogId).close();
