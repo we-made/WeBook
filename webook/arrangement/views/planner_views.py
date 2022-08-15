@@ -57,14 +57,15 @@ from webook.arrangement.models import (
     RoomPreset,
 )
 from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
-from ...utils.reverse_with_params import reverse_with_params
-from .generic_views.dialog_view import DialogView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.json_serial import json_serial
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
+
+from ...utils.reverse_with_params import reverse_with_params
+from .generic_views.dialog_view import DialogView
 
 
 def get_section_manifest():
@@ -781,7 +782,7 @@ class UploadFilesDialog(LoginRequiredMixin, DialogView, TemplateView):
 upload_files_dialog = UploadFilesDialog.as_view()
 
 
-class PlanSerieForm(LoginRequiredMixin, FormView):
+class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
     form_class=PlannerPlanSerieForm
 
@@ -793,13 +794,8 @@ class PlanSerieForm(LoginRequiredMixin, FormView):
             context["arrangementPk"] = arrangement.pk
         else: context["arrangementPk"] = 0
 
-        context["dialog"] = self.request.GET.get("dialog", "arrangementInspector")
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
-
-        if "managerName" in self.request.GET:
-            context["managerName"] = self.request.GET.get("managerName")
-        else: print("No manager name.")
 
         return context
 

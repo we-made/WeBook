@@ -94,6 +94,22 @@ class Dialog {
         });
     }
 
+
+    getInteriorAsFormData() {
+        let formData = new FormData();
+
+        for ( let prop in this.interior ) {
+            let element = this.interior[prop];
+            if (element instanceof Node) {
+                console.log(prop, element)
+                formData.append(element.getAttribute("name"), element.value);
+            }
+        }
+
+        return formData;
+    }
+
+
     /**
      * Shorthand function for triggering a dialog managers "trigger" event, which makes it open/render
      * a dialog. The dialog managers are setting up listeners on $managerName.$dialogId.trigger when it is

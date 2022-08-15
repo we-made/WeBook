@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-6">
             <form id="newSimpleActivityForm">
-                <input type="submit" style="display:none;" />
+                <input type="submit" name="submit" style="display:none;" />
     
                 <input type="hidden" name="uuid" id="event_uuid">
                 
@@ -15,25 +15,25 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="form-outline mb-2">
-                            <input type="text" id="title" class="form-control" />
+                            <input type="text" id="title" name="title" class="form-control" />
                             <label class="form-label" for="title">🇳🇴 Tittel på norsk</label>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="form-outline mb-2">
-                            <input type="text" id="title_en" class="form-control" />
+                            <input type="text" id="title_en" name="title_en" class="form-control" />
                             <label class="form-label" for="title_en">🇬🇧 Tittel på engelsk</label>
                         </div>
                     </div>
                 </div>
     
                 <div class="form-outline mb-2">
-                    <input type="text" id="ticket_code" class="form-control" />
+                    <input type="text" id="ticket_code" name="ticket_code" class="form-control" />
                     <label class="form-label" for="ticket_code"><i class="fas fa-receipt text-info"></i>&nbsp; Billetkode</label>
                 </div>
     
                 <div class="form-outline mb-2">
-                    <input type="text" id="expected_visitors" class="form-control" />
+                    <input type="text" id="expected_visitors" name="expected_visitors" class="form-control" />
                     <label class="form-label" for="expected_visitors"><i class="fas fa-users text-info"></i>&nbsp; Forventet antall besøkende</label>
                 </div>
     
@@ -45,12 +45,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="fromDate" class="form-control" />
+                                <input type="date" id="fromDate" name="fromDate" class="form-control" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="fromTime" class="form-control" />
+                                <input type="time" id="fromTime" name="fromTime" class="form-control" />
                             </div>
                         </div>
                     </div>
@@ -61,12 +61,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="toDate" class="form-control" />
+                                <input type="date" id="toDate" name="toDate" class="form-control" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="toTime" class="form-control" />
+                                <input type="time" id="toTime" name="toTime" class="form-control" />
                             </div>
                         </div>
                     </div>
@@ -196,13 +196,13 @@
                                       <td>
                                           Fra
                                           <div class="form-outline">
-                                              <input type="time" id="buffer_before_start" class="form-control" />
+                                              <input type="time" id="buffer_before_start" name="buffer_before_start" class="form-control" />
                                           </div>
                                       </td>
                                       <td>
                                           Til
                                           <div class="form-outline">
-                                              <input type="time" id="buffer_before_end" class="form-control" />
+                                              <input type="time" id="buffer_before_end" name="buffer_before_end" class="form-control" />
                                           </div>
                                       </td>
                                   </tr>
@@ -213,13 +213,13 @@
                                       <td>
                                           Fra
                                           <div class="form-outline">
-                                              <input type="time" id="buffer_after_start" class="form-control" />
+                                              <input type="time" id="buffer_after_start" name="buffer_after_start" class="form-control" />
                                           </div>
                                       </td>
                                       <td>
                                           Til
                                           <div class="form-outline">
-                                              <input type="time" id="buffer_after_end" class="form-control" />
+                                              <input type="time" id="buffer_after_end" name="buffer_after_end" class="form-control" />
                                           </div>
                                       </td>
                                   </tr>

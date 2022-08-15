@@ -79,8 +79,15 @@ export class ArrangementCreator {
                         triggerElementId: "createArrangementDialog_createSerie",
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementCreator&dialog=newTimePlanDialog&orderRoomDialog=orderRoomDialog&orderPersonDialog=orderPersonDialog")
-                                .then(response => response.text());
+                            return await this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/create_serie',
+                                managerName: 'arrangementCreator',
+                                dialogId: 'newTimePlanDialog',
+                                customParameters: {
+                                    orderRoomDialog: 'orderRoomDialog',
+                                    orderPersonDialog: 'orderPersonDialog',
+                                }
+                            })
                         },
                         onRenderedCallback: (dialogManager, context) => {
                             if (context.lastTriggererDetails === undefined) {

@@ -1,7 +1,6 @@
 {% load static i18n %}
 
-
-<div id="{{dialog}}" title="Ny tidsplan">
+<div id="{{dialogId}}" title="Ny tidsplan" class="{{discriminator}}">
     <div style="max-height: 700px; overflow:scroll;">
         <div class="row">
             <div class="col-12">
@@ -20,7 +19,7 @@
                                 <div class="col-12">
                                     <div class="form-outline mb-2">
                                         <input type="text" id="serie_title_en" class="form-control" />
-                                            <label class="form-label" for="serie_title_en">🇬🇧 Tittel på engelsk</label>
+                                        <label class="form-label" for="serie_title_en">🇬🇧 Tittel på engelsk</label>
                                     </div>  
                                 </div>
                             </div>
@@ -397,93 +396,17 @@
         </div>
 
         <div class="clearfix mt-3">
-            <a class="btn wb-btn-main btn-lg float-end" type="button" id="submitBtn">
+            <a class="btn wb-btn-main btn-lg float-end" d-trigger="submit" type="button" id="submitBtn">
                 <i class="fas fa-check"></i>
                 Lagre
             </a>
-            <a href="#" class="btn wb-btn-secondary btn-lg float-end"
-                onclick="window.dialogApi.close('{{managerName}}', '{{dialog}}')">
+            <a href="#" class="btn wb-btn-secondary btn-lg float-end" d-trigger="close">
                 <i class="fas fa-times"></i>
                 Avbryt
             </a>
         </div>
     </div>
 </div>
-
-<script>
-
-    var peopleNameMap = new Map();
-    var roomsNameMap = new Map();
-
-    document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
-        peopleNameMap = e.detail.context.people_name_map;
-        createSerieDialog__setPeople(e.detail.context.people);
-        document.getElementById('peopleCounter').innerText = $('#peopleChips').children().length;
-    })
-    document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
-        roomsNameMap = e.detail.context.room_name_map;
-        createSerieDialog__setRooms(e.detail.context.rooms);
-        document.getElementById('roomsCounter').innerText = $('#roomChips').children().length;
-    })
-
-    function createSerieDialog__openAddRooms() {
-        document.dispatchEvent(new Event("{{managerName}}.{{orderRoomDialog}}.trigger"));
-    }
-
-    function createSerieDialog__openAddPeople() {
-        document.dispatchEvent(new Event("{{managerName}}.{{orderPersonDialog}}.trigger"));
-    }
-
-    function createSerieDialog__setRooms(rooms) {
-        let wrapper = $('#roomChips');
-        wrapper.empty();
-
-        rooms.split(",").forEach(id => {
-            wrapper.append(
-                `<span class='chip' rowid='${id}'>
-                    ${roomsNameMap.get(id)}
-                     <a href='#' class='text-danger'
-                            data-mdb-toggle='tooltip'
-                            title='{% trans "Remove this room from the activity" %}'
-                            onclick='createSerieDialog__removeAssociation(this)'>
-                                <i class='fas fa-times'></i>
-                            </a>                    
-                 </span>`
-            );
-        });
-    }
-
-    function createSerieDialog__setPeople(people) {
-        let wrapper = $('#peopleChips');
-        wrapper.empty();
-
-        people.split(",").forEach(id => {
-            wrapper.append(
-                `<span class='chip' rowid='${id}'>
-                    ${peopleNameMap.get(id)}
-                     <a href='#' class='text-danger'
-                            data-mdb-toggle='tooltip'
-                            title='{% trans "Remove this room from the activity" %}'
-                            onclick='createSerieDialog__removeAssociation(this)'>
-                                <i class='fas fa-times'></i>
-                            </a>                    
-                 </span>`
-            )
-        })
-    }
-
-    function createSerieDialog__removeAssociation(a) {
-        $(a).parent().remove();
-    }
-
-    function createSerieDialog__getSelectedRoomIds() {
-        return Array.from($("#roomChips")[0].children).map(row => row.getAttribute("rowid"));
-    }
-
-    function createSerieDialog__getSelectedPeopleIds() {
-        return Array.from($("#peopleChips")[0].children).map(row => row.getAttribute("rowid"));
-    }
-</script>
 
 <script type="module">
     import { SeriesUtil } from "{% static 'modules/planner/seriesutil.js' %}";
@@ -507,7 +430,6 @@
             this.insert_options();
         }
     }
-
     class ArbitratorSelectComponent extends SelectComponent {
         constructor (element_id) {
 
@@ -524,227 +446,6 @@
             this.insert_options();
         }
     }
-
-    function createSerieDialog__evaluateEnTitleObligatory() {
-        let $enTitleElement = $('#serie_title_en');
-        let countSeletedDisplayLayouts = $("input[name='display_layouts_serie_planner'][type='checkbox']:checked").length;
-
-        if (countSeletedDisplayLayouts === 0) {
-            $enTitleElement.removeAttr("required");
-        }
-        else {
-            $enTitleElement.attr("required", true);
-        }
-    }
-
-    $(document).ready(function () {
-        new DayOfWeekSelectComponent('every_arbitrary_weekday_in_month__weekday');
-        new MonthSelectComponent('every_arbitrary_weekday_in_month__month');
-        new MonthSelectComponent('every_x_of_month__month');
-        new DayOfWeekSelectComponent('every_dynamic_date_of_month__weekday');
-        new ArbitratorSelectComponent('every_dynamic_date_of_month__arbitrator');
-        new ArbitratorSelectComponent('every_arbitrary_weekday_in_month__arbitrator');
-
-        _listenToStartChangeAndUpdateBufferValues();
-        _listenToEndChangeAndUpdateBufferValues();
-
-        let selects = $(".newTimePlanDialog_select");
-        for (let i = 0; i < selects.length; i++) {
-            let select = selects[i];
-            if (select.hasAttribute("init_value")) {
-                select.value = select.getAttribute("init_value");
-            }
-        }
-    })
-
-    function _listenToStartChangeAndUpdateBufferValues() {
-        document.getElementById('serie_start').addEventListener('change', (event) => {
-            document.getElementById('buffer_before_end').value = event.target.value;
-        });
-    }
-    
-    function _listenToEndChangeAndUpdateBufferValues() {
-        document.getElementById('serie_end').addEventListener('change', (event) => {
-            document.getElementById('buffer_after_start').value = event.target.value;
-        })
-    }
-    
-    const startTimePicker = new ExtendedTimepicker({
-        timepickerWrapperElement: document.getElementById('serie_start_picker'),
-        timepickerInputElement: document.getElementById('serie_start'),
-        mdbOptions: {
-            format24:true,
-            inline: true,
-        }
-    });
-
-    const endTimePicker = new ExtendedTimepicker({
-        timepickerWrapperElement: document.getElementById('serie_end_picker'),
-        timepickerInputElement: document.getElementById('serie_end'),
-        mdbOptions: {
-            format24:true,
-            inline: true,
-        }
-    });
-
-    $('#submitBtn').on('click', () => {
-        submit_serie();
-    })
-
-    let newSerieDialog = $('#newSerieDialog');
-    let patterns = new Map();
-
-    patterns.set(
-        "1",
-        {
-            route_fieldset: $("#patternRoute_daily"),
-            name: "daily",
-            sub_routed_by: 'pattern_daily_subroute',
-            constant_fields: [],
-            sub_routes: [
-                {
-                    strategy_name: "daily__every_x_day",
-                    route: "pattern_daily_sub__every_x_day",
-                    fields: [
-                        { element_id: 'every_x_day__interval', out_prop_name: "interval" },
-                    ]
-                },
-                {
-                    strategy_name: "daily__every_weekday",
-                    route: "pattern_daily_sub__every_weekday",
-                    fields: []
-                }
-            ]
-        }
-    );
-    patterns.set(
-        "2",
-        {
-            strategy_name: "weekly__standard",
-            route_fieldset: $("#patternRoute_weekly"),
-            name: "weekly",
-        }
-    );
-    patterns.set(
-        "3",
-        {
-            route_fieldset: $("#patternRoute_monthly"),
-            name: "monthly",
-            sub_routed_by: 'pattern_monthly_subroute',
-            constant_fields: [],
-            sub_routes: [
-                {
-                    strategy_name:"month__every_x_day_every_y_month",
-                    route: "pattern_monthly_sub__every_x_day_every_y_month",
-                    fields: [
-                        { element_id: 'every_x_day_every_y_month__day_of_month', out_prop_name: "day_of_month" },
-                        { element_id: 'every_x_day_every_y_month__month_interval', out_prop_name: "interval" },
-                    ],
-                },
-                {
-                    strategy_name: "month__every_arbitrary_date_of_month",
-                    route: "pattern_monthly_sub__every_arbitrary_date_of_month",
-                    fields: [
-                        { element_id: 'every_dynamic_date_of_month__arbitrator', out_prop_name: "arbitrator" },
-                        { element_id: 'every_dynamic_date_of_month__weekday', out_prop_name: "weekday" },
-                        { element_id: 'every_dynamic_date_of_month__month_interval', out_prop_name: "interval" },
-                    ]
-                }
-            ]
-        }
-    );
-    patterns.set(
-        "4",
-        {
-            route_fieldset: $("#patternRoute_yearly"),
-            name: "yearly",
-            sub_routed_by: 'pattern_yearly_subroute',
-            constant_fields: [
-                { element_id: 'pattern_yearly_const__year_interval', out_prop_name: "interval" },
-            ],
-            sub_routes: [
-                {
-                    strategy_name:"yearly__every_x_of_month",
-                    route:"pattern_yearly_sub__every_x_of_month",
-                    fields: [
-                        { element_id: 'every_x_of_month__date', out_prop_name: "day_index" },
-                        { element_id: 'every_x_of_month__month', out_prop_name: "month" },
-                    ]
-                },
-                {
-                    strategy_name: "yearly__every_arbitrary_weekday_in_month",
-                    route: "pattern_yearly_sub__every_arbitrary_weekday_in_month",
-                    fields: [
-                        { element_id: 'every_arbitrary_weekday_in_month__arbitrator', out_prop_name: "arbitrator" },
-                        { element_id: 'every_arbitrary_weekday_in_month__weekday', out_prop_name: "weekday" },
-                        { element_id: 'every_arbitrary_weekday_in_month__month', out_prop_name: "month" },
-                    ]
-                }
-            ]
-        }
-    );
-
-    match_pattern_state_to_radio();
-    match_area_state_to_radio();
-
-    /* Handle user changing active pattern */
-    $('#area_stopWithin').attr("disabled", "");
-    $('#area_stopAfterXInstances').attr("disabled", "");
-    $('#area_noStop_projectXMonths').attr("disabled", "");
-
-    function handle_timearea_radio (active_val) {
-        $('#area_stopWithin').attr("disabled", "");
-        $('#area_stopAfterXInstances').attr("disabled", "");
-        $('#area_noStop_projectXMonths').attr("disabled", "");
-
-        if (active_val === "1") {
-            $('#area_stopWithin').removeAttr("disabled");
-        }
-        if (active_val === "2"){
-            $('#area_stopAfterXInstances').removeAttr("disabled");
-        }
-        if (active_val === "3") {
-            $('#area_noStop_projectXMonths').removeAttr("disabled");
-        }
-    }
-
-    $(document).ready(function () {
-        $('input:radio[name="timeAreaMethod"]').change(
-            function() {
-                if ($(this).is(':checked')) {
-                    $(this).val();
-                    let method = $(this).val()
-                    handle_timearea_radio(method);
-                }
-            }
-        )
-
-        /* Handle user changing active pattern */
-        $('input:radio[name="pattern"]').change(
-            function() {
-                if ($(this).is(':checked')) {
-                    let pattern = patterns.get($(this).val());
-                    patterns.forEach(function (item) {
-                        $(item.route_fieldset).hide()
-                    })
-                    $(pattern.route_fieldset).show();
-                }
-            }
-        )
-
-        /* Handle user changing active pattern */
-        $('input:radio[name="pattern"]').click(
-            function() {
-                if ($(this).is(':checked')) {
-                    let pattern = patterns.get($(this).val());
-                    patterns.forEach(function (item) {
-                        $(item.route_fieldset).hide()
-                    })
-                    $(pattern.route_fieldset).show();
-                }
-            }
-        )
-    })
 
     class ValidatorFunctions {
         static __watchInputForValidityChange (element) {
@@ -769,12 +470,12 @@
             }
 
         /* Validate the "head" component of the form */
-        static validate_head() {
+        static validate_head(dialogElement) {
             let field_elements = [
-                document.getElementById('serie_title'),
-                document.getElementById('serie_start'),
-                document.getElementById('serie_end'),
-                document.getElementById('serie_expected_visitors'),
+                dialogElement.querySelector('#serie_title'),
+                dialogElement.querySelector('#serie_start'),
+                dialogElement.querySelector('#serie_end'),
+                dialogElement.querySelector('#serie_expected_visitors'),
             ];
 
             let isInvalid = false;
@@ -787,29 +488,28 @@
             }
 
             if (isInvalid) {
-                $('#headMockForm').find(':submit').click();
+                $(dialogElement).find('#headMockForm :submit').click();
                 return false;
             }
 
             return true;
         }
 
-        static validate_pattern_radio() {
-            let radio = document.querySelector('input[name="pattern"]');
+        static validate_pattern_radio(dialogElement) {
+            let radio = dialogElement.querySelector('input[name="pattern"]');
 
             if (radio.checkValidity() === false) {
-                $('#patternMockForm').find(':submit').click();
+                $(dialogElement).find('#patternMockForm :submit').click();
                 return false;
             }
 
             return true;
         }
 
-        static validate_pattern_route(pattern) {
-
+        static validate_pattern_route(pattern, dialogElement) {
             let is_valid = true;
 
-            let subpattern_radio = document.querySelector("input[name='" + pattern.sub_routed_by + "']")
+            let subpattern_radio = dialogElement.querySelector("input[name='" + pattern.sub_routed_by + "']")
             if (subpattern_radio !== null) {
                 if (subpattern_radio.checkValidity() === false) {
                     let alert_div = document.createElement('div');
@@ -836,8 +536,8 @@
             }
 
             if (pattern.name === "weekly") {
-                let checked_boxes = document.getElementById('day_checkbox_wrapper').querySelectorAll("input[type='checkbox']:checked");
-                if (checked_boxes.length === 0) {
+                let checkedBoxes = dialogElement.querySelectorAll("#day_checkbox_wrapper input[type='checkbox']:checked");
+                if (checkedBoxes.length === 0) {
                     let alert_div = document.createElement('div');
                     alert_div.innerHTML = "<div class='alert alert-danger form_alert'>Vennligst huk av for en eller flere dager.</div>"
                     pattern.route_fieldset.append(alert_div);
@@ -849,8 +549,8 @@
             return true;
         }
 
-        static validate_recurrence_area () {
-            let area_start_date_el = document.getElementById('area_start_date');
+        static validate_recurrence_area (dialogElement) {
+            let area_start_date_el = dialogElement.querySelector('#area_start_date');
 
             if (area_start_date_el.checkValidity() === false) {
                 ValidatorFunctions.__watchInputForValidityChange(area_start_date_el);
@@ -861,7 +561,7 @@
                 return false;
             }
 
-            let timearea_method_radio = document.querySelector("input[name='timeAreaMethod']");
+            let timearea_method_radio = dialogElement.querySelector("input[name='timeAreaMethod']");
             if (timearea_method_radio !== null) {
                 if (timearea_method_radio.checkValidity() === false) {
                     ValidatorFunctions.__watchInputForValidityChange(timearea_method_radio);
@@ -875,9 +575,9 @@
                 }
             }
 
-            let active_inputs = document.getElementById('area_methods_wrapper').querySelectorAll("input:not(:disabled):not([type='radio']):not([type='submit']), select:not(:disabled)");
-            for(let i = 0; i < active_inputs.length; i++) {
-                let input = active_inputs[i];
+            let activeInputs = dialogElement.querySelectorAll("#area_methods_wrapper input:not(:disabled):not([type='radio']):not([type='submit']), select:not(:disabled)");
+            for(let i = 0; i < activeInputs.length; i++) {
+                let input = activeInputs[i];
                 if (input.checkValidity() === false) {
                     let alertText = document.createElement('div');
                     alertText.innerHTML = "<span class='text-danger form_alert'>" + input.validationMessage + "</span>";
@@ -893,221 +593,469 @@
         }
     }
 
-    function submit_serie() {
-        let old_alerts = document.getElementsByClassName('form_alert');
-        old_alerts.forEach(function (elem) {
-            $(elem).remove();
-        })
+    var _dialog = new Dialog({
+        dialogId: '{{ dialogId }}',
+        managerName: '{{ managerName }}',
+        discriminator: '{{ discriminator }}',
+        postInit: function (dialog) {
+            document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
+                dialog.data.peopleNameMap = e.detail.context.people_name_map;
+                dialog.setPeople(e.detail.context.people);
+                dialog.$safeGet("#peopleCounter").text(dialog.$safeGet("#peopleChips").children().length);
+            })
+            document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
+                dialog.data.roomsNameMap = e.detail.context.room_name_map;
+                dialog.setRooms(e.detail.context.rooms);
+                dialog.$safeGet("#roomsCounter").text(dialog.$safeGet("#roomChips").children().length);
+            })
+            
+            new DayOfWeekSelectComponent(dialog.$safeGet('#every_arbitrary_weekday_in_month__weekday')[0]);
+            new MonthSelectComponent(dialog.$safeGet('#every_arbitrary_weekday_in_month__month')[0]);
+            new MonthSelectComponent(dialog.$safeGet('#every_x_of_month__month')[0]);
+            new DayOfWeekSelectComponent(dialog.$safeGet('#every_dynamic_date_of_month__weekday')[0]);
+            new ArbitratorSelectComponent(dialog.$safeGet('#every_dynamic_date_of_month__arbitrator')[0]);
+            new ArbitratorSelectComponent(dialog.$safeGet('#every_arbitrary_weekday_in_month__arbitrator')[0]);
 
-        let time = {
-            title: document.getElementById('serie_title').value,
-            title_en: document.getElementById('serie_title_en').value,
-            start: document.getElementById('serie_start').value,
-            end: document.getElementById('serie_end').value,
-            ticket_code: document.getElementById('serie_ticket_code').value,
-            expected_visitors: document.getElementById('serie_expected_visitors').value,
-        }
+            dialog.$safeGet('#serie_start')[0].addEventListener('change', (event) => {
+                dialog.$safeGet('#buffer_before_end').val(event.target.value);
+            });
+            dialog.$safeGet('#serie_end')[0].addEventListener('change', (event) => {
+                dialog.$safeGet('#buffer_after_start').val(event.target.value);
+            });
 
-        let pattern = {}
-        let active_pattern_key = $('input:radio[name="pattern"]:checked').val();
-        let pattern_obj = patterns.get(`${active_pattern_key}`);
-
-        let headResult = ValidatorFunctions.validate_head();
-        let patternResult = ValidatorFunctions.validate_pattern_radio();
-        let patternRouteResult = ValidatorFunctions.validate_pattern_route(pattern_obj);
-        let areaRecurrenceResult = ValidatorFunctions.validate_recurrence_area();
-
-        if (headResult === false || patternResult === false || patternRouteResult === false || areaRecurrenceResult === false) {
-            return;
-        }
-
-        // since weekly doesnt have any subroutings (only one option) we cant use the normal method
-        if (active_pattern_key !== "2") {
-            if (active_pattern_key == "4") {
-                pattern["year_interval"] = $('#pattern_yearly_const__year_interval').val();
-            }
-
-            let active_sub_route_key = $('input:radio[name="' + pattern_obj.sub_routed_by +'"]:checked').val();
-            let sub_route = pattern_obj.sub_routes[active_sub_route_key];
-            pattern.pattern_type = pattern_obj.name;
-            pattern.pattern_routine = sub_route.strategy_name;
-
-            for (let i = 0; i < sub_route.fields.length; i++) {
-                let field = sub_route.fields[i];
-                pattern[field.out_prop_name] = document.getElementById(field.element_id).value;
-            }
-        }
-        else {
-            pattern["week_interval"] = $('#week_interval').val();
-            pattern.pattern_type = pattern_obj.name;
-
-            let days = new Map([
-                [0, $('#sunday').is(':checked')],
-                [1, $('#monday').is(':checked')],
-                [2, $('#tuesday').is(':checked')],
-                [3, $('#wednesday').is(':checked')],
-                [4, $('#thursday').is(':checked')],
-                [5, $('#friday').is(':checked')],
-                [6, $('#saturday').is(':checked')],
-            ]);
-            pattern["days"] = days;
-            pattern["pattern_routine"] = "weekly__standard";
-        }
-
-        let area = {
-        }
-
-        let area_methods = new Map();
-        area_methods.set(
-            "1",
-            {
-                name: "StopWithin",
-                set: function () {
-                    area.stop_within = $('#area_stopWithin').val();
-                }
-            }
-        );
-        area_methods.set("2",
-        {
-            name: "StopAfterXInstances",
-            set: function () {
-                area.instances = $('#area_stopAfterXInstances').val()
-            }
-        });
-        area_methods.set("3",
-        {
-            name: "NoStopDate",
-            set: function () {
-                area.projectionDistanceInMonths = $('#area_noStop_projectXMonths').val()
-            }
-        });
-
-        let active_area_method = area_methods.get($('input:radio[name="timeAreaMethod"]:checked').val());
-        active_area_method.set();
-        area.method_name = active_area_method.name;
-        area.start_date = $('#area_start_date').val();
-
-        let serie = {
-            time: time,
-            pattern: pattern,
-            time_area: area,
-        }
-
-        let display_layouts = [];
-        document.querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
-            display_layouts.push(element.value)
-        })
-
-        serie.buffer = {}
-        if ( $('#buffer_before_start').val() && $('#buffer_before_end').val() ) {
-            serie.buffer.before = {
-                start: $('#buffer_before_start').val(),
-                end: $('#buffer_before_end').val(),
-            }
-        }
-        if ( $('#buffer_after_start').val() && $('#buffer_after_end').val() ) {
-            serie.buffer.after = {
-                start: $('#buffer_after_start').val(),
-                end: $('#buffer_after_end').val(),
-            }
-        }
-
-        serie._uuid = $('#serie_uuid').val();
-        serie.rooms = createSerieDialog__getSelectedRoomIds();
-        serie.people = createSerieDialog__getSelectedPeopleIds();
-        serie.room_name_map = roomsNameMap;
-        serie.people_name_map = peopleNameMap;
-        serie.display_layouts = display_layouts.join(",");
-
-        document.dispatchEvent(
-            new CustomEvent(
-                "{{managerName}}.submit",
+            /* Pattern: Daily*/
+            dialog.data.patterns.set(
+                "1",
                 {
-                    'detail': { 'dialog': "{{dialog}}", 'serie': serie, "csrf_token": "{{csrf_token}}" }
+                    route_fieldset: dialog.$safeGet("#patternRoute_daily"),
+                    name: "daily",
+                    sub_routed_by: 'pattern_daily_subroute',
+                    constant_fields: [],
+                    sub_routes: [
+                        {
+                            strategy_name: "daily__every_x_day",
+                            route: "pattern_daily_sub__every_x_day",
+                            fields: [
+                                { element_id: 'every_x_day__interval', out_prop_name: "interval" },
+                            ]
+                        },
+                        {
+                            strategy_name: "daily__every_weekday",
+                            route: "pattern_daily_sub__every_weekday",
+                            fields: []
+                        }
+                    ]
                 }
-            )
-        )
-    }
+            );
+            /* Pattern: Weekly*/
+            dialog.data.patterns.set(
+                "2",
+                {
+                    strategy_name: "weekly__standard",
+                    route_fieldset: dialog.$safeGet("#patternRoute_weekly"),
+                    name: "weekly",
+                }
+            );
+            /* Pattern: Monthly*/
+            dialog.data.patterns.set(
+                "3",
+                {
+                    route_fieldset: dialog.$safeGet("#patternRoute_monthly"),
+                    name: "monthly",
+                    sub_routed_by: 'pattern_monthly_subroute',
+                    constant_fields: [],
+                    sub_routes: [
+                        {
+                            strategy_name:"month__every_x_day_every_y_month",
+                            route: "pattern_monthly_sub__every_x_day_every_y_month",
+                            fields: [
+                                { element_id: 'every_x_day_every_y_month__day_of_month', out_prop_name: "day_of_month" },
+                                { element_id: 'every_x_day_every_y_month__month_interval', out_prop_name: "interval" },
+                            ],
+                        },
+                        {
+                            strategy_name: "month__every_arbitrary_date_of_month",
+                            route: "pattern_monthly_sub__every_arbitrary_date_of_month",
+                            fields: [
+                                { element_id: 'every_dynamic_date_of_month__arbitrator', out_prop_name: "arbitrator" },
+                                { element_id: 'every_dynamic_date_of_month__weekday', out_prop_name: "weekday" },
+                                { element_id: 'every_dynamic_date_of_month__month_interval', out_prop_name: "interval" },
+                            ]
+                        }
+                    ]
+                }
+            );
+            /* Pattern: Yearly*/
+            dialog.data.patterns.set(
+                "4",
+                {
+                    route_fieldset: dialog.$safeGet("#patternRoute_yearly"),
+                    name: "yearly",
+                    sub_routed_by: 'pattern_yearly_subroute',
+                    constant_fields: [
+                        { element_id: 'pattern_yearly_const__year_interval', out_prop_name: "interval" },
+                    ],
+                    sub_routes: [
+                        {
+                            strategy_name:"yearly__every_x_of_month",
+                            route:"pattern_yearly_sub__every_x_of_month",
+                            fields: [
+                                { element_id: 'every_x_of_month__date', out_prop_name: "day_index" },
+                                { element_id: 'every_x_of_month__month', out_prop_name: "month" },
+                            ]
+                        },
+                        {
+                            strategy_name: "yearly__every_arbitrary_weekday_in_month",
+                            route: "pattern_yearly_sub__every_arbitrary_weekday_in_month",
+                            fields: [
+                                { element_id: 'every_arbitrary_weekday_in_month__arbitrator', out_prop_name: "arbitrator" },
+                                { element_id: 'every_arbitrary_weekday_in_month__weekday', out_prop_name: "weekday" },
+                                { element_id: 'every_arbitrary_weekday_in_month__month', out_prop_name: "month" },
+                            ]
+                        }
+                    ]
+                }
+            );
 
-    /* Ensure that the shown pattern matches the selected pattern in the radio menu. This will correct any such mismatches. */
-    function match_pattern_state_to_radio () {
-        let active_pattern_key = $('input:radio[name="pattern"]:checked').val();
+            let selects = dialog.$safeGet(".newTimePlanDialog_select");
+            selects.each(function (index, select) {
+                if (select.hasAttribute("init_value")) {
+                    select.value = select.getAttribute("init_value");
+                }
+            });
 
-        // Ensure that if the user closes the modal while working with it, they will
-        // come right back to the same pattern fieldset when re-opening it.
-        if (active_pattern_key !== undefined && active_pattern_key !== "") {
-            for (let i = 0; i < patterns.length; i++) {
-                $(patterns[i].route_fieldset).hide();
-            }
-            $(patterns.get(active_pattern_key).route_fieldset).show();
-        }
-    }
+            const startTimePicker = new ExtendedTimepicker({
+                timepickerWrapperElement: dialog.$safeGet('#serie_start_picker')[0],
+                timepickerInputElement: dialog.$safeGet('#serie_start')[0],
+                mdbOptions: {
+                    format24:true,
+                    inline: true,
+                }
+            });
+            const endTimePicker = new ExtendedTimepicker({
+                timepickerWrapperElement: dialog.$safeGet('#serie_end_picker')[0],
+                timepickerInputElement: dialog.$safeGet('#serie_end')[0],
+                mdbOptions: {
+                    format24:true,
+                    inline: true,
+                }
+            });
 
-    function match_area_state_to_radio(){
-        let active_area_method = $('input:radio[name="timeAreaMethod"]:checked').val();
+            /* Handle user changing active time area method */
+            dialog.$safeGet('input:radio[name="timeAreaMethod"]').change(
+                function() {
+                    if ($(this).is(':checked')) {
+                        let method = $(this).val()
+                        dialog.handleTimeAreaRadio({ activeVal: method });
+                    }
+                }
+            );
 
-        if (active_area_method !== undefined && active_area_method !== "") {
-            handle_timearea_radio(active_area_method);
-        }
-    }
+            /* Handle user changing active pattern */
+            dialog.$safeGet('input:radio[name="pattern"]').change(
+                function() {
+                    if ($(this).is(':checked')) {
+                        let pattern = dialog.data.patterns.get($(this).val());
+                        dialog.data.patterns.forEach(function (item) {
+                            $(item.route_fieldset).hide()
+                        });
+                        $(pattern.route_fieldset).show();
+                    }
+                }
+            );
 
-    /*
-    Resets a patterns field values, and disables it. This affects all sub-routes of the pattern.
-    */
-    function reset_pattern(ptrn) {
-        if (ptrn.sub_routes !== undefined) {
-            ptrn.sub_routes.forEach(function (sub_route) {
-                deactivate_pattern_subroute(sub_route);
-                sub_route.fields.forEach(function (field_obj) {
-                    let field = document.getElementById(field_obj.element_id);
+            /* Handle user changing active pattern */
+            dialog.$safeGet('input:radio[name="pattern"]').click(
+                function() {
+                    if ($(this).is(':checked')) {
+                        let pattern = dialog.data.patterns.get($(this).val());
+                        dialog.data.patterns.forEach(function (item) {
+                            $(item.route_fieldset).hide()
+                        });
+                        $(pattern.route_fieldset).show();
+                    }
+                }
+            );
+            
+            dialog.matchPatternStateToRadio();
+            dialog.matchAreaStateToRadio();
+
+            /* Handle user changing active pattern */
+            $('#area_stopWithin').attr("disabled", "");
+            $('#area_stopAfterXInstances').attr("disabled", "");
+            $('#area_noStop_projectXMonths').attr("disabled", "");
+
+            /* Initialization of state */
+            dialog.data.patterns.forEach(function (pattern) {
+                $('input:radio[name="' + pattern.sub_routed_by + '"]').change(
+                    function () {
+                        dialog.resetPattern({ pattern: pattern });
+                        let sub = pattern.sub_routes[$(this).val()];
+                        dialog.activatePatternSubroute({ subroute: sub });
+                    }
+                );
+
+                if (pattern.sub_routes !== undefined) {
+                    pattern.sub_routes.forEach(function (sub_route) {
+                        dialog.deactivatePatternSubroute({ subroute: sub_route });
+                    })
+                }
+
+                let already_active_radio = $('input:radio[name="' + pattern.sub_routed_by + '"]:checked').val();
+                if (already_active_radio !== undefined && already_active_radio !== "") {
+                    dialog.activatePatternSubroute({ subroute: pattern.sub_routes[already_active_radio]} )
+                }
+            });
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            submit(dialog, {} = {}, triggeredByElement) {
+                let old_alerts = dialog.$dialogElement[0].querySelectorAll('.form_alert');
+                old_alerts.forEach(function (elem) {
+                    $(elem).remove();
+                });
+
+                let time = {
+                    title: dialog.interior.serie_title.value,
+                    title_en: dialog.interior.serie_title_en.value,
+                    start: dialog.interior.serie_start.value,
+                    end: dialog.interior.serie_end.value,
+                    ticket_code: dialog.interior.serie_ticket_code.value,
+                    expected_visitors: dialog.interior.serie_expected_visitors.value,
+                }
+
+                let pattern = {}
+                let active_pattern_key = dialog.$safeGet('input:radio[name="pattern"]:checked').val();
+                let pattern_obj = dialog.data.patterns.get(`${active_pattern_key}`);
+
+                let headResult = ValidatorFunctions.validate_head( dialog.$dialogElement[0] );
+                let patternResult = ValidatorFunctions.validate_pattern_radio( dialog.$dialogElement[0] );
+                let patternRouteResult = ValidatorFunctions.validate_pattern_route(pattern_obj, dialog.$dialogElement[0]);
+                let areaRecurrenceResult = ValidatorFunctions.validate_recurrence_area(dialog.$dialogElement[0]);
+
+                if (headResult === false || patternResult === false || patternRouteResult === false || areaRecurrenceResult === false) {
+                    return;
+                }
+
+                // since weekly doesnt have any subroutings (only one option) we cant use the normal method
+                if (active_pattern_key !== "2") {
+                    if (active_pattern_key == "4") {
+                        pattern["year_interval"] = dialog.$safeGet('#pattern_yearly_const__year_interval').val();
+                    }
+
+                    let active_sub_route_key = dialog.$safeGet('input:radio[name="' + pattern_obj.sub_routed_by +'"]:checked').val();
+                    let sub_route = pattern_obj.sub_routes[active_sub_route_key];
+                    pattern.pattern_type = pattern_obj.name;
+                    pattern.pattern_routine = sub_route.strategy_name;
+
+                    for (let i = 0; i < sub_route.fields.length; i++) {
+                        let field = sub_route.fields[i];
+                        pattern[field.out_prop_name] = dialog.$safeGet("#" + field.element_id).val();
+                    }
+                }
+                else {
+                    pattern["week_interval"] = dialog.$safeGet('#week_interval').val();
+                    pattern.pattern_type = pattern_obj.name;
+
+                    let days = new Map([
+                        [0, dialog.$safeGet('#sunday').is(':checked')],
+                        [1, dialog.$safeGet('#monday').is(':checked')],
+                        [2, dialog.$safeGet('#tuesday').is(':checked')],
+                        [3, dialog.$safeGet('#wednesday').is(':checked')],
+                        [4, dialog.$safeGet('#thursday').is(':checked')],
+                        [5, dialog.$safeGet('#friday').is(':checked')],
+                        [6, dialog.$safeGet('#saturday').is(':checked')],
+                    ]);
+                    pattern["days"] = days;
+                    pattern["pattern_routine"] = "weekly__standard";
+                }
+
+                let area = {}
+
+                let area_methods = new Map();
+                area_methods.set(
+                    "1",
+                    {
+                        name: "StopWithin",
+                        set: function () {
+                            area.stop_within = dialog.$safeGet('#area_stopWithin').val();
+                        }
+                    }
+                );
+                area_methods.set("2",
+                {
+                    name: "StopAfterXInstances",
+                    set: function () {
+                        area.instances = dialog.$safeGet('#area_stopAfterXInstances').val()
+                    }
+                });
+                area_methods.set("3",
+                {
+                    name: "NoStopDate",
+                    set: function () {
+                        area.projectionDistanceInMonths = dialog.$safeGet('#area_noStop_projectXMonths').val()
+                    }
+                });
+
+                let active_area_method = area_methods.get(dialog.$safeGet('input:radio[name="timeAreaMethod"]:checked').val());
+                active_area_method.set();
+                area.method_name = active_area_method.name;
+                area.start_date = dialog.$safeGet('#area_start_date').val();
+
+                let serie = {
+                    time: time,
+                    pattern: pattern,
+                    time_area: area,
+                }
+
+                let display_layouts = [];
+                dialog.$dialogElement[0].querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
+                    display_layouts.push(element.value)
                 })
-            })
+
+                serie.buffer = {}
+                if ( dialog.$safeGet('#buffer_before_start').val() && dialog.$safeGet('#buffer_before_end').val() ) {
+                    serie.buffer.before = {
+                        start: dialog.$safeGet('#buffer_before_start').val(),
+                        end: dialog.$safeGet('#buffer_before_end').val(),
+                    }
+                }
+                if ( dialog.$safeGet('#buffer_after_start').val() && dialog.$safeGet('#buffer_after_end').val() ) {
+                    serie.buffer.after = {
+                        start: dialog.$safeGet('#buffer_after_start').val(),
+                        end: dialog.$safeGet('#buffer_after_end').val(),
+                    }
+                }
+
+                serie._uuid = dialog.$safeGet('#serie_uuid').val();
+                serie.rooms = dialog.getSelectedRoomIds();
+                serie.people = dialog.getSelectedPeopleIds();
+                serie.room_name_map = dialog.data.roomsNameMap;
+                serie.people_name_map = dialog.data.peopleNameMap;
+                serie.display_layouts = display_layouts.join(",");
+
+                dialog.raiseSubmitEvent({
+                    serie: serie,
+                    csrf_token: '{{csrf_token}}',
+                });
+            },
+            /* Ensure that the shown pattern matches the selected pattern in the radio menu. This will correct any such mismatches. */
+            matchPatternStateToRadio(dialog, {} = {}, triggeredByElement) {
+                let active_pattern_key = dialog.$safeGet('input:radio[name="pattern"]:checked').val();
+
+                // Ensure that if the user closes the modal while working with it, they will
+                // come right back to the same pattern fieldset when re-opening it.
+                if (active_pattern_key !== undefined && active_pattern_key !== "") {
+                    for (let i = 0; i < dialog.data.patterns.length; i++) {
+                        $(patterns[i].route_fieldset).hide();
+                    }
+                    $(dialog.data.patterns.get(active_pattern_key).route_fieldset).show();
+                }
+            },
+            matchAreaStateToRadio(dialog, {} = {}, triggeredByElement) {
+                let activeAreaMethod = dialog.$safeGet('input:radio[name="timeAreaMethod"]:checked').val();
+
+                if (activeAreaMethod !== undefined && activeAreaMethod !== "") {
+                    dialog.handleTimeAreaRadio({ activeVal: activeAreaMethod });
+                }
+            },
+            /* Resets a patterns field values, and disables it. This affects all sub-routes of the pattern. */
+            resetPattern(dialog, { pattern } = {}, triggeredByElement) {
+                if (pattern.sub_routes !== undefined) {
+                    pattern.sub_routes.forEach(function (sub_route) {
+                        dialog.deactivatePatternSubroute( { subroute: sub_route });
+                        sub_route.fields.forEach(function (field_obj) {
+                            let field = dialog.$safeGet("#" + field_obj.element_id);
+                        })
+                    })
+                }
+            },
+            /* Activate a sub route of a pattern. In practice removes the disabled attribute from the fields of this sub route. */
+            activatePatternSubroute(dialog, { subroute } = {}, triggeredByElement) {
+                for (let i = 0; i < subroute.fields.length; i++) {
+                    let field = dialog.$dialogElement[0].querySelector("#" + subroute.fields[i].element_id);
+                    field.removeAttribute("disabled");
+                }
+            },
+            deactivatePatternSubroute(dialog, { subroute } = {}, triggeredByElement) {
+                for (let i = 0; i < subroute.fields.length; i++) {
+                    let field = dialog.$dialogElement[0].querySelector("#" + subroute.fields[i].element_id);
+                    field.setAttribute("disabled", "true");
+                }
+            },
+            handleTimeAreaRadio(dialog, {activeVal} = {}, triggeredByElement) {
+                dialog.$safeGet('#area_stopWithin').attr("disabled", "");
+                dialog.$safeGet('#area_stopAfterXInstances').attr("disabled", "");
+                dialog.$safeGet('#area_noStop_projectXMonths').attr("disabled", "");
+
+                if (activeVal === "1") {
+                    dialog.$safeGet('#area_stopWithin').removeAttr("disabled");
+                }
+                if (activeVal === "2"){
+                    dialog.$safeGet('#area_stopAfterXInstances').removeAttr("disabled");
+                }
+                if (activeVal === "3") {
+                    dialog.$safeGet('#area_noStop_projectXMonths').removeAttr("disabled");
+                }
+            },
+            triggerAddRooms(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}");
+            },
+            triggerAddPeople(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}");
+            },
+            setPeople(dialog, {} = {}, triggeredByElement) {
+                let wrapper = dialog.$safeGet('#peopleChips');
+                wrapper.empty();
+
+                people.split(",").forEach(id => {
+                    wrapper.append(
+                        `<span class='chip' rowid='${id}'>
+                            ${dialog.data.peopleNameMap.get(id)}
+                            <a href='#' class='text-danger'
+                                    data-mdb-toggle='tooltip'
+                                    title='{% trans "Remove this room from the activity" %}'
+                                    onclick='createSerieDialog__removeAssociation(this)'>
+                                        <i class='fas fa-times'></i>
+                                    </a>                    
+                        </span>`
+                    )
+                });
+            },
+            setRooms(dialog, {} = {}, triggeredByElement) {
+                let wrapper = dialog.$safeGet('#roomChips');
+                wrapper.empty();
+
+                rooms.split(",").forEach(id => {
+                    wrapper.append(
+                        `<span class='chip' rowid='${id}'>
+                            ${dialog.data.roomsNameMap.get(id)}
+                            <a href='#' class='text-danger'
+                                    data-mdb-toggle='tooltip'
+                                    title='{% trans "Remove this room from the activity" %}'
+                                    onclick='createSerieDialog__removeAssociation(this)'>
+                                        <i class='fas fa-times'></i>
+                                    </a>                    
+                        </span>`
+                    );
+                });
+            },
+            removeAssociation(dialog, {} = {}, triggeredByElement) {
+                $(triggeredByElement).parent().remove();
+            },
+            getSelectedRoomIds(dialog, {} = {}, triggeredByElement) {
+                return Array.from(dialog.$safeGet("#roomChips")[0].children).map(row => row.getAttribute("rowid"));
+            },
+            getSelectedPeopleIds(dialog, {} = {}, triggeredByElement) {
+                return Array.from(dialog.$safeGet("#peopleChips")[0].children).map(row => row.getAttribute("rowid"));
+            },
+        },
+        data: {
+            peopleNameMap: new Map(),
+            roomsNameMap: new Map(),
+            patterns: new Map(),
         }
-    }
-
-    /*
-    Activate a sub route of a pattern. In practice removes the disabled attribute from the fields of this
-    sub route.
-    */
-    function activate_pattern_subroute(subroute) {
-        for (let i = 0; i < subroute.fields.length; i++) {
-            let field = document.getElementById(subroute.fields[i].element_id);
-            field.removeAttribute("disabled");
-        }
-    }
-
-    /*
-    Deactivate a sub route of a pattern. In practice this adds the disabled attribute to the fields of this
-    sub route.
-    */
-    function deactivate_pattern_subroute(subroute) {
-        for (let i = 0; i < subroute.fields.length; i++) {
-            let field = document.getElementById(subroute.fields[i].element_id);
-            field.setAttribute("disabled", "true");
-        }
-    }
-
-    //set_radio_if_none_set();
-
-    /* Initialization of state */
-    patterns.forEach(function (ptrn) {
-        $('input:radio[name="' + ptrn.sub_routed_by + '"]').change(
-            function () {
-                reset_pattern(ptrn);
-                let sub = ptrn.sub_routes[$(this).val()];
-                activate_pattern_subroute(sub);
-            }
-        );
-
-        if (ptrn.sub_routes !== undefined) {
-            ptrn.sub_routes.forEach(function (sub_route) {
-                deactivate_pattern_subroute(sub_route);
-            })
-        }
-
-        let already_active_radio = $('input:radio[name="' + ptrn.sub_routed_by + '"]:checked').val();
-        if (already_active_radio !== undefined && already_active_radio !== "") {
-            activate_pattern_subroute(ptrn.sub_routes[already_active_radio])
-        }
-    })
+    });
 </script>
