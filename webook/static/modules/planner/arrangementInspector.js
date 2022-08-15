@@ -218,12 +218,19 @@ export class ArrangementInspector {
                 [
                     "newTimePlanDialog",
                     new Dialog({
-                        dialogElementId: "newTimePlanDialog",
                         triggerElementId: "mainPlannerDialog__newTimePlan",
                         dialogElementId: "newTimePlanDialog",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&dialog=newTimePlanDialog&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
-                                .then(response => response.text());
+                            return await this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/create_serie',
+                                dialogId: 'newTimePlanDialog',
+                                managerName: 'arrangementInspector',
+                                customParameters: {
+                                    slug: context.arrangement.slug,
+                                    orderRoomDialog: "nestedOrderRoomDialog",
+                                    orderPersonDialog: "nestedOrderPersonDialog",
+                                }
+                            })
                         },
                         onRenderedCallback: async (dialogManager, context) => {
                             let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
