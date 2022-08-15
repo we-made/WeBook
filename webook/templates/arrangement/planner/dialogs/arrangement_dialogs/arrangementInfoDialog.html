@@ -602,8 +602,8 @@
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
             {% for event in object.event_set.all %}
-            new mdb.Popover(document.getElementById('eventsTable_event_{{event.pk}}'), {
-                container: document.getElementById('mainDialog'),
+            new mdb.Popover(dialog.getElementById('eventsTable_event_{{event.pk}}'), {
+                container: dialog.dialogElement,
                 trigger: 'hover',
                 html: true,
                 content: `
@@ -611,7 +611,7 @@
 
                     {{event.start}} - {{event.end}}
                 `
-            })
+            });
             {% endfor %}
         },
         methods: {
@@ -639,7 +639,7 @@
                             headers: {
                                 'X-CSRFToken': '{{csrf_token}}',
                             }
-                        }).then(response => { document.getElementById('note_' + notePk).remove(); });
+                        }).then(response => { dialog.getElementById('note_' + notePk).remove(); });
                     }
                 });
             },
@@ -698,7 +698,7 @@
                 formData.append("actual_visitors",      dialog.interior.id_actual_visitors.value);
                 formData.append("csrfmiddlewaretoken",  "{{ csrf_token }}");
 
-                dialog.$dialogElement[0].querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
+                dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
                     formData.append("display_layouts", element.value);
                 });
 
@@ -843,7 +843,7 @@
                 });
             },
             removePlanners(dialog, {} = {}, triggeredByElement) {
-                let planners = dialog.$safeGet('#mainPlannerDialog_plannersSelect').val().join(",");
+                let planners = dialog.$('#mainPlannerDialog_plannersSelect').val().join(",");
                 let formData = new FormData()
                 formData.append("planner_ids", planners);
                 formData.append("arrangement_slug", "{{arrangement.slug}}")

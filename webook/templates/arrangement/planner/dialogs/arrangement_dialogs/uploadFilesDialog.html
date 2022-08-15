@@ -39,15 +39,14 @@
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
-            const fileUploadEl = document.querySelector("#input-file-now");
-            const fileUploadInstance = new FileUpload(fileUploadEl);
+            new FileUpload(dialog.querySelector("#input-file-now"));
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {
                 dialog.closeMe();
             },
             submit(dialog, {} = {}, triggeredByElement) {
-                let formData = new FormData(dialog.$safeGet("#uploadFilesDialogForm")[0]);
+                let formData = new FormData(dialog.$("#uploadFilesDialogForm")[0]);
 
                 dialog.raiseSubmitEvent({
                     formData: formData,

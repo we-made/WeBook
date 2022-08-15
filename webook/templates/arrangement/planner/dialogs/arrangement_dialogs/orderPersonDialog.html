@@ -60,12 +60,14 @@
         managerName: '{{managerName}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
-            $("#orderPersonDialog__table").DataTable();
-            $("input[type=checkbox][name=orderPersonDialog__checkboxArray]").change((event) => {
-                if (event.currentTarget.checked === true)
+            dialog.$("#orderPersonDialog__table").DataTable();
+            dialog.$("input[type=checkbox][name=orderPersonDialog__checkboxArray]").change((event) => {
+                if (event.currentTarget.checked === true) {
                     dialog.data.selectedPeopleMap.set(event.currentTarget.value, event.currentTarget.getAttribute("person_name"));
-                else
+                }
+                else {
                     dialog.data.selectedPeopleMap.delete(event.currentTarget.value);
+                }
             })
         },
         methods: {

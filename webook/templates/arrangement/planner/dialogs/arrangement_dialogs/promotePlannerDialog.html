@@ -43,7 +43,7 @@
             submit(dialog, { arrangementId } = {}, triggeredByElement) {
                 dialog.raiseSubmitEvent({
                     arrangement_id: arrangementId,
-                    promotee: dialog.$safeGet("input[name='plannerToPromoteRadio']:checked").val(),
+                    promotee: dialog.$("input[name='plannerToPromoteRadio']:checked").val(),
                     csrf_token: '{{csrf_token}}',
                 });
             

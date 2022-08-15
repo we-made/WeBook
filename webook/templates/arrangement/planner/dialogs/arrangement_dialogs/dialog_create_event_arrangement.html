@@ -254,23 +254,24 @@
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
-            dialog.$safeGet("#fromTime").on("change", (event) => {
-                dialog.$safeGet("#buffer_before_end").val(event.target.value);
+            dialog.$("#fromTime").on("change", (event) => {
+                dialog.$("#buffer_before_end").val(event.target.value);
             });
-            dialog.$safeGet("#toTime").on("change", (event) => {
-                dialog.$safeGet("#buffer_after_start").val(event.target.value);
+            dialog.$("#toTime").on("change", (event) => {
+                dialog.$("#buffer_after_start").val(event.target.value);
             });
 
             document.addEventListener("{{managerName}}.d1_peopleSelected", (e) => {
                 dialog.data.peopleNameMap = e.detail.context.people_name_map;
                 dialog.setPeople({ people: e.detail.context.people });
-                dialog.$safeGet("#peopleCounter").text(dialog.$safeGet("#peopleTbody__d1").children().length);
+
+                dialog.$("#peopleCounter").text(dialog.$("#peopleTbody__d1").children().length);
             });
             document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
                 dialog.data.roomsNameMap = e.detail.context.room_name_map;
                 dialog.setRooms({ rooms: e.detail.context.rooms });
 
-                dialog.$safeGet("#roomsCounter").text(dialog.$safeGet("#roomsTbody__d1").children().length);
+                dialog.$("#roomsCounter").text(dialog.$("#roomsTbody__d1").children().length);
             });
         },
         methods: {
@@ -278,7 +279,7 @@
                 dialog.closeMe();
             },
             setRooms(dialog, { rooms } = {}, triggeredByElement) {
-                let tbody = dialog.$safeGet('#roomsTbody__d1');
+                let tbody = dialog.$('#roomsTbody__d1');
                 tbody.empty();
 
                 let ids = rooms.split(",");
@@ -299,7 +300,7 @@
                 });
             },
             setPeople(dialog, { people } = {}, triggeredByElement) {
-                let tbody = dialog.$safeGet('#peopleTbody__d1');
+                let tbody = dialog.$('#peopleTbody__d1');
                 tbody.empty();
 
                 let ids = people.split(",");
@@ -344,7 +345,7 @@
                 };
 
                 qualifiedEvent.display_layouts = 
-                    [...dialog.$dialogElement[0].querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
+                    [...dialog.querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
                         .map(element => element.value);
 
                 dialog.raiseSubmitEvent({
@@ -353,7 +354,7 @@
                 });
             },
             validate(dialog, {} = {}, triggeredByElement) {
-                let field_elements = dialog.$safeGet('#newSimpleActivityForm').find("input, select");
+                let field_elements = dialog.$('#newSimpleActivityForm').find("input, select");
                 let isInvalid = false;
 
                 for (let i = 0; i < field_elements.length; i++) {
@@ -364,7 +365,7 @@
                 }
 
                 if (isInvalid) {
-                    dialog.$safeGet('#newSimpleActivityForm').find(':submit').click();
+                    dialog.$('#newSimpleActivityForm').find(':submit').click();
                     return false;
                 }
 
@@ -382,10 +383,10 @@
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", {});
             },
             getSelectedRoomIds (dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$safeGet("#roomsTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+                return Array.from(dialog.$("#roomsTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
             },
             getSelectedPeopleIds(dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$safeGet("#peopleTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+                return Array.from(dialog.$("#peopleTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
             },
         },
         data: {

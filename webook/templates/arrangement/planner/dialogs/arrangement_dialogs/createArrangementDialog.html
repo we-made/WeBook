@@ -221,20 +221,20 @@
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
-            dialog.$dialogElement[0].querySelectorAll('.form-outline').forEach((formOutline) => {
+            dialog.querySelectorAll('.form-outline').forEach((formOutline) => {
                 new mdb.Input(formOutline).init();
             });
-            new mdb.Select(dialog.$dialogElement[0].querySelector('#createArrangementDialog #{{ form.audience.id_for_label }}'), {
-                container: '#createArrangementDialog'
+            new mdb.Select(dialog.querySelector('#{{ form.audience.id_for_label }}'), {
+                container: '#{{dialogId}}.{{discriminator}}'
             });
-            new mdb.Select(dialog.$dialogElement[0].querySelector('#createArrangementDialog #{{ form.location.id_for_label }}'), {
-                container: '#createArrangementDialog'
+            new mdb.Select(dialog.querySelector('#{{ form.location.id_for_label }}'), {
+                container: '#{{dialogId}}.{{discriminator}}'
             });
-            new mdb.Select(dialog.$dialogElement[0].querySelector('#createArrangementDialog #{{ form.responsible.id_for_label }}'), {
-                container: '#createArrangementDialog'
+            new mdb.Select(dialog.querySelector('#{{ form.responsible.id_for_label }}'), {
+                container: '#{{dialogId}}.{{discriminator}}'
             });
-            new mdb.Select(dialog.$dialogElement[0].querySelector('#createArrangementDialog #{{ form.arrangement_type.id_for_label }}'), {
-                container: '#createArrangementDialog'
+            new mdb.Select(dialog.querySelector('#{{ form.arrangement_type.id_for_label }}'), {
+                container: '#{{dialogId}}.{{discriminator}}'
             });
 
             document.addEventListener("{{managerName}}.contextUpdated", (e) => {
@@ -251,7 +251,7 @@
                 dialog.closeMe();
             },
             validate(dialog, {} = {}, triggeredByElement) {
-                let field_elements = dialog.$safeGet('#arrangementInfoForm').find("input, select");
+                let field_elements = dialog.$('#arrangementInfoForm').find("input, select");
                 let isInvalid = false;
 
                 for (let i = 0; i < field_elements.length; i++) {
@@ -262,7 +262,7 @@
                 }
 
                 if (isInvalid) {
-                    dialog.$safeGet('#arrangementInfoForm').find(':submit').click();
+                    dialog.$('#arrangementInfoForm').find(':submit').click();
                     return false;
                 }
 
@@ -294,7 +294,7 @@
                 formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
 
                 let displayLayouts = [];
-                dialog.$dialogElement[0].querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
+                dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
                     formData.append("display_layouts", element.value);
                 })
 
@@ -314,7 +314,7 @@
             },
             setEvents(dialog, { events } = {}, triggeredByElement) {
                 dialog.data.eventsMap = events;
-                let tbody = dialog.$safeGet('#eventsBody');
+                let tbody = dialog.$('#eventsBody');
                 tbody.html("");
 
                 events.forEach(element => {
@@ -347,7 +347,7 @@
             setSeries(dialog, { series } = {}, triggeredByElement) {
                 dialog.data.seriesMap = series;
         
-                let tbody = dialog.$safeGet('#timeplansBody');
+                let tbody = dialog.$('#timeplansBody');
                 tbody.html("")
 
                 console.log(series);
@@ -441,12 +441,11 @@
                 });
             },
             removeSerie(dialog, { uuid } = {}, triggeredByElement) {
-                console.log(`#${uuid}`)
-                dialog.$dialogElement.find(`#${uuid}`).remove();
+                dialog.$(`#${uuid}`).remove();
                 dialog.data.seriesMap.delete(uuid);
             },
             removeSimpleActivity(dialog, { uuid } = {}, triggeredByElement) {
-                dialog.$dialogElement.find(`#${uuid}`).remove();
+                dialog.$(`#${uuid}`).remove();
                 dialog.data.eventsMap.delete(uuid);
             },
             editSimpleActivity(dialog, { uuid } = {}, triggeredByElement) {

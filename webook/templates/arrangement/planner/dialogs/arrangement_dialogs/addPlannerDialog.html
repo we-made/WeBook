@@ -45,7 +45,7 @@
             postInit: function (dialog) {},
             methods: {
                 submit(dialog, { arrangementSlug } = {}, triggeredByElement) {
-                    let planners = dialog.$dialogElement.find("#addPlannersDialog_plannersSelect").val().join(","); 
+                    let planners = dialog.$("#addPlannersDialog_plannersSelect").val().join(","); 
 
                     dialog.raiseSubmitEvent({
                         plannerIds: planners, 

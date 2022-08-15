@@ -19,6 +19,7 @@ class Dialog {
         this.interior = null;
 
         this.$dialogElement = this._getDialogElement();
+        this.dialogElement = this.$dialogElement[0];
 
         this._spawnMutationObserver();
         this._discover();
@@ -156,6 +157,23 @@ class Dialog {
      */
     closeMe() {
         document.dispatchEvent(new Event(`${this.managerName}.close`));
+    }
+
+
+    $(selector) {
+        return this.$dialogElement.find(selector);
+    }
+
+    querySelector (selector) {
+        return this.dialogElement.querySelector(selector);
+    }
+
+    querySelectorAll(selector) {
+        return this.dialogElement.querySelectorAll(selector);
+    }
+
+    getElementById(id) {
+        return this.dialogElement.querySelector("#" + id);
     }
 
     /**

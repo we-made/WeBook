@@ -601,33 +601,33 @@
             document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
                 dialog.data.peopleNameMap = e.detail.context.people_name_map;
                 dialog.setPeople(e.detail.context.people);
-                dialog.$safeGet("#peopleCounter").text(dialog.$safeGet("#peopleChips").children().length);
+                dialog.$("#peopleCounter").text(dialog.$("#peopleChips").children().length);
             })
             document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
                 dialog.data.roomsNameMap = e.detail.context.room_name_map;
                 dialog.setRooms(e.detail.context.rooms);
-                dialog.$safeGet("#roomsCounter").text(dialog.$safeGet("#roomChips").children().length);
+                dialog.$("#roomsCounter").text(dialog.$("#roomChips").children().length);
             })
             
-            new DayOfWeekSelectComponent(dialog.$safeGet('#every_arbitrary_weekday_in_month__weekday')[0]);
-            new MonthSelectComponent(dialog.$safeGet('#every_arbitrary_weekday_in_month__month')[0]);
-            new MonthSelectComponent(dialog.$safeGet('#every_x_of_month__month')[0]);
-            new DayOfWeekSelectComponent(dialog.$safeGet('#every_dynamic_date_of_month__weekday')[0]);
-            new ArbitratorSelectComponent(dialog.$safeGet('#every_dynamic_date_of_month__arbitrator')[0]);
-            new ArbitratorSelectComponent(dialog.$safeGet('#every_arbitrary_weekday_in_month__arbitrator')[0]);
+            new DayOfWeekSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__weekday'));
+            new MonthSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__month'));
+            new MonthSelectComponent(dialog.getElementById('every_x_of_month__month'));
+            new DayOfWeekSelectComponent(dialog.getElementById('every_dynamic_date_of_month__weekday'));
+            new ArbitratorSelectComponent(dialog.getElementById('every_dynamic_date_of_month__arbitrator'));
+            new ArbitratorSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__arbitrator'));
 
-            dialog.$safeGet('#serie_start')[0].addEventListener('change', (event) => {
-                dialog.$safeGet('#buffer_before_end').val(event.target.value);
+            dialog.getElementById('serie_start').addEventListener('change', (event) => {
+                dialog.$('#buffer_before_end').val(event.target.value);
             });
-            dialog.$safeGet('#serie_end')[0].addEventListener('change', (event) => {
-                dialog.$safeGet('#buffer_after_start').val(event.target.value);
+            dialog.getElementById('serie_end').addEventListener('change', (event) => {
+                dialog.$('#buffer_after_start').val(event.target.value);
             });
 
             /* Pattern: Daily*/
             dialog.data.patterns.set(
                 "1",
                 {
-                    route_fieldset: dialog.$safeGet("#patternRoute_daily"),
+                    route_fieldset: dialog.$("#patternRoute_daily"),
                     name: "daily",
                     sub_routed_by: 'pattern_daily_subroute',
                     constant_fields: [],
@@ -652,7 +652,7 @@
                 "2",
                 {
                     strategy_name: "weekly__standard",
-                    route_fieldset: dialog.$safeGet("#patternRoute_weekly"),
+                    route_fieldset: dialog.$("#patternRoute_weekly"),
                     name: "weekly",
                 }
             );
@@ -660,7 +660,7 @@
             dialog.data.patterns.set(
                 "3",
                 {
-                    route_fieldset: dialog.$safeGet("#patternRoute_monthly"),
+                    route_fieldset: dialog.$("#patternRoute_monthly"),
                     name: "monthly",
                     sub_routed_by: 'pattern_monthly_subroute',
                     constant_fields: [],
@@ -689,7 +689,7 @@
             dialog.data.patterns.set(
                 "4",
                 {
-                    route_fieldset: dialog.$safeGet("#patternRoute_yearly"),
+                    route_fieldset: dialog.$("#patternRoute_yearly"),
                     name: "yearly",
                     sub_routed_by: 'pattern_yearly_subroute',
                     constant_fields: [
@@ -717,7 +717,7 @@
                 }
             );
 
-            let selects = dialog.$safeGet(".newTimePlanDialog_select");
+            let selects = dialog.$(".newTimePlanDialog_select");
             selects.each(function (index, select) {
                 if (select.hasAttribute("init_value")) {
                     select.value = select.getAttribute("init_value");
@@ -725,16 +725,16 @@
             });
 
             const startTimePicker = new ExtendedTimepicker({
-                timepickerWrapperElement: dialog.$safeGet('#serie_start_picker')[0],
-                timepickerInputElement: dialog.$safeGet('#serie_start')[0],
+                timepickerWrapperElement: dialog.getElementById('serie_start_picker'),
+                timepickerInputElement: dialog.getElementById('serie_start'),
                 mdbOptions: {
                     format24:true,
                     inline: true,
                 }
             });
             const endTimePicker = new ExtendedTimepicker({
-                timepickerWrapperElement: dialog.$safeGet('#serie_end_picker')[0],
-                timepickerInputElement: dialog.$safeGet('#serie_end')[0],
+                timepickerWrapperElement: dialog.getElementById('serie_end_picker'),
+                timepickerInputElement: dialog.getElementById('serie_end'),
                 mdbOptions: {
                     format24:true,
                     inline: true,
@@ -742,7 +742,7 @@
             });
 
             /* Handle user changing active time area method */
-            dialog.$safeGet('input:radio[name="timeAreaMethod"]').change(
+            dialog.$('input:radio[name="timeAreaMethod"]').change(
                 function() {
                     if ($(this).is(':checked')) {
                         let method = $(this).val()
@@ -752,7 +752,7 @@
             );
 
             /* Handle user changing active pattern */
-            dialog.$safeGet('input:radio[name="pattern"]').change(
+            dialog.$('input:radio[name="pattern"]').change(
                 function() {
                     if ($(this).is(':checked')) {
                         let pattern = dialog.data.patterns.get($(this).val());
@@ -765,7 +765,7 @@
             );
 
             /* Handle user changing active pattern */
-            dialog.$safeGet('input:radio[name="pattern"]').click(
+            dialog.$('input:radio[name="pattern"]').click(
                 function() {
                     if ($(this).is(':checked')) {
                         let pattern = dialog.data.patterns.get($(this).val());
@@ -812,7 +812,7 @@
                 dialog.closeMe();
             },
             submit(dialog, {} = {}, triggeredByElement) {
-                let old_alerts = dialog.$dialogElement[0].querySelectorAll('.form_alert');
+                let old_alerts = dialog.querySelectorAll('.form_alert');
                 old_alerts.forEach(function (elem) {
                     $(elem).remove();
                 });
@@ -827,13 +827,13 @@
                 }
 
                 let pattern = {}
-                let active_pattern_key = dialog.$safeGet('input:radio[name="pattern"]:checked').val();
+                let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
                 let pattern_obj = dialog.data.patterns.get(`${active_pattern_key}`);
 
-                let headResult = ValidatorFunctions.validate_head( dialog.$dialogElement[0] );
-                let patternResult = ValidatorFunctions.validate_pattern_radio( dialog.$dialogElement[0] );
-                let patternRouteResult = ValidatorFunctions.validate_pattern_route(pattern_obj, dialog.$dialogElement[0]);
-                let areaRecurrenceResult = ValidatorFunctions.validate_recurrence_area(dialog.$dialogElement[0]);
+                let headResult = ValidatorFunctions.validate_head( dialog.dialogElement );
+                let patternResult = ValidatorFunctions.validate_pattern_radio( dialog.dialogElement );
+                let patternRouteResult = ValidatorFunctions.validate_pattern_route( pattern_obj, dialog.dialogElement );
+                let areaRecurrenceResult = ValidatorFunctions.validate_recurrence_area( dialog.dialogElement );
 
                 if (headResult === false || patternResult === false || patternRouteResult === false || areaRecurrenceResult === false) {
                     return;
@@ -842,31 +842,31 @@
                 // since weekly doesnt have any subroutings (only one option) we cant use the normal method
                 if (active_pattern_key !== "2") {
                     if (active_pattern_key == "4") {
-                        pattern["year_interval"] = dialog.$safeGet('#pattern_yearly_const__year_interval').val();
+                        pattern["year_interval"] = dialog.$('#pattern_yearly_const__year_interval').val();
                     }
 
-                    let active_sub_route_key = dialog.$safeGet('input:radio[name="' + pattern_obj.sub_routed_by +'"]:checked').val();
+                    let active_sub_route_key = dialog.$('input:radio[name="' + pattern_obj.sub_routed_by +'"]:checked').val();
                     let sub_route = pattern_obj.sub_routes[active_sub_route_key];
                     pattern.pattern_type = pattern_obj.name;
                     pattern.pattern_routine = sub_route.strategy_name;
 
                     for (let i = 0; i < sub_route.fields.length; i++) {
                         let field = sub_route.fields[i];
-                        pattern[field.out_prop_name] = dialog.$safeGet("#" + field.element_id).val();
+                        pattern[field.out_prop_name] = dialog.$("#" + field.element_id).val();
                     }
                 }
                 else {
-                    pattern["week_interval"] = dialog.$safeGet('#week_interval').val();
+                    pattern["week_interval"] = dialog.$('#week_interval').val();
                     pattern.pattern_type = pattern_obj.name;
 
                     let days = new Map([
-                        [0, dialog.$safeGet('#sunday').is(':checked')],
-                        [1, dialog.$safeGet('#monday').is(':checked')],
-                        [2, dialog.$safeGet('#tuesday').is(':checked')],
-                        [3, dialog.$safeGet('#wednesday').is(':checked')],
-                        [4, dialog.$safeGet('#thursday').is(':checked')],
-                        [5, dialog.$safeGet('#friday').is(':checked')],
-                        [6, dialog.$safeGet('#saturday').is(':checked')],
+                        [0, dialog.$('#sunday').is(':checked')],
+                        [1, dialog.$('#monday').is(':checked')],
+                        [2, dialog.$('#tuesday').is(':checked')],
+                        [3, dialog.$('#wednesday').is(':checked')],
+                        [4, dialog.$('#thursday').is(':checked')],
+                        [5, dialog.$('#friday').is(':checked')],
+                        [6, dialog.$('#saturday').is(':checked')],
                     ]);
                     pattern["days"] = days;
                     pattern["pattern_routine"] = "weekly__standard";
@@ -880,7 +880,7 @@
                     {
                         name: "StopWithin",
                         set: function () {
-                            area.stop_within = dialog.$safeGet('#area_stopWithin').val();
+                            area.stop_within = dialog.$('#area_stopWithin').val();
                         }
                     }
                 );
@@ -888,21 +888,21 @@
                 {
                     name: "StopAfterXInstances",
                     set: function () {
-                        area.instances = dialog.$safeGet('#area_stopAfterXInstances').val()
+                        area.instances = dialog.$('#area_stopAfterXInstances').val()
                     }
                 });
                 area_methods.set("3",
                 {
                     name: "NoStopDate",
                     set: function () {
-                        area.projectionDistanceInMonths = dialog.$safeGet('#area_noStop_projectXMonths').val()
+                        area.projectionDistanceInMonths = dialog.$('#area_noStop_projectXMonths').val()
                     }
                 });
 
-                let active_area_method = area_methods.get(dialog.$safeGet('input:radio[name="timeAreaMethod"]:checked').val());
+                let active_area_method = area_methods.get(dialog.$('input:radio[name="timeAreaMethod"]:checked').val());
                 active_area_method.set();
                 area.method_name = active_area_method.name;
-                area.start_date = dialog.$safeGet('#area_start_date').val();
+                area.start_date = dialog.$('#area_start_date').val();
 
                 let serie = {
                     time: time,
@@ -911,25 +911,25 @@
                 }
 
                 let display_layouts = [];
-                dialog.$dialogElement[0].querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
+                dialog.querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
                     display_layouts.push(element.value)
                 })
 
                 serie.buffer = {}
-                if ( dialog.$safeGet('#buffer_before_start').val() && dialog.$safeGet('#buffer_before_end').val() ) {
+                if ( dialog.$('#buffer_before_start').val() && dialog.$('#buffer_before_end').val() ) {
                     serie.buffer.before = {
-                        start: dialog.$safeGet('#buffer_before_start').val(),
-                        end: dialog.$safeGet('#buffer_before_end').val(),
+                        start: dialog.$('#buffer_before_start').val(),
+                        end: dialog.$('#buffer_before_end').val(),
                     }
                 }
-                if ( dialog.$safeGet('#buffer_after_start').val() && dialog.$safeGet('#buffer_after_end').val() ) {
+                if ( dialog.$('#buffer_after_start').val() && dialog.$('#buffer_after_end').val() ) {
                     serie.buffer.after = {
-                        start: dialog.$safeGet('#buffer_after_start').val(),
-                        end: dialog.$safeGet('#buffer_after_end').val(),
+                        start: dialog.$('#buffer_after_start').val(),
+                        end: dialog.$('#buffer_after_end').val(),
                     }
                 }
 
-                serie._uuid = dialog.$safeGet('#serie_uuid').val();
+                serie._uuid = dialog.$('#serie_uuid').val();
                 serie.rooms = dialog.getSelectedRoomIds();
                 serie.people = dialog.getSelectedPeopleIds();
                 serie.room_name_map = dialog.data.roomsNameMap;
@@ -943,7 +943,7 @@
             },
             /* Ensure that the shown pattern matches the selected pattern in the radio menu. This will correct any such mismatches. */
             matchPatternStateToRadio(dialog, {} = {}, triggeredByElement) {
-                let active_pattern_key = dialog.$safeGet('input:radio[name="pattern"]:checked').val();
+                let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
 
                 // Ensure that if the user closes the modal while working with it, they will
                 // come right back to the same pattern fieldset when re-opening it.
@@ -955,7 +955,7 @@
                 }
             },
             matchAreaStateToRadio(dialog, {} = {}, triggeredByElement) {
-                let activeAreaMethod = dialog.$safeGet('input:radio[name="timeAreaMethod"]:checked').val();
+                let activeAreaMethod = dialog.$('input:radio[name="timeAreaMethod"]:checked').val();
 
                 if (activeAreaMethod !== undefined && activeAreaMethod !== "") {
                     dialog.handleTimeAreaRadio({ activeVal: activeAreaMethod });
@@ -967,7 +967,7 @@
                     pattern.sub_routes.forEach(function (sub_route) {
                         dialog.deactivatePatternSubroute( { subroute: sub_route });
                         sub_route.fields.forEach(function (field_obj) {
-                            let field = dialog.$safeGet("#" + field_obj.element_id);
+                            let field = dialog.$("#" + field_obj.element_id);
                         })
                     })
                 }
@@ -975,29 +975,29 @@
             /* Activate a sub route of a pattern. In practice removes the disabled attribute from the fields of this sub route. */
             activatePatternSubroute(dialog, { subroute } = {}, triggeredByElement) {
                 for (let i = 0; i < subroute.fields.length; i++) {
-                    let field = dialog.$dialogElement[0].querySelector("#" + subroute.fields[i].element_id);
+                    let field = dialog.querySelector("#" + subroute.fields[i].element_id);
                     field.removeAttribute("disabled");
                 }
             },
             deactivatePatternSubroute(dialog, { subroute } = {}, triggeredByElement) {
                 for (let i = 0; i < subroute.fields.length; i++) {
-                    let field = dialog.$dialogElement[0].querySelector("#" + subroute.fields[i].element_id);
+                    let field = dialog.querySelector("#" + subroute.fields[i].element_id);
                     field.setAttribute("disabled", "true");
                 }
             },
             handleTimeAreaRadio(dialog, {activeVal} = {}, triggeredByElement) {
-                dialog.$safeGet('#area_stopWithin').attr("disabled", "");
-                dialog.$safeGet('#area_stopAfterXInstances').attr("disabled", "");
-                dialog.$safeGet('#area_noStop_projectXMonths').attr("disabled", "");
+                dialog.$('#area_stopWithin').attr("disabled", "");
+                dialog.$('#area_stopAfterXInstances').attr("disabled", "");
+                dialog.$('#area_noStop_projectXMonths').attr("disabled", "");
 
                 if (activeVal === "1") {
-                    dialog.$safeGet('#area_stopWithin').removeAttr("disabled");
+                    dialog.$('#area_stopWithin').removeAttr("disabled");
                 }
                 if (activeVal === "2"){
-                    dialog.$safeGet('#area_stopAfterXInstances').removeAttr("disabled");
+                    dialog.$('#area_stopAfterXInstances').removeAttr("disabled");
                 }
                 if (activeVal === "3") {
-                    dialog.$safeGet('#area_noStop_projectXMonths').removeAttr("disabled");
+                    dialog.$('#area_noStop_projectXMonths').removeAttr("disabled");
                 }
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
@@ -1007,7 +1007,7 @@
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}");
             },
             setPeople(dialog, {} = {}, triggeredByElement) {
-                let wrapper = dialog.$safeGet('#peopleChips');
+                let wrapper = dialog.$('#peopleChips');
                 wrapper.empty();
 
                 people.split(",").forEach(id => {
@@ -1025,7 +1025,7 @@
                 });
             },
             setRooms(dialog, {} = {}, triggeredByElement) {
-                let wrapper = dialog.$safeGet('#roomChips');
+                let wrapper = dialog.$('#roomChips');
                 wrapper.empty();
 
                 rooms.split(",").forEach(id => {
@@ -1046,10 +1046,10 @@
                 $(triggeredByElement).parent().remove();
             },
             getSelectedRoomIds(dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$safeGet("#roomChips")[0].children).map(row => row.getAttribute("rowid"));
+                return Array.from(dialog.$("#roomChips")[0].children).map(row => row.getAttribute("rowid"));
             },
             getSelectedPeopleIds(dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$safeGet("#peopleChips")[0].children).map(row => row.getAttribute("rowid"));
+                return Array.from(dialog.$("#peopleChips")[0].children).map(row => row.getAttribute("rowid"));
             },
         },
         data: {

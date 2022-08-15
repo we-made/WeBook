@@ -510,7 +510,7 @@
                         'X-CSRFToken': '{{ csrf_token }}'
                     }
                 }).then(a => a.text())
-                  .then(a => dialog.$safeGet('#fileRow_' + fileId).remove());
+                  .then(a => dialog.$('#fileRow_' + fileId).remove());
             },
             /* Open dialog for editing a note, identified by note_pk */
             updateNoteDialog: (dialog, { notePk } = {}) => {
@@ -534,13 +534,13 @@
                             headers: {
                                 'X-CSRFToken': '{{csrf_token}}',
                             }
-                        }).then(response => { dialog.$safeGet('note_' + note_pk).remove(); });     
+                        }).then(response => { dialog.$('note_' + note_pk).remove(); });     
                     }
                 });
             },
             /* Check if the form is valid, the resulting bool is True if yes, False if not */
             validate: (dialog) => {
-                let field_elements = dialog.$dialogElement.find("input, select");
+                let field_elements = dialog.$("input, select");
 
                 let isInvalid = false;
 
@@ -552,7 +552,7 @@
                 }
 
                 if (isInvalid) {
-                    $('#inspectEventForm').find(':submit').click();
+                    dialog.$('#inspectEventForm').find(':submit').click();
                     return false;
                 }
 
@@ -560,10 +560,8 @@
             },
             /* Set rooms */
             setRooms: (dialog, rooms) => {
-                let tbody = dialog.$safeGet('#roomsTableBody');
+                let tbody = dialog.$('#roomsTableBody');
                 tbody.empty();
-
-                console.log(rooms)
 
                 rooms.split(",").forEach(id => {
                     tbody.append(
@@ -581,7 +579,7 @@
             },
             /* Set people */
             setPeople: (dialog, people) => {
-                let tbody = dialog.$safeGet('#peopleTableBody');
+                let tbody = dialog.$('#peopleTableBody');
                 tbody.empty();
 
                 people.split(",").forEach(id => {
@@ -605,13 +603,13 @@
             },
             /* Gets and returns an array containing the IDs of all selected rooms */
             getSelectedRoomIds: (dialog) => {
-                let room_ids = Array.from(dialog.$safeGet("#roomsTableBody")[0].children)
+                let room_ids = Array.from(dialog.$("#roomsTableBody")[0].children)
                                     .map(row => row.getAttribute("rowid"))
                 return room_ids;
             },
             /* Gets and returns an array containing the IDs of all selected people */
             getSelectedPeopleIds: (dialog) => {
-                let people_ids = Array.from(dialog.$safeGet("#peopleTableBody")[0].children)
+                let people_ids = Array.from(dialog.$("#peopleTableBody")[0].children)
                                     .map(row => row.getAttribute("rowid"));
                 return people_ids;
             },
@@ -664,10 +662,8 @@
                                     new Date(mdbDatetimePicker._dateValue + " " + mdbDatetimePicker._timeValue)).toISOString();
                     return isoStr;
                 }
-                let a = dialog.$safeGet('#startDateTime')[0];
-                let b = dialog.$safeGet('#endDateTime')[0];
-                let dateTimeStartMdbInstance = mdb.Datetimepicker.getInstance(a);
-                let dateTimeEndMdbInstance = mdb.Datetimepicker.getInstance(b);
+                let dateTimeStartMdbInstance = mdb.Datetimepicker.getInstance(dialog.getElementById("startDateTime"));
+                let dateTimeEndMdbInstance = mdb.Datetimepicker.getInstance(dialog.getElementById("endDateTime"));
 
                 let qualifiedEvent = {
                     id:                 '{{object.pk}}',
@@ -681,7 +677,7 @@
                     arrangement:        '{{object.arrangement.pk}}',
                     people:             dialog.getSelectedPeopleIds(),
                     rooms:              dialog.getSelectedRoomIds(),
-                    display_layouts:    [...document.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
+                    display_layouts:    [...dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
                                             .map(element => element.value),
                     before_buffer_start: dialog.interior.buffer_before_start != undefined ? dialog.interior.buffer_before_start.value : "", 
                     before_buffer_end:  dialog.interior.buffer_before_end != undefined ? dialog.interior.buffer_before_end.value : "",
@@ -703,11 +699,11 @@
 
     $(document).ready(function () {
         new mdb.Datetimepicker(document.getElementById('startDateTime', {
-            container: '#inspectEventDialog',
+            container: '#{{dialogId}}.{{discriminator}}',
             format: 'dd-mm-yyyy',
         }));
         new mdb.Datetimepicker(document.getElementById('endDateTime', {
-            container: '#inspectEventDialog',
+            container: '#{{dialogId}}.{{discriminator}}',
             format: 'dd-mm-yyyy',
         }));
 

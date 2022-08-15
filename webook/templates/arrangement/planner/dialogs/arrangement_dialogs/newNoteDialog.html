@@ -41,7 +41,7 @@
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
-            dialog.data.editor = new Quill('#{{form.content.id_for_label}}', {
+            dialog.data.editor = new Quill('#{{dialogId}} #{{form.content.id_for_label}}', {
                 theme: 'snow'
             });
         },
