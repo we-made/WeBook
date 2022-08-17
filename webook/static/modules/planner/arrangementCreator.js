@@ -69,7 +69,13 @@ export class ArrangementCreator {
                             toastr.success("Arrangement opprettet");
                             this.dialogManager.closeDialog("createArrangementDialog");
                         },
-                        dialogOptions: { width: 900 }
+                        dialogOptions: { 
+                            width: 600, 
+                            height: 800,
+                            // modal: true,
+                            position: ['middle',20],
+                            dialogClass: 'no-titlebar',
+                        }
                     }),
                 ],
                 [
@@ -144,7 +150,10 @@ export class ArrangementCreator {
                             context.series.set(details.serie._uuid, details.serie);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
-                        dialogOptions: { width: 700 }
+                        dialogOptions: { 
+                            width: 700,
+                            dialogClass: 'no-titlebar',
+                        }
                     })
                 ],
                 [
@@ -269,7 +278,10 @@ export class ArrangementCreator {
                             context.events.set(details.event._uuid, details.event);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
-                        dialogOptions: { width: 700 }
+                        dialogOptions: { 
+                            width: 700,
+                            dialogClass: 'no-titlebar',
+                        }
                     })
                 ],
                 [
@@ -354,7 +366,10 @@ export class ArrangementCreator {
                             context.events.set(details.event._uuid, details.event);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
-                        dialogOptions: { width: 700 }
+                        dialogOptions: { 
+                            width: 700, 
+                            dialogClass: 'no-titlebar',
+                        },
                     })
                 ],
                 [
@@ -374,7 +389,10 @@ export class ArrangementCreator {
                             })
                         },
                         onRenderedCallback: () => { },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
                         onUpdatedCallback: () => {
                             toastr.success("Rom lagt til");
                             this.dialogManager.closeDialog("orderRoomDialog");
@@ -411,7 +429,10 @@ export class ArrangementCreator {
                             });
                         },
                         onRenderedCallback: () => { },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                         },
                         onUpdatedCallback: () => {
                             toastr.success("Personer lagt til");
                             this.dialogManager.closeDialog("orderPersonDialog");

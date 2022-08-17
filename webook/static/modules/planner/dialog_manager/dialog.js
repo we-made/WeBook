@@ -225,8 +225,92 @@ class Dialog {
 }
 
 
-class DialogStepper {
-    constructor(steps) {
-
+class AbstractBaseStep {
+    constructor (onStepIn, onStepOut, wrapperElement) {
+        this.onStepIn = onStepIn;
+        this.onStepOut = onStepOut;
+        this.wrapperElement = wrapperElement;
     }
+    
 }
+
+class DialogStepper {
+    constructor({
+        steps, 
+        railWrapperElement="#rail", 
+        allowRailBasedNavigation=false} = {}) {
+
+        if ( !(Array.isArray(steps)) || steps.length == 0 ) {
+            throw Error("Steps is not of a valid value, or length", steps)
+        }
+
+        this.steps = steps;
+        this.currentStep = 0;
+        this.railWrapperElement = railWrapperElement instanceof Node ? railWrapperElement : document.querySelector(railWrapperElement);
+        this.allowRailBasedNavigation = false;
+
+        this._setupSteps();
+    }
+
+    _render() {
+      this.railWrapperElement.innerHTML = "";
+
+      for (let i = 0; i < this.steps.length; i++) {
+        let step = this.steps[i];
+
+        let stepBtn = document.createElement('span');
+        stepBtn.innerText = `${i+1}`;
+        stepBtn.style.display = "inline";
+        stepBtn.classList.add("stepper-stage-pill");
+        if (this.currentStep == i) {
+          stepBtn.setAttribute("disabled", "true")
+          stepBtn.classList.add("active");
+          stepBtn.innerText = `${i+1}. ${step.title}`;
+        }
+        stepBtn.onclick = () => this.stepTo(i);
+        this.railWrapperElement.appendChild(stepBtn);
+      }
+    }
+
+    _setupSteps() {
+      this.steps.forEach(function (step) {
+        if (!(step.element instanceof Node)) {
+          step.element = document.querySelector(step.element);
+        }
+        step.element.style.display = 'none';
+      });
+
+      this.stepTo(this.currentStep);
+    }
+
+    next = () => this.stepTo(this.currentStep + 1)
+    back = () => this.stepTo(this.currentStep - 1);
+
+    _hideSteps = () => this.steps.forEach((step) => step.element.style.display = "none");
+
+    /**
+     * Step to indexToStepTo. If indexToStepTo is negative or greater than the amounts of steps then
+     * false will be returned and the step will not be changed. The indexing is zero-based.
+     * @param {*} indexToStepTo 
+     */
+    stepTo(indexToStepTo) {
+        if (indexToStepTo >= this.steps.length || indexToStepTo < 0) {
+            return false;
+        }
+        this._hideSteps();
+        
+        let hasMoved = this.currentStep !== indexToStepTo;
+        let oldStep = this.steps[this.currentStep];
+        let newStep = this.steps[indexToStepTo];
+
+        newStep.element.style.display = 'block';
+        if (typeof oldStep.stepOut !== "undefined" && hasMoved === true)
+            oldStep.stepOut();
+        if (typeof newStep.stepIn !== "undefined")
+            newStep.stepIn();
+        
+        this.currentStep = indexToStepTo;
+
+        this._render()
+    }
+  }

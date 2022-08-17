@@ -7,10 +7,6 @@
     pointer-events: none;
   }
 
-  .stepper {
-    border: solid 1px;
-  }
-
   .stepper-active .stepper-head-icon {
     background-color: green;
   }

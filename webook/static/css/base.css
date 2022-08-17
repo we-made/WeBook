@@ -53,7 +53,7 @@
 }
 
 .form-label {
-    font-size: large;
+    font-size: medium;
     margin-bottom: 0;
 }
 
@@ -213,10 +213,32 @@
     transition: all 0.5s cubic-bezier(0.75, -0.02, 0.2, 0.97);
 }
 
+.stepper-stage-pill {
+    background-color: var(--SECONDARY-COLOR);
+    padding: 0.6em;
+    color: black;
+    border-radius: .5em;
+}
+
+.stepper-stage-pill.active {
+    border: solid 1px var(--MAIN-COLOR);
+}
+
+.stepper-rail :nth-child(n+1) {
+    margin-right: 0.3em;
+}
+
 .slave-dialog {
     box-shadow: 10px 1px 20px 1px  grey!important;
     background-color: var(--SECONDARY-COLOR)!important;
     border: none!important;
     margin-left: 20px!important;
-    border-left: 1px solid black!important;
+}
+
+.no-titlebar .ui-dialog-titlebar {
+    display: none;
+}
+
+.no-titlebar {
+    padding-top: 1.5em!important;
 }

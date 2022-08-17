@@ -1,185 +1,176 @@
 {% load static i18n %}
 
 
-<div id="{{dialogId}}" class="{{discriminator}}" title="Planlegg nytt arrangement">
+<div id="{{dialogId}}" class="{{discriminator}}">
     <div class="dialogBodyWrapper">
-        <div class="row">
-            <div class="col-6">
-                <form id="arrangementInfoForm">
-                    <input type="submit" style="display:none;" />
 
-                    <fieldset>
-                        <h5 class="header-fonted">
-                            <i class="fas fa-clipboard"></i>
-                            Informasjon om arrangementet
-                        </h5>
-                        <div class="form-outline mb-2">
-                            <input type="text"
-                                class="form-control mb-2"
-                                id="{{ form.name.id_for_label }}"
-                                value="{{ form.name.value|default:'' }}"
-                                name="{{ form.name.name }}"
-                                autocomplete="off"
-                                required />
-                            <label class="form-label" for="{{ form.name.id_for_label }}">🇳🇴 Tittel på norsk</label>
-                        </div>
-                        {% if form.name.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.name.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="form-outline mb-3">
-                            <input type="text"
-                                class="form-control form-control-md"
-                                id="{{ form.name_en.id_for_label }}"
-                                value="{{ form.name_en.value|default:'' }}"
-                                name="{{ form.name_en.name }}"
-                                autocomplete="off"
-                                />
-                            <label class="form-label" for="{{ form.name.id_for_label }}">🇬🇧 Tittel på engelsk</label>
-                        </div>
-                        {% if form.name_en.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.name_en.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-2">
-                            {{ form.audience }}
-                            <label for="" class="form-label select-label"><i class="fas fa-cog"></i>&nbsp; {{ form.audience.label }}</label>
-                        </div>
-                        {% if form.audience.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.audience.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-2">
-                            {{ form.location }}
-                            <label for="" class="form-label select-label"><i class="fas fa-building"></i>&nbsp; {{ form.location.label }}</label>
-                        </div>
-                        {% if form.location.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.location.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-2">
-                            {{ form.arrangement_type }}
-                            <label for="" class="form-label select-label"><i class="fas fa-cog"></i>&nbsp; {{ form.arrangement_type.label }}</label>
-                        </div>
-                        {% if form.arrangement_type.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.arrangement_type.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-3">
-                            {{ form.responsible }}
-                            <label for="" class="form-label select-label"><i class="fas fa-user"></i>&nbsp; {{ form.responsible.label }}</label>
-                        </div>
-                        {% if form.responsible.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.responsible.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-2 form-outline">
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.ticket_code.id_for_label }}"
-                                value="{{ form.ticket_code.value|default:'' }}"
-                                name="{{ form.ticket_code.name }}"
-                                placeholder="{% trans 'Ticket code' %}..."/>
-                            <label class="form-label" for="{{ form.ticket_code.id_for_label }}">
-                                <i class="fas fa-receipt"></i>&nbsp; Billetkode
-                            </label>
-                        </div>
-                        {% if form.ticket_code.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.ticket_code.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-2 form-outline">
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.meeting_place.id_for_label }}"
-                                value="{{ form.meeting_place.value|default:'' }}"
-                                name="{{ form.meeting_place.name }}"
-                                placeholder="{% trans 'Meeting place' %}..."/>
-                            <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
-                                <i class="fas fa-building"></i>&nbsp; 🇳🇴&nbsp; Møtested
-                            </label>
-                        </div>
-                        {% if form.meeting_place.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.meeting_place.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-2 form-outline">
-                            <input type="text"
-                                class="form-control"
-                                id="{{ form.meeting_place_en.id_for_label }}"
-                                value="{{ form.meeting_place_en.value|default:'' }}"
-                                name="{{ form.meeting_place_en.name }}"
-                                placeholder="{% trans 'Meeting place' %}..."/>
-                            <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
-                                <i class="fas fa-building"></i>&nbsp; 🇬🇧&nbsp; Møtested
-                            </label>
-                        </div>
-                        {% if form.meeting_place.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.meeting_place.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-2 form-outline">
-                            <input type="number"
-                                min="0"
-                                class="form-control"
-                                id="{{ form.expected_visitors.id_for_label }}"
-                                value="{{ form.expected_visitors.value|default:'' }}"
-                                name="{{ form.expected_visitors.name }}"
-                                required />
-                            <label for="{{ form.expected_visitors.id_for_label }}" class="form-label">
-                                <i class="fas fa-users"></i>&nbsp; Expected visitors
-                            </label>
-                        </div>
-                        {% if form.expected_visitors.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.expected_visitors.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mt-5 mb-3">
-                            <h5 class="header-fonted">
-                                <i class="fas fa-tv"></i>
-                                Skjerm
-                            </h5>
-                            <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
-                            {{form.display_layouts}}
-                        </div>
-                    </fieldset>
-                </form>
+        <div class="clearfix">
+            <div class="float-start">
+                <h5 class="fw-bold">Planlegg nytt arrangement</h5>
             </div>
-            <div class="col-6">
-                <h5 class="header-fonted">
-                    <i class="fas fa-clock"></i>
-                    Plan
-                </h5>
-
-                <div class="alert alert-info small">
-                    <h5><i class="fas fa-info-circle"></i></h5>
-                    <p>Definer en plan på når og hvor arrangementet inntreffer.</p>
-
-                    <p>Du kan opprette egne tidsplaner, dette er i praksis det samme som en repeterende hendelse i Outlook.</p>
-
-                    Eller så kan du opprette en enkel aktivitet, dette er et frittstående tidspunkt eller hendelse som inntreffer en gang.
+            <div id="rail" class="float-end stepper-rail"></div>
+        </div>
+        <hr>
+        <div style="max-height: 600px; overflow: scroll; overflow-y: visible;">
+            <div id="step-1">
+                <div class="row">
+                    <div class="col-12">
+                        <form id="arrangementInfoForm">
+                            <input type="submit" style="display:none;" />
+        
+                            <fieldset>
+                                <!-- <h5 class="header-fonted">
+                                    <i class="fas fa-clipboard"></i>
+                                    Informasjon om arrangementet
+                                </h5> -->
+                                <div class="form-group mb-2">
+                                    <label class="form-label" for="{{ form.name.id_for_label }}">Tittel (norsk)</label>
+                                    <input type="text"
+                                        class="form-control mb-2"
+                                        id="{{ form.name.id_for_label }}"
+                                        value="{{ form.name.value|default:'' }}"
+                                        name="{{ form.name.name }}"
+                                        autocomplete="off"
+                                        required />
+                                </div>
+                                {% if form.name.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.name.errors }}
+                                    </div>
+                                {% endif %}
+        
+                                <div class="form-group mb-2">
+                                    <label class="form-label" for="{{ form.name.id_for_label }}">Tittel (Engelsk)</label>
+                                    <input type="text"
+                                        class="form-control form-control-md"
+                                        id="{{ form.name_en.id_for_label }}"
+                                        value="{{ form.name_en.value|default:'' }}"
+                                        name="{{ form.name_en.name }}"
+                                        autocomplete="off"
+                                        />
+                                </div>
+                                {% if form.name_en.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.name_en.errors }}
+                                    </div>
+                                {% endif %}
+        
+                                <div class="mb-2">
+                                    <label for="" class="form-label">Målgruppe</label>
+                                    {{ form.audience }}
+                                </div>
+                                {% if form.audience.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.audience.errors }}
+                                    </div>
+                                {% endif %}
+        
+                                <div class="mb-2">
+                                    <label for="" class="form-label">Lokasjon</label>
+                                    {{ form.location }}
+                                </div>
+                                {% if form.location.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.location.errors }}
+                                    </div>
+                                {% endif %}
+        
+                                <div class="mb-2">
+                                    <label for="" class="form-label select-label">Arrangementstype</label>
+                                    {{ form.arrangement_type }}
+                                </div>
+                                {% if form.arrangement_type.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.arrangement_type.errors }}
+                                    </div>
+                                {% endif %}
+        
+                                <div class="mb-2">
+                                    <label for="" class="form-label select-label">Ansvarlig</label>
+                                    {{ form.responsible }}
+                                </div>
+                                {% if form.responsible.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.responsible.errors }}
+                                    </div>
+                                {% endif %}
+        
+                                <div class="mb-2 form-group">
+                                    <label class="form-label" for="{{ form.ticket_code.id_for_label }}">
+                                        Billetkode
+                                    </label>
+                                    <input type="text"
+                                        class="form-control"
+                                        id="{{ form.ticket_code.id_for_label }}"
+                                        value="{{ form.ticket_code.value|default:'' }}"
+                                        name="{{ form.ticket_code.name }}"
+                                        placeholder="{% trans 'Ticket code' %}..."/>
+                                </div>
+                                {% if form.ticket_code.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.ticket_code.errors }}
+                                    </div>
+                                {% endif %}
+        
+                                <div class="mb-2 form-group">
+                                    <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
+                                        Møtested (norsk)
+                                    </label>
+                                    <input type="text"
+                                        class="form-control"
+                                        id="{{ form.meeting_place.id_for_label }}"
+                                        value="{{ form.meeting_place.value|default:'' }}"
+                                        name="{{ form.meeting_place.name }}"
+                                        placeholder="{% trans 'Meeting place' %}..."/>
+                                </div>
+                                {% if form.meeting_place.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.meeting_place.errors }}
+                                    </div>
+                                {% endif %}
+        
+                                <div class="mb-2 form-group">
+                                    <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
+                                        Møtested (engelsk)
+                                    </label>
+                                    <input type="text"
+                                        class="form-control"
+                                        id="{{ form.meeting_place_en.id_for_label }}"
+                                        value="{{ form.meeting_place_en.value|default:'' }}"
+                                        name="{{ form.meeting_place_en.name }}"
+                                        placeholder="{% trans 'Meeting place' %}..."/>
+                                </div>
+                                {% if form.meeting_place.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.meeting_place.errors }}
+                                    </div>
+                                {% endif %}
+        
+                                <div class="mb-2 form-group">
+                                    <label for="{{ form.expected_visitors.id_for_label }}" class="form-label">
+                                        Forventet antall besøkende
+                                    </label>
+                                    <input type="number"
+                                        min="0"
+                                        class="form-control"
+                                        id="{{ form.expected_visitors.id_for_label }}"
+                                        value="{{ form.expected_visitors.value|default:'' }}"
+                                        name="{{ form.expected_visitors.name }}"
+                                        required />
+                                </div>
+                                {% if form.expected_visitors.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.expected_visitors.errors }}
+                                    </div>
+                                {% endif %}
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="col-6">
+                    </div>
                 </div>
-
+            </div>
+            <div id="step-2">
                 <h5 class="mt-3 mb-0">Tidsplaner: </h5>
                 <a class="btn btn-md wb-btn-secondary btn-block shadow-0 mb-2" d-trigger="createSerie">
                     Ny tidsplan
@@ -194,28 +185,34 @@
 
                 <div id="eventsBody"></div>
             </div>
+            <div id="step-3">
+                <h5 class="header-fonted">
+                    <i class="fas fa-tv"></i>
+                    Skjerm
+                </h5>
+                <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
+                {{form.display_layouts}}
+            </div>
         </div>
 
-        <div class="clearfix">
-            <div class="float-end">
-                <a href="#" class="btn wb-btn-secondary btn-lg"
-                    d-trigger="close">
-                    <i class="fas fa-times"></i>
-                    Avbryt
-                </a>
-                <a class="btn btn-lg shadow-0 wb-btn-main"
-                    d-trigger="submit">
-                    <i class="fas fa-check"></i>
-                    Opprett Arrangement
-                </a>
+        <div class="navigationButtons clearfix pt-2">
+            <div class="float-start">
+                <button class="btn wb-btn-secondary">Avbryt</button>
             </div>
+            <div class="float-end">
+                <button class="btn wb-btn-secondary" id="back">Tilbake</button>
+                <button class="btn wb-btn-main" id="next">Neste</button>
+                <button class="btn wb-btn-main" id="finish" d-trigger="submit" style="display: none;">
+                    Opprett arrangement
+                </button>
+            </div>
+
         </div>
 
     </div>
 </div>
 
 <script>
-
     new Dialog({
         managerName: '{{managerName}}',
         dialogId: '{{dialogId}}',
@@ -245,6 +242,38 @@
                     dialog.setEvents( {events: e.detail.context.events });
                 }
             });
+
+            dialog.data.stepper = new DialogStepper({
+                allowRailBasedNavigation: true,
+                steps: [
+                {
+                    element: dialog.getElementById('step-1'),
+                    title: 'Detaljer',
+                    stepIn: () => { console.log("1. Step In") },
+                    stepOut: () => { console.log("2. Step Out"); }
+                },
+                {
+                    element: dialog.getElementById('step-2'),
+                    title: 'Tidsplaner & Aktiviteter',
+                    stepIn: () => { },
+                    stepOut: () => {},
+                },
+                {
+                    element: dialog.getElementById('step-3'),
+                    title: 'Skjermvisning',
+                    stepIn: () => { 
+                        dialog.getElementById('next').style.display = "none";
+                        dialog.getElementById('finish').style.display = "inline-block";
+                    },
+                    stepOut: () => {
+                        dialog.getElementById('finish').style.display = "none";
+                        dialog.getElementById('next').style.display = "inline-block";
+                    }
+                },
+            ]
+            });
+            dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
+            dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {
@@ -470,6 +499,7 @@
         data: {
             seriesMap: new Map(),
             eventsMap: new Map(),
+            stepper: null,
         },
     });
 </script>
