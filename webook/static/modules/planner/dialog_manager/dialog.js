@@ -305,18 +305,23 @@ class DialogStepper {
         if (indexToStepTo >= this.steps.length || indexToStepTo < 0) {
             return false;
         }
-        this._hideSteps();
         
         let hasMoved = this.currentStep !== indexToStepTo;
         let oldStep = this.steps[this.currentStep];
         let newStep = this.steps[indexToStepTo];
 
-        newStep.element.style.display = 'block';
-        if (typeof oldStep.stepOut !== "undefined" && hasMoved === true)
-            oldStep.stepOut();
-        if (typeof newStep.stepIn !== "undefined")
+        if (typeof oldStep.stepOut !== "undefined" && hasMoved === true) {
+            let isAllowedToStepOut = oldStep.stepOut();
+            if (isAllowedToStepOut === false)
+                return;
+        }
+        if (typeof newStep.stepIn !== "undefined") {
             newStep.stepIn();
+        }
         
+        this._hideSteps();
+        newStep.element.style.display = 'block';
+
         this.currentStep = indexToStepTo;
 
         this._render()

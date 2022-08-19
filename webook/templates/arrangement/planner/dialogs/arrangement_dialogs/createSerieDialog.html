@@ -29,7 +29,8 @@
                 <div class="mb-2">
                     <div class="form-group">
                         <label class="form-label" for="serie_title">Tittel på norsk</label>
-                        <input type="text" id="serie_title" class="form-control form-control-lg" />
+                        <input type="text" id="serie_title" class="form-control form-control-lg" 
+                            required/>
                     </div>    
                     <div class="form-group">
                         <label class="form-label" for="serie_title_en">Tittel på engelsk</label>
@@ -41,13 +42,15 @@
                     <div class="col-6">
                         <div class="form-group timepicker-inline-24 mb-2" id="serie_start_picker">
                             <label class="form-label" for="serie_start">Start <small>(<i>HH:mm</i>)</small></label>
-                            <input type="text" class="form-control form-control-lg" id="serie_start" />
+                            <input type="text" class="form-control form-control-lg" id="serie_start" 
+                                required/>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="form-group timepicker-inline-24 mb-2" id="serie_end_picker">
                             <label class="form-label" for="serie_end">Slutt <small>(<i>HH:mm</i>)</small></label>
-                            <input type="text" class="form-control form-control-lg" id="serie_end" />
+                            <input type="text" class="form-control form-control-lg" id="serie_end" 
+                                required/>
                         </div>
                     </div>
                 </div>
@@ -58,125 +61,130 @@
                 </div>        
                 <div class="form-group mb-2">
                     <label class="form-label" for="serie_expected_visitors">Forventet besøkende</label>
-                    <input type="text" id="serie_expected_visitors" class="form-control form-control-lg" />
+                    <input type="text" id="serie_expected_visitors" class="form-control form-control-lg" 
+                        required/>
                 </div>
-
-                <fieldset>
-                    <div class="row">
-                        <div class="col-3 border-end border-1">
-                            <form id="patternMockForm">
-                                <input type="submit" style="display:none;" />
-        
-                                <div>
-                                    <input type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daily</label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Weekly</label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Monthly</label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Yearly</label>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="col-9">
-                            <div id="patternRoute_daily">
-                                <div>
-                                    <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
-                                    <label>Every <input type="number" min="1"  id="every_x_day__interval" required /> day</label>
-                                </div>
-                                
-                                <div>
-                                    <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
-                                    <label>Every weekday</label>
-                                </div>
-                            </div>
-        
-                            <div id="patternRoute_weekly" style="display: none;">
-                                <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> week at:</label></div>
-                                <span id="day_checkbox_wrapper">
-                                    <input type="checkbox" id="monday"> <label>Monday</label>
-                                    <input type="checkbox" id="tuesday"> <label>Tuesday</label>
-                                    <input type="checkbox" id="wednesday"> <label>Wednesday</label>
-                                    <input type="checkbox" id="thursday"> <label>Thursday</label>
-                                    <input type="checkbox" id="friday"> <label>Friday</label>
-                                    <input type="checkbox" id="saturday"> <label>Saturday</label>
-                                    <input type="checkbox" id="sunday"> <label>Sunday</label>
-                                </span>
-                            </div>
-        
-                            <div id="patternRoute_monthly" style="display: none;">
-                                <div>
-                                    <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
-                                    Day <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> every <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> month
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> The
-                                    <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
-                                    </select>
-                                    <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
-                                    </select>
-                                    every <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> months
-                                </div>
-                            </div>
-        
-                            <div id="patternRoute_yearly" style="display: none;">
-                                <div>
-                                    Happens every <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> year
-                                </div>
-                                <div>
-                                    <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
-                                    <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
-                                    <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
-                                    </select>
-                                </div>
-        
-                                <div>
-                                    <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Every:
-                                    <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
-                                    </select>
-                                    <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
-                                    </select>
-                                    in
-                                    <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <div class="row">
-                        <div class="col-3">
-                            <label>Start Date</label>
-                            <input type="date" id="area_start_date" required>
-                        </div>
-                        <div class="col-9" id="area_methods_wrapper">
-                            <div>
-                                <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
-                                Stop within: <input type="date" id="area_stopWithin" required>
-                            </div>
-        
-                            <div>
-                                <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
-                                <fieldset>
-                                    Stop after: <input type="number" min="1" id="area_stopAfterXInstances" required /> occurences
-                                </fieldset>
-                            </div>
-        
-                            <div>
-                                <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
-                                No stop date
-                                | Project <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> months into the future
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
             </form>
         </div>
+
         <div id="step-2">
+            <fieldset>
+                <h5>Mønster</h5>
+                <div class="row">
+                    <div class="col-3 border-end border-1">
+                        <form id="patternMockForm">
+                            <input type="submit" style="display:none;" />
+                            <div>
+                                <input type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daglig</label>
+                            </div>
+                            <div>
+                                <input type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Ukentlig</label>
+                            </div>
+                            <div>
+                                <input type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Månedlig</label>
+                            </div>
+                            <div>
+                                <input type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Årlig</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-9">
+                        <div id="patternRoute_daily">
+                            <div>
+                                <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
+                                <label>Hver <input type="number" min="1"  id="every_x_day__interval" required /> dag</label>
+                            </div>
+                            
+                            <div>
+                                <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
+                                <label>Hver ukedag</label>
+                            </div>
+                        </div>
+    
+                        <div id="patternRoute_weekly" style="display: none;">
+                            <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> uke på:</label></div>
+                            <span id="day_checkbox_wrapper">
+                                <input type="checkbox" id="monday"> <label>Mandag</label>
+                                <input type="checkbox" id="tuesday"> <label>Tirsdag</label>
+                                <input type="checkbox" id="wednesday"> <label>Onsdag</label>
+                                <input type="checkbox" id="thursday"> <label>Torsdag</label>
+                                <input type="checkbox" id="friday"> <label>Fredag</label>
+                                <input type="checkbox" id="saturday"> <label>Lørdag</label>
+                                <input type="checkbox" id="sunday"> <label>Søndag</label>
+                            </span>
+                        </div>
+    
+                        <div id="patternRoute_monthly" style="display: none;">
+                            <div>
+                                <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
+                                Dag <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> hver <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> måned
+                            </div>
+                            <div>
+                                <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> Den
+                                <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
+                                </select>
+                                <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
+                                </select>
+                                hver <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> måned
+                            </div>
+                        </div>
+    
+                        <div id="patternRoute_yearly" style="display: none;">
+                            <div>
+                                Skjer hvert <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> år
+                            </div>
+                            <div>
+                                <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
+                                <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
+                                <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
+                                </select>
+                            </div>
+    
+                            <div>
+                                <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Hver:
+                                <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
+                                </select>
+                                <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
+                                </select>
+                                i
+                                <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="mt-2">
+                <h5>Område</h5>
+                <div class="row">
+                    <div class="col-3">
+                        <label>Startdato</label>
+                        <input type="date" id="area_start_date" required>
+                    </div>
+                    <div class="col-9" id="area_methods_wrapper">
+                        <div>
+                            <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
+                            Stopp innen: <input type="date" id="area_stopWithin" required>
+                        </div>
+    
+                        <div>
+                            <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
+                            <fieldset>
+                                Stopp etter: <input type="number" min="1" id="area_stopAfterXInstances" required /> instanser
+                            </fieldset>
+                        </div>
+    
+                        <div>
+                            <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
+                            Ingen sluttdato
+                            | Projiser <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> måneder inn i fremtiden
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div id="step-3">
             <div class="input-group input-group-lg">
                 <span class="input-group-text">
                     <i class="fas fa-search"></i>
@@ -205,7 +213,7 @@
 
             <div id="roomChips" class="mb-2 mt-3"></div>
         </div>
-        <div id="step-3">
+        <div id="step-4">
             <div class="alert alert-info small">
                 <h6><i class="fas fa-info-circle"></i>&nbsp; Opprigg og nedrigg blir opprettet som egne hendelser før og etter aktiviteten.</h6>
                 Du trenger ikke å definere tider om du ikke ønsker å opprigg eller nedrigg aktiviteter. Du kan velge å bare definere tider for den ene eller andre, eller begge to.
@@ -253,7 +261,7 @@
                 </tbody>
             </table> 
         </div>
-        <div id="step-4">
+        <div id="step-5">
             <i class="fas fa-tv"></i>&nbsp; Vises på
             {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
             <div class="badge border fw-light border-body text-muted rounded-pill clickable-badge p-3 m-1">
@@ -300,13 +308,13 @@
     class DayOfWeekSelectComponent extends SelectComponent {
         constructor (element_id) {
             let options = new Map([
-                ["1", '{% trans "monday" %}'],
-                ["2", '{% trans "tuesday" %}'],
-                ["3", '{% trans "wednesday" %}'],
-                ["4", '{% trans "thursday" %}'],
-                ["5", '{% trans "friday" %}'],
-                ["6", '{% trans "saturday" %}'],
-                ["7", '{% trans "sunday" %}'],
+                ["1", 'mandag'],
+                ["2", 'tirsdag'],
+                ["3", 'onsdag'],
+                ["4", 'torsdag'],
+                ["5", 'fredag'],
+                ["6", 'lørdag'],
+                ["7", 'søndag'],
             ]);
 
             super(element_id, options)
@@ -314,15 +322,16 @@
             this.insert_options();
         }
     }
+    
     class ArbitratorSelectComponent extends SelectComponent {
         constructor (element_id) {
 
             let options = new Map([
-                ["0", '{% trans "first" %}'],
-                ["1", '{% trans "second" %}'],
-                ["2", '{% trans "third" %}'],
-                ["3", '{% trans "fourth" %}'],
-                ["4", '{% trans "last" %}']
+                ["0", 'første'],
+                ["1", 'andre'],
+                ["2", 'tredje'],
+                ["3", 'fjerde'],
+                ["4", 'siste']
             ]);
 
             super(element_id, options);
@@ -355,6 +364,7 @@
 
         /* Validate the "head" component of the form */
         static validate_head(dialogElement) {
+            debugger; 
             let field_elements = [
                 dialogElement.querySelector('#serie_title'),
                 dialogElement.querySelector('#serie_start'),
@@ -521,22 +531,36 @@
                         element: dialog.getElementById('step-1'),
                         title: 'Detaljer',
                         stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { console.log("2. Step Out"); }
+                        stepOut: () => {
+                            return ValidatorFunctions.validate_head(dialog.dialogElement);
+                        }
                     },
                     {
                         element: dialog.getElementById('step-2'),
+                        title: 'Mønster & Område',
+                        stepIn: () => {},
+                        stepOut: () => {
+                            let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
+
+                            return ValidatorFunctions.validate_pattern_radio(dialog.dialogElement) &&
+                                   ValidatorFunctions.validate_pattern_route(dialog.data.patterns.get(`${active_pattern_key}`), dialog.dialogElement) &&
+                                   ValidatorFunctions.validate_recurrence_area(dialog.dialogElement);
+                        },
+                    },
+                    {
+                        element: dialog.getElementById('step-3'),
                         title: 'Rom & Personer',
                         stepIn: () => { console.log("1. Step In") },
                         stepOut: () => { console.log("2. Step Out"); }
                     },
                     {
-                        element: dialog.getElementById('step-3'),
+                        element: dialog.getElementById('step-4'),
                         title: 'Opp og ned-rigg',
                         stepIn: () => { console.log("1. Step In") },
                         stepOut: () => { console.log("2. Step Out"); }
                     },
                     {
-                        element: dialog.getElementById('step-4'),
+                        element: dialog.getElementById('step-5'),
                         title: 'Skjermer',
                         stepIn: () => { 
                             dialog.getElementById('next').style.display = "none";
