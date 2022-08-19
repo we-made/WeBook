@@ -152,14 +152,14 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
  * @param {*} manifest
  */
 export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement) {
-    $dialogElement.find('#serie_uuid').attr("value", serie_uuid);
-    $dialogElement.find('#serie_title').val(manifest.title);
-    $dialogElement.find('#serie_title_en').attr("value", manifest.title_en);
-    $dialogElement.find('#serie_expected_visitors').attr("value", manifest.expected_visitors);
-    $dialogElement.find('#serie_ticket_code').attr("value", manifest.ticket_code);
-    $dialogElement,find('#area_start_date').attr("value", manifest.start_date);
-    $dialogElement.find('#serie_start').val(manifest.start_time).change();
-    $dialogElement.find('#serie_end').val(manifest.end_time).change();
+    $dialogElement.find('#serie_uuid')?.attr("value", serie_uuid);
+    $dialogElement.find('#serie_title')?.val(manifest.title);
+    $dialogElement.find('#serie_title_en')?.attr("value", manifest.title_en);
+    $dialogElement.find('#serie_expected_visitors')?.attr("value", manifest.expected_visitors);
+    $dialogElement.find('#serie_ticket_code')?.attr("value", manifest.ticket_code);
+    $dialogElement.find('#area_start_date')?.attr("value", manifest.start_date);
+    $dialogElement.find('#serie_start')?.val(manifest.start_time).change();
+    $dialogElement.find('#serie_end')?.val(manifest.end_time).change();
 
     if (manifest.rooms.length > 0) {
         let roomSelectContext = Object();

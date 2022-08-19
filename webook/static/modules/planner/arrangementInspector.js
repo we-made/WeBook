@@ -519,7 +519,7 @@ export class ArrangementInspector {
                         onRenderedCallback: async (dialogManager, context) => {
                             context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk;
 
-                            let $dialogElement = $(dialogManager.$getDialogElement("editEventSerieDialog"));
+                            let $dialogElement = $(this.dialogManager.$getDialogElement("editEventSerieDialog"));
 
                             let manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
                             PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk, $dialogElement);
@@ -532,6 +532,8 @@ export class ArrangementInspector {
                             this.dialogManager.closeDialog("editEventSerieDialog");
                         },
                         onSubmit: async (context, details) => {
+                            console.log(context);
+
                             details.serie.event_serie_pk = context.editing_serie_pk;
 
                             context.serie = details.serie;

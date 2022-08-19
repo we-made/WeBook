@@ -100,9 +100,6 @@ export class ArrangementCreator {
                                 let $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
                                 let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
 
-                                console.log("thisDialog", $thisDialog);
-                                console.log("mainDialog", $mainDialog);
-
                                 $thisDialog.find('#serie_ticket_code')
                                     .attr('value', $mainDialog.find('#id_ticket_code')[0].value);
                                 $thisDialog.find('#serie_title')
