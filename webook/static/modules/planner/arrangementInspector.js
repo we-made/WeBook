@@ -519,8 +519,10 @@ export class ArrangementInspector {
                         onRenderedCallback: async (dialogManager, context) => {
                             context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk;
 
+                            let $dialogElement = $(dialogManager.$getDialogElement("editEventSerieDialog"));
+
                             let manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
-                            PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk);
+                            PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk, $dialogElement);
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });

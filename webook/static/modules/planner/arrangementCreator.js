@@ -96,9 +96,12 @@ export class ArrangementCreator {
                             })
                         },
                         onRenderedCallback: (dialogManager, context) => {
-                            if (context.lastTriggererDetails === undefined) {
+                            if (context.lastTriggererDetails?.serie_uuid === undefined) {
                                 let $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
                                 let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
+
+                                console.log("thisDialog", $thisDialog);
+                                console.log("mainDialog", $mainDialog);
 
                                 $thisDialog.find('#serie_ticket_code')
                                     .attr('value', $mainDialog.find('#id_ticket_code')[0].value);
@@ -123,6 +126,7 @@ export class ArrangementCreator {
                             }
                             else {
                                 if (context.series !== undefined) {
+                                    debugger;
                                     let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                                     PopulateCreateSerieDialogFromSerie(serie);
                                 }

@@ -1,4 +1,9 @@
 export function PopulateCreateSerieDialogFromSerie(serie) {
+    if (serie === undefined) {
+        console.error("Serie is undefined", serie);
+        debugger;
+    }
+
     $('#serie_uuid').val(serie._uuid);
     $('#serie_title').val(serie.time.title);
     $('#serie_title_en').val(serie.time.title_en);
@@ -146,16 +151,15 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
  *
  * @param {*} manifest
  */
-export function PopulateCreateSerieDialogFromManifest(manifest,
-                                          serie_uuid,) {
-    $('#serie_uuid').attr("value", serie_uuid);
-    $('#serie_title').val(manifest.title);
-    $('#serie_title_en').attr("value", manifest.title_en);
-    $('#serie_expected_visitors').attr("value", manifest.expected_visitors);
-    $('#serie_ticket_code').attr("value", manifest.ticket_code);
-    $('#area_start_date').attr("value", manifest.start_date);
-    $('#serie_start').val(manifest.start_time).change();
-    $('#serie_end').val(manifest.end_time).change();
+export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement) {
+    $dialogElement.find('#serie_uuid').attr("value", serie_uuid);
+    $dialogElement.find('#serie_title').val(manifest.title);
+    $dialogElement.find('#serie_title_en').attr("value", manifest.title_en);
+    $dialogElement.find('#serie_expected_visitors').attr("value", manifest.expected_visitors);
+    $dialogElement.find('#serie_ticket_code').attr("value", manifest.ticket_code);
+    $dialogElement,find('#area_start_date').attr("value", manifest.start_date);
+    $dialogElement.find('#serie_start').val(manifest.start_time).change();
+    $dialogElement.find('#serie_end').val(manifest.end_time).change();
 
     if (manifest.rooms.length > 0) {
         let roomSelectContext = Object();
@@ -193,55 +197,55 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
     }
 
     manifest.display_layouts.forEach(display_layout => {
-        $('#id_display_layouts_serie_planner_' + display_layout.id)
+        $dialogElement.find('#id_display_layouts_serie_planner_' + display_layout.id)
             .prop( "checked", true );
     })
 
     switch(manifest.recurrence_strategy) {
         case "StopWithin":
-            $('#radio_timeAreaMethod_stopWithin').prop("checked", true).click();
-            $('#area_stopWithin').val(manifest.stop_within);
-            $('#area_stopWithin').removeAttr("disabled");
+            $dialogElement.find('#radio_timeAreaMethod_stopWithin').prop("checked", true).click();
+            $dialogElement.find('#area_stopWithin').val(manifest.stop_within);
+            $dialogElement.find('#area_stopWithin').removeAttr("disabled");
             break;
         case "StopAfterXInstances":
-            $('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true).click();
-            $('#area_stopAfterXInstances').val(manifest.stop_after_x_occurences);
-            $('#area_stopAfterXInstances').removeAttr("disabled");
+            $dialogElement.find('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true).click();
+            $dialogElement.find('#area_stopAfterXInstances').val(manifest.stop_after_x_occurences);
+            $dialogElement.find('#area_stopAfterXInstances').removeAttr("disabled");
             break;
         case "NoStopDate":
-            $('#radio_timeAreaMethod_noStopDate').prop("checked", true).click();
-            $('#area_noStop_projectXMonths').val(manifest.project_x_months_into_future);
-            $('#area_noStop_projectXMonths').removeAttr("disabled");
+            $dialogElement.find('#radio_timeAreaMethod_noStopDate').prop("checked", true).click();
+            $dialogElement.find('#area_noStop_projectXMonths').val(manifest.project_x_months_into_future);
+            $dialogElement.find('#area_noStop_projectXMonths').removeAttr("disabled");
             break;
     }
 
     switch (manifest.pattern) {
         case "daily":
-            $('#radio_pattern_daily').prop("checked", true).click();
+            $dialogElement.find('#radio_pattern_daily').prop("checked", true).click();
 
             switch(manifest.pattern_strategy) {
                 case "daily__every_x_day":
-                    $('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
-                    $('#every_x_day__interval').val(parseInt(manifest.strategy_specific.interval));
-                    $('#every_x_day__interval').removeAttr("disabled");
+                    $dialogElement.find('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
+                    $dialogElement.find('#every_x_day__interval').val(parseInt(manifest.strategy_specific.interval));
+                    $dialogElement.find('#every_x_day__interval').removeAttr("disabled");
                     break;
                 case "daily__every_weekday":
-                    $('#radio_pattern_daily_every_weekday_subroute').prop("checked", true);
+                    $dialogElement.find('#radio_pattern_daily_every_weekday_subroute').prop("checked", true);
                     break;
             }
             break;
         case "weekly":
-            $('#radio_pattern_weekly').prop("checked", true).click();
-            $("#week_interval").val(parseInt(manifest.strategy_specific.interval));
+            $dialogElement.find('#radio_pattern_weekly').prop("checked", true).click();
+            $dialogElement.find("#week_interval").val(parseInt(manifest.strategy_specific.interval));
 
             const days = [
-                $("#monday"),
-                $("#tuesday"),
-                $("#wednesday"),
-                $("#thursday"),
-                $("#friday"),
-                $("#saturday"),
-                $("#sunday"),
+                $dialogElement.find("#monday"),
+                $dialogElement.find("#tuesday"),
+                $dialogElement.find("#wednesday"),
+                $dialogElement.find("#thursday"),
+                $dialogElement.find("#friday"),
+                $dialogElement.find("#saturday"),
+                $dialogElement.find("#sunday"),
             ]
 
             for (let i = 0; i < manifest.strategy_specific.days.length; i++) {
@@ -252,42 +256,43 @@ export function PopulateCreateSerieDialogFromManifest(manifest,
 
             break;
         case "monthly":
-            $('#radio_pattern_monthly').prop("checked", true).click();
+            $dialogElement.find('#radio_pattern_monthly').prop("checked", true).click();
             switch(manifest.pattern_strategy) {
                 case "month__every_x_day_every_y_month":
-                    $('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
-                    $('#every_x_day_every_y_month__day_of_month').val(manifest.strategy_specific.day_of_month);
-                    $("#every_x_day_every_y_month__month_interval").val(parseInt(manifest.strategy_specific.interval));
+                    $dialogElement.find('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
+                    $dialogElement.find('#every_x_day_every_y_month__day_of_month').val(manifest.strategy_specific.day_of_month);
+                    $dialogElement.find("#every_x_day_every_y_month__month_interval").val(parseInt(manifest.strategy_specific.interval));
                     break;
                 case "month__every_arbitrary_date_of_month":
-                    $('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
-                    $('#every_dynamic_date_of_month__arbitrator').val(manifest.strategy_specific.arbitrator);
-                    $('#every_dynamic_date_of_month__weekday').val(manifest.strategy_specific.day_of_week);
-                    $('#every_dynamic_date_of_month__month_interval').val(manifest.strategy_specific.interval);
+                    $dialogElement.find('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
+                    $dialogElement.find('#every_dynamic_date_of_month__arbitrator').val(manifest.strategy_specific.arbitrator);
+                    $dialogElement.find('#every_dynamic_date_of_month__weekday').val(manifest.strategy_specific.day_of_week);
+                    $dialogElement.find('#every_dynamic_date_of_month__month_interval').val(manifest.strategy_specific.interval);
                     break;
             }
             break;
         case "yearly":
-            $('#radio_pattern_yearly').prop("checked", true).click();
-            $('#pattern_yearly_const__year_interval').val(manifest.strategy_specific.interval);
+            $dialogElement.find('#radio_pattern_yearly').prop("checked", true).click();
+            $dialogElement.find('#pattern_yearly_const__year_interval').val(manifest.strategy_specific.interval);
             switch(manifest.pattern_strategy) {
                 case "yearly__every_x_of_month":
-                    $('#every_x_datemonth_of_year_radio').prop("checked", true);
-                    $('#every_x_of_month__date').val(manifest.strategy_specific.day_of_month);
-                    $('#every_x_of_month__month').val(manifest.strategy_specific.month);
+                    $dialogElement.find('#every_x_datemonth_of_year_radio').prop("checked", true);
+                    $dialogElement.find('#every_x_of_month__date').val(manifest.strategy_specific.day_of_month);
+                    $dialogElement.find('#every_x_of_month__month').val(manifest.strategy_specific.month);
                     break;
                 case "yearly__every_arbitrary_weekday_in_month":
-                    $('#every_x_dynamic_day_in_month_radio').prop("checked", true);
-                    $('#every_arbitrary_weekday_in_month__arbitrator').val(manifest.strategy_specific.arbitrator);
-                    $('#every_arbitrary_weekday_in_month__weekday').val(manifest.strategy_specific.day_of_week);
-                    $('#every_arbitrary_weekday_in_month__month').val(manifest.strategy_specific.month);
+                    $dialogElement.find('#every_x_dynamic_day_in_month_radio').prop("checked", true);
+                    $dialogElement.find('#every_arbitrary_weekday_in_month__arbitrator').val(manifest.strategy_specific.arbitrator);
+                    $dialogElement.find('#every_arbitrary_weekday_in_month__weekday').val(manifest.strategy_specific.day_of_week);
+                    $dialogElement.find('#every_arbitrary_weekday_in_month__month').val(manifest.strategy_specific.month);
                     break;
             }
+
             break;
     }
 
     if (manifest.pattern !== "daily") {
-        $('#patternRoute_daily').hide();
+        $dialogElement.find('#patternRoute_daily').hide();
     }
 }
 

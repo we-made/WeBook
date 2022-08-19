@@ -264,7 +264,6 @@
                     filter: true,
                     noResultText: "Ingen resultater",
                 });
-                debugger;
                 mdbSelect._input.classList.add("form-control-lg");
             });
 
@@ -471,7 +470,7 @@
                                         <a href="#" class="btn wb-btn-secondary"
                                             data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
                                             d-trigger='editSerie'
-                                            d-arg-uuid='"${element._uuid}"'>
+                                            d-arg-uuid='${element._uuid}'>
                                             <i class="fas fa-edit"></i>&nbsp; Rediger tidsplan
                                         </a>
                                         <a href="#" class="btn wb-btn-blank"
