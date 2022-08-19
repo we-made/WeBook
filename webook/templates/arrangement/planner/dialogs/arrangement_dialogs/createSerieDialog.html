@@ -470,7 +470,6 @@
             }
 
             let activeInputs = dialogElement.querySelectorAll("#area_methods_wrapper input:not(:disabled):not([type='radio']):not([type='submit']), select:not(:disabled)");
-            
             for(let i = 0; i < activeInputs.length; i++) {
                 let input = activeInputs[i];
                 if (input.checkValidity() === false) {
@@ -550,14 +549,14 @@
                     {
                         element: dialog.getElementById('step-3'),
                         title: 'Rom & Personer',
-                        stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { console.log("2. Step Out"); }
+                        stepIn: () => {},
+                        stepOut: () => {}
                     },
                     {
                         element: dialog.getElementById('step-4'),
                         title: 'Opp og ned-rigg',
-                        stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { console.log("2. Step Out"); }
+                        stepIn: () => {},
+                        stepOut: () => {}
                     },
                     {
                         element: dialog.getElementById('step-5'),

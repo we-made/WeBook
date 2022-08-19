@@ -24,7 +24,7 @@
                 
                 <div class="form-group mb-2">
                     <label class="form-label" for="title">Tittel <i>(Norsk)</i></label>
-                    <input type="text" id="title" name="title" class="form-control form-control-lg" />
+                    <input type="text" id="title" name="title" class="form-control form-control-lg" required />
                 </div>
 
                 <div class="form-group mb-2">
@@ -45,7 +45,7 @@
                         <i class="fas fa-users"></i>
                         Forventet antall besøkende
                     </label>
-                    <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" />
+                    <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" required />
                 </div>
     
                 <div class="form-group mt-2">
@@ -53,12 +53,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" />
+                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" required />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" />
+                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" required />
                             </div>
                         </div>
                     </div>
@@ -69,12 +69,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" />
+                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" required />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" />
+                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" required />
                             </div>
                         </div>
                     </div>
@@ -243,7 +243,17 @@
                         element: dialog.getElementById('step-1'),
                         title: 'Detaljer',
                         stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { console.log("2. Step Out"); }
+                        stepOut: () => { 
+                            /** PS!
+                             * Be aware that this will cause issues the moment you have inputs or selects
+                             * that are not in step-1. As of the writing of this comment all the fields we care
+                             * about validating are in step-1, so we can blanket-validate it like this.
+                             * This is not the case if you add input or selects to any other steps - and this will
+                             * prevent progression to further steps, until the inputs in those future steps are considered
+                             * valid, which is of course impossible, since one can not reach them due to this blanket-validation.
+                             * */
+                            return dialog.validate();
+                        }
                     },
                     {
                         element: dialog.getElementById('step-2'),
