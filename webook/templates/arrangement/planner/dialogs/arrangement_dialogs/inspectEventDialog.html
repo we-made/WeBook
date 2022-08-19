@@ -1,17 +1,45 @@
 {% load static i18n %}
 
-<div id="{{dialogId}}" title="{{ form.title.value }}"
+<div id="{{dialogId}}"
     class="{{discriminator}}">
+
+    <div class="clearfix">
+        <div class="float-start">
+            <h3 class="fw-bold">
+                {{ form.title.value }} 
+            </h3>
+            <h5 id="title">
+                {{form.start.value}} <strong> until </strong> {{form.end.value}}
+            </h5>
+        </div>
+        <div id="stepper" class="float-end stepper-rail"></div>
+    </div>
+
+    <hr>
+
+    <div class="clearfix">
+        <small class="float-end">Sist oppdatert {{event.modified}}</small>
+    </div>
+    {% if event.serie %}
+    <div class="alert mb-4 mt-2 border" style="background-color:  #f6f6f0 !important;">
+            <div>
+                <!-- <h6 class="mb-0 d-inline fw-lighter">Denne aktiviteten tilhører en gjentagende serie:</h4> -->
+                <h4 class="mb-0"><span class="h3"><i class="fas fa-sync"></i></span>&nbsp;&nbsp; {{event.serie.serie_plan_manifest.schedule_description }}</h4>
+                <small><i class="fas fa-info-circle"></i>&nbsp; Ved redigering vil denne aktiviteten brytes ut av serien, og vil ikke lenger bli ansett som en del av denne serien</small>
+            </div>
+    </div>
+    {% endif %}
+
     <ul class="nav nav-tabs webook-tabs mb-3" id="ex1" role="tablist">
         <li class="nav-item" role="presentation">
             <a
-            class="nav-link active"
-            id="ex1-tab-1"
-            data-mdb-toggle="tab"
-            href="#ex1-tabs-1"
-            role="tab"
-            aria-controls="ex1-tabs-1"
-            aria-selected="true">
+                class="nav-link active"
+                id="ex1-tab-1"
+                data-mdb-toggle="tab"
+                href="#ex1-tabs-1"
+                role="tab"
+                aria-controls="ex1-tabs-1"
+                aria-selected="true">
             Aktivitet
             </a>
         </li>
@@ -78,7 +106,7 @@
                             <div class="form-group">
                                 <label class="form-label" for="{{ form.title.id_for_label }}">Tittel på norsk</label>
                                 <input type="text"
-                                    class="form-control form-control-md"
+                                    class="form-control form-control-lg"
                                     id="{{ form.title.id_for_label }}" 
                                     value="{{ form.title.value|default:'' }}"
                                     name="{{ form.title.name }}"
@@ -96,7 +124,7 @@
                                 <div class="form-group">
                                     <label class="form-label" for="{{ form.title_en.id_for_label }}">Tittel på engelsk</label>
                                     <input type="text"
-                                        class="form-control form-control-md"
+                                        class="form-control form-control-lg"
                                         id="{{ form.title_en.id_for_label }}" 
                                         value="{{ form.title_en.value|default:'' }}"
                                         name="{{ form.title_en.name }}"
@@ -114,7 +142,7 @@
                                     <div class="form-group mb-3">
                                         <label class="form-label" for="{{ form.expected_visitors.id_for_label }}">Forventet besøk</label>
                                         <input type="text"
-                                            class="form-control form-control-md"
+                                            class="form-control form-control-lg"
                                             id="{{ form.expected_visitors.id_for_label }}" 
                                             value="{{ form.expected_visitors.value|default:'0' }}"
                                             name="{{ form.expected_visitors.name }}"
@@ -133,7 +161,7 @@
                                     <div class="form-group mb-3">
                                         <label class="form-label" for="{{ form.actual_visitors.id_for_label }}">Faktisk besøk</label>
                                         <input type="text"
-                                            class="form-control form-control-md"
+                                            class="form-control form-control-lg"
                                             id="{{ form.actual_visitors.id_for_label }}" 
                                             value="{{ form.actual_visitors.value|default:'0' }}"
                                             name="{{ form.actual_visitors.name }}"
@@ -154,7 +182,7 @@
                                 <div class="form-outline datetimepicker" id="startDateTime"
                                     data-mdb-default-date="{{object.start|date:'m/d//Y' }}" 
                                     data-mdb-default-time="{{object.start|date:'G:i:s' }}">
-                                    <input type="text" class="form-control" id="startDateTimeInput" 
+                                    <input type="text" class="form-control form-control-lg" id="startDateTimeInput" 
                                         value="{{ object.start|date:'d.m.Y G:i' }}"/>
                                     <label for="datetimepickerExample" class="form-label h5">Startdato og tidspunkt</label>
                                 </div>
@@ -163,7 +191,7 @@
                                 <div class="form-outline datetimepicker" id="endDateTime"
                                     data-mdb-default-date="{{object.end|date:'m/d/Y' }}" 
                                     data-mdb-default-time="{{object.end|date:'G:i:s' }}">
-                                    <input type="text" class="form-control" id="endDateTimeInput" 
+                                    <input type="text" class="form-control form-control-lg" id="endDateTimeInput" 
                                         value="{{ object.end|date:'d.m.Y G:i' }}" />
                                     <label for="datetimepickerExample" class="form-label h5">Sluttdato og tidspunkt</label>
                                 </div>
@@ -197,12 +225,33 @@
         <div class="tab-pane fade" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
             <div class="clearfix">
                 <div class="float-end">
-                    <a class="btn wb-btn-main" id="eventDialog_uploadFilesBtn"><i class="fas fa-upload"></i>&nbsp; Last opp fil(er)</a>
+                    <a class="btn wb-btn-main" d-trigger="triggerUploadFilesDialog"><i class="fas fa-upload"></i>&nbsp; Last opp fil(er)</a>
                 </div>
             </div>
-            <div>
-                <table class="table w-100" id="inspectEventDialog__filesTable">
-                    <thead>
+            <div class="mb-2">
+                {% for file in object.files.all %}
+                    <div class="wb-bg-extra p-3 mt-2 rounded-pill">
+                        <span>{{file.filename}}</span>
+                        <span class="float-end">
+                            <a href="#"
+                                    d-trigger="deleteFile"
+                                    d-arg-type_discriminator="event_serie"
+                                    d-arg-file_id="{{file.pk}}">
+                                <i class="fas fa-trash"></i>
+                            </a>
+
+                            <a data-mdb-toggle="tooltip"
+                                    class="ms-2 me-3"
+                                    title="{% trans 'Download this file' %}"
+                                    href="/media/{{file.file}}"
+                                    download>
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </span>
+                    </div>
+                {% endfor %}
+                <!-- <table class="table w-100" id="inspectEventDialog__filesTable"> -->
+                    <!-- <thead>
                         <tr>
                             <th>Filnavn</th>
                             <th>Lastet opp</th>
@@ -227,7 +276,7 @@
                             </tr>
                         {% endfor %}
                     </tbody>
-                </table>
+                </table> -->
             </div>
         </div>
 
@@ -236,8 +285,8 @@
                 <div class="col-lg-6 col-sm-12">
                     <div class=" mb-2 mt-4">
                         <label class="form-label">Rom</label>
-                        <a class="btn btn-sm btn-link wb-bg-secondary float-end"
-                            id="inspectEventDialog_addRoomsBtn"
+                        <a class="btn btn-sm wb-btn-secondary wb-bg-secondary float-end"
+                            d-trigger="triggerAddRooms"
                             type="button">
                             Legg til nye rom
                         </a>
@@ -267,8 +316,8 @@
                 <div class="col-lg-6 col-sm-12">
                     <div class="cmb-2 mt-4">
                         <label class="form-label">Personer</label>
-                        <a class="btn btn-sm btn-link wb-bg-secondary float-end"
-                            id="inspectEventDialog_addPeopleBtn"
+                        <a class="btn btn-sm wb-btn-secondary wb-bg-secondary float-end"
+                            d-trigger="triggerAddPeople"
                             type="button">
                             Legg til nye personer
                         </a>
@@ -302,7 +351,7 @@
             <div class="form-group mb-3">
                 <label class="form-label" for="{{ form.ticket_code.id_for_label }}">Billetkode</label>
                 <input type="text"
-                    class="form-control form-control-md"
+                    class="form-control form-control-lg"
                     id="{{ form.ticket_code.id_for_label }}" 
                     value="{{ form.ticket_code.value|default:'' }}"
                     name="{{ form.ticket_code.name }}"
@@ -318,7 +367,8 @@
 
         <div class="tab-pane fade" id="ex1-tabs-3" role="tabpanel" aria-labelledby="ex1-tabs-3">
             <div class="clearfix">
-                <a class="btn wb-btn-main shadow-0 mb-2 float-end" id="inspectEventDialog__newNoteBtn">
+                <a  class="btn wb-btn-main shadow-0 mb-2 float-end"
+                    d-trigger="triggerNewNoteDialog">
                     <i class="fas fa-feather"></i>
                     Nytt notat
                 </a>
@@ -334,7 +384,6 @@
                 </div>
                 
                 <hr>
-
                 <div class="clearfix">
                     <div class="float-end">
                         <a href="#" class="btn wb-btn-secondary"
@@ -361,7 +410,6 @@
         <div class="tab-pane fade" id="ex1-tabs-4" role="tabpanel" aria-labelledby="ex1-tabs-4">
             {% if not object.is_buffer_event %}
                 <div class="alert alert-info small">
-                    <i class="fas fa-info-circle"></i>
                     Rigg "buffere" blir opprettet som egne hendelser før og etter aktiviteten.
                     <div>
                         Det betyr at om du endrer tidene på aktivitetene så vil denne forandringen også reflekteres her.
@@ -395,13 +443,13 @@
                             <td>
                                 Fra
                                 <div class="form-outline">
-                                    <input type="time" id="buffer_before_start" value="{{ form.before_buffer_start.value|date:'H:i' }}" class="form-control" />
+                                    <input type="time" id="buffer_before_start" value="{{ form.before_buffer_start.value|date:'H:i' }}" class="form-control form-control-lg" />
                                 </div>
                             </td>
                             <td>
                                 Til
                                 <div class="form-outline">
-                                    <input type="time" id="buffer_before_end" value="{{ form.before_buffer_end.value|date:'H:i' }}" class="form-control" />
+                                    <input type="time" id="buffer_before_end" value="{{ form.before_buffer_end.value|date:'H:i' }}" class="form-control form-control-lg" />
                                 </div>
                             </td>
                         </tr>
@@ -423,13 +471,13 @@
                             <td>
                                 Fra
                                 <div class="form-outline">
-                                    <input type="time" id="buffer_after_start" value="{{ form.after_buffer_start.value|date:'H:i' }}" class="form-control" />
+                                    <input type="time" id="buffer_after_start" value="{{ form.after_buffer_start.value|date:'H:i' }}" class="form-control form-control-lg" />
                                 </div>
                             </td>
                             <td>
                                 Til
                                 <div class="form-outline">
-                                    <input type="time" id="buffer_after_end" value="{{ form.after_buffer_end.value|date:'H:i' }}" class="form-control" />
+                                    <input type="time" id="buffer_after_end" value="{{ form.after_buffer_end.value|date:'H:i' }}" class="form-control form-control-lg" />
                                 </div>
                             </td>
                         </tr>
@@ -462,18 +510,18 @@
 
     <div class="clearfix border-top pt-3">
         <div class="float-start">
-            <a href="#" class="btn btn-link"
+            <a href="#" class="btn wb-btn-blank"
                 d-trigger="delete">
                 <i class="fas fa-trash"></i>&nbsp; Slett denne aktiviteten
             </a>
         </div>
         <div class="float-end">
             <a href="#" class="btn wb-btn-secondary btn-lg"
-                onclick="window.dialogApi.close('eventInspector', 'inspectEventDialog')">
+                d-trigger="close">
                 <i class="fas fa-times"></i>
                 Avbryt
             </a>
-            <a class="btn btn-md wb-btn-main" type="button" d-trigger="save">
+            <a class="btn btn-lg wb-btn-main" type="button" d-trigger="save">
                 <i class="fas fa-save"></i>&nbsp; Lagre
             </a>
         </div>
@@ -498,6 +546,9 @@
             });
         },
         methods: {
+            close: function (dialog, {} = {}, triggeredByElement) {
+                dialog.closeAllDialogsInThisManagerGroup();
+            },
             /* Open an event inspection dialog for another event */
             inspectOtherEvent: function (dialog, { eventId } = {}) {
                 dialog.raiseTriggerEvent(dialog.managerName, "{{dialogId}}", { pk: eventId });
@@ -514,7 +565,10 @@
             },
             /* Open dialog for editing a note, identified by note_pk */
             updateNoteDialog: (dialog, { notePk } = {}) => {
-                dialog.raiseTriggerEvent("eventInspector", "editNoteDialog", { "note_pk": notePk })
+                dialog.raiseTriggerEvent("eventInspector", "editNoteDialog", { "note_pk": notePk, $parent: dialog.dialogElement });
+            },
+            triggerNewNoteDialog(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("eventInspector", "newNoteDialog", { $parent: dialog.dialogElement });
             },
             /* Delete a note, identified by note_pk */
             deleteNote: (dialog, { notePk } = {}) => {
@@ -689,6 +743,16 @@
                     event: qualifiedEvent,
                     csrf_token: '{{ csrf_token }}',
                 });
+            },
+            triggerUploadFilesDialog(dialog, {}={}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesDialog", { $parent: dialog.dialogElement });
+            },
+            triggerAddRooms(dialog, {} = {}, triggeredByElement) {
+                console.log(`${dialog.managerName}.orderRoomDialog`)
+                dialog.raiseTriggerEvent(dialog.managerName, "orderRoomDialog", { $parent: dialog.dialogElement });
+            },
+            triggerAddPeople(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement });
             },
         },
         data: {

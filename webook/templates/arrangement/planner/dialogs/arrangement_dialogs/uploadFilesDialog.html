@@ -1,7 +1,17 @@
 {% load static i18n %}
 
 
-<div id="{{ dialogId }}" title="{% trans 'Upload files' %}" class="{{discriminator}}">
+<div id="{{ dialogId }}" class="{{discriminator}}">
+    <div class="clearfix">
+        <div class="float-start">
+            <h5 class="fw-bold">
+                <i class="fas fa-upload"></i>&nbsp; Last opp filer
+            </h5>
+        </div>
+        <div id="rail" class="float-end stepper-rail"></div>
+    </div>
+    <hr>
+
     <form action="" enctype="application/x-www-form-urlencoded" id="uploadFilesDialogForm">
         <div class="file-upload-wrapper">
             <input type="file"

@@ -1,4 +1,4 @@
-<div id="{{dialogId}}" class="{{discriminator}}" title="Add planners">
+<div id="{{dialogId}}" class="{{discriminator}}" title="Velg planleggere">
     <div>
         <div>
             <select id="addPlannersDialog_plannersSelect" multiple
@@ -19,13 +19,13 @@
         <div class="clearfix mt-2">
             <div class="float-end">
                 <a href="#" class="btn wb-btn-secondary btn-lg"
-                    onclick="window.dialogApi.close('arrangementInspector', 'addPlannerDialog')">
+                    d-trigger="close">
                     <i class="fas fa-times"></i>
                     Avbryt
                 </a>
                 <a
                     type="button"
-                    class="btn wb-btn-main float-end"
+                    class="btn wb-btn-main float-end btn-lg ms-2"
                     d-trigger="submit"
                     d-arg-arrangement_slug="{{arrangement.slug}}">
                     <i class="fas fa-check"></i>
@@ -44,6 +44,9 @@
             discriminator: '{{discriminator}}',
             postInit: function (dialog) {},
             methods: {
+                close(dialog, {} = {}, triggeredByElement) {
+                    dialog.closeMe();
+                },
                 submit(dialog, { arrangementSlug } = {}, triggeredByElement) {
                     let planners = dialog.$("#addPlannersDialog_plannersSelect").val().join(","); 
 

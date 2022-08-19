@@ -4,14 +4,24 @@
 
     <div class="clearfix">
         <div class="float-start">
-            <h5 class="fw-bold">{{title}}</h5>
+            <h6 id="title">
+                {{object}}
+                {% if object.pk %}
+                    Rediger {{object.title}}
+                {% else %}
+                    Definer tidsplan
+                {% endif %}
+            </h6>
+            <h5 class="fw-bold">
+                <i class="fas fa-calendar-plus"></i>&nbsp; Tidsplan
+            </h5>
         </div>
         <div id="stepper" class="float-end stepper-rail"></div>
     </div>
 
     <hr>
 
-    <div class="stepper" style="max-height: 600px; overflow: scroll; overflow-y: visible;">
+    <div class="stepper" style="max-height: 600px; height: 500px; overflow: scroll; overflow-y: visible;">
         <div id="step-1">
             <input type="hidden" name="uuid" id="serie_uuid">
             <form id="headMockForm">
@@ -19,11 +29,11 @@
                 <div class="mb-2">
                     <div class="form-group">
                         <label class="form-label" for="serie_title">Tittel på norsk</label>
-                        <input type="text" id="serie_title" class="form-control" />
+                        <input type="text" id="serie_title" class="form-control form-control-lg" />
                     </div>    
                     <div class="form-group">
                         <label class="form-label" for="serie_title_en">Tittel på engelsk</label>
-                        <input type="text" id="serie_title_en" class="form-control" />
+                        <input type="text" id="serie_title_en" class="form-control form-control-lg" />
                     </div>
                 </div>
     
@@ -31,24 +41,24 @@
                     <div class="col-6">
                         <div class="form-group timepicker-inline-24 mb-2" id="serie_start_picker">
                             <label class="form-label" for="serie_start">Start <small>(<i>HH:mm</i>)</small></label>
-                            <input type="text" class="form-control" id="serie_start" />
+                            <input type="text" class="form-control form-control-lg" id="serie_start" />
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="form-group timepicker-inline-24 mb-2" id="serie_end_picker">
                             <label class="form-label" for="serie_end">Slutt <small>(<i>HH:mm</i>)</small></label>
-                            <input type="text" class="form-control" id="serie_end" />
+                            <input type="text" class="form-control form-control-lg" id="serie_end" />
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group mb-2">
-                    <label class="form-label" for="serie_ticket_code">Ticket Code</label>
-                    <input type="text" id="serie_ticket_code" class="form-control" />
+                    <label class="form-label" for="serie_ticket_code">Billetkode</label>
+                    <input type="text" id="serie_ticket_code" class="form-control form-control-lg" />
                 </div>        
                 <div class="form-group mb-2">
-                    <label class="form-label" for="serie_expected_visitors">Expected Visitors</label>
-                    <input type="text" id="serie_expected_visitors" class="form-control" />
+                    <label class="form-label" for="serie_expected_visitors">Forventet besøkende</label>
+                    <input type="text" id="serie_expected_visitors" class="form-control form-control-lg" />
                 </div>
 
                 <fieldset>
@@ -167,30 +177,33 @@
             </form>
         </div>
         <div id="step-2">
-            <a class="btn btn-block wb-btn-secondary shadow-0"
-            onclick="createSerieDialog__openAddPeople()"
-            type="button">
-                <i class="fas fa-plus"></i>
-                Legg til personer
-            </a>
+            <div class="input-group input-group-lg">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="search" name="" placeholder="Søk etter personer..." class="form-control form-control-lg"></input>
 
-            <div id="peopleChips"></div>
-
-
-            <a class="btn btn-block wb-btn-secondary shadow-0"
-            onclick="createSerieDialog__openAddRooms()"
-            type="button">
-                <i class="fas fa-plus"></i>
-                Legg til rom
-            </a>
-
-            <div id="roomChips"></div>
-
-            <div class="table-responsive mt-2">
-                <table class="table table-sm">
-                    <tbody id="roomsTbody"></tbody>
-                </table>
+                <button class="btn wb-btn-secondary border"
+                        d-trigger="triggerAddPeople">
+                    <i class="fas fa-folder"></i>
+                </button>
             </div>
+
+            <div id="peopleChips" class="mb-2 mt-3"></div>
+
+            <div class="input-group input-group-lg mt-5">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="search" name="" placeholder="Søk etter rom..." class="form-control form-control-lg"></input>
+
+                <button class="btn wb-btn-secondary border"
+                        d-trigger="triggerAddRooms">
+                    <i class="fas fa-folder"></i>
+                </button>
+            </div>
+
+            <div id="roomChips" class="mb-2 mt-3"></div>
         </div>
         <div id="step-3">
             <div class="alert alert-info small">
@@ -210,13 +223,13 @@
                         <td>
                             Fra
                             <div class="form-outline">
-                                <input type="time" id="buffer_before_start" class="form-control" />
+                                <input type="time" id="buffer_before_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td>
                             Til
                             <div class="form-outline">
-                                <input type="time" id="buffer_before_end" class="form-control" />
+                                <input type="time" id="buffer_before_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
@@ -227,13 +240,13 @@
                         <td>
                             Fra
                             <div class="form-outline">
-                                <input type="time" id="buffer_after_start" class="form-control" />
+                                <input type="time" id="buffer_after_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td>
                             Til
                             <div class="form-outline">
-                                <input type="time" id="buffer_after_end" class="form-control" />
+                                <input type="time" id="buffer_after_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
@@ -252,14 +265,30 @@
     </div>
 
     <div class="clearfix mt-3">
-        <a class="btn wb-btn-main btn-lg float-end" d-trigger="submit" type="button" id="submitBtn">
-            <i class="fas fa-check"></i>
-            Lagre
-        </a>
-        <a href="#" class="btn wb-btn-secondary btn-lg float-end" d-trigger="close">
-            <i class="fas fa-times"></i>
-            Avbryt
-        </a>
+        <div class="float-start">
+            <button class="btn wb-btn-blank btn-lg text-muted"
+                    id="cancel"
+                    d-trigger="close">
+                <i class="fas fa-times"></i>&nbsp;
+                Avbryt
+            </button>
+        </div>
+
+        <div class="float-end">
+            <a href="#" class="btn wb-btn-secondary btn-lg" id="back">
+                Tilbake
+            </a>
+
+            <a href="#" class="btn wb-btn-main btn-lg" id="next">
+                Neste
+            </a>
+
+            <a class="btn wb-btn-main btn-lg" d-trigger="submit" type="button" id="finish"
+                    style="display: none;">
+                Lagre
+            </a>
+        </div>
+
     </div>
 </div>
 
@@ -431,6 +460,7 @@
             }
 
             let activeInputs = dialogElement.querySelectorAll("#area_methods_wrapper input:not(:disabled):not([type='radio']):not([type='submit']), select:not(:disabled)");
+            
             for(let i = 0; i < activeInputs.length; i++) {
                 let input = activeInputs[i];
                 if (input.checkValidity() === false) {
@@ -453,14 +483,19 @@
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
+
+            if (dialog.interior.serie_uuid.value !== undefined) {
+                dialog.getElementById('title').innerText = "Rediger " + dialog.interior.serie_title.value;
+            }
+
             document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
                 dialog.data.peopleNameMap = e.detail.context.people_name_map;
-                dialog.setPeople(e.detail.context.people);
+                dialog.setPeople({ people: e.detail.context.people });
                 dialog.$("#peopleCounter").text(dialog.$("#peopleChips").children().length);
             })
             document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
                 dialog.data.roomsNameMap = e.detail.context.room_name_map;
-                dialog.setRooms(e.detail.context.rooms);
+                dialog.setRooms({ rooms: e.detail.context.rooms });
                 dialog.$("#roomsCounter").text(dialog.$("#roomChips").children().length);
             })
             
@@ -503,11 +538,19 @@
                     {
                         element: dialog.getElementById('step-4'),
                         title: 'Skjermer',
-                        stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { console.log("2. Step Out"); }
+                        stepIn: () => { 
+                            dialog.getElementById('next').style.display = "none";
+                            dialog.getElementById('finish').style.display = "inline-block";
+                        },
+                        stepOut: () => {
+                            dialog.getElementById('finish').style.display = "none";
+                            dialog.getElementById('next').style.display = "inline-block";
+                        }
                     },
                 ]
             });
+            dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
+            dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
 
             /* Pattern: Daily*/
             dialog.data.patterns.set(
@@ -887,44 +930,34 @@
                 }
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}");
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement });
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}");
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement });
             },
-            setPeople(dialog, {} = {}, triggeredByElement) {
+            setPeople(dialog, { people } = {}, triggeredByElement) {
                 let wrapper = dialog.$('#peopleChips');
                 wrapper.empty();
 
                 people.split(",").forEach(id => {
                     wrapper.append(
-                        `<span class='chip' rowid='${id}'>
-                            ${dialog.data.peopleNameMap.get(id)}
-                            <a href='#' class='text-danger'
-                                    data-mdb-toggle='tooltip'
-                                    title='{% trans "Remove this room from the activity" %}'
-                                    onclick='createSerieDialog__removeAssociation(this)'>
-                                        <i class='fas fa-times'></i>
-                                    </a>                    
-                        </span>`
-                    )
+                        $(`<selected-pill name='${dialog.data.peopleNameMap.get(id)}'
+                                          id='${id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)
+                    );
                 });
             },
-            setRooms(dialog, {} = {}, triggeredByElement) {
+            setRooms(dialog, { rooms } = {}, triggeredByElement) {
                 let wrapper = dialog.$('#roomChips');
                 wrapper.empty();
 
                 rooms.split(",").forEach(id => {
                     wrapper.append(
-                        `<span class='chip' rowid='${id}'>
-                            ${dialog.data.roomsNameMap.get(id)}
-                            <a href='#' class='text-danger'
-                                    data-mdb-toggle='tooltip'
-                                    title='{% trans "Remove this room from the activity" %}'
-                                    onclick='createSerieDialog__removeAssociation(this)'>
-                                        <i class='fas fa-times'></i>
-                                    </a>                    
-                        </span>`
+                        $(`<selected-pill name='${dialog.data.roomsNameMap.get(id)}'
+                                          id='${id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)    
                     );
                 });
             },

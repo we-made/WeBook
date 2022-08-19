@@ -219,12 +219,12 @@ export class PlannerCalendar extends FullCalendarBased {
 
         let badgesHtml = "";
         if (arrangement.evserie_id !== null) {
-            badgesHtml += `<span class="badge badge-secondary"><i class='fas fa-redo'></i></span>`;
+            badgesHtml += `<span class="badge badge-secondary"><i class='fas fa-sync'></i></span>`;
         }
         else if (arrangement.evserie_id === null && arrangement.association_type === "degraded_from_serie") {
             badgesHtml += `
             <span class="badge badge-warning">
-                <i class='fas fa-redo'></i> <i class='fas fa-times'></i>
+                <i class='fas fa-sync'></i> <i class='fas fa-times'></i>
             </span>`
         }
         else {

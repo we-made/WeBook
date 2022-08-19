@@ -1,5 +1,14 @@
 <div id="{{dialogId}}" class="{{discriminator}}"
     title="{% if mode == 'serie' %}Bestill person{% else %}Bestill person for '{{event.title}}'{% endif %}">
+    
+    <div class="clearfix">
+        <div class="float-start">
+            <h5 class="fw-bold">Velg personer</h5>
+        </div>
+        <div id="rail" class="float-end stepper-rail"></div>
+    </div>
+    <hr>
+
     <div>
         {% if mode == 'serie' %}
         <div class="alert alert-danger">

@@ -65,15 +65,15 @@ export class ArrangementCreator {
                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                               });
                         },
-                        onUpdatedCallback: () => {
+                        onUpdatedCallback: () => {  
                             toastr.success("Arrangement opprettet");
                             this.dialogManager.closeDialog("createArrangementDialog");
                         },
                         dialogOptions: { 
-                            width: 600, 
+                            width: 900, 
                             height: 800,
-                            // modal: true,
-                            position: ['middle',20],
+                            modal: true,
+                            position: "center center",
                             dialogClass: 'no-titlebar',
                         }
                     }),
@@ -394,8 +394,9 @@ export class ArrangementCreator {
                             dialogClass: 'no-titlebar',
                         },
                         onUpdatedCallback: () => {
-                            toastr.success("Rom lagt til");
-                            this.dialogManager.closeDialog("orderRoomDialog");
+                            $(this.dialogManager.$getDialogElement("orderRoomDialog")).toggle("slide", () => {
+                                this.dialogManager.closeDialog("orderRoomDialog");
+                            });
                         },
                         onSubmit: (context, details) => {
                             context.rooms = details.formData.get("room_ids");
@@ -434,8 +435,9 @@ export class ArrangementCreator {
                             dialogClass: 'no-titlebar',
                          },
                         onUpdatedCallback: () => {
-                            toastr.success("Personer lagt til");
-                            this.dialogManager.closeDialog("orderPersonDialog");
+                            $(this.dialogManager.$getDialogElement("orderPersonDialog")).toggle("slide", () => {
+                                this.dialogManager.closeDialog("orderPersonDialog");
+                            });
                         },
                         onSubmit: (context, details) => {
                             let people_ids = details.formData.get("people_ids");

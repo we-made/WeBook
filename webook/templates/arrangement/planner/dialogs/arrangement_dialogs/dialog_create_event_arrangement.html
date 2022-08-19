@@ -4,37 +4,48 @@
 <div id="{{dialogId}}" class="{{discriminator}}" >
     <div class="clearfix">
         <div class="float-start">
-            <h5 class="fw-bold">{{dialogTitle}}</h5>
+            <h6>
+                Definer aktivitet
+            </h6>
+            <h5 class="fw-bold">
+                <i class="fas fa-calendar-plus"></i>&nbsp; Aktivitet navn
+            </h5>
         </div>
         <div id="stepper" class="float-end stepper-rail"></div>
     </div>
 
     <hr>
 
-    <div class="" style="max-height: 600px; overflow: scroll; overflow-y: visible;">
+    <div style="max-height: 600px; height: 600px; overflow: scroll; overflow-y: visible;">
         <div id="step-1">
             <form id="newSimpleActivityForm">
                 <input type="submit" name="submit" style="display:none;" />
                 <input type="hidden" name="uuid" id="event_uuid" />
                 
                 <div class="form-group mb-2">
-                    <label class="form-label" for="title">Tittel (Norsk)</label>
-                    <input type="text" id="title" name="title" class="form-control" />
+                    <label class="form-label" for="title">Tittel <i>(Norsk)</i></label>
+                    <input type="text" id="title" name="title" class="form-control form-control-lg" />
                 </div>
 
                 <div class="form-group mb-2">
-                    <label class="form-label" for="title_en">Tittel (Engelsk)</label>
-                    <input type="text" id="title_en" name="title_en" class="form-control" />
+                    <label class="form-label" for="title_en">Tittel <i>(Engelsk)</i></label>
+                    <input type="text" id="title_en" name="title_en" class="form-control form-control-lg" />
                 </div>
     
                 <div class="form-group mb-2">
-                    <label class="form-label" for="ticket_code">Billetkode</label>
-                    <input type="text" id="ticket_code" name="ticket_code" class="form-control" />
+                    <label class="form-label" for="ticket_code">
+                        <i class="fas fa-receipt"></i>&nbsp;
+                        Billetkode
+                    </label>
+                    <input type="text" id="ticket_code" name="ticket_code" class="form-control form-control-lg" />
                 </div>
     
                 <div class="form-group mb-2">
-                    <label class="form-label" for="expected_visitors">Forventet antall besøkende</label>
-                    <input type="text" id="expected_visitors" name="expected_visitors" class="form-control" />
+                    <label class="form-label" for="expected_visitors">
+                        <i class="fas fa-users"></i>
+                        Forventet antall besøkende
+                    </label>
+                    <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" />
                 </div>
     
                 <div class="form-group mt-2">
@@ -42,12 +53,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="fromDate" name="fromDate" class="form-control" />
+                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="fromTime" name="fromTime" class="form-control" />
+                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" />
                             </div>
                         </div>
                     </div>
@@ -58,12 +69,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="toDate" name="toDate" class="form-control" />
+                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="toTime" name="toTime" class="form-control" />
+                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" />
                             </div>
                         </div>
                     </div>
@@ -71,31 +82,34 @@
             </form>
         </div>
         <div id="step-2">
-            <a class="btn wb-btn-secondary shadow-0"
-            d-trigger="triggerAddPeople"
-            type="button">
-                Legg til personer
-            </a>
+            <div class="input-group input-group-lg">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="search" name="" placeholder="Søk etter personer..." class="form-control form-control-lg"></input>
 
-            <div class="mt-2 table-responsive">
-                <table class="table-sm table">
-                    <tbody id="peopleTbody__d1">
-                    </tbody>
-                </table>
+                <button class="btn wb-btn-secondary border"
+                        d-trigger="triggerAddPeople">
+                    <i class="fas fa-folder"></i>
+                </button>
             </div>
 
-            <a class="btn wb-btn-secondary shadow-0"
-            d-trigger="triggerAddRooms"
-            type="button">
-                Legg til rom
-            </a>
-
-            <div class="mt-2 table-responsive">
-                <table class="table-sm table">
-                    <tbody id="roomsTbody__d1">
-                    </tbody>
-                </table>
+            <div id="selectedPeopleWrapper" class="mb-2 mt-3">
             </div>
+
+            <div class="input-group input-group-lg mt-5">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="search" name="" placeholder="Søk etter rom..." class="form-control form-control-lg"></input>
+
+                <button class="btn wb-btn-secondary border"
+                        d-trigger="triggerAddRooms">
+                    <i class="fas fa-folder"></i>
+                </button>
+            </div>
+
+            <div id="selectedRoomsWrapper" class="mb-2 mt-3"></div>
         </div>
         <div id="step-3">
             <div class="alert alert-info small">
@@ -107,36 +121,44 @@
                 <thead></thead>
                 <tbody>
                     <tr>
-                        <th colspan="3" class="fw-bold">Buffer før aktiviteten:</th>
+                        <th colspan="3" class="h5">Buffer før aktiviteten:</th>
                     </tr>
                     <tr>
                         <td>
-                            Fra
+                            <label for="buffer_before_start" class="form-label">
+                                Fra
+                            </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_before_start" name="buffer_before_start" class="form-control" />
+                                <input type="time" id="buffer_before_start" name="buffer_before_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td>
-                            Til
+                            <label for="buffer_before_end" class="form-label">
+                                Til
+                            </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_before_end" name="buffer_before_end" class="form-control" />
+                                <input type="time" id="buffer_before_end" name="buffer_before_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <th colspan="3" class="fw-bold">Buffer etter aktiviteten:</th>
+                        <th colspan="3" class="h5">Buffer etter aktiviteten:</th>
                     </tr>
                     <tr>
                         <td>
-                            Fra
+                            <label for="buffer_after_start" class="form-label">
+                                Fra
+                            </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_after_start" name="buffer_after_start" class="form-control" />
+                                <input type="time" id="buffer_after_start" name="buffer_after_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td>
-                            Til
+                            <lable for="buffer_after_end" class="form-label">
+                                Til
+                            </lable>
                             <div class="form-outline">
-                                <input type="time" id="buffer_after_end" name="buffer_after_end" class="form-control" />
+                                <input type="time" id="buffer_after_end" name="buffer_after_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
@@ -155,6 +177,33 @@
                 </ul>
             </div>
             {% endif %}
+        </div>
+    </div>
+
+    <div class="clearfix">
+        <div class="float-start">
+            <button class="btn wb-btn-blank btn-lg text-muted"
+                    id="cancel"
+                    d-trigger="close">
+                <i class="fas fa-times"></i>&nbsp;
+                Avbryt
+            </button>
+        </div>
+        <div class="float-end">
+            <button class="btn wb-btn-secondary btn-lg"
+                    id="back">
+                Tilbake
+            </button>
+            <button class="btn wb-btn-main btn-lg"
+                    id="next">
+                Neste
+            </button>
+            <button class="btn wb-btn-main btn-lg"
+                    style="display:none;"
+                    d-trigger="submit"
+                    id="finish">
+                Lagre
+            </button>
         </div>
     </div>
 </div>
@@ -177,13 +226,13 @@
                 dialog.data.peopleNameMap = e.detail.context.people_name_map;
                 dialog.setPeople({ people: e.detail.context.people });
 
-                dialog.$("#peopleCounter").text(dialog.$("#peopleTbody__d1").children().length);
+                dialog.$("#peopleCounter").text(dialog.$("#selectedPeopleWrapper").children().length);
             });
             document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
                 dialog.data.roomsNameMap = e.detail.context.room_name_map;
                 dialog.setRooms({ rooms: e.detail.context.rooms });
 
-                dialog.$("#roomsCounter").text(dialog.$("#roomsTbody__d1").children().length);
+                dialog.$("#roomsCounter").text(dialog.$("#selectedRoomsWrapper").children().length);
             });
 
             dialog.data.stepper = new DialogStepper({
@@ -205,55 +254,48 @@
                     {
                         element: dialog.getElementById('step-3'),
                         title: 'Opp og ned-rigg',
-                        stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { console.log("2. Step Out"); }
+                        stepIn: () => { 
+                            dialog.getElementById('next').style.display = "none";
+                            dialog.getElementById('finish').style.display = "inline-block";
+                        },
+                        stepOut: () => {
+                            dialog.getElementById('finish').style.display = "none";
+                            dialog.getElementById('next').style.display = "inline-block";
+                        },
                     },
                 ]
             });
+            dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
+            dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {
                 dialog.closeMe();
             },
             setRooms(dialog, { rooms } = {}, triggeredByElement) {
-                let tbody = dialog.$('#roomsTbody__d1');
-                tbody.empty();
+                let wrapper = dialog.$('#selectedRoomsWrapper');
+                wrapper.empty();
 
-                let ids = rooms.split(",");
-                ids.forEach(id => {
-                    tbody.append(
-                        $(`<tr rowid='${id}'>
-                            <td> <input type='checkbox' /> </td>
-                            <td>${dialog.data.roomsNameMap.get(id)}</td>
-                            <td> <a href='#' class='text-danger'
-                                    data-mdb-toggle='tooltip'
-                                    title='{% trans "Remove this room from the activity" %}'
-                                    d-trigger='removeAssociation'>
-                                        <i class='fas fa-trash'></i>
-                                    </a>
-                            </td>
-                        </tr>`)
-                    )
+                rooms.split(",").forEach(id => {
+                    wrapper.append(
+                        $(`<selected-pill name='${dialog.data.roomsNameMap.get(id)}'
+                                          id='${id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)    
+                    );
                 });
             },
             setPeople(dialog, { people } = {}, triggeredByElement) {
-                let tbody = dialog.$('#peopleTbody__d1');
-                tbody.empty();
+                let wrapper = dialog.$('#selectedPeopleWrapper');
+                wrapper.empty();
 
-                let ids = people.split(",");
-                ids.forEach(id => {
-                    tbody.append(
-                        $(`<tr rowid='${id}'>
-                            <td>${dialog.data.peopleNameMap.get(id)}</td>
-                            <td> <a href='#' class='text-danger'
-                                    data-mdb-toggle='tooltip'
-                                    title='{% trans "Remove this person from the activity" %}'
-                                    d-trigger="removeAssociation">
-                                        <i class='fas fa-trash'></i>
-                                    </a>
-                            </td>
-                        </tr>`)
-                    )
+                people.split(",").forEach(id => {
+                    wrapper.append(
+                        $(`<selected-pill name='${dialog.data.peopleNameMap.get(id)}'
+                                          id='${id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)
+                    );
                 });
             },
             submit(dialog, {} = {}, triggeredByElement) {
@@ -309,21 +351,21 @@
                 return true;
             },
             removeAssociation(dialog, {} = {}, triggeredByElement) {
-                let row = $(triggeredByElement).closest("tr")[0];
-                let rowid = row.getAttribute("rowid");
-                row.remove();
+                $(triggeredByElement).closest("selected-pill")[0].remove();
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", {});
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement });
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", {});
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement });
             },
             getSelectedRoomIds (dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$("#roomsTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+                return Array.from(dialog.$("#selectedRoomsWrapper")[0].children)
+                    .map(pillElement => pillElement.getAttribute("id"));
             },
             getSelectedPeopleIds(dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$("#peopleTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+                return Array.from(dialog.$("#selectedPeopleWrapper")[0].children)
+                    .map(pillElement => pillElement.getAttribute("id"));
             },
         },
         data: {

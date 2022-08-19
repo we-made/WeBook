@@ -2,7 +2,7 @@
 
 
 <div id="{{dialogId}}" title="{{object.name}}" class="{{discriminator}}">
-    <button class="btn wb-btn-main mb-3" d-trigger="delete"><i class="fas fa-trash"></i>&nbsp; Slett</button>
+    <button class="btn wb-btn-secondary mb-3" d-trigger="delete"><i class="fas fa-trash"></i>&nbsp; Slett</button>
 
     <ul class="nav nav-tabs webook-tabs">
         <!-- Information/General -->
@@ -55,14 +55,13 @@
     <div class="tab-content pt-4">
         <!-- Information / General Tab -->
         <div class="tab-pane fade show active" id="arrangementInfoDialog_tabs_information" role="tabpanel">
-            <h3>Generelt</h3>
             <div class="form-group">
                 <div class="row">
                     <div class="col-lg-6 col-sm-12">
-                        <div>
+                        <div class="form-group mb-2">
                             <label class="form-label">Navn:</label>
                             <input type="text"
-                                class="form-control"
+                                class="form-control form-control-lg"
                                 id="{{ form.name.id_for_label }}"
                                 value="{{ form.name.value|default:'' }}"
                                 name="{{ form.name.name }}"
@@ -75,10 +74,10 @@
                             {% endif %}
                         </div>
 
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Navn (<em class="small">Engelsk</em>):</label>
                             <input type="text"
-                                class="form-control"
+                                class="form-control form-control-lg"
                                 id="{{ form.name_en.id_for_label }}"
                                 value="{{ form.name_en.value|default:'' }}"
                                 name="{{ form.name_en.name }}"
@@ -126,10 +125,9 @@
             </div>
 
             <div class="form-group mt-3">
-                <h3>Detaljer</h3>
                 <label class="form-label">Billettkode:</label>
                 <input type="text"
-                    class="form-control"
+                    class="form-control form-control-lg"
                     id="{{ form.ticket_code.id_for_label }}"
                     value="{{ form.ticket_code.value|default:'' }}"
                     name="{{ form.ticket_code.name }}"
@@ -147,7 +145,7 @@
                     <div class="col-lg-6 col-sm-12">
                         <label class="form-label">Møtested:</label>
                         <input type="text"
-                            class="form-control"
+                            class="form-control form-control-lg"
                             id="{{ form.meeting_place.id_for_label }}"
                             value="{{ form.meeting_place.value|default:'' }}"
                             name="{{ form.meeting_place.name }}"
@@ -162,7 +160,7 @@
                     <div class="col-lg-6 col-sm-12">
                         <label class="form-label">Møtested (Engelsk):</label>
                         <input type="text"
-                            class="form-control"
+                            class="form-control form-control-lg"
                             id="{{ form.meeting_place_en.id_for_label }}"
                             value="{{ form.meeting_place_en.value|default:'' }}"
                             name="{{ form.meeting_place_en.name }}"
@@ -183,7 +181,7 @@
                         <label class="form-label">Forventet antall besøkende:</label>
                         <input type="number"
                             min="0"
-                            class="form-control"
+                            class="form-control form-control-lg"
                             id="{{ form.expected_visitors.id_for_label }}"
                             value="{{ form.expected_visitors.value|default:'' }}"
                             name="{{ form.expected_visitors.name }}"
@@ -199,7 +197,7 @@
                         <label class="form-label">Faktisk antall besøkende:</label>
                         <input type="number"
                             min="0"
-                            class="form-control"
+                            class="form-control form-control-lg"
                             id="{{ form.actual_visitors.id_for_label }}"
                             value="{{ form.actual_visitors.value|default:'' }}"
                             name="{{ form.actual_visitors.name }}"
@@ -215,7 +213,6 @@
             </div>
 
             <div class="form-group mt-3">
-                <h3>Planleggere</h3>
                 <label class='form-label'>Hovedplanlegger:</label> 
                 <em>{{ object.responsible.full_name }}</em> 
                 <a href='#' id="mainPlannerDialog__promotePlannerBtn" class='text-primary'>
@@ -239,7 +236,8 @@
                     <div class="col-lg-6 col-sm-12">
 
                         <div>
-                            <a href='#' class='shadow-0 btn wb-btn-secondary btn-block mb-2 btn-sm' id='mainDialog__addPlannerBtn'>
+                            <a href='#' class='shadow-0 btn wb-btn-secondary btn-block mb-2 btn-sm'
+                                    d-trigger="triggerAddPlannerDialog">
                                 <i class='fas fa-plus'></i>
                                 Legg til planlegger
                             </a>
@@ -290,10 +288,12 @@
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_timeslots" role="tabpanel">
             <div class="clearfix">
                 <div class="float-end">
-                    <a class="btn wb-btn-main" id='mainPlannerDialog__newTimePlan'>
+                    <a class="btn wb-btn-main"
+                        d-trigger="triggerNewTimePlanDialog">
                         Ny tidsplan
                     </a>
-                    <a class="btn wb-btn-main" id='mainPlannerDialog__newSimpleActivity'>
+                    <a class="btn wb-btn-main"
+                        d-trigger="triggerNewSimpleActivityDialog">
                         Ny enkel aktivitet
                     </a>
                 </div>
@@ -324,47 +324,31 @@
                                 {% for event_serie in object.series.all %}
                                 <tr>
                                     <td>
-                                        <div class="p-4 border rounded-6">
-                                            <h5>{{event_serie.serie_plan_manifest.title}}</h5>
+                                        <div class="p-4 border rounded-6 wb-bg-extra">
+                                            <h4>
+                                                <i class="fas fa-redo"></i>&nbsp;
+                                                {{event_serie.serie_plan_manifest.title}}
+                                            </h4>
                                             <div>
-                                                <div>
-                                                    <i class="fas fa-redo"></i> {{ event_serie.serie_plan_manifest.schedule_description }}
-                                                </div>
-                                                <div>
-                                                    <i class="fas fa-clock"></i> {{event_serie.serie_plan_manifest.start_time}} - {{event_serie.serie_plan_manifest.end_time}}
-                                                </div>
-                                            </div>
-            
-                                            <div class="mt-2">
-                                                <button class="btn btn-sm wb-btn-secondary"
-                                                    data-mdb-toggle="tooltip"
-                                                    title="Delete this time plan"
-                                                    d-arg-event_serie_pk="{{event_serie.pk}}"
-                                                    d-trigger="deleteEventSerie">
-                                                    <i class="fas fa-trash"></i>
-                                                    Slett
-                                                </button>
-                                                <button class="btn btn-sm wb-btn-secondary"
-                                                    data-mdb-toggle="tooltip"
-                                                    title="Edit this time plan"
-                                                    d-arg-event_serie_pk="{{event_serie.pk}}"
-                                                    d-trigger="triggerEditSerie">
-                                                    <i class="fas fa-edit"></i>
-                                                    Rediger
-                                                </button>
+                                                <h6>
+                                                    {{ event_serie.serie_plan_manifest.schedule_description }}
+                                                    <small>({{event_serie.serie_plan_manifest.start_time}} - {{event_serie.serie_plan_manifest.end_time}})</small>
+                                                </h6>
+                                                <!-- <div>
+                                                </div> -->
                                             </div>
             
                                             <div class="accordion accordion-flush" id="accordion_{{event_serie.pk}}">
                                                 <div class="accordion-item">
                                                 <h6 class="accordion-header" id="flush-headingOne">
                                                     <button
-                                                    class="accordion-button collapsed"
-                                                    type="button"
-                                                    data-mdb-toggle="collapse"
-                                                    data-mdb-target="#flush-collapseOne_{{event_serie.pk}}"
-                                                    aria-expanded="false"
-                                                    aria-controls="flush-collapseOne">
-                                                        <i class="fas fa-file"></i>&nbsp; Filer
+                                                            class="accordion-button collapsed wb-bg-extra"
+                                                            type="button"
+                                                            data-mdb-toggle="collapse"
+                                                            data-mdb-target="#flush-collapseOne_{{event_serie.pk}}"
+                                                            aria-expanded="false"
+                                                            aria-controls="flush-collapseOne">
+                                                        Filer
                                                     </button>
                                                 </h6>
                                                 <div
@@ -372,45 +356,40 @@
                                                     class="accordion-collapse collapse"
                                                     aria-labelledby="flush-headingOne"
                                                     data-mdb-parent="#accordion_{{event_serie.pk}}">
-                                                    <div class="accordion-body">
-                                                        <div title="Last opp filer under '{{arrangement.name}}'" class="bg-white">
-                                                            <button class="btn btn-sm wb-btn-secondary float-end"
-                                                                d-trigger="uploadFilesToEventSerie"
-                                                                d-arg-event_serie_pk="{{ event_serie.pk }}">
-                                                                <i class="fas fa-upload"></i>
-                                                                Last opp fil(er)
-                                                            </button>
-                                                            <table class="table table-sm">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Filnavn</th>
-                                                                        <th>Valg</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    {% for file in event_serie.files.all %}
-                                                                        <tr>
-                                                                            <td>{{file.filename}}</td>
-                                                                            <td>
-                                                                                <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
-                                                                                    data-mdb-toggle="tooltip"
-                                                                                    title="{% trans 'Delete this file' %}"
-                                                                                    d-trigger="deleteFile"
-                                                                                    d-arg-type_discriminator="event_serie"
-                                                                                    d-arg-file_id="{{file.pk}}">
-                                                                                    <i class="fas fa-trash"></i>
-                                                                                </a>
-                                                                                <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
-                                                                                    data-mdb-toggle="tooltip"
-                                                                                    title="{% trans 'Download this file' %}"
-                                                                                    href="/media/{{file.file}}" download>
-                                                                                    <i class="fas fa-download"></i>
-                                                                                </a>
-                                                                            </td>
-                                                                        </tr>
-                                                                    {% endfor %}
-                                                                </tbody>
-                                                            </table>
+                                                    <div class="accordion-body  wb-bg-extra">
+                                                        <div title="Last opp filer under '{{arrangement.name}}'" class=" wb-bg-extra">
+                                                            <div class="clearfix">
+                                                                <button class="btn btn-sm wb-btn-secondary float-end"
+                                                                    d-trigger="uploadFilesToEventSerie"
+                                                                    d-arg-event_serie_pk="{{ event_serie.pk }}">
+                                                                    <i class="fas fa-upload"></i>
+                                                                    Last opp fil(er)
+                                                                </button>
+                                                            </div>
+
+
+                                                            {% for file in event_serie.files.all %}
+                                                                <div class="bg-white p-3 mt-2 rounded-pill">
+                                                                    <span>{{file.filename}}</span>
+                                                                    <span class="float-end">
+                                                                        <a href="#"
+                                                                                d-trigger="deleteFile"
+                                                                                d-arg-type_discriminator="event_serie"
+                                                                                d-arg-file_id="{{file.pk}}">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </a>
+
+                                                                        <a data-mdb-toggle="tooltip"
+                                                                                class="ms-2 me-3"
+                                                                                title="{% trans 'Download this file' %}"
+                                                                                href="/media/{{file.file}}"
+                                                                                download>
+                                                                            <i class="fas fa-download"></i>
+                                                                        </a>
+                                                                    </span>
+                                                                </div>
+                                                            {% endfor %}
+
                                                         </div>
                                                     </div>
                                                 </div>
@@ -418,13 +397,13 @@
                                                 <div class="accordion-item">
                                                 <h6 class="accordion-header" id="flush-headingTwo">
                                                     <button
-                                                    class="accordion-button collapsed"
+                                                    class="accordion-button collapsed  wb-bg-extra"
                                                     type="button"
                                                     data-mdb-toggle="collapse"
                                                     data-mdb-target="#flush-collapseTwo_{{event_serie.pk}}"
                                                     aria-expanded="false"
                                                     aria-controls="flush-collapseTwo_{{event_serie.pk}}">
-                                                        <i class="fas fa-calendar"></i>&nbsp; Aktiviteter
+                                                        Aktiviteter
                                                     </button>
                                                 </h6>
                                                 <div
@@ -432,24 +411,47 @@
                                                     class="accordion-collapse collapse"
                                                     aria-labelledby="flush-headingTwo"
                                                     data-mdb-parent="#accordion_{{event_serie.pk}}">
-                                                    <div class="accordion-body">
-                                                        <table class="table table-sm interactiveTable">
-                                                            <tbody>
-                                                                {% for event in event_serie.events.all %}
-                                                                <tr>
-                                                                    <td>
-                                                                        <div>
-                                                                            {{event}}
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                                {% endfor %}
-                                                            </tbody>
-                                                        </table>
+                                                    <div class="accordion-body wb-bg-extra">
+                                                        {% for event in event_serie.events.all %}
+                                                            <div class="bg-white p-3 mt-2 rounded-pill">
+                                                                <span>
+                                                                    {{event.start}} / {{event.end}}
+                                                                </span>
+
+                                                                <span class="float-end">
+                                                                    <a href="">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </a>
+                                                                    
+                                                                    <a href="" class="ms-2 me-3">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </a>
+                                                                </span>
+                                                            </div>
+                                                        {% endfor %}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
+                                                    
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm wb-btn-blank"
+                                                data-mdb-toggle="tooltip"
+                                                title="Edit this time plan"
+                                                d-arg-event_serie_pk="{{event_serie.pk}}"
+                                                d-trigger="triggerEditSerie">
+                                                Rediger tidsplan
+                                            </button>
+                                            <button class="btn wb-btn-auto btn-link"
+                                                data-mdb-toggle="tooltip"
+                                                title="Delete this time plan"
+                                                d-arg-event_serie_pk="{{event_serie.pk}}"
+                                                d-trigger="deleteEventSerie">
+                                                Slett
+                                            </button>
+                                        </div>
+
                                     </div>
                                 </td>
                             </tr>
@@ -499,7 +501,8 @@
         <!-- Notes Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_notes" role="tabpanel">
             <div class="clearfix">
-                <a class="btn wb-btn-main shadow-0 mb-2 float-end" id="mainPlannerDialog__newNoteBtn">
+                <a class="btn wb-btn-main shadow-0 mb-2 float-end" 
+                    d-trigger="triggerNewNoteDialog">
                     <i class="fas fa-feather"></i>
                     Nytt notat
                 </a>
@@ -549,7 +552,7 @@
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_files" role="tabpanel">
             <div class="clearfix">
                 <a class="btn wb-btn-main shadow-0 float-end"
-                        id="mainDialog__uploadFilesBtn"
+                        d-trigger="triggerUploadFilesToArrangementDialog"
                         href="#">
                     <i class="fas fa-upload"></i>
                     Upload file(s)
@@ -616,11 +619,23 @@
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {
-                dialog.closeMe();
+                dialog.closeAllDialogsInThisManagerGroup();
             },
             /* Trigger/Open the update note dialog for the note by notePk */
             triggerUpdateNoteDialog(dialog, { notePk } = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent(dialog.managerName, "editNoteDialog", { note_pk: notePk });
+                dialog.raiseTriggerEvent(dialog.managerName, "editNoteDialog", { note_pk: notePk, $parent: dialog.dialogElement });
+            },
+            triggerNewTimePlanDialog(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "newTimePlanDialog", { $parent: dialog.dialogElement });
+            },
+            triggerNewSimpleActivityDialog(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "newSimpleActivityDialog", { $parent: dialog.dialogElement });
+            },
+            triggerNewNoteDialog(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "newNoteDialog", { $parent: dialog.dialogElement });
+            },
+            triggerUploadFilesToArrangementDialog(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesToArrangementDialog", { $parent: dialog.dialogElement });
             },
             deleteNote(dialog, { notePk } = {}, triggeredByElement) {
                 Swal.fire({
@@ -644,7 +659,7 @@
                 });
             },
             uploadFilesToEventSerie(dialog, { eventSeriePk } = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesToEventSerieDialog", { event_serie_pk: eventSeriePk });
+                dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesToEventSerieDialog", { event_serie_pk: eventSeriePk, $parent: dialog.dialogElement });
             },
             deleteActivity(dialog, { activityPk } = {}, triggeredByElement) {
                 Swal.fire({
@@ -708,7 +723,10 @@
                 });
             },
             triggerEditSerie(dialog, { eventSeriePk } = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("arrangementInspector", "editEventSerieDialog", { event_serie_pk: eventSeriePk });
+                dialog.raiseTriggerEvent("arrangementInspector", "editEventSerieDialog", { event_serie_pk: eventSeriePk, $parent: dialog.dialogElement });
+            },
+            triggerAddPlannerDialog(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementInspector", "addPlannerDialog", { $parent: dialog.dialogElement });
             },
             openEditEvent(dialog, { eventPk } = {}, triggeredByElement) {
                 document.dispatchEvent(

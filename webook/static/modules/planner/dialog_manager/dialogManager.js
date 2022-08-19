@@ -30,6 +30,8 @@
                 let span = document.createElement("span");
                 span.innerHTML = html;
                 let dialogEl = span.querySelector("#" + this.dialogElementId);
+                $(dialogEl).toggle("highlight");
+
                 this.discriminator = dialogEl.getAttribute("class");
 
                 $('body')
@@ -39,10 +41,10 @@
                         this._$getDialogEl().dialog( this.dialogOptions );
                         this.onRenderedCallback(this, context);
                         this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                            // .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
-                            // .click( () => {
-                            //     this.destroy();
-                            // });
+                            .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
+                            .click( () => {
+                                this.destroy();
+                            });
                         
                         this._isRendering = false;
                     });
@@ -252,7 +254,6 @@ export class DialogManager {
                 }
 
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
-                    console.log(`${this.managerName}.${triggerName}.trigger`, event.detail);
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
 
@@ -269,10 +270,13 @@ export class DialogManager {
 
                         value.dialogOptions = { 
                             dialogClass: "slave-dialog" + value.dialogOptions.dialogClass !== undefined ? (" " + value.dialogOptions.dialogClass) : "",
-                            position: { my: "left+20 top", at: "right top", of: parent.parentNode },
+                            classes: {
+                                "ui-dialog": "slave-dialog"
+                            },
+                            position: { my: "left top", at: "right top", of: parent.parentNode },
                             height: parent.parentNode.offsetHeight,
                             width: 600,
-                            show: { effect: "fold", duration: 400 }
+                            show: { effect: "slide", direction: "left", duration: 400 }
                         }
                         console.log("options", value.dialogOptions)
                     }

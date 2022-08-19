@@ -35,12 +35,8 @@
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/base/jquery.fonticonpicker.min.css' %}">
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/themes/bootstrap-theme/jquery.fonticonpicker.bootstrap.min.css' %}">
 
-
-    <!-- <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/wysiwyg.min.js"></script> -->
-
     <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/file-upload.min.css">
 
-    <!-- This file stores project-specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
     <link href="{% static 'css/nasj_style.css' %}" rel="stylesheet">
 
@@ -326,6 +322,7 @@
       <script src="{% static 'fullcalendar-scheduler/locales-all.min.js' %}"></script>
       <!-- place project specific Javascript in this file -->
       <script src="{% static 'js/project.js' %}"></script>
+      <script src="{% static 'js/components.js' %}"></script>
       <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
       <script src="{% static '@fonticonpicker/fonticonpicker/dist/js/jquery.fonticonpicker.min.js' %}"></script>
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/file-upload.min.js"></script>
@@ -340,6 +337,12 @@
       </script>
 
       <script>
+        window.sharedUrls = {
+          mdb: "{{ ASSET_SERVER_URL }}mdb/css/mdb.min.css",
+          base: "/static/css/base.css",
+          fontAwesome: 'https://kit.fontawesome.com/db5ee7e46d.js'
+        }
+
         $(document).ready(function() {
           var queuedMessages = JSON.parse(document.getElementById('queuedMessages').textContent);
           tagToToastrFuncMap = new Map([

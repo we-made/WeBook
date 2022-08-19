@@ -1,5 +1,14 @@
-<div id="{{dialogId}}" title="{% if not form.instance.id %}Nytt notat{% else %}Rediger notat{% endif %}"
-    class="{{discriminator}}">
+<div id="{{dialogId}}" class="{{discriminator}}">
+    <div class="clearfix">
+        <div class="float-start">
+            <h5 class="fw-bold">
+                <i class="fas fa-feather"></i>&nbsp; {% if not form.instance.id %}Nytt notat{% else %}Rediger notat{% endif %}
+            </h5>
+        </div>
+        <div id="rail" class="float-end stepper-rail"></div>
+    </div>
+    <hr>
+
     <form id="noteForm">
         <input type="hidden" name="id" id="id" value="{{ form.instance.id }}">
         <input type="hidden" name="entityPk" id="entityPk"  value="{{ entity_pk }}">

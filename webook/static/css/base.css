@@ -1,6 +1,6 @@
 :root {
     --MAIN-COLOR: #231f20;
-    --SECONDARY-COLOR: rgb(247, 245, 244);
+    --SECONDARY-COLOR: #ebebeb ;
     --MAIN-HOVER: white;
     --SECONDARY-HOVER: var(--MAIN-COLOR);
     
@@ -36,6 +36,10 @@
     font-weight: bold;
 }
 
+.wb-bg-extra {
+    background-color:  #f6f6f0!important;
+}
+
 #main-navbar .nav-link {
     font-size: larger;
     padding: 0.4em;
@@ -53,7 +57,7 @@
 }
 
 .form-label {
-    font-size: medium;
+    font-size: large;
     margin-bottom: 0;
 }
 
@@ -81,6 +85,47 @@
 .wb-btn-main {
     background-color: var(--MAIN-COLOR);
     color: white !important;
+    border-radius: 0.5em;
+    box-shadow: none;
+    font-size: medium;
+    text-transform: none;
+    padding: .5rem 1.5rem .5rem;
+}
+
+.wb-btn-main.btn-lg {
+    padding: .5rem 1rem!important;
+    border-radius: .3rem!important;
+    font-size: larger;
+}
+
+.wb-btn-secondary.btn-lg {
+    padding: .5rem 1rem!important;
+    border-radius: .3rem!important;
+    font-size: large;
+
+}
+
+.wb-btn-blank.btn-lg {
+    padding: .5rem 1rem!important;
+    border-radius: .3rem!important;
+    font-size: large;
+
+}
+
+.wb-btn-blank {
+    background-color: white;
+    color: var(--MAIN-COLOR) !important;
+    border-radius: 0.5em;
+    box-shadow: none;
+    font-size: medium;
+    text-transform: none;
+    padding: .5rem 1.5rem .5rem;
+}
+
+.wb-btn-auto {
+    background-color: inherit;
+    color: var(--MAIN-COLOR) !important;
+
     border-radius: 0.5em;
     box-shadow: none;
     font-size: medium;
@@ -228,11 +273,18 @@
     margin-right: 0.3em;
 }
 
+
+
 .slave-dialog {
     box-shadow: 10px 1px 20px 1px  grey!important;
     background-color: var(--SECONDARY-COLOR)!important;
-    border: none!important;
-    margin-left: 20px!important;
+    border-left: none!important;
+    border-top-left-radius: 0px!important;
+    border-bottom-left-radius: 0px!important;
+    border-left: solid 2px grey!important;
+    background-color: white!important;
+    /* background-color:  #f6f6f0 !important; */
+    /* margin-left: 20px!important; */
 }
 
 .no-titlebar .ui-dialog-titlebar {
