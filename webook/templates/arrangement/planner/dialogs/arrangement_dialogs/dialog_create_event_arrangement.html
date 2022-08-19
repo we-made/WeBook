@@ -82,32 +82,33 @@
             </form>
         </div>
         <div id="step-2">
-            <div class="input-group input-group-lg">
+            <!-- <div class="input-group input-group-lg">
                 <span class="input-group-text">
                     <i class="fas fa-search"></i>
                 </span>
                 <input type="search" name="" placeholder="Søk etter personer..." class="form-control form-control-lg"></input>
+            </div> -->
 
-                <button class="btn wb-btn-secondary border"
-                        d-trigger="triggerAddPeople">
-                    <i class="fas fa-folder"></i>
-                </button>
-            </div>
+
+            <button class="btn wb-btn-secondary border"
+            d-trigger="triggerAddPeople">
+                Velg Person
+            </button>
 
             <div id="selectedPeopleWrapper" class="mb-2 mt-3">
             </div>
 
-            <div class="input-group input-group-lg mt-5">
+            <!-- <div class="input-group input-group-lg mt-5">
                 <span class="input-group-text">
                     <i class="fas fa-search"></i>
                 </span>
                 <input type="search" name="" placeholder="Søk etter rom..." class="form-control form-control-lg"></input>
+            </div> -->
 
-                <button class="btn wb-btn-secondary border"
-                        d-trigger="triggerAddRooms">
-                    <i class="fas fa-folder"></i>
-                </button>
-            </div>
+            <button class="btn wb-btn-secondary border mt-5"
+                    d-trigger="triggerAddRooms">
+                Velg rom
+            </button>
 
             <div id="selectedRoomsWrapper" class="mb-2 mt-3"></div>
         </div>
@@ -264,6 +265,12 @@
                     {
                         element: dialog.getElementById('step-3'),
                         title: 'Opp og ned-rigg',
+                        stepIn: () => {},
+                        stepOut: () => {},
+                    },
+                    {
+                        element: dialog.getElementById('step-4'),
+                        title: 'Skjermer',
                         stepIn: () => { 
                             dialog.getElementById('next').style.display = "none";
                             dialog.getElementById('finish').style.display = "inline-block";
