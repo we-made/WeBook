@@ -262,6 +262,7 @@
                 const mdbSelect = new mdb.Select(element, { 
                     container: "[class='{{discriminator}}']",
                     filter: true,
+                    validation: true,
                     noResultText: "Ingen resultater",
                 });
                 mdbSelect._input.classList.add("form-control-lg");
@@ -283,13 +284,58 @@
                     element: dialog.getElementById('step-1'),
                     title: 'Generelt',
                     stepIn: () => { console.log("1. Step In") },
-                    stepOut: () => { console.log("2. Step Out"); }
+                    stepOut: () => { 
+                        let field_elements = dialog.$('#step-1').find("input, select");
+                        let isInvalid = false;
+
+                        [
+                            mdb.Select.getInstance(dialog.querySelector('#{{ form.audience.id_for_label }}')),
+                            mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
+                            mdb.Select.getInstance(dialog.querySelector('#{{ form.responsible.id_for_label }}')),
+                            mdb.Select.getInstance(dialog.querySelector('#{{ form.arrangement_type.id_for_label }}')),
+                        ].forEach(mdbSelect => { 
+                            if (mdbSelect.hasSelection?.label === "---------" ) {
+                                $(mdbSelect._wrapper).find(".invalid-feedback").show();
+                            }
+                        })
+
+                        for (let i = 0; i < field_elements.length; i++) {
+                            if (field_elements[i].checkValidity() === false) {
+                                isInvalid = true;
+                                break;
+                            }
+                        }
+
+                        if (isInvalid) {
+                            dialog.$('#arrangementInfoForm').find(':submit').click();
+                            return false;
+                        }
+
+                        return true;
+                    }
                 },
                 {
                     element: dialog.getElementById('step-2'),
                     title: 'Detaljer',
                     stepIn: () => { console.log("1. Step In") },
-                    stepOut: () => { console.log("2. Step Out"); }
+                    stepOut: () => { 
+                        let field_elements = dialog.$('#step-2').find("input, select");
+                        let isInvalid = false;
+
+                        for (let i = 0; i < field_elements.length; i++) {
+                            if (field_elements[i].checkValidity() === false) {
+                                isInvalid = true;
+                                break;
+                            }
+                        }
+
+                        if (isInvalid) {
+                            dialog.$('#arrangementInfoForm').find(':submit').click();
+                            return false;
+                        }
+
+                        return true;
+                    }
                 },
                 {
                     element: dialog.getElementById('step-3'),

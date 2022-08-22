@@ -326,4 +326,4 @@ class DialogStepper {
 
         this._render()
     }
-  }
+}
