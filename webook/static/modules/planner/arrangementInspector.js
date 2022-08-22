@@ -478,8 +478,6 @@ export class ArrangementInspector {
                         },
                         dialogOptions: { width: 500, dialogClass: 'no-titlebar' },
                         onSubmit: async (context, details) => {
-                            console.log(">> onsubmit")
-
                             details.event.startDate = (new Date(details.event.start)).toISOString();
                             details.event.endDate = (new Date(details.event.end)).toISOString();
                             details.event.arrangement = context.arrangement.arrangement_pk;
@@ -520,7 +518,6 @@ export class ArrangementInspector {
                             context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk;
 
                             let $dialogElement = $(this.dialogManager.$getDialogElement("editEventSerieDialog"));
-
                             let manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
                             PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk, $dialogElement);
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {

@@ -123,9 +123,9 @@ export class ArrangementCreator {
                             }
                             else {
                                 if (context.series !== undefined) {
-                                    debugger;
                                     let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
-                                    PopulateCreateSerieDialogFromSerie(serie);
+                                    const $dialogElement = $(this.dialogManager.$getDialogElement("newTimePlanDialog"));
+                                    PopulateCreateSerieDialogFromSerie(serie, $dialogElement);
                                 }
                             }
                             
@@ -327,8 +327,9 @@ export class ArrangementCreator {
 
                                 return;
                             }
-                            
-                            PopulateCreateEventDialog(context.events.get(context.lastTriggererDetails.event_uuid));
+
+                            const $dialogElement = $(this.dialogManager.$getDialogElement("newSimpleActivityDialog"));
+                            PopulateCreateEventDialog(context.events.get(context.lastTriggererDetails.event_uuid), $dialogElement);
 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();

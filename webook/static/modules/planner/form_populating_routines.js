@@ -1,21 +1,21 @@
-export function PopulateCreateSerieDialogFromSerie(serie) {
+export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement) {
     if (serie === undefined) {
         console.error("Serie is undefined", serie);
         debugger;
     }
 
-    $('#serie_uuid').val(serie._uuid);
-    $('#serie_title').val(serie.time.title);
-    $('#serie_title_en').val(serie.time.title_en);
-    $('#serie_start').val(serie.time.start).change();
-    $('#serie_end').val(serie.time.end).change();
-    $('#serie_ticket_code').val(serie.time.ticket_code);
-    $('#serie_expected_visitors').val(serie.time.expected_visitors);
-    $('#area_start_date').val(serie.time_area.start_date);
-    $('#buffer_before_start').val(serie.buffer.before?.start);
-    $('#buffer_before_end').val(serie.buffer.before?.end);
-    $('#buffer_after_start').val(serie.buffer.after?.start);
-    $('#buffer_after_end').val(serie.buffer.after?.end);
+    $dialogElement.find('#serie_uuid').val(serie._uuid);
+    $dialogElement.find('#serie_title').val(serie.time.title);
+    $dialogElement.find('#serie_title_en').val(serie.time.title_en);
+    $dialogElement.find('#serie_start').val(serie.time.start).change();
+    $dialogElement.find('#serie_end').val(serie.time.end).change();
+    $dialogElement.find('#serie_ticket_code').val(serie.time.ticket_code);
+    $dialogElement.find('#serie_expected_visitors').val(serie.time.expected_visitors);
+    $dialogElement.find('#area_start_date').val(serie.time_area.start_date);
+    $dialogElement.find('#buffer_before_start').val(serie.buffer.before?.start);
+    $dialogElement.find('#buffer_before_end').val(serie.buffer.before?.end);
+    $dialogElement.find('#buffer_after_start').val(serie.buffer.after?.start);
+    $dialogElement.find('#buffer_after_end').val(serie.buffer.after?.end);
 
     // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
     // has "selected" rooms as they would through the dialog interface.
@@ -43,54 +43,52 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
     }
 
     serie.display_layouts.split(",").forEach(element => {
-        $('#id_display_layouts_serie_planner_' + element)
-            .prop( "checked", true );
-    })
+        $dialogElement.find('#id_display_layouts_serie_planner_' + element).prop( "checked", true );
+    });
 
     switch(serie.time_area.method_name) {
         case "StopWithin":
-            $('#radio_timeAreaMethod_stopWithin').prop("checked", true);
-            $('#area_stopWithin').val(serie.time_area.stop_within);
-            $('#area_stopWithin')[0].disabled = false;
+            $dialogElement.find('#radio_timeAreaMethod_stopWithin').prop("checked", true);
+            $dialogElement.find('#area_stopWithin').val(serie.time_area.stop_within);
+            $dialogElement.find('#area_stopWithin')[0].disabled = false;
             break;
         case "StopAfterXInstances":
-            $('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true);
-            $('#area_stopAfterXInstances').val(serie.time_area.instances);
-            $('#area_stopAfterXInstances')[0].disabled = false;
+            $dialogElement.find('#radio_timeAreaMethod_stopAfterXInstances').prop("checked", true);
+            $dialogElement.find('#area_stopAfterXInstances').val(serie.time_area.instances);
+            $dialogElement.find('#area_stopAfterXInstances')[0].disabled = false;
             break;
         case "NoStopDate":
-            $('#radio_timeAreaMethod_noStopDate').prop("checked", true);
-            $('#area_noStop_projectXMonths').val(serie.time_area.projectionDistanceInMonths);
-            $('#area_noStop_projectXMonths')[0].disabled = false;
+            $dialogElement.find('#radio_timeAreaMethod_noStopDate').prop("checked", true);
+            $dialogElement.find('#area_noStop_projectXMonths').val(serie.time_area.projectionDistanceInMonths);
+            $dialogElement.find('#area_noStop_projectXMonths')[0].disabled = false;
             break;
     }
 
     switch(serie.pattern.pattern_type) {
         case "daily":
-            $('#radio_pattern_daily').prop("checked", true);
+            $dialogElement.find('#radio_pattern_daily').prop("checked", true);
             switch(serie.pattern.pattern_routine) {
                 case "daily__every_x_day":
-                    $('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
-                    $('#every_x_day__interval').val(parseInt(serie.pattern.interval));
+                    $dialogElement.find('#radio_pattern_daily_every_x_day_subroute').prop("checked", true);
+                    $dialogElement.find('#every_x_day__interval').val(parseInt(serie.pattern.interval));
                     break;
                 case "daily__every_weekday":
-                    $('#radio_pattern_daily_every_weekday_subroute')
-                        .prop("checked", true);
+                    $dialogElement.find('#radio_pattern_daily_every_weekday_subroute').prop("checked", true);
                     break;
             }
             break;
         case "weekly":
-            $('#radio_pattern_weekly').prop("checked", true);
-            $("#week_interval").val(serie.pattern.week_interval);
+            $dialogElement.find('#radio_pattern_weekly').prop("checked", true);
+            $dialogElement.find("#week_interval").val(serie.pattern.week_interval);
 
             const days = [
-                $("#monday"),
-                $("#tuesday"),
-                $("#wednesday"),
-                $("#thursday"),
-                $("#friday"),
-                $("#saturday"),
-                $("#sunday"),
+                $dialogElement.find("#monday"),
+                $dialogElement.find("#tuesday"),
+                $dialogElement.find("#wednesday"),
+                $dialogElement.find("#thursday"),
+                $dialogElement.find("#friday"),
+                $dialogElement.find("#saturday"),
+                $dialogElement.find("#sunday"),
             ]
 
             for (let i = 1; i < 8; i++) {
@@ -100,40 +98,39 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
             }
             break;
         case "monthly":
-            $('#radio_pattern_monthly').prop("checked", true).click();
+            $dialogElement.find('#radio_pattern_monthly').prop("checked", true).click();
 
             switch(serie.pattern.pattern_routine) {
                 case "month__every_x_day_every_y_month":
-                    $('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
-                    $('#every_x_day_every_y_month__day_of_month').val(serie.pattern.day_of_month);
-                    $('#every_x_day_every_y_month__month_interval').val(serie.pattern.interval);
+                    $dialogElement.find('#every_x_day_every_y_month__day_of_month_radio').prop("checked", true);
+                    $dialogElement.find('#every_x_day_every_y_month__day_of_month').val(serie.pattern.day_of_month);
+                    $dialogElement.find('#every_x_day_every_y_month__month_interval').val(serie.pattern.interval);
                     break;
                 case "month__every_arbitrary_date_of_month":
-                    $('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
-                    document.querySelector("#every_dynamic_date_of_month__arbitrator").setAttribute("init_value", serie.pattern.arbitrator);
-                    document.querySelector("#every_dynamic_date_of_month__weekday").setAttribute("init_value", serie.pattern.weekday);
-                    $("#every_dynamic_date_of_month__month_interval").val(serie.pattern.interval);
+                    $dialogElement.find('#every_x_day_every_y_month__month_interval_radio').prop("checked", true);
+                    $dialogElement.find("#every_dynamic_date_of_month__arbitrator").attr("init_value", serie.pattern.arbitrator);
+                    $dialogElement.find("#every_dynamic_date_of_month__weekday").attr("init_value", serie.pattern.weekday);
+                    $dialogElement.find("#every_dynamic_date_of_month__month_interval").val(serie.pattern.interval);
                     break;
             }
 
             break;
         case "yearly":
-            $('#radio_pattern_yearly').prop("checked", true);
-            $('#pattern_yearly_const__year_interval').val(serie.pattern.year_interval);
+            $dialogElement.find('#radio_pattern_yearly').prop("checked", true);
+            $dialogElement.find('#pattern_yearly_const__year_interval').val(serie.pattern.year_interval);
 
             switch(serie.pattern.pattern_routine) {
                 case "yearly__every_x_of_month":
-                    $('#every_x_datemonth_of_year_radio').prop("checked", true);
-                    $('#every_x_of_month__date').val(serie.pattern.day_index);
-                    document.querySelector("#every_x_of_month__month").setAttribute("init_value", serie.pattern.month);
+                    $dialogElement.find('#every_x_datemonth_of_year_radio').prop("checked", true);
+                    $dialogElement.find('#every_x_of_month__date').val(serie.pattern.day_index);
+                    $dialogElement.find("#every_x_of_month__month").attr("init_value", serie.pattern.month);
                     break;
                 case "yearly__every_arbitrary_weekday_in_month":
-                    $('#every_x_dynamic_day_in_month_radio').prop("checked", true);
-                    document.querySelector("#every_arbitrary_weekday_in_month__arbitrator").setAttribute("init_value", serie.pattern.arbitrator);
-                    document.querySelector("#every_arbitrary_weekday_in_month__weekday").setAttribute("init_value", serie.pattern.weekday);
-                    document.querySelector("#every_arbitrary_weekday_in_month__month").setAttribute("init_value", serie.pattern.month);
-
-                    $("#every_arbitrary_weekday_in_month__month").val(serie.pattern.month);
+                    $dialogElement.find('#every_x_dynamic_day_in_month_radio').prop("checked", true);
+                    $dialogElement.find("#every_arbitrary_weekday_in_month__arbitrator").attr("init_value", serie.pattern.arbitrator);
+                    $dialogElement.find("#every_arbitrary_weekday_in_month__weekday").attr("init_value", serie.pattern.weekday);
+                    $dialogElement.find("#every_arbitrary_weekday_in_month__month").attr("init_value", serie.pattern.month);
+                    $dialogElement("#every_arbitrary_weekday_in_month__month").val(serie.pattern.month);
                     break;
             }
 
@@ -143,7 +140,7 @@ export function PopulateCreateSerieDialogFromSerie(serie) {
     // This is a bad solution to a pesky bug where the "daily" strategy choices appear when selecting
     // weekly/monthly/yearly. Should be fixed on createSerieDialog when time allows.
     if (serie.pattern.pattern_type !== "daily") {
-        $('#patternRoute_daily').hide();
+        $dialogElement.find('#patternRoute_daily').hide();
     }
 }
 
@@ -300,7 +297,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
  *
  * @param {*} event
  */
-export function PopulateCreateEventDialog(event) {
+export function PopulateCreateEventDialog(event, $dialogElement) {
     let parseDateOrStringToArtifacts = function (dateOrString) {
         if (dateOrString instanceof String)
             return Utils.splitStrDate(dateOrString);
@@ -312,23 +309,23 @@ export function PopulateCreateEventDialog(event) {
     let [fromDate, fromTime]    = parseDateOrStringToArtifacts(event.start);
     let [toDate, toTime]        = parseDateOrStringToArtifacts(event.end);
 
-    $('#event_uuid').val(event._uuid);
-    $('#title').val(event.title);
-    $('#title_en').val(event.title_en);
-    $('#ticket_code').val(event.ticket_code);
-    $('#expected_visitors').val(event.expected_visitors);
-    $('#fromDate').val(fromDate);
-    $('#fromTime').val(fromTime);
-    $('#toDate').val(toDate);
-    $('#toTime').val(toTime);
-    $('#buffer_before_start').val(event.before_buffer_start);
-    $('#buffer_before_end').val(event.before_buffer_end);
-    $('#buffer_after_start').val(event.after_buffer_start);
-    $('#buffer_after_end').val(event.after_buffer_end);
+    $dialogElement.find('#event_uuid').val(event._uuid);
+    $dialogElement.find('#title').val(event.title);
+    $dialogElement.find('#title_en').val(event.title_en);
+    $dialogElement.find('#ticket_code').val(event.ticket_code);
+    $dialogElement.find('#expected_visitors').val(event.expected_visitors);
+    $dialogElement.find('#fromDate').val(fromDate);
+    $dialogElement.find('#fromTime').val(fromTime);
+    $dialogElement.find('#toDate').val(toDate);
+    $dialogElement.find('#toTime').val(toTime);
+    $dialogElement.find('#buffer_before_start').val(event.before_buffer_start);
+    $dialogElement.find('#buffer_before_end').val(event.before_buffer_end);
+    $dialogElement.find('#buffer_after_start').val(event.after_buffer_start);
+    $dialogElement.find('#buffer_after_end').val(event.after_buffer_end);
 
     if (Array.isArray(event.display_layouts)) {
         event.display_layouts.forEach(element => {
-            $(`#${String(parseInt(element))}_dlcheck`)
+            $dialogElement.find(`#${String(parseInt(element))}_dlcheck`)
                 .prop( "checked", true );
         })
     }
