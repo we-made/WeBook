@@ -107,85 +107,88 @@
                 </div>
             </div>
             <div id="step-2">
-                <div class="mb-2 form-group">
-                    <label class="form-label" for="{{ form.ticket_code.id_for_label }}">
-                        <i class="fas fa-receipt"></i>&nbsp;
-                        Billetkode
-                    </label>
-                    <input type="text"
-                        class="form-control form-control-lg"
-                        id="{{ form.ticket_code.id_for_label }}"
-                        value="{{ form.ticket_code.value|default:'' }}"
-                        name="{{ form.ticket_code.name }}"
-                        placeholder="{% trans 'Ticket code' %}..."/>
-                </div>
-                {% if form.ticket_code.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.ticket_code.errors }}
+                <form id="arrangementDetailsForm">
+                    <input type="submit" value="" style="display: none;">
+                    <div class="mb-2 form-group">
+                        <label class="form-label" for="{{ form.ticket_code.id_for_label }}">
+                            <i class="fas fa-receipt"></i>&nbsp;
+                            Billetkode
+                        </label>
+                        <input type="text"
+                            class="form-control form-control-lg"
+                            id="{{ form.ticket_code.id_for_label }}"
+                            value="{{ form.ticket_code.value|default:'' }}"
+                            name="{{ form.ticket_code.name }}"
+                            placeholder="Billetkode..."/>
                     </div>
-                {% endif %}
-
-                <div class="mb-2 form-group">
-                    <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
-                        <i class="fas fa-door-open"></i>&nbsp;
-                        Møtested <i>(Norsk)</i>
-                    </label>
-                    <input type="text"
-                        class="form-control form-control-lg"
-                        id="{{ form.meeting_place.id_for_label }}"
-                        value="{{ form.meeting_place.value|default:'' }}"
-                        name="{{ form.meeting_place.name }}"
-                        placeholder="{% trans 'Møtested' %}..."/>
-                    <div class="form-helper text-end">
-                        <i class="fas fa-info-circle"></i>&nbsp;
-                        Vil overskrive sted/rom vist på skjerm
+                    {% if form.ticket_code.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.ticket_code.errors }}
+                        </div>
+                    {% endif %}
+    
+                    <div class="mb-2 form-group">
+                        <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
+                            <i class="fas fa-door-open"></i>&nbsp;
+                            Møtested <i>(Norsk)</i>
+                        </label>
+                        <input type="text"
+                            class="form-control form-control-lg"
+                            id="{{ form.meeting_place.id_for_label }}"
+                            value="{{ form.meeting_place.value|default:'' }}"
+                            name="{{ form.meeting_place.name }}"
+                            placeholder="{% trans 'Møtested' %}..."/>
+                        <div class="form-helper text-end">
+                            <i class="fas fa-info-circle"></i>&nbsp;
+                            Vil overskrive sted/rom vist på skjerm
+                        </div>
                     </div>
-                </div>
-                {% if form.meeting_place.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.meeting_place.errors }}
+                    {% if form.meeting_place.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.meeting_place.errors }}
+                        </div>
+                    {% endif %}
+    
+                    <div class="mb-2 form-group">
+                        <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
+                            <i class="fas fa-door-open"></i>&nbsp;
+                            Møtested <i>(Engelsk)</i>
+                        </label>
+                        <input type="text"
+                            class="form-control form-control-lg"
+                            id="{{ form.meeting_place_en.id_for_label }}"
+                            value="{{ form.meeting_place_en.value|default:'' }}"
+                            name="{{ form.meeting_place_en.name }}"
+                            placeholder="{% trans 'Møtested' %}..."/>
+                        <div class="form-helper text-end">
+                            <i class="fas fa-info-circle"></i>&nbsp;
+                            Vil overskrive sted/rom vist på skjerm
+                        </div>
                     </div>
-                {% endif %}
-
-                <div class="mb-2 form-group">
-                    <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
-                        <i class="fas fa-door-open"></i>&nbsp;
-                        Møtested <i>(Engelsk)</i>
-                    </label>
-                    <input type="text"
-                        class="form-control form-control-lg"
-                        id="{{ form.meeting_place_en.id_for_label }}"
-                        value="{{ form.meeting_place_en.value|default:'' }}"
-                        name="{{ form.meeting_place_en.name }}"
-                        placeholder="{% trans 'Møtested' %}..."/>
-                    <div class="form-helper text-end">
-                        <i class="fas fa-info-circle"></i>&nbsp;
-                        Vil overskrive sted/rom vist på skjerm
+                    {% if form.meeting_place.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.meeting_place.errors }}
+                        </div>
+                    {% endif %}
+    
+                    <div class="mb-2 form-group">
+                        <label for="{{ form.expected_visitors.id_for_label }}" class="form-label">
+                            Forventet besøkende
+                        </label>
+                        <input type="number"
+                            min="0"
+                            class="form-control form-control-lg"
+                            id="{{ form.expected_visitors.id_for_label }}"
+                            value="{{ form.expected_visitors.value|default:'0' }}"
+                            name="{{ form.expected_visitors.name }}"
+                            required />
                     </div>
-                </div>
-                {% if form.meeting_place.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.meeting_place.errors }}
-                    </div>
-                {% endif %}
-
-                <div class="mb-2 form-group">
-                    <label for="{{ form.expected_visitors.id_for_label }}" class="form-label">
-                        Forventet besøkende
-                    </label>
-                    <input type="number"
-                        min="0"
-                        class="form-control form-control-lg"
-                        id="{{ form.expected_visitors.id_for_label }}"
-                        value="{{ form.expected_visitors.value|default:'' }}"
-                        name="{{ form.expected_visitors.name }}"
-                        required />
-                </div>
-                {% if form.expected_visitors.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.expected_visitors.errors }}
-                    </div>
-                {% endif %}
+                    {% if form.expected_visitors.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.expected_visitors.errors }}
+                        </div>
+                    {% endif %}
+                </form>
             </div>
             <div id="step-3">
                 <div class="row">
@@ -232,9 +235,9 @@
                 </button>
             </div>
             <div class="float-end">
-                <button class="btn wb-btn-secondary btn-lg" id="back">Tilbake</button>
-                <button class="btn wb-btn-main btn-lg" id="next">Neste</button>
-                <button class="btn wb-btn-main btn-lg" id="finish" d-trigger="submit" style="display: none;">
+                <button class="btn wb-btn-secondary btn-lg" id="back" type="button">Tilbake</button>
+                <a class="btn wb-btn-main btn-lg" id="next" href="#">Neste</a>
+                <button class="btn wb-btn-main btn-lg" type="button" id="finish" d-trigger="submit" style="display: none;">
                     Opprett arrangement
                 </button>
             </div>
@@ -254,18 +257,35 @@
             });
 
             [   
-                dialog.querySelector('#{{ form.audience.id_for_label }}'),
-                dialog.querySelector('#{{ form.location.id_for_label }}'),
-                dialog.querySelector('#{{ form.responsible.id_for_label }}'),
-                dialog.querySelector('#{{ form.arrangement_type.id_for_label }}'),
-            ].forEach((element) => {
-                const mdbSelect = new mdb.Select(element, { 
+                { 
+                    element: dialog.querySelector('#{{ form.audience.id_for_label }}'),
+                    invalidFeedback: "Vennligst velg en målgruppe",
+                },
+                {
+                    element: dialog.querySelector('#{{ form.location.id_for_label }}'),
+                    invalidFeedback: "Vennligst velg en lokasjon",
+                },
+                {
+                    element: dialog.querySelector('#{{ form.responsible.id_for_label }}'),
+                    invalidFeedback: "Vennligst velg en hovedplanlegger",
+                },
+                {
+                    element: dialog.querySelector('#{{ form.arrangement_type.id_for_label }}'),
+                    invalidFeedback: "Vennligst velg en arrangementstype",
+                }
+            ].forEach((select) => {
+                const mdbSelect = new mdb.Select(select.element, { 
                     container: "[class='{{discriminator}}']",
                     filter: true,
                     validation: true,
                     noResultText: "Ingen resultater",
+                    invalidFeedback: select.invalidFeedback,
                 });
                 mdbSelect._input.classList.add("form-control-lg");
+
+                select.element.addEventListener("change", (event) => {
+                    $(mdbSelect._wrapper).find(".invalid-feedback").hide();
+                });
             });
 
             document.addEventListener("{{managerName}}.contextUpdated", (e) => {
@@ -286,7 +306,6 @@
                     stepIn: () => { console.log("1. Step In") },
                     stepOut: () => { 
                         let field_elements = dialog.$('#step-1').find("input, select");
-                        let isInvalid = false;
 
                         [
                             mdb.Select.getInstance(dialog.querySelector('#{{ form.audience.id_for_label }}')),
@@ -301,14 +320,9 @@
 
                         for (let i = 0; i < field_elements.length; i++) {
                             if (field_elements[i].checkValidity() === false) {
-                                isInvalid = true;
-                                break;
+                                dialog.$('#arrangementInfoForm').find(':submit').click();
+                                return false;
                             }
-                        }
-
-                        if (isInvalid) {
-                            dialog.$('#arrangementInfoForm').find(':submit').click();
-                            return false;
                         }
 
                         return true;
@@ -319,20 +333,12 @@
                     title: 'Detaljer',
                     stepIn: () => { console.log("1. Step In") },
                     stepOut: () => { 
-                        let field_elements = dialog.$('#step-2').find("input, select");
-                        let isInvalid = false;
-
-                        for (let i = 0; i < field_elements.length; i++) {
-                            if (field_elements[i].checkValidity() === false) {
-                                isInvalid = true;
-                                break;
-                            }
-                        }
-
-                        if (isInvalid) {
-                            dialog.$('#arrangementInfoForm').find(':submit').click();
-                            return false;
-                        }
+                        dialog.$('#step-2').find("input, select").each((index, $el) => {
+                            console.log($el);
+                            if ($el.checkValidity() === false) {
+                                dialog.$("#arrangementDetailsForm").find(':submit').click();
+                            } 
+                        });
 
                         return true;
                     }
@@ -357,6 +363,7 @@
                 },
             ]
             });
+
             dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
             dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
         },
@@ -366,18 +373,12 @@
             },
             validate(dialog, {} = {}, triggeredByElement) {
                 let field_elements = dialog.$('#arrangementInfoForm').find("input, select");
-                let isInvalid = false;
 
                 for (let i = 0; i < field_elements.length; i++) {
                     if (field_elements[i].checkValidity() === false) {
-                        isInvalid = true;
-                        break;
+                        dialog.$('#arrangementInfoForm').find(':submit').click();
+                        return false;
                     }
-                }
-
-                if (isInvalid) {
-                    dialog.$('#arrangementInfoForm').find(':submit').click();
-                    return false;
                 }
 
                 return true;

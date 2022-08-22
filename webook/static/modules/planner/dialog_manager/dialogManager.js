@@ -37,7 +37,6 @@
                 $('body')
                     .append(html)
                     .ready( () => {
-                        console.log(this.dialogOptions);
                         this._$getDialogEl().dialog( this.dialogOptions );
                         this.onRenderedCallback(this, context);
                         this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')

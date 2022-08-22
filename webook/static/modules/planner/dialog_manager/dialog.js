@@ -260,11 +260,11 @@ class DialogStepper {
         this._setupSteps();
     }
 
-    _render() {
+    _renderRail() {
       this.railWrapperElement.innerHTML = "";
 
       for (let i = 0; i < this.steps.length; i++) {
-        let step = this.steps[i];
+        const step = this.steps[i];
 
         let stepBtn = document.createElement('span');
         stepBtn.innerText = `${i+1}`;
@@ -291,7 +291,7 @@ class DialogStepper {
       this.stepTo(this.currentStep);
     }
 
-    next = () => this.stepTo(this.currentStep + 1)
+    next = () => this.stepTo(this.currentStep + 1);
     back = () => this.stepTo(this.currentStep - 1);
 
     _hideSteps = () => this.steps.forEach((step) => step.element.style.display = "none");
@@ -306,12 +306,12 @@ class DialogStepper {
             return false;
         }
         
-        let hasMoved = this.currentStep !== indexToStepTo;
-        let oldStep = this.steps[this.currentStep];
-        let newStep = this.steps[indexToStepTo];
+        const hasMoved = this.currentStep !== indexToStepTo;
+        const oldStep = this.steps[this.currentStep];
+        const newStep = this.steps[indexToStepTo];
 
         if (typeof oldStep.stepOut !== "undefined" && hasMoved === true) {
-            let isAllowedToStepOut = oldStep.stepOut();
+            const isAllowedToStepOut = oldStep.stepOut();
             if (isAllowedToStepOut === false)
                 return;
         }
@@ -324,6 +324,6 @@ class DialogStepper {
 
         this.currentStep = indexToStepTo;
 
-        this._render()
+        this._renderRail()
     }
 }
