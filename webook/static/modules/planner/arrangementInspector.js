@@ -168,7 +168,7 @@ export class ArrangementInspector {
                                 dialogId: 'uploadFilesToArrangementDialog'
                             });
                         },
-                        onRenderedCallback: () => { console.info("Rendered"); },
+                        onRenderedCallback: () => {},
                         onUpdatedCallback: () => { 
                             this.dialogManager.reloadDialog("mainDialog"); 
                             this.dialogManager.closeDialog("uploadFilesToArrangementDialog"); 

@@ -512,21 +512,23 @@
                                     <h5 class="mb-0 text-muted">${element.time.title}</h5>
                                     <h6 class="mb-0"><i class="fas fa-clock"></i> ${element.time.start} - ${element.time.end} </h6>
                                     <h6><i class="fas fa-sync"></i> ${element.friendlyDesc}</h6>
-
-                                    <div class="btn-group shadow-0 mb-2">
-                                        <a href="#" class="btn wb-btn-secondary"
-                                            data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
-                                            d-trigger='editSerie'
-                                            d-arg-uuid='${element._uuid}'>
-                                            <i class="fas fa-edit"></i>&nbsp; Rediger tidsplan
-                                        </a>
+                                    
+                                    <div class="mb-2">
                                         <a href="#" class="btn wb-btn-blank"
                                             data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
                                             d-trigger='removeSerie'
                                             d-arg-uuid='${element._uuid}'>
-                                            <i class="fas fa-trash"></i>&nbsp; Slett
+                                            Slett
+                                        </a>
+
+                                        <a href="#" class="btn wb-btn-secondary"
+                                            data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                                            d-trigger='editSerie'
+                                            d-arg-uuid='${element._uuid}'>
+                                            Rediger tidsplan
                                         </a>
                                     </div>
+
                                     <div class="accordion" id="accordion_series_${element._uuid}">
                                         <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingOne">
