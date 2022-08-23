@@ -3,7 +3,7 @@ name: 'Build & Deploy'
 on:
   push:
     branches:
-      - Docker
+      - development
 
 jobs:
   build_and_deploy:
@@ -25,9 +25,9 @@ jobs:
       - name: Redeploy the application on the remote server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.AZURE_NM_HOST }}
-          username: ${{ secrets.AZURE_NM_USER }}
-          key: ${{ secrets.AZURE_NM_SSH }}
+          host: ${{ secrets.NM_GCP_STAGING_HOST }}
+          username: ${{ secrets.NM_GCP_STAGING_USER }}
+          key: ${{ secrets.NM_GCP_STAGING_SSH }}
           script: |
-            cd ${{ secrets.AZURE_NM_PATH }}
-            ./deploy_staging.sh
+            cd ${{ secrets.NM_GCP_STAGING_PATH }}
+            ./deploy.sh
