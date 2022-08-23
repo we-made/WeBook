@@ -30,4 +30,4 @@ jobs:
           key: ${{ secrets.AZURE_NM_SSH }}
           script: |
             cd ${{ secrets.AZURE_NM_PATH }}
-            ./deploy_staging.sh
+            ./deploy.sh

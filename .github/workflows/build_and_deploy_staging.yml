@@ -30,4 +30,4 @@ jobs:
           key: ${{ secrets.NM_GCP_STAGING_SSH }}
           script: |
             cd ${{ secrets.NM_GCP_STAGING_PATH }}
-            ./deploy.sh
+            ./deploy_staging.sh
