@@ -1,6 +1,6 @@
 services:
   webook:
-    image: "ghcr.io/wemadefree/webook-nm:development"
+    image: "europe-west1-docker.pkg.dev/$PROJECT_ID/wemadefree/webook-nm-development"
     ports:
       - "8000:8000"
     volumes:
