@@ -24,10 +24,12 @@ COPY requirements/local.txt ./requirements/local.txt
 COPY requirements/production.txt ./requirements/production.txt
 RUN pip install --no-cache-dir -r requirements/local.txt
 RUN pip install --no-cache-dir -r requirements/production.txt
-RUN npm install
 
 # Copy code to container
 COPY . .
+
+# Install frontend dependencies
+RUN npm install
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
