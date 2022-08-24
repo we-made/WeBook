@@ -13,6 +13,7 @@ _ALWAYS_FIELDS = ( "title",
                    "title_en",
                    "ticket_code",
                    "expected_visitors",
+                   "actual_visitors",
                    "start",
                    "end",
                    "arrangement",
@@ -44,8 +45,6 @@ class BaseEventForm(forms.ModelForm):
             self.instance.degrade_to_association_status(commit=False)
 
         super().save(commit)
-
-        current_tz = pytz.timezone(dj_timezone.get_current_timezone().key)
 
         if self.instance.is_buffer_event:
             if self.instance.before_buffer_for.exists():

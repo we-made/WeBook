@@ -135,7 +135,6 @@ export class PlannerCalendar extends FullCalendarBased {
 
     _listenToInspectEvent() {
         document.addEventListener("plannerCalendar.inspectEvent", (e) => {
-            console.log(">> ListenToInspectEvent")
             this.eventInspectorUtility.inspect(e.detail.event_pk);
         })
     }

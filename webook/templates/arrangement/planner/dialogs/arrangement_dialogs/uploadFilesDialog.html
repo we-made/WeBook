@@ -1,7 +1,7 @@
 {% load static i18n %}
 
 
-<div id="{{ dialog }}" title="{% trans 'Upload files' %}" class="bg-white">
+<div id="{{ dialogId }}" title="{% trans 'Upload files' %}" class="{{discriminator}}">
     <form action="" enctype="application/x-www-form-urlencoded" id="uploadFilesDialogForm">
         <div class="file-upload-wrapper">
             <input type="file"
@@ -17,12 +17,13 @@
         <div class="clearfix mt-2">
             <div class="float-end">
                 <a href="#" class="btn wb-btn-secondary btn-lg"
-                    onclick="window.dialogApi.close('{{manager}}', '{{dialog}}')">
+                    d-trigger="close">
                     <i class="fas fa-times"></i>
                     Avbryt
                 </a>
                 <button class="btn btn-sm wb-btn-main shadow-0"
-                    type="submit">
+                    d-trigger="submit"
+                    type="button">
                     <i class="fa fa-upload"></i>
                     {% trans "Upload" %}
                 </button>
@@ -33,24 +34,28 @@
 </div>
 
 <script>
-    $(document).ready(function () {
-        const fileUploadEl = document.querySelector("#input-file-now");
-        const fileUploadInstance = new FileUpload(fileUploadEl);
+    new Dialog({
+        dialogId: '{{ dialogId }}',
+        managerName: '{{ managerName }}',
+        discriminator: '{{ discriminator }}',
+        postInit: function (dialog) {
+            new FileUpload(dialog.querySelector("#input-file-now"));
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            submit(dialog, {} = {}, triggeredByElement) {
+                let formData = new FormData(dialog.$("#uploadFilesDialogForm")[0]);
 
-        $('#uploadFilesDialogForm').on('submit', function (e) {
-            e.preventDefault();
-            e.returnValue = false;
-
-            let form = $('#uploadFilesDialogForm')[0];
-            let formData = new FormData(form);
-            
-            document.dispatchEvent(
-                new CustomEvent("{{manager}}.submit", { "detail": {
-                    dialog: '{{dialog}}',
+                dialog.raiseSubmitEvent({
                     formData: formData,
-                    csrf_token: '{% csrf_token %}',
-                }})
-            );
-        });
+                    csrf_token: '{% csrf_token %}'
+                });
+            }
+        },
+        data: {
+
+        },
     });
 </script>

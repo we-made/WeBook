@@ -954,7 +954,7 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             and the second item is the post-activity buffer. Either may be None if their requisite values are not defined.
 
         """
-        current_tz = pytz.timezone(dj_timezone.get_current_timezone().key)
+        current_tz = pytz.timezone(str(dj_timezone.get_current_timezone()))
 
         if self.buffer_before_event:
             self.buffer_before_event.archive(None)

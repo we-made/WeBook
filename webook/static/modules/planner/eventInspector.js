@@ -15,10 +15,14 @@ export class EventInspector {
                         htmlFabricator: async (context) => {
                             if (context.lastTriggererDetails !== undefined && context.lastTriggererDetails.pk !== undefined) {
                                 context.event.pk = context.lastTriggererDetails.pk;
-                            }
+                            }   
 
-                            return await fetch("/arrangement/planner/dialogs/event_inspector/" + context.event.pk)
-                                .then(response => response.text());
+                            return this.dialogManager.loadDialogHtml({
+                                url: "/arrangement/planner/dialogs/event_inspector/" + context.event.pk,
+                                managerName: "eventInspector",
+                                dialogId: "inspectEventDialog",
+                                dialogTitle: "Inspect event",
+                            });
                         },
                         onRenderedCallback: () => { 
                             this.dialogManager._makeAware(); 
@@ -31,6 +35,7 @@ export class EventInspector {
                             this.dialogManager.closeDialog("inspectEventDialog");
                         },
                         onSubmit: async (context, details) => {
+                            console.log("OnSubmit!")
                             await QueryStore.UpdateEvents( [details.event], details.csrf_token )
                                 .then(_ => document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")));
                         }
@@ -42,8 +47,14 @@ export class EventInspector {
                         dialogElementId: "orderPersonDialog",
                         triggerElementId: "inspectEventDialog_addPeopleBtn",
                         htmlFabricator: async (context) => {
-                            return await fetch(`/arrangement/planner/dialogs/order_person?event_pk=${context.event.pk}&manager=eventInspector&dialog=orderPersonDialog`)
-                                .then(response => response.text());
+                            return this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/order_person',
+                                managerName: 'eventInspector',
+                                dialogId: 'orderPersonDialog',
+                                customParameters: {
+                                    event_pk: context.event.pk
+                                },
+                            });
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
@@ -70,8 +81,14 @@ export class EventInspector {
                         dialogElementId: "orderRoomDialog",
                         triggerElementId: "inspectEventDialog_addRoomsBtn",
                         htmlFabricator: async (context) => {
-                            return await fetch(`/arrangement/planner/dialogs/order_room?event_pk=${context.event.pk}&manager=eventInspector&dialog=orderRoomDialog`)
-                                .then(response => response.text());
+                            return await this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/order_room',
+                                managerName: 'eventInspector',
+                                dialogId: 'orderRoomDialog',
+                                customParameters: {
+                                    event_pk: context.event.pk
+                                }
+                            });
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: 500 },
@@ -92,8 +109,11 @@ export class EventInspector {
                         dialogElementId: "uploadFilesDialog",
                         triggerElementId: "eventDialog_uploadFilesBtn",
                         htmlFabricator: async (context) => {
-                            return await fetch(`/arrangement/planner/dialogs/upload_files_dialog?manager=eventInspector&dialog=uploadFilesDialog`)
-                                .then(response => response.text());
+                            return await this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/upload_files_dialog',
+                                dialogId: 'uploadFilesDialog',
+                                managerName: 'eventInspector',
+                            });
                         },
                         onRenderedCallback: (dialogInstance, context) => {},
                         dialogOptions: { width: 600 },
@@ -119,8 +139,17 @@ export class EventInspector {
                         dialogElementId: 'newNoteDialog',
                         triggerElementId: 'inspectEventDialog__newNoteBtn',
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/new_note?pk=" + context.event.pk + "&manager=eventInspector" + "&entityType=event")
-                                .then(response => response.text());
+                            return await this.dialogManager.loadDialogHtml(
+                                {
+                                    url: '/arrangement/planner/dialogs/new_note',
+                                    managerName: 'eventInspector',
+                                    dialogId: 'newNoteDialog',
+                                    customParameters: {
+                                        pk: context.event.pk,
+                                        entityType: "event",
+                                    }
+                                }
+                            );
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
                         onUpdatedCallback: () => {
@@ -130,8 +159,11 @@ export class EventInspector {
                         onSubmit: async (context, details) => {
                             await fetch('/arrangement/note/post', {
                                 method: 'POST',
-                                body: details.formData,
+                                body: Utils.convertObjToFormData(details),
                                 credentials: 'same-origin',
+                                headers: {
+                                    "X-CSRFToken": details.csrf_token
+                                }
                             }).then(response => console.log("response", response));
                         },
                         dialogOptions: { width: 500 },
@@ -144,8 +176,13 @@ export class EventInspector {
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/edit_note/" + context.lastTriggererDetails.note_pk + "?manager=eventInspector" + "&dialog=editNoteDialog")
-                                .then(response => response.text());
+                            return await this.dialogManager.loadDialogHtml(
+                                {
+                                    url: '/arrangement/planner/dialogs/edit_note/' + context.event.pk,
+                                    managerName: 'eventInspector',
+                                    dialogId: 'editNoteDialog',
+                                }
+                            );
                         },
                         onRenderedCallback: () => { console.info("Rendered"); },
                         onUpdatedCallback: () => {
@@ -153,9 +190,9 @@ export class EventInspector {
                             this.dialogManager.closeDialog("editNoteDialog");
                         },
                         onSubmit: async (context, details) => {
-                            await fetch('/arrangement/planner/dialogs/edit_note/' + details.formData.get("id"), {
+                            await fetch('/arrangement/planner/dialogs/edit_note/' + details.id, {
                                 method: 'POST',
-                                body: details.formData, 
+                                body: Utils.convertObjToFormData(details), 
                                 headers: {
                                     'X-CSRFToken': details.csrf_token,
                                 }

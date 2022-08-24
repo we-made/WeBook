@@ -1,8 +1,9 @@
-<div id="{{dialog}}" title="{% if not form.instance.id %}Nytt notat{% else %}Rediger notat{% endif %}">
+<div id="{{dialogId}}" title="{% if not form.instance.id %}Nytt notat{% else %}Rediger notat{% endif %}"
+    class="{{discriminator}}">
     <form id="noteForm">
-        <input type="hidden" name="id" value="{{ form.instance.id }}">
-        <input type="hidden" name="entityPk" value="{{ entity_pk }}">
-        <input type="hidden" name="entityType" value="{{ entity_type }}">
+        <input type="hidden" name="id" id="id" value="{{ form.instance.id }}">
+        <input type="hidden" name="entityPk" id="entityPk"  value="{{ entity_pk }}">
+        <input type="hidden" name="entityType" id="entityType" value="{{ entity_type }}">
 
         <div id="{{ form.content.id_for_label }}">
             {% if form.content.value %}
@@ -21,11 +22,11 @@
         <div class="clearfix mt-3">
             <div class="float-end">
                 <a href="#" class="btn wb-btn-secondary btn-lg"
-                    onclick="window.dialogApi.close('{{manager}}', '{{dialog}}')">
+                    d-trigger="cancel">
                     <i class="fas fa-times"></i>
                     Avbryt
                 </a>
-                <a class="btn wb-btn-main" onclick="submitNote()" type="button">
+                <a class="btn wb-btn-main" d-trigger="submit" type="button">
                     <i class="fas fa-check"></i>
                     Lagre
                 </a>
@@ -35,27 +36,31 @@
 </div>
 
 <script>
-    var editor;
-    $(document).ready(function () {
-        editor = new Quill('#{{form.content.id_for_label}}', {
-            theme: 'snow'
-        });
-    })
-
-    function submitNote() {
-        let $dialog = $('#{{dialog}}');
-        let data = new FormData(
-            $dialog.find('#noteForm')[0]
-        );
-        data.append("content", editor.root.innerHTML);
-        data.append('csrfmiddlewaretoken', "{{ csrf_token }}");
-        
-        document.dispatchEvent(
-            new CustomEvent("{{manager}}.submit", { "detail": {
-                dialog: '{{dialog}}',
-                formData: data,
-                csrf_token: '{{csrf_token}}',
-            }})
-        );
-    }
+    new Dialog({
+        managerName: '{{managerName}}',
+        dialogId: '{{dialogId}}',
+        discriminator: '{{discriminator}}',
+        postInit: function (dialog) {
+            dialog.data.editor = new Quill('#{{dialogId}} #{{form.content.id_for_label}}', {
+                theme: 'snow'
+            });
+        },
+        methods: {
+            cancel(dialog) {
+                dialog.closeMe();
+            },
+            submit(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseSubmitEvent({
+                    content: dialog.data.editor.root.innerHTML,
+                    csrf_token: '{{csrf_token}}',
+                    entityPk: dialog.interior.entityPk.value,
+                    id: dialog.interior.id.value,
+                    entityType: dialog.interior.entityType.value,
+                });
+            }
+        },
+        data: {
+            editor: undefined
+        }
+    });
 </script>

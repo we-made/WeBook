@@ -64,6 +64,9 @@ from webook.utils.json_serial import json_serial
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 
+from ...utils.reverse_with_params import reverse_with_params
+from .generic_views.dialog_view import DialogView
+
 
 def get_section_manifest():
     return SectionManifest(
@@ -385,7 +388,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
 get_arrangements_in_period_view = GetArrangementsInPeriod.as_view()
 
 
-class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
+class PlannerEventInspectorDialogView (LoginRequiredMixin, DialogView, UpdateView):
     form_class = UpdateEventForm
     model = Event
     pk_field="pk"
@@ -395,7 +398,7 @@ class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
 planner_event_inspector_dialog_view = PlannerEventInspectorDialogView.as_view()
 
 
-class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
+class PlannerArrangementInformationDialogView(LoginRequiredMixin, DialogView, UpdateView):
     form_class = PlannerUpdateArrangementModelForm
     model = Arrangement
     slug_field = "slug"
@@ -419,27 +422,27 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
 
         return context
 
-    def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_dialog", kwargs={ "slug": self.get_object().slug })
+    def get_success_url(self) -> str: 
+        context = self.get_context_data()
+        return reverse_with_params("arrangement:arrangement_dialog",
+                                   kwargs={ "slug": self.get_object().slug, },
+                                   get={"managerName": context["managerName"], "dialogId": context["dialogId"], })
 
 arrangement_information_dialog_view = PlannerArrangementInformationDialogView.as_view()
 
 
-class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, CreateView):
+class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, DialogView, CreateView):
     form_class = PlannerCreateArrangementModelForm
     model = Arrangement
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createArrangementDialog.html"
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        if "managerName" in self.request.GET:
-            context["managerName"] = self.request.GET.get("managerName")
-        else: print("No manager name.")
-        
-        return context 
-
     def get_success_url(self) -> str:
-        return reverse("arrangement:arrangement_dialog", kwargs={ "slug": self.get_object().slug })
+        context = self.get_context_data()
+        return reverse_with_params(
+            "arrangement:arrangement_dialog",
+            kwargs={ "slug": self.get_object().slug },
+            get={ "managerName": context["managerName"], "dialogId": context["dialogId"] }
+        )
 
 create_arrangement_dialog_view = PlannerCreateArrangementInformatioDialogView.as_view()
 
@@ -453,7 +456,7 @@ class PlannerArrangementCalendarPlannerDialogView (LoginRequiredMixin, DetailVie
 arrangement_calendar_planner_dialog_view = PlannerArrangementCalendarPlannerDialogView.as_view()
 
 
-class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateView):
+class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, DialogView, CreateView):
     model = Event
     template_name="arrangement/planner/dialogs/arrangement_dialogs/dialog_create_event_arrangement.html"
     form_class = CreateEventForm
@@ -464,10 +467,8 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         
-        context["managerName"] = self.request.GET.get("managerName")
         context["dialogTitle"] = self.request.GET.get("dialogTitle", "Ny enkel aktivitet")
         context["dialogIcon"] = self.request.GET.get("dialogIcon", "fa-calendar-plus")
-        context["dialog"] = self.request.GET.get("dialog")
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
 
@@ -476,22 +477,24 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
 arrangement_create_simple_event_dialog_view = PlannerArrangementCreateSimpleEventDialogView.as_view()
 
 
-class PlannerArrangementPromotePlannerDialog(LoginRequiredMixin, TemplateView):
+class PlannerArrangementPromotePlannerDialog(LoginRequiredMixin, DialogView, TemplateView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/promotePlannerDialog.html"
 
     def get_context_data(self, **kwargs):
         arrangement_slug = self.request.GET.get("slug")
         context = super().get_context_data(**kwargs)
+
         arrangement = Arrangement.objects.get(slug=arrangement_slug)
         context["planners"] = arrangement.planners.all()
         context["main_planner"] = arrangement.responsible
         context["arrangementPk"] = arrangement.pk
+        
         return context
 
 arrangement_promote_planner_dialog_view = PlannerArrangementPromotePlannerDialog.as_view()
 
 
-class PlannerArrangementNewNoteDialog(LoginRequiredMixin, FormView):
+class PlannerArrangementNewNoteDialog(LoginRequiredMixin, DialogView, FormView):
     form_class = CreateNoteForm
     template_name="arrangement/planner/dialogs/arrangement_dialogs/newNoteDialog.html"
 
@@ -527,30 +530,22 @@ class PlannerArrangementNewNoteDialog(LoginRequiredMixin, FormView):
         
         context["entity_pk"] = instance.pk
         context["entity_type"] = self.request.GET.get("entityType")
-        context["dialog"] = self.request.GET.get("dialog", "newNoteDialog")
-        context["manager"] = self.request.GET.get("manager", None)
 
         return context
 
 arrangement_new_note_dialog_view = PlannerArrangementNewNoteDialog.as_view()
 
 
-class PlannerArrangementEditNoteDialog(LoginRequiredMixin, UpdateView, JsonModelFormMixin):
+class PlannerArrangementEditNoteDialog(LoginRequiredMixin, DialogView, UpdateView, JsonModelFormMixin):
     form_class = UpdateNoteForm
     pk_url_kwarg = "pk"
     model = Note
     template_name="arrangement/planner/dialogs/arrangement_dialogs/newNoteDialog.html"
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["dialog"] = self.request.GET.get("dialog", "editNoteDialog")
-        context["manager"] = self.request.GET.get("manager", None)
-        return context
-
 planner_arrangement_edit_note_dialog_view = PlannerArrangementEditNoteDialog.as_view()
 
 
-class PlannerArrangementAddPlannerDialog(LoginRequiredMixin, TemplateView):
+class PlannerArrangementAddPlannerDialog(LoginRequiredMixin, DialogView, TemplateView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/addPlannerDialog.html"
 
     def get_context_data(self, **kwargs):
@@ -620,7 +615,7 @@ class PlannerCalendarFilterRoomsDialogView (LoginRequiredMixin, TemplateView):
 planner_calendar_filter_rooms_dialog_view = PlannerCalendarFilterRoomsDialogView.as_view()
 
 
-class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
+class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, DialogView, TemplateView):
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/orderRoomDialog.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -653,15 +648,12 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, TemplateView):
         else:
             context["mode"] = "serie"
 
-        context["manager"] = self.request.GET.get("manager", None)
-        context["dialog"] = self.request.GET.get("dialog", None)
-
         return context
 
 planner_calendar_order_room_dialog_view = PlannerCalendarOrderRoomDialogView.as_view()
 
 
-class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, TemplateView):
+class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, DialogView, TemplateView):
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/orderPersonDialog.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -684,9 +676,6 @@ class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, TemplateView):
             context["event"] = event
         else:
             context["mode"] = "serie"
-
-        context["manager"] = self.request.GET.get("manager", None)
-        context["dialog"] = self.request.GET.get("dialog", None)
 
         return context
 
@@ -787,22 +776,13 @@ class PlannerCalendarRemoveRoomFromEventFormView(LoginRequiredMixin, JsonFormVie
 planner_calendar_remove_room_from_event_form_view = PlannerCalendarRemoveRoomFromEventFormView.as_view()
 
 
-class UploadFilesDialog(LoginRequiredMixin, TemplateView):
+class UploadFilesDialog(LoginRequiredMixin, DialogView, TemplateView):
     template_name = "arrangement/planner/dialogs/arrangement_dialogs/uploadFilesDialog.html"
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        
-        context["dialog"] = self.request.GET.get("dialog", "uploadFilesDialog")
-        if "manager" in self.request.GET:
-            context["manager"] = self.request.GET.get("manager")
-        
-        return context
 
 upload_files_dialog = UploadFilesDialog.as_view()
 
 
-class PlanSerieForm(LoginRequiredMixin, FormView):
+class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
     form_class=PlannerPlanSerieForm
 
@@ -814,13 +794,8 @@ class PlanSerieForm(LoginRequiredMixin, FormView):
             context["arrangementPk"] = arrangement.pk
         else: context["arrangementPk"] = 0
 
-        context["dialog"] = self.request.GET.get("dialog", "arrangementInspector")
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
-
-        if "managerName" in self.request.GET:
-            context["managerName"] = self.request.GET.get("managerName")
-        else: print("No manager name.")
 
         return context
 

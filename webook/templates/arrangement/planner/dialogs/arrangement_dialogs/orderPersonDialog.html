@@ -1,4 +1,5 @@
-<div id="{{dialog}}" title="{% if mode == 'serie' %}Bestill person{% else %}Bestill person for '{{event.title}}'{% endif %}">
+<div id="{{dialogId}}" class="{{discriminator}}"
+    title="{% if mode == 'serie' %}Bestill person{% else %}Bestill person for '{{event.title}}'{% endif %}">
     <div>
         {% if mode == 'serie' %}
         <div class="alert alert-danger">
@@ -42,82 +43,80 @@
         <div class="clearfix">
             <div class="float-end">
                 <a href="#" class="btn wb-btn-secondary btn-lg"
-                    onclick="window.dialogApi.close('{{manager}}', '{{dialog}}')">
+                    d-trigger="close">
                     <i class="fas fa-times"></i>
                     Avbryt
                 </a>
 
-                <a class="btn wb-btn-main shadow-0 float-end" onclick="orderPersonDialog__order()"><i class="fas fa-check"></i>&nbsp; Legg til valgte personer</a>
+                <a class="btn wb-btn-main shadow-0 float-end" d-trigger="order"><i class="fas fa-check"></i>&nbsp; Legg til valgte personer</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    $(document).ready(function () {
-        listenToPeopleBeingSelectedByCheckbox();
-    })
-
-    var selectedPeopleMap = new Map();
-
-    function listenToPeopleBeingSelectedByCheckbox() {
-        $("input[type=checkbox][name=orderPersonDialog__checkboxArray]").change((event) => {
-            if (event.currentTarget.checked === true)
-                selectedPeopleMap.set(event.currentTarget.value, event.currentTarget.getAttribute("person_name"));
-            else
-                selectedPeopleMap.delete(event.currentTarget.value);
-        })
-    }
-
-    $(document).ready(function () {
-        $("#orderPersonDialog__table").DataTable();
-    })
-
-    function orderPersonDialog__getSelectedPeopleIds() {
-        return Array.from(selectedPeopleMap,
-            ([name, value]) => ({id: name, text: value})
-        );
-    }
-
-    {% if mode == 'serie' %}
-        function orderPersonDialog__order() {
-            let data = new FormData();
-            data.set("people_ids", orderPersonDialog__getSelectedPeopleIds()
+    new Dialog({
+        dialogId: '{{dialogId}}',
+        managerName: '{{managerName}}',
+        discriminator: '{{discriminator}}',
+        postInit: function (dialog) {
+            dialog.$("#orderPersonDialog__table").DataTable();
+            dialog.$("input[type=checkbox][name=orderPersonDialog__checkboxArray]").change((event) => {
+                if (event.currentTarget.checked === true) {
+                    dialog.data.selectedPeopleMap.set(event.currentTarget.value, event.currentTarget.getAttribute("person_name"));
+                }
+                else {
+                    dialog.data.selectedPeopleMap.delete(event.currentTarget.value);
+                }
+            })
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            getSelectedPeopleIds(dialog, {} = {}, triggeredByElement) {
+                return Array.from(dialog.data.selectedPeopleMap,
+                    ([name, value]) => ({id: name, text: value})
+                );
+            },
+            {% if mode == 'serie' %}
+            order(dialog, {} = {}, triggeredByElement) {
+                let data = new FormData();
+                data.set("people_ids", dialog.getSelectedPeopleIds()
                                     .map( x => x.id )
                                     .join(","));
-            data.set("serie_guid", "{{serie_guid}}");
+                data.set("serie_guid", "{{serie_guid}}");
 
-            document.dispatchEvent(
-                new CustomEvent("{{manager}}.submit", { "detail": {
-                    dialog: "{{dialog}}",
+                dialog.raiseSubmitEvent({
                     mode: "serie",
                     formData: data,
-                    csrf_token: '{{csrf_token}}',
-                }})
-            );
-        }
-    {% else %}
-        function orderPersonDialog__order() {
-            let data = new FormData();
-            let people_ids = orderPersonDialog__getSelectedPeopleIds();
+                    csrf_token: "{{csrf_token}}",
+                });
+            },
+            {% else %}
+            order(dialog, {} = {}, triggeredByElement) {
+                let formData = new FormData();
+                let people_ids = dialog.getSelectedPeopleIds();
 
-            data.set("people_ids", people_ids.map( x => x.id ).join(","));
-            data.set("event_pk", "{{event.pk}}");
+                formData.set("people_ids", people_ids.map( x => x.id ).join(","));
+                formData.set("event_pk", "{{event.pk}}");
 
-            people_name_map = new Map();
-            people_ids.forEach(element => {
-                people_name_map.set(element.id, element.text)
-            });
+                let people_name_map = new Map();
+                people_ids.forEach(element => {
+                    people_name_map.set(element.id, element.text)
+                });
 
-            document.dispatchEvent(
-                new CustomEvent("{{manager}}.submit", { "detail": {
-                    dialog: "{{dialog}}",
+                dialog.raiseSubmitEvent({
                     mode: "event",
-                    formData: data,
-                    csrf_token: '{{csrf_token}}',
-                    people_name_map: people_name_map,
-                }})
-            );
+                    formData: formData,
+                    csrf_token: "{{csrf_token}}",
+                    people_name_map: people_name_map
+                });
+            }
+            {% endif %}
+        },
+        data: {
+            selectedPeopleMap: new Map()
         }
-    {% endif %}
+    });
 </script>

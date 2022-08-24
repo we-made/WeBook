@@ -1,8 +1,16 @@
 export class SelectComponent {
     constructor (element_id, options) {
-        this.$element = $('#' + element_id);
-        this.element = document.getElementById(this.element_id);
-        this.element_id = element_id
+        if (element_id instanceof Node) {
+          this.element = element_id;
+          this.$element = $(element_id)
+          this.element_id = this.element.getAttribute("id");
+        }
+        else {
+          this.element = document.getElementById(this.element_id);
+          this.element_id = element_id
+          this.$element = $('#' + element_id);
+        }
+
         this.options = options
     }
 
@@ -13,7 +21,8 @@ export class SelectComponent {
             let option = document.createElement('option');
             option.setAttribute("value", key);
             option.innerText = value;
-            document.getElementById(this.element_id).append(option);
+
+            this.element.append(option);
         }
 
         if (carriedValue !== undefined) {
@@ -22,7 +31,16 @@ export class SelectComponent {
     }
 
     set_selected(value) {
-      $("#" + this.element_id).val(value).change();
+      let jqObj = null;
+      
+      if (this.element instanceof Node) {
+        jqObj = $(this.element)
+      }
+      else {
+        jqObj = $("#" + this.element);
+      }
+
+      jqObj.val(value).change();
     }
 }
 
