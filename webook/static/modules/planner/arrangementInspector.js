@@ -218,12 +218,19 @@ export class ArrangementInspector {
                 [
                     "newTimePlanDialog",
                     new Dialog({
-                        dialogElementId: "newTimePlanDialog",
                         triggerElementId: "mainPlannerDialog__newTimePlan",
                         dialogElementId: "newTimePlanDialog",
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/create_serie?slug=" + context.arrangement.slug + "&dialog=newTimePlanDialog&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
-                                .then(response => response.text());
+                            return await this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/create_serie',
+                                dialogId: 'newTimePlanDialog',
+                                managerName: 'arrangementInspector',
+                                customParameters: {
+                                    slug: context.arrangement.slug,
+                                    orderRoomDialog: "nestedOrderRoomDialog",
+                                    orderPersonDialog: "nestedOrderPersonDialog",
+                                }
+                            })
                         },
                         onRenderedCallback: async (dialogManager, context) => {
                             let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
@@ -353,6 +360,8 @@ export class ArrangementInspector {
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
+
+                            this.dialogManager.setTitle("breakOutActivityDialog", "Bryt ut aktivitet");
                         },
                         onUpdatedCallback: async (context) => {
                         },
@@ -439,7 +448,8 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: async (dialogManager, context) => {
                             let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
-
+                            
+                            this.dialogManager.setTitle("newSimpleActivityDialog", "Opprett aktivitet");
                             let $newSimpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
                             $newSimpleActivityDialog.find("#title").attr("value", info.title);
                             $newSimpleActivityDialog.find("#title_en").attr("value", info.title_en);

@@ -1,7 +1,7 @@
 {% load static i18n %}
 
 
-<div id="{{dialogId}}" class="{{discriminator}}" title="{{ dialogTitle }}">
+<div id="{{dialogId}}" class="{{discriminator}}" title="">
     <div class="row">
         <div class="col-6">
             <form id="newSimpleActivityForm">
@@ -249,7 +249,7 @@
 
 
 <script>
-    var _dialog = new Dialog({
+    new Dialog({
         dialogId: '{{ dialogId }}',
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
@@ -287,7 +287,7 @@
                     tbody.append(
                         $(`<tr rowid='${id}'>
                             <td> <input type='checkbox' /> </td>
-                            <td>${roomsNameMap.get(id)}</td>
+                            <td>${dialog.data.roomsNameMap.get(id)}</td>
                             <td> <a href='#' class='text-danger'
                                     data-mdb-toggle='tooltip'
                                     title='{% trans "Remove this room from the activity" %}'
@@ -307,7 +307,7 @@
                 ids.forEach(id => {
                     tbody.append(
                         $(`<tr rowid='${id}'>
-                            <td>${peopleNameMap.get(id)}</td>
+                            <td>${dialog.data.peopleNameMap.get(id)}</td>
                             <td> <a href='#' class='text-danger'
                                     data-mdb-toggle='tooltip'
                                     title='{% trans "Remove this person from the activity" %}'

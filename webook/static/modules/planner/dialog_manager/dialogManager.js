@@ -11,19 +11,29 @@
         this.onPreRefresh = onPreRefresh;
         this.dialogOptions = dialogOptions;
         this._isRendering = false;
+
+        this.discriminator = null;
     }
 
     _$getDialogEl() {
-        return $("#" + this.dialogElementId);
+        return $("#" + this.dialogElementId + "." + this.discriminator);
     }
 
     async render(context) {
-        this.destroy();
+        if (this.discriminator)
+            this.destroy();
         if (this._isRendering === false) {
             this._isRendering = true;
             if (this.isOpen() === false) {
+                let html = await this.htmlFabricator(context);
+
+                let span = document.createElement("span");
+                span.innerHTML = html;
+                let dialogEl = span.querySelector("#" + this.dialogElementId);
+                this.discriminator = dialogEl.getAttribute("class");
+
                 $('body')
-                    .append(await this.htmlFabricator(context))
+                    .append(html)
                     .ready( () => {
                         this._$getDialogEl().dialog( this.dialogOptions );
                         this.onRenderedCallback(this, context);
@@ -83,7 +93,7 @@
     }
 
     prepareDOM() {
-        const selector = `#${this.dialogElementId}`
+        const selector = `#${this.dialogElementId}.${this.discriminator}`
 
         if (this.dialogElementId == "editEventSerieDialog") {
             selector += ",#newTimePlanDialog";
@@ -97,14 +107,15 @@
     }
 
     getInstance() {
-        return $( `#${this.dialogElementId}` ).dialog( "instance" );
+        return this._$getDialogEl().dialog( "instance" );
     }
 
     destroy() {
-        $( "#" + this.dialogElementId ).dialog( "destroy" );
-        $(`[id=${this.dialogElementId}]`).each(function (index, $dialogElement) {
+        this._$getDialogEl().dialog( "destroy" );
+        $(`[id=${this.dialogElementId}][class='${this.discriminator}']`).each(function (index, $dialogElement) {
             $dialogElement.remove();
-        })
+        });
+        this.discriminator=null;
     }
 
     isOpen() {
@@ -138,7 +149,7 @@ export class DialogManager {
         const params = new URLSearchParams({
             managerName: managerName,
             dialogId: dialogId,
-            dialogTitle: dialogTitle,
+            title: dialogTitle,
             ...customParameters
         });
 
@@ -167,6 +178,10 @@ export class DialogManager {
             console.error(`Dialog with key ${dialogId} does not exist. Repository: `, this._dialogRepository);
         }
     }
+
+    setTitle(dialogId, newTitle) {
+        this._dialogRepository.get(dialogId)._$getDialogEl().dialog("option", "title", newTitle);
+    } 
 
     closeDialog(dialogId) {
         this._dialogRepository.get(dialogId).close();
