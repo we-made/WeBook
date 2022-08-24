@@ -1,0 +1,22 @@
+steps:
+  - id: "Build image"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["build",  "--no-cache", "-t", "${_IMAGE}", "--file", "Dockerfile.cloudrun", "."]
+  - id: "Push image"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["push", "${_IMAGE}"]
+  - id: "Apply migrations"
+    name: "gcr.io/google-appengine/exec-wrapper"
+    args: ["-i", "${_IMAGE}", "-s", "${PROJECT_ID}:${_REGION}:${_SERVICE_NAME}", "-e", "SETTINGS_NAME=${_SERVICE_NAME}", "--", "python", "manage.py", "migrate"]
+  - id: "Collect static"
+    name: "gcr.io/google-appengine/exec-wrapper"
+    args: ["-i", "${_IMAGE}", "-s", "${PROJECT_ID}:${_REGION}:${_SERVICE_NAME}", "-e", "SETTINGS_NAME=${_SERVICE_NAME}", "--", "python", "manage.py", "collectstatic", "--verbosity", "2", "--no-input"]
+  - id: "Deploy"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args: ["run", "deploy", "${_SERVICE_NAME}", "--image", "${_IMAGE}", "--region", "${_REGION}"] 
+substitutions:
+  _IMAGE: "${_IMAGE_REPO}/${_IMAGE_BASENAME}-${BRANCH}"
+images:
+  - "${_IMAGE}"
+ 
