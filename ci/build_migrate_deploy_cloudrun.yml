@@ -16,7 +16,7 @@ steps:
     entrypoint: "gcloud"
     args: ["run", "deploy", "${_SERVICE_NAME}", "--image", "${_IMAGE}", "--region", "${_REGION}"] 
 substitutions:
-  _IMAGE: "${_IMAGE_REPO}/${_IMAGE_BASENAME}-${BRANCH}"
+  _IMAGE: "${_IMAGE_REPO}/${_IMAGE_BASENAME}-${BRANCH_NAME}"
 images:
   - "${_IMAGE}"
  
