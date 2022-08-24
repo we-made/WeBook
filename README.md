@@ -161,6 +161,10 @@ The FullCalendar License Key. Needed for rendering FullCalendar. In non-commerci
 ### ASSET_SERVER_URL
 Links to an asset server, that serves assets that can because of license constraints not be included in the repository. The way we run this internally on our environments is to simply use an NGINX server that serves out  or MDBOOTSTRAP assets to our development instances.
 
+### USER_DEFAULT_TIMEZONE
+The default timezone that each user will be assigned on-creation. If none is defined then UTC is used.
+Set the timezone you expect most of your users to be in. This can later be changed on a user to user basis.
+
 ## About translations
 To activate another translation you need to compile the .po files into .mo files. We do not store the .mo files
 in git. It can be done very simply:

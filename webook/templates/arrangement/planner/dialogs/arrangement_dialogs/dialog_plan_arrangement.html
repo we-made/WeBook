@@ -1,29 +1,6 @@
 {% load static i18n %}
 
-<div id="calendarFormDialog" class='bg-white p-2 border border-1'
-    title="{{object.name}} kalender">
-<!-- <div class="clearfix">
-    <div class="float-end">
-        <div class="mb-1 mt-1">
-        <div>
-            <button class="" onclick="planner.collision_analyzer.requestCollisionAnalysis()" style="box-shadow: none;">
-            <i class="fas fa-flask"></i>&nbsp;
-            Kjør kollisjonsanalyse
-            </button>
-        </div>
-        </div>
-    </div>
-</div> -->
-<!-- <div class="btn-group float-start" style="box-shadow: none;">
-    <button class=" mb-2" onclick="iconsDialog.open()"><i class="fas fa-info"></i>&nbsp; {% trans "Icons" %}</button>
-    <button class="  mb-2"><i class="fas fa-info-circle"></i>&nbsp; {% trans "User guide" %}</button>
-</div>
-<div class="clearfix">
-    <div class="btn-group float-end" style="box-shadow: none;">
-        <button class=" mb-2" onclick="newEventDialog()"><i class="fas fa-plus"></i>&nbsp; {% trans "New event" %}</button>
-        <button class=" mb-2" onclick="loadNewSerieDialog()"><i class="fas fa-plus"></i>&nbsp; {% trans "New repeating event" %}</button>
-    </div>
-</div> -->
+<div id="calendarFormDialog" class='bg-white p-2 border border-1' title="{{object.name}} kalender">
 
 <div id="collisionAnalysisWrapper" style="display: none;">
     <div class="mt-2 p-2" style="border: 3px dotted black; background-color: ghostwhite;">
@@ -96,7 +73,6 @@
       $('#arrrangementNotesWrapper').load('{% url "arrangement:notes_on_entity_component" %}?entityType=arrangement&entityPk={{object.pk}}');
       $('#arrangement_ordersWrapper').load('{% url "arrangement:requisitions_on_arrangement" %}?arrangementId={{object.pk}}');
       $('#arrangement_plannersWrapper').load('{% url "arrangement:planners_on_arrangement" %}?arrangementId={{object.pk}}');
-      // $('#arrangementDetailsWrapper').load('{% url "arrangement:arrangement_edit" slug=object.slug %}')
     });
 
     function bind_global_hotkeys() {

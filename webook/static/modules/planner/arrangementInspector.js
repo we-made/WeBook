@@ -51,10 +51,10 @@ export class ArrangementInspector {
     }
 
     async saveSerieWithCollisionResolutions (serie, csrf_token, arrangement_pk, collision_resolution_map) {
-        var solutionEventFormDatas = [];
+        let solutionEventFormDatas = [];
 
-        for (var entry of collision_resolution_map) {
-            var solution = entry[1].solution;
+        for (let entry of collision_resolution_map) {
+            let solution = entry[1].solution;
 
             if (solution === undefined)
                 continue;
@@ -99,8 +99,8 @@ export class ArrangementInspector {
                             this._listenToOrderPersonForSingleEventeBtnClick();
                         },
                         onSubmit: async (context, details) => {
-                            var getArrangementHtml = async function (slug, formData) {
-                                var response = await fetch("/arrangement/planner/dialogs/arrangement_information/" + slug, {
+                            const getArrangementHtml = async function (slug, formData) {
+                                let response = await fetch("/arrangement/planner/dialogs/arrangement_information/" + slug, {
                                     method: 'POST',
                                     body: formData,
                                     credentials: 'same-origin',
@@ -204,16 +204,18 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: async (dialogManager, context) => {
-                            var info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
-                            $('#serie_title').attr('value', info.title);
-                            $('#serie_title_en').attr('value', info.title_en);
-                            $('#serie_ticket_code').attr('value', info.ticket_code);
-                            $('#serie_expected_visitors').attr('value', info.expected_visitors);
+                            let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
+
+                            let $newTimePlanDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
+                            $newTimePlanDialog.find('#serie_title').attr('value', info.title);
+                            $newTimePlanDialog.find('#serie_title_en').attr('value', info.title_en);
+                            $newTimePlanDialog.find('#serie_ticket_code').attr('value', info.ticket_code);
+                            $newTimePlanDialog.find('#serie_expected_visitors').attr('value', info.expected_visitors);
 
                             info.display_layouts.forEach(display_layout => {
-                                $('#id_display_layouts_serie_planner_' + ( display_layout - 1))
+                                $newTimePlanDialog.find('#id_display_layouts_serie_planner_' + ( display_layout - 1))
                                     .prop( "checked", true );
-                            })
+                            });
 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
@@ -228,7 +230,7 @@ export class ArrangementInspector {
                             context.serie = details.serie;
                             context.collision_resolution = new Map();
 
-                            var isInCollisionResolutionState = await CollisionsUtil.FireCollisionsSwal(
+                            let isInCollisionResolutionState = await CollisionsUtil.FireCollisionsSwal(
                                 details.serie,
                                 context.collision_resolution,
                                 details.csrf_token,
@@ -269,11 +271,11 @@ export class ArrangementInspector {
                             */
                             context._lastTriggererDetails = context.lastTriggererDetails;
                             context._lastTriggererDetails.serie = context.serie;
-                            var serie = context.serie;
+                            let serie = context.serie;
 
-                            var collision_uuid = context._lastTriggererDetails.collision_uuid;
-                            var resolution_bundle = context.collision_resolution.get(collision_uuid);
-                            var collision_record = resolution_bundle.collision;
+                            let collision_uuid = context._lastTriggererDetails.collision_uuid;
+                            let resolution_bundle = context.collision_resolution.get(collision_uuid);
+                            let collision_record = resolution_bundle.collision;
 
                             $('#ticket_code').val(serie.time.ticket_code).trigger('change');
                             $('#title').val(serie.time.title).trigger('change');
@@ -284,23 +286,18 @@ export class ArrangementInspector {
                                 .forEach(checkboxElement => {
                                     $(`#${checkboxElement.value}_dlcheck`)
                                         .prop( "checked", true );
-                                })
+                                });
 
-                            var splitDateFunc = function (strToDateSplit) {
-                                var date_str = strToDateSplit.split("T")[0];
-                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
-                                return [ date_str, time_str ];
-                            }
+                            let { fromDate, fromTime }  = Utils.splitDateFunc(collision_record.event_a_start);
+                            let { toDate, toTime }      = Utils.splitDateFunc(collision_record.event_a_end);
 
-                            var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
-                            var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
-                            $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
-                            $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
-                            $('#toDate').val(endTimeArtifacts[0]).trigger('change');
-                            $('#toTime').val(endTimeArtifacts[1]).trigger('change');
+                            $('#fromDate').val(fromDate).trigger('change');
+                            $('#fromTime').val(fromTime).trigger('change');
+                            $('#toDate').val(toDate).trigger('change');
+                            $('#toTime').val(toTime).trigger('change');
 
                             if (serie.people.length > 0) {
-                                var peopleSelectContext = Object();
+                                let peopleSelectContext = Object();
                                 peopleSelectContext.people = serie.people.join(",");
                                 peopleSelectContext.people_name_map = serie.people_name_map;
                                 document.dispatchEvent(new CustomEvent(
@@ -311,7 +308,7 @@ export class ArrangementInspector {
                                 ));
                             }
                             if (serie.rooms.length > 0) {
-                                var roomSelectContext = Object();
+                                let roomSelectContext = Object();
                                 roomSelectContext.rooms = serie.rooms.join(",");
                                 roomSelectContext.room_name_map = serie.room_name_map;
                                 document.dispatchEvent(new CustomEvent(
@@ -342,18 +339,18 @@ export class ArrangementInspector {
                             details.event.is_resolution = true;
                             details.event.associated_serie_internal_uuid = context._lastTriggererDetails.serie._uuid;
 
-                            var collision_state = context.collision_resolution.get(context._lastTriggererDetails.collision_uuid);
+                            let collision_state = context.collision_resolution.get(context._lastTriggererDetails.collision_uuid);
 
                             details.event.fromDate = new Date(details.event.start).toISOString();
                             details.event.toDate = new Date(details.event.end).toISOString();
                             details.event.arrangement = context.arrangement.arrangement_pk;
 
-                            var formData = new FormData();
-                            for (var key in details.event) {
+                            let formData = new FormData();
+                            for (let key in details.event) {
                                 formData.append(key, details.event[key])
                             }
 
-                            var collisions_on_solution = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
+                            let collisions_on_solution = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (collisions_on_solution.length > 0) {
                                 CollisionsUtil.FireOneToOneCollisionWarningSwal(collisions_on_solution[0])
@@ -402,7 +399,20 @@ export class ArrangementInspector {
                             return await fetch('/arrangement/planner/dialogs/create_simple_event?slug=' + context.arrangement.slug + "&managerName=" + MANAGER_NAME + "&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog&dialog=newSimpleActivityDialog")
                                 .then(response => response.text());
                         },
-                        onRenderedCallback: () => {
+                        onRenderedCallback: async (dialogManager, context) => {
+                            let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
+
+                            let $newSimpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
+                            $newSimpleActivityDialog.find("#title").attr("value", info.title);
+                            $newSimpleActivityDialog.find("#title_en").attr("value", info.title_en);
+                            $newSimpleActivityDialog.find("#ticket_code").attr("value", info.ticket_code);
+                            $newSimpleActivityDialog.find("#expected_visitors").attr("value", info.expected_visitors);
+
+                            info.display_layouts.forEach(display_layout => {
+                                $newSimpleActivityDialog.find('#' + display_layout + "_dlcheck")
+                                    .prop("checked", true);
+                            });
+
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
@@ -445,7 +455,7 @@ export class ArrangementInspector {
                         onRenderedCallback: async (dialogManager, context) => {
                             context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk;
 
-                            var manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
+                            let manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
                             PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk);
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
@@ -461,7 +471,7 @@ export class ArrangementInspector {
                             context.serie = details.serie;
                             context.collision_resolution = new Map();
 
-                            var isInCollisionResolutionState = await CollisionsUtil.FireCollisionsSwal(
+                            let isInCollisionResolutionState = await CollisionsUtil.FireCollisionsSwal(
                                 details.serie,
                                 context.collision_resolution,
                                 details.csrf_token,
@@ -756,7 +766,7 @@ export class ArrangementInspector {
                             toastr.success("Personer har blitt lagt til");
                         },
                         onSubmit: (context, details) => {
-                            var people_ids = details.formData.get("people_ids");
+                            let people_ids = details.formData.get("people_ids");
                             context.people = people_ids;
                             context.people_name_map = details.people_name_map;
 

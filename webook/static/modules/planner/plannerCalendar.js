@@ -1,7 +1,7 @@
 import { ArrangementInspector } from "./arrangementInspector.js";
 import { HeaderGenerator, ViewClassifiers } from "./calendar_utilities/header_generator.js";
 import {
-    ArrangementStore, FullCalendarBased, LocationStore,
+    ArrangementStore, CalendarFilter, FullCalendarBased, LocationStore,
     PersonStore, StandardColorProvider, _FC_EVENT,
     _NATIVE_ARRANGEMENT
 } from "./commonLib.js";
@@ -16,16 +16,65 @@ export class PlannerCalendar extends FullCalendarBased {
         eventsSrcUrl, 
         colorProviders=[], 
         initialColorProvider="",
-        $locationFilterSelectEl=undefined,
-        $arrangementTypeFilterSelectEl=undefined,
-        $audienceTypeFilterSelectEl=undefined,
-        csrf_token=undefined, calendarFilter=undefined,
-        licenseKey=undefined } = {}) {
+        csrf_token=undefined, 
+        licenseKey=undefined,
+        navigationHeaderWrapperElement = undefined,
+        calendarFilter=undefined } = {},) {
 
-        super();
+        super(navigationHeaderWrapperElement);
+
+        this.viewButtons = new Map([
+            [1, {
+                "key": 1,
+                "title": "Dag",
+                "isParent": false,
+                "view": "timeGridDay",
+                "parent": undefined,
+                "weight": 100,
+            }],
+            [2, {
+                "key": 2,
+                "title": "Måned",
+                "isParent": true,
+                "view": undefined,
+                "parent": undefined,
+                "weight": 200,
+            }],
+            [3, {
+                "key": 3,
+                "title": "Tidslinje",
+                "isParent": false,
+                "view": "timelineMonth",
+                "parent": 2,
+                "weight": undefined,
+            }],
+            [4, {
+                "key": 4,
+                "title": "Grid",
+                "isParent": false,
+                "view": "dayGridMonth",
+                "parent": 2,
+                "weight": undefined,
+            }],
+            [5, {
+                "key": 5,
+                "title": "Uke",
+                "isParent": false,
+                "view": "timeGridWeek",
+                "parent": undefined,
+                "weight": 300,
+            }],
+            [6, {
+                "key": 6,
+                "title": "År",
+                "isParent": false,
+                "view": "timelineYear",
+                "parent": undefined,
+                "weight": 400,
+            }],
+        ]);
 
         this.csrf_token = csrf_token;
-        
         this._headerGenerator = new HeaderGenerator(
             { customClassifications: new Map([
                 [ "customTimeGridMonth", ViewClassifiers.MONTH ],
@@ -40,6 +89,9 @@ export class PlannerCalendar extends FullCalendarBased {
         this._calendarElement = calendarElement;
         this._eventsSrcUrl = eventsSrcUrl;
 
+        this._filteredAudiences = [];
+        this._filteredArrangementTypes = [];
+
         this._colorProviders = new Map();
         this._colorProviders.set("DEFAULT", new StandardColorProvider());
 
@@ -52,7 +104,8 @@ export class PlannerCalendar extends FullCalendarBased {
         this._ARRANGEMENT_STORE = new ArrangementStore(this.activeColorProvider);
         this._LOCATIONS_STORE = new LocationStore(this);
         this._PEOPLE_STORE = new PersonStore(this);
-        this.calendarFilter = calendarFilter;
+
+        this.filter = calendarFilter ?? new CalendarFilter( /* OnFilterUpdated: */ (filter) => this.init() );
 
         this.init();
 
@@ -61,19 +114,6 @@ export class PlannerCalendar extends FullCalendarBased {
 
         this.filterDialog = new FilterDialog();
 
-        this.$locationFilterSelectEl = $locationFilterSelectEl;
-        $locationFilterSelectEl.on('change', () => {
-            this.init();
-        });
-        this.$arrangementTypeFilterSelectEl = $arrangementTypeFilterSelectEl;
-        $arrangementTypeFilterSelectEl.on('change', () => {
-            this.init();
-        });
-        this.$audienceTypeFilterSelectEl = $audienceTypeFilterSelectEl;
-        $audienceTypeFilterSelectEl.on('change', () => {
-            this.init();
-        });
-        
         this._listenToInspectArrangementEvents();
         this._listenToInspectEvent();
     }
@@ -84,7 +124,7 @@ export class PlannerCalendar extends FullCalendarBased {
 
     _listenToInspectArrangementEvents() {
         document.addEventListener("plannerCalendar.inspectThisArrangement", (e) => {
-            var arrangement = this._ARRANGEMENT_STORE.get({
+            let arrangement = this._ARRANGEMENT_STORE.get({
                 pk: e.detail.event_pk,
                 get_as: _NATIVE_ARRANGEMENT
             });
@@ -127,8 +167,8 @@ export class PlannerCalendar extends FullCalendarBased {
      * @param {*} elementToBindWith 
      */
     _bindPopover (elementToBindWith) {
-        var pk = this._findEventPkFromEl(elementToBindWith);        
-        var arrangement = this._ARRANGEMENT_STORE.get({
+        let pk = this._findEventPkFromEl(elementToBindWith);        
+        let arrangement = this._ARRANGEMENT_STORE.get({
             pk: pk,
             get_as: _NATIVE_ARRANGEMENT
         });
@@ -138,8 +178,8 @@ export class PlannerCalendar extends FullCalendarBased {
             return;
         }
 
-        var start = new Date(arrangement.starts)
-        var end = new Date(arrangement.ends)
+        let start = new Date(arrangement.starts)
+        let end = new Date(arrangement.ends)
         start = `${
             (start.getMonth()+1).toString().padStart(2, '0')}/${
             start.getDate().toString().padStart(2, '0')}/${
@@ -156,7 +196,7 @@ export class PlannerCalendar extends FullCalendarBased {
             end.getSeconds().toString().padStart(2, '0')}`
 
 
-        var roomsListHtml = "<div>";
+        let roomsListHtml = "<div>";
         arrangement.room_names.forEach( (roomName) => {
             if (roomName !== null) {
                 roomsListHtml += "<span class='chip'>" + roomName + "</span>";
@@ -167,7 +207,7 @@ export class PlannerCalendar extends FullCalendarBased {
             roomsListHtml = "<h6><i class='fas fa-building'></i>&nbsp; Rom:</h6>" + roomsListHtml
         }
 
-        var peopleListHtml = "<div>";
+        let peopleListHtml = "<div>";
         arrangement.people_names.forEach( (personName) => {
             if (personName !== null) {
                 peopleListHtml += "<span class='chip'>" + personName + "</span>";
@@ -178,7 +218,7 @@ export class PlannerCalendar extends FullCalendarBased {
             peopleListHtml = "<h6><i class='fas fa-users'></i>&nbsp; Personer:</h6>" + peopleListHtml;
         }
 
-        var badgesHtml = "";
+        let badgesHtml = "";
         if (arrangement.evserie_id !== null) {
             badgesHtml += `<span class="badge badge-secondary"><i class='fas fa-redo'></i></span>`;
         }
@@ -194,7 +234,6 @@ export class PlannerCalendar extends FullCalendarBased {
                 <i class='fas fa-calendar'></i>
             </span>`
         }
-
 
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
@@ -251,14 +290,14 @@ export class PlannerCalendar extends FullCalendarBased {
     _bindInspectorTrigger (elementToBindWith) {
         let _this = this;
         $(elementToBindWith).on('click', (ev) => {
-            var pk = _this._findEventPkFromEl(ev.currentTarget);
-            // var arrangement = _this._ARRANGEMENT_STORE.get({
-            //     pk: pk,
-            //     get_as: _NATIVE_ARRANGEMENT
-            // });
-    
+            let pk = _this._findEventPkFromEl(ev.currentTarget);
             this.eventInspectorUtility.inspect(pk);
         })
+    }
+
+
+    refresh() {
+        this.init()
     }
 
     /**
@@ -267,7 +306,7 @@ export class PlannerCalendar extends FullCalendarBased {
     async init () {
         let _this = this;
 
-        var initialView = 'timelineMonth';
+        let initialView = 'timelineMonth';
 
         if (this._fcCalendar === undefined) {
             this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
@@ -277,7 +316,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 weekNumbers: true,
                 navLinks: true,
                 minTime: "06:00",
-                // themeSystem: 'bootstrap',
+                themeSystem: 'bootstrap5',
                 maxTime: "23:00",
                 slotEventOverlap: false,
                 locale: 'nb',
@@ -316,38 +355,19 @@ export class PlannerCalendar extends FullCalendarBased {
                             this.filterDialog.openFilterDialog();
                         }
                     },
-                    arrangementsCalendarButton: {
-                        text: 'Arrangementer',
-                        click: () => {
-                            $('#overview-tab')[0].click();
-                        }
-                    },
-                    locationsCalendarButton: {
-                        text: 'Lokasjoner',
-                        click: () => {
-                            $('#locations-tab')[0].click();
-                        }
-                    },
-                    peopleCalendarButton: {
-                        text: 'Personer',
-                        click: () => {
-                            $('#people-tab')[0].click();
-                        }
-                    }
                 },
-                headerToolbar: { left: 'arrangementsCalendarButton,locationsCalendarButton,peopleCalendarButton' , center: 'customTimeGridMonth,timeGridDay,dayGridMonth,timeGridWeek,customTimelineMonth,customTimelineYear', },
+                headerToolbar: { left: '' , center: '', right: '' },
                 eventSources: [
                     {
                         events: async (start, end, startStr, endStr, timezone) => {
                             return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
-                                .then(_ => this.calendarFilter.getFilterValues())
-                                .then(filterValues => _this._ARRANGEMENT_STORE.get_all(
+                                .then(_ => _this._ARRANGEMENT_STORE.get_all(
                                     { 
                                         get_as: _FC_EVENT, 
-                                        locations: this.$locationFilterSelectEl.val(),
-                                        arrangement_types: this.$arrangementTypeFilterSelectEl.val(),
-                                        audience_types: this.$audienceTypeFilterSelectEl.val(),
-                                        filterSet: filterValues
+                                        locations: this.filter.locations,
+                                        arrangement_types: this.filter.arrangementTypes,
+                                        audience_types: this.filter.audiences,
+                                        filterSet: this.filter.rooms,
                                     }
                                 ));
                         },
@@ -368,10 +388,11 @@ export class PlannerCalendar extends FullCalendarBased {
                         selector: ".fc-event",
                         items: {
                             arrangement_inspector: {
-                                name: "Inspiser arrangement",
+                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
+                                isHtmlName: true,
                                 callback: (key, opt) => {
-                                    var pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                                    var arrangement = _this._ARRANGEMENT_STORE.get({
+                                    let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                    let arrangement = _this._ARRANGEMENT_STORE.get({
                                         pk: pk,
                                         get_as: _NATIVE_ARRANGEMENT
                                     });
@@ -380,15 +401,17 @@ export class PlannerCalendar extends FullCalendarBased {
                                 }
                             },
                             event_inspector: {
-                                name: "Inspiser tidspunkt",
+                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
+                                isHtmlName: true,
                                 callback: (key, opt) => {
-                                    var pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                    let pk = _this._findEventPkFromEl(opt.$trigger[0]);
                                     this.eventInspectorUtility.inspect(pk);
                                 }
                             },
                             "section_sep_1": "---------",
                             delete_arrangement: {
-                                name: "Slett arrangement",
+                                name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
+                                isHtmlName: true,
                                 callback: (key, opt) => {
                                     Swal.fire({
                                         title: 'Er du sikker?',
@@ -401,7 +424,7 @@ export class PlannerCalendar extends FullCalendarBased {
                                         cancelButtonText: 'Avbryt'
                                     }).then((result) => {
                                         if (result.isConfirmed) {
-                                            var slug = _this._findSlugFromEl(opt.$trigger[0]);
+                                            let slug = _this._findSlugFromEl(opt.$trigger[0]);
                                             fetch('/arrangement/arrangement/delete/' + slug, {
                                                 method: 'DELETE',
                                                 headers: {
@@ -415,7 +438,8 @@ export class PlannerCalendar extends FullCalendarBased {
                                 }
                             },
                             delete_event: {
-                                name: "Slett aktivitet",
+                                name: "<i class='fas fa-trash'></i>&nbsp; Slett aktivitet",
+                                isHtmlName: true,
                                 callback: (key, opt) => {
                                     Swal.fire({
                                         title: 'Er du sikker?',
@@ -428,9 +452,9 @@ export class PlannerCalendar extends FullCalendarBased {
                                         cancelButtonText: 'Avbryt'
                                     }).then((result) => {
                                         if (result.isConfirmed) {
-                                            var pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                            let pk = _this._findEventPkFromEl(opt.$trigger[0]);
 
-                                            var formData = new FormData();
+                                            let formData = new FormData();
                                             formData.append("eventIds", String(pk));
 
                                             fetch('/arrangement/planner/delete_events/', {

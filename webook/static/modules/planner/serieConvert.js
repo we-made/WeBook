@@ -1,5 +1,6 @@
 import { appendArrayToFormData } from "./commonLib.js";
 
+
 export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}pattern`, serie.pattern.pattern_type);
     formData.append(`${keyPrefix}patternRoutine`, serie.pattern.pattern_routine);
@@ -14,7 +15,18 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
 
     appendArrayToFormData(serie.rooms, formData, `${keyPrefix}rooms`);
     appendArrayToFormData(serie.people, formData, `${keyPrefix}people`);
-    appendArrayToFormData(serie.display_layouts.split(","), formData, `${keyPrefix}display_layouts`)
+    appendArrayToFormData(serie.display_layouts.split(","), formData, `${keyPrefix}display_layouts`);
+
+    if (serie.buffer) {
+        if (serie.buffer.before) {
+            formData.append(`${keyPrefix}before_buffer_start`, serie.buffer.before.start);
+            formData.append(`${keyPrefix}before_buffer_end`, serie.buffer.before.end);
+        }
+        if (serie.buffer.after) {
+            formData.append(`${keyPrefix}after_buffer_start`, serie.buffer.after.start);
+            formData.append(`${keyPrefix}after_buffer_end`, serie.buffer.after.end);
+        }
+    }
 
     switch(serie.pattern.pattern_type) {
         case "daily":
@@ -24,8 +36,8 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
             break;
         case "weekly":
             formData.append(`${keyPrefix}interval`, serie.pattern.week_interval);
-            var count = 0;
-            for (var day of ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]) {
+            let count = 0;
+            for (const day of ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]) {
                 formData.append(`${keyPrefix}${day}`, serie.pattern.days.get(count));
                 count++;
             }

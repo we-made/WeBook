@@ -180,6 +180,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "webook.middleware.timezone_middleware.TimezoneMiddleware",
 ]
 
 # STATIC
@@ -350,4 +351,10 @@ FULLCALENDAR_LICENSE_KEY = env(
 ASSET_SERVER_URL = env(
     "ASSET_SERVER_URL",
     default="localhost/static"
+)
+
+# The default timezone that will be assigned to new users
+USER_DEFAULT_TIMEZONE = env(
+    "USER_DEFAULT_TIMEZONE",
+    default=TIME_ZONE,
 )

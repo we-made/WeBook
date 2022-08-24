@@ -14,12 +14,20 @@
 
         {% csrf_token %}
 
-        <div class="clearfix">
-            <button class="btn btn-sm btn-block btn-secondary float-end shadow-0"
-                type="submit">
-                <i class="fa fa-upload"></i>
-                {% trans "Upload" %}
-            </button>
+        <div class="clearfix mt-2">
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary btn-lg"
+                    onclick="window.dialogApi.close('{{manager}}', '{{dialog}}')">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+                <button class="btn btn-sm wb-btn-main shadow-0"
+                    type="submit">
+                    <i class="fa fa-upload"></i>
+                    {% trans "Upload" %}
+                </button>
+            </div>
+
         </div>
     </form>
 </div>
@@ -33,8 +41,8 @@
             e.preventDefault();
             e.returnValue = false;
 
-            var form = $('#uploadFilesDialogForm')[0];
-            var formData = new FormData(form);
+            let form = $('#uploadFilesDialogForm')[0];
+            let formData = new FormData(form);
             
             document.dispatchEvent(
                 new CustomEvent("{{manager}}.submit", { "detail": {

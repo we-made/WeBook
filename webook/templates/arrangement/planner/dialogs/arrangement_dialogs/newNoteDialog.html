@@ -1,4 +1,4 @@
-<div id="{{dialog}}" title="<span class='badge badge-success'><i class='fas fa-feather'></i></span>&nbsp; {% if not form.instance.id %}Nytt notat{% else %}Rediger notat{% endif %}">
+<div id="{{dialog}}" title="{% if not form.instance.id %}Nytt notat{% else %}Rediger notat{% endif %}">
     <form id="noteForm">
         <input type="hidden" name="id" value="{{ form.instance.id }}">
         <input type="hidden" name="entityPk" value="{{ entity_pk }}">
@@ -18,10 +18,18 @@
             </label>
         </div>
         
-        <div class="clearfix">
-            <a class="float-end text-white btn btn-success" onclick="submitNote()" type="button">
-                Lagre
-            </a>
+        <div class="clearfix mt-3">
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary btn-lg"
+                    onclick="window.dialogApi.close('{{manager}}', '{{dialog}}')">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+                <a class="btn wb-btn-main" onclick="submitNote()" type="button">
+                    <i class="fas fa-check"></i>
+                    Lagre
+                </a>
+            </div>
         </div>
     </form>
 </div>
@@ -35,8 +43,9 @@
     })
 
     function submitNote() {
+        let $dialog = $('#{{dialog}}');
         let data = new FormData(
-            document.getElementById('noteForm')
+            $dialog.find('#noteForm')[0]
         );
         data.append("content", editor.root.innerHTML);
         data.append('csrfmiddlewaretoken', "{{ csrf_token }}");

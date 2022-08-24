@@ -51,6 +51,8 @@ class UserUpdateView(LoginRequiredMixin, FormView):
         self.request.user.person.save()
 
         self.request.user.profile_picture = form.cleaned_data["profile_picture"]
+        self.request.user.timezone = form.cleaned_data["timezone"]
+
         self.request.user.save()
 
         return super().form_valid(form)
@@ -78,6 +80,7 @@ class UserUpdateView(LoginRequiredMixin, FormView):
 
         initial.update({ key: value for key, value in vars(person_object).items() if key in self.form_class.Meta.fields })
         initial.update({"profile_picture": user.profile_picture })
+        initial.update({"timezone": user.timezone })
 
         return initial
 

@@ -1,5 +1,10 @@
+from datetime import datetime
+
 from django import forms
+from django.conf import settings
 from django.http import JsonResponse
+from django.utils.timezone import make_aware
+from pytz import timezone
 
 from webook.arrangement.models import Arrangement, Event, EventSerie, Person, PlanManifest, Room
 from webook.screenshow.models import DisplayLayout
@@ -39,6 +44,11 @@ class SerieManifestForm(forms.Form):
     saturday = forms.BooleanField(required=False)
     sunday = forms.BooleanField(required=False)
 
+    before_buffer_start = forms.TimeField(required=False)
+    before_buffer_end = forms.TimeField(required=False)
+    after_buffer_start = forms.TimeField(required=False)
+    after_buffer_end = forms.TimeField(required=False)
+
     def as_plan_manifest(self):
         """Convert the SerieManifestForm to a valid PlanManifest """
         plan_manifest = PlanManifest()
@@ -52,6 +62,11 @@ class SerieManifestForm(forms.Form):
         plan_manifest.expected_visitors = self.cleaned_data["expectedVisitors"]
         plan_manifest.title = self.cleaned_data["title"]
         plan_manifest.title_en = self.cleaned_data["title_en"]
+
+        plan_manifest.before_buffer_start = self.cleaned_data["before_buffer_start"]
+        plan_manifest.before_buffer_end = self.cleaned_data["before_buffer_end"]
+        plan_manifest.after_buffer_start = self.cleaned_data["after_buffer_start"]
+        plan_manifest.after_buffer_end = self.cleaned_data["after_buffer_end"]
 
         plan_manifest.interval = self.cleaned_data["interval"]
         plan_manifest.day_of_month = self.cleaned_data["day_of_month"]
@@ -86,6 +101,10 @@ class CreateSerieForm(SerieManifestForm):
 
     def save(self, form, *args, **kwargs) -> JsonResponse:
         manifest = form.as_plan_manifest()
+        
+        manifest.timezone = kwargs["user"].timezone
+        manifest.save()
+
         calculated_serie = calculate_serie(manifest)
 
         for ev in calculated_serie:
@@ -123,10 +142,43 @@ class CreateSerieForm(SerieManifestForm):
             event.start = ev.start
             event.end = ev.end
 
+            event.before_buffer_start = manifest.before_buffer_start
+            event.before_buffer_end = manifest.before_buffer_end
+            event.after_buffer_start = manifest.after_buffer_start
+            event.after_buffer_end = manifest.after_buffer_end
+
             create_events.append(event)
 
         created_events = Event.objects.bulk_create(create_events)
-        
+
+        if (manifest.before_buffer_start and manifest.before_buffer_end 
+            and manifest.after_buffer_start and manifest.after_buffer_end):
+            for created_event in created_events:
+                if manifest.before_buffer_start and manifest.before_buffer_end:
+                    before_buffer_event = Event()
+                    before_buffer_event.title = "Opprigg for " + event.title
+                    before_buffer_event.arrangement = serie.arrangement
+                    before_buffer_event.start = manifest.tz.localize(datetime.combine(created_event.start, manifest.before_buffer_start))
+                    before_buffer_event.end = manifest.tz.localize(datetime.combine(created_event.start, manifest.before_buffer_end))
+                    before_buffer_event.save()
+                    before_buffer_event.rooms.set(room_ids)
+                    before_buffer_event.people.set(people_ids)
+                    before_buffer_event.display_layouts.set(display_layout_ids)
+                    created_event.buffer_before_event = before_buffer_event
+                    created_event.save()
+                if manifest.after_buffer_start and manifest.after_buffer_end:
+                    after_buffer_event = Event()
+                    after_buffer_event.title = "Nedrigg for " + event.title
+                    after_buffer_event.arrangement = serie.arrangement
+                    after_buffer_event.start = manifest.tz.localize(datetime.combine(created_event.end, manifest.after_buffer_start))
+                    after_buffer_event.end = manifest.tz.localize(datetime.combine(created_event.end, manifest.after_buffer_end))
+                    after_buffer_event.save()
+                    after_buffer_event.rooms.set(room_ids)
+                    after_buffer_event.people.set(people_ids)
+                    after_buffer_event.display_layouts.set(display_layout_ids)
+                    created_event.buffer_after_event = after_buffer_event
+                    created_event.save()
+
         room_throughs = []
         people_throughs = []
         display_layout_throughs = []

@@ -28,7 +28,7 @@
                         this._$getDialogEl().dialog( this.dialogOptions );
                         this.onRenderedCallback(this, context);
                         this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                            .html("<i class='fas fa-times text-danger float-end' style='font-size: 24px'></i>")
+                            .html("<span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
                             .click( () => {
                                 this.destroy();
                             });
@@ -56,7 +56,7 @@
             }
             else { console.log(html); }
 
-            var holderEl = document.createElement("span");
+            let holderEl = document.createElement("span");
             holderEl.innerHTML = html;
 
             document.querySelector("#" + this.dialogElementId).innerHTML 
@@ -77,12 +77,13 @@
     }
 
     prepareDOM() {
-        var selector = `#${this.dialogElementId}`
+        const selector = `#${this.dialogElementId}`
+
         if (this.dialogElementId == "editEventSerieDialog") {
             selector += ",#newTimePlanDialog";
         }
 
-        var elements = document.querySelectorAll(selector);
+        let elements = document.querySelectorAll(selector);
 
         elements.forEach(element => {
             element.remove();
@@ -101,7 +102,7 @@
     }
 
     isOpen() {
-        var $dialogElement = this._$getDialogEl();
+        let $dialogElement = this._$getDialogEl();
 
         if ($dialogElement[0] === undefined || this.getInstance() === false || $($dialogElement).dialog("isOpen") === false) {
             return false;
@@ -118,11 +119,16 @@ export class DialogManager {
 
         this._listenForUpdatedEvent();
         this._listenForSubmitEvent();
-        this._listenForCloseEvent();
+        this._listenForCloseAllEvent();
         this._listenForReloadEvent();
+        this._listenForCloseDialogEvent();
 
         this._dialogRepository = new Map(dialogs);
         this.context = {};
+    }
+    
+    $getDialogElement(dialogId) {
+        return this._dialogRepository.get(dialogId)._$getDialogEl();
     }
 
     setContext(ctxObj) {
@@ -153,7 +159,13 @@ export class DialogManager {
         })
     }
 
-    _listenForCloseEvent() {
+    _listenForCloseDialogEvent() {
+        document.addEventListener(`${this.managerName}.closeDialog`, (e) => {
+            this.closeDialog(e.detail.dialog);
+        })
+    }
+
+    _listenForCloseAllEvent() {
         document.addEventListener(`${this.managerName}.close`, (e) => {
             this.closeAllDialogs();
         })
@@ -178,8 +190,8 @@ export class DialogManager {
 
     _listenForSubmitEvent() {
         document.addEventListener(`${this.managerName}.submit`, async (e) => {
-            var dialog = this._dialogRepository.get(e.detail.dialog);
-            var submitResult = await dialog.onSubmit(this.context, e.detail);  // Trigger the dialogs onSubmit handling
+            let dialog = this._dialogRepository.get(e.detail.dialog);
+            let submitResult = await dialog.onSubmit(this.context, e.detail);  // Trigger the dialogs onSubmit handling
             if (submitResult !== false) {
                 dialog.onUpdatedCallback(this.context);  // Trigger the dialogs on update handling
             }
@@ -203,12 +215,13 @@ export class DialogManager {
 
         this._dialogRepository.forEach(( value, key, map) => {
             if (value.triggerByEvent === true) {
-                var triggerName = value.dialogElementId;
+                let triggerName = value.dialogElementId;
                 if (value.customTriggerName !== undefined) {
                     triggerName = value.customTriggerName;
                 }
 
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
+                    console.log(`${this.managerName}.${triggerName}.trigger`, event.detail);
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
                 });

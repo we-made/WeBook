@@ -1,4 +1,4 @@
-import { convertObjToFormData } from "./commonLib.js";
+import { convertObjToFormData, getClientTimezone } from "./commonLib.js";
 import { serieConvert } from "./serieConvert.js";
 
 
@@ -15,9 +15,14 @@ export class QueryStore {
      */
     static async SaveSerie(serie, csrf_token, arrangement_pk = 0) {
         var formData = serieConvert(serie, new FormData(), "");
+        formData.append("timezone", getClientTimezone());
         formData.append("arrangementPk", arrangement_pk);
         if ("event_serie_pk" in serie) {
             formData.append("predecessorSerie", serie.event_serie_pk);
+        }
+
+        for (var pair of formData.entries()) {
+            console.log(pair[0]+ ', ' + pair[1]);
         }
 
         return await fetch('/arrangement/event/create_serie', {
@@ -38,6 +43,7 @@ export class QueryStore {
      * @returns {*} promise
      */
     static async SaveEvents(events, csrf_token) {
+        console.log("events", events)
         for (const formData of events.map((event) => convertObjToFormData(event, true))) {
             await fetch("/arrangement/event/create", {
                 method: "POST",

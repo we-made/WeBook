@@ -26,7 +26,7 @@ export class StandardGenerator {
             throw "Classifier not recognized";
         }
 
-        var gen_func = this.CLASSIFIER_MAP.get(classifier);
+        let gen_func = this.CLASSIFIER_MAP.get(classifier);
         
         if (gen_func instanceof Function === false) {
             throw "Generation function retrieved from CLASSIFIER_MAP is not a valid callable function.";
@@ -44,7 +44,7 @@ export class StandardGenerator {
             date = new Date(date.setMonth(date.getMonth() + 1));
         }
 
-        var text = `${date.toLocaleString("default", { month: "long" })} ${date.getFullYear()}`;
+        let text = `${date.toLocaleString("default", { month: "long" })} ${date.getFullYear()}`;
         text = text.replace(/^./, text[0].toUpperCase());
         return text;
     }
@@ -52,18 +52,18 @@ export class StandardGenerator {
     week(date) {
         // Refer to: https://stackoverflow.com/questions/9045868/javascript-date-getweek
         /*getWeek() was developed by Nick Baicoianu at MeanFreePath: http://www.meanfreepath.com */
-        var newYear = new Date(date.getFullYear(),0,1);
-        var day = newYear.getDay(); //the day of week the year begins on
+        let newYear = new Date(date.getFullYear(),0,1);
+        let day = newYear.getDay(); //the day of week the year begins on
         day = (day >= 0 ? day : day + 7);
-        var daynum = Math.floor((date.getTime() - newYear.getTime() - 
+        let daynum = Math.floor((date.getTime() - newYear.getTime() - 
         (date.getTimezoneOffset()-newYear.getTimezoneOffset())*60000)/86400000) + 1;
-        var weeknum;
+        let weeknum;
         //if the year starts before the middle of a week
         if(day < 4) {
             weeknum = Math.floor((daynum+day-1)/7) + 1;
             if(weeknum > 52) {
-                var nYear = new Date(date.getFullYear() + 1,0,1);
-                var nday = nYear.getDay();
+                let nYear = new Date(date.getFullYear() + 1,0,1);
+                let nday = nYear.getDay();
                 nday = nday >= 0 ? nday : nday + 7;
                 /*if the next year starts before the middle of
                     the week, it is week #1 of that year*/
@@ -86,7 +86,7 @@ export class StandardGenerator {
     }
 }
 
-var BaseViewClassifications = new Map([
+const BaseViewClassifications = new Map([
     /* DayGrid */
     [
         "dayGridDay",

@@ -1,6 +1,6 @@
 import { CollisionsUtil } from "./collisions_util.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
-import { PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
+import { PopulateCreateEventDialog, PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
 import { QueryStore } from "./querystore.js";
 import { serieConvert } from "./serieConvert.js";
 import { SerieMetaTranslator } from "./serie_meta_translator.js";
@@ -34,7 +34,7 @@ export class ArrangementCreator {
                             this.dialogManager._makeAware();
                         },
                         onSubmit: async (context, details) => {
-                            var csrf_token = details.formData.get("csrf_token");
+                            let csrf_token = details.formData.get("csrf_token");
 
                             await fetch("/arrangement/arrangement/ajax/create", {
                                 method: 'POST',
@@ -45,7 +45,7 @@ export class ArrangementCreator {
                                 credentials: 'same-origin',
                             }).then(async response => await response.json())
                               .then(async (arrId) => {
-                                for (var serie of details.series) {
+                                for (let serie of details.series) {
                                     await QueryStore.SaveSerie(
                                         serie,
                                         csrf_token,
@@ -81,25 +81,33 @@ export class ArrangementCreator {
                         },
                         onRenderedCallback: (dialogManager, context) => {
                             if (context.lastTriggererDetails === undefined) {
-                                $('#serie_ticket_code').attr('value', $('#id_ticket_code')[0].value );
-                                $('#serie_title').attr('value', $('#id_name')[0].value );
-                                $('#serie_title_en').attr('value', $('#id_name_en')[0].value );
-                                $('#serie_expected_visitors').attr('value', $('#id_expected_visitors')[0].value );
+                                let $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
+                                let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
 
-                                document.querySelectorAll("input[name='display_layouts']:checked")
+                                $thisDialog.find('#serie_ticket_code')
+                                    .attr('value', $mainDialog.find('#id_ticket_code')[0].value);
+                                $thisDialog.find('#serie_title')
+                                    .attr('value', $mainDialog.find('#id_name')[0].value);
+                                $thisDialog.find('#serie_title_en')
+                                    .attr('value', $mainDialog.find('#id_name_en')[0].value);
+                                $thisDialog.find('#serie_expected_visitors')
+                                    .attr('value', $mainDialog.find('#id_expected_visitors')[0].value);
+
+                                document.querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
-                                        $('#id_display_layouts_serie_planner_' + checkboxElement.value)
+                                        $thisDialog.find('#id_display_layouts_serie_planner_' + checkboxElement.value)
                                             .prop( "checked", true );
                                     })
 
-                                $('#serie_uuid').val(crypto.randomUUID());
+                                $thisDialog.children('#serie_uuid').val(crypto.randomUUID());
+
                                 document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                     new mdb.Input(formOutline).init();
                                 });
                             }
                             else {
                                 if (context.series !== undefined) {
-                                    var serie = context.series.get(context.lastTriggererDetails.serie_uuid);
+                                    let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                                     PopulateCreateSerieDialogFromSerie(serie);
                                 }
                             }
@@ -149,13 +157,13 @@ export class ArrangementCreator {
                             */
                             context._lastTriggererDetails = context.lastTriggererDetails;
 
-                            var serie = context.lastTriggererDetails.serie;
-                            var collision_record = serie.collisions[context.lastTriggererDetails.collision_index];
+                            let serie = context.lastTriggererDetails.serie;
+                            let collisionRecord = serie.collisions[context.lastTriggererDetails.collision_index];
 
-                            $('#ticket_code').val(serie.time.ticket_code ).trigger('change');
-                            $('#title').val(serie.time.title ).trigger('change');
-                            $('#title_en').attr('value', serie.time.title_en ).trigger('change');
-                            $('#expected_visitors').attr('value', serie.time.expected_visitors ).trigger('change');
+                            $('#ticket_code').val(serie.time.ticket_code).trigger('change');
+                            $('#title').val(serie.time.title).trigger('change');
+                            $('#title_en').attr('value', serie.time.title_en).trigger('change');
+                            $('#expected_visitors').attr('value', serie.time.expected_visitors).trigger('change');
 
                             serie.display_layouts.split(",")
                                 .forEach(checkboxElement => {
@@ -167,21 +175,16 @@ export class ArrangementCreator {
                                 document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
                             ).addClass("mb-4"));
 
-                            var splitDateFunc = function (strToDateSplit) {
-                                var date_str = strToDateSplit.split("T")[0];
-                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
-                                return [ date_str, time_str ];
-                            }
+                            let { fromDate, fromTime }  = Utils.splitDateFunc(collisionRecord.event_a_start);
+                            let { toDate, toTime }      = Utils.splitDateFunc(collisionRecord.event_a_end);
 
-                            var startTimeArtifacts = splitDateFunc(collision_record.event_a_start);
-                            var endTimeArtifacts = splitDateFunc(collision_record.event_a_end);
-                            $('#fromDate').val(startTimeArtifacts[0]).trigger('change');
-                            $('#fromTime').val(startTimeArtifacts[1]).trigger('change');
-                            $('#toDate').val(endTimeArtifacts[0]).trigger('change');
-                            $('#toTime').val(endTimeArtifacts[1]).trigger('change');
+                            $('#fromDate').val(fromDate).trigger('change');
+                            $('#fromTime').val(fromTime).trigger('change');
+                            $('#toDate').val(toDate).trigger('change');
+                            $('#toTime').val(toTime).trigger('change');
 
                             if (serie.people.length > 0) {
-                                var peopleSelectContext = Object();
+                                let peopleSelectContext = Object();
                                 peopleSelectContext.people = serie.people.join(",");
                                 peopleSelectContext.people_name_map = serie.people_name_map;
                                 document.dispatchEvent(new CustomEvent(
@@ -192,7 +195,7 @@ export class ArrangementCreator {
                                 ));
                             }
                             if (serie.rooms.length > 0) {
-                                var roomSelectContext = Object();
+                                let roomSelectContext = Object();
                                 roomSelectContext.rooms = serie.rooms.join(",");
                                 roomSelectContext.room_name_map = serie.room_name_map;
                                 document.dispatchEvent(new CustomEvent(
@@ -223,20 +226,20 @@ export class ArrangementCreator {
                             details.event.is_resolution = true;
                             details.event.associated_serie_internal_uuid = context._lastTriggererDetails.serie._uuid;
 
-                            var formData = new FormData();
-                            for (var key in details.event) {
+                            let formData = new FormData();
+                            for (let key in details.event) {
                                 formData.append(key, details.event[key])
                             }
 
-                            var startDate = new Date(details.event.start);
-                            var endDate = new Date(details.event.end);
+                            let startDate = new Date(details.event.start);
+                            let endDate = new Date(details.event.end);
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
 
                             details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
-                                var collision = details.event.collisions[0];
+                                let collision = details.event.collisions[0];
                                 await CollisionsUtil.FireOneToOneCollisionWarningSwal(collision);
 
                                 return false;
@@ -267,71 +270,26 @@ export class ArrangementCreator {
                             });
 
                             if (context.lastTriggererDetails === undefined) {
-                                $('#ticket_code').attr('value', $('#id_ticket_code')[0].value );
-                                $('#title').attr('value', $('#id_name')[0].value );
-                                $('#title_en').attr('value', $('#id_name_en')[0].value );
-                                $('#expected_visitors').attr('value', $('#id_expected_visitors')[0].value );
+                                let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
+                                let $simpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
 
-                                document.querySelectorAll("input[name='display_layouts']:checked")
+                                $simpleActivityDialog.find('#ticket_code').attr('value',         $mainDialog.find('#id_ticket_code').val() );
+                                $simpleActivityDialog.find('#title').attr('value',               $mainDialog.find('#id_name').val() );
+                                $simpleActivityDialog.find('#title_en').attr('value',            $mainDialog.find('#id_name_en').val() );
+                                $simpleActivityDialog.find('#expected_visitors').attr('value',   $mainDialog.find('#id_expected_visitors').val() );
+
+                                document.querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
-                                        $(`#${checkboxElement.value}_dlcheck`)
+                                        $simpleActivityDialog.find(`#${checkboxElement.value}_dlcheck`)
                                             .prop( "checked", true );
                                     })
 
-                                $('#event_uuid').val(crypto.randomUUID());
+                                $simpleActivityDialog.find('#event_uuid').val(crypto.randomUUID());
 
                                 return;
                             }
-
-                            var event = context.events.get(context.lastTriggererDetails.event_uuid);
-
-                            var splitDateFunc = function (strToDateSplit) {
-                                var date_str = strToDateSplit.split("T")[0];
-                                var time_str = new Date(strToDateSplit).toTimeString().split(' ')[0];
-                                return [ date_str, time_str ];
-                            }
-                            var startTimeArtifacts = splitDateFunc(event.start);
-                            var endTimeArtifacts = splitDateFunc(event.end);
-
-                            $('#event_uuid').val(event._uuid);
-                            $('#title').val(event.title);
-                            $('#title_en').val(event.title_en);
-                            $('#ticket_code').val(event.ticket_code);
-                            $('#expected_visitors').val(event.expected_visitors);
-                            $('#fromDate').val(startTimeArtifacts[0]);
-                            $('#fromTime').val(startTimeArtifacts[1]);
-                            $('#toDate').val(endTimeArtifacts[0]);
-                            $('#toTime').val(endTimeArtifacts[1]);
-
-                            event.display_layouts.split(",").forEach(element => {
-                                $(`#${String(parseInt(element))}_dlcheck`)
-                                    .prop( "checked", true );
-                            })
-
-                            // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
-                            // has "selected" rooms as they would through the dialog interface.
-                            if (event.people.length > 0) {
-                                var peopleSelectContext = Object();
-                                peopleSelectContext.people = event.people.join(",");
-                                peopleSelectContext.people_name_map = event.people_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d1_peopleSelected",
-                                    { detail: {
-                                        context: peopleSelectContext
-                                    } }
-                                ));
-                            }
-                            if (event.rooms.length > 0) {
-                                var roomSelectContext = Object();
-                                roomSelectContext.rooms = event.rooms.join(",");
-                                roomSelectContext.room_name_map = event.room_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d1_roomsSelected",
-                                    { detail: {
-                                        context: roomSelectContext
-                                    } }
-                                ));
-                            }
+                            
+                            PopulateCreateEventDialog(context.events.get(context.lastTriggererDetails.event_uuid));
 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
@@ -349,20 +307,20 @@ export class ArrangementCreator {
                                 details.event._uuid = crypto.randomUUID();
                             }
 
-                            var formData = new FormData();
-                            for (var key in details.event) {
+                            let formData = new FormData();
+                            for (let key in details.event) {
                                 formData.append(key, details.event[key])
                             }
 
-                            var startDate = new Date(details.event.start);
-                            var endDate = new Date(details.event.end);
+                            let startDate = new Date(details.event.start);
+                            let endDate = new Date(details.event.end);
                             formData.append("fromDate", startDate.toISOString());
                             formData.append("toDate", endDate.toISOString());
 
                             details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(formData, details.csrf_token);
 
                             if (details.event.collisions.length > 0) {
-                                var collision = details.event.collisions[0];
+                                let collision = details.event.collisions[0];
                                 await CollisionsUtil.FireOneToOneCollisionWarningSwal(collision);
                                 return false;
                             }
@@ -421,7 +379,7 @@ export class ArrangementCreator {
                             this.dialogManager.closeDialog("orderPersonDialog");
                         },
                         onSubmit: (context, details) => {
-                            var people_ids = details.formData.get("people_ids");
+                            let people_ids = details.formData.get("people_ids");
                             context.people = people_ids;
                             context.people_name_map = details.people_name_map;
 

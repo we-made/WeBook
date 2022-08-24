@@ -261,6 +261,7 @@ class PlannerCalendarView (LoginRequiredMixin, PlannerSectionManifestMixin, Meta
         context["PEOPLE"] = Person.objects.all()
         context["ARRANGEMENT_TYPES"] = ArrangementType.objects.all()
         context["AUDIENCES"] = Audience.objects.all()
+        context["ROOM_PRESETS"] = RoomPreset.objects.all()
         return context
 
 planner_calendar_view = PlannerCalendarView.as_view()
@@ -391,17 +392,6 @@ class PlannerEventInspectorDialogView (LoginRequiredMixin, UpdateView):
     pk_url_kwarg="pk"
     template_name="arrangement/planner/dialogs/arrangement_dialogs/inspectEventDialog.html"
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        ctx = super().get_context_data(**kwargs)
-        obj = self.get_object()
-
-        # This is stupid, even for me.
-        # Needs to be refactored promptly!!
-        ctx["start_t"] = obj.start + timedelta(hours=2)
-        ctx["end_t"] = obj.end + timedelta(hours=2)
-
-        return ctx
-
 planner_event_inspector_dialog_view = PlannerEventInspectorDialogView.as_view()
 
 
@@ -413,7 +403,7 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, UpdateView):
     template_name="arrangement/planner/dialogs/arrangement_dialogs/arrangementInfoDialog.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context =  super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         arrangement_in_focus = self.get_object()
         sets = {}
@@ -483,53 +473,7 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, CreateV
 
         return context
 
-    def get_success_url(self) -> str:
-        people = self.request.POST.get("people")
-        rooms = self.request.POST.get("rooms")
-
-        if ((people is None or people == "undefined") and (rooms is None or rooms == "undefined")):
-            return
-
-        obj = self.object
-        obj.people.clear()
-        obj.rooms.clear()
-
-        if (people is not None and len(people) > 0 and people != "undefined"):
-            people = people.split(',')
-            for personId in people:
-                obj.people.add(Person.objects.get(id=personId))
-        
-        if (rooms is not None and len(rooms) > 0 and rooms != "undefined"):
-            rooms = rooms.split(',')
-            for roomId in rooms:
-                obj.rooms.add(Room.objects.get(id=roomId))
-
-        obj.save()
-
 arrangement_create_simple_event_dialog_view = PlannerArrangementCreateSimpleEventDialogView.as_view()
-
-
-# class PlannerArrangementCreateSerieDialog(LoginRequiredMixin, TemplateView):
-#     template_name="arrangement/planner/dialogs/arrangement_dialogs/createSerieDialog.html"
-
-#     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-#         context = super().get_context_data(**kwargs)
-#         if "slug" in self.request.GET:
-#             arrangement_slug = self.request.GET.get("slug")
-#             arrangement = Arrangement.objects.get(slug=arrangement_slug)
-#             context["arrangementPk"] = arrangement.pk
-#         else: context["arrangementPk"] = 0
-
-#         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
-#         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
-
-#         if "managerName" in self.request.GET:
-#             context["managerName"] = self.request.GET.get("managerName")
-#         else: print("No manager name.")
-
-#         return context
-
-# arrangement_create_serie_dialog_view = PlannerArrangementCreateSerieDialog.as_view()
 
 
 class PlannerArrangementPromotePlannerDialog(LoginRequiredMixin, TemplateView):

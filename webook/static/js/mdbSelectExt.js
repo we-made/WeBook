@@ -31,8 +31,6 @@ class ExtendedSelect {
         this.dataParser = (dataParser === undefined ? this.defaultItemParser : dataParser);
         this.currentlySelectedValues = [];
 
-        console.log(this.jqElement);
-
         this.jqElement[0].addEventListener('open.mdb.select', (e) => {
             this.bindToSearch();
         });
@@ -69,9 +67,9 @@ class ExtendedSelect {
     */
     async bindToSearch () {
         let ext = this;
-        var observer = new MutationObserver(function (mutations, me) {
-            var filterField = document.getElementsByClassName('select-filter-input')[0];
-            var delayTimer;
+        let observer = new MutationObserver(function (mutations, me) {
+            let filterField = document.getElementsByClassName('select-filter-input')[0];
+            let delayTimer;
             if (filterField) {
                 filterField.addEventListener("input", function () {
                     let searchValue = $(filterField).val();
@@ -101,20 +99,22 @@ class ExtendedSelect {
      * @returns {Array} - An array of objects parsed from the query response with the data parser.
      */
     async search( { term } = {} ) {
-
         let data = {}
+
         if (term === undefined) {
             term = "";
         }
         if (this.extraParams !== undefined) {
             data = this.extraParams;
         }
+
         data.term = term;
 
         let headers = {}
         if (this.extraHeaders !== undefined) {
             headers = this.extraHeaders;
         }
+        
         headers["Content-Type"] = "application/json";
 
         const response = await fetch(this.getUrl, {

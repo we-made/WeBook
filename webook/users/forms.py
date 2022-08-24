@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import fields
 from django.utils.translation import gettext_lazy as _
 from django import forms as dj_forms
+import pytz
 from webook.arrangement.models import Person
 
 from allauth.account.forms import SignupForm
@@ -12,6 +13,11 @@ User = get_user_model()
 class ComplexUserUpdateForm (forms.UserChangeForm):
 
     profile_picture = dj_forms.ImageField(max_length=512,label=_("Profile Picture"), required=False)
+    timezone = dj_forms.ChoiceField(
+        choices=zip(pytz.all_timezones, pytz.all_timezones),
+        required=True,
+        label=_("Timezone")
+    )
 
     class Meta(forms.UserChangeForm.Meta):
         model = Person
@@ -20,7 +26,8 @@ class ComplexUserUpdateForm (forms.UserChangeForm):
             "middle_name",
             "last_name",
             "birth_date",
-            "profile_picture"
+            "profile_picture",
+            "timezone",
         ]
 
 class UserChangeForm(forms.UserChangeForm):
