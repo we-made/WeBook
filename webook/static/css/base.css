@@ -1,6 +1,6 @@
 :root {
     --MAIN-COLOR: #231f20;
-    --SECONDARY-COLOR: #ebebeb ;
+    --SECONDARY-COLOR: #f6f6f0 ;
     --MAIN-HOVER: white;
     --SECONDARY-HOVER: var(--MAIN-COLOR);
     
@@ -17,9 +17,56 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+html, body {
+    height: 100%!important;
+}
+
+.wb-sidebar-item {
+    color: var(--ACTIVE-TEXT-COLOR);
+}
+
+.bg-weak-success {
+    background-color: #badbcb;
+}
+
+.bg-weak-secondary {
+    background-color: #cdbfd7;
+}
+
+.bg-weak-primary {
+    background-color: #cce3f7;
+}
+
+.bg-weak-info {
+    background-color: #def2f8;
+}
+
+.wb-sidebar-item-nested.active {
+    background-color: #f6f6f0;
+    color: var(--FC-TEXT-COLOR);
+    box-shadow: none;
+    border: solid 0.09em black;
+}
+
+.wb-sidebar-item-nested:hover {
+    box-shadow: none;
+    border: solid 0.09em black!important;
+}
+
+.wb-sidebar-item.active {
+    /* background-color: #f6f6f0; */
+    color: var(--FC-TEXT-COLOR);
+    /* border-right: solid 0.2em black; */
+}
+
+.wb-sidebar-item:hover {
+    background-color: #f6f6f0;
+    color: var(--FC-TEXT-COLOR);
+    /* border-right: solid 0.2em black; */
+}
+
 .clickable-badge {
     border: solid 0.5px gainsboro;
-    /* font-size: medium; */
 }
 
 .clickable-badge:hover {
@@ -237,8 +284,14 @@
 
 .popover_wrapper {
     position: relative;
-    display: inline-block;
-  }
+}
+
+.popover_wrapper.wb-popover-sidebar .popover_content {
+    left: 0rem;
+    border-left: solid 1.8rem #5283B0;
+    transform: translate(0px, -5.3em);
+    width: 20em;
+}
 
 .popover_content {
     visibility: hidden;

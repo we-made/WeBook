@@ -1,7 +1,7 @@
+from anytree import Node, PreOrderIter
 from django import template
 from django.template import Context
 from django.template.loader import get_template
-from anytree import Node, PreOrderIter
 
 register = template.Library()
 

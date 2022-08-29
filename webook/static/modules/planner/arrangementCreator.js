@@ -124,6 +124,7 @@ export class ArrangementCreator {
                             else {
                                 if (context.series !== undefined) {
                                     let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
+                                    console.log("editserie", serie);
                                     const $dialogElement = $(this.dialogManager.$getDialogElement("newTimePlanDialog"));
                                     PopulateCreateSerieDialogFromSerie(serie, $dialogElement);
                                 }
@@ -133,6 +134,7 @@ export class ArrangementCreator {
                                 new mdb.Input(formOutline).init();
                             });
                         },
+                        destructure: () => {},
                         onUpdatedCallback: () => {
                             toastr.success("Tidsplan lagt til eller oppdatert i planen");
                             this.dialogManager.closeDialog("newTimePlanDialog");

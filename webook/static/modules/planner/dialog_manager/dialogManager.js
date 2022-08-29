@@ -90,7 +90,9 @@
 
     close() {
         if (this.isOpen() === true) {
-            this.destroy()
+            if (typeof this.destructure !== "undefined")
+                this.destructure();
+            this.destroy();
         }
     }
 
@@ -188,13 +190,13 @@ export class DialogManager {
     closeAllDialogs() {
         this._dialogRepository.forEach( (dialog) => {
             dialog.close();
-        })
+        });
     }
 
     _listenForCloseDialogEvent() {
         document.addEventListener(`${this.managerName}.closeDialog`, (e) => {
             this.closeDialog(e.detail.dialog);
-        })
+        });
     }
 
     _listenForCloseAllEvent() {
