@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import os
 from argparse import ArgumentError
+from ast import Delete
 from email.policy import default
 from enum import Enum
 from typing import Optional, Tuple
@@ -997,6 +998,8 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         return super().delete(using, keep_parents)
 
     def abandon_rigging_relations(self, commit=True) -> None:
+        # If we are deleting a rigging event (supporting another event)
+        # we want to deattach ourselves from the parent and remove the time values used to generate us.
         if self.before_buffer_for.exists():
             buffering_for = self.before_buffer_for.get()
             buffering_for.before_buffer_start = None
@@ -1010,6 +1013,15 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             buffering_for.save()
             self.after_buffer_for.clear()
         
+        # If the event we are deleting has supporting rigging events then we want to delete these supporting 
+        # rigging events when the parent owner is deleted.
+        if self.buffer_before_event:
+            self.buffer_before_event.delete()
+            self.buffer_before_event = None
+        if self.buffer_after_event:
+            self.buffer_after_event.delete()
+            self.buffer_after_event = None
+
         if commit:
             self.save()
 
@@ -1246,7 +1258,7 @@ class BaseFileRelAbstractModel(TimeStampedModel):
 class EventFile (BaseFileRelAbstractModel, ModelArchiveableMixin):
     associated_with = models.ForeignKey(
         to=Event,
-        on_delete=models.RESTRICT,
+        on_delete=models.CASCADE,
         related_name="files"
     )
 
