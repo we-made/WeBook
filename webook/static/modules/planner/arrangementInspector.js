@@ -120,6 +120,7 @@ export class ArrangementInspector {
                     new Dialog({
                         dialogElementId: "addPlannerDialog",
                         triggerElementId: "mainDialog__addPlannerBtn",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return await this.dialogManager.loadDialogHtml(
                                 {
@@ -159,6 +160,7 @@ export class ArrangementInspector {
                     new Dialog({
                         dialogElementId: "uploadFilesToArrangementDialog",
                         triggerElementId: "mainDialog__uploadFilesBtn",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return this.dialogManager.loadDialogHtml({
                                 url: '/arrangement/planner/dialogs/upload_files_dialog',
@@ -166,7 +168,7 @@ export class ArrangementInspector {
                                 dialogId: 'uploadFilesToArrangementDialog'
                             });
                         },
-                        onRenderedCallback: () => { console.info("Rendered"); },
+                        onRenderedCallback: () => {},
                         onUpdatedCallback: () => { 
                             this.dialogManager.reloadDialog("mainDialog"); 
                             this.dialogManager.closeDialog("uploadFilesToArrangementDialog"); 
@@ -181,7 +183,10 @@ export class ArrangementInspector {
                                 }
                             });
                         },
-                        dialogOptions: { width: 400 }
+                        dialogOptions: { 
+                            width: 400,
+                            dialogClass: 'no-titlebar',
+                        }
                     })
                 ],
                 [
@@ -220,6 +225,7 @@ export class ArrangementInspector {
                     new Dialog({
                         triggerElementId: "mainPlannerDialog__newTimePlan",
                         dialogElementId: "newTimePlanDialog",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return await this.dialogManager.loadDialogHtml({
                                 url: '/arrangement/planner/dialogs/create_serie',
@@ -254,7 +260,10 @@ export class ArrangementInspector {
                             this.dialogManager.reloadDialog("mainDialog");
                             this.dialogManager.closeDialog("newTimePlanDialog");
                         },
-                        dialogOptions: { width: 700, modal:true },
+                        dialogOptions: { 
+                            width: 700,
+                            dialogClass: 'no-titlebar',
+                        },
                         onSubmit: async (context, details) => {
                             context.serie = details.serie;
                             context.collision_resolution = new Map();
@@ -434,6 +443,7 @@ export class ArrangementInspector {
                     new Dialog({
                         dialogElementId: "newSimpleActivityDialog",
                         triggerElementId: "mainPlannerDialog__newSimpleActivity",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return this.dialogManager.loadDialogHtml({
                                 url: "/arrangement/planner/dialogs/create_simple_event",
@@ -469,10 +479,8 @@ export class ArrangementInspector {
                             this.dialogManager.reloadDialog("mainDialog");
                             this.dialogManager.closeDialog("newSimpleActivityDialog");
                         },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar' },
                         onSubmit: async (context, details) => {
-                            console.log(">> onsubmit")
-
                             details.event.startDate = (new Date(details.event.start)).toISOString();
                             details.event.endDate = (new Date(details.event.end)).toISOString();
                             details.event.arrangement = context.arrangement.arrangement_pk;
@@ -499,14 +507,22 @@ export class ArrangementInspector {
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return await fetch("/arrangement/planner/dialogs/create_serie?managerName=arrangementInspector&dialog=editEventSerieDialog&orderRoomDialog=nestedOrderRoomDialog&orderPersonDialog=nestedOrderPersonDialog")
-                                .then(response => response.text());
+                            return this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/create_serie',
+                                managerName: "arrangementInspector",
+                                dialogId: 'editEventSerieDialog',
+                                customParameters: {
+                                    orderRoomDialog: 'nestedOrderRoomDialog',
+                                    orderPersonDialog: 'orderPersonDialog',
+                                }
+                            });
                         },
                         onRenderedCallback: async (dialogManager, context) => {
                             context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk;
 
+                            let $dialogElement = $(this.dialogManager.$getDialogElement("editEventSerieDialog"));
                             let manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
-                            PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk);
+                            PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk, $dialogElement);
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
@@ -516,6 +532,8 @@ export class ArrangementInspector {
                             this.dialogManager.closeDialog("editEventSerieDialog");
                         },
                         onSubmit: async (context, details) => {
+                            console.log(context);
+
                             details.serie.event_serie_pk = context.editing_serie_pk;
 
                             context.serie = details.serie;
@@ -540,7 +558,10 @@ export class ArrangementInspector {
                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                             });
                         },
-                        dialogOptions: { width: 700 }
+                        dialogOptions: { 
+                            width: 700,
+                            dialogClass: 'no-titlebar',
+                        }
                     })
                 ],
                 [
@@ -595,6 +616,7 @@ export class ArrangementInspector {
                     new Dialog({
                         dialogElementId: "newNoteDialog",
                         triggerElementId: "mainPlannerDialog__newNoteBtn",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return await this.dialogManager.loadDialogHtml(
                                 {
@@ -623,7 +645,7 @@ export class ArrangementInspector {
                                 }
                             }).then(response => console.log("response", response));
                         },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar' },
                     })
                 ],
                 [
@@ -653,7 +675,10 @@ export class ArrangementInspector {
                                 }
                             })
                         },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
                     })
                 ],
                 [

@@ -30,12 +30,11 @@ export class EventInspector {
                                 new mdb.Input(formOutline).init();
                             });
                         },
-                        dialogOptions: { width: 700, heigth: 1000 },
+                        dialogOptions: { width: 1000, height: 900, dialogClass: 'no-titlebar', modal:true, },
                         onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("inspectEventDialog");
                         },
                         onSubmit: async (context, details) => {
-                            console.log("OnSubmit!")
                             await QueryStore.UpdateEvents( [details.event], details.csrf_token )
                                 .then(_ => document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")));
                         }
@@ -46,6 +45,7 @@ export class EventInspector {
                     new Dialog({
                         dialogElementId: "orderPersonDialog",
                         triggerElementId: "inspectEventDialog_addPeopleBtn",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return this.dialogManager.loadDialogHtml({
                                 url: '/arrangement/planner/dialogs/order_person',
@@ -57,7 +57,10 @@ export class EventInspector {
                             });
                         },
                         onRenderedCallback: () => { },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
                         onUpdatedCallback: () => { 
                             this.dialogManager.closeDialog("orderPersonDialog");
                         },
@@ -80,6 +83,7 @@ export class EventInspector {
                     new Dialog({
                         dialogElementId: "orderRoomDialog",
                         triggerElementId: "inspectEventDialog_addRoomsBtn",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return await this.dialogManager.loadDialogHtml({
                                 url: '/arrangement/planner/dialogs/order_room',
@@ -91,7 +95,10 @@ export class EventInspector {
                             });
                         },
                         onRenderedCallback: () => { },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
                         onUpdatedCallback: () => { 
                             this.dialogManager.closeDialog("orderRoomDialog"); 
                         },
@@ -108,6 +115,7 @@ export class EventInspector {
                     new Dialog({
                         dialogElementId: "uploadFilesDialog",
                         triggerElementId: "eventDialog_uploadFilesBtn",
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return await this.dialogManager.loadDialogHtml({
                                 url: '/arrangement/planner/dialogs/upload_files_dialog',
@@ -116,7 +124,10 @@ export class EventInspector {
                             });
                         },
                         onRenderedCallback: (dialogInstance, context) => {},
-                        dialogOptions: { width: 600 },
+                        dialogOptions: { 
+                            width: 600, 
+                            dialogClass: 'no-titlebar',
+                        },
                         onUpdatedCallback: () => { 
                             this.dialogManager.closeDialog("uploadFilesDialog"); 
                             this.dialogManager.reloadDialog("inspectEventDialog"); 
@@ -138,6 +149,7 @@ export class EventInspector {
                     new Dialog({
                         dialogElementId: 'newNoteDialog',
                         triggerElementId: 'inspectEventDialog__newNoteBtn',
+                        triggerByEvent: true,
                         htmlFabricator: async (context) => {
                             return await this.dialogManager.loadDialogHtml(
                                 {
@@ -166,7 +178,10 @@ export class EventInspector {
                                 }
                             }).then(response => console.log("response", response));
                         },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
                     })
                 ],
                 [
@@ -178,7 +193,7 @@ export class EventInspector {
                         htmlFabricator: async (context) => {
                             return await this.dialogManager.loadDialogHtml(
                                 {
-                                    url: '/arrangement/planner/dialogs/edit_note/' + context.event.pk,
+                                    url: '/arrangement/planner/dialogs/edit_note/' + context.lastTriggererDetails.note_pk,
                                     managerName: 'eventInspector',
                                     dialogId: 'editNoteDialog',
                                 }
@@ -198,7 +213,10 @@ export class EventInspector {
                                 }
                             })
                         },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
                     })
                 ]
             ]            

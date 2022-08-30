@@ -113,21 +113,21 @@ div.modal-body > .bootbox-close-button {
 }
 
 .ui-dialog {
-  background-color: white!important;
-  box-shadow: 0 1px 20px 1px  grey!important;
+  background-color: white;
+  box-shadow: 0 1px 20px 1px  grey;
   border: solid 1px var(--DIALOG-BORDER-COLOR);
   border-radius: 15px!important;
+  padding: 1.5em!important;
 }
 
-.ui-dialog.ui-widget.ui-widget-content {
+/* .ui-dialog.ui-widget.ui-widget-content {
   background:none; /* and no special background for the dialog */
-}
+
 .ui-widget-overlay.ui-front {
   opacity:.75;
 }
 
-.ui-widget-overlay
-{
+.ui-widget-overlay {
   opacity: .50 !important; /* Make sure to change both of these, as IE only sees the second one */
   filter: Alpha(Opacity=50) !important;
 

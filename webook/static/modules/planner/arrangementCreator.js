@@ -65,11 +65,17 @@ export class ArrangementCreator {
                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
                               });
                         },
-                        onUpdatedCallback: () => {
+                        onUpdatedCallback: () => {  
                             toastr.success("Arrangement opprettet");
                             this.dialogManager.closeDialog("createArrangementDialog");
                         },
-                        dialogOptions: { width: 900 }
+                        dialogOptions: { 
+                            width: 900, 
+                            height: 800,
+                            modal: true,
+                            position: "center center",
+                            dialogClass: 'no-titlebar',
+                        }
                     }),
                 ],
                 [
@@ -90,7 +96,7 @@ export class ArrangementCreator {
                             })
                         },
                         onRenderedCallback: (dialogManager, context) => {
-                            if (context.lastTriggererDetails === undefined) {
+                            if (context.lastTriggererDetails?.serie_uuid === undefined) {
                                 let $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
                                 let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
 
@@ -118,7 +124,9 @@ export class ArrangementCreator {
                             else {
                                 if (context.series !== undefined) {
                                     let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
-                                    PopulateCreateSerieDialogFromSerie(serie);
+                                    console.log("editserie", serie);
+                                    const $dialogElement = $(this.dialogManager.$getDialogElement("newTimePlanDialog"));
+                                    PopulateCreateSerieDialogFromSerie(serie, $dialogElement);
                                 }
                             }
                             
@@ -126,6 +134,7 @@ export class ArrangementCreator {
                                 new mdb.Input(formOutline).init();
                             });
                         },
+                        destructure: () => {},
                         onUpdatedCallback: () => {
                             toastr.success("Tidsplan lagt til eller oppdatert i planen");
                             this.dialogManager.closeDialog("newTimePlanDialog");
@@ -144,7 +153,10 @@ export class ArrangementCreator {
                             context.series.set(details.serie._uuid, details.serie);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
-                        dialogOptions: { width: 700 }
+                        dialogOptions: { 
+                            width: 700,
+                            dialogClass: 'no-titlebar',
+                        }
                     })
                 ],
                 [
@@ -271,7 +283,10 @@ export class ArrangementCreator {
                             context.events.set(details.event._uuid, details.event);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
-                        dialogOptions: { width: 700 }
+                        dialogOptions: { 
+                            width: 700,
+                            dialogClass: 'no-titlebar',
+                        }
                     })
                 ],
                 [
@@ -300,7 +315,7 @@ export class ArrangementCreator {
 
                             let $simpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
                             
-                            if (context.lastTriggererDetails === undefined) {
+                            if (context.lastTriggererDetails?.event_uuid === undefined) {
                                 let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
                                 this.dialogManager.setTitle("newSimpleActivityDialog", "Opprett aktivitet");
                                 $simpleActivityDialog.find('#ticket_code').attr('value',         $mainDialog.find('#id_ticket_code').val() );
@@ -318,8 +333,10 @@ export class ArrangementCreator {
 
                                 return;
                             }
+                            
                             this.dialogManager.setTitle("newSimpleActivityDialog", "Rediger aktivitet");
-                            PopulateCreateEventDialog(context.events.get(context.lastTriggererDetails.event_uuid));
+                            const $dialogElement = $(this.dialogManager.$getDialogElement("newSimpleActivityDialog"));
+                            PopulateCreateEventDialog(context.events.get(context.lastTriggererDetails.event_uuid), $dialogElement);
 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
@@ -358,7 +375,10 @@ export class ArrangementCreator {
                             context.events.set(details.event._uuid, details.event);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
-                        dialogOptions: { width: 700 }
+                        dialogOptions: { 
+                            width: 700, 
+                            dialogClass: 'no-titlebar',
+                        },
                     })
                 ],
                 [
@@ -378,10 +398,14 @@ export class ArrangementCreator {
                             })
                         },
                         onRenderedCallback: () => { },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
                         onUpdatedCallback: () => {
-                            toastr.success("Rom lagt til");
-                            this.dialogManager.closeDialog("orderRoomDialog");
+                            $(this.dialogManager.$getDialogElement("orderRoomDialog")).toggle("slide", () => {
+                                this.dialogManager.closeDialog("orderRoomDialog");
+                            });
                         },
                         onSubmit: (context, details) => {
                             context.rooms = details.formData.get("room_ids");
@@ -415,10 +439,14 @@ export class ArrangementCreator {
                             });
                         },
                         onRenderedCallback: () => { },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                         },
                         onUpdatedCallback: () => {
-                            toastr.success("Personer lagt til");
-                            this.dialogManager.closeDialog("orderPersonDialog");
+                            $(this.dialogManager.$getDialogElement("orderPersonDialog")).toggle("slide", () => {
+                                this.dialogManager.closeDialog("orderPersonDialog");
+                            });
                         },
                         onSubmit: (context, details) => {
                             let people_ids = details.formData.get("people_ids");

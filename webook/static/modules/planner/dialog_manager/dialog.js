@@ -156,7 +156,15 @@ class Dialog {
      * Close this dialog (will close all dialogs on the owning manager)
      */
     closeMe() {
-        document.dispatchEvent(new Event(`${this.managerName}.close`));
+        $(this.dialogElement.parentNode).toggle("slide", () => {
+            document.dispatchEvent(new CustomEvent(`${this.managerName}.closeDialog`, { 
+                "detail": { dialog: this.dialogId } }
+            ));
+        });
+    }
+
+    closeAllDialogsInThisManagerGroup() {
+        document.dispatchEvent(new CustomEvent(`${this.managerName}.close`))
     }
 
 
@@ -199,7 +207,7 @@ class Dialog {
      * Assimilate the consumers supplied methods into the dialog. We need to proxy them, so as 
      * to provide "this" to each dialog.
      */
-    _assimilateMethods() {
+    _assimilateMethods() {  
         for (const method in this._methods) {
             this.constructor.prototype[method] = 
                 function () { 
@@ -221,5 +229,101 @@ class Dialog {
             });
 
         this.interior = interior;
+    }
+}
+
+
+class AbstractBaseStep {
+    constructor (onStepIn, onStepOut, wrapperElement) {
+        this.onStepIn = onStepIn;
+        this.onStepOut = onStepOut;
+        this.wrapperElement = wrapperElement;
+    }
+    
+}
+
+class DialogStepper {
+    constructor({
+        steps, 
+        railWrapperElement="#rail", 
+        allowRailBasedNavigation=false} = {}) {
+
+        if ( !(Array.isArray(steps)) || steps.length == 0 ) {
+            throw Error("Steps is not of a valid value, or length", steps)
+        }
+
+        this.steps = steps;
+        this.currentStep = 0;
+        this.railWrapperElement = railWrapperElement instanceof Node ? railWrapperElement : document.querySelector(railWrapperElement);
+        this.allowRailBasedNavigation = false;
+
+        this._setupSteps();
+    }
+
+    _renderRail() {
+      this.railWrapperElement.innerHTML = "";
+
+      for (let i = 0; i < this.steps.length; i++) {
+        const step = this.steps[i];
+
+        let stepBtn = document.createElement('span');
+        stepBtn.innerText = `${i+1}`;
+        stepBtn.style.display = "inline";
+        stepBtn.classList.add("stepper-stage-pill");
+        if (this.currentStep == i) {
+          stepBtn.setAttribute("disabled", "true")
+          stepBtn.classList.add("active");
+          stepBtn.innerText = `${i+1}. ${step.title}`;
+        }
+        stepBtn.onclick = () => this.stepTo(i);
+        this.railWrapperElement.appendChild(stepBtn);
+      }
+    }
+
+    _setupSteps() {
+      this.steps.forEach(function (step) {
+        if (!(step.element instanceof Node)) {
+          step.element = document.querySelector(step.element);
+        }
+        step.element.style.display = 'none';
+      });
+
+      this.stepTo(this.currentStep);
+    }
+
+    next = () => this.stepTo(this.currentStep + 1);
+    back = () => this.stepTo(this.currentStep - 1);
+
+    _hideSteps = () => this.steps.forEach((step) => step.element.style.display = "none");
+
+    /**
+     * Step to indexToStepTo. If indexToStepTo is negative or greater than the amounts of steps then
+     * false will be returned and the step will not be changed. The indexing is zero-based.
+     * @param {*} indexToStepTo 
+     */
+    stepTo(indexToStepTo) {
+        if (indexToStepTo >= this.steps.length || indexToStepTo < 0) {
+            return false;
+        }
+        
+        const hasMoved = this.currentStep !== indexToStepTo;
+        const oldStep = this.steps[this.currentStep];
+        const newStep = this.steps[indexToStepTo];
+
+        if (typeof oldStep.stepOut !== "undefined" && hasMoved === true) {
+            const isAllowedToStepOut = oldStep.stepOut();
+            if (isAllowedToStepOut === false)
+                return;
+        }
+        if (typeof newStep.stepIn !== "undefined") {
+            newStep.stepIn();
+        }
+        
+        this._hideSteps();
+        newStep.element.style.display = 'block';
+
+        this.currentStep = indexToStepTo;
+
+        this._renderRail()
     }
 }

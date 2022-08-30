@@ -35,7 +35,7 @@ from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
 
-
+    
 class CreateEventSerieJsonFormView(LoginRequiredMixin, JsonFormView):
     """ Create a new event serie / schedule """
     form_class = CreateSerieForm

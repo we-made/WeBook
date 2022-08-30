@@ -6,6 +6,8 @@
  * and retrieve the state (currently selected entities).
  */
 
+import { Popover } from "./popover.js";
+
 const BUTTON_CLASSES = [
     "btn", "btn-sm", "btn-white", "shadow-0",
 ]
@@ -24,7 +26,7 @@ const X_OF_Y_CLASSES = [
 ]
 
 
-export class AdvancedCategoricalFilter {
+export class AdvancedCategoricalFilter extends Popover {
     constructor ( { 
         triggerMode,
         triggerElement, 
@@ -35,16 +37,19 @@ export class AdvancedCategoricalFilter {
         onSubmit,
         } = {} ) {
 
+        super({
+            triggerElement: triggerElement,
+            wrapperElement: wrapperElement,
+        });
+
         this._instanceDiscriminator = crypto.randomUUID();
 
         this._triggerMode = triggerMode;
-        this._triggerElement = triggerElement;
-        this._wrapperElement = wrapperElement;
         this._selectionPresets = selectionPresets;
         this._data = data;
         this._onSubmit = onSubmit;
+        
         this.isRendered = false;
-        this.isShown = false;
 
         // Map the items in the supplied data into a more easily accessible map, 
         // where the key is the supplied key for the item.
@@ -54,12 +59,6 @@ export class AdvancedCategoricalFilter {
 
         this._selectedMap = new Map();
         this._categorySearchMap = new Map();
-
-        this._listenToOutsideClicks();
-
-        if (this._triggerElement) {
-            this._listenToTriggerElementClick();
-        }
 
         this._render();
     }
@@ -88,40 +87,18 @@ export class AdvancedCategoricalFilter {
     }
 
     /**
-     * Listen to, and handle, clicks outside of the popover element.
-     * If the user clicks outside the popover we want to close the popover.
-     */
-    _listenToOutsideClicks() {
-        $(document).click(function (event) {
-            if (this.isShown && this._wrapperElement.contains(event.target) === false && event.target !== this._triggerElement) {
-                this.show();
-            }
-        }.bind(this))
-    }
-    
-    /**
-     * Listen to, and handle, the user clicking the trigger element
-     * When the trigger element is clicked the popover will be shown.
-     */
-    _listenToTriggerElementClick() {
-        this._triggerElement.addEventListener("click", function () {
-            this.show();
-        }.bind(this));
-    }
-
-    /**
      * Construct the html of the popover, using the supplied data.
      */
     _render() {
-        this._wrapperElement.innerHTML = "";
-        if (!this._wrapperElement.classList.contains("popover_wrapper")) {
-            this._wrapperElement.classList.add("popover_wrapper");
+        this.wrapperElement.innerHTML = "";
+        if (!this.wrapperElement.classList.contains("popover_wrapper")) {
+            this.wrapperElement.classList.add("popover_wrapper");
         }
 
         let popoverContentEl = document.createElement("div");
         popoverContentEl.classList.add("popover_content", this._instanceDiscriminator);
 
-        this._wrapperElement.appendChild(popoverContentEl);
+        this.wrapperElement.appendChild(popoverContentEl);
 
         this._selectionPresets.forEach(function (selectionPreset) {
             let presetChipElement = document.createElement("div");
@@ -313,13 +290,5 @@ export class AdvancedCategoricalFilter {
      */
     getSelected() {
         return Array.from(this._selectedMap.values());
-    }
-
-    /**
-     * Show/Hide the popover (toggle)
-     */
-    show() {
-        this._wrapperElement.classList.toggle("active");
-        this.isShown = !this.isShown;
     }
 }

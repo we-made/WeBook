@@ -30,6 +30,8 @@
                 let span = document.createElement("span");
                 span.innerHTML = html;
                 let dialogEl = span.querySelector("#" + this.dialogElementId);
+                $(dialogEl).toggle("highlight");
+
                 this.discriminator = dialogEl.getAttribute("class");
 
                 $('body')
@@ -38,7 +40,7 @@
                         this._$getDialogEl().dialog( this.dialogOptions );
                         this.onRenderedCallback(this, context);
                         this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                            .html("<span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
+                            .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
                             .click( () => {
                                 this.destroy();
                             });
@@ -88,7 +90,9 @@
 
     close() {
         if (this.isOpen() === true) {
-            this.destroy()
+            if (typeof this.destructure !== "undefined")
+                this.destructure();
+            this.destroy();
         }
     }
 
@@ -190,13 +194,13 @@ export class DialogManager {
     closeAllDialogs() {
         this._dialogRepository.forEach( (dialog) => {
             dialog.close();
-        })
+        });
     }
 
     _listenForCloseDialogEvent() {
         document.addEventListener(`${this.managerName}.closeDialog`, (e) => {
             this.closeDialog(e.detail.dialog);
-        })
+        });
     }
 
     _listenForCloseAllEvent() {
@@ -255,9 +259,32 @@ export class DialogManager {
                 }
 
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
-                    console.log(`${this.managerName}.${triggerName}.trigger`, event.detail);
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
+
+                    let parent = event.detail.$parent;
+                    let current = $(value._$getDialogEl());
+                    if (parent) {
+                        $(parent).on("dialogdrag", function (event, ui) {
+                            $(value._$getDialogEl()).dialog("option", "position", { my: "left+20 top", at: "right top", of: parent.parentNode });
+                        });
+                        current.on("dialogdrag", function (event, ui) {
+                            console.log("current drag")
+                            $(parent).dialog("option","position", { my: "right top", at: "left top", of: current[0].parentNode } )
+                        });
+
+                        value.dialogOptions = { 
+                            dialogClass: "slave-dialog" + value.dialogOptions.dialogClass !== undefined ? (" " + value.dialogOptions.dialogClass) : "",
+                            classes: {
+                                "ui-dialog": "slave-dialog"
+                            },
+                            position: { my: "left top", at: "right top", of: parent.parentNode },
+                            height: parent.parentNode.offsetHeight,
+                            width: 600,
+                            show: { effect: "slide", direction: "left", duration: 400 }
+                        }
+                        console.log("options", value.dialogOptions)
+                    }
                 });
             }
         });

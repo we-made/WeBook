@@ -1,248 +1,210 @@
 {% load static i18n %}
 
 
-<div id="{{dialogId}}" class="{{discriminator}}" title="">
-    <div class="row">
-        <div class="col-6">
+<div id="{{dialogId}}" class="{{discriminator}}" >
+    <div class="clearfix">
+        <div class="float-start">
+            <h6>
+                Definer aktivitet
+            </h6>
+            <h5 class="fw-bold">
+                <i class="fas fa-calendar-plus"></i>&nbsp; Aktivitet navn
+            </h5>
+        </div>
+        <div id="stepper" class="float-end stepper-rail"></div>
+    </div>
+
+    <hr>
+
+    <div style="max-height: 600px; height: 600px; overflow: scroll; overflow-y: visible;">
+        <div id="step-1">
             <form id="newSimpleActivityForm">
                 <input type="submit" name="submit" style="display:none;" />
-    
-                <input type="hidden" name="uuid" id="event_uuid">
+                <input type="hidden" name="uuid" id="event_uuid" />
                 
-                <h5>
-                    Informasjon
-                </h5>
-                <div class="row">
-                    <div class="col-6">
-                        <div class="form-outline mb-2">
-                            <input type="text" id="title" name="title" class="form-control" />
-                            <label class="form-label" for="title">🇳🇴 Tittel på norsk</label>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-outline mb-2">
-                            <input type="text" id="title_en" name="title_en" class="form-control" />
-                            <label class="form-label" for="title_en">🇬🇧 Tittel på engelsk</label>
-                        </div>
-                    </div>
-                </div>
-    
-                <div class="form-outline mb-2">
-                    <input type="text" id="ticket_code" name="ticket_code" class="form-control" />
-                    <label class="form-label" for="ticket_code"><i class="fas fa-receipt text-info"></i>&nbsp; Billetkode</label>
-                </div>
-    
-                <div class="form-outline mb-2">
-                    <input type="text" id="expected_visitors" name="expected_visitors" class="form-control" />
-                    <label class="form-label" for="expected_visitors"><i class="fas fa-users text-info"></i>&nbsp; Forventet antall besøkende</label>
-                </div>
-    
-                <h5 class="mt-3">
-                    Tider
-                </h5>
-                <div class="form-group mt-2">
-                    <label for=""><i class="fas fa-calendar text-muted"></i>&nbsp; Fra</label>
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-outline">
-                                <input type="date" id="fromDate" name="fromDate" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-outline">
-                                <input type="time" id="fromTime" name="fromTime" class="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-    
-                <div class="form-group mt-2">
-                    <label for=""><i class="fas fa-calendar text-muted"></i>&nbsp; Til</label>
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-outline">
-                                <input type="date" id="toDate" name="toDate" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-outline">
-                                <input type="time" id="toTime" name="toTime" class="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-    
-                <h5 class="mt-3">
-                    Skjermvisning
-                </h5>
-                <div class="form-group mt-3">
-                    <label class="d-block"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Show on:" %}</label>
-                    <ul>
-                        {% for choice_id, choice_label in form.display_layouts.field.choices %}
-                            <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
-                            <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
-                        {% endfor %}
-                    </ul>
+                <div class="form-group mb-2">
+                    <label class="form-label" for="title">Tittel <i>(Norsk)</i></label>
+                    <input type="text" id="title" name="title" class="form-control form-control-lg" required />
                 </div>
 
+                <div class="form-group mb-2">
+                    <label class="form-label" for="title_en">Tittel <i>(Engelsk)</i></label>
+                    <input type="text" id="title_en" name="title_en" class="form-control form-control-lg" />
+                </div>
+    
+                <div class="form-group mb-2">
+                    <label class="form-label" for="ticket_code">
+                        <i class="fas fa-receipt"></i>&nbsp;
+                        Billetkode
+                    </label>
+                    <input type="text" id="ticket_code" name="ticket_code" class="form-control form-control-lg" />
+                </div>
+    
+                <div class="form-group mb-2">
+                    <label class="form-label" for="expected_visitors">
+                        <i class="fas fa-users"></i>
+                        Forventet besøkende
+                    </label>
+                    <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" required />
+                </div>
+    
+                <div class="form-group mt-2">
+                    <label for="" class="form-label">Fra</label>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-outline">
+                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" required />
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-outline">
+                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="form-group mt-2">
+                    <label for="" class="form-label">Til</label>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-outline">
+                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" required />
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-outline">
+                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
-        <div class="col-6">
-            <div class="accordion accordion-flush" id="accordionFlushExample">
-                <div class="accordion-item">
-                    <h5 class="accordion-header">
-                        <button
-                          class="accordion-button collapsed"
-                          type="button"
-                          data-mdb-toggle="collapse"
-                          data-mdb-target="#activityAccordions-people"
-                          aria-expanded="false"
-                          aria-controls="activityAccordions-people">
-                          <div class="badge badge-secondary" id="peopleCounter">0</div>
-                          &nbsp;<i class="fas fa-users"></i>&nbsp;
-                          Personer
-                        </button>
-                    </h5>
-                    <div
-                      id="activityAccordions-people"
-                      class="accordion-collapse collapse"
-                      aria-labelledby="activityAccordions-people"
-                      data-mdb-parent="#accordionFlushExample">
-  
-                      <div class="accordion-body">
-                          <a class="btn btn-block wb-btn-secondary shadow-0"
-                          d-trigger="triggerAddPeople"
-                          type="button">
-                              Legg til personer
-                          </a>
-  
-                          <div class="mt-2 table-responsive">
-                              <table class="table-sm table">
-                                  <tbody id="peopleTbody__d1">
-                                  </tbody>
-                              </table>
-                          </div>
-                      </div>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h5 class="accordion-header">
-                        <button
-                          class="accordion-button collapsed"
-                          type="button"
-                          data-mdb-toggle="collapse"
-                          data-mdb-target="#activityAccordions-rooms"
-                          aria-expanded="false"
-                          aria-controls="activityAccordions-rooms">
-                          <div class="badge badge-secondary" id="roomsCounter">0</div>
-                          &nbsp;<i class="fas fa-building"></i>&nbsp;
-                          Rom
-                        </button>
-                    </h5>
-                    <div
-                      id="activityAccordions-rooms"
-                      class="accordion-collapse collapse"
-                      aria-labelledby="activityAccordions-rooms"
-                      data-mdb-parent="#accordionFlushExample">
-  
-                      <div class="accordion-body">
-                        <a class="btn btn-block wb-btn-secondary shadow-0"
-                        d-trigger="triggerAddRooms"
-                        type="button">
-                            Legg til rom
-                        </a>
+        <div id="step-2">
+            <!-- <div class="input-group input-group-lg">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="search" name="" placeholder="Søk etter personer..." class="form-control form-control-lg"></input>
+            </div> -->
 
-                        <div class="mt-2 table-responsive">
-                            <table class="table-sm table">
-                                <tbody id="roomsTbody__d1">
-                                </tbody>
-                            </table>
-                        </div>
-                      </div>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h5 class="accordion-header" id="flush-headingOne">
-                      <button
-                        class="accordion-button collapsed"
-                        type="button"
-                        data-mdb-toggle="collapse"
-                        data-mdb-target="#flush-collapseOne"
-                        aria-expanded="false"
-                        aria-controls="flush-collapseOne"
-                      >
-                        <i class="fas fa-clock"></i>&nbsp; Buffere
-                      </button>
-                    </h5>
-                    <div
-                      id="flush-collapseOne"
-                      class="accordion-collapse collapse"
-                      aria-labelledby="flush-headingOne"
-                      data-mdb-parent="#accordionFlushExample"
-                    >
-                      <div class="accordion-body">
-                          <div class="alert alert-info small">
-                              <i class="fas fa-info-circle"></i>
-                              Buffere blir opprettet som egne hendelser før og etter aktiviteten.
-                          </div>
-              
-                          <table class="table">
-                              <thead></thead>
-                              <tbody>
-                                  <tr>
-                                      <th colspan="3" class="fw-bold">Buffer før aktiviteten:</th>
-                                  </tr>
-                                  <tr>
-                                      <td>
-                                          Fra
-                                          <div class="form-outline">
-                                              <input type="time" id="buffer_before_start" name="buffer_before_start" class="form-control" />
-                                          </div>
-                                      </td>
-                                      <td>
-                                          Til
-                                          <div class="form-outline">
-                                              <input type="time" id="buffer_before_end" name="buffer_before_end" class="form-control" />
-                                          </div>
-                                      </td>
-                                  </tr>
-                                  <tr>
-                                      <th colspan="3" class="fw-bold">Buffer etter aktiviteten:</th>
-                                  </tr>
-                                  <tr>
-                                      <td>
-                                          Fra
-                                          <div class="form-outline">
-                                              <input type="time" id="buffer_after_start" name="buffer_after_start" class="form-control" />
-                                          </div>
-                                      </td>
-                                      <td>
-                                          Til
-                                          <div class="form-outline">
-                                              <input type="time" id="buffer_after_end" name="buffer_after_end" class="form-control" />
-                                          </div>
-                                      </td>
-                                  </tr>
-                              </tbody>
-                          </table>            
-                      </div>
-                    </div>
-                  </div>
-              </div>
-        </div>
 
-        <div class="clearfix">
-            <div class="float-end">
-                <a href="#" class="btn wb-btn-secondary btn-lg"
-                    d-trigger="close">
-                    <i class="fas fa-times"></i>
-                    Avbryt
-                </a>
+            <button class="btn wb-btn-secondary border"
+            d-trigger="triggerAddPeople">
+                Velg Person
+            </button>
 
-                <a class="mt-2 btn wb-btn-main" d-trigger="submit" href="#">
-                    <i class="fas fa-check"></i>&nbsp; Lagre
-                </a>
+            <div id="selectedPeopleWrapper" class="mb-2 mt-3">
             </div>
+
+            <!-- <div class="input-group input-group-lg mt-5">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="search" name="" placeholder="Søk etter rom..." class="form-control form-control-lg"></input>
+            </div> -->
+
+            <button class="btn wb-btn-secondary border mt-5"
+                    d-trigger="triggerAddRooms">
+                Velg rom
+            </button>
+
+            <div id="selectedRoomsWrapper" class="mb-2 mt-3"></div>
+        </div>
+        <div id="step-3">
+            <div class="alert alert-info small">
+                <i class="fas fa-info-circle"></i>
+                Buffere blir opprettet som egne hendelser før og etter aktiviteten.
+            </div>
+
+            <table class="table">
+                <thead></thead>
+                <tbody>
+                    <tr>
+                        <th colspan="3" class="h5">Buffer før aktiviteten:</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="buffer_before_start" class="form-label">
+                                Fra
+                            </label>
+                            <div class="form-outline">
+                                <input type="time" id="buffer_before_start" name="buffer_before_start" class="form-control form-control-lg" />
+                            </div>
+                        </td>
+                        <td>
+                            <label for="buffer_before_end" class="form-label">
+                                Til
+                            </label>
+                            <div class="form-outline">
+                                <input type="time" id="buffer_before_end" name="buffer_before_end" class="form-control form-control-lg" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="3" class="h5">Buffer etter aktiviteten:</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="buffer_after_start" class="form-label">
+                                Fra
+                            </label>
+                            <div class="form-outline">
+                                <input type="time" id="buffer_after_start" name="buffer_after_start" class="form-control form-control-lg" />
+                            </div>
+                        </td>
+                        <td>
+                            <lable for="buffer_after_end" class="form-label">
+                                Til
+                            </lable>
+                            <div class="form-outline">
+                                <input type="time" id="buffer_after_end" name="buffer_after_end" class="form-control form-control-lg" />
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="step-4">
+            {% if form.display_layouts.field.choices %}
+            <div class="form-group mt-2">
+                <label class="d-block form-label"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Vises på:" %}</label>
+                <ul>
+                    {% for choice_id, choice_label in form.display_layouts.field.choices %}
+                        <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
+                        <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="clearfix">
+        <div class="float-start">
+            <button class="btn wb-btn-blank btn-lg text-muted"
+                    id="cancel"
+                    d-trigger="close">
+                <i class="fas fa-times"></i>&nbsp;
+                Avbryt
+            </button>
+        </div>
+        <div class="float-end">
+            <button class="btn wb-btn-secondary btn-lg"
+                    id="back">
+                Tilbake
+            </button>
+            <button class="btn wb-btn-main btn-lg"
+                    id="next">
+                Neste
+            </button>
+            <button class="btn wb-btn-main btn-lg"
+                    style="display:none;"
+                    d-trigger="submit"
+                    id="finish">
+                Lagre
+            </button>
         </div>
     </div>
 </div>
@@ -265,58 +227,92 @@
                 dialog.data.peopleNameMap = e.detail.context.people_name_map;
                 dialog.setPeople({ people: e.detail.context.people });
 
-                dialog.$("#peopleCounter").text(dialog.$("#peopleTbody__d1").children().length);
+                dialog.$("#peopleCounter").text(dialog.$("#selectedPeopleWrapper").children().length);
             });
             document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
                 dialog.data.roomsNameMap = e.detail.context.room_name_map;
                 dialog.setRooms({ rooms: e.detail.context.rooms });
 
-                dialog.$("#roomsCounter").text(dialog.$("#roomsTbody__d1").children().length);
+                dialog.$("#roomsCounter").text(dialog.$("#selectedRoomsWrapper").children().length);
             });
+
+            dialog.data.stepper = new DialogStepper({
+                allowRailBasedNavigation: true,
+                railWrapperElement: dialog.getElementById('stepper'),
+                steps: [
+                    {
+                        element: dialog.getElementById('step-1'),
+                        title: 'Detaljer',
+                        stepIn: () => { console.log("1. Step In") },
+                        stepOut: () => { 
+                            /** PS!
+                             * Be aware that this will cause issues the moment you have inputs or selects
+                             * that are not in step-1. As of the writing of this comment all the fields we care
+                             * about validating are in step-1, so we can blanket-validate it like this.
+                             * This is not the case if you add input or selects to any other steps - and this will
+                             * prevent progression to further steps, until the inputs in those future steps are considered
+                             * valid, which is of course impossible, since one can not reach them due to this blanket-validation.
+                             * */
+                            return dialog.validate();
+                        }
+                    },
+                    {
+                        element: dialog.getElementById('step-2'),
+                        title: 'Rom & Personer',
+                        stepIn: () => { console.log("1. Step In") },
+                        stepOut: () => { console.log("2. Step Out"); }
+                    },
+                    {
+                        element: dialog.getElementById('step-3'),
+                        title: 'Opp og ned-rigg',
+                        stepIn: () => {},
+                        stepOut: () => {},
+                    },
+                    {
+                        element: dialog.getElementById('step-4'),
+                        title: 'Skjermer',
+                        stepIn: () => { 
+                            dialog.getElementById('next').style.display = "none";
+                            dialog.getElementById('finish').style.display = "inline-block";
+                        },
+                        stepOut: () => {
+                            dialog.getElementById('finish').style.display = "none";
+                            dialog.getElementById('next').style.display = "inline-block";
+                        },
+                    },
+                ]
+            });
+            dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
+            dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {
                 dialog.closeMe();
             },
             setRooms(dialog, { rooms } = {}, triggeredByElement) {
-                let tbody = dialog.$('#roomsTbody__d1');
-                tbody.empty();
+                let wrapper = dialog.$('#selectedRoomsWrapper');
+                wrapper.empty();
 
-                let ids = rooms.split(",");
-                ids.forEach(id => {
-                    tbody.append(
-                        $(`<tr rowid='${id}'>
-                            <td> <input type='checkbox' /> </td>
-                            <td>${dialog.data.roomsNameMap.get(id)}</td>
-                            <td> <a href='#' class='text-danger'
-                                    data-mdb-toggle='tooltip'
-                                    title='{% trans "Remove this room from the activity" %}'
-                                    d-trigger='removeAssociation'>
-                                        <i class='fas fa-trash'></i>
-                                    </a>
-                            </td>
-                        </tr>`)
-                    )
+                rooms.split(",").forEach(id => {
+                    wrapper.append(
+                        $(`<selected-pill name='${dialog.data.roomsNameMap.get(id)}'
+                                          id='${id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)    
+                    );
                 });
             },
             setPeople(dialog, { people } = {}, triggeredByElement) {
-                let tbody = dialog.$('#peopleTbody__d1');
-                tbody.empty();
+                let wrapper = dialog.$('#selectedPeopleWrapper');
+                wrapper.empty();
 
-                let ids = people.split(",");
-                ids.forEach(id => {
-                    tbody.append(
-                        $(`<tr rowid='${id}'>
-                            <td>${dialog.data.peopleNameMap.get(id)}</td>
-                            <td> <a href='#' class='text-danger'
-                                    data-mdb-toggle='tooltip'
-                                    title='{% trans "Remove this person from the activity" %}'
-                                    d-trigger="removeAssociation">
-                                        <i class='fas fa-trash'></i>
-                                    </a>
-                            </td>
-                        </tr>`)
-                    )
+                people.split(",").forEach(id => {
+                    wrapper.append(
+                        $(`<selected-pill name='${dialog.data.peopleNameMap.get(id)}'
+                                          id='${id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)
+                    );
                 });
             },
             submit(dialog, {} = {}, triggeredByElement) {
@@ -372,26 +368,27 @@
                 return true;
             },
             removeAssociation(dialog, {} = {}, triggeredByElement) {
-                let row = $(triggeredByElement).closest("tr")[0];
-                let rowid = row.getAttribute("rowid");
-                row.remove();
+                $(triggeredByElement).closest("selected-pill")[0].remove();
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", {});
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement });
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", {});
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement });
             },
             getSelectedRoomIds (dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$("#roomsTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+                return Array.from(dialog.$("#selectedRoomsWrapper")[0].children)
+                    .map(pillElement => pillElement.getAttribute("id"));
             },
             getSelectedPeopleIds(dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$("#peopleTbody__d1")[0].children).map(row => row.getAttribute("rowid"));
+                return Array.from(dialog.$("#selectedPeopleWrapper")[0].children)
+                    .map(pillElement => pillElement.getAttribute("id"));
             },
         },
         data: {
             peopleNameMap: new Map(),
             roomsNameMap: new Map(),
+            stepper: null,
         }
     });
 </script>

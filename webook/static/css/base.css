@@ -1,6 +1,6 @@
 :root {
     --MAIN-COLOR: #231f20;
-    --SECONDARY-COLOR: rgb(247, 245, 244);
+    --SECONDARY-COLOR: #f6f6f0 ;
     --MAIN-HOVER: white;
     --SECONDARY-HOVER: var(--MAIN-COLOR);
     
@@ -17,9 +17,58 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+html, body {
+    height: 100%!important;
+}
+
+.wb-sidebar-item {
+    color: var(--ACTIVE-TEXT-COLOR);
+}
+
+.bg-weak-success {
+    background-color: #badbcb;
+}
+
+.bg-weak-secondary {
+    background-color: #cdbfd7;
+}
+
+.bg-weak-primary {
+    background-color: #cce3f7;
+}
+
+.bg-weak-info {
+    background-color: #def2f8;
+}
+
+.wb-sidebar-item-nested.active {
+    background-color: #f6f6f0;
+    opacity: 1;
+    color: var(--FC-TEXT-COLOR);
+    box-shadow: none;
+    border: solid 0.09em black;
+}
+
+/* .wb-sidebar-item-nested:hover {
+    box-shadow: none;
+    color: black;
+    border: solid 0.09em black!important;
+} */
+
+.wb-sidebar-item.active {
+    /* background-color: #f6f6f0; */
+    color: var(--FC-TEXT-COLOR);
+    /* border-right: solid 0.2em black; */
+}
+
+.wb-sidebar-item:hover {
+    background-color: #f6f6f0;
+    color: var(--FC-TEXT-COLOR);
+    /* border-right: solid 0.2em black; */
+}
+
 .clickable-badge {
     border: solid 0.5px gainsboro;
-    /* font-size: medium; */
 }
 
 .clickable-badge:hover {
@@ -34,6 +83,10 @@
 .wb-sub-bar {
     font-size: large;
     font-weight: bold;
+}
+
+.wb-bg-extra {
+    background-color:  #f6f6f0!important;
 }
 
 #main-navbar .nav-link {
@@ -81,6 +134,47 @@
 .wb-btn-main {
     background-color: var(--MAIN-COLOR);
     color: white !important;
+    border-radius: 0.5em;
+    box-shadow: none;
+    font-size: medium;
+    text-transform: none;
+    padding: .5rem 1.5rem .5rem;
+}
+
+.wb-btn-main.btn-lg {
+    padding: .5rem 1rem!important;
+    border-radius: .3rem!important;
+    font-size: larger;
+}
+
+.wb-btn-secondary.btn-lg {
+    padding: .5rem 1rem!important;
+    border-radius: .3rem!important;
+    font-size: large;
+
+}
+
+.wb-btn-blank.btn-lg {
+    padding: .5rem 1rem!important;
+    border-radius: .3rem!important;
+    font-size: large;
+
+}
+
+.wb-btn-blank {
+    background-color: white;
+    color: var(--MAIN-COLOR) !important;
+    border-radius: 0.5em;
+    box-shadow: none;
+    font-size: medium;
+    text-transform: none;
+    padding: .5rem 1.5rem .5rem;
+}
+
+.wb-btn-auto {
+    background-color: inherit;
+    color: var(--MAIN-COLOR) !important;
+
     border-radius: 0.5em;
     box-shadow: none;
     font-size: medium;
@@ -192,8 +286,14 @@
 
 .popover_wrapper {
     position: relative;
-    display: inline-block;
-  }
+}
+
+.popover_wrapper.wb-popover-sidebar .popover_content {
+    left: 0rem;
+    border-left: solid 1.8rem #5283B0;
+    transform: translate(0px, -5.3em);
+    width: 20em;
+}
 
 .popover_content {
     visibility: hidden;
@@ -211,4 +311,41 @@
     width: 45rem;
     visibility: visible;
     transition: all 0.5s cubic-bezier(0.75, -0.02, 0.2, 0.97);
+}
+
+.stepper-stage-pill {
+    background-color: var(--SECONDARY-COLOR);
+    padding: 0.6em;
+    color: black;
+    border-radius: .5em;
+}
+
+.stepper-stage-pill.active {
+    border: solid 1px var(--MAIN-COLOR);
+}
+
+.stepper-rail :nth-child(n+1) {
+    margin-right: 0.3em;
+}
+
+
+
+.slave-dialog {
+    box-shadow: 10px 1px 20px 1px  grey!important;
+    background-color: var(--SECONDARY-COLOR)!important;
+    border-left: none!important;
+    border-top-left-radius: 0px!important;
+    border-bottom-left-radius: 0px!important;
+    border-left: solid 2px grey!important;
+    background-color: white!important;
+    /* background-color:  #f6f6f0 !important; */
+    /* margin-left: 20px!important; */
+}
+
+.no-titlebar .ui-dialog-titlebar {
+    display: none;
+}
+
+.no-titlebar {
+    padding-top: 1.5em!important;
 }
