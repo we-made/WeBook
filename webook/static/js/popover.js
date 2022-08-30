@@ -23,7 +23,6 @@ export class Popover {
 
     _listenToOutsideClicks() {
         $(document).click(function (event) {
-            console.log(event.target)
             if (this.isShown && this.wrapperElement.contains(event.target) === false && event.target !== this.triggerElement && this.triggerElement.contains(event.target) === false) {
                 this.show();
             }
