@@ -72,15 +72,22 @@
             }
             else { console.log(html); }
 
-            let holderEl = document.createElement("span");
-            holderEl.innerHTML = html;
+            this.destroy();
+            this.render(context);
 
-            let activeDialog = document.querySelector("#" + this.dialogElementId);
-            let tmpDialog = holderEl.querySelector("#" + this.dialogElementId);
-            activeDialog.innerHTML = tmpDialog.innerHTML;
-            this.changeTitle(tmpDialog.getAttribute("title"));
+            // let holderEl = document.createElement("span");
+            // holderEl.innerHTML = html;
 
-            document.dispatchEvent(new Event("dialogs.forceGlobalDialogTriggerRefresh"));
+            // let activeDialog = document.querySelector("#" + this.dialogElementId);
+            // let tmpDialog = holderEl.querySelector("#" + this.dialogElementId);
+            // activeDialog.outerHTML = tmpDialog.outerHTML;
+            // console.log(activeDialog.outerHTML)
+            // this.changeTitle(tmpDialog.getAttribute("title"));
+
+            // if (tmpDialog.getAttribute("discriminator") !== null)
+            //     activeDialog.setAttribute("discriminator", tmpDialog.getAttribute("discriminator"));
+
+            // document.dispatchEvent(new Event("dialogs.forceGlobalDialogTriggerRefresh"));
 
             this.onRenderedCallback(this, context);
 

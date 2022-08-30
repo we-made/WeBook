@@ -102,6 +102,10 @@ export class ArrangementInspector {
                             this._listenToOrderPersonForSingleEventeBtnClick();
                         },
                         onSubmit: async (context, details) => {
+                            for (const pair of details.formData){
+                                console.log(pair[0], pair[1]);
+                            }
+
                             let html = await fetch("/arrangement/planner/dialogs/arrangement_information/" + context.arrangement.slug + "?managerName=arrangementInspector&dialogId=mainDialog", {
                                 method: 'POST',
                                 body: details.formData,
@@ -109,7 +113,11 @@ export class ArrangementInspector {
                                 headers: {
                                     "X-CSRFToken": details.formData.get("csrfmiddlewaretoken")
                                 }
-                            }).then(response => response.text());
+                            })
+                            .then(response => response.text())
+                            .then(a => {
+                                this.dialogManager.reloadDialog("mainDialog");
+                            });
                         },
                         onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
                         dialogOptions: { width: 800, height: 800  }

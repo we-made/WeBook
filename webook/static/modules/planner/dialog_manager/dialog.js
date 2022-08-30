@@ -26,7 +26,7 @@ class Dialog {
         this._assimilateMethods();
         this._refreshListens();
 
-        this._listenToGlobalRetriggering();
+        // this._listenToGlobalRetriggering();
         
         postInit(this);
     }
@@ -43,8 +43,8 @@ class Dialog {
      */
     _spawnMutationObserver() {
         this.observer = new MutationObserver((mutations, observer) => {
-            console.log(`${this.managerName}.${this.dialogId} refresh`);
-            this._refreshListens();
+            if (this.$dialogElement[0].classList.contains(this.discriminator))
+                this._refreshListens();
         });
         this.observer.observe(this.$dialogElement[0], {
             subtree: true, 
@@ -56,7 +56,6 @@ class Dialog {
      * Remove all existing listeners and attach new ones
      */
     _refreshListens() {
-        console.log(">> refreshListens!!")
         this.$dialogElement.find('*[d-trigger]').off("click"); // remove old event handlers
         this._listenToDTriggerAttribute();
     }

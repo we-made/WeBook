@@ -183,9 +183,10 @@
                             min="0"
                             class="form-control form-control-lg"
                             id="{{ form.expected_visitors.id_for_label }}"
-                            value="{{ form.expected_visitors.value|default:'' }}"
+                            value="{{ form.expected_visitors.value|default:'0' }}"
                             name="{{ form.expected_visitors.name }}"
-                            placeholder="{% trans 'Forventet antall besøkende' %}..."/>
+                            placeholder="{% trans 'Forventet antall besøkende' %}..."
+                            required/>
         
                         {% if form.expected_visitors.errors|length > 0 %}
                             <div class="alert alert-danger">
@@ -697,8 +698,6 @@
                 dialog.raiseTriggerEvent("eventInspector", "inspectEventDialog", { pk: eventId });
             },
             submit(dialog, {} = {}, triggeredByElement) {
-                let csrf_token="{{csrf_token}}"
-
                 let formData = new FormData();
                 var $dialog = $('#mainDialog');
                 formData.append("name",                 dialog.interior.id_name.value);
@@ -712,6 +711,8 @@
                 formData.append("expected_visitors",    dialog.interior.id_expected_visitors.value);
                 formData.append("actual_visitors",      dialog.interior.id_actual_visitors.value);
                 formData.append("csrfmiddlewaretoken",  "{{ csrf_token }}");
+
+                console.log(dialog)
 
                 dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
                     formData.append("display_layouts", element.value);
