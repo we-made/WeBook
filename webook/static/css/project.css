@@ -127,8 +127,7 @@ div.modal-body > .bootbox-close-button {
   opacity:.75;
 }
 
-.ui-widget-overlay
-{
+.ui-widget-overlay {
   opacity: .50 !important; /* Make sure to change both of these, as IE only sees the second one */
   filter: Alpha(Opacity=50) !important;
 
