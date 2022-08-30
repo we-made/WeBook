@@ -583,12 +583,12 @@
                     cancelButtonText: 'Avbryt',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch('/arrangement/note/delete/' + note_pk, {
+                        fetch('/arrangement/note/delete/' + notePk, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRFToken': '{{csrf_token}}',
                             }
-                        }).then(response => { dialog.$('note_' + note_pk).remove(); });     
+                        }).then(response => { dialog.$('#note_' + notePk).remove(); });     
                     }
                 });
             },
