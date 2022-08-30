@@ -230,7 +230,7 @@
             </div>
             <div class="mb-2">
                 {% for file in object.files.all %}
-                    <div class="wb-bg-extra p-3 mt-2 rounded-pill">
+                    <div class="wb-bg-extra p-3 mt-2 rounded-pill" id="fileRow_{{file.pk}}">
                         <span>{{file.filename}}</span>
                         <span class="float-end">
                             <a href="#"

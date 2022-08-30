@@ -25,8 +25,16 @@ class Dialog {
         this._discover();
         this._assimilateMethods();
         this._refreshListens();
+
+        this._listenToGlobalRetriggering();
         
         postInit(this);
+    }
+
+    _listenToGlobalRetriggering() {
+        document.addEventListener("dialogs.forceGlobalDialogTriggerRefresh", (e) => {
+            this._refreshListens();
+        });
     }
 
     /**
@@ -48,6 +56,7 @@ class Dialog {
      * Remove all existing listeners and attach new ones
      */
     _refreshListens() {
+        console.log(">> refreshListens!!")
         this.$dialogElement.find('*[d-trigger]').off("click"); // remove old event handlers
         this._listenToDTriggerAttribute();
     }
@@ -285,7 +294,6 @@ class DialogStepper {
         if (!(step.element instanceof Node)) {
           step.element = document.querySelector(step.element);
         }
-        debugger;
         step.element.style.display = 'none';
       });
 

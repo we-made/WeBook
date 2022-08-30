@@ -80,6 +80,8 @@
             activeDialog.innerHTML = tmpDialog.innerHTML;
             this.changeTitle(tmpDialog.getAttribute("title"));
 
+            document.dispatchEvent(new Event("dialogs.forceGlobalDialogTriggerRefresh"));
+
             this.onRenderedCallback(this, context);
 
             return;
