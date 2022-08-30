@@ -111,79 +111,6 @@
                                 <input type="checkbox" id="saturday"> <label>Lørdag</label>
                                 <input type="checkbox" id="sunday"> <label>Søndag</label>
                             </span>
-
-                        <div class="col-5">
-                            <div class="accordion accordion-flush" id="createSerieDialog_accordion">
-                                <div class="accordion-item">
-                                    <h5 class="accordion-header">
-                                        <button
-                                          class="accordion-button collapsed"
-                                          type="button"
-                                          data-mdb-toggle="collapse"
-                                          data-mdb-target="#createSerieDialogAccordion-people"
-                                          aria-expanded="false"
-                                          aria-controls="createSerieDialogAccordion-people">
-                                          <div class="badge badge-secondary" id="peopleCounter">0</div>
-                                          &nbsp;<i class="fas fa-users"></i>&nbsp;
-                                          Personer
-                                        </button>
-                                    </h5>
-                                    <div
-                                      id="createSerieDialogAccordion-people"
-                                      class="accordion-collapse collapse"
-                                      aria-labelledby="createSerieDialogAccordion-people"
-                                      data-mdb-parent="#createSerieDialog_accordion">
-                  
-                                      <div class="accordion-body">
-                                          <a class="btn btn-block wb-btn-secondary shadow-0"
-                                          d-trigger="triggerAddPeople"
-                                          type="button">
-                                              <i class="fas fa-plus"></i>
-                                              Legg til personer
-                                          </a>
-                  
-                                          <div id="peopleChips"></div>
-                                      </div>
-                                    </div>
-                                </div>
-                                <div class="accordion-item">
-                                    <h5 class="accordion-header">
-                                        <button
-                                          class="accordion-button collapsed"
-                                          type="button"
-                                          data-mdb-toggle="collapse"
-                                          data-mdb-target="#createSerieDialogAccordion-rooms"
-                                          aria-expanded="false"
-                                          aria-controls="createSerieDialogAccordion-rooms">
-                                          <div class="badge badge-secondary" id="roomsCounter">0</div>
-                                          &nbsp;<i class="fas fa-building"></i>&nbsp;
-                                          Rom
-                                        </button>
-                                    </h5>
-                                    <div
-                                      id="createSerieDialogAccordion-rooms"
-                                      class="accordion-collapse collapse"
-                                      aria-labelledby="createSerieDialogAccordion-rooms"
-                                      data-mdb-parent="#createSerieDialog_accordion">
-                  
-                                      <div class="accordion-body">
-                                        <a class="btn btn-block wb-btn-secondary shadow-0"
-                                            d-trigger="triggerAddRooms">
-                                            <i class="fas fa-plus"></i>
-                                            Legg til rom
-                                        </a>
-                
-                                        <div id="roomChips"></div>
-
-                                        <div class="table-responsive mt-2">
-                                            <table class="table table-sm">
-                                                <tbody id="roomsTbody"></tbody>
-                                            </table>
-                                        </div>
-                                        <hr>
-                                    </div>
-                                </div>
-                            </fieldset>
                         </div>
     
                         <div id="patternRoute_monthly" style="display: none;">
@@ -270,6 +197,7 @@
             </button>
             <div id="roomChips" class="mb-2 mt-3"></div>
         </div>
+
         <div id="step-4">
             <div class="alert alert-info small">
                 <h6><i class="fas fa-info-circle"></i>&nbsp; Opprigg og nedrigg blir opprettet som egne hendelser før og etter aktiviteten.</h6>
@@ -553,13 +481,11 @@
             }
 
             document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
-                console.log("peopleCtx", e.detail.context);
                 dialog.data.peopleNameMap = e.detail.context.people_name_map;
                 dialog.setPeople({ people: e.detail.context.people });
                 dialog.$("#peopleCounter").text(dialog.$("#peopleChips").children().length);
             });
             document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
-                console.log("roomsCtx", e.detail.context);
                 dialog.data.roomsNameMap = e.detail.context.room_name_map;
                 dialog.setRooms({ rooms: e.detail.context.rooms });
                 dialog.$("#roomsCounter").text(dialog.$("#roomChips").children().length);

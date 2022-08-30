@@ -285,6 +285,7 @@ class DialogStepper {
         if (!(step.element instanceof Node)) {
           step.element = document.querySelector(step.element);
         }
+        debugger;
         step.element.style.display = 'none';
       });
 
