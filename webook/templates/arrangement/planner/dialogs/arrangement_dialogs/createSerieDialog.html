@@ -111,6 +111,79 @@
                                 <input type="checkbox" id="saturday"> <label>Lørdag</label>
                                 <input type="checkbox" id="sunday"> <label>Søndag</label>
                             </span>
+
+                        <div class="col-5">
+                            <div class="accordion accordion-flush" id="createSerieDialog_accordion">
+                                <div class="accordion-item">
+                                    <h5 class="accordion-header">
+                                        <button
+                                          class="accordion-button collapsed"
+                                          type="button"
+                                          data-mdb-toggle="collapse"
+                                          data-mdb-target="#createSerieDialogAccordion-people"
+                                          aria-expanded="false"
+                                          aria-controls="createSerieDialogAccordion-people">
+                                          <div class="badge badge-secondary" id="peopleCounter">0</div>
+                                          &nbsp;<i class="fas fa-users"></i>&nbsp;
+                                          Personer
+                                        </button>
+                                    </h5>
+                                    <div
+                                      id="createSerieDialogAccordion-people"
+                                      class="accordion-collapse collapse"
+                                      aria-labelledby="createSerieDialogAccordion-people"
+                                      data-mdb-parent="#createSerieDialog_accordion">
+                  
+                                      <div class="accordion-body">
+                                          <a class="btn btn-block wb-btn-secondary shadow-0"
+                                          d-trigger="triggerAddPeople"
+                                          type="button">
+                                              <i class="fas fa-plus"></i>
+                                              Legg til personer
+                                          </a>
+                  
+                                          <div id="peopleChips"></div>
+                                      </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h5 class="accordion-header">
+                                        <button
+                                          class="accordion-button collapsed"
+                                          type="button"
+                                          data-mdb-toggle="collapse"
+                                          data-mdb-target="#createSerieDialogAccordion-rooms"
+                                          aria-expanded="false"
+                                          aria-controls="createSerieDialogAccordion-rooms">
+                                          <div class="badge badge-secondary" id="roomsCounter">0</div>
+                                          &nbsp;<i class="fas fa-building"></i>&nbsp;
+                                          Rom
+                                        </button>
+                                    </h5>
+                                    <div
+                                      id="createSerieDialogAccordion-rooms"
+                                      class="accordion-collapse collapse"
+                                      aria-labelledby="createSerieDialogAccordion-rooms"
+                                      data-mdb-parent="#createSerieDialog_accordion">
+                  
+                                      <div class="accordion-body">
+                                        <a class="btn btn-block wb-btn-secondary shadow-0"
+                                            d-trigger="triggerAddRooms">
+                                            <i class="fas fa-plus"></i>
+                                            Legg til rom
+                                        </a>
+                
+                                        <div id="roomChips"></div>
+
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-sm">
+                                                <tbody id="roomsTbody"></tbody>
+                                            </table>
+                                        </div>
+                                        <hr>
+                                    </div>
+                                </div>
+                            </fieldset>
                         </div>
     
                         <div id="patternRoute_monthly" style="display: none;">
@@ -470,7 +543,7 @@
         }
     }
 
-    var _dialog = new Dialog({
+    new Dialog({
         dialogId: '{{ dialogId }}',
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',

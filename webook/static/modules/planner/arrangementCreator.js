@@ -240,6 +240,8 @@ export class ArrangementCreator {
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
+
+                            this.dialogManager.setTitle("breakOutActivityDialog", "Bryt ut aktivitet");
                         },
                         onUpdatedCallback: () => {
                             toastr.success("Kollisjon løst, enkel aktivitet har blitt opprettet");
@@ -298,6 +300,7 @@ export class ArrangementCreator {
                                 url: "/arrangement/planner/dialogs/create_simple_event",
                                 dialogId: "newSimpleActivityDialog",
                                 managerName: "arrangementCreator",
+                                dialogTitle: "Edit Activity",
                                 customParameters: {
                                     slug: 0,
                                     orderPersonDialog: "orderPersonDialog",
@@ -310,10 +313,11 @@ export class ArrangementCreator {
                                 new mdb.Input(formOutline).init();
                             });
 
+                            let $simpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
+                            
                             if (context.lastTriggererDetails?.event_uuid === undefined) {
                                 let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
-                                let $simpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
-
+                                this.dialogManager.setTitle("newSimpleActivityDialog", "Opprett aktivitet");
                                 $simpleActivityDialog.find('#ticket_code').attr('value',         $mainDialog.find('#id_ticket_code').val() );
                                 $simpleActivityDialog.find('#title').attr('value',               $mainDialog.find('#id_name').val() );
                                 $simpleActivityDialog.find('#title_en').attr('value',            $mainDialog.find('#id_name_en').val() );
@@ -329,7 +333,8 @@ export class ArrangementCreator {
 
                                 return;
                             }
-
+                            
+                            this.dialogManager.setTitle("newSimpleActivityDialog", "Rediger aktivitet");
                             const $dialogElement = $(this.dialogManager.$getDialogElement("newSimpleActivityDialog"));
                             PopulateCreateEventDialog(context.events.get(context.lastTriggererDetails.event_uuid), $dialogElement);
 

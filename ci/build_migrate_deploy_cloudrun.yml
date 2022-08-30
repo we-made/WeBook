@@ -1,0 +1,26 @@
+steps:
+  - id: "Fetch previous build for cache"
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args: ["-c", ">-", "docker pull ${_IMAGE}:latest || exit 0"]
+  - id: "Build image"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "${_IMAGE}:${COMMIT_SHA}", "-t", "${_IMAGE}:latest", "--cache-from", "${_IMAGE}:latest", "--file", "Dockerfile.cloudrun", "."]
+  - id: "Push image"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["push", "${_IMAGE}"]
+  - id: "Apply migrations"
+    name: "gcr.io/google-appengine/exec-wrapper"
+    args: ["-i", "${_IMAGE}", "-s", "${PROJECT_ID}:${_REGION}:${_SERVICE_NAME}:${COMMIT_SHA}", "-e", "SETTINGS_NAME=${_SERVICE_NAME}", "--", "python", "manage.py", "migrate"]
+  - id: "Collect static"
+    name: "gcr.io/google-appengine/exec-wrapper"
+    args: ["-i", "${_IMAGE}", "-s", "${PROJECT_ID}:${_REGION}:${_SERVICE_NAME}:${COMMIT_SHA}", "-e", "SETTINGS_NAME=${_SERVICE_NAME}", "--", "python", "manage.py", "collectstatic", "--verbosity", "2", "--no-input"]
+  - id: "Deploy"
+    name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args: ["run", "deploy", "${_SERVICE_NAME}", "--image", "${_IMAGE}:${COMMIT_SHA}", "--region", "${_REGION}"] 
+substitutions:
+  _IMAGE: "${_IMAGE_REPO}/${PROJECT_ID}/${_IMAGE_BASENAME}-cr-${BRANCH_NAME}"
+images:
+  - "${_IMAGE}"
+ 
