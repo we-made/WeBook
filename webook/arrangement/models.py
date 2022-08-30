@@ -968,7 +968,7 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         if self.before_buffer_start and self.before_buffer_end:
             before_activity_buffer = Event()
             before_activity_buffer.title = "Opprigg for " + self.title
-            before_activity_buffer.arrangement = self.arrangement   
+            before_activity_buffer.arrangement = self.arrangement
             before_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.start, self.before_buffer_start))
             before_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.start, self.before_buffer_end))
             before_activity_buffer.save()
@@ -991,6 +991,27 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             self.save()
 
         return (before_activity_buffer, after_activity_buffer)
+
+    def delete(self, using=None, keep_parents=False):
+        self.abandon_rigging_relations()
+        return super().delete(using, keep_parents)
+
+    def abandon_rigging_relations(self, commit=True) -> None:
+        if self.before_buffer_for.exists():
+            buffering_for = self.before_buffer_for.get()
+            buffering_for.before_buffer_start = None
+            buffering_for.before_buffer_end = None
+            buffering_for.save()
+            self.before_buffer_for.clear()
+        if self.after_buffer_for.exists():
+            buffering_for = self.after_buffer_for.get()
+            buffering_for.after_buffer_start = None
+            buffering_for.after_buffer_end = None
+            buffering_for.save()
+            self.after_buffer_for.clear()
+        
+        if commit:
+            self.save()
 
     def degrade_to_association_status(self, commit=True) -> None:
         """Degrade this event to an associate of its serie, as opposed to a direct child

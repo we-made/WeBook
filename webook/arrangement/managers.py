@@ -13,6 +13,9 @@ class ArchivedManager(models.Manager):
 class EventManager(ArchivedManager):
     """Manager for the Event model"""
     
+    def delete(self):
+        pass
+
     def get_in_period(self, start: datetime, end: datetime ) -> QuerySet:
         """Get events that happen in a range of time
         

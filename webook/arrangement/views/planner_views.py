@@ -244,7 +244,7 @@ class PlanDeleteEvents (LoginRequiredMixin, View):
             raise exceptions.BadRequest()
         
         for id in eventIds:
-            Event.objects.filter(pk=id).delete()
+            Event.objects.filter(pk=id).first().delete()
 
         return JsonResponse({ 'affected': len(eventIds) })
             
