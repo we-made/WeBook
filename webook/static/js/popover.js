@@ -11,6 +11,8 @@ export class Popover {
         if (this.triggerElement) {
             this._listenToTriggerElementClick();
         }
+
+        this._listenToOutsideClicks();
     }
 
     _listenToTriggerElementClick() {
@@ -21,7 +23,8 @@ export class Popover {
 
     _listenToOutsideClicks() {
         $(document).click(function (event) {
-            if (this.isShown && this.wrapperElement.contains(event.target) === false && event.target !== this._triggerElement) {
+            console.log(event.target)
+            if (this.isShown && this.wrapperElement.contains(event.target) === false && event.target !== this.triggerElement && this.triggerElement.contains(event.target) === false) {
                 this.show();
             }
         }.bind(this))
@@ -32,8 +35,7 @@ export class Popover {
      */
     show() {
         this.wrapperElement.classList.toggle("active");
-        // $(this.wrapperElement).toggleClass("active", !this.isShown, 400, "fold");
-        
         this.isShown = !this.isShown;
+        console.log(">>" + this.isShown)
     }
 }
