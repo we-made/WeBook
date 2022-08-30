@@ -953,7 +953,7 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             A tuple consisting of two possibly None Event instances. The first item of the tuple is the pre-activity buffer,
             and the second item is the post-activity buffer. Either may be None if their requisite values are not defined.
 
-        """
+        """ 
         current_tz = pytz.timezone(str(dj_timezone.get_current_timezone()))
 
         if self.buffer_before_event:
