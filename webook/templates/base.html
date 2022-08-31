@@ -254,7 +254,7 @@
           </nav>
           <!-- Navbar -->
         </header> 
-        <div  id="mainBodyContainer" class="container-fluid">
+        <div  id="mainBodyContainer" class="{% block container_classes %} container {% endblock %}">
           {% block superheader %}
           <div class="mt-5"></div>
         {% endblock %}
