@@ -159,9 +159,42 @@ container-fluid
                 <div id="arrangementPlannerCalendar"></div>
             </div>
             <div class="tab-pane" id="locationsCalendar" role="tabpanel" aria-labelledby="locationsCalendar-tab">
+                <div class="clearfix">
+                    <div class="float-end">
+                        <div class="btn-group shadow-0">
+                            <a class="btn float-end wb-btn-blank border mt-2"
+                                href="{% url 'arrangement:location_list' %}">
+                                <i class="fas fa-list"></i>&nbsp;
+                                Alle lokasjoner
+                            </a>
+                            <a class="btn float-end wb-btn-blank border mt-2"
+                                href="{% url 'arrangement:location_create' %}">
+                                <i class="fas fa-plus"></i>&nbsp;
+                                Registrer ny lokasjon
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="locationsPlannerCalendar"></div>
             </div>
             <div class="tab-pane" id="peopleCalendar" role="tabpanel" aria-labelledby="peopleCalendar-tab">
+                <div class="clearfix">
+                    <div class="float-end">
+                        <div class="btn-group shadow-0">
+                            <a class="btn float-end wb-btn-blank border mt-2"
+                                href="{% url 'arrangement:person_list' %}">
+                                <i class="fas fa-list"></i>&nbsp;
+                                Alle personer
+                            </a>
+                            <a class="btn float-end wb-btn-blank border mt-2"
+                                href="{% url 'arrangement:person_create' %}">
+                                <i class="fas fa-plus"></i>&nbsp;
+                                Registrer ny person
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <div id="peoplePlannerCalendar"></div>
             </div>
         </div>
