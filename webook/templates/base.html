@@ -158,22 +158,28 @@
               <h4 class="text-start"><i class="fas fa-cog"></i>&nbsp; Annet...</h4>
               <span style="display: flex; flex-direction: column; align-items: center;">
                 <a href="{% url 'arrangement:servicetype_list' %}"
-                   class="btn btn-block wb-btn-secondary p-3 text-start wb-sidebar-item-nested
+                   class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
                           {% if not url_name == 'servicetype_list' %} bg-white border {% else %} active {% endif %}">
-                  <i class="fas fa-cog"></i>&nbsp;
+                  <i class="fas fa-dollar-sign"></i>&nbsp;
                   Tjenestetyper
                 </a>
                 <a href="{% url 'arrangement:organizationtype_list' %}"
-                   class="btn btn-block wb-btn-secondary p-3 text-start wb-sidebar-item-nested
+                   class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
                           {% if not url_name == 'organizationtype_list' %} bg-white border {% else %} active {% endif %}">
                   <i class="fas fa-dollar-sign"></i>&nbsp;
                   Organisasjonstyper
                 </a>
                 <a href="{% url 'arrangement:arrangement_type_list' %}"
-                   class="btn btn-block wb-btn-secondary p-3 text-start wb-sidebar-item-nested
+                   class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
                           {% if not url_name == 'arrangement_type_list' %} bg-white border {% else %} active {% endif %}">
                   <i class="fas fa-flask"></i>&nbsp;
                   Arrangementstyper
+                </a>
+                <a href="{% url 'arrangement:audience_list' %}"
+                class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
+                       {% if not url_name == 'audience_list' %} bg-white border {% else %} active {% endif %}">
+                  <i class="fas fa-flask"></i>&nbsp;
+                  Målgrupper
                 </a>
               </span>
             </span>
