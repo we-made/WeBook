@@ -15,23 +15,46 @@
 
 {% block content %}
 
-<h4><i class="fas fa-table"></i>&nbsp; {% trans "Rooms" %}</h3>
+<ul class="nav nav-tabs webook-tabs">
+    <!-- Information/General -->
+    <li class="nav-item" role="presentation">
+        <a  href="#tab-calendar"
+            class="nav-link active"
+            role="tab"
+            data-mdb-toggle="tab">
+            <i class="fas fa-calendar"></i>
+            Kalender
+        </a>
+    </li>
+    <!-- Rooms -->
+    <li class="nav-item" role="presentation">
+        <a href="#tab-rooms"
+            class="nav-link"
+            role="tab"
+            data-mdb-toggle="tab">
+            <i class="fas fa-table"></i>
+            Rom
+        </a>
+    </li>
+</ul>
 
-<div class="clearfix">
-    <button class="btn btn-lg btn-webook float-end"
-    data-mdb-toggle="modal"
-    data-mdb-target="#createRoomModal">
-        <i class="fa fa-plus"></i>&nbsp; {% trans "New Room" %}
-    </button>
+<div class="tab-content pt-4">
+    <div class="tab-pane fade show active" id="tab-calendar" role="tabpanel">
+        <div id="location_calendar" class="mb-4"></div>
+    </div>
+    <div class="tab-pane fade" id="tab-rooms" role="tabpanel">
+        <div class="clearfix">
+            <button class="btn btn-lg btn-webook float-end"
+            data-mdb-toggle="modal"
+            data-mdb-target="#createRoomModal">
+                <i class="fa fa-plus"></i>&nbsp; {% trans "New Room" %}
+            </button>
+        </div>
+        
+        <span id="roomsTableLoaderWrapper">
+        </span>
+    </div>
 </div>
-
-
-<span id="roomsTableLoaderWrapper">
-</span>
-
-
-<h4 class="mt-5"><i class="fas fa-calendar"></i>&nbsp; {% trans "Location Calendar" %}</h3>
-<div id="location_calendar" class="mb-4"></div>
 
 
 <div
@@ -100,7 +123,7 @@
             {% trans "Cancel" %}
         </button>
         <button type="button" class="btn wb-btn-main" onclick="createNewRoom()"><i class="fas fa-check"></i>&nbsp; {% trans "Create room" %}</button>
-        <button type="button" class="btn wb-btn-main" onclick="createNewRoom(false /* dont close after save*/)">{% trans "Create room, and new" %}</button>
+        <button type="button" class="btn wb-btn-main" onclick="createNewRoom(false /* dont close after save*/)">{% trans "Create and new" %}</button>
       </div>
     </div>
   </div>
