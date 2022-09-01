@@ -25,6 +25,13 @@ from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 from webook.utils.manifest_describe import describe_manifest
 
 
+class SelfNestedModelMixin(models.Model):
+    """ Mixin for adding the feature of nesting a model with itself """ 
+    self_nested_children = models.ManyToManyField(to='self')
+
+    class Meta:
+        abstract = True
+
 class BufferFieldsMixin(models.Model):
     """Mixin for the common fields for buffer functionality"""
     before_buffer_start = models.TimeField(null=True, blank=True)
@@ -171,7 +178,7 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         return self.name
 
 
-class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
+class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, SelfNestedModelMixin):
     class Meta:
         verbose_name = _("Arrangement")
         verbose_name_plural = _("Arrangements")
