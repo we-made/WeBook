@@ -29,6 +29,13 @@
                 value="{{ form.name_en.value|default:'' }}">
         </div>
 
+        <label for="{{form.self_nested_children.id_for_label}}" class="h5 d-block fw-bold">
+            {{form.self_nested_children.label}}            
+        </label>
+        <div class="form-group mb-3">
+            {{form.parent}}
+        </div>
+
         <a class="btn wb-btn-secondary me-3" onClick="window.history.back(); return false;">
             <i class="fas fa-times"></i>&nbsp; 
             {% trans "Cancel" %}

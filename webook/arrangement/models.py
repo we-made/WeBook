@@ -27,7 +27,12 @@ from webook.utils.manifest_describe import describe_manifest
 
 class SelfNestedModelMixin(models.Model):
     """ Mixin for adding the feature of nesting a model with itself """ 
-    self_nested_children = models.ManyToManyField(to='self')
+    parent = models.ForeignKey(
+        to="self",
+        related_name="nested_children",
+        on_delete=models.CASCADE,
+        null=True,
+    )
 
     class Meta:
         abstract = True
