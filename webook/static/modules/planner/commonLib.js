@@ -397,17 +397,28 @@ export class FullCalendarBased {
             let resultingElement = null;
 
             if (button.isParent) {
-                let dropdownWrapperElement = $("<div class='dropdown d-inline'></div>");
-                let mainButton = $("<a class='btn btn-lg wb-btn-white wb-large-btn dropdown-toggle shadow-0 border' role='button' data-mdb-toggle='dropdown'>" + button.title + "</a>");
+                let dropdownWrapperElement = $("<div class='btn-group shadow-0'></div>");
+                let mainButton = $("<a class='btn btn-lg wb-btn-white wb-large-btn shadow-0 border' role='button' id='" + _this._instanceUUID + "_" + button.view  + "'>" + button.title + "</a>");
+                let dropdownButton = $("<button class='btn btn-lg wb-btn-white wb-large-btn shadow-0 border dropdown-toggle dropdown-toggle-split' data-mdb-toggle='dropdown'></button>")
                 let dropdownMenu = $("<ul class='dropdown-menu'></ul>")
 
                 let children = buttons.filter( (a) => a.parent === button.key );
                 children.forEach(function (childButton) {
                     dropdownMenu.append(renderButtons(childButton, buttons, true));
-                })
+                });
 
-                dropdownWrapperElement.append(mainButton);
-                dropdownWrapperElement.append(dropdownMenu);
+                if (mainButton.onclick === undefined) {
+                    mainButton.click(function (event) {
+                        document.dispatchEvent(
+                            new CustomEvent(_this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": button.view } })
+                        );
+                    });
+                }
+                else {
+                    resultingElement.onclick = mainButton.onclick;
+                }
+
+                dropdownWrapperElement.append(mainButton, dropdownButton, dropdownMenu);
 
                 return dropdownWrapperElement;
             }
@@ -469,7 +480,7 @@ export class FullCalendarBased {
 
             let buttonElement = undefined;
             if (parentTriggerElement.tagName === "A") {
-                buttonElement = $(parentTriggerElement).closest("div.dropdown").children("a.btn")[0]
+                buttonElement = $(parentTriggerElement).closest("div.btn-group").children("a.btn")[0]
             }
             else {
                 buttonElement = parentTriggerElement;
