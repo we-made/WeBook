@@ -408,10 +408,14 @@ export class FullCalendarBased {
                 });
 
                 if (mainButton.onclick === undefined) {
-                    mainButton.click(function (event) {
+                    mainButton.on('click', function (event) {
                         document.dispatchEvent(
                             new CustomEvent(_this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": button.view } })
                         );
+
+                        if (button.afterClick) {
+                            button.afterClick();
+                        }
                     });
                 }
                 else {
@@ -430,10 +434,14 @@ export class FullCalendarBased {
             }
 
             if (button.onclick === undefined) {
-                resultingElement.click(function (event) {
+                resultingElement.on("click", function (event) {
                     document.dispatchEvent(
                         new CustomEvent(_this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": button.view } })
                     );
+                    
+                    if (button.afterClick) {
+                        button.afterClick();
+                    }   
                 });
             }
             else {
