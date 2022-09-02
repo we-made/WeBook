@@ -36,7 +36,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 "key": 2,
                 "title": "Måned",
                 "isParent": true,
-                "view": undefined,
+                "view": "dayGridMonth",
                 "parent": undefined,
                 "weight": 200,
             }],
