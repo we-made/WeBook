@@ -1,11 +1,8 @@
 <div id="{{dialogId}}" class="{{discriminator}}">
-    <!-- title="{% if mode == 'serie' %}Bestill rom{% else %}Bestill rom for '{{event.title}}'{% endif %}"> -->
-
     <div class="clearfix">
         <div class="float-start">
             <h5 class="fw-bold">
                 Velg rom
-                <!-- {% if mode == 'serie' %}Velg rom{% else %}Velg rom for '{{event.title}}'{% endif %} -->
             </h5>
         </div>
         <div id="rail" class="float-end stepper-rail"></div>
@@ -72,19 +69,11 @@
                                         <tr>
                                             <td> 
                                                 {{room.is_selected}}
-                                                {% if room.is_selected %}
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="roomCheck__{{room.slug}}" 
-                                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray" checked/>
-                                                    <label class="form-check-label" for="roomCheck__{{room.slug}}">{{room}}</label>
+                                                    <input class="form-check-input" type="checkbox" id="{{room.id}}" 
+                                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray" {% if room.is_selected %}checked{% endif %}/>
+                                                    <label class="form-check-label" for="{{room.id}}">{{room}}</label>
                                                 </div>
-                                                {% else %}
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="roomCheck__{{room.slug}}" 
-                                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray"/>
-                                                    <label class="form-check-label" for="roomCheck__{{room.slug}}">{{room}}</label>
-                                                </div>
-                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -135,7 +124,7 @@
                 dialog.plugins.presetSelectManager.uncheckAll();
             },        
             /* Takes an array of room ids and checks their corresponding checkboxes in the room selector */
-            activateRoomIds(dialog, {presetKey} = {}, triggeredByElement) {
+            activateRoomIds(dialog, { presetKey } = {}, triggeredByElement) {
                 dialog.plugins.presetSelectManager.activatePreset(presetKey);
             },
             order(dialog, {} = {}, triggeredByElement) {
@@ -166,7 +155,7 @@
                             "name": "{{ preset.name }}",
                             "ids": [
                                 {% for room in preset.rooms.all %}
-                                    "{{ room.slug }}",
+                                    "{{ room.pk }}",
                                 {% endfor %}
                             ],
                         }],

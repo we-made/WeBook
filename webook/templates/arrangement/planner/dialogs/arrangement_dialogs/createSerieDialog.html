@@ -854,8 +854,8 @@
                 }
 
                 serie._uuid = dialog.$('#serie_uuid').val();
-                serie.rooms = dialog.data.selectedRoomIds;
-                serie.people = dialog.data.selectedPeopleIds;
+                serie.rooms = Array.from(dialog.data.selectedRoomIds.keys());
+                serie.people = Array.from(dialog.data.selectedPeopleIds.keys());
                 serie.room_name_map = dialog.data.roomsNameMap;
                 serie.people_name_map = dialog.data.peopleNameMap;
                 serie.display_layouts = display_layouts.join(",");
@@ -931,18 +931,27 @@
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, mode: "serie" });
             },
             removeAssociation(dialog, {} = {}, triggeredByElement) {
-                let $triggeredByElement = $(triggeredByElement)
+                let $triggeredByElement = $(triggeredByElement);
+                const id = $triggeredByElement.attr("id");
+                const selectType = $triggeredByElement.attr("select-type");
 
-                let appropriateIdMap = $triggeredByElement.attr("select-type") == 'person' ? dialog.data.selectedPeopleIds : dialog.data.selectedRoomIds;
-                let appropriatePresetMap = $triggeredByElement.attr("select-type") == 'person' ? dialog.data.personPresets : dialog.data.roomPresets;
-
-                if ($triggeredByElement.id.startsWith("preset_")) {
-                    // appropriateIdMap.delete()
-                    const preset = appropriatePresetMap.get($triggeredByElement.id.split("_")[1]);
-                    
+                let appropriateIdMap, appropriatePresetMap = null;
+                if (selectType === 'person') {
+                    appropriateIdMap = dialog.data.selectedPeopleIds;
+                    appropriatePresetMap = dialog.data.personPresets;
                 }
                 else {
-                    appropriateIdMap.delete($triggeredByElement.id);
+                    appropriateIdMap = dialog.data.selectedRoomIds;
+                    appropriatePresetMap = dialog.data.roomPresets;
+                }
+
+                if (id.startsWith("preset_")) {
+                    debugger;
+                    const preset = appropriatePresetMap.get(id.split("_")[1]);
+                    preset.ids.forEach((id) => appropriateIdMap.delete(id));
+                }
+                else {
+                    appropriateIdMap.delete(id);
                 }
 
                 $(triggeredByElement).remove();
@@ -970,9 +979,11 @@
                            </selected-pill>`)  
                     )
                 });
-
-                dialog.data.selectedRoomIds = payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
-                dialog.data.presets
+                debugger;
+                dialog.data.selectedRoomIds = new Map();
+                dialog.data.roomPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
             } },
             { eventKnownAs: "peopleSelected", do: (dialog, payload) => { 
                 let wrapper = dialog.$( '#peopleChips' );
@@ -988,7 +999,10 @@
                     )
                 });
 
-                dialog.data.selectedPeopleIds = payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
+                dialog.data.selectedPeopleIds = new Map();
+                dialog.data.personPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
             } },
         ]
     });

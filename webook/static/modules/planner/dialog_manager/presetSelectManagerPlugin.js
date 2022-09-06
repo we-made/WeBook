@@ -13,10 +13,6 @@ class DialogPresetSelectManager extends DialogPluginBase {
         this.checkboxPresetMap = this._generateCheckboxToPresetMap();
     }
 
-    _getKeyValueFromElementId(element) {
-        return element.id.split("__")[1];
-    }
-
     _generateCheckboxToPresetMap() {
         const checkboxPresetMap = new Map();
         Array.from(this.presets.values()).forEach((preset) => {
@@ -31,11 +27,11 @@ class DialogPresetSelectManager extends DialogPluginBase {
     _setup() {
         this.checkboxes.forEach((checkboxElement) => {
             checkboxElement.addEventListener("change", (e) => {
-                const id = this._getKeyValueFromElementId(checkboxElement);
+                const id = checkboxElement.id;
                 const presetsIAmPartOf = this.checkboxPresetMap.get(id);
 
                 if (e.target.checked) {
-                    this.selectedItemsMap.set(e.target.value, $(e.target).siblings("label.form-check-label").text());
+                    this.selectedItemsMap.set(e.target.id, $(e.target).siblings("label.form-check-label").text());
                 }
                 else {
                     this.selectedItemsMap.delete(e.target.value);
@@ -57,9 +53,9 @@ class DialogPresetSelectManager extends DialogPluginBase {
     activatePreset(presetKey) {
         const preset = this.presets.get(presetKey);
         preset.ids.forEach((id) => {
-            let $checkboxElement = $(`#${this.checkboxIdPrefix}__` + id);
+            let $checkboxElement = $('#' + id);
             $checkboxElement.attr("checked", true).change()
-            this.selectedItemsMap.set($checkboxElement.val(), $checkboxElement.siblings("label").text());
+            this.selectedItemsMap.set($checkboxElement.attr("id"), $checkboxElement.siblings("label").text());
         });
         
         this.activePresets.set(presetKey, true);
@@ -68,7 +64,7 @@ class DialogPresetSelectManager extends DialogPluginBase {
     uncheckAll() {
         this.checkboxes.forEach((checkboxElement) => {
             checkboxElement.removeAttr("checked").change();
-            this.selectedItemsMap.delete(this._getKeyValueFromElementId(checkboxElement));
+            this.selectedItemsMap.delete(checkboxElement.id);
         });
     }
 
