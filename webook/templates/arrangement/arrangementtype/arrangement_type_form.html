@@ -5,10 +5,7 @@
 
 {% block content %}
     <form method="post">
-
         {% csrf_token %}
-
-        <!-- {{ form | crispy }} -->
         <div class="form-group mb-3">
             <label for="{{ form.name.id_for_label }}" class="h5 d-block fw-bold">
                 {{ form.name.label }}
@@ -19,7 +16,7 @@
                 value="{{ form.name.value|default:'' }}">
         </div>
 
-      <div class="form-group mb-3">
+        <div class="form-group mb-3">
             <label for="{{ form.name_en.id_for_label }}" class="h5 d-block fw-bold">
                 {{ form.name_en.label }}
             </label>
@@ -55,18 +52,4 @@
             </button>
         </div>
     </form>
-
-
-    <script src="{% static '@fonticonpicker/fonticonpicker/dist/js/jquery.fonticonpicker.min.js' %}"></script>
-    <script>
-
-        $(document).ready(function () {
-            el = $('#{{form.icon_class.id_for_label}}').fontIconPicker();
-
-            fetch('{% static "fontawesome-icon-manifest_no.json" %}')
-                .then(fetchedJson =>  fetchedJson.json())
-                .then(parsedJson => el.setIcons( parsedJson ));
-        })
-
-    </script>
 {% endblock %}

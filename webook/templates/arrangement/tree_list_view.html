@@ -1,0 +1,138 @@
+{% extends "arrangement/meta_base.html" %}
+{% load static i18n %}
+
+{% block content %}
+
+<div class="row mb-3">
+    <div class="col-8">
+        <div class="form-outline">
+            <input type="text" class="form-control form-control-lg" id="datatable-search-input">
+            <label for="datatable-search-input" class="form-label">{% trans "Search for " %} {{ENTITY_NAME_PLURAL}}</label>
+        </div>
+    </div>
+
+    <div class="col-4">
+        {% if SHOW_CREATE_BUTTON %}
+        <div class="clearfix">
+            <a class="btn wb-btn-main shadow-0 btn-lg mb-2 float-end"
+                href="{% url CRUDL_MAP.create_url %}">
+                <i class="fas fa-plus"></i>&nbsp;
+                {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+{% if object_list|length == 0 %}
+<div class="alert wb-alert-secondary">
+    <h4>{% blocktrans %} No <em>{{ENTITY_NAME_PLURAL}}</em> registered yet! {% endblocktrans %}</h4>
+    <p class="mb-0">
+        {% blocktrans %}
+            After you have begun registering <em>{{ENTITY_NAME_PLURAL}}</em> they will be shown here! None have been registered yet,
+            but you can resolve this by clicking the button above!
+        {% endblocktrans %}
+    </p>
+</div>
+{% else %}
+
+<div class="treetable">
+    <table id="entitiesTable" class="table table-sm">
+        <thead>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+{% endif %}
+
+<script>
+    const tableData = JSON.parse(`{{ LIST_JSON | safe }}`);
+    const columnDefinition = JSON.parse(`{{ COLUMN_DEFINITION_JSON | safe }}`);
+
+    const THEAD_ROW_CLASSLIST = [ "h5" ]
+
+    const SHOW_OPTIONS = "{{ SHOW_OPTIONS }}";
+    const DETAIL_URL = "{{ CRUDL_MAP.detail_url }}";
+    const EDIT_URL = "{{ CRUDL_MAP.edit_url }}";
+    const DELETE_URL = "{{ CRUDL_MAP.delete_url }}";
+
+    const $THEAD = $('#entitiesTable thead');
+    const $TBODY = $('#entitiesTable tbody');
+
+    const thRowElement = document.createElement('tr');
+    thRowElement.classList.add(...THEAD_ROW_CLASSLIST);
+
+    const indexShowOrHideMap = new Map();
+
+    for ( let i = 0; i < columnDefinition.length; i++ ) {
+        const column = columnDefinition[i];
+        const isThisColumnShown = column[2];
+        indexShowOrHideMap.set( i, isThisColumnShown );
+        
+        if (isThisColumnShown === true) {
+            let thElement = document.createElement('th');
+            thElement.innerText = column[1];
+            thRowElement.appendChild(thElement);
+        }
+    }
+
+    $THEAD.append(thRowElement);
+
+    function createBodyTdElement (row, iterativeDepth=0) {
+        let rowElements = [];
+
+        let topLayerTrElement = document.createElement('tr');
+        if (iterativeDepth !== 0) {
+            topLayerTrElement.setAttribute("data-depth", iterativeDepth);
+        }
+
+        for ( let i = 0; i < columnDefinition.length; i++ ) {
+            if (indexShowOrHideMap.get(i) === false) {
+                continue;
+            }
+
+            let tdElement = document.createElement('td');
+            tdElement.innerText = Object.values(row)[i];
+            topLayerTrElement.appendChild(tdElement);
+        }
+
+        iterativeDepth++;
+
+        if (row.children && Array.isArray(row.children)) {
+            row.children.forEach((childRow) => {
+                rowElements = rowElements.concat(createBodyTdElement(childRow, iterativeDepth));
+            });
+        }
+
+        return rowElements.concat( [ topLayerTrElement ] );
+    }
+
+    tableData.forEach(function (row) {
+        $TBODY.append(createBodyTdElement(row));
+    });
+ 
+    $(document).ready(function () {
+        // const dt = $('#entitiesTable').DataTable( {
+        //     dom: 'Brtip',
+        //     buttons: [
+        //         { extend: 'copy', className: 'wb-btn-secondary' },
+        //         { extend: 'excel', className: 'wb-btn-secondary' },
+        //         { extend: 'pdf', className: 'wb-btn-secondary' },
+        //         { extend: 'print', className: 'wb-btn-secondary' }
+        //     ]
+        // } );
+
+        document.getElementById('datatable-search-input').addEventListener('input', (e) => {
+           dt.search(e.target.value).draw();
+        })
+
+        $('.wb-btn-secondary').each(function () { 
+            $(this).removeClass("btn-secondary");
+        });
+    })
+</script>
+
+{% endblock %}

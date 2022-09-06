@@ -20,7 +20,7 @@ from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from django.views.generic.edit import ModelFormMixin
 from webook.utils import crumbs
-from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin, GenericTreeListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
@@ -45,8 +45,8 @@ class ArrangementTypeSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class ArrangementTypeListView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
-    template_name = "arrangement/list_view.html"
+class ArrangementTypeListView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, GenericTreeListTemplateMixin, MetaMixin, ListView):
+    template_name = "arrangement/tree_list_view.html"
     model = ArrangementType
     queryset = ArrangementType.objects.all()
     view_meta = ViewMeta.Preset.table(ArrangementType)

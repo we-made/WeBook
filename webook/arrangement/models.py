@@ -32,6 +32,7 @@ class SelfNestedModelMixin(models.Model):
         related_name="nested_children",
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
     )
 
     class Meta:
