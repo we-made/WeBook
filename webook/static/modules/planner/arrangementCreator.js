@@ -393,7 +393,8 @@ export class ArrangementCreator {
                                 dialogId: 'orderRoomDialog',
                                 managerName: 'arrangementCreator',
                                 customParameters: {
-                                    event_pk: 0
+                                    event_pk: 0,
+                                    mode: context.lastTriggererDetails.mode,
                                 }
                             })
                         },
@@ -407,18 +408,10 @@ export class ArrangementCreator {
                                 this.dialogManager.closeDialog("orderRoomDialog");
                             });
                         },
-                        onSubmit: (context, details) => {
-                            context.rooms = details.formData.get("room_ids");
-                            context.room_name_map = details.room_name_map;
-
-                            document.dispatchEvent(new CustomEvent(
-                                `arrangementCreator.d1_roomsSelected`,
-                                { detail: { context: context } }
-                            ));
-                            document.dispatchEvent(new CustomEvent(
-                                `arrangementCreator.d2_roomsSelected`,
-                                { detail: { context: context } }
-                            ));
+                        onSubmit: (context, details, dialogManager) => {
+                            let recipientDialog = details.mode === "serie" ? "newTimePlanDialog" : "newSimpleActivityDialog";
+                            dialogManager._dialogRepository.get(recipientDialog)
+                                .communicationLane.send("roomsSelected", details.selectedBundle);
                         }
                     })
                 ],
@@ -434,7 +427,8 @@ export class ArrangementCreator {
                                 managerName: 'arrangementCreator',
                                 dialogId: 'orderPersonDialog',
                                 customParameters: {
-                                    event_pk: 0
+                                    event_pk: 0,
+                                    mode: context.lastTriggererDetails.mode,
                                 }
                             });
                         },
@@ -448,23 +442,10 @@ export class ArrangementCreator {
                                 this.dialogManager.closeDialog("orderPersonDialog");
                             });
                         },
-                        onSubmit: (context, details) => {
-                            let people_ids = details.formData.get("people_ids");
-                            context.people = people_ids;
-                            context.people_name_map = details.people_name_map;
-
-                            document.dispatchEvent(new CustomEvent(
-                                "arrangementCreator.d1_peopleSelected",
-                                { detail: {
-                                    context: context
-                                } }
-                            ));
-                            document.dispatchEvent(new CustomEvent(
-                                "arrangementCreator.d2_peopleSelected",
-                                { detail: {
-                                    context: context
-                                } }
-                            ));
+                        onSubmit: (context, details, dialogManager) => {
+                            let recipientDialog = details.mode === "serie" ? "newTimePlanDialog" : "newSimpleActivityDialog";
+                            dialogManager._dialogRepository.get(recipientDialog)
+                                .communicationLane.send("peopleSelected", details.selectedBundle);
                         }
                     })
                 ]

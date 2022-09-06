@@ -16,7 +16,7 @@
     }
 
     _$getDialogEl() {
-        return $("#" + this.dialogElementId + "." + this.discriminator);
+        return $("." + this.discriminator);
     }
 
     async render(context) {
@@ -33,7 +33,6 @@
                 $(dialogEl).toggle("highlight");
 
                 this.discriminator = dialogEl.getAttribute("class");
-
                 $('body')
                     .append(html)
                     .ready( () => {
@@ -46,6 +45,7 @@
                             });
                         
                         this._isRendering = false;
+                        this.communicationLane = new DialogEventCommunicationLane(this._$getDialogEl()[0]);
                     });
             }
             else {
@@ -139,6 +139,22 @@
         }
 
         return true;
+    }
+}
+
+
+class DialogEventCommunicationLane {
+    constructor(dialogElement) {
+        this.dialogElement = dialogElement;
+    }
+
+    /**
+     * Send a message to the recipient dialog instance, through an event on the dialog element
+     * @param {*} typeName A discriminating name for this specific message
+     * @param {*} payload Payload
+     */
+    send(typeName, payload) {
+        this.dialogElement.dispatchEvent(new CustomEvent("laneCommunication", { "detail": { name: typeName, payload: payload } }));
     }
 }
 
@@ -238,7 +254,7 @@ export class DialogManager {
     _listenForSubmitEvent() {
         document.addEventListener(`${this.managerName}.submit`, async (e) => {
             let dialog = this._dialogRepository.get(e.detail.dialog);
-            let submitResult = await dialog.onSubmit(this.context, e.detail);  // Trigger the dialogs onSubmit handling
+            let submitResult = await dialog.onSubmit(this.context, e.detail, this);  // Trigger the dialogs onSubmit handling
             if (submitResult !== false) {
                 dialog.onUpdatedCallback(this.context);  // Trigger the dialogs on update handling
             }
@@ -292,7 +308,6 @@ export class DialogManager {
                             width: 600,
                             show: { effect: "slide", direction: "left", duration: 400 }
                         }
-                        console.log("options", value.dialogOptions)
                     }
                 });
             }
