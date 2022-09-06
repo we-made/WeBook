@@ -640,13 +640,9 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, DialogView, Templat
                 for room in location.rooms.all():
                     if room in event.rooms.all():
                         room.is_selected = True
+        
         context["locations"] = locations
-
-        if (context["serie_guid"] is None):
-            context["mode"] = "event"
-            context["event"] = event
-        else:
-            context["mode"] = "serie"
+        context["mode"] = self.request.GET.get("mode", None)
 
         return context
 
@@ -671,11 +667,7 @@ class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, DialogView, Templ
                     person.is_selected = True
         context["people"] = people
 
-        if (context["serie_guid"] is None):
-            context["mode"] = "event"
-            context["event"] = event
-        else:
-            context["mode"] = "serie"
+        context["mode"] = self.request.GET.get("mode", None)
 
         return context
 

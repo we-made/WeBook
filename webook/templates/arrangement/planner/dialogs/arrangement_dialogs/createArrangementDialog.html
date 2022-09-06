@@ -303,7 +303,7 @@
                 {
                     element: dialog.getElementById('step-1'),
                     title: 'Generelt',
-                    stepIn: () => { console.log("1. Step In") },
+                    stepIn: () => {},
                     stepOut: () => { 
                         let field_elements = dialog.$('#step-1').find("input, select");
 
@@ -331,7 +331,7 @@
                 {
                     element: dialog.getElementById('step-2'),
                     title: 'Detaljer',
-                    stepIn: () => { console.log("1. Step In") },
+                    stepIn: () => {},
                     stepOut: () => { 
                         dialog.$('#step-2').find("input, select").each((index, $el) => {
                             console.log($el);
@@ -346,7 +346,7 @@
                 {
                     element: dialog.getElementById('step-3'),
                     title: 'Tidsplaner & Aktiviteter',
-                    stepIn: () => { console.log("1. Step In") },
+                    stepIn: () => {},
                     stepOut: () => { console.log("2. Step Out"); }
                 },
                 {

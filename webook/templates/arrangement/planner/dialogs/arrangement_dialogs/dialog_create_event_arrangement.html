@@ -289,32 +289,6 @@
             close(dialog, {} = {}, triggeredByElement) {
                 dialog.closeMe();
             },
-            setRooms(dialog, { rooms } = {}, triggeredByElement) {
-                let wrapper = dialog.$('#selectedRoomsWrapper');
-                wrapper.empty();
-
-                rooms.split(",").forEach(id => {
-                    wrapper.append(
-                        $(`<selected-pill name='${dialog.data.roomsNameMap.get(id)}'
-                                          id='${id}'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)    
-                    );
-                });
-            },
-            setPeople(dialog, { people } = {}, triggeredByElement) {
-                let wrapper = dialog.$('#selectedPeopleWrapper');
-                wrapper.empty();
-
-                people.split(",").forEach(id => {
-                    wrapper.append(
-                        $(`<selected-pill name='${dialog.data.peopleNameMap.get(id)}'
-                                          id='${id}'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)
-                    );
-                });
-            },
             submit(dialog, {} = {}, triggeredByElement) {
                 if (dialog.validate() === false) {
                     console.warn("Validation failed.")
@@ -389,6 +363,34 @@
             peopleNameMap: new Map(),
             roomsNameMap: new Map(),
             stepper: null,
-        }
+        },
+        when: [
+            { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                let wrapper = dialog.$('#selectedRoomsWrapper');
+                wrapper.empty();
+
+                payload.allSelectedEntityIds.forEach((room) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${room.text}'
+                                          id='${room.id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)    
+                    );
+                });
+            } },
+            { eventKnownAs: "peopleSelected", do: (dialog, payload) => {
+                let wrapper = dialog.$('#selectedPeopleWrapper');
+                wrapper.empty();
+
+                payload.allSelectedEntityIds.forEach((person) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${person.text}'
+                                          id='${person.id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)    
+                    );
+                });
+            } }
+        ],
     });
 </script>

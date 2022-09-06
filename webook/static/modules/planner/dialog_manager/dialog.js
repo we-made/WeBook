@@ -6,6 +6,8 @@ class Dialog {
         postInit,
         methods={},
         data={},
+        plugins={},
+        when={},
     } = {}) {
         this._methods = methods;
 
@@ -14,6 +16,8 @@ class Dialog {
         this.discriminator = discriminator;
 
         this.data = data;
+        this.when = when;
+        this.plugins = plugins;
 
         this.$interior = null;
         this.interior = null;
@@ -21,14 +25,55 @@ class Dialog {
         this.$dialogElement = this._getDialogElement();
         this.dialogElement = this.$dialogElement[0];
 
+        this._mapWhenMethods();
+
         this._spawnMutationObserver();
         this._discover();
         this._assimilateMethods();
         this._refreshListens();
-
-        // this._listenToGlobalRetriggering();
+        this._initializePlugins();
+        this._listenToEventLaneCommunication()
+        
         
         postInit(this);
+    }
+
+    _mapWhenMethods() {
+        this._whenMap = new Map();
+
+        if (Array.isArray(this.when)) {
+            this.when.forEach( (when) => {
+                this._whenMap.set(when.eventKnownAs, when.do);
+            });
+        }
+    }
+
+    _listenToEventLaneCommunication() {
+        this.$dialogElement.on("laneCommunication", (event) => {
+            this._whenMap.get(event.detail.name)(this, event.detail.payload);
+        });
+    }    
+
+    _initializePlugins() {
+        if (Array.isArray(this.plugins)) {
+            let pluginsObj = {};
+
+            this.plugins.forEach((plugin) => {
+                if (plugin.arguments !== undefined && typeof plugin.arguments === "function") {
+                    plugin.arguments = plugin.arguments();
+                }
+
+                let instantiatedPlugin = new plugin.pluginClass( this, plugin.args );
+
+                if (plugin.afterSetup !== undefined) {
+                    plugin.afterSetup( instantiatedPlugin );
+                }
+
+                pluginsObj[plugin.name] = instantiatedPlugin;
+            });
+
+            this.plugins = pluginsObj;
+        }
     }
 
     _listenToGlobalRetriggering() {
@@ -110,7 +155,6 @@ class Dialog {
         for ( let prop in this.interior ) {
             let element = this.interior[prop];
             if (element instanceof Node) {
-                console.log(prop, element)
                 formData.append(element.getAttribute("name"), element.value);
             }
         }
@@ -237,6 +281,21 @@ class Dialog {
             });
 
         this.interior = interior;
+    }
+}
+
+class DialogPluginBase {
+    constructor (dialog, args) {
+        this.dialog = dialog;
+
+        this.$ = this.dialog.$;
+        this.getElementById = this.dialog.getElementById;
+        this.querySelector = this.dialog.querySelector;
+        this.querySelectorAll = this.dialog.querySelectorAll;
+
+        for (const prop in args) {
+            this[prop] = args[prop];
+        }
     }
 }
 

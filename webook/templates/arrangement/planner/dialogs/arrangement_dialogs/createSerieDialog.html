@@ -479,17 +479,6 @@
             if (dialog.interior.serie_uuid.value !== undefined) {
                 dialog.getElementById('title').innerText = "Rediger " + dialog.interior.serie_title.value;
             }
-
-            document.addEventListener("{{managerName}}.d2_peopleSelected", (e) => {
-                dialog.data.peopleNameMap = e.detail.context.people_name_map;
-                dialog.setPeople({ people: e.detail.context.people });
-                dialog.$("#peopleCounter").text(dialog.$("#peopleChips").children().length);
-            });
-            document.addEventListener("{{managerName}}.d2_roomsSelected", (e) => {
-                dialog.data.roomsNameMap = e.detail.context.room_name_map;
-                dialog.setRooms({ rooms: e.detail.context.rooms });
-                dialog.$("#roomsCounter").text(dialog.$("#roomChips").children().length);
-            });
             
             new DayOfWeekSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__weekday'));
             new MonthSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__month'));
@@ -865,8 +854,8 @@
                 }
 
                 serie._uuid = dialog.$('#serie_uuid').val();
-                serie.rooms = dialog.getSelectedRoomIds();
-                serie.people = dialog.getSelectedPeopleIds();
+                serie.rooms = dialog.data.selectedRoomIds;
+                serie.people = dialog.data.selectedPeopleIds;
                 serie.room_name_map = dialog.data.roomsNameMap;
                 serie.people_name_map = dialog.data.peopleNameMap;
                 serie.display_layouts = display_layouts.join(",");
@@ -936,58 +925,71 @@
                 }
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement });
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, mode: "serie" });
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement });
-            },
-            setPeople(dialog, { people } = {}, triggeredByElement) {
-                let wrapper = dialog.$('#peopleChips');
-                wrapper.empty();
-
-                people.split(",").forEach(id => {
-                    wrapper.append(
-                        $(`<selected-pill name='${dialog.data.peopleNameMap.get(id)}'
-                                          id='${id}'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)
-                    );
-                });
-            },
-            setRooms(dialog, { rooms } = {}, triggeredByElement) {
-                let wrapper = dialog.$('#roomChips');
-                wrapper.empty();
-
-                console.log(wrapper);
-
-                console.log(rooms);
-                console.log(rooms.split(","))
-
-                rooms.split(",").forEach(id => {
-                    console.log("name", dialog.data.roomsNameMap.get(id));
-                    wrapper.append(
-                        $(`<selected-pill name='${dialog.data.roomsNameMap.get(id)}'
-                                          id='${id}'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)    
-                    );
-                });
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, mode: "serie" });
             },
             removeAssociation(dialog, {} = {}, triggeredByElement) {
-                $(triggeredByElement).parent().remove();
-            },
-            getSelectedRoomIds(dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$("#roomChips")[0].children).map(row => row.getAttribute("id"));
-            },
-            getSelectedPeopleIds(dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$("#peopleChips")[0].children).map(row => row.getAttribute("id"));
+                let $triggeredByElement = $(triggeredByElement)
+
+                let appropriateIdMap = $triggeredByElement.attr("select-type") == 'person' ? dialog.data.selectedPeopleIds : dialog.data.selectedRoomIds;
+                let appropriatePresetMap = $triggeredByElement.attr("select-type") == 'person' ? dialog.data.personPresets : dialog.data.roomPresets;
+
+                if ($triggeredByElement.id.startsWith("preset_")) {
+                    // appropriateIdMap.delete()
+                    const preset = appropriatePresetMap.get($triggeredByElement.id.split("_")[1]);
+                    
+                }
+                else {
+                    appropriateIdMap.delete($triggeredByElement.id);
+                }
+
+                $(triggeredByElement).remove();
             },
         },
         data: {
-            peopleNameMap: new Map(),
-            roomsNameMap: new Map(),
+            roomPresets: new Map(),
+            personPresets: new Map(),
+            selectedRoomIds: new Map(),
+            selectedPeopleIds: new Map(),
             patterns: new Map(),
             stepper: null,
-        }
+        },
+        when: [
+            { eventKnownAs: "roomsSelected", do: (dialog, payload) => { 
+                let wrapper = dialog.$( '#roomChips' );
+                wrapper.empty();
+
+                payload.viewables.forEach((room) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${room.text}'
+                                          id='${room.id}'
+                                          select-type='room'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)  
+                    )
+                });
+
+                dialog.data.selectedRoomIds = payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                dialog.data.presets
+            } },
+            { eventKnownAs: "peopleSelected", do: (dialog, payload) => { 
+                let wrapper = dialog.$( '#peopleChips' );
+                wrapper.empty();
+
+                payload.viewables.forEach((person) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${person.text}'
+                                          id='${person.id}'
+                                          select-type='person'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)
+                    )
+                });
+
+                dialog.data.selectedPeopleIds = payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
+            } },
+        ]
     });
 </script>
