@@ -2,6 +2,7 @@ import json
 from typing import Dict, List, Union
 from django.utils.translation import gettext_lazy as _
 from django.core.serializers.json import json as dj_json, DjangoJSONEncoder
+from django.urls import reverse
 
 
 class BaseGenericListTemplateMixin:
@@ -36,7 +37,7 @@ class BaseGenericListTemplateMixin:
         context["ENTITY_NAME_PLURAL"] = self.model.entity_name_plural
         context["COLUMN_DEFINITION"] = self._set_columns()
 
-        context["LIST"] = self.construct_list(self.object_list.filter(nested_children__isnull=False))
+        context["LIST"] = self._process_urls(self.construct_list(self.object_list.filter(parent__isnull=True)))
 
         context["SHOW_OPTIONS"] = self.show_options
         context["HIDDEN_KEYS"] = [f[0] for f in self.columns if f[2] is False]
@@ -54,8 +55,7 @@ class GenericTreeListTemplateMixin(BaseGenericListTemplateMixin):
     
     def construct_list(self, objects: List):
         constructed_list = []
-
-        for obj in objects:
+        for obj in objects.all():
             initial_row = {}
             
             for col in self.extra_columns if self.extra_columns else self.columns:
@@ -67,6 +67,20 @@ class GenericTreeListTemplateMixin(BaseGenericListTemplateMixin):
             constructed_list.append(initial_row)
 
         return constructed_list
+
+    def _process_urls(self, obj_list: List):
+        """ Takes a list of instances and tries to add the various CRUDL urls into these instances 
+        This allows the tree_list_view to set up buttons in the list for each element in the list. Due to tree list view
+        being constructed in JS we need to pre-process these urls and package them in like this with each instance."""
+        if self.section and self.section.crudl_map:
+            urls = [ ("detail_url", self.section.crudl_map.detail_url), ("edit_url", self.section.crudl_map.edit_url), ("delete_url", self.section.crudl_map.delete_url) ]
+            for item in obj_list:
+                for attr_name, url in urls:
+                    if url:
+                        item[attr_name] = reverse(url, kwargs={ "slug": item["slug"] })
+                if "children" in item:
+                    self._process_urls(item["children"])
+        return obj_list
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

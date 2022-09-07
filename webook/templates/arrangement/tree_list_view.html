@@ -3,6 +3,7 @@
 
 {% block content %}
 
+
 <div class="row mb-3">
     <div class="col-8">
         <div class="form-outline">
@@ -37,28 +38,23 @@
 </div>
 {% else %}
 
-<div class="treetable">
-    <table id="entitiesTable" class="table table-sm">
-        <thead>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-</div>
+<table id="entitiesTable">
+    <thead></thead>
+    <tbody></tbody>
+</table>
 
 {% endif %}
+
 
 <script>
     const tableData = JSON.parse(`{{ LIST_JSON | safe }}`);
     const columnDefinition = JSON.parse(`{{ COLUMN_DEFINITION_JSON | safe }}`);
 
-    const THEAD_ROW_CLASSLIST = [ "h5" ]
+    console.log(tableData);
+
+    const THEAD_ROW_CLASSLIST = [  ]
 
     const SHOW_OPTIONS = "{{ SHOW_OPTIONS }}";
-    const DETAIL_URL = "{{ CRUDL_MAP.detail_url }}";
-    const EDIT_URL = "{{ CRUDL_MAP.edit_url }}";
-    const DELETE_URL = "{{ CRUDL_MAP.delete_url }}";
-
     const $THEAD = $('#entitiesTable thead');
     const $TBODY = $('#entitiesTable tbody');
 
@@ -81,12 +77,13 @@
 
     $THEAD.append(thRowElement);
 
-    function createBodyTdElement (row, iterativeDepth=0) {
+    function createBodyTdElement (row, iterativeDepth=0, parent=null) {
         let rowElements = [];
 
         let topLayerTrElement = document.createElement('tr');
-        if (iterativeDepth !== 0) {
-            topLayerTrElement.setAttribute("data-depth", iterativeDepth);
+        topLayerTrElement.setAttribute("data-tt-id", row.slug);
+        if ( parent ) {
+            topLayerTrElement.setAttribute("data-tt-parent-id", parent);
         }
 
         for ( let i = 0; i < columnDefinition.length; i++ ) {
@@ -103,32 +100,50 @@
 
         if (row.children && Array.isArray(row.children)) {
             row.children.forEach((childRow) => {
-                rowElements = rowElements.concat(createBodyTdElement(childRow, iterativeDepth));
+                rowElements = rowElements.concat(createBodyTdElement(childRow, iterativeDepth, row.slug));
             });
         }
 
-        return rowElements.concat( [ topLayerTrElement ] );
+        return [ topLayerTrElement ] .concat( rowElements );
     }
+
+    $("#entitiesTable tbody").on("mousedown", "tr", function() {
+        $(".selected").not(this).removeClass("selected");
+        $(this).toggleClass("selected");
+    });
+
+    // Drag & Drop Example Code
+    $("#entitiesTable tr").draggable({
+        helper: "clone",
+        opacity: .75,
+        refreshPositions: true,
+        revert: "invalid",
+        revertDuration: 300,
+        scroll: true
+    });
+    $("#entitiesTable tr").each(function() {
+        $(this).parents("#entitiesTable tr").droppable({
+            accept: ".file, .folder",
+            drop: function(e, ui) {
+            var droppedEl = ui.draggable.parents("tr");
+            $("#entitiesTable").treetable("move", droppedEl.data("ttId"), $(this).data("ttId"));
+            },
+            hoverClass: "accept",
+            over: function(e, ui) {
+            var droppedEl = ui.draggable.parents("tr");
+            if(this != droppedEl[0] && !$(this).is(".expanded")) {
+                $("#entitiesTable").treetable("expandNode", $(this).data("ttId"));
+            }
+            }
+        });
+    });
 
     tableData.forEach(function (row) {
         $TBODY.append(createBodyTdElement(row));
     });
  
     $(document).ready(function () {
-        // const dt = $('#entitiesTable').DataTable( {
-        //     dom: 'Brtip',
-        //     buttons: [
-        //         { extend: 'copy', className: 'wb-btn-secondary' },
-        //         { extend: 'excel', className: 'wb-btn-secondary' },
-        //         { extend: 'pdf', className: 'wb-btn-secondary' },
-        //         { extend: 'print', className: 'wb-btn-secondary' }
-        //     ]
-        // } );
-
-        document.getElementById('datatable-search-input').addEventListener('input', (e) => {
-           dt.search(e.target.value).draw();
-        })
-
+        $("#entitiesTable").treetable();
         $('.wb-btn-secondary').each(function () { 
             $(this).removeClass("btn-secondary");
         });

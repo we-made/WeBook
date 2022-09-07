@@ -36,7 +36,10 @@
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/themes/bootstrap-theme/jquery.fonticonpicker.bootstrap.min.css' %}">
 
     <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/file-upload.min.css">
-
+    <!-- <link rel="stylesheet" href="{% static 'jquery-treetable/css/jquery.treetable.css' %}" />
+     -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-treetable/3.2.0/css/jquery.treetable.css" integrity="sha512-l1bJ1VnsPD+m5ZYhfcl9PrJgbCQixXtQ/zs423QYu0w1xDGXJOSC0TmorOocaYY8md5+YMRcxZ/UgjyOSIlTYw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-treetable/3.2.0/css/jquery.treetable.theme.default.css" integrity="sha512-S0Z8qdW2IlHsTsra73PQ9cTRAFIugG853UK9hkv6CZ/H6MemHuZokEQKhjtvQEQ1NpQuaheq1wcGcrY46PK9og==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
     <link href="{% static 'css/nasj_style.css' %}" rel="stylesheet">
 
@@ -45,6 +48,8 @@
     src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
     crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+
     <script src="{% static 'js/mdbSelectExt.js' %}"></script>
     <script src="{% static 'vis-timeline/standalone/umd/vis-timeline-graph2d.js' %}"></script>
     <script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
@@ -305,7 +310,6 @@
     {% block javascript %}
 
       <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script> -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js" integrity="sha512-kvg/Lknti7OoAw0GqMBP8B+7cGHvp4M9O9V6nAYG91FZVDMW3Xkkq5qrdMhrXiawahqU7IZ5CNsY/wWy1PpGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 
@@ -327,12 +331,12 @@
       <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
       <script src="{% static '@fonticonpicker/fonticonpicker/dist/js/jquery.fonticonpicker.min.js' %}"></script>
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/file-upload.min.js"></script>
-      <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/treetable.min.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
       <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.11.5/af-2.3.7/b-2.2.2/b-colvis-2.2.2/b-html5-2.2.2/b-print-2.2.2/cr-1.5.5/date-1.1.2/fc-4.0.2/fh-3.2.2/kt-2.6.4/r-2.2.9/rg-1.1.4/rr-1.2.8/sc-2.0.5/sb-1.3.2/sp-2.0.0/sl-1.3.4/sr-1.1.0/datatables.min.js"></script>
       <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-treetable/3.2.0/jquery.treetable.min.js" integrity="sha512-2pYVakljd2zLnVvVC264Ib+XGvOvu3iFyKCIwLzn77mfbjuVi1dGJUxGjDAI8MjgPgTfSIM/vZirW04LCQmY2Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
       <script type="module">
         import dialogApi from "{% static 'modules/planner/dialog_manager/dialogApi.js' %}";
         import { Popover } from "{% static 'js/popover.js' %}";
