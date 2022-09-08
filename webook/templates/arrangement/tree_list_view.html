@@ -209,7 +209,7 @@
     function setupJsTree() {
         $('#entityTree').jstree("destroy")
 
-        fetch("{% url 'arrangement:arrangement_type_tree_list' %}", { method: 'GET' })
+        fetch("{{ JSON_TREE_SRC_URL }}", { method: 'GET' })
             .then(response => response.json())
             .then(obj => {
                 $('#entityTree').jstree({

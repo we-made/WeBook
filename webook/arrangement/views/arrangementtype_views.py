@@ -53,6 +53,7 @@ class ArrangementTypeListView(LoginRequiredMixin, ArrangementTypeSectionManifest
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["CRUDL_MAP"] = self.section.crudl_map
+        context["JSON_TREE_SRC_URL"] = reverse("arrangement:arrangement_type_tree_list")
         return context
 
 arrangement_type_list_view = ArrangementTypeListView.as_view()

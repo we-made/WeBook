@@ -20,7 +20,7 @@ from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin, GenericTreeListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
@@ -45,8 +45,8 @@ class AudienceSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
-    template_name = "arrangement/list_view.html"
+class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, GenericTreeListTemplateMixin, MetaMixin, ListView):
+    template_name = "arrangement/tree_list_view.html"
     model = Audience
     queryset = Audience.objects.all()
     view_meta = ViewMeta.Preset.table(Audience)
@@ -59,6 +59,7 @@ class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, Generic
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["CRUDL_MAP"] = self.section.crudl_map
+        context["JSON_TREE_SRC_URL"] = reverse("arrangement:audience_tree")
         return context
 
 audience_list_view = AudienceListView.as_view()
