@@ -10,7 +10,7 @@
             <div id="rail" class="float-end stepper-rail"></div>
         </div>
         <hr>
-        <div style="max-height: 600px; height: 600px; overflow: scroll; overflow-y: visible;">
+        <div style="max-height: 600px; height: 600px;">
             <div id="step-1">
                 <div class="row">
                     <div class="col-12">
@@ -55,24 +55,28 @@
                                         <i class="fas fa-users"></i>&nbsp;
                                         Målgruppe
                                     </label>
-                                    <!-- {{ form.audience }} -->
-                                    <select id="{{ form.audience.id_for_label }}" class="form-control"></select>
-                                                                    <!-- <button id="openAudienceTreeSelect" type="button">Open</button> -->
-                                    <span id="audienceTreeSelect" class="popover_wrapper">
-                                        <span class="popover_content" style="font-size:medium;">
-
-                                            <button class="btn wb-btn-secondary mt-2 float-end">Lagre valg</button>
-                                        </span>
-                                    </span>
-                                </div>
-                                {% if form.audience.errors|length > 0 %}
+                                    <div id="audience_jstree_select"></div>
+                                    
+                                    {% if form.audience.errors|length > 0 %}
                                     <div class="alert alert-danger">
                                         {{ form.audience.errors }}
                                     </div>
-                                {% endif %}
+                                    {% endif %}
+                                </div>
 
-
-        
+                                <div class="mb-2">
+                                    <label for="{{ form.arrangement_type.id_for_label }}" class="form-label select-label">
+                                        <i class="fas fa-cog"></i>&nbsp;
+                                        Arrangementstype
+                                    </label>
+                                    <div id="arrangement_type_jstree_select"></div>
+                                    {% if form.arrangement_type.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.arrangement_type.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                    
                                 <div class="mb-2">
                                     <label for="{{ form.location.id_for_label }}" class="form-label">
                                         <i class="fas fa-map-marker-alt"></i>&nbsp;
@@ -83,19 +87,6 @@
                                 {% if form.location.errors|length > 0 %}
                                     <div class="alert alert-danger">
                                         {{ form.location.errors }}
-                                    </div>
-                                {% endif %}
-        
-                                <div class="mb-2">
-                                    <label for="{{ form.arrangement_type.id_for_label }}" class="form-label select-label">
-                                        <i class="fas fa-cog"></i>&nbsp;
-                                        Arrangementstype
-                                    </label>
-                                    {{ form.arrangement_type }}
-                                </div>
-                                {% if form.arrangement_type.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.arrangement_type.errors }}
                                     </div>
                                 {% endif %}
         
@@ -269,10 +260,6 @@
             });
 
             [   
-                // { 
-                //     element: dialog.querySelector('#{{ form.audience.id_for_label }}'),
-                //     invalidFeedback: "Vennligst velg en målgruppe",
-                // },
                 {
                     element: dialog.querySelector('#{{ form.location.id_for_label }}'),
                     invalidFeedback: "Vennligst velg en lokasjon",
@@ -281,10 +268,6 @@
                     element: dialog.querySelector('#{{ form.responsible.id_for_label }}'),
                     invalidFeedback: "Vennligst velg en hovedplanlegger",
                 },
-                {
-                    element: dialog.querySelector('#{{ form.arrangement_type.id_for_label }}'),
-                    invalidFeedback: "Vennligst velg en arrangementstype",
-                }
             ].forEach((select) => {
                 const mdbSelect = new mdb.Select(select.element, { 
                     container: "[class='{{discriminator}}']",
@@ -300,16 +283,22 @@
                 });
             });
 
-            let e = new JSTreeSelect({
-                element: dialog.querySelector('#audienceTreeSelect'),
-                triggerElement:  undefined,
-                treeJsonSrcUrl: "/arrangement/audience/tree"
+            dialog.data.audienceJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#audience_jstree_select'),
+                treeJsonSrcUrl: "/arrangement/audience/tree",
+                noneSelectedLabelText: "Ingen målgruppe valgt ennå",
+                selectFirstTimeButtonText: 'Velg målgruppe',
+                changeSelectedValueButtonText: 'Endre målgruppe',
+                popoverSaveChoicesButtonText: 'Lagre valg',
             });
-            dialog.querySelector('#{{ form.audience.id_for_label }}').onclick = (event) => {
-                event.preventDefault();
-                console.log("AAAAARGHGHHH")
-                e._popover.show();
-            }
+            dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#arrangement_type_jstree_select'),
+                treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
+                noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
+                selectFirstTimeButtonText: 'Velg arrangementstype',
+                changeSelectedValueButtonText: 'Endre arrangementstype',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
 
             document.addEventListener("{{managerName}}.contextUpdated", (e) => {
                 if (e.detail.context.series !== undefined) {
@@ -329,12 +318,9 @@
                     stepIn: () => { console.log("1. Step In") },
                     stepOut: () => { 
                         let field_elements = dialog.$('#step-1').find("input, select");
-
                         [
-                            mdb.Select.getInstance(dialog.querySelector('#{{ form.audience.id_for_label }}')),
                             mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
                             mdb.Select.getInstance(dialog.querySelector('#{{ form.responsible.id_for_label }}')),
-                            mdb.Select.getInstance(dialog.querySelector('#{{ form.arrangement_type.id_for_label }}')),
                         ].forEach(mdbSelect => { 
                             if (mdbSelect.hasSelection?.label === "---------" ) {
                                 $(mdbSelect._wrapper).find(".invalid-feedback").show();
@@ -346,6 +332,15 @@
                                 dialog.$('#arrangementInfoForm').find(':submit').click();
                                 return false;
                             }
+                        }
+
+                        if (!dialog.data.audienceJsTreeSelect.isValid()) {
+                            dialog.data.audienceJsTreeSelect.showInvalidFeedback();
+                            return false;
+                        }
+                        if (!dialog.data.arrangementTypeJsTreeSelect.isValid()) {
+                            dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
+                            return false;
                         }
 
                         return true;
@@ -422,9 +417,9 @@
                 let formData = new FormData();
                 formData.append("name",             dialog.interior.id_name.value);
                 formData.append("name_en",          dialog.interior.id_name_en.value);
-                formData.append("audience",         dialog.interior.id_audience.value);
+                formData.append("audience",         dialog.data.audienceJsTreeSelect.getSelectedValue());
                 formData.append("location",         dialog.interior.id_location.value);
-                formData.append("arrangement_type", dialog.interior.id_arrangement_type.value);
+                formData.append("arrangement_type", dialog.data.arrangementTypeJsTreeSelect.getSelectedValue());
                 formData.append("responsible",      dialog.interior.id_responsible.value);
                 formData.append("ticket_code",      dialog.interior.id_ticket_code.value);
                 formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
@@ -493,7 +488,7 @@
                 tbody.html("")
 
                 series.forEach(element => {
-                    collisions_html = "";
+                    let collisions_html = "";
                     if (element.collisions !== undefined && element.collisions.length > 0) {
                         let collisionsCounter = 0;
                         element.collisions.forEach(collisionRecord => {
