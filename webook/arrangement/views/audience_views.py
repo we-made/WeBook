@@ -133,7 +133,7 @@ audience_update_view = AudienceUpdateView.as_view()
 class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, ArchiveView):
     model = Audience
     view_meta = ViewMeta.Preset.delete(Audience)
-    template_name = "arrangement/delete_view.html"
+    template_name = "arrangement/dialog_delete_view.html"
 
     def get_success_url(self) -> str:
         return reverse(
