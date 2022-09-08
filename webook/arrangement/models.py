@@ -39,6 +39,7 @@ class SelfNestedModelMixin(models.Model):
         """ Convert this instance, and its nested children into a tree node """
         return {
             "id": self.pk,
+            "icon": self.icon_class if hasattr(self, "icon_class") else "",
             "text": self.resolved_name if hasattr(self, "resolved_name") else "Unknown",
             "children": [child.as_node() for child in self.nested_children.all()],
             "data": { "slug": self.slug }
