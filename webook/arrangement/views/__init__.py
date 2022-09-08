@@ -41,6 +41,7 @@ from .audience_views import (
     audience_list_view,
     audience_search_view,
     audience_update_view,
+    audience_tree_json_view,
 )
 from .calendar_views import (
     all_locations_resource_source_view,

@@ -11,6 +11,7 @@ from django.views.generic import (
 )
 from django.urls import reverse, reverse_lazy
 
+from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, Audience
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
@@ -139,3 +140,10 @@ class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
         )
 
 audience_delete_view = AudienceDeleteView.as_view()
+
+
+class AudienceTreeJsonView(LoginRequiredMixin, AudienceSectionManifestMixin, JSTreeListView):
+    inject_resolved_crudl_urls_into_nodes = True
+    model = Audience
+
+audience_tree_json_view = AudienceTreeJsonView.as_view()

@@ -7,6 +7,7 @@ from webook.arrangement.views import (
     audience_list_view,
     audience_search_view,
     audience_update_view,
+    audience_tree_json_view,
 )
 
 audience_urls = [
@@ -39,5 +40,10 @@ audience_urls = [
         route="audience/search",
         view=audience_search_view,
         name="audience_search",
+    ),
+    path(
+        route="audience/tree",
+        view=audience_tree_json_view,
+        name="audience_tree",
     ),
 ]
