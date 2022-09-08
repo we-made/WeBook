@@ -11,6 +11,7 @@ from django.views.generic import (
     TemplateView
 )
 from django.urls import reverse, reverse_lazy
+from webook.arrangement.forms.audience_forms import CreateAudienceForm, UpdateAudienceForm
 
 from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
 from django.views.generic.edit import DeleteView
@@ -91,13 +92,8 @@ audience_search_view = AudienceSearchView.as_view()
 
 
 class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, CreateView):
+    form_class = CreateAudienceForm
     model = Audience
-    fields = [
-        "name",
-        "name_en",
-        "icon_class",
-        "parent",
-    ]
     template_name = "arrangement/audience/audience_form.html"
     view_meta = ViewMeta.Preset.create(Audience)
     
@@ -110,13 +106,8 @@ audience_create_view = AudienceCreateView.as_view()
 
 
 class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, UpdateView):
+    form_class = UpdateAudienceForm
     model = Audience
-    fields = [
-        "name",
-        "name_en",
-        "icon_class",
-        "parent",
-    ]
     view_meta = ViewMeta.Preset.edit(Audience)
     template_name = "arrangement/audience/audience_form.html"
     
