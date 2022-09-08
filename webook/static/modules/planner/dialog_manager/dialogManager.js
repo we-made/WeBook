@@ -40,7 +40,7 @@
     }
 
     _$getDialogEl() {
-        if (this.renderer.$dialogElement === null)
+        if (this.renderer.$dialogElement === undefined)
             return $("#" + this.dialogElementId + "." + this.discriminator);
         return this.renderer.$dialogElement;
     }
