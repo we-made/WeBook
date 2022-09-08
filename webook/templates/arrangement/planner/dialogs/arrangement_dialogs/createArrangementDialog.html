@@ -55,13 +55,23 @@
                                         <i class="fas fa-users"></i>&nbsp;
                                         Målgruppe
                                     </label>
-                                    {{ form.audience }}
+                                    <!-- {{ form.audience }} -->
+                                    <select id="{{ form.audience.id_for_label }}" class="form-control"></select>
+                                                                    <!-- <button id="openAudienceTreeSelect" type="button">Open</button> -->
+                                    <span id="audienceTreeSelect" class="popover_wrapper">
+                                        <span class="popover_content" style="font-size:medium;">
+
+                                            <button class="btn wb-btn-secondary mt-2 float-end">Lagre valg</button>
+                                        </span>
+                                    </span>
                                 </div>
                                 {% if form.audience.errors|length > 0 %}
                                     <div class="alert alert-danger">
                                         {{ form.audience.errors }}
                                     </div>
                                 {% endif %}
+
+
         
                                 <div class="mb-2">
                                     <label for="{{ form.location.id_for_label }}" class="form-label">
@@ -246,7 +256,9 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+    import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
+
     new Dialog({
         managerName: '{{managerName}}',
         dialogId: '{{dialogId}}',
@@ -257,10 +269,10 @@
             });
 
             [   
-                { 
-                    element: dialog.querySelector('#{{ form.audience.id_for_label }}'),
-                    invalidFeedback: "Vennligst velg en målgruppe",
-                },
+                // { 
+                //     element: dialog.querySelector('#{{ form.audience.id_for_label }}'),
+                //     invalidFeedback: "Vennligst velg en målgruppe",
+                // },
                 {
                     element: dialog.querySelector('#{{ form.location.id_for_label }}'),
                     invalidFeedback: "Vennligst velg en lokasjon",
@@ -287,6 +299,17 @@
                     $(mdbSelect._wrapper).find(".invalid-feedback").hide();
                 });
             });
+
+            let e = new JSTreeSelect({
+                element: dialog.querySelector('#audienceTreeSelect'),
+                triggerElement:  undefined,
+                treeJsonSrcUrl: "/arrangement/audience/tree"
+            });
+            dialog.querySelector('#{{ form.audience.id_for_label }}').onclick = (event) => {
+                event.preventDefault();
+                console.log("AAAAARGHGHHH")
+                e._popover.show();
+            }
 
             document.addEventListener("{{managerName}}.contextUpdated", (e) => {
                 if (e.detail.context.series !== undefined) {

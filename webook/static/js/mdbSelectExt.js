@@ -142,7 +142,7 @@ class ExtendedSelect {
 
             let parentEl = this.jqElement;
             
-            let isOptgroup = item.options !== undefined && Array.isArray(item.options);
+            let isOptgroup = Array.isArray(item.options);
             
             if (isOptgroup) {
                 parentEl = document.createElement('optgroup');
