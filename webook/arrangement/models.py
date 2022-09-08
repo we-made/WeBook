@@ -47,6 +47,12 @@ class SelfNestedModelMixin(models.Model):
     class Meta:
         abstract = True
 
+class IconClassMixin(models.Model):
+    icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
+
+    class Meta:
+        abstract = True
+
 class BufferFieldsMixin(models.Model):
     """Mixin for the common fields for buffer functionality"""
     before_buffer_start = models.TimeField(null=True, blank=True)
@@ -161,7 +167,7 @@ class ModelHistoricallyConfirmableMixin():
         pass
 
 
-class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, SelfNestedModelMixin):
+class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, SelfNestedModelMixin, IconClassMixin):
     """Audience represents a target audience, and is used for categorical purposes.
 
     :param name: The name of the audience
@@ -177,7 +183,6 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, Se
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
-    icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
 
     entity_name_singular = _("Audience")
