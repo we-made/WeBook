@@ -161,7 +161,7 @@ class ModelHistoricallyConfirmableMixin():
         pass
 
 
-class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
+class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, SelfNestedModelMixin):
     """Audience represents a target audience, and is used for categorical purposes.
 
     :param name: The name of the audience
