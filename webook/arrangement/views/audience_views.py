@@ -89,7 +89,7 @@ class AudienceSearchView(LoginRequiredMixin, SearchView):
 audience_search_view = AudienceSearchView.as_view()
 
 
-class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView):
+class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, CreateView):
     model = Audience
     fields = [
         "name",
@@ -98,16 +98,11 @@ class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
     ]
     template_name = "arrangement/audience/audience_form.html"
     view_meta = ViewMeta.Preset.create(Audience)
-
-    success_urls_and_messages = {
-        "submitAndNew": {
-            "url": reverse_lazy( "arrangement:audience_create" ),
-            "msg": _("Successfully created entity")
-        },
-        "submit": {
-            "url": reverse_lazy("arrangement:audience_list"),
-        }
-    }
+    
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:audience_list"
+        )
 
 audience_create_view = AudienceCreateView.as_view()
 
