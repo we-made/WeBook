@@ -1,3 +1,4 @@
+import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -116,7 +117,7 @@ class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
     ]
     view_meta = ViewMeta.Preset.edit(Audience)
     template_name = "arrangement/audience/audience_form.html"
-
+    
     def get_success_url(self) -> str:
         return reverse(
             "arrangement:audience_list"

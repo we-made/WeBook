@@ -62,8 +62,7 @@
     <script>
 
         $(document).ready(function () {
-            el = $('#{{form.icon_class.id_for_label}}').fontIconPicker();
-
+            let el = $('#{{form.icon_class.id_for_label}}').fontIconPicker();
             fetch('{% static "fontawesome-icon-manifest_no.json" %}')
                 .then(fetchedJson =>  fetchedJson.json())
                 .then(parsedJson => el.setIcons( parsedJson ));

@@ -306,8 +306,9 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
 }
 
 export class DialogManager {
-    constructor ({ managerName, dialogs }) {
+    constructor ({ managerName, dialogs, allowMultipleOpenAtOnce=true }) {
         this.managerName = managerName;
+        this.allowMultipleOpenAtOnce = allowMultipleOpenAtOnce;
 
         this._listenForUpdatedEvent();
         this._listenForSubmitEvent();
@@ -430,7 +431,11 @@ export class DialogManager {
                 }
 
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
-                    console.log("=> TriggerEvent")
+                    
+                    if (this.allowMultipleOpenAtOnce === false) {
+                        this.closeAllDialogs();
+                    }
+
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
 
