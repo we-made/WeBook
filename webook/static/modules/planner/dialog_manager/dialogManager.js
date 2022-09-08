@@ -1,5 +1,19 @@
  export class Dialog {
-    constructor ({ dialogElementId, triggerElementId, htmlFabricator, onRenderedCallback, onUpdatedCallback, onSubmit, onPreRefresh, dialogOptions, triggerByEvent=false, customTriggerName=undefined } = {}) {
+    constructor ({ dialogElementId, 
+                   triggerElementId, 
+                   htmlFabricator, 
+                   onRenderedCallback, 
+                   onUpdatedCallback, 
+                   onSubmit, 
+                   onPreRefresh, 
+                   dialogOptions, 
+                   triggerByEvent=false, 
+                   customTriggerName=undefined,
+                   title=undefined,
+                   formUrl=undefined,
+                   renderer=new DialogComplexDiscriminativeRenderer(),
+                   plugins=[ ],
+                } = {}) {
         this.dialogElementId = dialogElementId;
         this.triggerElementId = triggerElementId;
         this.customTriggerName = customTriggerName;
@@ -11,50 +25,30 @@
         this.onPreRefresh = onPreRefresh;
         this.dialogOptions = dialogOptions;
         this._isRendering = false;
+        this.title = title;
 
+        this.formUrl = formUrl;
+
+        this.renderer = renderer;
         this.discriminator = null;
+
+        this.plugins = [];
+        plugins.forEach((plugin) => {
+            plugin.dialog = this;
+            this.plugins.push( plugin );
+        });
     }
 
     _$getDialogEl() {
-        return $("#" + this.dialogElementId + "." + this.discriminator);
+        if (this.renderer.$dialogElement === null)
+            return $("#" + this.dialogElementId + "." + this.discriminator);
+        return this.renderer.$dialogElement;
     }
 
-    async render(context) {
-        if (this.discriminator)
-            this.destroy();
-        if (this._isRendering === false) {
-            this._isRendering = true;
-            if (this.isOpen() === false) {
-                let html = await this.htmlFabricator(context);
-
-                let span = document.createElement("span");
-                span.innerHTML = html;
-                let dialogEl = span.querySelector("#" + this.dialogElementId);
-                $(dialogEl).toggle("highlight");
-
-                this.discriminator = dialogEl.getAttribute("class");
-
-                $('body')
-                    .append(html)
-                    .ready( () => {
-                        this._$getDialogEl().dialog( this.dialogOptions );
-                        this.onRenderedCallback(this, context);
-                        this._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                            .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
-                            .click( () => {
-                                this.destroy();
-                            });
-                        
-                        this._isRendering = false;
-                    });
-            }
-            else {
-                this._isRendering = false;
-            }
-        }
-        else {
-            console.warn("Dialog is already rendering...")
-        }
+    async render(context, html) {
+        let result = await this.renderer.render(context, this, html);
+        this.plugins.forEach((plugin) => plugin.onRender(context));
+        return result;
     }
 
     changeTitle(newTitle) {
@@ -73,7 +67,7 @@
             else { console.log(html); }
 
             this.destroy();
-            this.render(context);
+            this.render(context, html);
 
             // let holderEl = document.createElement("span");
             // holderEl.innerHTML = html;
@@ -125,16 +119,13 @@
 
     destroy() {
         this._$getDialogEl().dialog( "destroy" );
-        $(`[id=${this.dialogElementId}][class='${this.discriminator}']`).each(function (index, $dialogElement) {
-            $dialogElement.remove();
-        });
+        this.renderer.removeFromDOM();
         this.discriminator=null;
     }
 
     isOpen() {
-        let $dialogElement = this._$getDialogEl();
-
-        if ($dialogElement[0] === undefined || this.getInstance() === false || $($dialogElement).dialog("isOpen") === false) {
+        const $dialogElement = this._$getDialogEl();
+        if ($dialogElement === null || this.getInstance() === false || $dialogElement.dialog("isOpen") === false) {
             return false;
         }
 
@@ -142,6 +133,188 @@
     }
 }
 
+export class DialogFormInterceptorPlugin {
+    constructor (csrf_token) {
+        this.dialog = null;
+        this.context = null;
+        this.csrf_token = csrf_token;
+    }
+
+    onResponseOk() {
+        location.reload();
+    }
+
+    onRender(context) {
+        this.context = context;
+        this._findAllForms();
+    }
+
+    /**
+     * When receiving response 200 it is not a guarantee that the submission was a success.
+     * Status code 200 will be returned if; a) submission succeeded or b) validation failed.
+     * Validation messages will in the latter case be visible. This function checks the returned
+     * html, and ascertains which one of these cases it is.
+     */
+    _ascertainStateFromBodyHtml(html) {
+        let holder = document.createElement("span");
+        holder.innerHTML = html;
+        
+        return holder.querySelectorAll(".form-error").length == 0
+    }
+
+    _findAllForms() {
+        let formElementsWithinDialog = this.dialog._$getDialogEl()[0].querySelectorAll("form");
+        
+        formElementsWithinDialog.forEach((formElement) => {
+            let cancelButtons = formElement.querySelectorAll(".cancel-button");
+            cancelButtons.forEach((cancelButton) => {
+                cancelButton.onclick = (event) => {
+                    event.preventDefault();
+                    this.dialog.close();
+                }
+            });
+
+            formElement.onsubmit = function (event) {
+                event.preventDefault();
+
+                const action = formElement.getAttribute("action") || this.dialog.formUrl;
+                const formData = new FormData(formElement);
+
+                fetch(action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": this.csrf_token,
+                    },
+                    credentials: 'same-origin',
+                }).then(response => {
+                    if (response.status !== 200) {
+                        throw Error("Submission of form failed", response);
+                    }
+
+                    return response.text();
+                }).then(html => { 
+                    if (this._ascertainStateFromBodyHtml(html)) {
+                        this.onResponseOk();
+                        this.dialog.close();
+                    }
+                    else {
+                        // validation error -- we want to refresh the dialog
+                        this.dialog.refresh(this.context, html);
+                    }
+                });
+            }.bind(this);
+        });
+    }
+}
+
+export class DialogBaseRenderer {
+    constructor() {
+        this._isRendering = false;
+        this.$dialogElement = null;
+        this.dialogElement = null;
+    }
+
+    async render(context, dialog) {
+    }
+
+    removeFromDOM() {
+        this.dialogElement.remove();
+        this.dialogElement = null;
+        this.$dialogElement = null;
+    }
+}
+
+export class DialogSimpleRenderer extends DialogBaseRenderer {
+    constructor() {
+        super();
+    }
+
+    async render(context, dialog, html=null) {
+        if (this._isRendering === false) {
+            this._isRendering = true;
+            if (dialog.isOpen() === false) {
+                if (!html)
+                    html = await dialog.htmlFabricator(context, dialog);
+                let span = document.createElement("span");
+                span.innerHTML = html;
+
+                this.dialogElement = span;
+                this.$dialogElement = $(span);
+
+                $('body')
+                    .append(span)
+                    .ready( () => {
+                        dialog._$getDialogEl().dialog( dialog.dialogOptions );
+                        dialog.onRenderedCallback(dialog, context);
+                        dialog._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
+                            .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
+                            .click( () => {
+                                dialog.destroy();
+                            });
+                        
+                        dialog.changeTitle( dialog.title );
+                        this._isRendering = false;
+                });
+            }
+            else {
+                this._isRendering = false;
+            }
+        }
+        else {
+            console.warn("Dialog is already rendering...")
+        }
+    }
+}
+
+export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
+    constructor() {
+        super();
+    }
+
+    async render(context, dialog, html=null) {
+        if (this.discriminator) {
+            dialog.destroy();
+        }
+        if (this._isRendering === false) {
+            this._isRendering = true;
+            if (dialog.isOpen() === false) {
+                if (!html)
+                    html = await dialog.htmlFabricator(context);
+
+                let span = document.createElement("span");
+                span.innerHTML = html;
+                let dialogEl = span.querySelector("#" + dialog.dialogElementId);
+                $(dialogEl).toggle("highlight");
+
+                dialog.discriminator = dialogEl.getAttribute("class");
+
+                this.dialogElement = null;
+                this.$dialogElement = null;
+
+                $('body')
+                    .append(html)
+                    .ready( () => {
+                        dialog._$getDialogEl().dialog( dialog.dialogOptions );
+                        dialog.onRenderedCallback(dialog, context);
+                        dialog._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
+                            .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
+                            .click( () => {
+                                dialog.destroy();
+                            });
+                        
+                        this._isRendering = false;
+                    });
+            }
+            else {
+                this._isRendering = false;
+            }
+        }
+        else {
+            console.warn("Dialog is already rendering...")
+        }
+    }
+}
 
 export class DialogManager {
     constructor ({ managerName, dialogs }) {
@@ -268,6 +441,7 @@ export class DialogManager {
                 }
 
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
+                    console.log("=> TriggerEvent")
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
 

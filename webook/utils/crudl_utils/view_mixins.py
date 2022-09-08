@@ -1,8 +1,10 @@
 import json
 from typing import Dict, List, Union
-from django.utils.translation import gettext_lazy as _
-from django.core.serializers.json import json as dj_json, DjangoJSONEncoder
+
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.serializers.json import json as dj_json
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 
 class BaseGenericListTemplateMixin:
@@ -30,14 +32,16 @@ class BaseGenericListTemplateMixin:
 
         return self.extra_columns
 
+    def get_list(self):
+        return self.construct_list(self.object_list)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context["ENTITY_NAME_SINGULAR"] = self.model.entity_name_singular
         context["ENTITY_NAME_PLURAL"] = self.model.entity_name_plural
         context["COLUMN_DEFINITION"] = self._set_columns()
-
-        context["LIST"] = self._process_urls(self.construct_list(self.object_list.filter(parent__isnull=True)))
+        context["LIST"] = self.get_list()
 
         context["SHOW_OPTIONS"] = self.show_options
         context["HIDDEN_KEYS"] = [f[0] for f in self.columns if f[2] is False]
@@ -52,6 +56,9 @@ class GenericTreeListTemplateMixin(BaseGenericListTemplateMixin):
     """ Mixin to be used to aid portray tree lists in tandem with ListViews and models that can be self-nested,
     or be child/parent of instances of the same type.
     """
+
+    def get_list(self):
+        return self._process_urls(self.construct_list(self.object_list.filter(parent__isnull=True)))
     
     def construct_list(self, objects: List):
         constructed_list = []

@@ -1,7 +1,8 @@
-from django import forms
 from typing import Optional, Tuple
-from webook.arrangement.models import ArrangementType
 
+from django import forms
+
+from webook.arrangement.models import ArrangementType
 
 _ALWAYS_FIELDS = ( "parent",
                    "name",
@@ -12,6 +13,7 @@ class BaseArrangementTypeForm(forms.ModelForm):
     class Meta:
         model = ArrangementType
         fields =  _ALWAYS_FIELDS
+        widgets = { "parent": forms.Select(attrs={"class": "form-control"}) }
 
 
 class UpdateArrangementTypeForm(BaseArrangementTypeForm):

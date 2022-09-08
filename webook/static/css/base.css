@@ -17,6 +17,14 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+.form-error {
+    padding: 0;
+}
+
+.ui-dialog-titlebar-close {
+    float: right;
+}
+
 html, body {
     height: 100%!important;
 }

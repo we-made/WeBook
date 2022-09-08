@@ -65,7 +65,7 @@ from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMe
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 
 from ...utils.reverse_with_params import reverse_with_params
-from .generic_views.dialog_view import DialogView
+from .generic_views.dialog_views import DialogView
 
 
 def get_section_manifest():

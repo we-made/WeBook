@@ -1,30 +1,20 @@
 {% extends "arrangement/meta_base.html" %}
 {% load static i18n %}
 
+
 {% block content %}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
 
-<div class="row mb-3">
-    <div class="col-8">
-        <div class="form-outline">
-            <input type="text" class="form-control form-control-lg" id="datatable-search-input">
-            <label for="datatable-search-input" class="form-label">{% trans "Search for " %} {{ENTITY_NAME_PLURAL}}</label>
-        </div>
-    </div>
-
-    <div class="col-4">
-        {% if SHOW_CREATE_BUTTON %}
-        <div class="clearfix">
-            <a class="btn wb-btn-main shadow-0 btn-lg mb-2 float-end"
-                href="{% url CRUDL_MAP.create_url %}">
-                <i class="fas fa-plus"></i>&nbsp;
-                {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
-            </a>
-        </div>
-        {% endif %}
-    </div>
+{% if SHOW_CREATE_BUTTON %}
+<div class="clearfix mb-2">
+    <a class="btn wb-btn-secondary shadow-0 btn-lg mb-2"
+        onclick="document.dispatchEvent(new CustomEvent('genericManager.create.trigger', { detail: { url: '{% url CRUDL_MAP.create_url %}', title: 'Registrer ny {{ ENTITY_NAME_SINGULAR }}' } }))">
+        <i class="fas fa-plus"></i>&nbsp;
+        {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
+    </a>
 </div>
-
+{% endif %}
 
 {% if object_list|length == 0 %}
 <div class="alert wb-alert-secondary">
@@ -38,116 +28,220 @@
 </div>
 {% else %}
 
-<table id="entitiesTable">
-    <thead></thead>
-    <tbody></tbody>
-</table>
+<div class="wb-bg-secondary p-2 border">
+    <div id="entityTree"></div>
+</div>
 
 {% endif %}
 
+<script type="module">
+    import { Dialog, DialogManager, DialogSimpleRenderer, DialogFormInterceptorPlugin } from  "{% static 'modules/planner/dialog_manager/dialogManager.js' %}";
+
+    class CustomDialogFormInterceptorPlugin extends DialogFormInterceptorPlugin {
+        constructor (csrf_token) {
+            super(csrf_token);
+        }
+
+        onResponseOk() {
+            document.getElementById('entityTree').dispatchEvent(new Event("refresh"));
+        }
+    }
+
+    $(document).ready(function () {
+        const e = new DialogManager({
+            managerName: 'genericManager',
+            dialogs: [
+                [
+                    "detail",
+                    new Dialog({
+                        dialogElementId: 'detail',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.url) {
+                                throw Error("URL must be specified to call detail dialog view");
+                            }
+
+                            dialog.formUrl = context.lastTriggererDetails.url;
+                            if (context.lastTriggererDetails.title) {
+                                dialog.title = context.lastTriggererDetails.title;
+                            }
+
+                            return this.dialogManager.loadDialogHtml({
+                                url: context.lastTriggererDetails.url,
+                                dialogId: "detail",
+                                managerName: "genericManager",
+                            });
+                        }
+                    }),
+                ],
+                [
+                    "edit",
+                    new Dialog({
+                        dialogElementId: 'edit',
+                        title: 'Edit',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        renderer: new DialogSimpleRenderer(),
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.url) {
+                                throw Error("URL must be specified to call edit view");
+                            }
+
+                            dialog.formUrl = context.lastTriggererDetails.url;
+                            if (context.lastTriggererDetails.title) {
+                                dialog.title = context.lastTriggererDetails.title;
+                            }
+
+                            return e.loadDialogHtml({
+                                url: context.lastTriggererDetails.url,
+                                dialogId: "edit",
+                                managerName: "genericManager",
+                            });
+                        },
+                        dialogOptions: {
+                            width: 600,
+                            modal: true,
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+
+                        },
+                        onUpdatedCallback: (dialogManager, context) => {
+
+                        },
+                        onSubmit: async (context, details) => {
+                        }
+                    }),
+                ],
+                [ 
+                    "delete",
+                    new Dialog({
+                        dialogElementId: 'delete',
+                        title: 'Delete',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        renderer: new DialogSimpleRenderer(),
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        dialogOptions: {
+                            width: 600,
+                            modal: true,
+                        },
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.url) {
+                                throw Error("URL must be specified to call delete view");
+                            }
+
+                            dialog.formUrl = context.lastTriggererDetails.url;
+                            if (context.lastTriggererDetails.title) {
+                                dialog.title = context.lastTriggererDetails.title;
+                            }
+
+                            return e.loadDialogHtml({
+                                url: context.lastTriggererDetails.url,
+                                dialogId: "delete",
+                                managerName: "genericManager",
+                            });
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+                        },
+                        onUpdatedCallback: (dialogManager, context) => {
+                        },
+                        onSubmit: async (context, details) => {
+                        }
+                    }),
+                ],
+                [ 
+                    "create",
+                    new Dialog({
+                        dialogElementId: 'create',
+                        title: 'Create',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        renderer: new DialogSimpleRenderer(),
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        dialogOptions: {
+                            width: 600,
+                            modal: true,
+                        },
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.url) {
+                                throw Error("URL must be specified to call create view");
+                            }
+
+                            dialog.formUrl = context.lastTriggererDetails.url;
+                            if (context.lastTriggererDetails.title) {
+                                dialog.title = context.lastTriggererDetails.title;
+                            }
+
+                            return e.loadDialogHtml({
+                                url: context.lastTriggererDetails.url,
+                                dialogId: "create",
+                                managerName: "genericManager",
+                            });
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+                        },
+                        onUpdatedCallback: (dialogManager, context) => {
+                        },
+                        onSubmit: async (context, details) => {
+                        }
+                    }),
+                ],
+            ]
+        });
+
+        e._makeAware();
+    })
+</script>
 
 <script>
-    const tableData = JSON.parse(`{{ LIST_JSON | safe }}`);
-    const columnDefinition = JSON.parse(`{{ COLUMN_DEFINITION_JSON | safe }}`);
-
-    console.log(tableData);
-
-    const THEAD_ROW_CLASSLIST = [  ]
-
-    const SHOW_OPTIONS = "{{ SHOW_OPTIONS }}";
-    const $THEAD = $('#entitiesTable thead');
-    const $TBODY = $('#entitiesTable tbody');
-
-    const thRowElement = document.createElement('tr');
-    thRowElement.classList.add(...THEAD_ROW_CLASSLIST);
-
-    const indexShowOrHideMap = new Map();
-
-    for ( let i = 0; i < columnDefinition.length; i++ ) {
-        const column = columnDefinition[i];
-        const isThisColumnShown = column[2];
-        indexShowOrHideMap.set( i, isThisColumnShown );
-        
-        if (isThisColumnShown === true) {
-            let thElement = document.createElement('th');
-            thElement.innerText = column[1];
-            thRowElement.appendChild(thElement);
-        }
-    }
-
-    $THEAD.append(thRowElement);
-
-    function createBodyTdElement (row, iterativeDepth=0, parent=null) {
-        let rowElements = [];
-
-        let topLayerTrElement = document.createElement('tr');
-        topLayerTrElement.setAttribute("data-tt-id", row.slug);
-        if ( parent ) {
-            topLayerTrElement.setAttribute("data-tt-parent-id", parent);
-        }
-
-        for ( let i = 0; i < columnDefinition.length; i++ ) {
-            if (indexShowOrHideMap.get(i) === false) {
-                continue;
-            }
-
-            let tdElement = document.createElement('td');
-            tdElement.innerText = Object.values(row)[i];
-            topLayerTrElement.appendChild(tdElement);
-        }
-
-        iterativeDepth++;
-
-        if (row.children && Array.isArray(row.children)) {
-            row.children.forEach((childRow) => {
-                rowElements = rowElements.concat(createBodyTdElement(childRow, iterativeDepth, row.slug));
-            });
-        }
-
-        return [ topLayerTrElement ] .concat( rowElements );
-    }
-
-    $("#entitiesTable tbody").on("mousedown", "tr", function() {
-        $(".selected").not(this).removeClass("selected");
-        $(this).toggleClass("selected");
-    });
-
-    // Drag & Drop Example Code
-    $("#entitiesTable tr").draggable({
-        helper: "clone",
-        opacity: .75,
-        refreshPositions: true,
-        revert: "invalid",
-        revertDuration: 300,
-        scroll: true
-    });
-    $("#entitiesTable tr").each(function() {
-        $(this).parents("#entitiesTable tr").droppable({
-            accept: ".file, .folder",
-            drop: function(e, ui) {
-            var droppedEl = ui.draggable.parents("tr");
-            $("#entitiesTable").treetable("move", droppedEl.data("ttId"), $(this).data("ttId"));
-            },
-            hoverClass: "accept",
-            over: function(e, ui) {
-            var droppedEl = ui.draggable.parents("tr");
-            if(this != droppedEl[0] && !$(this).is(".expanded")) {
-                $("#entitiesTable").treetable("expandNode", $(this).data("ttId"));
-            }
-            }
-        });
-    });
-
-    tableData.forEach(function (row) {
-        $TBODY.append(createBodyTdElement(row));
-    });
- 
     $(document).ready(function () {
-        $("#entitiesTable").treetable();
-        $('.wb-btn-secondary').each(function () { 
-            $(this).removeClass("btn-secondary");
-        });
-    })
+        setupJsTree();
+
+        document.getElementById('entityTree').addEventListener('refresh', function () {
+            debugger;
+            setupJsTree();
+        })
+    });
+
+    function setupJsTree() {
+        $('#entityTree').jstree("destroy")
+
+        fetch("{% url 'arrangement:arrangement_type_tree_list' %}", { method: 'GET' })
+            .then(response => response.json())
+            .then(obj => {
+                $('#entityTree').jstree({
+                    plugins: ["contextmenu"],
+                    contextmenu: { items: getContextMenuItems },
+                    'core': {
+                        'data': obj
+                    }
+                });
+            });
+    }
+
+    function getContextMenuItems(node) {
+        return {
+            editItem: {
+                label: "{% trans 'Edit' %}",
+                action: function () {
+                    document.dispatchEvent(
+                        new CustomEvent(`genericManager.edit.trigger`, { "detail": { url: node.data.edit_url, title: `{% trans 'Edit' %} '${node.text}'` } })
+                    );
+                }
+            },
+            deleteItem: {
+                label: "{% trans 'Delete' %}",
+                action: function () {
+                    document.dispatchEvent(
+                        new CustomEvent(`genericManager.delete.trigger`, { "detail": { url: node.data.delete_url, title: `{% trans 'Delete' %} '${node.text}'` } })
+                    );
+                }
+            }
+        }
+    }
 </script>
 
 {% endblock %}

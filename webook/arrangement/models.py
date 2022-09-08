@@ -6,7 +6,7 @@ from argparse import ArgumentError
 from ast import Delete
 from email.policy import default
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import pytz
 from autoslug import AutoSlugField
@@ -34,6 +34,15 @@ class SelfNestedModelMixin(models.Model):
         null=True,
         blank=True,
     )
+
+    def as_node(self) -> Dict:
+        """ Convert this instance, and its nested children into a tree node """
+        return {
+            "id": self.pk,
+            "text": self.resolved_name if hasattr(self, "resolved_name") else "Unknown",
+            "children": [child.as_node() for child in self.nested_children.all()],
+            "data": { "slug": self.slug }
+        }
 
     class Meta:
         abstract = True
@@ -184,14 +193,17 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         return self.name
 
 
-class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, SelfNestedModelMixin):
+class ArrangementType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin, SelfNestedModelMixin):
     class Meta:
-        verbose_name = _("Arrangement")
-        verbose_name_plural = _("Arrangements")
+        verbose_name = _("Arrangement type")
+        verbose_name_plural = _("Arrangement types")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
+
+    entity_name_singular = _("Arrangement type")
+    entity_name_plural = _("Arrangement types")
 
     def get_absolute_url(self):
         return reverse(

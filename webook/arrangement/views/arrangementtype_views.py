@@ -1,27 +1,23 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-    TemplateView
-)
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse, reverse_lazy
-from django.views.generic.edit import DeleteView
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic.edit import DeleteView, ModelFormMixin
+
 from webook.arrangement.forms.arrangement_type_forms import CreateArrangementTypeForm, UpdateArrangementTypeForm
 from webook.arrangement.models import Arrangement, ArrangementType
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
-from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
+from webook.arrangement.views.generic_views.dialog_views import DialogView
+from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
 from webook.arrangement.views.generic_views.search_view import SearchView
-from webook.utils.meta_utils.meta_mixin import MetaMixin
+from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
+from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from webook.crumbinator.crumb_node import CrumbNode
-from django.views.generic.edit import ModelFormMixin
 from webook.utils import crumbs
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin, GenericTreeListTemplateMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
+from webook.utils.meta_utils.meta_mixin import MetaMixin
 
 
 def get_section_manifest():
@@ -72,26 +68,21 @@ class ArrangementTypeDetailView(LoginRequiredMixin, ArrangementTypeSectionManife
 arrangement_type_detail_view = ArrangementTypeDetailView.as_view()
 
 
-class ArrangementTypeCreateView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView, ModelFormMixin):
+class ArrangementTypeCreateView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, CreateView, ModelFormMixin, DialogView):
     form_class = CreateArrangementTypeForm
     model = ArrangementType
     template_name = "arrangement/arrangementtype/arrangement_type_form.html"
     view_meta = ViewMeta.Preset.create(ArrangementType)
 
-    success_urls_and_messages = {
-        "submitAndNew": {
-            "url": reverse_lazy( "arrangement:arrangement_type_create"),
-            "msg": _("Successfully created arrangement type")
-        },
-        "submit": {
-            "url": reverse_lazy("arrangement:arrangement_type_list"),
-        }
-    }
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:arrangement_type_list"
+        )
 
 arrangement_type_create_view = ArrangementTypeCreateView.as_view()
 
 
-class ArrangementTypeUpdateView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, UpdateView, ModelFormMixin):
+class ArrangementTypeUpdateView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, UpdateView, ModelFormMixin, DialogView):
     form_class = UpdateArrangementTypeForm
     model = ArrangementType
     view_meta = ViewMeta.Preset.edit(ArrangementType)
@@ -105,10 +96,10 @@ class ArrangementTypeUpdateView(LoginRequiredMixin, ArrangementTypeSectionManife
 arrangement_type_update_view = ArrangementTypeUpdateView.as_view()
 
 
-class ArrangementTypeDeleteView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, ArchiveView):
+class ArrangementTypeDeleteView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, ArchiveView, DialogView):
     model = ArrangementType
     view_meta = ViewMeta.Preset.delete(ArrangementType)
-    template_name = "arrangement/delete_view.html"
+    template_name = "arrangement/dialog_delete_view.html"
 
     def get_success_url(self) -> str:
         return reverse(
@@ -116,3 +107,10 @@ class ArrangementTypeDeleteView(LoginRequiredMixin, ArrangementTypeSectionManife
         )
 
 arrangement_type_delete_view = ArrangementTypeDeleteView.as_view()
+
+
+class ArrangementTypeTreeJsonView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, JSTreeListView):
+    inject_resolved_crudl_urls_into_nodes = True
+    model = ArrangementType
+
+arrangement_type_tree_json_view = ArrangementTypeTreeJsonView.as_view()

@@ -1,7 +1,7 @@
 from typing import Any, Dict
 from uuid import uuid4
-from django.views import View
 
+from django.views import View
 
 UNNAMED_DIALOG_NAME = "Dialog"
 

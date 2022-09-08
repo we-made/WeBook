@@ -31,6 +31,7 @@ from .arrangementtype_views import (
     arrangement_type_delete_view,
     arrangement_type_detail_view,
     arrangement_type_list_view,
+    arrangement_type_tree_json_view,
     arrangement_type_update_view,
 )
 from .audience_views import (
