@@ -96,6 +96,7 @@ class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
         "name",
         "name_en",
         "icon_class",
+        "parent",
     ]
     template_name = "arrangement/audience/audience_form.html"
     view_meta = ViewMeta.Preset.create(Audience)
@@ -114,6 +115,7 @@ class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
         "name",
         "name_en",
         "icon_class",
+        "parent",
     ]
     view_meta = ViewMeta.Preset.edit(Audience)
     template_name = "arrangement/audience/audience_form.html"

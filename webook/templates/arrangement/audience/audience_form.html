@@ -26,6 +26,19 @@
                 value="{{ form.name_en.value|default:'' }}">
         </div>
 
+        <label for="{{form.self_nested_children.id_for_label}}" class="h5 d-block fw-bold">
+            <i class="fas fa-arrow-up"></i>
+            {{form.parent.label}}            
+        </label>
+        <div class="form-group mb-3">
+            {{form.parent}}
+        </div>
+        {% if form.parent.errors|length > 0 %}
+        <div class="alert alert-danger mt-2 form-error">
+            {{ form.parent.errors }}
+        </div>
+        {% endif %}
+
         <div class="form-group mb-3">
         <label for="iconPicker">Ikon</label>
         <input type="text"
