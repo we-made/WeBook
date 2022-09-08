@@ -40,8 +40,6 @@
     }
 
     _$getDialogEl() {
-        if (this.renderer.$dialogElement === undefined)
-            return $("#" + this.dialogElementId + "." + this.discriminator);
         return this.renderer.$dialogElement;
     }
 
@@ -68,20 +66,6 @@
 
             this.destroy();
             this.render(context, html);
-
-            // let holderEl = document.createElement("span");
-            // holderEl.innerHTML = html;
-
-            // let activeDialog = document.querySelector("#" + this.dialogElementId);
-            // let tmpDialog = holderEl.querySelector("#" + this.dialogElementId);
-            // activeDialog.outerHTML = tmpDialog.outerHTML;
-            // console.log(activeDialog.outerHTML)
-            // this.changeTitle(tmpDialog.getAttribute("title"));
-
-            // if (tmpDialog.getAttribute("discriminator") !== null)
-            //     activeDialog.setAttribute("discriminator", tmpDialog.getAttribute("discriminator"));
-
-            // document.dispatchEvent(new Event("dialogs.forceGlobalDialogTriggerRefresh"));
 
             this.onRenderedCallback(this, context);
 
@@ -125,7 +109,7 @@
 
     isOpen() {
         const $dialogElement = this._$getDialogEl();
-        if ($dialogElement === null || this.getInstance() === false || $dialogElement.dialog("isOpen") === false) {
+        if ($dialogElement === null || $dialogElement === undefined || this.getInstance() === false || $dialogElement.dialog("isOpen") === false) {
             return false;
         }
 
@@ -270,6 +254,8 @@ export class DialogSimpleRenderer extends DialogBaseRenderer {
 export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
     constructor() {
         super();
+
+        this.discriminator = null;
     }
 
     async render(context, dialog, html=null) {
@@ -284,16 +270,19 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
 
                 let span = document.createElement("span");
                 span.innerHTML = html;
+                
                 let dialogEl = span.querySelector("#" + dialog.dialogElementId);
                 $(dialogEl).toggle("highlight");
-
                 dialog.discriminator = dialogEl.getAttribute("class");
 
-                this.dialogElement = null;
-                this.$dialogElement = null;
+                this.dialogElement = span;
+                this.$dialogElement = $(span);
+
+                console.log(this)
+                console.log(dialog)
 
                 $('body')
-                    .append(html)
+                    .append(this.dialogElement)
                     .ready( () => {
                         dialog._$getDialogEl().dialog( dialog.dialogOptions );
                         dialog.onRenderedCallback(dialog, context);
