@@ -55,13 +55,6 @@
             {% trans "Cancel" %}
         </a>
         <div class="float-end">
-            {% if not form.instance.id %}
-            <button type="submit" class="btn wb-btn-main" value="submitAndNew" name="submitAndNew"
-                data-mdb-toggle="tooltip" title="{% trans 'Save and then create a new arrangement type' %}">
-                {% trans "Save, and new" %}
-            </button>
-            {% endif %}
-
             <button type="submit" class="btn wb-btn-main" value="submit" name="submit"
                 data-mdb-toggle="tooltip" title="{% trans 'Create a new arrangement type based on your input' %}">
                 <i class="fas fa-check"></i>&nbsp; 
