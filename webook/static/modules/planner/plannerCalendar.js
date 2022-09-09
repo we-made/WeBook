@@ -36,7 +36,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 "key": 2,
                 "title": "Måned",
                 "isParent": true,
-                "view": undefined,
+                "view": "dayGridMonth",
                 "parent": undefined,
                 "weight": 200,
             }],
@@ -69,6 +69,12 @@ export class PlannerCalendar extends FullCalendarBased {
                 "title": "År",
                 "isParent": false,
                 "view": "timelineYear",
+                "afterClick": () => {
+                    let target = $('.fc-timelineYear-view th.fc-timeline-slot[data-date=' + this._fcCalendar.getDate().toISOString().split("T")[0] + ']')
+                    if (target.length) {
+                        $(".fc-timelineYear-view div.fc-scroller-liquid-absolute").scrollTo(target);
+                    }
+                },
                 "parent": undefined,
                 "weight": 400,
             }],
@@ -377,6 +383,9 @@ export class PlannerCalendar extends FullCalendarBased {
                     if (isLoading === false) {
                         $(".popover").popover('hide');
                     }
+                },
+                eventAfterAllRender: function (view) {
+   
                 },
                 eventDidMount: (arg) => {
                     this._bindPopover(arg.el);

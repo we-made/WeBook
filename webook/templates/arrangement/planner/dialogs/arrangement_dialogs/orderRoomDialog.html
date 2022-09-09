@@ -1,11 +1,8 @@
 <div id="{{dialogId}}" class="{{discriminator}}">
-    <!-- title="{% if mode == 'serie' %}Bestill rom{% else %}Bestill rom for '{{event.title}}'{% endif %}"> -->
-    
     <div class="clearfix">
         <div class="float-start">
             <h5 class="fw-bold">
                 Velg rom
-                <!-- {% if mode == 'serie' %}Velg rom{% else %}Velg rom for '{{event.title}}'{% endif %} -->
             </h5>
         </div>
         <div id="rail" class="float-end stepper-rail"></div>
@@ -24,7 +21,7 @@
 
             {% for preset in room_presets %}
                 <a href="#" class="btn wb-btn-secondary shadow-0"
-                    d-arg-room_ids="{{preset.room_ids}}"
+                    d-arg-preset_key="{{preset.pk}}"
                     d-trigger="activateRoomIds">
                     {{preset.name}}
                 </a>
@@ -72,19 +69,11 @@
                                         <tr>
                                             <td> 
                                                 {{room.is_selected}}
-                                                {% if room.is_selected %}
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
-                                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray" checked/>
-                                                    <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
+                                                    <input class="form-check-input" type="checkbox" id="{{room.id}}" 
+                                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray" {% if room.is_selected %}checked{% endif %}/>
+                                                    <label class="form-check-label" for="{{room.id}}">{{room}}</label>
                                                 </div>
-                                                {% else %}
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="{{room.id}}" id="personCheck__{{room.slug}}" 
-                                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray"/>
-                                                    <label class="form-check-label" for="personCheck__{{room.slug}}">{{room}}</label>
-                                                </div>
-                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -125,85 +114,56 @@
             dialog.$('#{{location.slug}}_roomsTable').DataTable().destroy();
             dialog.$('#{{location.slug}}_roomsTable').DataTable();
             {% endfor %}
-
-            /*
-            Set up a listener that listens to rooms being selected and deselected by the checkboxes in the dialog.
-            When selected these rooms will be added to the selectedRoomsMap, when deselected they will be removed from the map
-            This is necessary due to datatables wiping its elements when you search or paginate, so we want to persist our memory 
-            of these ids/rooms beyond the scope and whims of the datatable.
-            */
-            dialog.$("input[type=checkbox][name=orderRoomDialog__checkboxArray]").change((event) => {
-                if (event.currentTarget.checked === true)
-                    dialog.data.selectedRoomsMap.set(event.currentTarget.value, event.currentTarget.getAttribute("room_name"));
-                else
-                    dialog.data.selectedRoomsMap.delete(event.currentTarget.value);
-            });
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {
                 dialog.closeMe();
             },
-            /* Get all rooms that have been selected by checkbox in the order room dialog */
-            getSelectedRoomIds(dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.data.selectedRoomsMap, 
-                    ([name, value]) => ({id: name, text: value})
-                );
-            },
             /* Uncheck all checkboxes in the order room dialog */
             uncheckAll(dialog, {} = {}, triggeredByElement) {
-                [...dialog.$("input[type=checkbox][name=orderRoomDialog__checkboxArray]:checked")]
-                    .forEach((checkboxElement) => { checkboxElement.removeAttribute("checked"); });
+                dialog.plugins.presetSelectManager.uncheckAll();
             },        
             /* Takes an array of room ids and checks their corresponding checkboxes in the room selector */
-            activateRoomIds(dialog, {roomIds} = {}, triggeredByElement) {
-                dialog.uncheckAll();
-                roomIds.split(",").forEach((roomId) => {
-                    dialog.$("input[type=checkbox][name=orderRoomDialog__checkboxArray][value='" + roomId + "']")
-                            .attr("checked", true).change();
-                });
+            activateRoomIds(dialog, { presetKey } = {}, triggeredByElement) {
+                dialog.plugins.presetSelectManager.activatePreset(presetKey);
             },
-            {% if mode == 'serie' %}
             order(dialog, {} = {}, triggeredByElement) {
-                let formData = new FormData();
-                formData.set("room_ids", dialog.getSelectedRoomIds()
-                                        .map( x => x.id )
-                                        .join(","));
-                formData.set("serie_guid", "{{serie_guid}}");
-            
-                dialog.$('#roomsTable').DataTable().destroy();
-
-                dialog.raiseSubmitEvent({
-                    mode: "serie",
-                    formData: formData,
-                    csrf_token: "{{csrf_token}}",
-                });
-            },
-            {% else %}
-            order(dialog, {} = {}, triggeredByElement) {
-                let formData = new FormData();
-                let room_ids = dialog.getSelectedRoomIds();
-
-                formData.set("room_ids", room_ids.map( x => x.id ).join(","));
-                formData.set("event_pk", "{{event.pk}}");
-
-                let room_name_map = new Map();
-                room_ids.forEach(element => {
-                    room_name_map.set(element.id, element.text);
-                });
+                let selectedBundle = dialog.plugins.presetSelectManager.getSelected();
+                selectedBundle.eventPk = "{{event.pk}}";
                 
                 dialog.$('#roomsTable').DataTable().destroy();
 
                 dialog.raiseSubmitEvent({
-                    mode: "event",
-                    formData: formData,
+                    mode: "{{mode}}",
+                    selectedBundle: selectedBundle,
                     csrf_token: "{{csrf_token}}",
-                    room_name_map: room_name_map
                 });
             },
-            {% endif %}
         },
-        data: {
-            selectedRoomsMap: new Map(),
-        },
+        data: {},
+        plugins: [
+            { 
+                name: "presetSelectManager",
+                pluginClass: DialogPresetSelectManager,
+                args: {
+                    checkboxes: document.querySelectorAll("input[type='checkbox'][name='orderRoomDialog__checkboxArray']"),
+                    presets: new Map([
+                        {% for preset in room_presets %}
+                        [ "{{ preset.pk }}",
+                        {
+                            "key": "{{ preset.pk }}",
+                            "name": "{{ preset.name }}",
+                            "ids": [
+                                {% for room in preset.rooms.all %}
+                                    "{{ room.pk }}",
+                                {% endfor %}
+                            ],
+                        }],
+                        {% endfor %}
+                    ]),
+                    checkboxIdPrefix: "roomCheck",
+                }
+            }
+        ],
     });
 </script>

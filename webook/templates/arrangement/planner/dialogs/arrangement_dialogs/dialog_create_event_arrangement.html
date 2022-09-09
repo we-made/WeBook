@@ -115,14 +115,14 @@
         <div id="step-3">
             <div class="alert alert-info small">
                 <i class="fas fa-info-circle"></i>
-                Buffere blir opprettet som egne hendelser før og etter aktiviteten.
+                Opprigg og nedrigg blir opprettet som egne hendelser før og etter aktiviteten.
             </div>
 
             <table class="table">
                 <thead></thead>
                 <tbody>
                     <tr>
-                        <th colspan="3" class="h5">Buffer før aktiviteten:</th>
+                        <th colspan="3" class="h5">Opprigg før aktiviteten:</th>
                     </tr>
                     <tr>
                         <td>
@@ -143,7 +143,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th colspan="3" class="h5">Buffer etter aktiviteten:</th>
+                        <th colspan="3" class="h5">Nedrigg etter aktiviteten:</th>
                     </tr>
                     <tr>
                         <td>
@@ -289,32 +289,6 @@
             close(dialog, {} = {}, triggeredByElement) {
                 dialog.closeMe();
             },
-            setRooms(dialog, { rooms } = {}, triggeredByElement) {
-                let wrapper = dialog.$('#selectedRoomsWrapper');
-                wrapper.empty();
-
-                rooms.split(",").forEach(id => {
-                    wrapper.append(
-                        $(`<selected-pill name='${dialog.data.roomsNameMap.get(id)}'
-                                          id='${id}'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)    
-                    );
-                });
-            },
-            setPeople(dialog, { people } = {}, triggeredByElement) {
-                let wrapper = dialog.$('#selectedPeopleWrapper');
-                wrapper.empty();
-
-                people.split(",").forEach(id => {
-                    wrapper.append(
-                        $(`<selected-pill name='${dialog.data.peopleNameMap.get(id)}'
-                                          id='${id}'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)
-                    );
-                });
-            },
             submit(dialog, {} = {}, triggeredByElement) {
                 if (dialog.validate() === false) {
                     console.warn("Validation failed.")
@@ -330,8 +304,8 @@
                     start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
                     end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
                     arrangement:                0,
-                    rooms:                      dialog.getSelectedRoomIds(),
-                    people:                     dialog.getSelectedPeopleIds(),
+                    rooms:                      Array.from(dialog.data.selectedRoomIds.keys()),
+                    people:                     Array.from(dialog.data.selectedPeopleIds.keys()),
                     people_name_map:            dialog.data.peopleNameMap,      // Kept due to edit - not pertinent for save
                     room_name_map:              dialog.data.roomsNameMap,       // Kept due to edit - not pertinent for save
                     before_buffer_start:        dialog.interior.buffer_before_start.value ?? "",
@@ -368,7 +342,30 @@
                 return true;
             },
             removeAssociation(dialog, {} = {}, triggeredByElement) {
-                $(triggeredByElement).closest("selected-pill")[0].remove();
+                let $triggeredByElement = $(triggeredByElement);
+                const id = $triggeredByElement.attr("id");
+                const selectType = $triggeredByElement.attr("select-type");
+
+                let appropriateIdMap, appropriatePresetMap = null;
+                if (selectType === 'person') {
+                    appropriateIdMap = dialog.data.selectedPeopleIds;
+                    appropriatePresetMap = dialog.data.personPresets;
+                }
+                else {
+                    appropriateIdMap = dialog.data.selectedRoomIds;
+                    appropriatePresetMap = dialog.data.roomPresets;
+                }
+
+                if (id.startsWith("preset_")) {
+                    debugger;
+                    const preset = appropriatePresetMap.get(id.split("_")[1]);
+                    preset.ids.forEach((id) => appropriateIdMap.delete(id));
+                }
+                else {
+                    appropriateIdMap.delete(id);
+                }
+
+                $(triggeredByElement).remove();
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement });
@@ -376,19 +373,51 @@
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement });
             },
-            getSelectedRoomIds (dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$("#selectedRoomsWrapper")[0].children)
-                    .map(pillElement => pillElement.getAttribute("id"));
-            },
-            getSelectedPeopleIds(dialog, {} = {}, triggeredByElement) {
-                return Array.from(dialog.$("#selectedPeopleWrapper")[0].children)
-                    .map(pillElement => pillElement.getAttribute("id"));
-            },
         },
         data: {
+            selectedPeopleIds: new Map(),
+            selectedRoomIds: new Map(),
             peopleNameMap: new Map(),
             roomsNameMap: new Map(),
             stepper: null,
-        }
+        },
+        when: [
+            { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                let wrapper = dialog.$('#selectedRoomsWrapper');
+                wrapper.empty();
+
+                payload.viewables.forEach((room) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${room.text}'
+                                          id='${room.id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)    
+                    );
+                });
+
+                dialog.data.selectedRoomIds = new Map();
+                dialog.data.roomPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+            } },
+            { eventKnownAs: "peopleSelected", do: (dialog, payload) => {
+                let wrapper = dialog.$('#selectedPeopleWrapper');
+                wrapper.empty();
+
+                payload.viewables.forEach((person) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${person.text}'
+                                          id='${person.id}'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)    
+                    );
+                });
+
+                dialog.data.selectedPeopleIds = new Map();
+                dialog.data.personPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
+            } }
+        ],
     });
 </script>
