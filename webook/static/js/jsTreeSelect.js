@@ -9,6 +9,7 @@ export class JSTreeSelect {
     constructor( { 
         element, 
         treeJsonSrcUrl,
+        initialSelected=null,
         allowMultipleSelect=false,
         noneSelectedLabelText="None selected",
         valueSelectedLabelText=undefined,
@@ -21,7 +22,7 @@ export class JSTreeSelect {
         this.srcUrl = treeJsonSrcUrl;
         this.allowMultipleSelect = allowMultipleSelect;
 
-        this.selected = null;
+        this.selected = initialSelected;
 
         this.invalidFeedbackText = invalidFeedbackText;
 
