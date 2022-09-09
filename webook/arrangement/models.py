@@ -189,6 +189,12 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, Se
     entity_name_singular = _("Audience")
     entity_name_plural = _("Audiences")
 
+    def archive(self, person_archiving_this: Person):
+        for child in self.nested_children.all():
+            child.archive(person_archiving_this)
+
+        return super().archive(person_archiving_this)
+
     def get_absolute_url(self):
         return reverse(
             "arrangement:audience_detail", kwargs={"slug": self.slug}
@@ -210,6 +216,12 @@ class ArrangementType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMi
 
     entity_name_singular = _("Arrangement type")
     entity_name_plural = _("Arrangement types")
+
+    def archive(self, person_archiving_this: Person):
+        for child in self.nested_children.all():
+            child.archive(person_archiving_this)
+
+        return super().archive(person_archiving_this)
 
     def get_absolute_url(self):
         return reverse(

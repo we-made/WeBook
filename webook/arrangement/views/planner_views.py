@@ -263,7 +263,7 @@ class PlannerCalendarView (LoginRequiredMixin, PlannerSectionManifestMixin, Meta
         context["LOCATIONS"] = Location.objects.all()
         context["PEOPLE"] = Person.objects.all()
         context["ARRANGEMENT_TYPES"] = ArrangementType.objects.all()
-        context["AUDIENCES"] = Audience.objects.all()
+        context["AUDIENCES"] = Audience.objects.filter(parent__isnull=True)
         context["ROOM_PRESETS"] = RoomPreset.objects.all()
         return context
 
