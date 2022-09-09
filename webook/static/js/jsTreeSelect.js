@@ -38,6 +38,10 @@ export class JSTreeSelect {
         this._render();
     }
 
+    _jsTreeSet() {
+        $(this._jsTreeElement).jstree('select_node', this.selected.id);
+    }
+
     _standardValueSelectedLabelText(selected) {
         return selected.text;
     }
@@ -129,8 +133,6 @@ export class JSTreeSelect {
         submitButtonInsidePopoverElement.onclick = () => { 
             const id = $(this._jsTreeElement).jstree("get_selected")[0];
             const text = $(this._jsTreeElement).jstree("get_selected", true)[0].text;
-            
-            console.log(id, text)
 
             this._setSelectedValue(id, text);
 
@@ -152,6 +154,12 @@ export class JSTreeSelect {
                         'multiple': false,
                     }
                 });
+
+                $(treeElement).on('loaded.jstree', () => {
+                    if (this.selected !== null) {
+                        this._jsTreeSet();
+                    }
+                })
             });
 
         this._popover = new Popover({
