@@ -19,6 +19,7 @@ from .models import (
     Calendar,
     Note,
     ConfirmationReceipt,
+    ArrangementType,
 )
 
 admin.site.register(
@@ -39,6 +40,7 @@ admin.site.register(
         Calendar,
         Note,
         ConfirmationReceipt,
+        ArrangementType,
     ]
 )
 

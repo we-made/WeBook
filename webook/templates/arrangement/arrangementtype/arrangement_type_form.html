@@ -1,14 +1,10 @@
-{% extends "arrangement/meta_base.html" %}
 {% load crispy_forms_tags %}
 {% load static i18n %}
 
 
 {% block content %}
     <form method="post">
-
         {% csrf_token %}
-
-        <!-- {{ form | crispy }} -->
         <div class="form-group mb-3">
             <label for="{{ form.name.id_for_label }}" class="h5 d-block fw-bold">
                 {{ form.name.label }}
@@ -17,9 +13,15 @@
                 id="{{ form.name.id_for_label }}"
                 name="{{ form.name.name }}"
                 value="{{ form.name.value|default:'' }}">
+            
+            {% if form.name.errors|length > 0 %}
+            <div class="alert alert-danger mt-2 form-error">
+                {{ form.name.errors }}
+            </div>
+            {% endif %}
         </div>
 
-      <div class="form-group mb-3">
+        <div class="form-group mb-3">
             <label for="{{ form.name_en.id_for_label }}" class="h5 d-block fw-bold">
                 {{ form.name_en.label }}
             </label>
@@ -27,39 +29,43 @@
                 id="{{ form.name_en.id_for_label }}"
                 name="{{ form.name_en.name }}"
                 value="{{ form.name_en.value|default:'' }}">
+
+            {% if form.name_en.errors|length > 0 %}
+            <div class="alert alert-danger mt-2 form-error">
+                {{ form.name_en.errors }}
+            </div>
+            {% endif %}
         </div>
 
-        <a class="btn wb-btn-secondary me-3" onClick="window.history.back(); return false;">
+        <label for="{{form.self_nested_children.id_for_label}}" class="h5 d-block fw-bold">
+            <i class="fas fa-arrow-up"></i>
+            {{form.parent.label}}            
+        </label>
+        <div class="form-group mb-3">
+            {{form.parent}}
+        </div>
+        {% if form.parent.errors|length > 0 %}
+        <div class="alert alert-danger mt-2 form-error">
+            {{ form.parent.errors }}
+        </div>
+        {% endif %}
+
+        <a class="btn wb-btn-secondary me-3 cancel-button" onClick="window.history.back(); return false;">
             <i class="fas fa-times"></i>&nbsp; 
             {% trans "Cancel" %}
         </a>
         <div class="float-end">
-            {% if not form.instance.id %}
-            <button type="submit" class="btn wb-btn-main" value="submitAndNew" name="submitAndNew"
-                data-mdb-toggle="tooltip" title="{% trans 'Save and then create a new arrangement type' %}">
-                {% trans "Save, and new" %}
-            </button>
-            {% endif %}
-
             <button type="submit" class="btn wb-btn-main" value="submit" name="submit"
                 data-mdb-toggle="tooltip" title="{% trans 'Create a new arrangement type based on your input' %}">
                 <i class="fas fa-check"></i>&nbsp; 
                 {% trans "Save" %}
             </button>
         </div>
+
+        {% if form.instance.id %}
+        <div class="text-end mt-3">
+            <small><em>Sist oppdatert {{ object.modified }}</em></small>
+        </div>
+        {% endif %}
     </form>
-
-
-    <script src="{% static '@fonticonpicker/fonticonpicker/dist/js/jquery.fonticonpicker.min.js' %}"></script>
-    <script>
-
-        $(document).ready(function () {
-            el = $('#{{form.icon_class.id_for_label}}').fontIconPicker();
-
-            fetch('{% static "fontawesome-icon-manifest_no.json" %}')
-                .then(fetchedJson =>  fetchedJson.json())
-                .then(parsedJson => el.setIcons( parsedJson ));
-        })
-
-    </script>
 {% endblock %}

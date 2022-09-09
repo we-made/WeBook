@@ -2,6 +2,7 @@
 
 
 <div id="{{dialogId}}" title="{{object.name}}" class="{{discriminator}}">
+    <h3>{{object.name}}</h3>
     <button class="btn wb-btn-secondary mb-3" d-trigger="delete"><i class="fas fa-trash"></i>&nbsp; Slett</button>
 
     <ul class="nav nav-tabs webook-tabs">
@@ -74,7 +75,7 @@
                             {% endif %}
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label class="form-label">Navn (<em class="small">Engelsk</em>):</label>
                             <input type="text"
                                 class="form-control form-control-lg"
@@ -89,41 +90,43 @@
                                 </div>
                             {% endif %}
                         </div>
+
+                        <div class="form-group">
+                            <label for="{{form.location.id_for_label}}" class="form-label">{{form.location.label}}</label>
+                            {{ form.location }}
+                        </div>
                     </div>
                     <div class="col-lg-6 col-sm-12">
-                        <br>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <label for="" class="form-label">Målgruppe:</label>
-                                    </td>
-                                    <td>
-                                        {{ form.audience }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label for="" class="form-label">Lokasjon:</label>
-                                    </td>
-                                    <td>
-                                        {{ form.location }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label for="" class="form-label">Arrangementstype:</label>
-                                    </td>
-                                    <td>
-                                        {{ form.arrangement_type }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="mb-2">
+                            <label for="{{ form.audience.id_for_label }}" class="form-label">
+                                <i class="fas fa-users"></i>&nbsp;
+                                Målgruppe
+                            </label>
+                            <div id="audience_jstree_select"></div>
+                            
+                            {% if form.audience.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.audience.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="{{ form.arrangement_type.id_for_label }}" class="form-label select-label">
+                                <i class="fas fa-cog"></i>&nbsp;
+                                Arrangementstype
+                            </label>
+                            <div id="arrangement_type_jstree_select"></div>
+                            {% if form.arrangement_type.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.arrangement_type.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-
+            
             <div class="form-group mt-3">
                 <label class="form-label">Billettkode:</label>
                 <input type="text"
@@ -599,12 +602,33 @@
 </div>
 
 
-<script>
+<script type="module">
+    import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
+
     new Dialog({
         managerName: '{{managerName}}',
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
+            dialog.data.audienceJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#audience_jstree_select'),
+                initialSelected: { id: '{{ object.audience.id }}', text: '{{ object.audience.name }}' },
+                treeJsonSrcUrl: "/arrangement/audience/tree",
+                noneSelectedLabelText: "Ingen målgruppe valgt ennå",
+                selectFirstTimeButtonText: 'Velg målgruppe',
+                changeSelectedValueButtonText: 'Endre målgruppe',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
+            dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#arrangement_type_jstree_select'),
+                initialSelected: { id: '{{ object.arrangement_type.id }}', text: '{{ object.arrangement_type.name }}' },
+                treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
+                noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
+                selectFirstTimeButtonText: 'Velg arrangementstype',
+                changeSelectedValueButtonText: 'Endre arrangementstype',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
+            
             {% for event in object.event_set.all %}
             new mdb.Popover(dialog.getElementById('eventsTable_event_{{event.pk}}'), {
                 container: dialog.dialogElement,
@@ -698,21 +722,28 @@
                 dialog.raiseTriggerEvent("eventInspector", "inspectEventDialog", { pk: eventId });
             },
             submit(dialog, {} = {}, triggeredByElement) {
+                if (!dialog.data.audienceJsTreeSelect.isValid()) {
+                    dialog.data.audienceJsTreeSelect.showInvalidFeedback();
+                    return false;
+                }
+                if (!dialog.data.arrangementTypeJsTreeSelect.isValid()) {
+                    dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
+                    return false;
+                }
+
                 let formData = new FormData();
                 var $dialog = $('#mainDialog');
                 formData.append("name",                 dialog.interior.id_name.value);
                 formData.append("name_en",              dialog.interior.id_name_en.value);
-                formData.append("audience",             dialog.interior.id_audience.value);
+                formData.append("audience",             dialog.data.audienceJsTreeSelect.getSelectedValue());
                 formData.append("location",             dialog.interior.id_location.value);
-                formData.append("arrangement_type",     dialog.interior.id_arrangement_type.value);
+                formData.append("arrangement_type",     dialog.data.arrangementTypeJsTreeSelect.getSelectedValue());
                 formData.append("ticket_code",          dialog.interior.id_ticket_code.value);
                 formData.append("meeting_place",        dialog.interior.id_meeting_place.value);
                 formData.append("meeting_place_en",     dialog.interior.id_meeting_place_en.value);
                 formData.append("expected_visitors",    dialog.interior.id_expected_visitors.value);
                 formData.append("actual_visitors",      dialog.interior.id_actual_visitors.value);
                 formData.append("csrfmiddlewaretoken",  "{{ csrf_token }}");
-
-                console.log(dialog)
 
                 dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
                     formData.append("display_layouts", element.value);

@@ -124,7 +124,6 @@ container-fluid
                 </div>
             </div>
             <div class="float-end d-inline">
-
                 <div id="location-and-rooms-popover-filter" class="mb-2  d-inline">
                     <button class="btn wb-btn-white wb-large-btn btn-lg" id="location-and-rooms-popover-filter-trigger">
                         <i class="fas fa-building text-dark"></i>&nbsp;
@@ -201,14 +200,19 @@ container-fluid
     </div>
 </div>
 
+
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="{% static 'modules/planner/dialog_manager/dialog.js' %}"></script>
 <script src="{% static 'modules/planner/dialog_manager/presetSelectManagerPlugin.js' %}"></script>
 
+
 <script>
     $(document).ready(function () {
         document.dispatchEvent(new CustomEvent("preferSidebarHidden"));
+
+
     });
 
     function setNavActive(triggeredBy) {

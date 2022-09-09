@@ -17,6 +17,14 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+.form-error {
+    padding: 0;
+}
+
+.ui-dialog-titlebar-close {
+    float: right;
+}
+
 html, body {
     height: 100%!important;
 }
@@ -296,10 +304,11 @@ html, body {
 }
 
 .popover_content {
+    z-index: 5000000000001 !important ;
     visibility: hidden;
     position: absolute;
     box-shadow: 0 1px 20px 1px  grey!important;
-    left: -45rem;
+    /* left: -45rem; */
     transform: translate(0, 10px);
     background-color: white;
     padding: 1.5rem;
@@ -307,8 +316,9 @@ html, body {
 }
 
 .popover_wrapper.active .popover_content {
-    z-index: 10;
-    width: 45rem;
+    z-index: 5000000000001 !important ;
+
+    /* width: 45rem; */
     visibility: visible;
     transition: all 0.5s cubic-bezier(0.75, -0.02, 0.2, 0.97);
 }
@@ -348,4 +358,46 @@ html, body {
 
 .no-titlebar {
     padding-top: 1.5em!important;
+}
+
+.tree-list > li:nth-child(n+1) {
+    border-bottom: solid 1px gainsboro;
+}
+
+.tree-list ul > li > span.tree-list-item-text::before {
+    content: "->";
+    margin-right: 1em;
+}
+
+.tree-list ul > li {
+    justify-content: start;
+}
+
+.tree-list ul > li > span.tree-list-buttons {
+    margin-left: 1em;
+}
+
+.tree-list li > li {
+    border: solid 4px goldenrod;
+}
+
+.tree-list > li {
+    font-size: large;
+}
+
+.tree-list li {
+    padding: 0.4em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tree-list {
+    padding-left: 0;
+}
+
+.tree-list .tree-list-buttons {
+    display: flex;
+    justify-content: end;
+    float:end;
 }

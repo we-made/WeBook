@@ -1,3 +1,4 @@
+import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -10,7 +11,9 @@ from django.views.generic import (
     TemplateView
 )
 from django.urls import reverse, reverse_lazy
+from webook.arrangement.forms.audience_forms import CreateAudienceForm, UpdateAudienceForm
 
+from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
 from django.views.generic.edit import DeleteView
 from webook.arrangement.models import Arrangement, Audience
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
@@ -19,7 +22,7 @@ from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin, GenericTreeListTemplateMixin
 from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
@@ -44,8 +47,8 @@ class AudienceSectionManifestMixin:
         self.section = get_section_manifest()
 
 
-class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
-    template_name = "arrangement/list_view.html"
+class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, GenericTreeListTemplateMixin, MetaMixin, ListView):
+    template_name = "arrangement/tree_list_view.html"
     model = Audience
     queryset = Audience.objects.all()
     view_meta = ViewMeta.Preset.table(Audience)
@@ -58,6 +61,7 @@ class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, Generic
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["CRUDL_MAP"] = self.section.crudl_map
+        context["JSON_TREE_SRC_URL"] = reverse("arrangement:audience_tree")
         return context
 
 audience_list_view = AudienceListView.as_view()
@@ -87,39 +91,26 @@ class AudienceSearchView(LoginRequiredMixin, SearchView):
 audience_search_view = AudienceSearchView.as_view()
 
 
-class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView):
+class AudienceCreateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, CreateView):
+    form_class = CreateAudienceForm
     model = Audience
-    fields = [
-        "name",
-        "name_en",
-        "icon_class",
-    ]
     template_name = "arrangement/audience/audience_form.html"
     view_meta = ViewMeta.Preset.create(Audience)
-
-    success_urls_and_messages = {
-        "submitAndNew": {
-            "url": reverse_lazy( "arrangement:audience_create" ),
-            "msg": _("Successfully created entity")
-        },
-        "submit": {
-            "url": reverse_lazy("arrangement:audience_list"),
-        }
-    }
+    
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:audience_list"
+        )
 
 audience_create_view = AudienceCreateView.as_view()
 
 
 class AudienceUpdateView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, UpdateView):
+    form_class = UpdateAudienceForm
     model = Audience
-    fields = [
-        "name",
-        "name_en",
-        "icon_class",
-    ]
     view_meta = ViewMeta.Preset.edit(Audience)
     template_name = "arrangement/audience/audience_form.html"
-
+    
     def get_success_url(self) -> str:
         return reverse(
             "arrangement:audience_list"
@@ -131,7 +122,7 @@ audience_update_view = AudienceUpdateView.as_view()
 class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, ArchiveView):
     model = Audience
     view_meta = ViewMeta.Preset.delete(Audience)
-    template_name = "arrangement/delete_view.html"
+    template_name = "arrangement/dialog_delete_view.html"
 
     def get_success_url(self) -> str:
         return reverse(
@@ -139,3 +130,10 @@ class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaM
         )
 
 audience_delete_view = AudienceDeleteView.as_view()
+
+
+class AudienceTreeJsonView(LoginRequiredMixin, AudienceSectionManifestMixin, JSTreeListView):
+    inject_resolved_crudl_urls_into_nodes = True
+    model = Audience
+
+audience_tree_json_view = AudienceTreeJsonView.as_view()

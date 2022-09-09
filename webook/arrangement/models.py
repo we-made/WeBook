@@ -6,7 +6,7 @@ from argparse import ArgumentError
 from ast import Delete
 from email.policy import default
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import pytz
 from autoslug import AutoSlugField
@@ -24,6 +24,35 @@ from webook.arrangement.managers import ArchivedManager, EventManager
 from webook.utils.crudl_utils.model_mixins import ModelNamingMetaMixin
 from webook.utils.manifest_describe import describe_manifest
 
+
+class SelfNestedModelMixin(models.Model):
+    """ Mixin for adding the feature of nesting a model with itself """ 
+    parent = models.ForeignKey(
+        to="self",
+        related_name="nested_children",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
+    def as_node(self) -> Dict:
+        """ Convert this instance, and its nested children into a tree node """
+        return {
+            "id": self.pk,
+            "icon": self.icon_class if hasattr(self, "icon_class") else "",
+            "text": self.resolved_name if hasattr(self, "resolved_name") else "Unknown",
+            "children": [child.as_node() for child in self.nested_children.all()],
+            "data": { "slug": self.slug }
+        }
+
+    class Meta:
+        abstract = True
+
+class IconClassMixin(models.Model):
+    icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
+
+    class Meta:
+        abstract = True
 
 class BufferFieldsMixin(models.Model):
     """Mixin for the common fields for buffer functionality"""
@@ -139,7 +168,7 @@ class ModelHistoricallyConfirmableMixin():
         pass
 
 
-class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
+class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, SelfNestedModelMixin, IconClassMixin):
     """Audience represents a target audience, and is used for categorical purposes.
 
     :param name: The name of the audience
@@ -155,7 +184,6 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
-    icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
 
     entity_name_singular = _("Audience")
@@ -171,14 +199,17 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         return self.name
 
 
-class ArrangementType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
+class ArrangementType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin, SelfNestedModelMixin):
     class Meta:
-        verbose_name = _("Arrangement")
-        verbose_name_plural = _("Arrangements")
+        verbose_name = _("Arrangement type")
+        verbose_name_plural = _("Arrangement types")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
+
+    entity_name_singular = _("Arrangement type")
+    entity_name_plural = _("Arrangement types")
 
     def get_absolute_url(self):
         return reverse(

@@ -1,0 +1,251 @@
+{% extends "arrangement/meta_base.html" %}
+{% load static i18n %}
+
+
+{% block content %}
+
+{% if SHOW_CREATE_BUTTON %}
+<div class="d-flex mb-2" style="justify-content: space-between; align-items: center;;">
+    <a class="btn wb-btn-secondary shadow-0 btn-lg mb-2"
+        onclick="document.dispatchEvent(new CustomEvent('genericManager.create.trigger', { detail: { url: '{% url CRUDL_MAP.create_url %}', title: 'Registrer ny {{ ENTITY_NAME_SINGULAR }}' } }))">
+        <i class="fas fa-plus"></i>&nbsp;
+        {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
+    </a>
+
+    <em class="float-end">
+        <i class="fas fa-info-circle"></i>
+        Høyreklikk på en node i treet for å <strong>redigere</strong> eller <strong>slette</strong>.
+    </em>
+</div>
+{% endif %}
+
+{% if object_list|length == 0 %}
+<div class="alert wb-alert-secondary">
+    <h4>{% blocktrans %} No <em>{{ENTITY_NAME_PLURAL}}</em> registered yet! {% endblocktrans %}</h4>
+    <p class="mb-0">
+        {% blocktrans %}
+            After you have begun registering <em>{{ENTITY_NAME_PLURAL}}</em> they will be shown here! None have been registered yet,
+            but you can resolve this by clicking the button above!
+        {% endblocktrans %}
+    </p>
+</div>
+{% else %}
+
+<div class="wb-bg-secondary p-2 border">
+    <div id="entityTree"></div>
+</div>
+
+{% endif %}
+
+<script type="module">
+    import { Dialog, DialogManager, DialogSimpleRenderer, DialogFormInterceptorPlugin } from  "{% static 'modules/planner/dialog_manager/dialogManager.js' %}";
+
+    class CustomDialogFormInterceptorPlugin extends DialogFormInterceptorPlugin {
+        constructor (csrf_token) {
+            super(csrf_token);
+        }
+
+        onResponseOk() {
+            document.getElementById('entityTree').dispatchEvent(new Event("refresh"));
+        }
+    }
+
+    $(document).ready(function () {
+        const e = new DialogManager({
+            managerName: 'genericManager',
+            allowMultipleOpenAtOnce: false,
+            dialogs: [
+                [
+                    "detail",
+                    new Dialog({
+                        dialogElementId: 'detail',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.url) {
+                                throw Error("URL must be specified to call detail dialog view");
+                            }
+
+                            dialog.formUrl = context.lastTriggererDetails.url;
+                            if (context.lastTriggererDetails.title) {
+                                dialog.title = context.lastTriggererDetails.title;
+                            }
+
+                            return this.dialogManager.loadDialogHtml({
+                                url: context.lastTriggererDetails.url,
+                                dialogId: "detail",
+                                managerName: "genericManager",
+                            });
+                        }
+                    }),
+                ],
+                [
+                    "edit",
+                    new Dialog({
+                        dialogElementId: 'edit',
+                        title: 'Edit',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        renderer: new DialogSimpleRenderer(),
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.url) {
+                                throw Error("URL must be specified to call edit view");
+                            }
+
+                            dialog.formUrl = context.lastTriggererDetails.url;
+                            if (context.lastTriggererDetails.title) {
+                                dialog.title = context.lastTriggererDetails.title;
+                            }
+
+                            return e.loadDialogHtml({
+                                url: context.lastTriggererDetails.url,
+                                dialogId: "edit",
+                                managerName: "genericManager",
+                            });
+                        },
+                        dialogOptions: {
+                            width: 600,
+                            modal: true,
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+
+                        },
+                        onUpdatedCallback: (dialogManager, context) => {
+
+                        },
+                        onSubmit: async (context, details) => {
+                        }
+                    }),
+                ],
+                [ 
+                    "delete",
+                    new Dialog({
+                        dialogElementId: 'delete',
+                        title: 'Delete',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        renderer: new DialogSimpleRenderer(),
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        dialogOptions: {
+                            width: 600,
+                            modal: true,
+                        },
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.url) {
+                                throw Error("URL must be specified to call delete view");
+                            }
+
+                            dialog.formUrl = context.lastTriggererDetails.url;
+                            if (context.lastTriggererDetails.title) {
+                                dialog.title = context.lastTriggererDetails.title;
+                            }
+
+                            return e.loadDialogHtml({
+                                url: context.lastTriggererDetails.url,
+                                dialogId: "delete",
+                                managerName: "genericManager",
+                            });
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+                        },
+                        onUpdatedCallback: (dialogManager, context) => {
+                        },
+                        onSubmit: async (context, details) => {
+                        }
+                    }),
+                ],
+                [ 
+                    "create",
+                    new Dialog({
+                        dialogElementId: 'create',
+                        title: 'Create',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        renderer: new DialogSimpleRenderer(),
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        dialogOptions: {
+                            width: 600,
+                            modal: true,
+                        },
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.url) {
+                                throw Error("URL must be specified to call create view");
+                            }
+
+                            dialog.formUrl = context.lastTriggererDetails.url;
+                            if (context.lastTriggererDetails.title) {
+                                dialog.title = context.lastTriggererDetails.title;
+                            }
+
+                            return e.loadDialogHtml({
+                                url: context.lastTriggererDetails.url,
+                                dialogId: "create",
+                                managerName: "genericManager",
+                            });
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+                        },
+                        onUpdatedCallback: (dialogManager, context) => {
+                        },
+                        onSubmit: async (context, details) => {
+                        }
+                    }),
+                ],
+            ]
+        });
+
+        e._makeAware();
+    })
+</script>
+
+<script>
+    $(document).ready(function () {
+        setupJsTree();
+
+        document.getElementById('entityTree').addEventListener('refresh', function () {
+            debugger;
+            setupJsTree();
+        })
+    });
+
+    function setupJsTree() {
+        $('#entityTree').jstree("destroy")
+
+        fetch("{{ JSON_TREE_SRC_URL }}", { method: 'GET' })
+            .then(response => response.json())
+            .then(obj => {
+                $('#entityTree').jstree({
+                    plugins: ["contextmenu"],
+                    contextmenu: { items: getContextMenuItems },
+                    'core': {
+                        'data': obj
+                    }
+                });
+            });
+    }
+
+    function getContextMenuItems(node) {
+        return {
+            editItem: {
+                label: "{% trans 'Edit' %}",
+                action: function () {
+                    document.dispatchEvent(
+                        new CustomEvent(`genericManager.edit.trigger`, { "detail": { url: node.data.edit_url, title: `{% trans 'Edit' %} '${node.text}'` } })
+                    );
+                }
+            },
+            deleteItem: {
+                label: "{% trans 'Delete' %}",
+                action: function () {
+                    document.dispatchEvent(
+                        new CustomEvent(`genericManager.delete.trigger`, { "detail": { url: node.data.delete_url, title: `{% trans 'Delete' %} '${node.text}'` } })
+                    );
+                }
+            }
+        }
+    }
+</script>
+
+{% endblock %}

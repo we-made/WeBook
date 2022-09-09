@@ -120,7 +120,7 @@ export class ArrangementInspector {
                             });
                         },
                         onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
-                        dialogOptions: { width: 800, height: 800  }
+                        dialogOptions: { width: 800, height: 800, dialogClass: 'no-titlebar'  }
                     }),
                 ],
                 [

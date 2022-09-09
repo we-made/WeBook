@@ -31,6 +31,7 @@ from .arrangementtype_views import (
     arrangement_type_delete_view,
     arrangement_type_detail_view,
     arrangement_type_list_view,
+    arrangement_type_tree_json_view,
     arrangement_type_update_view,
 )
 from .audience_views import (
@@ -40,6 +41,7 @@ from .audience_views import (
     audience_list_view,
     audience_search_view,
     audience_update_view,
+    audience_tree_json_view,
 )
 from .calendar_views import (
     all_locations_resource_source_view,
