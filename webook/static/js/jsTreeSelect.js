@@ -36,7 +36,6 @@ export class JSTreeSelect {
         this.allowMultipleSelect = allowMultipleSelect;
 
         this.selected = initialSelected;
-        console.log("initialSelected", initialSelected)
 
         this.invalidFeedbackText = invalidFeedbackText;
 
@@ -60,8 +59,7 @@ export class JSTreeSelect {
         $(this._jsTreeElement).jstree('select_node', this.selected.id);
 
         if (this.selected.parent) {
-            console.log("oh hi mark", this.selected)
-            this.selected.parent = $(this._jsTreeElement).jstree(true).get_node(directParentId);
+            this.selected.parent = $(this._jsTreeElement).jstree(true).get_node(this.selected.parent);
             this._labelElement.innerHTML = this._generateLabelElement().innerHTML;
         }
     }
@@ -174,7 +172,6 @@ export class JSTreeSelect {
         submitButtonInsidePopoverElement.classList.add("btn", "wb-btn-main", "float-end", "mt-2");
         submitButtonInsidePopoverElement.onclick = () => { 
             const selected = $(this._jsTreeElement).jstree("get_selected", true)[0];
-            console.log("selected --nod", selected);
             this._setSelectedValue(selected.id, selected.text, selected.parent);
 
             this._popover.show(); //hide --toggle
