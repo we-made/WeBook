@@ -11,6 +11,7 @@ from typing import Dict, List, Optional, Tuple
 
 import pytz
 from autoslug import AutoSlugField
+from colorfield.fields import ColorField
 from django.conf import settings
 from django.db import models
 from django.db.models import FileField
@@ -48,6 +49,14 @@ class SelfNestedModelMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class ColorCodeMixin(models.Model):
+    color = ColorField()
+
+    class Meta:
+        abstract = True
+
 
 class IconClassMixin(models.Model):
     icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)

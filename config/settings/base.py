@@ -105,7 +105,7 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "django-colorfield",
+    "colorfield",
 ]
 
 LOCAL_APPS = [
