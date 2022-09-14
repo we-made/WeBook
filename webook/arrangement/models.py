@@ -243,7 +243,7 @@ class ArrangementType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMi
         return self.name
 
 
-class StatusType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin):
+class StatusType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin, ColorCodeMixin):
     class Meta:
         verbose_name = _("Status type")
         verbose_name_plural = _("Status types")
