@@ -19,6 +19,7 @@ from .requisition_urls import requisition_urls
 from .room_preset_urls import room_preset_urls
 from .room_urls import room_urls
 from .servicetype_urls import servicetype_urls
+from .status_type_urls import status_type_urls
 
 app_name = "arrangement"
 
@@ -42,3 +43,4 @@ urlpatterns.extend(arrangement_type_urls)
 urlpatterns.extend(room_preset_urls)
 urlpatterns.extend(analysis_urls)
 urlpatterns.extend(event_urls)
+urlpatterns.extend(status_type_urls)
