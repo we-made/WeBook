@@ -6,7 +6,7 @@ from argparse import ArgumentError
 from ast import Delete
 from email.policy import default
 from enum import Enum
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pytz
 from autoslug import AutoSlugField

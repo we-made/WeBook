@@ -303,12 +303,19 @@ html, body {
     width: 20em;
 }
 
+.dialog-popover-left-fix .popover_content {
+    left: -0.1px;
+    box-shadow: none!important;
+    border-radius: 0.7em;
+    background-color: var(--SECONDARY-COLOR);
+}
+
 .popover_content {
     z-index: 5000000000001 !important ;
     visibility: hidden;
     position: absolute;
     box-shadow: 0 1px 20px 1px  grey!important;
-    /* left: -45rem; */
+    left: -20rem;
     transform: translate(0, 10px);
     background-color: white;
     padding: 1.5rem;
@@ -317,8 +324,7 @@ html, body {
 
 .popover_wrapper.active .popover_content {
     z-index: 5000000000001 !important ;
-
-    /* width: 45rem; */
+    width: 20rem;
     visibility: visible;
     transition: all 0.5s cubic-bezier(0.75, -0.02, 0.2, 0.97);
 }

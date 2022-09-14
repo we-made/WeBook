@@ -1,11 +1,24 @@
-/**
- * JS Tree Select
- * A custom select utility / component using JsTree
- */
-
 import { Popover } from "./popover.js";
 
+/**
+ * JS Tree Select
+ * A custom component to be used in tandem with the excellent JSTree plugin.
+ * Leveraging the Popover class from popover.js we create a select-like component that can be used to select elements in a JSTree rendered
+ * inside of the Popover, allowing a smooth, easy and intuitive way of selecting items in a nested structure.
+ */
 export class JSTreeSelect {
+    /** 
+     * Construct a new JSTreeSelect instance
+     * @param {Element} element - Wrapper element where the JSTreeSelect component is to be injected
+     * @param {string} treeJsonSrcUrl - URL to an endpoint from which a JSTree compliant JSON document can be retrieved to populate the tree with
+     * @param {any} initialSelected - The id or key of the initially selected item, this is optional.
+     * @param {Boolean} allowMultipleSelect - Designates if one is able to select multiple nodes in the tree, or only one. True if multiple, False if only one is selectable.
+     * @param {String | Function} noneSelectedLabelText - Given either a function or a string this will be the text of the label when a selection has been made in the component. Is optional.
+     * @param {String | Function} selectFirstTimeButtonText - A string or a function providing the text shown on the "Select" button before selecting a value. On the component, not in Popover.
+     * @param {String | Function} changeSelectedValueButtonText - A string or a function providing the text shown on the "Select" button after selecting a value. On the component, not in Popover.
+     * @param {String | Function} popoverSaveChoicesButtonText - A string or a function providing the text shown on the "Save" button within the Popover.
+     * @param {String | Function} invalidFeedbackText - A string or a function providing the text shown when no item has been selected, and validation has been called.
+    */
     constructor( { 
         element, 
         treeJsonSrcUrl,
@@ -38,6 +51,10 @@ export class JSTreeSelect {
         this._render();
     }
 
+    /**
+     * Set the value of this.selected.id as the selected_node of the JsTree element, achieving the effect of mirroring internal state
+     * to the JSTree instance.
+     */
     _jsTreeSet() {
         $(this._jsTreeElement).jstree('select_node', this.selected.id);
     }
@@ -46,12 +63,22 @@ export class JSTreeSelect {
         return selected.text;
     }
 
+    /**
+     * Given id and text set the selected value, and reflect this on the component, updating the label text.
+     * @param {*} id 
+     * @param {*} text 
+     */
     _setSelectedValue(id, text) {
         this.selected = { id: id, text: text };
         this._labelElement.innerHTML = this._generateLabelElement().innerHTML;
         this._hideInvalidFeedback();
     }
 
+    /**
+     * Get the id or key of the currently selected value. If no value has been selected
+     * then an error will be thrown.
+     * @returns id or key of the selected value, if any
+     */
     getSelectedValue() {
         if (!this._hasSelectedValue())
             throw Error("No value selected");
@@ -59,10 +86,17 @@ export class JSTreeSelect {
         return this.selected.id;
     }
 
+    /**
+     * Check if a value has been selected
+     * @returns True if a value has been selected, False if a value has not been selected
+     */
     isValid()  {
         return this._hasSelectedValue();
     }
 
+    /**
+     * Render invalid feedback text / alert in the DOM.
+     */
     showInvalidFeedback() {
         let invalidText = document.createElement("span");
         invalidText.classList.add("text-danger");
@@ -129,7 +163,7 @@ export class JSTreeSelect {
         let submitButtonInsidePopoverElement = document.createElement("button");
         submitButtonInsidePopoverElement.setAttribute("type", "button");
         submitButtonInsidePopoverElement.innerText = this.popoverSaveChoicesButtonText;
-        submitButtonInsidePopoverElement.classList.add("btn", "wb-btn-secondary", "float-end", "mt-2");
+        submitButtonInsidePopoverElement.classList.add("btn", "wb-btn-main", "float-end", "mt-2");
         submitButtonInsidePopoverElement.onclick = () => { 
             const id = $(this._jsTreeElement).jstree("get_selected")[0];
             const text = $(this._jsTreeElement).jstree("get_selected", true)[0].text;
@@ -147,6 +181,7 @@ export class JSTreeSelect {
                 this._jsTree = $(treeElement).jstree({
                     'checkbox': {
                         "three_state": false,
+                        "cascade": "up+undetermined",
                     },
                     'plugins': [ 'checkbox', ], 
                     'core': {

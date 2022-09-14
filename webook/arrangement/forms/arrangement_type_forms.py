@@ -10,10 +10,12 @@ _ALWAYS_FIELDS = ( "parent",
 
 
 class BaseArrangementTypeForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(queryset=ArrangementType.objects.filter(parent__isnull=True), 
+                                    widget=forms.Select(attrs={"class": "form-control"}))
+
     class Meta:
         model = ArrangementType
         fields =  _ALWAYS_FIELDS
-        widgets = { "parent": forms.Select(attrs={"class": "form-control"}) }
 
 
 class UpdateArrangementTypeForm(BaseArrangementTypeForm):

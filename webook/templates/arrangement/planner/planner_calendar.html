@@ -227,63 +227,33 @@ container-fluid
     import { PersonCalendar } from "{% static 'modules/planner/personCalendar.js' %}";
     import { ArrangementCreator } from "{% static 'modules/planner/arrangementCreator.js' %}";
     import { AdvancedCategoricalFilter } from "{% static 'js/advancedCategoricalFilter.js' %}";
+    import { AdvancedTreeFilter } from "{% static 'js/advancedTreeFilter.js' %}";
     import { CalendarFilter } from "{% static 'modules/planner/commonLib.js' %}";
 
     let activeCalendar;
     let calendarFilter = new CalendarFilter( (filter) => { activeCalendar.init(); } );
 
-    let arrangementTypePopFilter = new AdvancedCategoricalFilter({
-        triggerMode: AdvancedCategoricalFilter.TRIGGERMODE_ONUPDATE,
+    const arrangementTypeTreeFilter = new AdvancedTreeFilter({
+        title: 'Arrangementstyper',
         triggerElement: document.getElementById('arrangement-type-popover-filter-trigger'),
         wrapperElement: document.getElementById('arrangement-type-popover-filter-content'),
-        onSubmit: function (data) {
-            let arrangementTypeSlugs = data[0].items.filter( (item) => item.active ).map( (item) => item.key );
-            calendarFilter.filterArrangementTypes(arrangementTypeSlugs);
+        onSubmit: function (selectedNodes) {
+            const slugs = selectedNodes.map( (node) => node.data.slug );
+            calendarFilter.filterArrangementTypes(slugs);
         },
-        data: [
-            {
-                key: 'arrangement_types',
-                category: 'Arrangement Types',
-                items: [
-                    {% for arrangement_type in ARRANGEMENT_TYPES %}
-                        {
-                            key: '{{arrangement_type.slug}}',
-                            text: '{{arrangement_type.name}}',
-                            active: false,
-                        },
-                    {% endfor %}
-                ]
-            }
-        ],
-        selectionPresets: []
-    })
+        treeSrcUrl: "{% url 'arrangement:arrangement_type_tree_list' %}",
+    });
 
-    let audiencePopFilter = new AdvancedCategoricalFilter({
-        triggerMode: AdvancedCategoricalFilter.TRIGGERMODE_ONUPDATE,
+    const audienceTreeFilter = new AdvancedTreeFilter({
+        title: 'Målgrupper',
         triggerElement: document.getElementById('audience-popover-filter-trigger'),
         wrapperElement: document.getElementById('audience-popover-filter-content'),
-        onSubmit: function (data) {
-            let audienceSlugs = data[0].items.filter( (item) => item.active ).map( (item) => item.key );
-            calendarFilter.filterAudiences(audienceSlugs);
+        onSubmit: function (selectedNodes) { 
+            const slugs = selectedNodes.map( (node) => node.data.slug );
+            calendarFilter.filterAudiences(slugs);
         },
-        data: [
-            {
-                key: "audiences",
-                category: "Audiences",
-                items: [
-                {% for audience in AUDIENCES %}
-                    {
-                        key: "{{audience.slug}}",
-                        text: "{{audience.name}}",
-                        active: false,
-                    },
-                {% endfor %}
-                ]
-            }
-
-        ],
-        selectionPresets: []
-    })
+        treeSrcUrl: "{% url 'arrangement:audience_tree' %}",
+    });
 
     let locationAndRoomsPopFilter = new AdvancedCategoricalFilter({
         triggerMode: AdvancedCategoricalFilter.TRIGGERMODE_ONUPDATE,

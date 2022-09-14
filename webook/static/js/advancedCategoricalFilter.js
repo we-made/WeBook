@@ -93,6 +93,7 @@ export class AdvancedCategoricalFilter extends Popover {
         this.wrapperElement.innerHTML = "";
         if (!this.wrapperElement.classList.contains("popover_wrapper")) {
             this.wrapperElement.classList.add("popover_wrapper");
+            this.wrapperElement.classList.add("popover_wide");
         }
 
         let popoverContentEl = document.createElement("div");

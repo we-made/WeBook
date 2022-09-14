@@ -1,6 +1,6 @@
 from django import forms
-from webook.arrangement.models import Audience
 
+from webook.arrangement.models import Audience
 
 _ALWAYS_FIELDS = (  "name",
                     "name_en",
@@ -9,10 +9,12 @@ _ALWAYS_FIELDS = (  "name",
 
 
 class BaseAudienceForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(queryset=Audience.objects.filter(parent__isnull=True),
+                                    widget=forms.Select(attrs={"class": "form-control"}))
+
     class Meta:
         model = Audience
         fields = _ALWAYS_FIELDS
-        widgets = { "parent": forms.Select(attrs={"class": "form-control"}) }
 
 
 class UpdateAudienceForm(BaseAudienceForm):
