@@ -28,10 +28,10 @@ def get_section_manifest():
         section_crumb_url=None,#reverse("arrangement:arrangement_type_list"),
         crudl_map=SectionCrudlPathMap(
             detail_url=None,
-            create_url=None,#"arrangement:arrangement_type_create",
-            edit_url=None,#"arrangement:arrangement_type_edit",
+            create_url="arrangement:statustype_create",#"arrangement:arrangement_type_create",
+            edit_url="arrangement:statustype_update",#"arrangement:arrangement_type_edit",
             delete_url=None,#"arrangement:arrangement_type_delete",
-            list_url=None,#"arrangement:arrangement_type_list",
+            list_url="arrangement:statustype_list",#"arrangement:arrangement_type_list",
         )
     )
 
@@ -47,11 +47,11 @@ class StatusTypeSectionManifestMixin:
         return context
 
 
-class StatusTypeListView(LoginRequiredMixin, ListView, StatusTypeSectionManifestMixin):
+class StatusTypeListView(LoginRequiredMixin, StatusTypeSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     queryset = StatusType.objects.all()
+    template_name = "arrangement/list_view.html"
     model = StatusType
-    template = "arrangement/list_view.html"
-    ViewMeta.Preset.table(StatusType)
+    view_meta = ViewMeta.Preset.table(StatusType)
 
 status_type_list_view = StatusTypeListView.as_view()
 
