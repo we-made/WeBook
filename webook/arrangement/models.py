@@ -6,6 +6,7 @@ from argparse import ArgumentError
 from ast import Delete
 from email.policy import default
 from enum import Enum
+from tabnanny import verbose
 from typing import Dict, List, Optional, Tuple
 
 import pytz
@@ -230,6 +231,25 @@ class ArrangementType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMi
 
     def __str__(self):
         """ Return arrangement type name """
+        return self.name
+
+
+class StatusType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin):
+    class Meta:
+        verbose_name = _("Status type")
+        verbose_name_plural = _("Status types")
+
+    entity_name_singular = _("Status type")
+    entity_name_plural = _("Status types")
+
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
+    slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
+
+    def get_absolute_url(self):
+        pass
+
+    def __str__(self) -> str:
+        """ Return status name """
         return self.name
 
 
