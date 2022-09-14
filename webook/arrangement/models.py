@@ -49,6 +49,7 @@ class SelfNestedModelMixin(models.Model):
     class Meta:
         abstract = True
 
+
 class IconClassMixin(models.Model):
     icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
 
