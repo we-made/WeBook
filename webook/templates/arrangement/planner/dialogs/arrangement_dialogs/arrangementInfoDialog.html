@@ -614,6 +614,16 @@
                 element: dialog.querySelector('#audience_jstree_select'),
                 initialSelected: { id: '{{ object.audience.id }}', text: '{{ object.audience.name }}' },
                 treeJsonSrcUrl: "/arrangement/audience/tree",
+                valueSelectedLabelText: ( selected) => { 
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+                    
+                    labelText += selected.text;
+
+                    return labelText;
+                },
                 noneSelectedLabelText: "Ingen målgruppe valgt ennå",
                 selectFirstTimeButtonText: 'Velg målgruppe',
                 changeSelectedValueButtonText: 'Endre målgruppe',
@@ -623,6 +633,16 @@
                 element: dialog.querySelector('#arrangement_type_jstree_select'),
                 initialSelected: { id: '{{ object.arrangement_type.id }}', text: '{{ object.arrangement_type.name }}' },
                 treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
+                valueSelectedLabelText: ( selected) => { 
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+                    
+                    labelText += selected.text;
+
+                    return labelText;
+                },
                 noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
                 selectFirstTimeButtonText: 'Velg arrangementstype',
                 changeSelectedValueButtonText: 'Endre arrangementstype',

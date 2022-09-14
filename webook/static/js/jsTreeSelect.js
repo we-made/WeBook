@@ -67,9 +67,10 @@ export class JSTreeSelect {
      * Given id and text set the selected value, and reflect this on the component, updating the label text.
      * @param {*} id 
      * @param {*} text 
+     * @param {*} directParentId
      */
-    _setSelectedValue(id, text) {
-        this.selected = { id: id, text: text };
+    _setSelectedValue(id, text, directParentId) {
+        this.selected = { id: id, text: text, parent: $(this._jsTreeElement).jstree(true).get_node(directParentId) };
         this._labelElement.innerHTML = this._generateLabelElement().innerHTML;
         this._hideInvalidFeedback();
     }
@@ -165,10 +166,9 @@ export class JSTreeSelect {
         submitButtonInsidePopoverElement.innerText = this.popoverSaveChoicesButtonText;
         submitButtonInsidePopoverElement.classList.add("btn", "wb-btn-main", "float-end", "mt-2");
         submitButtonInsidePopoverElement.onclick = () => { 
-            const id = $(this._jsTreeElement).jstree("get_selected")[0];
-            const text = $(this._jsTreeElement).jstree("get_selected", true)[0].text;
-
-            this._setSelectedValue(id, text);
+            const selected = $(this._jsTreeElement).jstree("get_selected", true)[0];
+            console.log("selected --nod", selected);
+            this._setSelectedValue(selected.id, selected.text, selected.parent);
 
             this._popover.show(); //hide --toggle
         };

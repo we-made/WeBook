@@ -286,6 +286,16 @@
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
+                valueSelectedLabelText: ( selected) => { 
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+                    
+                    labelText += selected.text;
+
+                    return labelText;
+                },
                 noneSelectedLabelText: "Ingen målgruppe valgt ennå",
                 selectFirstTimeButtonText: 'Velg målgruppe',
                 changeSelectedValueButtonText: 'Endre målgruppe',
@@ -294,6 +304,16 @@
             dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#arrangement_type_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
+                valueSelectedLabelText: ( selected) => { 
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+                    
+                    labelText += selected.text;
+
+                    return labelText;
+                },
                 noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
                 selectFirstTimeButtonText: 'Velg arrangementstype',
                 changeSelectedValueButtonText: 'Endre arrangementstype',
