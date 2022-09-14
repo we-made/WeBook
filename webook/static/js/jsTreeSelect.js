@@ -36,6 +36,7 @@ export class JSTreeSelect {
         this.allowMultipleSelect = allowMultipleSelect;
 
         this.selected = initialSelected;
+        console.log("initialSelected", initialSelected)
 
         this.invalidFeedbackText = invalidFeedbackText;
 
@@ -57,6 +58,12 @@ export class JSTreeSelect {
      */
     _jsTreeSet() {
         $(this._jsTreeElement).jstree('select_node', this.selected.id);
+
+        if (this.selected.parent) {
+            console.log("oh hi mark", this.selected)
+            this.selected.parent = $(this._jsTreeElement).jstree(true).get_node(directParentId);
+            this._labelElement.innerHTML = this._generateLabelElement().innerHTML;
+        }
     }
 
     _standardValueSelectedLabelText(selected) {

@@ -612,7 +612,7 @@
         postInit: function (dialog) {
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
-                initialSelected: { id: '{{ object.audience.id }}', text: '{{ object.audience.name }}' },
+                initialSelected: { id: '{{ object.audience.id }}', text: '{{ object.audience.name }}', parent: '{{object.parent_id}}' },
                 treeJsonSrcUrl: "/arrangement/audience/tree",
                 valueSelectedLabelText: ( selected) => { 
                     let labelText = '';
@@ -631,7 +631,7 @@
             });
             dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#arrangement_type_jstree_select'),
-                initialSelected: { id: '{{ object.arrangement_type.id }}', text: '{{ object.arrangement_type.name }}' },
+                initialSelected: { id: '{{ object.arrangement_type.id }}', text: '{{ object.arrangement_type.name }}', parent: '{{object.parent_id}}' },
                 treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
                 valueSelectedLabelText: ( selected) => { 
                     let labelText = '';
