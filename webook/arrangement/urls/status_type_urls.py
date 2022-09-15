@@ -1,6 +1,11 @@
 from django.urls import path
 
-from webook.arrangement.views import status_type_create_view, status_type_list_view, status_type_update_view
+from webook.arrangement.views import (
+    status_type_create_view,
+    status_type_delete_view,
+    status_type_list_view,
+    status_type_update_view,
+)
 
 status_type_urls = [
     path(
@@ -17,5 +22,10 @@ status_type_urls = [
         route="statustype/edit/<slug:slug>",
         view=status_type_update_view,
         name="statustype_update",
+    ),
+    path(
+        route="statustype/delete/<slug:slug>",
+        view=status_type_delete_view,
+        name="statustype_delete",
     ),
 ]

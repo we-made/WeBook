@@ -24,14 +24,14 @@ from webook.utils.meta_utils.meta_mixin import MetaMixin
 def get_section_manifest():
     return SectionManifest(
         section_title=_("Status"),
-        section_icon="fal fa-clipboard-check",
-        section_crumb_url=None,#reverse("arrangement:arrangement_type_list"),
+        section_icon="fas fa-clipboard-check",
+        section_crumb_url=reverse("arrangement:statustype_list"),
         crudl_map=SectionCrudlPathMap(
             detail_url=None,
-            create_url="arrangement:statustype_create",#"arrangement:arrangement_type_create",
-            edit_url="arrangement:statustype_update",#"arrangement:arrangement_type_edit",
-            delete_url=None,#"arrangement:arrangement_type_delete",
-            list_url="arrangement:statustype_list",#"arrangement:arrangement_type_list",
+            create_url="arrangement:statustype_create",
+            edit_url="arrangement:statustype_update",
+            delete_url="arrangement:statustype_delete",
+            list_url="arrangement:statustype_list",
         )
     )
 
@@ -55,21 +55,37 @@ class StatusTypeListView(LoginRequiredMixin, StatusTypeSectionManifestMixin, Gen
 
 status_type_list_view = StatusTypeListView.as_view()
 
-class StatusTypeCreateView(LoginRequiredMixin, CreateView, StatusTypeSectionManifestMixin, DialogView):
+class StatusTypeCreateView(LoginRequiredMixin, StatusTypeSectionManifestMixin, MetaMixin, CreateView, ModelFormMixin, DialogView):
     form_class = CreateStatusTypeForm
     model = StatusType
     template_name = "arrangement/statustype/statustype_form.html"
     view_meta = ViewMeta.Preset.create(StatusType)
 
     def get_success_url(self) -> str:
-        return reverse("") # TODO: Redirect to list, or perhaps see how it is affected by dialog in arrtype?
+        return reverse("arrangement:statustype_list")
 
 status_type_create_view = StatusTypeCreateView.as_view()
 
-class StatusTypeUpdateView(LoginRequiredMixin, UpdateView, StatusTypeSectionManifestMixin, DialogView):
+class StatusTypeUpdateView(LoginRequiredMixin, StatusTypeSectionManifestMixin, MetaMixin, UpdateView, ModelFormMixin, DialogView):
     form_class = UpdateStatusTypeForm
     model = StatusType
     template_name = "arrangement/statustype/statustype_form.html"
     view_meta = ViewMeta.Preset.edit(StatusType)
+    
+    def get_success_url(self) -> str:
+        return reverse("arrangement:statustype_list")
 
 status_type_update_view = StatusTypeUpdateView.as_view()
+
+
+class StatusTypeDeleteView(LoginRequiredMixin, DeleteView, StatusTypeSectionManifestMixin, DialogView):
+    model = StatusType
+    view_meta = ViewMeta.Preset.delete(StatusType)
+    template_name = "arrangement/dialog_delete_view.html"
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "arrangement:statustype_list"
+        )
+
+status_type_delete_view = StatusTypeDeleteView.as_view()

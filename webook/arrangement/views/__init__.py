@@ -187,4 +187,9 @@ from .servicetype_views import (
     service_type_list_view,
     service_type_update_view,
 )
-from .status_type_views import status_type_create_view, status_type_list_view, status_type_update_view
+from .status_type_views import (
+    status_type_create_view,
+    status_type_delete_view,
+    status_type_list_view,
+    status_type_update_view,
+)
