@@ -10,7 +10,8 @@ _ALWAYS_FIELDS = (  "name",
 
 class BaseAudienceForm(forms.ModelForm):
     parent = forms.ModelChoiceField(queryset=Audience.objects.filter(parent__isnull=True),
-                                    widget=forms.Select(attrs={"class": "form-control"}))
+                                    widget=forms.Select(attrs={"class": "form-control"}),
+                                    required=False)
 
     class Meta:
         model = Audience
