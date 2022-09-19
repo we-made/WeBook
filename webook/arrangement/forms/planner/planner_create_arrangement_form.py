@@ -17,9 +17,11 @@ class PlannerCreateArrangementModelForm(forms.ModelForm):
                     "meeting_place",
                     "meeting_place_en",
                     "expected_visitors",
-                    "display_layouts",)
+                    "display_layouts",
+                    "status",)
         widgets = { "display_layouts": CheckboxSelectMultiple(),
                     "location": forms.Select(attrs={"class": "form-control form-control-md", "data-mdb-validation": "true"}),
                     "audience": forms.Select(attrs={"class": "form-control", "data-mdb-placeholder": "Select audience", "data-mdb-validation": "true"}),
                     "arrangement_type": forms.Select(attrs={"class": "form-control-md", "data-mdb-validation": "true"}),
-                    "responsible": forms.Select(attrs={"class": "form-control-md", "data-mdb-validation": "true"}), }
+                    "responsible": forms.Select(attrs={"class": "form-control-md", "data-mdb-validation": "true"}), 
+                    "status": forms.Select(attrs={"class": "form-control"})}

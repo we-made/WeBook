@@ -277,6 +277,11 @@ export class PlannerCalendar extends FullCalendarBased {
                         </div>
                         ${arrangement.arrangement_type}
                     </div>
+                    <div class='col-12 text-center mt-2'>
+                        <div class='border border-1 p-2 rounded-pill fw-bold'>
+                            ${ arrangement.status_name ?? "Ingen status" }
+                        </div>
+                    </div>
                 </div>
                 <hr>
 

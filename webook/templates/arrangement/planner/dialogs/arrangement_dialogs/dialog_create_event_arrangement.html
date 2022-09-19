@@ -47,6 +47,11 @@
                     </label>
                     <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" required />
                 </div>
+
+                <div class="form-group mb-2">
+                    <label for="{{form.status.id_for_label}}" class="form-label"><i class="fas fa-cog"></i>&nbsp; Status</label>
+                    {{ form.status }}
+                </div>
     
                 <div class="form-group mt-2">
                     <label for="" class="form-label">Fra</label>
@@ -82,34 +87,16 @@
             </form>
         </div>
         <div id="step-2">
-            <!-- <div class="input-group input-group-lg">
-                <span class="input-group-text">
-                    <i class="fas fa-search"></i>
-                </span>
-                <input type="search" name="" placeholder="Søk etter personer..." class="form-control form-control-lg"></input>
-            </div> -->
-
-
             <button class="btn wb-btn-secondary border"
-            d-trigger="triggerAddPeople">
+                    d-trigger="triggerAddPeople">
                 Velg Person
             </button>
-
-            <div id="selectedPeopleWrapper" class="mb-2 mt-3">
-            </div>
-
-            <!-- <div class="input-group input-group-lg mt-5">
-                <span class="input-group-text">
-                    <i class="fas fa-search"></i>
-                </span>
-                <input type="search" name="" placeholder="Søk etter rom..." class="form-control form-control-lg"></input>
-            </div> -->
+            <div id="selectedPeopleWrapper" class="mb-2 mt-3"></div>
 
             <button class="btn wb-btn-secondary border mt-5"
                     d-trigger="triggerAddRooms">
                 Velg rom
             </button>
-
             <div id="selectedRoomsWrapper" class="mb-2 mt-3"></div>
         </div>
         <div id="step-3">
@@ -301,6 +288,7 @@
                     title_en:                   dialog.interior.title_en.value,
                     ticket_code:                dialog.interior.ticket_code.value,
                     expected_visitors:          dialog.interior.expected_visitors.value,
+                    status:                     dialog.interior.id_status.value,
                     start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
                     end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
                     arrangement:                0,

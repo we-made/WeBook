@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import Optional, Tuple
+
+import pytz
 from django import forms
 from django.forms import CharField, fields
-import pytz
 from django.utils import timezone as dj_timezone
-
 
 from webook.arrangement.models import Event
 from webook.utils.utc_to_current import utc_to_current
@@ -25,7 +25,8 @@ _ALWAYS_FIELDS = ( "title",
                    "before_buffer_start",
                    "before_buffer_end",
                    "after_buffer_start",
-                   "after_buffer_end",)
+                   "after_buffer_end",
+                   "status",)
 
 
 class BaseEventForm(forms.ModelForm):
@@ -65,6 +66,7 @@ class BaseEventForm(forms.ModelForm):
         fields = _ALWAYS_FIELDS
         widgets = { 
             "display_layouts": forms.CheckboxSelectMultiple( attrs={'id': 'display_layouts_create_event', 'name': 'display_layouts_create_event'} ), 
+            "status": forms.Select(attrs={'class': 'form-control form-control-lg'}),
         }
 
 
@@ -78,4 +80,5 @@ class UpdateEventForm(BaseEventForm):
         fields = ( "id", ) + _ALWAYS_FIELDS
         widgets = { 
             "display_layouts": forms.CheckboxSelectMultiple( attrs={'id': 'display_layouts_create_event', 'name': 'display_layouts_create_event'} ), 
+            "status": forms.Select(attrs={'class': 'form-control form-control-lg'}),
         }

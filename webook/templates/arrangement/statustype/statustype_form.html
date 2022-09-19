@@ -9,19 +9,20 @@
 
         <div>
             <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-            <input type="text" name="{{ form.name.name }}" class="form-control" id="{{ form.name.id_for_label }}" value="{{ form.name.value }}">
+            <input type="text" name="{{ form.name.name }}" class="form-control" id="{{ form.name.id_for_label }}" value="{{ form.name.value|default:'' }}">
         </div>
 
-        <div class="mt-3">
+        <div class="mt-3 form-group">
+            <label for="">{{form.color.label}}</label>
             <input type="color" name="{{form.color.name}}" id="" value="{{ form.color.value }}">
         </div>
 
         <div class="clearfix">
             <div class="form-group mt-3 float-end">
-                <button class="btn wb-btn-secondary">
+                <button class="btn wb-btn-secondary" onClick="window.history.back(); return false;">
                     Avbryt
                 </button>
-                <button class="btn wb-btn-main">
+                <button class="btn wb-btn-main" type="submit">
                     Lagre
                 </button>
             </div>

@@ -109,6 +109,8 @@ export class ArrangementCreator {
                                 $thisDialog.find('#serie_expected_visitors')
                                     .attr('value', $mainDialog.find('#id_expected_visitors')[0].value);
 
+                                $thisDialog.find('#id_status').val($mainDialog.find("#id_status")[0].value);
+
                                 document.querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
                                         $thisDialog.find('#id_display_layouts_serie_planner_' + checkboxElement.value)
@@ -124,7 +126,6 @@ export class ArrangementCreator {
                             else {
                                 if (context.series !== undefined) {
                                     let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
-                                    console.log("editserie", serie);
                                     const $dialogElement = $(this.dialogManager.$getDialogElement("newTimePlanDialog"));
                                     PopulateCreateSerieDialogFromSerie(serie, $dialogElement);
                                 }
@@ -322,6 +323,7 @@ export class ArrangementCreator {
                                 $simpleActivityDialog.find('#title').attr('value',               $mainDialog.find('#id_name').val() );
                                 $simpleActivityDialog.find('#title_en').attr('value',            $mainDialog.find('#id_name_en').val() );
                                 $simpleActivityDialog.find('#expected_visitors').attr('value',   $mainDialog.find('#id_expected_visitors').val() );
+                                $simpleActivityDialog.find('#id_status').val($mainDialog.find("#id_status")[0].value);
 
                                 document.querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {

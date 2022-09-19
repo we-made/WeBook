@@ -359,6 +359,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="arrangements_responsible_for")
     planners = models.ManyToManyField(to="Person", verbose_name=_("Planners"))
 
+    status = models.ForeignKey(to="StatusType", on_delete=models.RESTRICT, null=True, blank=True, related_name="status_of_arrangements")
+
     people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
     show_on_multimedia_screen = models.BooleanField(verbose_name=_("Show on multimedia screen"), default=False)
@@ -1268,6 +1270,8 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
 
     # Strategy Shared Fields
     interval = models.IntegerField(blank=True, default=0, null=True)
+
+    status = models.ForeignKey(to=StatusType, on_delete=models.RESTRICT, related_name="manifests_of_status", null=True, blank=True)
 
     rooms =  models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)

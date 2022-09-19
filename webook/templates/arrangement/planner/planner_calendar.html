@@ -563,8 +563,6 @@ container-fluid
         })
 
         document.addEventListener('plannerCalendar.calendarChange', function (e) {
-            console.log(">> plannerCalendar.calendarChange", e);
-
             activeCalendar = e.detail.changeTo;
             activeCalendar.getFcCalendar().gotoDate(activeDate);
             activeCalendar.renderNavigationButtons();
