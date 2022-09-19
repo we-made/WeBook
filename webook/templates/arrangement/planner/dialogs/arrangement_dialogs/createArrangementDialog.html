@@ -158,14 +158,14 @@
                     <div class="mb-2 form-group">
                         <label class="form-label" for="{{ form.ticket_code.id_for_label }}">
                             <i class="fas fa-receipt"></i>&nbsp;
-                            Billetkode
+                            Billettkode
                         </label>
                         <input type="text"
                             class="form-control form-control-lg"
                             id="{{ form.ticket_code.id_for_label }}"
                             value="{{ form.ticket_code.value|default:'' }}"
                             name="{{ form.ticket_code.name }}"
-                            placeholder="Billetkode..."/>
+                            placeholder="Billettkode..."/>
                     </div>
                     {% if form.ticket_code.errors|length > 0 %}
                         <div class="alert alert-danger">
