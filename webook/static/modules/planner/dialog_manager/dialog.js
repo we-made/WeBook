@@ -34,7 +34,6 @@ class Dialog {
         this._initializePlugins();
         this._listenToEventLaneCommunication()
         
-        
         postInit(this);
     }
 

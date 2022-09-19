@@ -971,7 +971,9 @@
             stepper: null,
         },
         when: [
-            { eventKnownAs: "roomsSelected", do: (dialog, payload) => { 
+            { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                console.log("when:: roomsSelected triggered")
+
                 let wrapper = dialog.$( '#roomChips' );
                 wrapper.empty();
 
