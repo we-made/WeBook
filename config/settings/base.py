@@ -105,6 +105,7 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "colorfield",
 ]
 
 LOCAL_APPS = [

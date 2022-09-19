@@ -116,7 +116,7 @@
                             {% if form.title.errors|length > 0 %}
                                 <div class="alert alert-danger">
                                     {{ form.title.errors }}
-                                </div>
+                                </div>  
                             {% endif %}
                         </div>
                         <div class="col-lg-6 col-sm-12">
@@ -197,7 +197,17 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+                                    {{form.status}}
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div class="mt-2">
                         <label class="d-block form-label">{% trans "Vises på skjerm:" %}</label>
                         {{form.display_layouts}}
@@ -731,6 +741,7 @@
                     arrangement:        '{{object.arrangement.pk}}',
                     people:             dialog.getSelectedPeopleIds(),
                     rooms:              dialog.getSelectedRoomIds(),
+                    status:             dialog.interior.id_status.value,
                     display_layouts:    [...dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
                                             .map(element => element.value),
                     before_buffer_start: dialog.interior.buffer_before_start != undefined ? dialog.interior.buffer_before_start.value : "", 

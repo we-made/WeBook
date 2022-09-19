@@ -305,21 +305,31 @@ html, body {
 
 .dialog-popover-left-fix .popover_content {
     left: -0.1px;
-    box-shadow: none!important;
+    /* box-shadow: none!important; */
     border-radius: 0.7em;
-    background-color: var(--SECONDARY-COLOR);
+    /* background-color: var(--SECONDARY-COLOR); */
+}
+
+.context-menu-list {
+    box-shadow: 0 1px 40px 1px  grey!important;
+    border-radius: 0.5em!important;
+}
+
+.context-menu-item:not(.context-menu-separator) {
+    padding: .5em 2em!important;
 }
 
 .popover_content {
     z-index: 5000000000001 !important ;
     visibility: hidden;
     position: absolute;
-    box-shadow: 0 1px 20px 1px  grey!important;
+    box-shadow: 0 1px 40px 1px  grey!important;
     left: -20rem;
     transform: translate(0, 10px);
     background-color: white;
     padding: 1.5rem;
-    border: solid 1px grey;
+    border-radius: 0.8em;
+    /* border: solid 1px grey; */
 }
 
 .popover_wrapper.active .popover_content {
@@ -407,3 +417,6 @@ html, body {
     justify-content: end;
     float:end;
 }
+
+.fc-day-sat { background-color: #f6f6f0; }
+.fc-day-sun { background-color: #f6f6f0; }

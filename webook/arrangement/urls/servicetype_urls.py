@@ -1,14 +1,15 @@
 from unicodedata import name
-from django.urls import path
-from webook.arrangement.views import (
-    service_type_list_view,
-    service_type_create_view,
-    service_type_update_view,
-    service_type_detail_view,
-    service_type_delete_view,
-    search_service_types,
-)
 
+from django.urls import path
+
+from webook.arrangement.views import (
+    search_service_types,
+    service_type_create_view,
+    service_type_delete_view,
+    service_type_detail_view,
+    service_type_list_view,
+    service_type_update_view,
+)
 
 servicetype_urls = [
     path(

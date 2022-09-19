@@ -209,10 +209,8 @@ export class ArrangementStore extends BaseStore {
      * @returns 
      */
     _mapArrangementToFullCalendarEvent(arrangement) {
-        let _this = this;
-        
-        let slugClass = writeSlugClass(arrangement.slug);
-        let pkClass = "pk:" + arrangement.event_pk;
+        const slugClass = writeSlugClass(arrangement.slug);
+        const pkClass = "pk:" + arrangement.event_pk;
         return new FullCalendarEvent({
             title: arrangement.name,
             start: arrangement.starts,
@@ -241,7 +239,7 @@ export class ArrangementStore extends BaseStore {
             return;
         }
 
-        let arrangement = this._store.get(parseInt(pk));
+        const arrangement = this._store.get(parseInt(pk));
         
         if (get_as === _FC_EVENT) {
             return this._mapArrangementToFullCalendarEvent(arrangement);

@@ -6,10 +6,12 @@ from argparse import ArgumentError
 from ast import Delete
 from email.policy import default
 from enum import Enum
+from tabnanny import verbose
 from typing import Dict, List, Optional, Tuple
 
 import pytz
 from autoslug import AutoSlugField
+from colorfield.fields import ColorField
 from django.conf import settings
 from django.db import models
 from django.db.models import FileField
@@ -47,6 +49,14 @@ class SelfNestedModelMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class ColorCodeMixin(models.Model):
+    color = ColorField()
+
+    class Meta:
+        abstract = True
+
 
 class IconClassMixin(models.Model):
     icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
@@ -233,6 +243,25 @@ class ArrangementType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMi
         return self.name
 
 
+class StatusType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin, ColorCodeMixin):
+    class Meta:
+        verbose_name = _("Status type")
+        verbose_name_plural = _("Status types")
+
+    entity_name_singular = _("Status type")
+    entity_name_plural = _("Status types")
+
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
+    slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
+
+    def get_absolute_url(self):
+        pass
+
+    def __str__(self) -> str:
+        """ Return status name """
+        return self.name
+
+
 class RoomPreset (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """
         A room preset is a group, or collection, or set, of rooms.
@@ -329,6 +358,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
 
     responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="arrangements_responsible_for")
     planners = models.ManyToManyField(to="Person", verbose_name=_("Planners"))
+
+    status = models.ForeignKey(to="StatusType", on_delete=models.RESTRICT, null=True, blank=True, related_name="status_of_arrangements")
 
     people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
@@ -966,6 +997,8 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     articles = models.ManyToManyField(to=Article, verbose_name=_("Articles"))
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
 
+    status = models.ForeignKey(to="StatusType", on_delete=models.RESTRICT, null=True, blank=True, related_name="status_of_events")
+
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
                                              related_name="events", blank=True)
     display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
@@ -1237,6 +1270,8 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
 
     # Strategy Shared Fields
     interval = models.IntegerField(blank=True, default=0, null=True)
+
+    status = models.ForeignKey(to=StatusType, on_delete=models.RESTRICT, related_name="manifests_of_status", null=True, blank=True)
 
     rooms =  models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)

@@ -40,8 +40,8 @@ from .audience_views import (
     audience_detail_view,
     audience_list_view,
     audience_search_view,
-    audience_update_view,
     audience_tree_json_view,
+    audience_update_view,
 )
 from .calendar_views import (
     all_locations_resource_source_view,
@@ -186,4 +186,10 @@ from .servicetype_views import (
     service_type_detail_view,
     service_type_list_view,
     service_type_update_view,
+)
+from .status_type_views import (
+    status_type_create_view,
+    status_type_delete_view,
+    status_type_list_view,
+    status_type_update_view,
 )
