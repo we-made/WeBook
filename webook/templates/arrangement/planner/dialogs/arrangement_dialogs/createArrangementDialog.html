@@ -243,7 +243,7 @@
                             style="text-transform: none; font-size: larger; border-width: 0.7px;"
                             d-trigger="createSerie">
                             <i class="fas fa-calendar-plus"></i>&nbsp;
-                            Ny tidsplan
+                            Ny gjentagende aktivitet
                         </a>
                     </div>
                     <div class="col-6">
@@ -603,14 +603,14 @@
                                     
                                     <div class="mb-2">
                                         <a href="#" class="btn wb-btn-secondary"
-                                            data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                                            data-toggle='tooltip' title='{% trans "Edit this recurring activity" %}' 
                                             d-trigger='editSerie'
                                             d-arg-uuid='${element._uuid}'>
                                             Rediger tidsplan
                                         </a>
 
                                         <a href="#" class="btn wb-btn-blank"
-                                            data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}' 
+                                            data-toggle='tooltip' title='{% trans "Remove this recurring activity from the arrangement to be" %}' 
                                             d-trigger='removeSerie'
                                             d-arg-uuid='${element._uuid}'>
                                             Slett
