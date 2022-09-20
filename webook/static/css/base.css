@@ -418,5 +418,9 @@ html, body {
     float:end;
 }
 
+.select-dropdown-container {
+    z-index: 5000000000000 !important ;
+}
+
 .fc-day-sat { background-color: #f6f6f0; }
 .fc-day-sun { background-color: #f6f6f0; }

@@ -53,8 +53,8 @@ class DialogPresetSelectManager extends DialogPluginBase {
     activatePreset(presetKey) {
         const preset = this.presets.get(presetKey);
         preset.ids.forEach((id) => {
-            let $checkboxElement = $('#' + id);
-            $checkboxElement.attr("checked", true).change()
+            let $checkboxElement = this.dialog.$('#' + id);
+            $checkboxElement.attr("checked", true);
             this.selectedItemsMap.set($checkboxElement.attr("id"), $checkboxElement.siblings("label").text());
         });
         

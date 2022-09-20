@@ -46,6 +46,7 @@
     async render(context, html) {
         let result = await this.renderer.render(context, this, html);
         this.plugins.forEach((plugin) => plugin.onRender(context));
+        this.communicationLane = new DialogEventCommunicationLane(this.renderer.dialogElement.children[0]);
         return result;
     }
 
@@ -277,9 +278,6 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
 
                 this.dialogElement = span;
                 this.$dialogElement = $(span);
-
-                console.log(this)
-                console.log(dialog)
 
                 $('body')
                     .append(this.dialogElement)
