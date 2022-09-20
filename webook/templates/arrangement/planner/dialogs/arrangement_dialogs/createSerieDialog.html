@@ -248,10 +248,8 @@
         <div id="step-5">
             <i class="fas fa-tv"></i>&nbsp; Vises på
             {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
-            <div class="badge border fw-light border-body text-muted rounded-pill clickable-badge p-3 m-1">
-                <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
-                <label for="id_display_layouts_serie_planner_{{choice_id}}">&nbsp;{{choice_label}}</label>
-            </div>
+                <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
+                <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label></li>
             {% endfor %}
         </div>
     </div>
