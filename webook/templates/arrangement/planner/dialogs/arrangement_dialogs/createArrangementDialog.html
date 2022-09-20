@@ -10,153 +10,122 @@
             <div id="rail" class="float-end stepper-rail"></div>
         </div>
         <hr>
-        <div style="max-height: 600px; height: 600px;">
+        <div>
             <div id="step-1">
-                <div class="row">
-                    <div class="col-12">
-                        <form id="arrangementInfoForm">
-                            <input type="submit" style="display:none;" />
-        
-                            <fieldset>
-                                <div class="form-group mb-2">
-                                    <label class="form-label w-100" for="{{ form.name.id_for_label }}">
-                                        Tittel <i>(Norsk)</i>
-                                        <em class="float-end">
-                                            *
-                                        </em>
-                                    </label>
-                                    <input type="text"
-                                        class="form-control form-control-lg mb-2"
-                                        id="{{ form.name.id_for_label }}"
-                                        value="{{ form.name.value|default:'' }}"
-                                        name="{{ form.name.name }}"
-                                        autocomplete="off"
-                                        required />
-                                </div>
-                                {% if form.name.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.name.errors }}
-                                    </div>
-                                {% endif %}
-        
-                                <div class="form-group mb-2">
-                                    <label class="form-label w-100" for="{{ form.name_en.id_for_label }}">
-                                        Tittel <i>(Engelsk)</i>
-                                        <em class="float-end">
-                                            Valgfritt
-                                        </em>
-                                    </label>
-                                    <input type="text"
-                                        class="form-control form-control-lg"
-                                        id="{{ form.name_en.id_for_label }}"
-                                        value="{{ form.name_en.value|default:'' }}"
-                                        name="{{ form.name_en.name }}"
-                                        autocomplete="off"
-                                        />
-                                </div>
-                                {% if form.name_en.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.name_en.errors }}
-                                    </div>
-                                {% endif %}
+                <form id="arrangementInfoForm">
+                    <input type="submit" style="display:none;" />
 
-                                <div class="mb-2">
-                                    <label for="{{ form.audience.id_for_label }}" class="form-label w-100">
-                                        <i class="fas fa-users"></i>&nbsp;
-                                        Målgruppe
+                    <fieldset>
+                        <div class="form-group mb-2">
+                            <label>
+                                Tittel <i>(Norsk)</i>
+                            </label>
+                            <input type="text"
+                                class="form-control form-control-lg mb-2"
+                                id="{{ form.name.id_for_label }}"
+                                value="{{ form.name.value|default:'' }}"
+                                name="{{ form.name.name }}"
+                                autocomplete="off"
+                                required />
+                        </div>
+                        {% if form.name.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.name.errors }}
+                            </div>
+                        {% endif %}
 
-                                        <em class="float-end">
-                                            *
-                                        </em>
-                                    </label>
-                                    <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
-                                    
-                                    {% if form.audience.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.audience.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
+                        <div class="form-group mb-2">
+                            <label>
+                                Tittel <i>(Engelsk)</i>
+                            </label>
+                            <input type="text"
+                                class="form-control form-control-lg"
+                                id="{{ form.name_en.id_for_label }}"
+                                value="{{ form.name_en.value|default:'' }}"
+                                name="{{ form.name_en.name }}"
+                                autocomplete="off"
+                                />
+                        </div>
+                        {% if form.name_en.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.name_en.errors }}
+                            </div>
+                        {% endif %}
 
-                                <div class="mb-2">
-                                    <label for="{{ form.arrangement_type.id_for_label }}" class="form-label w-100">
-                                        <i class="fas fa-cog"></i>&nbsp;
-                                        Arrangementstype
+                        <div class="mb-2">
+                            <label>
+                                <i class="fas fa-users"></i>&nbsp;
+                                Målgruppe
+                            </label>
+                            <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
+                            
+                            {% if form.audience.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.audience.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
 
-                                        <em class="float-end">
-                                            *
-                                        </em>
-                                    </label>
-                                    <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
-                                    {% if form.arrangement_type.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.arrangement_type.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="mb-2">
-                                    <label for="{{ form.status.id_for_label }}" class="form-label w-100">
-                                        <i class="fas fa-cog"></i>&nbsp;
-                                        Status
+                        <div class="mb-2">
+                            <label>
+                                <i class="fas fa-cog"></i>&nbsp;
+                                Arrangementstype
+                            </label>
+                            <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
+                            {% if form.arrangement_type.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.arrangement_type.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- <div class="mb-2">
+                            <label>
+                                Status
+                            </label>
+                            
+                            {{ form.status }}
+                            
+                            {% if form.status.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.status.errors }}
+                            </div>
+                            {% endif %}
+                        </div> -->
 
-                                        <em class="float-end">
-                                            Valgfritt
-                                        </em>
-                                    </label>
-                                    
-                                    {{ form.status }}
-                                    
-                                    {% if form.status.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.status.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
+                        <div class="mb-2">
+                            <label>
+                                <i class="fas fa-map-marker-alt"></i>&nbsp;
+                                Lokasjon
+                            </label>
+                            {{ form.location }}
+                        </div>
+                        {% if form.location.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.location.errors }}
+                            </div>
+                        {% endif %}
 
-                                <div class="mb-2">
-                                    <label for="{{ form.location.id_for_label }}" class="form-label w-100">
-                                        <i class="fas fa-map-marker-alt"></i>&nbsp;
-                                        Lokasjon
-
-                                        <em class="float-end">
-                                            *
-                                        </em>
-                                    </label>
-                                    {{ form.location }}
-                                </div>
-                                {% if form.location.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.location.errors }}
-                                    </div>
-                                {% endif %}
-        
-                                <div class="mb-2">
-                                    <label for="" class="form-label w-100">
-                                        <i class="fas fa-star"></i>&nbsp;
-                                        Hovedplanlegger
-
-                                        <em class="float-end">
-                                            *
-                                        </em>
-                                    </label>
-                                    {{ form.responsible }}
-                                </div>
-                                {% if form.responsible.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.responsible.errors }}
-                                    </div>
-                                {% endif %}
-                            </fieldset>
-                        </form>
-                    </div>
-                </div>
+                        <div class="mb-2">
+                            <label>
+                                <i class="fas fa-star"></i>&nbsp;
+                                Hovedplanlegger
+                            </label>
+                            {{ form.responsible }}
+                        </div>
+                        {% if form.responsible.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.responsible.errors }}
+                            </div>
+                        {% endif %}
+                    </fieldset>
+                </form>
             </div>
             <div id="step-2">
                 <form id="arrangementDetailsForm">
                     <input type="submit" value="" style="display: none;">
                     <div class="mb-2 form-group">
-                        <label class="form-label" for="{{ form.ticket_code.id_for_label }}">
+                        <label>
                             <i class="fas fa-receipt"></i>&nbsp;
                             Billetkode
                         </label>
@@ -174,7 +143,7 @@
                     {% endif %}
     
                     <div class="mb-2 form-group">
-                        <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
+                        <label>
                             <i class="fas fa-door-open"></i>&nbsp;
                             Møtested <i>(Norsk)</i>
                         </label>
@@ -196,7 +165,7 @@
                     {% endif %}
     
                     <div class="mb-2 form-group">
-                        <label class="form-label" for="{{ form.meeting_place.id_for_label }}">
+                        <label>
                             <i class="fas fa-door-open"></i>&nbsp;
                             Møtested <i>(Engelsk)</i>
                         </label>
@@ -218,7 +187,7 @@
                     {% endif %}
     
                     <div class="mb-2 form-group">
-                        <label for="{{ form.expected_visitors.id_for_label }}" class="form-label">
+                        <label>
                             Forventet besøkende
                         </label>
                         <input type="number"
@@ -313,10 +282,10 @@
                     element: dialog.querySelector('#{{ form.responsible.id_for_label }}'),
                     invalidFeedback: "Vennligst velg en hovedplanlegger",
                 },
-                {
-                    element: dialog.querySelector('#{{ form.status.id_for_label }}'),
-                    invalidFeedback: 'Vennligst velg en status',
-                },
+                // {
+                //     element: dialog.querySelector('#{{ form.status.id_for_label }}'),
+                //     invalidFeedback: 'Vennligst velg en status',
+                // },
             ].forEach((select) => {
                 const mdbSelect = new mdb.Select(select.element, { 
                     container: "[class='{{discriminator}}']",
@@ -325,7 +294,7 @@
                     noResultText: "Ingen resultater",
                     invalidFeedback: select.invalidFeedback,
                 });
-                mdbSelect._input.classList.add("form-control-lg");
+                // mdbSelect._input.classList.add("form-control-lg");
 
                 select.element.addEventListener("change", (event) => {
                     $(mdbSelect._wrapper).find(".invalid-feedback").hide();
