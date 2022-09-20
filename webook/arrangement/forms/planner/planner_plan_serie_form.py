@@ -14,7 +14,8 @@ class PlannerPlanSerieForm(forms.Form):
     expected_visitors = forms.IntegerField()
     status = forms.ModelChoiceField(
         queryset=StatusType.objects.all(),
-        widget= forms.Select(attrs={"class": "form-control form-control-lg"}))
+        widget= forms.Select(attrs={"class": "form-control form-control-lg"}),
+        required=False)
     display_layouts_serie_planner = forms.ModelMultipleChoiceField( 
         queryset=DisplayLayout.objects.all(),
         widget=CheckboxSelectMultiple

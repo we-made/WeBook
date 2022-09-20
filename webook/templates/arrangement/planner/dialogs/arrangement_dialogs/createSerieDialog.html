@@ -518,6 +518,10 @@
                         stepOut: () => {
                             let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
 
+                            console.log("patternRadio", ValidatorFunctions.validate_pattern_radio(dialog.dialogElement));
+                            console.log("patternRoute",  ValidatorFunctions.validate_pattern_route(dialog.data.patterns.get(`${active_pattern_key}`), dialog.dialogElement));
+                            console.log("recurrenceArea", ValidatorFunctions.validate_recurrence_area(dialog.dialogElement));
+
                             return ValidatorFunctions.validate_pattern_radio(dialog.dialogElement) &&
                                    ValidatorFunctions.validate_pattern_route(dialog.data.patterns.get(`${active_pattern_key}`), dialog.dialogElement) &&
                                    ValidatorFunctions.validate_recurrence_area(dialog.dialogElement);
@@ -972,8 +976,6 @@
         },
         when: [
             { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                console.log("when:: roomsSelected triggered")
-
                 let wrapper = dialog.$( '#roomChips' );
                 wrapper.empty();
 
