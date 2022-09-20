@@ -28,49 +28,6 @@
                             name="{{ form.name.name }}"
                             autocomplete="off"
                             required />
-                        {{ form.location }}
-                    </div>
-                                {% if form.location.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.location.errors }}
-                                    </div>
-                                {% endif %}
-        
-                                <div class="mb-2">
-                                    <label for="" class="form-label w-100">
-                                        <i class="fas fa-star"></i>&nbsp;
-                                        Hovedplanlegger
-
-                                        <em class="float-end">
-                                            *
-                                        </em>
-                                    </label>
-                                    {{ form.responsible }}
-                                </div>
-                                {% if form.responsible.errors|length > 0 %}
-                                    <div class="alert alert-danger">
-                                        {{ form.responsible.errors }}
-                                    </div>
-                                {% endif %}
-                            </fieldset>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div id="step-2">
-                <form id="arrangementDetailsForm">
-                    <input type="submit" value="" style="display: none;">
-                    <div class="mb-2 form-group">
-                        <label class="form-label" for="{{ form.ticket_code.id_for_label }}">
-                            <i class="fas fa-receipt"></i>&nbsp;
-                            Billettkode
-                        </label>
-                        <input type="text"
-                            class="form-control form-control-lg"
-                            id="{{ form.ticket_code.id_for_label }}"
-                            value="{{ form.ticket_code.value|default:'' }}"
-                            name="{{ form.ticket_code.name }}"
-                            placeholder="Billettkode..."/>
                     </div>
                     {% if form.name.errors|length > 0 %}
                         <div class="alert alert-danger">
