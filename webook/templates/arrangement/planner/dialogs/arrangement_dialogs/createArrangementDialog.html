@@ -145,50 +145,6 @@
 
                 <div class="mb-2 form-group">
                     <label>
-                        <i class="fas fa-door-open"></i>&nbsp;
-                        Møtested <i>(Norsk)</i>
-                    </label>
-                    <input type="text"
-                        class="form-control form-control-lg"
-                        id="{{ form.meeting_place.id_for_label }}"
-                        value="{{ form.meeting_place.value|default:'' }}"
-                        name="{{ form.meeting_place.name }}"
-                        placeholder="{% trans 'Møtested' %}..."/>
-                    <div class="form-helper text-end">
-                        <i class="fas fa-info-circle"></i>&nbsp;
-                        Vil overskrive sted/rom vist på skjerm
-                    </div>
-                </div>
-                {% if form.meeting_place.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.meeting_place.errors }}
-                    </div>
-                {% endif %}
-
-                <div class="mb-2 form-group">
-                    <label>
-                        <i class="fas fa-door-open"></i>&nbsp;
-                        Møtested <i>(Engelsk)</i>
-                    </label>
-                    <input type="text"
-                        class="form-control form-control-lg"
-                        id="{{ form.meeting_place_en.id_for_label }}"
-                        value="{{ form.meeting_place_en.value|default:'' }}"
-                        name="{{ form.meeting_place_en.name }}"
-                        placeholder="{% trans 'Møtested' %}..."/>
-                    <div class="form-helper text-end">
-                        <i class="fas fa-info-circle"></i>&nbsp;
-                        Vil overskrive sted/rom vist på skjerm
-                    </div>
-                </div>
-                {% if form.meeting_place.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.meeting_place.errors }}
-                    </div>
-                {% endif %}
-
-                <div class="mb-2 form-group">
-                    <label>
                         Forventet besøkende
                     </label>
                     <input type="number"
@@ -237,8 +193,52 @@
                 <i class="fas fa-tv"></i>
                 Skjerm
             </h5>
-            <label class="d-block">&nbsp; {% trans "Vises på skjermen:" %}</label>
+            <label class="d-block">&nbsp; {% trans "Vises på skjerm:" %}</label>
             {{form.display_layouts}}
+
+            <div class="mt-2 form-group">
+                <label>
+                    <i class="fas fa-door-open"></i>&nbsp;
+                    Møtested <i>(Norsk)</i>
+                </label>
+                <input type="text"
+                    class="form-control form-control-lg"
+                    id="{{ form.meeting_place.id_for_label }}"
+                    value="{{ form.meeting_place.value|default:'' }}"
+                    name="{{ form.meeting_place.name }}"
+                    placeholder="{% trans 'Møtested' %}..."/>
+                <div class="form-helper text-end">
+                    <i class="fas fa-info-circle"></i>&nbsp;
+                    Vil overskrive sted/rom vist på skjerm
+                </div>
+            </div>
+            {% if form.meeting_place.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.meeting_place.errors }}
+                </div>
+            {% endif %}
+
+            <div class="mt-2 form-group">
+                <label>
+                    <i class="fas fa-door-open"></i>&nbsp;
+                    Møtested <i>(Engelsk)</i>
+                </label>
+                <input type="text"
+                    class="form-control form-control-lg"
+                    id="{{ form.meeting_place_en.id_for_label }}"
+                    value="{{ form.meeting_place_en.value|default:'' }}"
+                    name="{{ form.meeting_place_en.name }}"
+                    placeholder="{% trans 'Møtested' %}..."/>
+                <div class="form-helper text-end">
+                    <i class="fas fa-info-circle"></i>&nbsp;
+                    Vil overskrive sted/rom vist på skjerm
+                </div>
+            </div>
+            {% if form.meeting_place.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.meeting_place.errors }}
+                </div>
+            {% endif %}
         </div>
     </div>
 
