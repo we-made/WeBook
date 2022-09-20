@@ -21,7 +21,7 @@
 
     <hr>
 
-    <div class="stepper" style="max-height: 600px; height: 500px; overflow: scroll; overflow-y: visible;">
+    <div style="max-height: 600px; height: 500px; overflow: scroll; overflow-y: visible;">
         <div id="step-1">
             <input type="hidden" name="uuid" id="serie_uuid">
             <form id="headMockForm">
@@ -40,18 +40,12 @@
     
                 <div class="row mb-2">
                     <div class="col-6">
-                        <div class="form-group timepicker-inline-24 mb-2" id="serie_start_picker">
-                            <label class="form-label" for="serie_start">Start <small>(<i>HH:mm</i>)</small></label>
-                            <input type="text" class="form-control form-control-lg" id="serie_start" 
-                                required/>
-                        </div>
+                        <label class="form-label" for="serie_start">Start </label>
+                        <input type="time" class="form-control form-control-lg" id="serie_start" required />
                     </div>
                     <div class="col-6">
-                        <div class="form-group timepicker-inline-24 mb-2" id="serie_end_picker">
-                            <label class="form-label" for="serie_end">Slutt <small>(<i>HH:mm</i>)</small></label>
-                            <input type="text" class="form-control form-control-lg" id="serie_end" 
-                                required/>
-                        </div>
+                        <label class="form-label" for="serie_end">Slutt</label>
+                        <input type="time" class="form-control form-control-lg" id="serie_end" required />
                     </div>
                 </div>
 
@@ -650,23 +644,6 @@
             selects.each(function (index, select) {
                 if (select.hasAttribute("init_value")) {
                     select.value = select.getAttribute("init_value");
-                }
-            });
-
-            const startTimePicker = new ExtendedTimepicker({
-                timepickerWrapperElement: dialog.getElementById('serie_start_picker'),
-                timepickerInputElement: dialog.getElementById('serie_start'),
-                mdbOptions: {
-                    format24:true,
-                    inline: true,
-                }
-            });
-            const endTimePicker = new ExtendedTimepicker({
-                timepickerWrapperElement: dialog.getElementById('serie_end_picker'),
-                timepickerInputElement: dialog.getElementById('serie_end'),
-                mdbOptions: {
-                    format24:true,
-                    inline: true,
                 }
             });
 
