@@ -349,28 +349,28 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                     status.name, status.color 
                             ''', [start, end] )
             elif (db_vendor == 'sqlite'):
-                raise Exception("SQLite not supported")
-                # cursor.execute(
-                #     f'''	SELECT audience.icon_class as audience_icon, arr.name as arrangement_name, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
-                #             arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts, arr.created as created_when, ev.association_type as association_type,
-                #             ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug, evserie.id as evserie_id,
-                #             GROUP_CONCAT( DISTINCT room.name) as room_names, 
-                #             GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
-                #             (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
-                #             from arrangement_arrangement as arr 
-                #             JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
-                #             JOIN arrangement_location as loc on loc.id = arr.location_id
-                #             JOIN arrangement_person as resp on resp.id = arr.responsible_id
-                #             JOIN arrangement_audience as audience on audience.id = arr.audience_id
-                #             JOIN arrangement_event as ev on ev.arrangement_id = arr.id
-                #             LEFT JOIN arrangement_event_people as evp on evp.event_id = ev.id
-                #             LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
-                #             LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
-                #             LEFT JOIN arrangement_room as room on room.id = evr.room_id
-                #             LEFT JOIN arrangement_eventserie as evserie on evserie.id = ev.serie_id
-                #             WHERE arr.is_archived = 0 AND ev.start > %s AND ev.end < %s
-                #             GROUP BY event_pk''', [start, end]
-                # )
+                cursor.execute(
+                    f'''	SELECT audience.icon_class as audience_icon, arr.name as arrangement_name, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
+                            arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts, arr.created as created_when, ev.association_type as association_type,
+                            ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug, evserie.id as evserie_id, status.name as status_name, status.color as status_color,
+                            GROUP_CONCAT( DISTINCT room.name) as room_names, 
+                            GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
+                            (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
+                            from arrangement_arrangement as arr 
+                            JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
+                            JOIN arrangement_location as loc on loc.id = arr.location_id
+                            JOIN arrangement_person as resp on resp.id = arr.responsible_id
+                            JOIN arrangement_audience as audience on audience.id = arr.audience_id
+                            JOIN arrangement_event as ev on ev.arrangement_id = arr.id
+                            left join arrangement_statustype as status on status.id = ev.status_id
+                            LEFT JOIN arrangement_event_people as evp on evp.event_id = ev.id
+                            LEFT JOIN arrangement_person as participants on participants.id = evp.person_id
+                            LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
+                            LEFT JOIN arrangement_room as room on room.id = evr.room_id
+                            LEFT JOIN arrangement_eventserie as evserie on evserie.id = ev.serie_id
+                            WHERE arr.is_archived = 0 AND ev.start > %s AND ev.end < %s
+                            GROUP BY event_pk''', [start, end]
+                )
             columns = [column[0] for column in cursor.description]
             for row in cursor.fetchall():
                 m = dict(zip(columns, row))
