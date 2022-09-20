@@ -96,9 +96,12 @@ export class ArrangementCreator {
                             })
                         },
                         onRenderedCallback: (dialogManager, context) => {
-                            if (context.lastTriggererDetails?.serie_uuid === undefined) {
-                                let $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
-                                let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
+
+                            const isCreatingNewTimeplan = context.lastTriggererDetails?.serie_uuid === undefined;
+
+                            if (isCreatingNewTimeplan) {
+                                const $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
+                                const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
 
                                 $thisDialog.find('#serie_ticket_code')
                                     .attr('value', $mainDialog.find('#id_ticket_code')[0].value);
@@ -111,11 +114,11 @@ export class ArrangementCreator {
 
                                 $thisDialog.find('#id_status').val($mainDialog.find("#id_status")[0].value);
 
-                                document.querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
+                                $mainDialog[0].querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
                                         $thisDialog.find('#id_display_layouts_serie_planner_' + checkboxElement.value)
                                             .prop( "checked", true );
-                                    })
+                                    });
 
                                 $thisDialog.find('#serie_uuid').val(crypto.randomUUID());
 
@@ -317,7 +320,7 @@ export class ArrangementCreator {
                             let $simpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
                             
                             if (context.lastTriggererDetails?.event_uuid === undefined) {
-                                let $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
+                                const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
                                 this.dialogManager.setTitle("newSimpleActivityDialog", "Opprett aktivitet");
                                 $simpleActivityDialog.find('#ticket_code').attr('value',         $mainDialog.find('#id_ticket_code').val() );
                                 $simpleActivityDialog.find('#title').attr('value',               $mainDialog.find('#id_name').val() );
@@ -325,7 +328,7 @@ export class ArrangementCreator {
                                 $simpleActivityDialog.find('#expected_visitors').attr('value',   $mainDialog.find('#id_expected_visitors').val() );
                                 $simpleActivityDialog.find('#id_status').val($mainDialog.find("#id_status")[0].value);
 
-                                document.querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
+                                $mainDialog[0].querySelectorAll("input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
                                         $simpleActivityDialog.find(`#${checkboxElement.value}_dlcheck`)
                                             .prop( "checked", true );
