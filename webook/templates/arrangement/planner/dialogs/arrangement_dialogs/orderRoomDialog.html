@@ -58,27 +58,29 @@
                             role="tabpanel"
                             aria-labelledby="tabs-{{location.slug}}-tab">
 
-                            <table class="table table-sm table-striped mt-2" id="{{location.slug}}_roomsTable">
-                                <thead>
-                                    <tr>
-                                        <th>Rom</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for room in location.rooms.all %}
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped mt-2" id="{{location.slug}}_roomsTable">
+                                    <thead>
                                         <tr>
-                                            <td> 
-                                                {{room.is_selected}}
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="{{room.id}}" 
-                                                        room_name="{{room}}" name="orderRoomDialog__checkboxArray" {% if room.is_selected %}checked{% endif %}/>
-                                                    <label class="form-check-label" for="{{room.id}}">{{room}}</label>
-                                                </div>
-                                            </td>
+                                            <th>Rom</th>
                                         </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {% for room in location.rooms.all %}
+                                            <tr>
+                                                <td> 
+                                                    {{room.is_selected}}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="{{room.id}}" 
+                                                            room_name="{{room}}" name="orderRoomDialog__checkboxArray" {% if room.is_selected %}checked{% endif %}/>
+                                                        <label class="form-check-label" for="{{room.id}}">{{room}}</label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                       {% endfor %}
                   </div>
