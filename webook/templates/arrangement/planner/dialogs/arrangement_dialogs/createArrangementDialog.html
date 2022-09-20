@@ -163,32 +163,6 @@
             </form>
         </div>
         <div id="step-3">
-            <div class="row">
-                <div class="col-6">
-                    <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
-                        style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                        d-trigger="createSerie">
-                        <i class="fas fa-calendar-plus"></i>&nbsp;
-                        Ny gjentagende aktivitet
-                    </a>
-                </div>
-                <div class="col-6">
-                    <a class="btn btn-lg btn-outline-dark shadow-0 btn-block mb-2 p-2" 
-                        style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                        d-trigger="createSimpleActivity">
-                        <i class="fas fa-calendar-plus"></i>&nbsp;
-                        Ny enkel aktivitet
-                    </a>
-                </div>
-            </div>
-
-            <hr class="mt-0">
-
-            <div id="eventsBody"></div>
-            <div id="timeplansBody"></div>
-
-        </div>
-        <div id="step-4">
             <h5 class="header-fonted">
                 <i class="fas fa-tv"></i>
                 Skjerm
@@ -239,6 +213,32 @@
                     {{ form.meeting_place.errors }}
                 </div>
             {% endif %}
+        </div>
+        <div id="step-4">
+            <div class="row">
+                <div class="col-6">
+                    <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
+                        style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                        d-trigger="createSerie">
+                        <i class="fas fa-calendar-plus"></i>&nbsp;
+                        Ny gjentagende aktivitet
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a class="btn btn-lg btn-outline-dark shadow-0 btn-block mb-2 p-2" 
+                        style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                        d-trigger="createSimpleActivity">
+                        <i class="fas fa-calendar-plus"></i>&nbsp;
+                        Ny enkel aktivitet
+                    </a>
+                </div>
+            </div>
+
+            <hr class="mt-0">
+
+            <div id="eventsBody"></div>
+            <div id="timeplansBody"></div>
+
         </div>
     </div>
 
@@ -399,13 +399,13 @@
                 },
                 {
                     element: dialog.getElementById('step-3'),
-                    title: 'Tidsplaner & Aktiviteter',
+                    title: 'Skjermvisning',
                     stepIn: () => {},
-                    stepOut: () => { console.log("2. Step Out"); }
+                    stepOut: () => {},
                 },
                 {
                     element: dialog.getElementById('step-4'),
-                    title: 'Skjermvisning',
+                    title: 'Tidsplaner & Aktiviteter',
                     stepIn: () => { 
                         dialog.getElementById('next').style.display = "none";
                         dialog.getElementById('finish').style.display = "inline-block";
