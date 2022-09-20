@@ -151,6 +151,39 @@
           </div>
           <small class="fw-bold">Personer</small>
         </a>
+        
+        {% if user.is_superuser or user|has_group:"display_organizer" %}
+        <div>
+          <a href="#" id="toggleDisplayLayoutsPopover" class="wb-sidebar-item p-2 pt-3 pb-3 ripple">
+            <div>
+              <i class="fas fa-tv text-info h2 mb-0"></i>
+            </div>
+            <small class="fw-bolder">Skjermvisning</small>
+          </a>
+
+          <span class="popover_wrapper wb-popover-sidebar" id="displayLayoutsPopover">
+            <span class="popover_content">
+              <h4 class="text-start"><i class="fas fa-tv"></i>&nbsp; Skjermvisning...</h4>
+              <span style="display: flex; flex-direction: column; align-items: center;">
+                <a href="{% url 'screenshow:screen_list' %}"
+                   class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
+                          {% if not url_name == 'screen_list' %} bg-white border {% else %} active {% endif %}">
+                  {% trans "Screen Resource" %}
+                </a>
+                <a href="{% url 'screenshow:screen_group_list' %}"
+                   class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
+                          {% if not url_name == 'screen_group_list' %} bg-white border {% else %} active {% endif %}">
+                  {% trans "Screen Group" %}
+                </a>
+                <a href="{% url 'screenshow:layout_list' %}"
+                  class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
+                       {% if not url_name == 'layout_list' %} bg-white border {% else %} active {% endif %}">
+                  {% trans "Display Layout" %}
+                </a>
+            </span>
+          </span>
+        </div>
+        {% endif %}
 
         <div>
           <a href="#" id="toggleOthersPopover"
@@ -358,6 +391,13 @@
             wrapperElement: document.getElementById('othersPopover'),
         });
 
+        {% if user.is_superuser or user|has_group:"display_organizer" %}
+        const displayLayoutsPopover = new Popover({
+          triggerElement: document.getElementById('toggleDisplayLayoutsPopover'),
+          wrapperElement: document.getElementById('displayLayoutsPopover'),
+        });
+        {% endif %}
+
         window.dialogApi = dialogApi;
       </script>
 
@@ -368,21 +408,7 @@
           fontAwesome: 'https://kit.fontawesome.com/db5ee7e46d.js'
         }
 
-
-        // $(document).click(function (event) {
-        //     if ($('#othersPopover')[0].contains(event.target) === false && event.target !== $('#toggleOthersPopover')[0]) {
-        //       $('#othersPopover')[0].classList.toggle('active');
-        //     }
-        // });
-
-        // $('#toggleOthersPopover').on('click', (e) => {
-        //   $('#othersPopover')[0].classList.toggle('active');
-        // });
-
-
         $(document).ready(function() {
-
-
           let queuedMessages = JSON.parse(document.getElementById('queuedMessages').textContent);
           tagToToastrFuncMap = new Map([
             [
