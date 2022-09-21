@@ -23,6 +23,7 @@ export class JSTreeSelect {
         element, 
         treeJsonSrcUrl,
         initialSelected=null,
+        onValueSet=null,
         allowMultipleSelect=false,
         noneSelectedLabelText="None selected",
         valueSelectedLabelText=undefined,
@@ -35,6 +36,7 @@ export class JSTreeSelect {
         this.srcUrl = treeJsonSrcUrl;
         this.allowMultipleSelect = allowMultipleSelect;
 
+        this.onValueSet = onValueSet;
         this.selected = initialSelected;
 
         this.invalidFeedbackText = invalidFeedbackText;
@@ -198,7 +200,11 @@ export class JSTreeSelect {
                     if (this.selected !== null) {
                         this._jsTreeSet();
                     }
-                })
+                });
+                $(treeElement).on('changed.jstree', (e, data) => {
+                    if (typeof this.onValueSet === "function")
+                        this.onValueSet(data);
+                });
             });
 
         this._popover = new Popover({

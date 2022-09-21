@@ -112,6 +112,13 @@ export class ArrangementCreator {
                                 $thisDialog.find('#serie_expected_visitors')
                                     .attr('value', $mainDialog.find('#id_expected_visitors')[0].value);
 
+                                const idOfAudienceSelectedOnMainDialog = $mainDialog.find('#_audienceId').val();
+                                const idOfArrangementTypeSelectedOnMainDialog = $mainDialog.find('#_arrangementTypeId').val();
+                                dialogManager._dialogRepository.get( "newTimePlanDialog" )
+                                    .communicationLane.send("setAudienceFromParent", idOfAudienceSelectedOnMainDialog);
+                                dialogManager._dialogRepository.get( "newTimePlanDialog" )
+                                    .communicationLane.send("setArrangementTypeFromParent", idOfArrangementTypeSelectedOnMainDialog);
+
                                 $thisDialog.find('#id_status').val($mainDialog.find("#id_status")[0].value);
 
                                 $mainDialog[0].querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")

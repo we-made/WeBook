@@ -302,6 +302,9 @@
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
+                onValueSet: ( data ) => {
+                    dialog.getElementById('_audienceId') = data.selected[0];
+                },
                 valueSelectedLabelText: ( selected) => { 
                     let labelText = '';
 
@@ -319,8 +322,11 @@
             });
             dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#arrangement_type_jstree_select'),
-                treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
-                valueSelectedLabelText: ( selected) => { 
+                treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",    
+                onValueSet: ( data ) => {
+                    dialog.getElementById('_arrangementTypeId') = data.selected[0];
+                },
+                valueSelectedLabelText: ( selected ) => { 
                     let labelText = '';
 
                     if (selected.parent && selected.parent.text)

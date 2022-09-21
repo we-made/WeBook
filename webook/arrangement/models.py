@@ -1275,6 +1275,8 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     interval = models.IntegerField(blank=True, default=0, null=True)
 
     status = models.ForeignKey(to=StatusType, on_delete=models.RESTRICT, related_name="manifests_of_status", null=True, blank=True)
+    audience = models.ForeignKey(to=Audience, on_delete=models.RESTRICT, null=True, blank=True)
+    arrangement_type = models.ForeignKey(to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True)
 
     rooms =  models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)

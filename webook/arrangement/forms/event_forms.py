@@ -26,7 +26,9 @@ _ALWAYS_FIELDS = ( "title",
                    "before_buffer_end",
                    "after_buffer_start",
                    "after_buffer_end",
-                   "status",)
+                   "status",
+                   "audience",
+                   "arrangement_type",)
 
 
 class BaseEventForm(forms.ModelForm):
