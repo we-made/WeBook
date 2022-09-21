@@ -1004,6 +1004,9 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
     display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
 
+    audience = models.ForeignKey(to=Audience, on_delete=models.RESTRICT, null=True, blank=True)
+    arrangement_type = models.ForeignKey(to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True)
+
     @property
     def is_buffer_event(self) -> bool:
         """Returns a bool indicating if this event is a buffer event for another event or not"""
@@ -1272,6 +1275,8 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     interval = models.IntegerField(blank=True, default=0, null=True)
 
     status = models.ForeignKey(to=StatusType, on_delete=models.RESTRICT, related_name="manifests_of_status", null=True, blank=True)
+    audience = models.ForeignKey(to=Audience, on_delete=models.RESTRICT, null=True, blank=True)
+    arrangement_type = models.ForeignKey(to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True)
 
     rooms =  models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)

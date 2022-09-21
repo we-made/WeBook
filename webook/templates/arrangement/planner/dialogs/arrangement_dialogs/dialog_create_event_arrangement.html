@@ -2,6 +2,10 @@
 
 
 <div id="{{dialogId}}" class="{{discriminator}}" >
+
+    <input type="hidden" id="_backingAudienceId" />
+    <input type="hidden" id="_backingArrangementTypeId" />
+
     <div class="clearfix">
         <div class="float-start">
             <h6>
@@ -16,7 +20,7 @@
 
     <hr>
 
-    <div style="max-height: 600px; height: 600px; overflow: scroll; overflow-y: visible;">
+    <div>
         <div id="step-1">
             <form id="newSimpleActivityForm">
                 <input type="submit" name="submit" style="display:none;" />
@@ -46,6 +50,33 @@
                         Forventet besøkende
                     </label>
                     <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" required />
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>
+                        <i class="fas fa-users"></i>&nbsp;
+                        Målgruppe
+                    </label>
+                    <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
+                    
+                    {% if form.audience.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        {{ form.audience.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>
+                        <i class="fas fa-cog"></i>&nbsp;
+                        Arrangementstype
+                    </label>
+                    <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
+                    {% if form.arrangement_type.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        {{ form.arrangement_type.errors }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="form-group mb-2">
@@ -197,12 +228,54 @@
 </div>
 
 
-<script>
+<script type="module">
+    import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
+
     new Dialog({
         dialogId: '{{ dialogId }}',
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
+            dialog.data.audienceJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#audience_jstree_select'),
+                treeJsonSrcUrl: "/arrangement/audience/tree",
+                initialSelected: dialog.getElementById('_backingAudienceId').value ? { id: dialog.getElementById('_backingAudienceId').value } : undefined,
+                valueSelectedLabelText: ( selected ) => {
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+                    
+                    labelText += selected.text;
+
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen målgruppe valgt ennå",
+                selectFirstTimeButtonText: 'Velg målgruppe',
+                changeSelectedValueButtonText: 'Endre målgruppe',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
+
+            dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#arrangement_type_jstree_select'),
+                treeJsonSrcUrl: '/arrangement/arrangementtype/treelist',
+                initialSelected: dialog.getElementById('_backingArrangementTypeId').value ? { id: dialog.getElementById('_backingArrangementTypeId').value } : undefined,
+                valueSelectedLabelText: ( selected ) => {
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+                    
+                    labelText += selected.text;
+
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
+                selectFirstTimeButtonText: 'Velg arrangementstype',
+                changeSelectedValueButtonText: 'Endre arrangementstype',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
+
             dialog.$("#fromTime").on("change", (event) => {
                 dialog.$("#buffer_before_end").val(event.target.value);
             });
@@ -289,6 +362,8 @@
                     ticket_code:                dialog.interior.ticket_code.value,
                     expected_visitors:          dialog.interior.expected_visitors.value,
                     status:                     dialog.interior.id_status.value,
+                    audience:                   dialog.data.audienceJsTreeSelect.getSelectedValue(),
+                    arrangement_type:           dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
                     start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
                     end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
                     arrangement:                0,
