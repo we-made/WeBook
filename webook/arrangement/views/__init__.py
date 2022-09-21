@@ -60,7 +60,6 @@ from .confirmation_views import (
     thanks_after_response_view,
     view_confirmation_request_view,
 )
-from .dashboard_views import dashboard_view
 from .event_views import (
     calculate_event_serie_preview_view,
     calculate_event_serie_view,

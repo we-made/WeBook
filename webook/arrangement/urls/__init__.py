@@ -6,7 +6,6 @@ from .arrangement_urls import arrangement_urls
 from .audience_urls import audience_urls
 from .calendar_urls import calendar_urls
 from .confirmation_urls import confirmation_urls
-from .dashboard_urls import dashboard_urls
 from .event_urls import event_urls
 from .location_urls import location_urls
 from .note_urls import note_urls
@@ -26,7 +25,6 @@ urlpatterns = [
     *arrangement_urls,
     *audience_urls,
     *calendar_urls,
-    *dashboard_urls,
     *location_urls,
     *organization_urls,
     *organizationtype_urls,
