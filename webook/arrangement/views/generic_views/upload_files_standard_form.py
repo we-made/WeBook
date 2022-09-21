@@ -1,7 +1,7 @@
 from django.forms import Form
 from django.http import JsonResponse
 
-from webook.arrangement.forms.upload_files_form import UploadFilesForm
+from webook.arrangement.forms.file_forms import UploadFilesForm
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 
 

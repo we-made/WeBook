@@ -1,38 +1,32 @@
+import json
 from ast import Delete
 from asyncio import as_completed
 from typing import Any
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import exceptions, serializers
 from django.db.models import query
 from django.db.models.query import QuerySet
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.core import serializers, exceptions
 from django.views import View
-from django.views.generic.edit import FormView
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-    TemplateView
-)
 from django.views.decorators.http import require_http_methods
-import json
-from django.views.generic.edit import DeleteView
-from webook.arrangement.forms.cancel_service_requisition_form import CancelServiceRequisitionForm
-from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
-from webook.arrangement.forms.requisition_person_form import RequisitionPersonForm
-from webook.arrangement.forms.order_service_form import OrderServiceForm
-from webook.arrangement.forms.reset_service_requisition_form import ResetRequisitionForm
-from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition, ServiceRequisition
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic.edit import DeleteView, FormView
+
+from webook.arrangement.forms.ordering_forms import LooselyOrderServiceForm, OrderServiceForm
+from webook.arrangement.forms.requisition_forms import (
+    CancelServiceRequisitionForm,
+    RequisitionPersonForm,
+    ResetRequisitionForm,
+)
+from webook.arrangement.models import Event, Location, LooseServiceRequisition, Person, Room, ServiceRequisition
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
-from django.http import HttpResponseBadRequest, Http404
 
 
 def get_section_manifest():

@@ -15,7 +15,7 @@ from django.views.generic import (
 
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
 from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import CreateSerieForm, SerieManifestForm
-from webook.arrangement.forms.upload_files_form import UploadFilesForm
+from webook.arrangement.forms.file_forms import UploadFilesForm
 from webook.arrangement.models import (
     Arrangement,
     Event,

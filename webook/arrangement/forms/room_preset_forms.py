@@ -1,6 +1,7 @@
 from django import forms
-from webook.arrangement.models import RoomPreset
 from django.forms.widgets import CheckboxSelectMultiple
+
+from webook.arrangement.models import RoomPreset
 
 
 class RoomPresetCreateForm(forms.ModelForm):

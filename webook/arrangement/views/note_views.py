@@ -13,7 +13,7 @@ from django.views.generic import CreateView, DetailView, ListView, RedirectView,
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import DeleteView, FormView
 
-from webook.arrangement.forms.post_note_form import CreateNoteForm
+from webook.arrangement.forms.note_forms import CreateNoteForm
 from webook.arrangement.models import Event, Location, Note
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
