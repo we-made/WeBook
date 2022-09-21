@@ -2,6 +2,9 @@
 
 
 <div id="{{dialogId}}" class="{{discriminator}}" style="overflow-x: visible;">
+    <input type="hidden" name="" id="_audienceId">
+    <input type="hidden" name="" id="_arrangementTypeId">
+
     <div class="clearfix">
         <div class="float-start">
             <h4 class="fw-bold">Planlegg nytt arrangement</h4>
@@ -303,7 +306,7 @@
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
                 onValueSet: ( data ) => {
-                    dialog.getElementById('_audienceId') = data.selected[0];
+                    dialog.getElementById('_audienceId').value = data.selected[0];
                 },
                 valueSelectedLabelText: ( selected) => { 
                     let labelText = '';
@@ -324,7 +327,7 @@
                 element: dialog.querySelector('#arrangement_type_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",    
                 onValueSet: ( data ) => {
-                    dialog.getElementById('_arrangementTypeId') = data.selected[0];
+                    dialog.getElementById('_arrangementTypeId').value = data.selected[0];
                 },
                 valueSelectedLabelText: ( selected ) => { 
                     let labelText = '';

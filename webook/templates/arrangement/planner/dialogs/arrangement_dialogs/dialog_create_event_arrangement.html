@@ -2,6 +2,10 @@
 
 
 <div id="{{dialogId}}" class="{{discriminator}}" >
+
+    <input type="hidden" id="_backingAudienceId" />
+    <input type="hidden" id="_backingArrangementTypeId" />
+
     <div class="clearfix">
         <div class="float-start">
             <h6>
@@ -235,6 +239,7 @@
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
+                initialSelected: dialog.getElementById('_backingAudienceId').value ? { id: dialog.getElementById('_backingAudienceId').value } : undefined,
                 valueSelectedLabelText: ( selected ) => {
                     let labelText = '';
 
@@ -254,6 +259,7 @@
             dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#arrangement_type_jstree_select'),
                 treeJsonSrcUrl: '/arrangement/arrangementtype/treelist',
+                initialSelected: dialog.getElementById('_backingArrangementTypeId').value ? { id: dialog.getElementById('_backingArrangementTypeId').value } : undefined,
                 valueSelectedLabelText: ( selected ) => {
                     let labelText = '';
 

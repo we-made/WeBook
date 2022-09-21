@@ -111,13 +111,12 @@ export class ArrangementCreator {
                                     .attr('value', $mainDialog.find('#id_name_en')[0].value);
                                 $thisDialog.find('#serie_expected_visitors')
                                     .attr('value', $mainDialog.find('#id_expected_visitors')[0].value);
-
+                                    
                                 const idOfAudienceSelectedOnMainDialog = $mainDialog.find('#_audienceId').val();
                                 const idOfArrangementTypeSelectedOnMainDialog = $mainDialog.find('#_arrangementTypeId').val();
-                                dialogManager._dialogRepository.get( "newTimePlanDialog" )
-                                    .communicationLane.send("setAudienceFromParent", idOfAudienceSelectedOnMainDialog);
-                                dialogManager._dialogRepository.get( "newTimePlanDialog" )
-                                    .communicationLane.send("setArrangementTypeFromParent", idOfArrangementTypeSelectedOnMainDialog);
+
+                                $thisDialog.find("#_backingAudienceId").val(idOfAudienceSelectedOnMainDialog);
+                                $thisDialog.find("#_backingArrangementTypeId").val(idOfArrangementTypeSelectedOnMainDialog);
 
                                 $thisDialog.find('#id_status').val($mainDialog.find("#id_status")[0].value);
 
@@ -340,6 +339,12 @@ export class ArrangementCreator {
                                         $simpleActivityDialog.find(`#${checkboxElement.value}_dlcheck`)
                                             .prop( "checked", true );
                                     })
+
+                                const idOfAudienceSelectedOnMainDialog = $mainDialog.find('#_audienceId').val();
+                                const idOfArrangementTypeSelectedOnMainDialog = $mainDialog.find('#_arrangementTypeId').val();
+
+                                $simpleActivityDialog.find("#_backingAudienceId").val(idOfAudienceSelectedOnMainDialog);
+                                $simpleActivityDialog.find("#_backingArrangementTypeId").val(idOfArrangementTypeSelectedOnMainDialog);
 
                                 $simpleActivityDialog.find('#event_uuid').val(crypto.randomUUID());
 

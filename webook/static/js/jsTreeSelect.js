@@ -38,6 +38,7 @@ export class JSTreeSelect {
 
         this.onValueSet = onValueSet;
         this.selected = initialSelected;
+        console.log(">>initialSelected", this.selected);
 
         this.invalidFeedbackText = invalidFeedbackText;
 
@@ -59,6 +60,13 @@ export class JSTreeSelect {
      */
     _jsTreeSet() {
         $(this._jsTreeElement).jstree('select_node', this.selected.id);
+
+        let node = $(this._jsTreeElement).jstree(true).get_node(this.selected.id);
+        this.selected.parent = node.parent;
+        this.selected.text = node.text;
+
+        console.log(">>selected", this.selected);
+        console.log(">>node", node);
 
         if (this.selected.parent) {
             this.selected.parent = $(this._jsTreeElement).jstree(true).get_node(this.selected.parent);
@@ -93,7 +101,7 @@ export class JSTreeSelect {
         
         return this.selected.id;
     }
-
+    
     /**
      * Check if a value has been selected
      * @returns True if a value has been selected, False if a value has not been selected

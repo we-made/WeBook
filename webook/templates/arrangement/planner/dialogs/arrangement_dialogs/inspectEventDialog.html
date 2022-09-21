@@ -101,7 +101,34 @@
             <input type="submit" style="display:none;" />
             <div>
                 <div>
-                    <div class="row">
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label for="{{ form.audience.id_for_label }}" class="form-label">
+                                <i class="fas fa-users"></i>&nbsp;
+                                Målgruppe
+                            </label>
+                            <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
+                            
+                            {% if form.audience.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.audience.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <label for="{{ form.arrangement_type.id_for_label }}" class="form-label select-label">
+                                <i class="fas fa-cog"></i>&nbsp;
+                                Arrangementstype
+                            </label>
+                            <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
+                            {% if form.arrangement_type.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.arrangement_type.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
                                 <label class="form-label" for="{{ form.title.id_for_label }}">Tittel på norsk</label>
@@ -539,12 +566,53 @@
 </div>
 
 
-<script>
+<script type="module">
+    import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
+
     new Dialog({
         managerName: '{{managerName}}',
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
+            dialog.data.audienceJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#audience_jstree_select'),
+                initialSelected: { id: '{{ object.audience.id }}', text: '{{ object.audience.name }}', parent: '{{object.audience.parent_id}}' },
+                treeJsonSrcUrl: "/arrangement/audience/tree",
+                valueSelectedLabelText: ( selected) => { 
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+                    
+                    labelText += selected.text;
+
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen målgruppe valgt ennå",
+                selectFirstTimeButtonText: 'Velg målgruppe',
+                changeSelectedValueButtonText: 'Endre målgruppe',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
+            dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#arrangement_type_jstree_select'),
+                initialSelected: { id: '{{ object.arrangement_type.id }}', text: '{{ object.arrangement_type.name }}', parent: '{{object.arrangement_type.parent_id}}' },
+                treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
+                valueSelectedLabelText: ( selected) => { 
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+                    
+                    labelText += selected.text;
+
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
+                selectFirstTimeButtonText: 'Velg arrangementstype',
+                changeSelectedValueButtonText: 'Endre arrangementstype',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
+
             document.addEventListener("eventInspector.roomsUpdated", (e) => {
                 dialog.data.roomsMap = e.detail.context.room_name_map;
                 dialog.setRooms(e.detail.context.rooms);
@@ -736,6 +804,8 @@
                     ticket_code:        dialog.interior.id_ticket_code.value,
                     start:              getDateISOStringFromMdbDateTimePickerInstance(dateTimeStartMdbInstance),
                     end:                getDateISOStringFromMdbDateTimePickerInstance(dateTimeEndMdbInstance),
+                    audience:           dialog.data.audienceJsTreeSelect.getSelectedValue(),
+                    arrangement_type:   dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
                     expected_visitors:  dialog.interior.id_expected_visitors.value,
                     actual_visitors:    dialog.interior.id_actual_visitors.value,
                     arrangement:        '{{object.arrangement.pk}}',
