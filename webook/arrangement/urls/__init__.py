@@ -8,7 +8,6 @@ from .calendar_urls import calendar_urls
 from .confirmation_urls import confirmation_urls
 from .dashboard_urls import dashboard_urls
 from .event_urls import event_urls
-from .insights_urls import insights_urls
 from .location_urls import location_urls
 from .note_urls import note_urls
 from .organization_urls import organization_urls
@@ -23,24 +22,24 @@ from .status_type_urls import status_type_urls
 
 app_name = "arrangement"
 
-urlpatterns = []
-urlpatterns.extend(arrangement_urls)
-urlpatterns.extend(audience_urls)
-urlpatterns.extend(calendar_urls)
-urlpatterns.extend(dashboard_urls)
-urlpatterns.extend(insights_urls)
-urlpatterns.extend(location_urls)
-urlpatterns.extend(organization_urls)
-urlpatterns.extend(organizationtype_urls)
-urlpatterns.extend(person_urls)
-urlpatterns.extend(room_urls)
-urlpatterns.extend(servicetype_urls)
-urlpatterns.extend(planner_urls)
-urlpatterns.extend(note_urls)
-urlpatterns.extend(requisition_urls)
-urlpatterns.extend(confirmation_urls)
-urlpatterns.extend(arrangement_type_urls)
-urlpatterns.extend(room_preset_urls)
-urlpatterns.extend(analysis_urls)
-urlpatterns.extend(event_urls)
-urlpatterns.extend(status_type_urls)
+urlpatterns = [
+    *arrangement_urls,
+    *audience_urls,
+    *calendar_urls,
+    *dashboard_urls,
+    *location_urls,
+    *organization_urls,
+    *organizationtype_urls,
+    *person_urls,
+    *room_urls,
+    *servicetype_urls,
+    *planner_urls,
+    *note_urls,
+    *requisition_urls,
+    *confirmation_urls,
+    *arrangement_type_urls,
+    *room_preset_urls,
+    *analysis_urls,
+    *event_urls,
+    *status_type_urls,
+]

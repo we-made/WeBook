@@ -75,7 +75,6 @@ from .event_views import (
     upload_files_to_event_json_form_view,
     upload_files_to_event_serie_json_form_view,
 )
-from .insights_views import global_timeline_view
 from .location_views import (
     location_create_view,
     location_delete_view,
