@@ -6,7 +6,7 @@ import {
     _NATIVE_ARRANGEMENT
 } from "./commonLib.js";
 import { EventInspector } from "./eventInspector.js";
-import { FilterDialog } from "./filterDialog.js";
+// import { FilterDialog } from "./filterDialog.js";
 
 
 export class PlannerCalendar extends FullCalendarBased {
@@ -118,7 +118,7 @@ export class PlannerCalendar extends FullCalendarBased {
         this.arrangementInspectorUtility = new ArrangementInspector();
         this.eventInspectorUtility = new EventInspector();
 
-        this.filterDialog = new FilterDialog();
+        // this.filterDialog = new FilterDialog();
 
         this._listenToInspectArrangementEvents();
         this._listenToInspectEvent();
@@ -362,7 +362,7 @@ export class PlannerCalendar extends FullCalendarBased {
                     filterButton: {
                         text: 'Filtrering',
                         click: () => {
-                            this.filterDialog.openFilterDialog();
+                            // this.filterDialog.openFilterDialog();
                         }
                     },
                 },
