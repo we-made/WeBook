@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.widgets import CheckboxSelectMultiple
 
-from webook.arrangement.models import Arrangement, ArrangementType, Audience, Event, RoomPreset, StatusType
+from webook.arrangement.models import Arrangement, ArrangementType, Audience, Event, Person, RoomPreset, StatusType
 from webook.screenshow.models import DisplayLayout
 
 
@@ -30,3 +30,7 @@ class PlannerPlanSerieForm(forms.Form):
     )
     meeting_place = forms.CharField()
     meeting_place_en = forms.CharField()
+    responsible = forms.ModelChoiceField(
+        queryset=Person.objects.all(),
+        required=False
+    )

@@ -50,6 +50,8 @@ class SerieManifestForm(forms.Form):
     audience = forms.ModelChoiceField(queryset=Audience.objects.all(), required=False)
     arrangement_type = forms.ModelChoiceField(queryset=ArrangementType.objects.all(), required=False)
 
+    responsible = forms.ModelChoiceField(queryset=Person.objects.all(), required=False)
+
     meeting_place = forms.CharField(max_length=512)
     meeting_place_en = forms.CharField(max_length=512)
 
@@ -100,6 +102,8 @@ class SerieManifestForm(forms.Form):
         plan_manifest.friday = self.cleaned_data["friday"]
         plan_manifest.saturday = self.cleaned_data["saturday"]
         plan_manifest.sunday = self.cleaned_data["sunday"]
+
+        plan_manifest.responsible = self.cleaned_data["responsible"]
 
         plan_manifest.meeting_place = self.cleaned_data["meeting_place"]
         plan_manifest.meeting_place_en = self.cleaned_data["meeting_place_en"]
@@ -170,6 +174,7 @@ class CreateSerieForm(SerieManifestForm):
             event.arrangement_type = manifest.arrangement_type
             event.meeting_place = manifest.meeting_place
             event.meeting_place_en = manifest.meeting_place_en
+            event.responsible = manifest.responsible
 
             event.before_buffer_start = manifest.before_buffer_start
             event.before_buffer_end = manifest.before_buffer_end
