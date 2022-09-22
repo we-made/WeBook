@@ -49,7 +49,7 @@ class StatusTypeSectionManifestMixin:
 
 class StatusTypeListView(LoginRequiredMixin, StatusTypeSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     queryset = StatusType.objects.all()
-    template_name = "arrangement/list_view.html"
+    template_name = "arrangement/dialog_list_view.html"
     model = StatusType
     view_meta = ViewMeta.Preset.table(StatusType)
 
@@ -78,7 +78,7 @@ class StatusTypeUpdateView(LoginRequiredMixin, StatusTypeSectionManifestMixin, M
 status_type_update_view = StatusTypeUpdateView.as_view()
 
 
-class StatusTypeDeleteView(LoginRequiredMixin, DeleteView, StatusTypeSectionManifestMixin, DialogView):
+class StatusTypeDeleteView(LoginRequiredMixin, StatusTypeSectionManifestMixin, DialogView, ArchiveView):
     model = StatusType
     view_meta = ViewMeta.Preset.delete(StatusType)
     template_name = "arrangement/dialog_delete_view.html"
