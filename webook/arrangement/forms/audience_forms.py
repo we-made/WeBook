@@ -12,6 +12,7 @@ class BaseAudienceForm(forms.ModelForm):
     parent = forms.ModelChoiceField(queryset=Audience.objects.filter(parent__isnull=True),
                                     widget=forms.Select(attrs={"class": "form-control"}),
                                     required=False)
+    name_en = forms.CharField(max_length=255, required=False)
 
     class Meta:
         model = Audience
