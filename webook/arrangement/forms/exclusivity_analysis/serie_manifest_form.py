@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.utils.timezone import make_aware
 from pytz import timezone
 
-from webook.arrangement.models import Arrangement, Event, EventSerie, Person, PlanManifest, Room, StatusType
+from webook.arrangement.models import Arrangement, ArrangementType, Audience, Event, EventSerie, Person, PlanManifest, Room, StatusType
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
@@ -37,6 +37,8 @@ class SerieManifestForm(forms.Form):
     projectionDistanceInMonths = forms.IntegerField(required=False)
 
     status = forms.ModelChoiceField(queryset=StatusType.objects.all(), required=False)
+    audience = forms.ModelChoiceField(queryset=Audience.objects.all(), required=False)
+    arrangement_type = forms.ModelChoiceField(queryset=ArrangementType.objects.all(), required=False)
 
     monday = forms.BooleanField(required=False)
     tuesday = forms.BooleanField(required=False)
@@ -92,6 +94,8 @@ class SerieManifestForm(forms.Form):
         plan_manifest.people.set(self.cleaned_data["people"])
         plan_manifest.display_layouts.set(self.cleaned_data["display_layouts"])
         plan_manifest.status = self.cleaned_data["status"]
+        plan_manifest.audience = self.cleaned_data["audience"]
+        plan_manifest.arrangement_type = self.cleaned_data["arrangement_type"]
 
         plan_manifest.save()
 
@@ -144,7 +148,10 @@ class CreateSerieForm(SerieManifestForm):
             event.serie = serie
             event.start = ev.start
             event.end = ev.end
+
             event.status = manifest.status
+            event.audience = manifest.audience
+            event.arrangement_type = manifest.arrangement_type
 
             event.before_buffer_start = manifest.before_buffer_start
             event.before_buffer_end = manifest.before_buffer_end

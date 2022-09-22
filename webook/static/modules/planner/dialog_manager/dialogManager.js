@@ -314,6 +314,7 @@ class DialogEventCommunicationLane {
      * @param {*} payload Payload
      */
     send(typeName, payload) {
+        console.log(">> send " + typeName, { dialogElement: this.dialogElement, payload:payload });
         this.dialogElement.dispatchEvent(new CustomEvent("laneCommunication", { "detail": { name: typeName, payload: payload } }));
     }
 }
