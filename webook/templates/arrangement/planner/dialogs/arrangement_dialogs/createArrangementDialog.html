@@ -109,25 +109,26 @@
                             {{ form.location.errors }}
                         </div>
                     {% endif %}
-
-                    <div class="mb-2">
-                        <label>
-                            <i class="fas fa-star"></i>&nbsp;
-                            Hovedplanlegger
-                        </label>
-                        {{ form.responsible }}
-                    </div>
-                    {% if form.responsible.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.responsible.errors }}
-                        </div>
-                    {% endif %}
                 </fieldset>
             </form>
         </div>
         <div id="step-2">
             <form id="arrangementDetailsForm">
                 <input type="submit" value="" style="display: none;">
+
+                <div class="mb-2">
+                    <label>
+                        <i class="fas fa-star"></i>&nbsp;
+                        Hovedplanlegger
+                    </label>
+                    {{ form.responsible }}
+                </div>
+                {% if form.responsible.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        {{ form.responsible.errors }}
+                    </div>
+                {% endif %}
+
                 <div class="mb-2 form-group">
                     <label>
                         <i class="fas fa-receipt"></i>&nbsp;
