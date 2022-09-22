@@ -1,5 +1,5 @@
 {% load static i18n %}
-
+{% load crispy_forms_tags %}
 
 <div id="{{dialogId}}" class="{{discriminator}}" >
 
@@ -198,13 +198,13 @@
             {% endif %}
 
             <div class="form-group mt-2">
-                <label for="{{ form.meeting_place.id_for_label }}">{{ form.meeting_place.label }}</label>
-                {{ form.meeting_place }}
+                <!-- <label for="{{ form.meeting_place.id_for_label }}">{{ form.meeting_place.label }}</label> -->
+                {{ form.meeting_place | as_crispy_field }}
             </div>
 
-            <div class="form-group mt-2">
-                <label for="{{ form.meeting_place_en.id_for_label }}">{{ form.meeting_place_en.label}}</label>
-                {{ form.meeting_place_en }}
+            <div class="form-group mt-2 mb-2">
+                <!-- <label for="{{ form.meeting_place_en.id_for_label }}">{{ form.meeting_place_en.label}}</label> -->
+                {{ form.meeting_place_en | as_crispy_field }}
             </div>
         </div>
     </div>

@@ -1260,6 +1260,9 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     stop_after_x_occurences = models.IntegerField(blank=True, null=True)
     project_x_months_into_future = models.IntegerField(blank=True, null=True)
 
+    meeting_place = models.CharField(max_length=512, blank=True, null=True)
+    meeting_place_en = models.CharField(max_length=512, blank=True, null=True)
+
     # Strategy Specific Fields
     monday = models.BooleanField(default=False, null=True)
     tuesday = models.BooleanField(default=False, null=True)
