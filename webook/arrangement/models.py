@@ -997,6 +997,8 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     articles = models.ManyToManyField(to=Article, verbose_name=_("Articles"))
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
 
+    responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="events_responsible_for", null=True, blank=True)
+
     status = models.ForeignKey(to="StatusType", on_delete=models.RESTRICT, null=True, blank=True, related_name="status_of_events")
 
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
@@ -1262,6 +1264,8 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
 
     meeting_place = models.CharField(max_length=512, blank=True, null=True)
     meeting_place_en = models.CharField(max_length=512, blank=True, null=True)
+
+    responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="planmanifests_responsible_for", null=True, blank=True)
 
     # Strategy Specific Fields
     monday = models.BooleanField(default=False, null=True)

@@ -96,7 +96,6 @@ export class ArrangementCreator {
                             })
                         },
                         onRenderedCallback: (dialogManager, context) => {
-
                             const isCreatingNewTimeplan = context.lastTriggererDetails?.serie_uuid === undefined;
 
                             if (isCreatingNewTimeplan) {
@@ -139,10 +138,6 @@ export class ArrangementCreator {
                                     PopulateCreateSerieDialogFromSerie(serie, $dialogElement);
                                 }
                             }
-                            
-                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
-                                new mdb.Input(formOutline).init();
-                            });
                         },
                         destructure: () => {},
                         onUpdatedCallback: () => {

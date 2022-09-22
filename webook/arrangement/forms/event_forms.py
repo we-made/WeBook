@@ -30,7 +30,8 @@ _ALWAYS_FIELDS = ( "title",
                    "meeting_place",
                    "meeting_place_en",
                    "audience",
-                   "arrangement_type",)
+                   "arrangement_type",
+                   "responsible",)
 
 
 class BaseEventForm(forms.ModelForm):
@@ -69,6 +70,7 @@ class BaseEventForm(forms.ModelForm):
         model = Event
         fields = _ALWAYS_FIELDS
         widgets = { 
+            "responsible": forms.Select(attrs={'class': 'form-control form-control-lg'}),
             "display_layouts": forms.CheckboxSelectMultiple( attrs={'id': 'display_layouts_create_event', 'name': 'display_layouts_create_event'} ), 
             "status": forms.Select(attrs={'class': 'form-control form-control-lg'}),
         }
@@ -83,6 +85,7 @@ class UpdateEventForm(BaseEventForm):
         model = Event
         fields = ( "id", ) + _ALWAYS_FIELDS
         widgets = { 
+            "responsible": forms.Select(attrs={'class': 'form-control form-control-lg'}),
             "display_layouts": forms.CheckboxSelectMultiple( attrs={'id': 'display_layouts_create_event', 'name': 'display_layouts_create_event'} ), 
             "status": forms.Select(attrs={'class': 'form-control form-control-lg'}),
         }

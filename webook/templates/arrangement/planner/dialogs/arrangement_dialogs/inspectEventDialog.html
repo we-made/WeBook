@@ -102,7 +102,15 @@
             <div>
                 <div>
                     <div class="row mb-2">
-                        <div class="col-6">
+                        <div class="col-12">
+                            <label for="{{form.responsible.id_for_label}}" class="form-label">
+                                <i class="fas fa-star"></i>&nbsp;
+                                Ansvarlig
+                            </label>
+                            {{form.responsible}}
+                        </div>
+
+                        <div class="col-6  mt-3">
                             <label for="{{ form.audience.id_for_label }}" class="form-label">
                                 <i class="fas fa-users"></i>&nbsp;
                                 Målgruppe
@@ -115,7 +123,7 @@
                             </div>
                             {% endif %}
                         </div>
-                        <div class="col-6">
+                        <div class="col-6  mt-3">
                             <label for="{{ form.arrangement_type.id_for_label }}" class="form-label select-label">
                                 <i class="fas fa-cog"></i>&nbsp;
                                 Arrangementstype
@@ -129,7 +137,7 @@
                         </div>
 
 
-                        <div class="col-lg-6 col-sm-12">
+                        <div class="col-lg-6 col-sm-12 mt-3">
                             <div class="form-group">
                                 <label class="form-label" for="{{ form.title.id_for_label }}">Tittel på norsk</label>
                                 <input type="text"
@@ -146,7 +154,7 @@
                                 </div>  
                             {% endif %}
                         </div>
-                        <div class="col-lg-6 col-sm-12">
+                        <div class="col-lg-6 col-sm-12 mt-3">
                             <div class="">
                                 <div class="form-group">
                                     <label class="form-label" for="{{ form.title_en.id_for_label }}">Tittel på engelsk</label>
@@ -228,7 +236,10 @@
                         <div class="row mt-2">
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+                                    <label for="{{ form.status.id_for_label }}" class="form-label">
+                                        <i class="fas fa-cog"></i>&nbsp;
+                                        {{ form.status.label }}
+                                    </label>
                                     {{form.status}}
                                 </div>
                             </div>
@@ -539,7 +550,6 @@
                         Åpne hovedaktivitet
                     </button>
                 </div>
-
             </div>
             {% endif %}
         </div>
@@ -818,6 +828,7 @@
                     before_buffer_end:  dialog.interior.buffer_before_end != undefined ? dialog.interior.buffer_before_end.value : "",
                     after_buffer_start: dialog.interior.buffer_after_start != undefined ? dialog.interior.buffer_after_start.value : "",
                     after_buffer_end: dialog.interior.buffer_after_end != undefined ? dialog.interior.buffer_after_end.value : "",
+                    responsible:        dialog.interior.id_responsible.value,
                 };
 
                 dialog.raiseSubmitEvent({
