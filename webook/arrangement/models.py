@@ -1265,6 +1265,8 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     meeting_place = models.CharField(max_length=512, blank=True, null=True)
     meeting_place_en = models.CharField(max_length=512, blank=True, null=True)
 
+    responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="events_responsible_for", null=True, blank=True)
+
     # Strategy Specific Fields
     monday = models.BooleanField(default=False, null=True)
     tuesday = models.BooleanField(default=False, null=True)

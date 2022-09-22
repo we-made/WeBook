@@ -215,6 +215,11 @@
         </div>
 
         <div id="step-3">
+            <div class="form-group mb-2">
+                <label for="{{form.responsible.id_for_label}}">{{form.responsible.label}}</label>
+                {{ form.responsible }}
+            </div>
+
             <button class="btn wb-btn-secondary border"
                     d-trigger="triggerAddPeople">
                 Velg personer
@@ -818,6 +823,7 @@
                     arrangement_type: dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
                     meeting_place: dialog.interior.id_meeting_place.value,
                     meeting_place_en: dialog.interior.id_meeting_place_en.value,
+                    responsible: dialog.interior.id_responsible.value,
                 }
 
                 let pattern = {}
