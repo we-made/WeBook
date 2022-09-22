@@ -1,4 +1,5 @@
 {% load static i18n %}
+{% load crispy_forms_tags %}
 
 <div id="{{dialogId}}"
     class="{{discriminator}}">
@@ -249,7 +250,17 @@
                     <div class="mt-2">
                         <label class="d-block form-label">{% trans "Vises på skjerm:" %}</label>
                         {{form.display_layouts}}
-                    </div>  
+                    </div> 
+                    
+                    <div class="row">
+                        <div class="col-6">
+                            {{form.meeting_place|as_crispy_field}}
+                        </div>
+
+                        <div class="col-6">
+                            {{form.meeting_place_en|as_crispy_field}}
+                        </div>
+                    </div>
     
                     <div class="alert col-auto mb-4 mt-2 wb-bg-secondary">
                         <div class="clearfix">
@@ -829,6 +840,8 @@
                     after_buffer_start: dialog.interior.buffer_after_start != undefined ? dialog.interior.buffer_after_start.value : "",
                     after_buffer_end: dialog.interior.buffer_after_end != undefined ? dialog.interior.buffer_after_end.value : "",
                     responsible:        dialog.interior.id_responsible.value,
+                    meeting_place:      dialog.interior.id_meeting_place.value,
+                    meeting_place_en: dialog.interior.id_meeting_place_en.value,
                 };
 
                 dialog.raiseSubmitEvent({
