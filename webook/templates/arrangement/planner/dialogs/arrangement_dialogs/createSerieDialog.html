@@ -1,4 +1,6 @@
 {% load static i18n %}
+{% load crispy_forms_tags %}
+
 
 <div id="{{dialogId}}" title="Ny tidsplan" class="{{discriminator}}">
 
@@ -281,6 +283,16 @@
                 <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
                 <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label></li>
             {% endfor %}
+
+            <div class="form-group mt-2">
+                <!-- <label for="{{ form.meeting_place.id_for_label }}">{{ form.meeting_place.label }}</label> -->
+                {{ form.meeting_place | as_crispy_field }}
+            </div>
+
+            <div class="form-group mt-2 mb-2">
+                <!-- <label for="{{ form.meeting_place_en.id_for_label }}">{{ form.meeting_place_en.label}}</label> -->
+                {{ form.meeting_place_en | as_crispy_field }}
+            </div>
         </div>
     </div>
 
@@ -804,6 +816,8 @@
                     status: dialog.interior.id_status.value,
                     audience: dialog.data.audienceJsTreeSelect.getSelectedValue(),
                     arrangement_type: dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
+                    meeting_place: dialog.interior.id_meeting_place.value,
+                    meeting_place_en: dialog.interior.id_meeting_place_en.value,
                 }
 
                 let pattern = {}

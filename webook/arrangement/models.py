@@ -1004,6 +1004,8 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
     display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
     display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
 
+    meeting_place = models.CharField(verbose_name=_("Meeting Place"), max_length=255, blank=True, null=True)
+    meeting_place_en = models.CharField(verbose_name=_("Meeting Place (English)"), max_length=255, blank=True, null=True)
     audience = models.ForeignKey(to=Audience, on_delete=models.RESTRICT, null=True, blank=True)
     arrangement_type = models.ForeignKey(to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True)
 
@@ -1257,6 +1259,9 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     stop_within = models.DateField(blank=True, null=True)
     stop_after_x_occurences = models.IntegerField(blank=True, null=True)
     project_x_months_into_future = models.IntegerField(blank=True, null=True)
+
+    meeting_place = models.CharField(max_length=512, blank=True, null=True)
+    meeting_place_en = models.CharField(max_length=512, blank=True, null=True)
 
     # Strategy Specific Fields
     monday = models.BooleanField(default=False, null=True)

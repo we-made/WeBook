@@ -6,7 +6,17 @@ from django.http import JsonResponse
 from django.utils.timezone import make_aware
 from pytz import timezone
 
-from webook.arrangement.models import Arrangement, ArrangementType, Audience, Event, EventSerie, Person, PlanManifest, Room, StatusType
+from webook.arrangement.models import (
+    Arrangement,
+    ArrangementType,
+    Audience,
+    Event,
+    EventSerie,
+    Person,
+    PlanManifest,
+    Room,
+    StatusType,
+)
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
@@ -39,6 +49,9 @@ class SerieManifestForm(forms.Form):
     status = forms.ModelChoiceField(queryset=StatusType.objects.all(), required=False)
     audience = forms.ModelChoiceField(queryset=Audience.objects.all(), required=False)
     arrangement_type = forms.ModelChoiceField(queryset=ArrangementType.objects.all(), required=False)
+
+    meeting_place = forms.CharField(max_length=512)
+    meeting_place_en = forms.CharField(max_length=512)
 
     monday = forms.BooleanField(required=False)
     tuesday = forms.BooleanField(required=False)
@@ -87,6 +100,9 @@ class SerieManifestForm(forms.Form):
         plan_manifest.friday = self.cleaned_data["friday"]
         plan_manifest.saturday = self.cleaned_data["saturday"]
         plan_manifest.sunday = self.cleaned_data["sunday"]
+
+        plan_manifest.meeting_place = self.cleaned_data["meeting_place"]
+        plan_manifest.meeting_place_en = self.cleaned_data["meeting_place_en"]
         
         plan_manifest.save()
 
@@ -152,6 +168,8 @@ class CreateSerieForm(SerieManifestForm):
             event.status = manifest.status
             event.audience = manifest.audience
             event.arrangement_type = manifest.arrangement_type
+            event.meeting_place = manifest.meeting_place
+            event.meeting_place_en = manifest.meeting_place_en
 
             event.before_buffer_start = manifest.before_buffer_start
             event.before_buffer_end = manifest.before_buffer_end

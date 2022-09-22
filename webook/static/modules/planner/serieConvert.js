@@ -15,6 +15,8 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}status`, serie.time.status);
     formData.append(`${keyPrefix}audience`, serie.time.audience);
     formData.append(`${keyPrefix}arrangement_type`, serie.time.arrangement_type);
+    formData.append(`${keyPrefix}meeting_place`, serie.time.meeting_place);
+    formData.append(`${keyPrefix}meeting_place_en`, serie.time.meeting_place_en);
 
     appendArrayToFormData(serie.rooms, formData, `${keyPrefix}rooms`);
     appendArrayToFormData(serie.people, formData, `${keyPrefix}people`);

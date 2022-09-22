@@ -60,7 +60,6 @@ from .confirmation_views import (
     thanks_after_response_view,
     view_confirmation_request_view,
 )
-from .dashboard_views import dashboard_view
 from .event_views import (
     calculate_event_serie_preview_view,
     calculate_event_serie_view,
@@ -75,7 +74,6 @@ from .event_views import (
     upload_files_to_event_json_form_view,
     upload_files_to_event_serie_json_form_view,
 )
-from .insights_views import global_timeline_view
 from .location_views import (
     location_create_view,
     location_delete_view,

@@ -1,38 +1,40 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import query
-from django.http import HttpResponseRedirect
-from django.http.request import HttpRequest
+import json
+
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import exceptions, serializers
+from django.db.models import query
+from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
+from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.views import View
+from django.views.decorators.http import require_http_methods
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic.edit import DeleteView, FormView
+
+from webook.arrangement.forms.ordering_forms import LooselyOrderServiceForm, OrderServiceForm
+from webook.arrangement.forms.requisition_forms import (
+    CancelServiceRequisitionForm,
+    RequisitionPersonForm,
+    ResetRequisitionForm,
+)
+from webook.arrangement.forms.room_preset_forms import RoomPresetCreateForm
+from webook.arrangement.models import (
+    Event,
+    Location,
+    LooseServiceRequisition,
+    Person,
+    Room,
+    RoomPreset,
+    ServiceRequisition,
+)
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from django.core import serializers, exceptions
-from django.views import View
-from django.views.generic.edit import FormView
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-    TemplateView
-)
-from django.views.decorators.http import require_http_methods
-import json
-from django.views.generic.edit import DeleteView
-from webook.arrangement.forms.cancel_service_requisition_form import CancelServiceRequisitionForm
-from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
-from webook.arrangement.forms.requisition_person_form import RequisitionPersonForm
-from webook.arrangement.forms.order_service_form import OrderServiceForm
-from webook.arrangement.forms.reset_service_requisition_form import ResetRequisitionForm
-from webook.arrangement.forms.room_presets.room_preset_create_form import RoomPresetCreateForm
-from webook.arrangement.models import Event, Location, Person, Room, LooseServiceRequisition, RoomPreset, ServiceRequisition
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
-from django.http import HttpResponseBadRequest, Http404
 
 
 def get_section_manifest():

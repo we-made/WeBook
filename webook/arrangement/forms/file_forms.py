@@ -1,4 +1,5 @@
 from typing import List, Type
+
 from django import forms
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
@@ -29,3 +30,13 @@ class UploadFilesForm(forms.Form):
             f_rel.uploader = uploader
             f_rel.file = file
             f_rel.save()        
+
+
+class UploadFilesToArrangementForm(forms.Form):
+    arrangement_slug = forms.SlugField()
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
+
+class UploadFilesToEventSerieForm(forms.Form):
+    event_serie_pk = forms.SlugField()
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))

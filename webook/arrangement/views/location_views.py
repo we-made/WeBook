@@ -1,26 +1,21 @@
+import json
 from typing import Any, Dict
+
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-)
+from django.http.response import HttpResponse
 from django.urls import reverse, reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
+from django.views.generic.edit import DeleteView
+
+from webook.arrangement.models import Location
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from django.http.response import HttpResponse
-from django.views.generic.edit import DeleteView
-from webook.arrangement.models import Location
-from webook.utils.meta_utils.meta_mixin import MetaMixin
-import json
-
-from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from webook.utils.json_serial import json_serial
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
+from webook.utils.meta_utils.meta_mixin import MetaMixin
+from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 
 
 def get_section_manifest():
@@ -128,13 +123,6 @@ class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
         )
 
 location_delete_view = LocationDeleteView.as_view()
-
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    raise TypeError ("Type %s not serializable" % type(obj))
 
 
 class LocationsCalendarResourcesListView (LoginRequiredMixin, ListView):

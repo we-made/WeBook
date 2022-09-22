@@ -28,3 +28,5 @@ class PlannerPlanSerieForm(forms.Form):
         queryset=DisplayLayout.objects.all(),
         widget=CheckboxSelectMultiple
     )
+    meeting_place = forms.CharField()
+    meeting_place_en = forms.CharField()

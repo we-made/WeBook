@@ -23,22 +23,22 @@ from django.views.generic.edit import DeleteView, FormView
 
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.facilities.calendar import analysis_strategies
-from webook.arrangement.forms.add_planners_form import AddPlannersForm
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
-from webook.arrangement.forms.loosely_order_service_form import LooselyOrderServiceForm
-from webook.arrangement.forms.order_person_for_serie_form import OrderPersonForSerieForm
-from webook.arrangement.forms.order_person_form import OrderPersonForEventForm
-from webook.arrangement.forms.order_room_for_serie_form import OrderRoomForSerieForm
-from webook.arrangement.forms.order_room_form import OrderRoomForEventForm
+from webook.arrangement.forms.file_forms import UploadFilesToArrangementForm, UploadFilesToEventSerieForm
+from webook.arrangement.forms.note_forms import CreateNoteForm, UpdateNoteForm
+from webook.arrangement.forms.ordering_forms import (
+    LooselyOrderServiceForm,
+    OrderPersonForEventForm,
+    OrderPersonForSerieForm,
+    OrderRoomForEventForm,
+    OrderRoomForSerieForm,
+    RemovePersonFromEventForm,
+    RemoveRoomFromEventForm,
+)
 from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
 from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
 from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
-from webook.arrangement.forms.post_note_form import CreateNoteForm, UpdateNoteForm
-from webook.arrangement.forms.remove_person_from_event_form import RemovePersonFromEventForm
-from webook.arrangement.forms.remove_planners_form import RemovePlannersForm
-from webook.arrangement.forms.remove_room_from_event_form import RemoveRoomFromEventForm
-from webook.arrangement.forms.upload_files_to_arrangement_form import UploadFilesToArrangementForm
-from webook.arrangement.forms.upload_files_to_event_serie_dialog import UploadFilesToEventSerieForm
+from webook.arrangement.forms.planner_forms import AddPlannersForm, RemovePlannersForm
 from webook.arrangement.models import (
     Arrangement,
     ArrangementFile,

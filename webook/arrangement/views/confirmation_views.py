@@ -1,22 +1,16 @@
 from pipes import Template
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-    TemplateView
-)
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
 from django.views.generic.edit import FormView
-from webook.arrangement.forms.deny_confirmation_request_form import DenyConfirmationRequestForm
-from webook.arrangement.models import ConfirmationReceipt
+
 from webook.arrangement.facilities.confirmation_request import confirmation_request_facility
-from django.http import HttpResponseNotFound
-from django.http import HttpResponse, HttpResponseBadRequest
+from webook.arrangement.forms.requisition_forms import DenyConfirmationRequestForm
+from webook.arrangement.models import ConfirmationReceipt
 
 
 def validate_token_and_its_state(token: str):
