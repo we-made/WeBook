@@ -30,7 +30,8 @@ _ALWAYS_FIELDS = ( "title",
                    "meeting_place",
                    "meeting_place_en",
                    "audience",
-                   "arrangement_type",)
+                   "arrangement_type",
+                   "responsible",)
 
 
 class BaseEventForm(forms.ModelForm):
