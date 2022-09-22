@@ -30,7 +30,9 @@ class PlannerPlanSerieForm(forms.Form):
     )
     meeting_place = forms.CharField()
     meeting_place_en = forms.CharField()
+
     responsible = forms.ModelChoiceField(
         queryset=Person.objects.all(),
-        required=False
+        required=False,
+        widget=forms.Select(attrs={"class": "form-control form-control-lg"}),
     )

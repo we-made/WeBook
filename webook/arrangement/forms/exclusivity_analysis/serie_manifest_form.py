@@ -52,8 +52,8 @@ class SerieManifestForm(forms.Form):
 
     responsible = forms.ModelChoiceField(queryset=Person.objects.all(), required=False)
 
-    meeting_place = forms.CharField(max_length=512)
-    meeting_place_en = forms.CharField(max_length=512)
+    meeting_place = forms.CharField(max_length=512, required=False)
+    meeting_place_en = forms.CharField(max_length=512, required=False)
 
     monday = forms.BooleanField(required=False)
     tuesday = forms.BooleanField(required=False)
@@ -120,6 +120,11 @@ class SerieManifestForm(forms.Form):
         plan_manifest.save()
 
         return plan_manifest
+
+    class Meta:
+        widgets = {
+            "responsible": forms.Select(attrs={'class': 'form-control form-control-lg'}),
+        }
 
 
 class CreateSerieForm(SerieManifestForm):
