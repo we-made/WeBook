@@ -168,6 +168,8 @@ class CreateSerieForm(SerieManifestForm):
             event.status = manifest.status
             event.audience = manifest.audience
             event.arrangement_type = manifest.arrangement_type
+            event.meeting_place = manifest.meeting_place
+            event.meeting_place_en = manifest.meeting_place_en
 
             event.before_buffer_start = manifest.before_buffer_start
             event.before_buffer_end = manifest.before_buffer_end

@@ -1,4 +1,6 @@
 {% load static i18n %}
+{% load crispy_forms_tags %}
+
 
 <div id="{{dialogId}}" title="Ny tidsplan" class="{{discriminator}}">
 
@@ -814,6 +816,8 @@
                     status: dialog.interior.id_status.value,
                     audience: dialog.data.audienceJsTreeSelect.getSelectedValue(),
                     arrangement_type: dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
+                    meeting_place: dialog.interior.id_meeting_place.value,
+                    meeting_place_en: dialog.interior.id_meeting_place_en.value,
                 }
 
                 let pattern = {}
