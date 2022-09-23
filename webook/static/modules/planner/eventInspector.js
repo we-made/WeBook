@@ -65,9 +65,10 @@ export class EventInspector {
                             this.dialogManager.closeDialog("orderPersonDialog");
                         },
                         onSubmit: (context, details) => {
-                            let people_ids = details.formData.get("people_ids");
-                            context.people = people_ids;
-                            context.people_name_map = details.people_name_map;
+                            context.people = details.selectedBundle.allSelectedEntityIds.map(x => x.id).join(",");
+                            context.people_name_map = new Map(
+                                details.selectedBundle.allSelectedEntityIds.map(x => [x.id, x.text])
+                            );
                             
                             document.dispatchEvent(new CustomEvent(
                                 "eventInspector.peopleUpdated",
@@ -103,8 +104,10 @@ export class EventInspector {
                             this.dialogManager.closeDialog("orderRoomDialog"); 
                         },
                         onSubmit: (context, details) => { 
-                            context.rooms = details.formData.get("room_ids");
-                            context.room_name_map = details.room_name_map;
+                            context.rooms = details.selectedBundle.allSelectedEntityIds.map(x => x.id).join(",");
+                            context.room_name_map = new Map(
+                                details.selectedBundle.allSelectedEntityIds.map(x => [x.id, x.text])
+                            );
                             
                             document.dispatchEvent(new CustomEvent("eventInspector.roomsUpdated", { detail: { context: context } }))
                         }
