@@ -17,7 +17,7 @@ class DialogPresetSelectManager extends DialogPluginBase {
         const checkboxPresetMap = new Map();
         Array.from(this.presets.values()).forEach((preset) => {
             preset.ids.forEach((id) => {
-                checkboxPresetMap.has(id) ? checkboxPresetMap.get(id).append(id) : checkboxPresetMap.set(id, [ preset.key ]);
+                checkboxPresetMap.has(id) ? checkboxPresetMap.get(id).push(id) : checkboxPresetMap.set(id, [ preset.key ]);
             });
         });
 
