@@ -114,6 +114,9 @@ export class ArrangementCreator {
                                 const idOfAudienceSelectedOnMainDialog = $mainDialog.find('#_audienceId').val();
                                 const idOfArrangementTypeSelectedOnMainDialog = $mainDialog.find('#_arrangementTypeId').val();
 
+                                $thisDialog.find('#id_meeting_place').val($mainDialog.find('#id_meeting_place').val());
+                                $thisDialog.find('#id_meeting_place_en').val($mainDialog.find('#id_meeting_place_en').val());
+
                                 $thisDialog.find("#_backingAudienceId").val(idOfAudienceSelectedOnMainDialog);
                                 $thisDialog.find("#_backingArrangementTypeId").val(idOfArrangementTypeSelectedOnMainDialog);
 
@@ -328,6 +331,9 @@ export class ArrangementCreator {
                                 $simpleActivityDialog.find('#title_en').attr('value',            $mainDialog.find('#id_name_en').val() );
                                 $simpleActivityDialog.find('#expected_visitors').attr('value',   $mainDialog.find('#id_expected_visitors').val() );
                                 $simpleActivityDialog.find('#id_status').val($mainDialog.find("#id_status")[0].value);
+
+                                $simpleActivityDialog.find('#id_meeting_place').val($mainDialog.find('#id_meeting_place').val());
+                                $simpleActivityDialog.find('#id_meeting_place_en').val($mainDialog.find('#id_meeting_place_en').val());
 
                                 $mainDialog[0].querySelectorAll("input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
