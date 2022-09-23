@@ -116,6 +116,7 @@ export class ArrangementCreator {
 
                                 $thisDialog.find('#id_meeting_place').val($mainDialog.find('#id_meeting_place').val());
                                 $thisDialog.find('#id_meeting_place_en').val($mainDialog.find('#id_meeting_place_en').val());
+                                $thisDialog.find('#id_responsible').val($mainDialog.find('#id_responsible').val());
 
                                 $thisDialog.find("#_backingAudienceId").val(idOfAudienceSelectedOnMainDialog);
                                 $thisDialog.find("#_backingArrangementTypeId").val(idOfArrangementTypeSelectedOnMainDialog);
@@ -334,6 +335,7 @@ export class ArrangementCreator {
 
                                 $simpleActivityDialog.find('#id_meeting_place').val($mainDialog.find('#id_meeting_place').val());
                                 $simpleActivityDialog.find('#id_meeting_place_en').val($mainDialog.find('#id_meeting_place_en').val());
+                                $simpleActivityDialog.find('#id_responsible').val($mainDialog.find('#id_responsible').val());
 
                                 $mainDialog[0].querySelectorAll("input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
