@@ -9,13 +9,11 @@
 
         <div class="form-group">
             <div>
-
                 <div class="row">
                     <div class="col-lg-6 col-sm-12">
                         <label class="d-block">
                             {% trans "Name" %}
                             <i class="fas fa-asterisk text-warning float-end"></i>
-
                         </label>
                         <input type="text" class="form-control form-control-lg"
                             id="{{ form.name.id_for_label }}"
@@ -41,16 +39,12 @@
                           {% endfor %}
                       </select>
                       <label class="form-label select-label">Selected Screens</label>
-
                     </div>
-
                 </div>
                 <div class="row">
-
                     <div class="col-lg-6 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "Description" %}
-
                         </label>
                         <input type="text" class="form-control form-control-lg"
                             id="{{ form.description.id_for_label }}"
@@ -74,17 +68,13 @@
                           {% endfor %}
                       </select>
                       <label class="form-label select-label">Selected Groups</label>
-
                     </div>
-
                 </div>
+                
                <div class="row">
-
-
                   <div class="col-lg-4 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "Quantity" %}
-
                         </label>
                         <input type="number" class="form-control form-control-lg"
                             id="{{ form.items_shown.id_for_label }}"
@@ -92,34 +82,26 @@
                             value="{{ form.items_shown.value|default:10 }}"
                             placeholder="{% trans 'Number of items on screen' %}" />
                     </div>
-
-
                 </div>
-              <div class="row">
 
-
-                  <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "Is Room Based" %}
-
                         </label>
                         <input type="checkbox" class="form-check-input"
                             id="{{ form.is_room_based.id_for_label }}"
                             name="{{ form.is_room_based.name }}"
                             value="{{ form.is_room_based.value }}"
                             placeholder="{% trans 'Is Room Based' %}"
-                             {% if form.is_room_based.value %}
+                                {% if form.is_room_based.value %}
                                 checked
                             {% endif %}
                         />
-
-
                     </div>
-
-                  <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
+                    <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "All Events" %}
-
                         </label>
                         <input type="checkbox" class="form-check-input"
                             id="{{ form.all_events.id_for_label }}"
@@ -129,14 +111,11 @@
                             {% if form.all_events.value %}
                                 checked
                             {% endif %}
-
                         />
                     </div>
-
-                 <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
+                    <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "Enabled" %}
-
                         </label>
                         <input type="checkbox" class="form-check-input"
                             id="{{ form.is_active.id_for_label }}"
@@ -148,11 +127,9 @@
                             {% endif %}
                         />
                     </div>
-
                 </div>
             </div>
         </div>
-
 
         <div class="mt-3">
             <button type="reset" class="btn btn-lg btn-warning">
@@ -169,7 +146,6 @@
                     {% trans "Cancel" %}
                 </a>
             </div>
-
         </div>
     </form>
 {% endblock %}
