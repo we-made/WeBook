@@ -43,7 +43,7 @@
                         <label class="form-label select-label">Selected Screens</label>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row mt-4">
                     <div class="col-lg-6 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "Description" %}
@@ -125,6 +125,20 @@
                             value="{{ form.is_active.value }}"
                             placeholder="{% trans 'Active' %}"
                             {% if form.is_active.value %}
+                                checked
+                            {% endif %}
+                        />
+                    </div>
+                    <div class="col-lg-3 col-sm-12 mt-lg-0 mt-sm-2">
+                        <label class="d-block">
+                            {% trans "Triggers display layout text" %}
+                        </label>
+                        <input type="checkbox" class="form-check-input"
+                            id="{{ form.triggers_display_layout_text.id_for_label }}"
+                            name="{{ form.triggers_display_layout_text.name }}"
+                            value="{{ form.triggers_display_layout_text.value }}"
+                            placeholder="{% trans 'Triggers display layout text' %}"
+                            {% if form.triggers_display_layout_text.value %}
                                 checked
                             {% endif %}
                         />
