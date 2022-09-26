@@ -132,6 +132,9 @@
                     <div class="col-lg-3 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "Triggers display layout text" %}
+                            ( <i class='fas fa-question ms-1'
+                               data-mdb-toggle='tooltip'
+                               title="{% trans 'Allow setting the display layout text field when this display layout is selected' %}"></i> &nbsp;)
                         </label>
                         <input type="checkbox" class="form-check-input"
                             id="{{ form.triggers_display_layout_text.id_for_label }}"

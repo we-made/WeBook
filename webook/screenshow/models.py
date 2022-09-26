@@ -20,8 +20,8 @@ class ScreenResource(TimeStampedModel):
     generated_name = models.CharField(verbose_name=_("Generated Name"), max_length=255, blank=False, null=True)
 
     slug = AutoSlugField(populate_from="screen_model", unique=True)
+    
     instance_name_attribute_name = "screen_model"
-
     entity_name_singular = _("Screen Resource")
     entity_name_plural = _("Screen Resources")
 
