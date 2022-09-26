@@ -115,8 +115,8 @@ class DisplayLayoutSetting(TimeStampedModel):
     file_output_path = models.TextField(verbose_name=_("File Output Path"), max_length=255, blank=True)
 
     slug = AutoSlugField(populate_from="name", unique=True)
-    entity_name_singular = _("DisplayLayoutSetting")
-    entity_name_plural = _("DisplayLayoutSettings")
+    entity_name_singular = _("Display Layout Setting")
+    entity_name_plural = _("Display Layout Settings")
 
     def __str__(self):
         """Return display layout name"""
