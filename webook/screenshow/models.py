@@ -21,8 +21,9 @@ class ScreenResource(TimeStampedModel):
 
     slug = AutoSlugField(populate_from="screen_model", unique=True)
     instance_name_attribute_name = "screen_model"
-    entity_name_singular = _("ScreenResource")
-    entity_name_plural = _("ScreenResources")
+
+    entity_name_singular = _("Screen Resource")
+    entity_name_plural = _("Screen Resources")
 
     @property
     def resolved_name(self):
@@ -50,8 +51,8 @@ class ScreenGroup(TimeStampedModel):
 
     slug = AutoSlugField(populate_from="group_name", unique=True)
     instance_name_attribute_name = "group_name"
-    entity_name_singular = _("ScreenGroup")
-    entity_name_plural = _("ScreenGroups")
+    entity_name_singular = _("Screen Group")
+    entity_name_plural = _("Screen Groups")
 
     @property
     def resolved_name(self):
@@ -88,8 +89,8 @@ class DisplayLayout(TimeStampedModel):
     slug = AutoSlugField(populate_from="name", unique=True)
 
     instance_name_attribute_name = "name"
-    entity_name_singular = _("DisplayLayout")
-    entity_name_plural = _("DisplayLayouts")
+    entity_name_singular = _("Display Layout")
+    entity_name_plural = _("Display Layouts")
 
 
     def get_absolute_url(self):
