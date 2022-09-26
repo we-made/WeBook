@@ -95,7 +95,7 @@ class RoomDeleteView(LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, Ar
     model = Room
     slug_field = "slug"
     slug_url_kwarg = "slug"
-    template_name = "arrangement/delete_view.html"
+    template_name = "common/delete_view.html"
     view_meta = ViewMeta.Preset.delete(Room)
 
     def get_success_url(self) -> str:

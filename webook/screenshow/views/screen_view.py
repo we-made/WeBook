@@ -1,17 +1,13 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    DetailView,
-    UpdateView,
-    ListView,
-    CreateView,
-)
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.views.generic.edit import DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
 from webook.screenshow.models import ScreenResource
-from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
+from webook.utils.meta_utils.meta_mixin import MetaMixin
 
 
 def get_section_manifest():
@@ -51,7 +47,7 @@ class ScreenListView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, 
         "items_shown",
         "room"
     ]
-    template_name = "screenshow/list_view.html"
+    template_name = "common/list_view.html"
     model = ScreenResource
     view_meta = ViewMeta.Preset.table(ScreenResource)
 
@@ -115,7 +111,7 @@ class ScreenDeleteView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin
     model = ScreenResource
     slug_field = "slug"
     slug_url_kwarg = "slug"
-    template_name = "screenshow/delete_view.html"
+    template_name = "common/delete_view.html"
     view_meta = ViewMeta.Preset.delete(ScreenResource)
 
     def get_success_url(self) -> str:
