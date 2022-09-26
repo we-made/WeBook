@@ -1,8 +1,8 @@
-from django.db import models
-from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
-from django.utils.translation import gettext_lazy as _
+from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 
 
 class ScreenResource(TimeStampedModel):
@@ -75,6 +75,9 @@ class DisplayLayout(TimeStampedModel):
     is_room_based = models.BooleanField(verbose_name=_("Is Room Based"), default=True)
     all_events = models.BooleanField(verbose_name=_("All Events"), default=True)
     is_active = models.BooleanField(verbose_name=_("Layout Enabled"), default=True)
+
+    """ If this display layout is selected, should the user be presented with the option of Display Layout Text field? """
+    triggers_display_layout_text = models.BooleanField(verbose_name=_("Triggers Display Layout Text Fields"), default=False)
 
     screens = models.ManyToManyField(to=ScreenResource, verbose_name=_("Screen Resources"), related_name="layouts")
     groups = models.ManyToManyField(to=ScreenGroup, verbose_name=_("Screen Groups"), related_name="layouts")
