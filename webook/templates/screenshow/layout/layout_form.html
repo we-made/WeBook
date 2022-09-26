@@ -27,8 +27,9 @@
                    <div class="col-lg-6 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "Screen Resources" %}
-                        <br>
+                            <br>
                         </label>
+
                         <select class="select" multiple data-mdb-placeholder="Screen names" data-mdb-filter="true" name="{{ form.screens.name }}">
                            {% for screen in screen_list.all %}
                              {% if screen in displaylayout.screens.all %}
@@ -37,8 +38,9 @@
                              <option value="{{ screen.id }}">{{ screen.screen_model }}</option>
                              {% endif %}
                           {% endfor %}
-                      </select>
-                      <label class="form-label select-label">Selected Screens</label>
+                        </select>
+                        
+                        <label class="form-label select-label">Selected Screens</label>
                     </div>
                 </div>
                 <div class="row">
@@ -56,7 +58,7 @@
                     <div class="col-lg-6 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "Screen Groups" %}
-                        <br>
+                            <br>
                         </label>
                         <select class="select" multiple data-mdb-placeholder="Screen groups" data-mdb-filter="true" name="{{ form.groups.name }}">
                            {% for group in group_list.all %}
@@ -66,13 +68,13 @@
                              <option value="{{ group.id }}">{{ group.group_name }}</option>
                              {% endif %}
                           {% endfor %}
-                      </select>
-                      <label class="form-label select-label">Selected Groups</label>
+                        </select>
+                        <label class="form-label select-label">Selected Groups</label>
                     </div>
                 </div>
-                
+
                <div class="row">
-                  <div class="col-lg-4 col-sm-12 mt-lg-0 mt-sm-2">
+                    <div class="col-lg-4 col-sm-12 mt-lg-0 mt-sm-2">
                         <label class="d-block">
                             {% trans "Quantity" %}
                         </label>
