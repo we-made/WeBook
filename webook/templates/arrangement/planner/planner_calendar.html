@@ -208,6 +208,12 @@ container-fluid
 <script src="{% static 'modules/planner/dialog_manager/presetSelectManagerPlugin.js' %}"></script>
 <script src="{% static 'modules/planner/dialog_manager/showIfSelectedPlugin.js' %}"></script>
 
+<script>
+    function setNavActive(triggeredBy) {
+        document.querySelectorAll('#sectionNav .nav-link').forEach( (el) => el.classList.remove("active") );
+        triggeredBy.classList.add("active");
+    }
+</script>
 
 <script type="module">
     import { PlannerCalendar } from "{% static 'modules/planner/plannerCalendar.js' %}";

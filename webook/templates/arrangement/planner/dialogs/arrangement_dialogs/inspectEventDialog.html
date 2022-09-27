@@ -328,33 +328,6 @@
                         </span>
                     </div>
                 {% endfor %}
-                <!-- <table class="table w-100" id="inspectEventDialog__filesTable"> -->
-                    <!-- <thead>
-                        <tr>
-                            <th>Filnavn</th>
-                            <th>Lastet opp</th>
-                            <th>Valg</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for file in object.files.all %}
-                            <tr id="fileRow_{{file.pk}}">
-                                <td>{{file.filename}}</td>
-                                <td><i class="text-muted">Av {{file.uploader.full_name}} den {{file.created}}</i></td>
-                                <td>
-                                    <a class="btn wb-btn-secondary rounded-pill" href="/media/{{file.file}}" download>
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                    <a class="btn wb-btn-secondary rounded-pill"
-                                        d-arg-file_id="{{file.pk}}"
-                                        d-trigger="deleteFile">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table> -->
             </div>
         </div>
 
