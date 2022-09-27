@@ -304,7 +304,7 @@
                             {{ form.display_text|as_crispy_field }}
                         </div>
                         <div>
-                            {{ form.display_text|as_crispy_field }}
+                            {{ form.display_text_en|as_crispy_field }}
                         </div>
                     </div>
                 </div>
@@ -842,9 +842,9 @@
                     meeting_place: dialog.interior.id_meeting_place.value,
                     meeting_place_en: dialog.interior.id_meeting_place_en.value,
                     responsible: dialog.interior.id_responsible.value,
-                    display_text: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text : '',
-                    display_text_en: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text_en : '',
-                }
+                    display_text: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
+                    display_text_en: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text_en.value : '',
+                };
 
                 let pattern = {}
                 let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();

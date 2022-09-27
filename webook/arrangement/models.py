@@ -1005,6 +1005,7 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
                                              related_name="events", blank=True)
+                                             
     display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
     display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
 

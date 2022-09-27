@@ -418,7 +418,6 @@
                     stepIn: () => {},
                     stepOut: () => {
                         dialog.$('#step-2').find("input, select").each((index, $el) => {
-                            console.log($el);
                             if ($el.checkValidity() === false) {
                                 dialog.$("#arrangementDetailsForm").find(':submit').click();
                             }
@@ -492,13 +491,13 @@
                 formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
                 formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
                 formData.append("status",           dialog.interior.id_status.value);
-                formData.append("display_text",     dialog.plugins.showIfSelected() ? dialog.interior.display_text.value : '');
-                formData.append("display_text_en",  dialog.plugins.showIfSelected() ? dialog.interior.display_text_en.value : '');
+                formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
+                formData.append("display_text_en",  dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text_en.value : '');
 
                 let displayLayouts = [];
                 dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
                     formData.append("display_layouts", element.value);
-                })
+                })  
 
                 formData.append("csrf_token",       "{{csrf_token}}");
 

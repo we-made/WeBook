@@ -195,9 +195,15 @@ class CreateSerieForm(SerieManifestForm):
             event.after_buffer_start = manifest.after_buffer_start
             event.after_buffer_end = manifest.after_buffer_end
 
+            event.save()
+
             create_events.append(event)
 
-        created_events = Event.objects.bulk_create(create_events)
+        # created_events = Event.objects.bulk_create(create_events)
+        created_events = create_events
+
+        # if (created_events and created_events[0]):
+        #     raise Exception("Issue encountered while bulk saving serie events -- events were not created.")
 
         if (manifest.before_buffer_start and manifest.before_buffer_end 
             and manifest.after_buffer_start and manifest.after_buffer_end):

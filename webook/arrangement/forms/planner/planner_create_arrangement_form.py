@@ -6,8 +6,8 @@ from webook.arrangement.models import Arrangement, RoomPreset
 
 class PlannerCreateArrangementModelForm(forms.ModelForm):
 
-    display_text = forms.CharField()
-    display_text_en = forms.CharField()
+    display_text = forms.CharField(required=False)
+    display_text_en = forms.CharField(required=False)
 
     class Meta:
         model = Arrangement
