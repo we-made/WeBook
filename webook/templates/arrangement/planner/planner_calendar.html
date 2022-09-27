@@ -1,4 +1,4 @@
-{% extends "arrangement/meta_base.html" %}
+{% extends "common/meta_base.html" %}
 {% load static i18n %}
 
 {% block container_classes %}
@@ -206,20 +206,8 @@ container-fluid
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="{% static 'modules/planner/dialog_manager/dialog.js' %}"></script>
 <script src="{% static 'modules/planner/dialog_manager/presetSelectManagerPlugin.js' %}"></script>
+<script src="{% static 'modules/planner/dialog_manager/showIfSelectedPlugin.js' %}"></script>
 
-
-<script>
-    $(document).ready(function () {
-        document.dispatchEvent(new CustomEvent("preferSidebarHidden"));
-
-
-    });
-
-    function setNavActive(triggeredBy) {
-        document.querySelectorAll('#sectionNav .nav-link').forEach( (el) => el.classList.remove("active") );
-        triggeredBy.classList.add("active");
-    }
-</script>
 
 <script type="module">
     import { PlannerCalendar } from "{% static 'modules/planner/plannerCalendar.js' %}";

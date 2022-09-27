@@ -100,6 +100,10 @@ export class ArrangementInspector {
                             this._listenToOrderRoomForSerieBtnClick();
                             this._listenToOrderRoomForSingleEventBtnClick();
                             this._listenToOrderPersonForSingleEventeBtnClick();
+
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
                         onSubmit: async (context, details) => {
                             for (const pair of details.formData){

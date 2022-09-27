@@ -1,25 +1,18 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-)
 from django.urls import reverse, reverse_lazy
-from webook.arrangement.views.generic_views.archive_view import ArchiveView
-from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.views.generic.base import View
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, FormView
+
 from webook.arrangement.forms.register_service_providable_form import RegisterServiceProvidableForm
 from webook.arrangement.models import Organization, ServiceType
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
+from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
-from django.views.generic.edit import FormView
-from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
 
 
 def get_section_manifest():
@@ -45,7 +38,7 @@ class OrganizationSectionManifestMixin:
 
 class OrganizationListView(LoginRequiredMixin, OrganizationSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     queryset = Organization.objects.all()
-    template_name = "arrangement/list_view.html"
+    template_name = "common/list_view.html"
     model = Organization
     view_meta = ViewMeta.Preset.table(Organization)
 
@@ -107,7 +100,7 @@ class OrganizationDeleteView(LoginRequiredMixin, OrganizationSectionManifestMixi
     model = Organization
     slug_field = "slug"
     slug_url_kwarg = "slug"
-    template_name="arrangement/delete_view.html"
+    template_name="common/delete_view.html"
     view_meta = ViewMeta.Preset.delete(Organization)
 
     def get_success_url(self) -> str:

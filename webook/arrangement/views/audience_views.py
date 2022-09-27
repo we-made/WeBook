@@ -48,7 +48,7 @@ class AudienceSectionManifestMixin:
 
 
 class AudienceListView(LoginRequiredMixin, AudienceSectionManifestMixin, GenericTreeListTemplateMixin, MetaMixin, ListView):
-    template_name = "arrangement/tree_list_view.html"
+    template_name = "common/tree_list_view.html"
     model = Audience
     queryset = Audience.objects.all()
     view_meta = ViewMeta.Preset.table(Audience)
@@ -122,7 +122,7 @@ audience_update_view = AudienceUpdateView.as_view()
 class AudienceDeleteView(LoginRequiredMixin, AudienceSectionManifestMixin, MetaMixin, ArchiveView):
     model = Audience
     view_meta = ViewMeta.Preset.delete(Audience)
-    template_name = "arrangement/dialog_delete_view.html"
+    template_name = "common/dialog_delete_view.html"
 
     def get_success_url(self) -> str:
         return reverse(

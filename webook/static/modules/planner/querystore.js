@@ -21,10 +21,6 @@ export class QueryStore {
             formData.append("predecessorSerie", serie.event_serie_pk);
         }
 
-        for (var pair of formData.entries()) {
-            console.log(pair[0]+ ', ' + pair[1]);
-        }
-
         return await fetch('/arrangement/event/create_serie', {
             method: 'POST',
             body: formData,

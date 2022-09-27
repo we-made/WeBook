@@ -238,6 +238,10 @@ TEMPLATES = [
     }
 ]
 
+TEMPLATE_DIRS = (
+    BASE_DIR / "templates", # app-shared project templates (is this anti-pattern?)
+)
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 

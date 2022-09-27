@@ -276,8 +276,8 @@ class Dialog {
         
         this.$interior = this.$dialogElement.find("input, select, textarea");
         this.$interior.each((index, element) => {
-                interior[element.id] = element;
-            });
+            interior[element.id] = element;
+        });
 
         this.interior = interior;
     }
@@ -293,7 +293,7 @@ class DialogPluginBase {
         this.querySelectorAll = this.dialog.querySelectorAll;
 
         for (const prop in args) {
-            this[prop] = args[prop];
+            this[prop] = typeof args[prop] === "function" ? args[prop]( dialog ) : args[prop];
         }
     }
 }
