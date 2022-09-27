@@ -492,6 +492,8 @@
                 formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
                 formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
                 formData.append("status",           dialog.interior.id_status.value);
+                formData.append("display_text",     dialog.plugins.showIfSelected() ? dialog.interior.display_text.value : ''),
+                formData.append("display_text_en",  dialog.plugins.showIfSelected() ? dialog.interior.display_text_en.value : ''),
 
                 let displayLayouts = [];
                 dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {

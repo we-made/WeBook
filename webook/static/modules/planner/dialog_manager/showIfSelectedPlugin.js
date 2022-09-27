@@ -11,20 +11,36 @@ class DialogShowIfSelectedPlugin extends DialogPluginBase {
 
         this.checkboxes = dialog.querySelectorAll(this.checkboxesSelector);
 
-        dialog.$(this.checkboxesSelector).on('click', (event) => {
-            let show = false;
-            for (let i = 0; i < this.checkboxes.length; i++) {
-                const checkbox = this.checkboxes[i];
-                if (checkbox.checked && this.showIfAnyOfTheseValuesMap.get(checkbox.value)) {
-                    show = true;
-                    break;
-                }
-            }
+        this._do(); //respect initial state
 
-            if (show)
-                this.elementToShowOrHide.style = "display: block;";
-            else
-                this.elementToShowOrHide.style = "display: none;";
+        dialog.$(this.checkboxesSelector).on('click change', (event) => {
+            this._do();
         })
+    }
+
+    /**
+     * Returns either true or false indicating if the checkboxes are selected in such a manner
+     * that the given element is visible
+     */
+    isInShowState() {
+        return this._do();
+    }
+
+    _do() {
+        let show = false;
+        for (let i = 0; i < this.checkboxes.length; i++) {
+            const checkbox = this.checkboxes[i];
+            if (checkbox.checked && this.showIfAnyOfTheseValuesMap.get(checkbox.value)) {
+                show = true;
+                break;
+            }
+        }
+
+        if (show)
+            this.elementToShowOrHide.style = "display: block;";
+        else
+            this.elementToShowOrHide.style = "display: none;";
+
+        return show;
     }
 }

@@ -480,6 +480,7 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, DialogV
         context["dialogIcon"] = self.request.GET.get("dialogIcon", "fa-calendar-plus")
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
 
         return context
 
