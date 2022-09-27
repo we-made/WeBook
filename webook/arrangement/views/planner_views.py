@@ -399,6 +399,11 @@ class PlannerEventInspectorDialogView (LoginRequiredMixin, DialogView, UpdateVie
     pk_url_kwarg="pk"
     template_name="arrangement/planner/dialogs/arrangement_dialogs/inspectEventDialog.html"
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
+        return context
+
 planner_event_inspector_dialog_view = PlannerEventInspectorDialogView.as_view()
 
 
@@ -420,6 +425,8 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, DialogView, Up
                 sets[event.sequence_guid] = { "events": [], "title": "", "guid": event.sequence_guid }
             sets[event.sequence_guid]["events"].append(event)
             sets[event.sequence_guid]["title"] = event.title
+
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
 
         context["sets"] = sets.values()
         context["arrangement"] = arrangement_in_focus
