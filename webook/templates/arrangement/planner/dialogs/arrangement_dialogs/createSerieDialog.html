@@ -310,7 +310,6 @@
                 </div>
             </div>
 
-
             <div class="form-group mt-2">
                 {{ form.meeting_place | as_crispy_field }}
             </div>
@@ -843,6 +842,8 @@
                     meeting_place: dialog.interior.id_meeting_place.value,
                     meeting_place_en: dialog.interior.id_meeting_place_en.value,
                     responsible: dialog.interior.id_responsible.value,
+                    display_text: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text : '',
+                    display_text_en: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text_en : '',
                 }
 
                 let pattern = {}
@@ -1100,7 +1101,6 @@
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
                 console.log(">> setAudienceFromParent", payload);
-                // dialog.data.audienceJsTreeSelect.
             } },
             { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
                 console.log(">> setArrangementTypeFromParent", payload);
