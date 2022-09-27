@@ -287,11 +287,29 @@
             </table> 
         </div>
         <div id="step-5">
-            <i class="fas fa-tv"></i>&nbsp; Vises på
-            {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
-                <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
-                <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label></li>
-            {% endfor %}
+            <div class="row">
+                <div class="col-lg-4 col-sm-12">
+                    <i class="fas fa-tv"></i>&nbsp; Vises på
+                    {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
+                        <li> 
+                            <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
+                            <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label>
+                        </li>
+                    {% endfor %}
+                </div>
+
+                <div class="col-lg-8 col-sm-12 mt-sm-2">
+                    <div class="form-group" id="display-layout-text-group" style="display: none;">
+                        <div>
+                            {{ form.display_text|as_crispy_field }}
+                        </div>
+                        <div>
+                            {{ form.display_text|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <div class="form-group mt-2">
                 {{ form.meeting_place | as_crispy_field }}
@@ -524,6 +542,20 @@
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
+            dialog.$("[name='display_layouts']").on('click', (e) => {
+                let isSelected = false;
+                dialog.$("[name='display_layouts']:checked").each((index, element) => {
+                    if (dialog.data.mapOfDisplayLayoutsAllowingForText.get( element.value )) {
+                        isSelected = true;
+                    }
+                });
+                
+                if (isSelected)
+                    dialog.getElementById('display-layout-text-group').style = "display: block;";
+                else
+                    dialog.getElementById('display-layout-text-group').style = "display: none;";
+            });
+
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
