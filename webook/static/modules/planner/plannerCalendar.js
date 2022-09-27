@@ -8,6 +8,7 @@ import {
 import { EventInspector } from "./eventInspector.js";
 // import { FilterDialog } from "./filterDialog.js";
 
+const ARIA_ATTRIBUTE_PATTERN = /^aria-[\w-]*$/i;
 
 export class PlannerCalendar extends FullCalendarBased {
 
@@ -240,8 +241,41 @@ export class PlannerCalendar extends FullCalendarBased {
             </span>`
         }
 
+        console.log("statusColor", arrangement.status_color);
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
+            allowList: {
+                '*': ['class', 'dir', 'id', 'lang', 'role', ARIA_ATTRIBUTE_PATTERN],
+                a: ['target', 'href', 'title', 'rel'],
+                area: [],
+                b: [],
+                br: [],
+                col: [],
+                code: [],
+                div: ['style'],
+                em: [],
+                hr: [],
+                h1: [],
+                h2: [],
+                h3: [],
+                h4: [],
+                h5: [],
+                h6: [],
+                i: [],
+                img: ['src', 'srcset', 'alt', 'title', 'width', 'height'],
+                li: [],
+                ol: [],
+                p: [],
+                pre: [],
+                s: [],
+                small: [],
+                span: [],
+                sub: [],
+                sup: [],
+                strong: [],
+                u: [],
+                ul: [],
+            },
             content: `
                 <h5 class='mb-0 mt-2 fw-bold'>${arrangement.name}</h5>
                 <div>
@@ -278,7 +312,7 @@ export class PlannerCalendar extends FullCalendarBased {
                         ${arrangement.arrangement_type}
                     </div>
                     <div class='col-12 text-center mt-2'>
-                        <div class='border border-1 p-2 rounded-pill fw-bold'>
+                        <div class='border border-1 p-2 rounded-pill fw-bold' style='background-color: ${arrangement.status_color}'>
                             ${ arrangement.status_name ?? "Ingen status" }
                         </div>
                     </div>
