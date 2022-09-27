@@ -233,7 +233,6 @@ export class DialogSimpleRenderer extends DialogBaseRenderer {
                         dialog._$getDialogEl().dialog( dialog.dialogOptions );
                         dialog.onRenderedCallback(dialog, context);
 
-                        console.log("el", dialog._$getDialogEl())
                         dialog._$getDialogEl().parent().find('.ui-dialog-titlebar-close')
                             .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
                             .click( () => {
