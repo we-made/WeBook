@@ -440,6 +440,11 @@ class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, DialogVie
     model = Arrangement
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createArrangementDialog.html"
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
+        return context
+
     def get_success_url(self) -> str:
         context = self.get_context_data()
         return reverse_with_params(

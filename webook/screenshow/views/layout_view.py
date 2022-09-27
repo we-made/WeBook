@@ -122,4 +122,3 @@ class LayoutDeleteView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
         )
 
 layout_delete_view = LayoutDeleteView.as_view()
-

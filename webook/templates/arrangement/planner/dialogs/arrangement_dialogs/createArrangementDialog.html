@@ -1,4 +1,5 @@
 {% load static i18n %}
+{% load crispy_forms_tags %}
 
 
 <div id="{{dialogId}}" class="{{discriminator}}" style="overflow-x: visible;">
@@ -11,7 +12,7 @@
         </div>
         <div id="rail" class="float-end stepper-rail"></div>
     </div>
-    
+
     <hr>
 
     <div>
@@ -62,7 +63,7 @@
                             Målgruppe
                         </label>
                         <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
-                        
+
                         {% if form.audience.errors|length > 0 %}
                         <div class="alert alert-danger">
                             {{ form.audience.errors }}
@@ -82,14 +83,14 @@
                         </div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="mb-2">
                         <label>
                             Status
                         </label>
-                        
+
                         {{ form.status }}
-                        
+
                         {% if form.status.errors|length > 0 %}
                         <div class="alert alert-danger">
                             {{ form.status.errors }}
@@ -167,14 +168,34 @@
             </form>
         </div>
         <div id="step-3">
-            <h5 class="header-fonted">
-                <i class="fas fa-tv"></i>
-                Skjerm
-            </h5>
-            <label class="d-block">&nbsp; {% trans "Vises på skjerm:" %}</label>
-            {{form.display_layouts}}
+            <div class="row">
+                <div class="col-lg-4 col-sm-12">
+                    <h5 class="header-fonted">
+                        <i class="fas fa-tv"></i>
+                        Skjerm
+                    </h5>
+                    <label class="d-block">&nbsp; {% trans "Vises på skjerm:" %}</label>
+                    {{form.display_layouts}}
+                </div>
 
-            <div class="mt-2 form-group">
+                <div class="col-lg-8 col-sm-12 mt-sm-2">
+                    <div
+                        class="form-group"
+                        id="display-layout-text-group"
+                        style="display: none;">
+
+                        <div>
+                            {{ form.display_text|as_crispy_field }}
+                        </div>
+                        <div>
+                            {{ form.display_text_en|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+
+                <div class="mt-2 form-group">
                 <label>
                     <i class="fas fa-door-open"></i>&nbsp;
                     Møtested <i>(Norsk)</i>
@@ -229,7 +250,7 @@
                     </a>
                 </div>
                 <div class="col-6">
-                    <a class="btn btn-lg btn-outline-dark shadow-0 btn-block mb-2 p-2" 
+                    <a class="btn btn-lg btn-outline-dark shadow-0 btn-block mb-2 p-2"
                         style="text-transform: none; font-size: larger; border-width: 0.7px;"
                         d-trigger="createSimpleActivity">
                         <i class="fas fa-calendar-plus"></i>&nbsp;
@@ -242,7 +263,6 @@
 
             <div id="eventsBody"></div>
             <div id="timeplansBody"></div>
-
         </div>
     </div>
 
@@ -276,7 +296,17 @@
                 new mdb.Input(formOutline).init();
             });
 
-            [   
+            console.log("requisite", dialog.data.display_layouts_requisite_text);
+
+            dialog.data.display_layouts_requisite_text.forEach((displayLayoutId) => {
+                dialog.getElementById('id_display_layouts_' + displayLayoutId).on('change', () => {
+                    console.log("id_display_layouts_" + displayLayoutId + ", change");
+                    dialog.getElementById('id-layout-text-group').display = "block";
+                });
+            });
+
+            
+            [
                 {
                     element: dialog.querySelector('#{{ form.location.id_for_label }}'),
                     invalidFeedback: "Vennligst velg en lokasjon",
@@ -290,7 +320,7 @@
                     invalidFeedback: 'Vennligst velg en status',
                 },
             ].forEach((select) => {
-                const mdbSelect = new mdb.Select(select.element, { 
+                const mdbSelect = new mdb.Select(select.element, {
                     filter: true,
                     validation: true,
                     noResultText: "Ingen resultater",
@@ -309,12 +339,12 @@
                 onValueSet: ( data ) => {
                     dialog.getElementById('_audienceId').value = data.selected[0];
                 },
-                valueSelectedLabelText: ( selected) => { 
+                valueSelectedLabelText: ( selected) => {
                     let labelText = '';
 
                     if (selected.parent && selected.parent.text)
                         labelText += (selected.parent.text + " | ");
-                    
+
                     labelText += selected.text;
 
                     return labelText;
@@ -326,16 +356,16 @@
             });
             dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#arrangement_type_jstree_select'),
-                treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",    
+                treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
                 onValueSet: ( data ) => {
                     dialog.getElementById('_arrangementTypeId').value = data.selected[0];
                 },
-                valueSelectedLabelText: ( selected ) => { 
+                valueSelectedLabelText: ( selected ) => {
                     let labelText = '';
 
                     if (selected.parent && selected.parent.text)
                         labelText += (selected.parent.text + " | ");
-                    
+
                     labelText += selected.text;
 
                     return labelText;
@@ -362,12 +392,12 @@
                     element: dialog.getElementById('step-1'),
                     title: 'Generelt',
                     stepIn: () => {},
-                    stepOut: () => { 
+                    stepOut: () => {
                         let field_elements = dialog.$('#step-1').find("input, select");
                         [
                             mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
                             mdb.Select.getInstance(dialog.querySelector('#{{ form.responsible.id_for_label }}')),
-                        ].forEach(mdbSelect => { 
+                        ].forEach(mdbSelect => {
                             if (mdbSelect.hasSelection?.label === "---------" ) {
                                 $(mdbSelect._wrapper).find(".invalid-feedback").show();
                             }
@@ -396,12 +426,12 @@
                     element: dialog.getElementById('step-2'),
                     title: 'Detaljer',
                     stepIn: () => {},
-                    stepOut: () => { 
+                    stepOut: () => {
                         dialog.$('#step-2').find("input, select").each((index, $el) => {
                             console.log($el);
                             if ($el.checkValidity() === false) {
                                 dialog.$("#arrangementDetailsForm").find(':submit').click();
-                            } 
+                            }
                         });
 
                         return true;
@@ -416,7 +446,7 @@
                 {
                     element: dialog.getElementById('step-4'),
                     title: 'Tidsplaner & Aktiviteter',
-                    stepIn: () => { 
+                    stepIn: () => {
                         dialog.getElementById('next').style.display = "none";
                         dialog.getElementById('finish').style.display = "inline-block";
                     },
@@ -447,8 +477,8 @@
 
                 return true;
             },
-            has_plans(dialog, {} = {}, triggeredByElement) { 
-                return dialog.data.seriesMap !== undefined && dialog.data.seriesMap.size > 0 || 
+            has_plans(dialog, {} = {}, triggeredByElement) {
+                return dialog.data.seriesMap !== undefined && dialog.data.seriesMap.size > 0 ||
                     dialog.data.eventsMap !== undefined && dialog.data.eventsMap.size > 0;
             },
             submit(dialog, {} = {}, triggeredByElement) {
@@ -504,14 +534,14 @@
                             <h3>
                                 ${element.title}
                             </h3>
-                            
+
                             <h5>
                                 Fra <span class='fw-bold'>${element.start.toLocaleString()}</span> til <span class='fw-bold'>${element.end.toLocaleString()}</span>
                             </h5>
-                            
+
                             <div class="">
                                 <a href="#" class="btn wb-btn-blank"
-                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}' 
+                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}'
                                     d-trigger='editSimpleActivity'
                                     d-arg-uuid='${element._uuid}'>
                                     Rediger
@@ -530,7 +560,7 @@
             },
             setSeries(dialog, { series } = {}, triggeredByElement) {
                 dialog.data.seriesMap = series;
-        
+
                 let tbody = dialog.$('#timeplansBody');
                 tbody.html("")
 
@@ -577,17 +607,17 @@
                                     <h5 class="mb-0 text-muted">${element.time.title}</h5>
                                     <h6 class="mb-0"><i class="fas fa-clock"></i> ${element.time.start} - ${element.time.end} </h6>
                                     <h6><i class="fas fa-sync"></i> ${element.friendlyDesc}</h6>
-                                    
+
                                     <div class="mb-2">
                                         <a href="#" class="btn wb-btn-secondary"
-                                            data-toggle='tooltip' title='{% trans "Edit this recurring activity" %}' 
+                                            data-toggle='tooltip' title='{% trans "Edit this recurring activity" %}'
                                             d-trigger='editSerie'
                                             d-arg-uuid='${element._uuid}'>
                                             Rediger tidsplan
                                         </a>
 
                                         <a href="#" class="btn wb-btn-blank"
-                                            data-toggle='tooltip' title='{% trans "Remove this recurring activity from the arrangement to be" %}' 
+                                            data-toggle='tooltip' title='{% trans "Remove this recurring activity from the arrangement to be" %}'
                                             d-trigger='removeSerie'
                                             d-arg-uuid='${element._uuid}'>
                                             Slett
@@ -640,8 +670,8 @@
                 dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { $parent: dialog.dialogElement })
             },
             breakOutEvent(dialog, { serieUuid, collisionIndex } = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("arrangementCreator", "breakOutActivityDialog", { 
-                    serie: seriesMap.get(serieUuid), 
+                dialog.raiseTriggerEvent("arrangementCreator", "breakOutActivityDialog", {
+                    serie: seriesMap.get(serieUuid),
                     collision_index: collisionIndex,
                 });
             },
@@ -656,6 +686,11 @@
             seriesMap: new Map(),
             eventsMap: new Map(),
             stepper: null,
+            display_layouts_requisite_text: [
+                {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
+                    '{{ display_layout.id }}',
+                {% endfor %}
+            ]
         },
     });
 </script>
