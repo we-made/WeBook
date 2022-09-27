@@ -86,65 +86,18 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row mt-3">
                     <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
-                        <label class="d-block">
-                            {% trans "Is Room Based" %}
-                        </label>
-                        <input type="checkbox" class="form-check-input"
-                            id="{{ form.is_room_based.id_for_label }}"
-                            name="{{ form.is_room_based.name }}"
-                            value="{{ form.is_room_based.value }}"
-                            placeholder="{% trans 'Is Room Based' %}"
-                                {% if form.is_room_based.value %}
-                                checked
-                            {% endif %}
-                        />
+                        {{ form.is_room_based | as_crispy_field }}
                     </div>
                     <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
-                        <label class="d-block">
-                            {% trans "All Events" %}
-                        </label>
-                        <input type="checkbox" class="form-check-input"
-                            id="{{ form.all_events.id_for_label }}"
-                            name="{{ form.all_events.name }}"
-                            value="{{ form.all_events.value }}"
-                            placeholder="{% trans 'All Events' %}"
-                            {% if form.all_events.value %}
-                                checked
-                            {% endif %}
-                        />
+                        {{ form.all_events | as_crispy_field }}
                     </div>
                     <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
-                        <label class="d-block">
-                            {% trans "Enabled" %}
-                        </label>
-                        <input type="checkbox" class="form-check-input"
-                            id="{{ form.is_active.id_for_label }}"
-                            name="{{ form.is_active.name }}"
-                            value="{{ form.is_active.value }}"
-                            placeholder="{% trans 'Active' %}"
-                            {% if form.is_active.value %}
-                                checked
-                            {% endif %}
-                        />
+                        {{ form.is_active | as_crispy_field}}
                     </div>
                     <div class="col-lg-3 col-sm-12 mt-lg-0 mt-sm-2">
-                        <label class="d-block">
-                            {% trans "Triggers display layout text" %}
-                            ( <i class='fas fa-question ms-1'
-                               data-mdb-toggle='tooltip'
-                               title="{% trans 'Allow setting the display layout text field when this display layout is selected' %}"></i> &nbsp;)
-                        </label>
-                        <input type="checkbox" class="form-check-input"
-                            id="{{ form.triggers_display_layout_text.id_for_label }}"
-                            name="{{ form.triggers_display_layout_text.name }}"
-                            value="{{ form.triggers_display_layout_text.value }}"
-                            placeholder="{% trans 'Triggers display layout text' %}"
-                            {% if form.triggers_display_layout_text.value %}
-                                checked
-                            {% endif %}
-                        />
+                        {{ form.triggers_display_layout_text | as_crispy_field}}
                     </div>
                 </div>
             </div>
