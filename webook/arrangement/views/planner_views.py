@@ -794,6 +794,8 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
             arrangement = Arrangement.objects.get(slug=arrangement_slug)
             context["arrangementPk"] = arrangement.pk
         else: context["arrangementPk"] = 0
+        
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
 
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")

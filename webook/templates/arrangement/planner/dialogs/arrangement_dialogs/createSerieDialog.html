@@ -542,20 +542,6 @@
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
-            dialog.$("[name='display_layouts']").on('click', (e) => {
-                let isSelected = false;
-                dialog.$("[name='display_layouts']:checked").each((index, element) => {
-                    if (dialog.data.mapOfDisplayLayoutsAllowingForText.get( element.value )) {
-                        isSelected = true;
-                    }
-                });
-                
-                if (isSelected)
-                    dialog.getElementById('display-layout-text-group').style = "display: block;";
-                else
-                    dialog.getElementById('display-layout-text-group').style = "display: none;";
-            });
-
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
@@ -1119,6 +1105,21 @@
             { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
                 console.log(">> setArrangementTypeFromParent", payload);
             } },
-        ]
+        ],
+        plugins: [
+            {
+                name: 'showIfSelected',
+                pluginClass: DialogShowIfSelectedPlugin,
+                args: {
+                    checkboxesSelector: "[name='display_layouts_serie_planner']",
+                    elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
+                    showIfAnyOfTheseValuesMap: new Map([
+                        {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
+                            [ "{{ display_layout.id }}", true],
+                        {% endfor %}
+                    ]),
+                },
+            }
+        ],
     });
 </script>
