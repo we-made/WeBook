@@ -360,8 +360,8 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     planners = models.ManyToManyField(to="Person", verbose_name=_("Planners"))
 
     status = models.ForeignKey(to="StatusType", on_delete=models.RESTRICT, null=True, blank=True, related_name="status_of_arrangements")
-
-    
+    display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
+    display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
 
     people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")
     organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
