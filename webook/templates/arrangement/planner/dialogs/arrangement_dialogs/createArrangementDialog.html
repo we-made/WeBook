@@ -296,15 +296,19 @@
                 new mdb.Input(formOutline).init();
             });
 
-            console.log("requisite", dialog.data.display_layouts_requisite_text);
-
-            dialog.data.display_layouts_requisite_text.forEach((displayLayoutId) => {
-                dialog.getElementById('id_display_layouts_' + displayLayoutId).on('change', () => {
-                    console.log("id_display_layouts_" + displayLayoutId + ", change");
-                    dialog.getElementById('id-layout-text-group').display = "block";
+            dialog.$("[name='display_layouts']").on('click', (e) => {
+                let isSelected = false;
+                dialog.$("[name='display_layouts']:checked").each((index, element) => {
+                    if (dialog.data.mapOfDisplayLayoutsAllowingForText.get( element.value )) {
+                        isSelected = true;
+                    }
                 });
+                
+                if (isSelected)
+                    dialog.getElementById('display-layout-text-group').style = "display: block;";
+                else
+                    dialog.getElementById('display-layout-text-group').style = "display: none;";
             });
-
             
             [
                 {
@@ -686,11 +690,11 @@
             seriesMap: new Map(),
             eventsMap: new Map(),
             stepper: null,
-            display_layouts_requisite_text: [
+            mapOfDisplayLayoutsAllowingForText: new Map([
                 {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
-                    '{{ display_layout.id }}',
+                    [ '{{ display_layout.id }}', true],
                 {% endfor %}
-            ]
+            ])
         },
     });
 </script>
