@@ -1288,6 +1288,9 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     status = models.ForeignKey(to=StatusType, on_delete=models.RESTRICT, related_name="manifests_of_status", null=True, blank=True)
     audience = models.ForeignKey(to=Audience, on_delete=models.RESTRICT, null=True, blank=True)
     arrangement_type = models.ForeignKey(to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True)
+    
+    display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
+    display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
 
     rooms =  models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)
