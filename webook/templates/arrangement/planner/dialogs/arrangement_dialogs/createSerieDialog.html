@@ -1100,10 +1100,10 @@
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
-                console.log(">> setAudienceFromParent", payload);
+                dialog.data.audienceJsTreeSelect.setSelected(payload);
             } },
             { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
-                console.log(">> setArrangementTypeFromParent", payload);
+                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
             } },
         ],
         plugins: [

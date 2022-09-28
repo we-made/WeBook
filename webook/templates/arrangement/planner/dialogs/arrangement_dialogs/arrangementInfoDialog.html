@@ -96,7 +96,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="{{form.location.id_for_label}}" class="form-label">{{form.location.label}}</label>
+                            <label for="{{form.location.id_for_label}}" class="form-label">Lokasjon</label>
                             {{ form.location }}
                         </div>
                     </div>
@@ -147,9 +147,15 @@
                 {% endif %}
             </div>
 
-            <div class="form-group mt-2">
-                <div class="row">
+            <div class="form-group mt-3">
+                {{ form.status|as_crispy_field }}
+            </div>
+
+            <div class="form-group mt-4">
+                <div class="row mt-2">
                     <div class="col-lg-6 col-sm-12">
+                        <h4 class="mb-0">Møtested</h4>
+                        <hr>
                         <label class="form-label">Møtested:</label>
                         <input type="text"
                             class="form-control form-control-lg"
@@ -164,27 +170,10 @@
                             </div>
                         {% endif %}
                     </div>
-                    <div class="col-lg-6 col-sm-12">
-                        <label class="form-label">Møtested (Engelsk):</label>
-                        <input type="text"
-                            class="form-control form-control-lg"
-                            id="{{ form.meeting_place_en.id_for_label }}"
-                            value="{{ form.meeting_place_en.value|default:'' }}"
-                            name="{{ form.meeting_place_en.name }}"
-                            placeholder="{% trans 'Meeting place (english)' %}..."/>
 
-                        {% if form.meeting_place_en.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.meeting_place.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group mt-2">
-                <div class="row">
                     <div class="col-lg-6 col-sm-12">
+                        <h4 class="mb-0">Besøkende</h4>
+                        <hr>
                         <label class="form-label">Forventet antall besøkende:</label>
                         <input type="number"
                             min="0"
@@ -201,6 +190,23 @@
                             </div>
                         {% endif %}
                     </div>
+
+                    <div class="col-lg-6 col-sm-12">
+                        <label class="form-label">Møtested (Engelsk):</label>
+                        <input type="text"
+                            class="form-control form-control-lg"
+                            id="{{ form.meeting_place_en.id_for_label }}"
+                            value="{{ form.meeting_place_en.value|default:'' }}"
+                            name="{{ form.meeting_place_en.name }}"
+                            placeholder="{% trans 'Meeting place (english)' %}..."/>
+
+                        {% if form.meeting_place_en.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.meeting_place.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
                     <div class="col-lg-6 col-sm-12">
                         <label class="form-label">Faktisk antall besøkende:</label>
                         <input type="number"
@@ -269,7 +275,7 @@
                         <label class="form-label">Vises på skjermen: </label>
                         {{ form.display_layouts }}
                     </div>
-                    <div class="col-lg-8 col-sm-12 mt-sm-2">
+                    <div class="col-lg-8 col-sm-12 mt-sm-2 mt-lg-0 mb-2">
                         <div 
                             class="form-group"
                             id="display-layout-text-group"
@@ -357,8 +363,6 @@
                                                     {{ event_serie.serie_plan_manifest.schedule_description }}
                                                     <small>({{event_serie.serie_plan_manifest.start_time}} - {{event_serie.serie_plan_manifest.end_time}})</small>
                                                 </h6>
-                                                <!-- <div>
-                                                </div> -->
                                             </div>
             
                                             <div class="accordion accordion-flush" id="accordion_{{event_serie.pk}}">
@@ -442,11 +446,11 @@
                                                                 </span>
 
                                                                 <span class="float-end">
-                                                                    <a href="">
+                                                                    <a href="#" d-trigger="openEditEvent" d-arg-event_pk="{{ event.pk }}">
                                                                         <i class="fas fa-edit"></i>
                                                                     </a>
                                                                     
-                                                                    <a href="" class="ms-2 me-3">
+                                                                    <a href="#" class="ms-2 me-3">
                                                                         <i class="fas fa-trash"></i>
                                                                     </a>
                                                                 </span>
@@ -785,6 +789,7 @@
                 formData.append("display_text",         dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
                 formData.append("display_text_en",      dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text_en.value : '');
                 formData.append("csrfmiddlewaretoken",  "{{ csrf_token }}");
+                formData.append("status",               dialog.interior.id_status.value);
 
                 dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
                     formData.append("display_layouts", element.value);
@@ -804,9 +809,12 @@
             openEditEvent(dialog, { eventPk } = {}, triggeredByElement) {
                 document.dispatchEvent(
                     new CustomEvent("plannerCalendar.inspectEvent", { "detail": {
-                        event_pk: eventPk
+                        event_pk: eventPk, $parent: dialog.dialogElement
                     }}
                 ))
+            },
+            deleteEvent(dialog, { eventPk } = {}, triggeredByElement) {
+                throw Error("Not implemented");
             },
             deleteEventSerie(dialog, { eventSeriePk } = {}, triggeredByElement) {
                 Swal.fire({

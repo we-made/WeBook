@@ -175,7 +175,7 @@ class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
     def get_data(self, context):
         manifest = context["object"]
 
-        rooms = [] 
+        rooms = []
         people = []
         display_layouts = []
 
@@ -228,7 +228,15 @@ class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
             "project_x_months_into_future": manifest.project_x_months_into_future,
             "rooms": rooms,
             "people": people,
-            "display_layouts": display_layouts
+            "display_layouts": display_layouts,
+            "display_text": manifest.display_text,
+            "display_text_en": manifest.display_text_en,
+            "meeting_place": manifest.meeting_place,
+            "meeting_place_en": manifest.meeting_place_en,
+            "status": manifest.status.pk if manifest.status else "",
+            "audience": manifest.audience.pk,
+            "arrangement_type": manifest.arrangement_type.pk,
+            "responsible": manifest.responsible.pk
         }
 
 event_serie_manifest_view = EventSerieManifestView.as_view()

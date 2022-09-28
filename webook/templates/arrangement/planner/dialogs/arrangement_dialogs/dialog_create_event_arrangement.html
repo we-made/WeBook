@@ -522,7 +522,13 @@
                 dialog.data.personPresets = new Map();
                 payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
-            } }
+            } },
+            { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
+                dialog.data.audienceJsTreeSelect.setSelected(payload);
+            } },
+            { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
+                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
+            } },
         ],
         plugins: [
             {
