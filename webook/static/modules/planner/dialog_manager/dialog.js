@@ -6,6 +6,7 @@ class Dialog {
         postInit,
         methods={},
         data={},
+        binds={},
         plugins={},
         when={},
     } = {}) {
@@ -18,6 +19,7 @@ class Dialog {
         this.data = data;
         this.when = when;
         this.plugins = plugins;
+        this.binds = binds;
 
         this.$interior = null;
         this.interior = null;
@@ -298,6 +300,17 @@ class DialogPluginBase {
     }
 }
 
+
+class DialogFieldBind {
+    constructor (element, eventHandlers) {
+        this._element = element;
+        this._eventHandlers = eventHandlers;
+    }
+
+    activateEventHandler( eventHandler ) {
+        $(this._element).on( eventHandler.events, eventHandler.do );
+    }
+}
 
 class AbstractBaseStep {
     constructor (onStepIn, onStepOut, wrapperElement) {

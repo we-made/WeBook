@@ -253,12 +253,7 @@ export class ArrangementInspector {
                         onRenderedCallback: async (dialogManager, context) => {
                             let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
 
-                            console.log("dialogRepo", this.dialogManager._dialogRepository)
-
                             let $newTimePlanDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
-
-                            console.log("info", info);
-
                             [
                                 { targetSelector: '#serie_title', value: info.title },
                                 { targetSelector: '#serie_title_en', value: info.title_en },
@@ -269,10 +264,16 @@ export class ArrangementInspector {
                                 { targetSelector: '#id_status', value: info.status_id },
                                 { targetSelector: '#id_display_text', value: info.display_text },
                                 { targetSelector: '#id_display_text_en', value: info.display_text_en },
+                                { targetSelector: '#id_responsible', value: info.responsible_id },
+                                { targetSelector: '#id_meeting_place', value: info.meeting_place     },
+                                { targetSelector: '#id_meeting_place_en', value: info.meeting_place_en },
                             ].forEach( (mapping) => {
                                 $newTimePlanDialog.find( mapping.targetSelector ).val( mapping.value );
-                                console.log($newTimePlanDialog.find( mapping.targetSelector ),  mapping.value)
                             } );
+
+                            const newTimePlanDialog = this.dialogManager._dialogRepository.get("newTimePlanDialog");
+                            newTimePlanDialog.communicationLane.send("setAudienceFromParent", info.audience_id);
+                            newTimePlanDialog.communicationLane.send("setArrangementTypeFromParent", info.arrangement_type_id);
 
                             info.display_layouts.forEach(display_layout => {
                                 $newTimePlanDialog.find('#id_display_layouts_serie_planner_' + ( display_layout - 1))
@@ -488,14 +489,31 @@ export class ArrangementInspector {
                             
                             this.dialogManager.setTitle("newSimpleActivityDialog", "Opprett aktivitet");
                             let $newSimpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
-                            $newSimpleActivityDialog.find("#title").attr("value", info.title);
-                            $newSimpleActivityDialog.find("#title_en").attr("value", info.title_en);
-                            $newSimpleActivityDialog.find("#ticket_code").attr("value", info.ticket_code);
-                            $newSimpleActivityDialog.find("#expected_visitors").attr("value", info.expected_visitors);
+
+                            [
+                                { targetSelector: '#title', value: info.title },
+                                { targetSelector: '#title_en', value: info.title_en },
+                                { targetSelector: '#ticket_code', value: info.ticket_code },
+                                { targetSelector: '#expected_visitors', value: info.expected_visitors },
+                                { targetSelector: '#_backingAudienceId', value: info.audience_id },
+                                { targetSelector: '#_backingArrangementTypeId', value: info.arrangement_type_id },
+                                { targetSelector: '#id_status', value: info.status_id },
+                                { targetSelector: '#id_display_text', value: info.display_text },
+                                { targetSelector: '#id_display_text_en', value: info.display_text_en },
+                                { targetSelector: '#id_responsible', value: info.responsible_id },
+                                { targetSelector: '#id_meeting_place', value: info.meeting_place },
+                                { targetSelector: '#id_meeting_place_en', value: info.meeting_place_en },
+                            ].forEach( (mapping) => {
+                                $newSimpleActivityDialog.find( mapping.targetSelector ).val( mapping.value );
+                            } );
+
+                            const simpleActivityDialog = this.dialogManager._dialogRepository.get("newSimpleActivityDialog");
+                            simpleActivityDialog.communicationLane.send("setAudienceFromParent", info.audience_id);
+                            simpleActivityDialog.communicationLane.send("setArrangementTypeFromParent", info.arrangement_type_id);
 
                             info.display_layouts.forEach(display_layout => {
                                 $newSimpleActivityDialog.find('#' + display_layout + "_dlcheck")
-                                    .prop("checked", true);
+                                    .prop("checked", true).change();
                             });
 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
@@ -549,7 +567,13 @@ export class ArrangementInspector {
 
                             let $dialogElement = $(this.dialogManager.$getDialogElement("editEventSerieDialog"));
                             let manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
+                            
                             PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk, $dialogElement);
+
+                            const editEventSerieDialog = this.dialogManager._dialogRepository.get("editEventSerieDialog");
+                            editEventSerieDialog.communicationLane.send("setAudienceFromParent", manifest.audience);
+                            editEventSerieDialog.communicationLane.send("setArrangementTypeFromParent", manifest.arrangement_type);
+
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });

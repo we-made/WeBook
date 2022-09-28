@@ -65,9 +65,6 @@ export class JSTreeSelect {
         this.selected.parent = node.parent;
         this.selected.text = node.text;
 
-        console.log(">>selected", this.selected);
-        console.log(">>node", node);
-
         if (this.selected.parent) {
             this.selected.parent = $(this._jsTreeElement).jstree(true).get_node(this.selected.parent);
             this._labelElement.innerHTML = this._generateLabelElement().innerHTML;
@@ -85,7 +82,9 @@ export class JSTreeSelect {
      * @param {*} directParentId
      */
     _setSelectedValue(id, text, directParentId) {
-        this.selected = { id: id, text: text, parent: $(this._jsTreeElement).jstree(true).get_node(directParentId) };
+        const node = $(this._jsTreeElement).jstree(true).get_node(id);
+
+        this.selected = { id: id, text: node.text, parent: $(this._jsTreeElement).jstree(true).get_node(node.parent) };
         this._labelElement.innerHTML = this._generateLabelElement().innerHTML;
         this._hideInvalidFeedback();
     }
@@ -100,6 +99,18 @@ export class JSTreeSelect {
             throw Error("No value selected");
         
         return this.selected.id;
+    }
+
+    setSelected(id) {
+        const jsTree = $(this._jsTreeElement).jstree(true);
+
+        if (!jsTree) { // if jsTree is false, then jsTree is not initialized yet, so we stage the set value.
+            this.selected={ id: id };
+            return;
+        }
+
+        const selected = $(this._jsTreeElement).jstree(true).get_node(id);
+        this._setSelectedValue(selected.id, selected.text, selected.parent);
     }
     
     /**

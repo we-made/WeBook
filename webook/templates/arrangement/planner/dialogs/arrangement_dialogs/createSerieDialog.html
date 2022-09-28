@@ -541,9 +541,6 @@
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
-
-            console.log("d__backingAudienceId", dialog.getElementById('_backingAudienceId').value )
-
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
@@ -1103,10 +1100,10 @@
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
-                console.log(">> setAudienceFromParent", payload);
+                dialog.data.audienceJsTreeSelect.setSelected(payload);
             } },
             { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
-                console.log(">> setArrangementTypeFromParent", payload);
+                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
             } },
         ],
         plugins: [

@@ -1,21 +1,28 @@
-export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement) {
+export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog) {
     if (serie === undefined) {
         console.error("Serie is undefined", serie);
         debugger;
     }
 
-    $dialogElement.find('#serie_uuid').val(serie._uuid);
-    $dialogElement.find('#serie_title').val(serie.time.title);
-    $dialogElement.find('#serie_title_en').val(serie.time.title_en);
-    $dialogElement.find('#serie_start').val(serie.time.start).change();
-    $dialogElement.find('#serie_end').val(serie.time.end).change();
-    $dialogElement.find('#serie_ticket_code').val(serie.time.ticket_code);
-    $dialogElement.find('#serie_expected_visitors').val(serie.time.expected_visitors);
-    $dialogElement.find('#area_start_date').val(serie.time_area.start_date);
-    $dialogElement.find('#buffer_before_start').val(serie.buffer.before?.start);
-    $dialogElement.find('#buffer_before_end').val(serie.buffer.before?.end);
-    $dialogElement.find('#buffer_after_start').val(serie.buffer.after?.start);
-    $dialogElement.find('#buffer_after_end').val(serie.buffer.after?.end);
+    [
+        { to: "#serie_uuid", value: serie._uuid },
+        { to: "#serie_title", value: serie.time.title },
+        { to: "#serie_title_en", value: serie.time.title_en },
+        { to: "#serie_start", value: serie.time.start },
+        { to: "#serie_end", value: serie.time.end },
+        { to: "#serie_ticket_code", value: serie.time.ticket_code },
+        { to: "#serie_expected_visitors", value: serie.time.expected_visitors },
+        { to: "#area_start_date", value: serie.time_area.start_date },
+        { to: "#buffer_before_start", value: serie.buffer.before?.start },
+        { to: "#buffer_before_end", value: serie.buffer.before?.end },
+        { to: "#buffer_after_start", value: serie.buffer.after?.start },
+        { to: "#buffer_after_end", value: serie.buffer.after?.end },
+        { to: "#meeting_place", value: serie.time.meeting_place },
+        { to: "#responsible", value: serie.time.responsible },
+        { to: '#display_text', value: serie.time.display_text },
+        { to: '#display_text_en', value: serie.time.display_text_en },
+    ].forEach( (mapping) => { $dialogElement.find(mapping.to).val(mapping.value).trigger('change'); } );
+    
 
     // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
     // has "selected" rooms as they would through the dialog interface.
@@ -149,14 +156,23 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement) {
  * @param {*} manifest
  */
 export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement) {
-    $dialogElement.find('#serie_uuid')?.attr("value", serie_uuid);
-    $dialogElement.find('#serie_title')?.val(manifest.title);
-    $dialogElement.find('#serie_title_en')?.attr("value", manifest.title_en);
-    $dialogElement.find('#serie_expected_visitors')?.attr("value", manifest.expected_visitors);
-    $dialogElement.find('#serie_ticket_code')?.attr("value", manifest.ticket_code);
-    $dialogElement.find('#area_start_date')?.attr("value", manifest.start_date);
-    $dialogElement.find('#serie_start')?.val(manifest.start_time).change();
-    $dialogElement.find('#serie_end')?.val(manifest.end_time).change();
+    console.log("manifest", manifest);
+    [
+        { to: "#serie_uuid", value: serie_uuid },
+        { to: "#serie_title", value: manifest.title },
+        { to: "#serie_title_en", value: manifest.title_en },
+        { to: "#serie_expected_visitors", value: manifest.expected_visitors },
+        { to: "#serie_start", value: manifest.start_time },
+        { to: "#serie_end", value: manifest.end_time },
+        { to: "#serie_ticket_code", value: manifest.ticket_code },
+        { to: "#area_start_date", value: manifest.start_date },
+        { to: "#id_meeting_place", value: manifest.meeting_place },
+        { to: "#id_meeting_place_en", value: manifest.meeting_place_en },
+        { to: "#id_responsible", value: manifest.responsible },
+        { to: '#id_status', value: manifest.status },
+        { to: '#id_display_text', value: manifest.display_text },
+        { to: '#id_display_text_en', value: manifest.display_text_en },
+    ].forEach( (mapping) => { $dialogElement.find(mapping.to).val(mapping.value ).trigger('change'); } );
 
     if (manifest.rooms.length > 0) {
         let roomSelectContext = Object();

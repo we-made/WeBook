@@ -72,7 +72,7 @@ class SerieManifestForm(forms.Form):
     after_buffer_end = forms.TimeField(required=False)
 
     def as_plan_manifest(self):
-        """Convert the SerieManifestForm to a valid PlanManifest """
+        """Convert the SerieManifestForm to a valid PlanManifest"""
         plan_manifest = PlanManifest()
         plan_manifest.pattern = self.cleaned_data["pattern"]
         plan_manifest.pattern_strategy = self.cleaned_data["patternRoutine"]

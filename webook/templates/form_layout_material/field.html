@@ -35,9 +35,9 @@
                 {% include 'form_layout_material/layout/field_file.html' %}
             {% else %}
                 <div class="{{ field_class }}">
-                    <div class="form-outline mt-4">
-                      {% crispy_field field 'class' 'form-control form-control-lg' %}
+                    <div class="">
                       <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                      {% crispy_field field 'class' 'form-control form-control-lg' %}
                     </div>
                     {% include 'form_layout_material/layout/help_text_and_errors.html' %}
                 </div>
