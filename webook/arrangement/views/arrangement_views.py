@@ -45,7 +45,12 @@ class ArrangementRecurringInformationJsonView(LoginRequiredMixin, DetailView, JS
             "title_en": arrangement.name_en,
             "ticket_code": arrangement.ticket_code,
             "expected_visitors": arrangement.expected_visitors,
-            "display_layouts": [ display_layout.pk for display_layout in arrangement.display_layouts.all() ]
+            "display_layouts": [ display_layout.pk for display_layout in arrangement.display_layouts.all() ],
+            "audience_id": arrangement.audience.pk,
+            "arrangement_type_id": arrangement.arrangement_type.pk,
+            "display_text": arrangement.display_text,
+            "display_text_en": arrangement.display_text_en,
+            "status_id": arrangement.status.pk,
         }
 
 arrangement_recurring_information_json_view = ArrangementRecurringInformationJsonView.as_view()

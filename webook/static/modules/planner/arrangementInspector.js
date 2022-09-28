@@ -253,11 +253,26 @@ export class ArrangementInspector {
                         onRenderedCallback: async (dialogManager, context) => {
                             let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
 
+                            console.log("dialogRepo", this.dialogManager._dialogRepository)
+
                             let $newTimePlanDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
-                            $newTimePlanDialog.find('#serie_title').attr('value', info.title);
-                            $newTimePlanDialog.find('#serie_title_en').attr('value', info.title_en);
-                            $newTimePlanDialog.find('#serie_ticket_code').attr('value', info.ticket_code);
-                            $newTimePlanDialog.find('#serie_expected_visitors').attr('value', info.expected_visitors);
+
+                            console.log("info", info);
+
+                            [
+                                { targetSelector: '#serie_title', value: info.title },
+                                { targetSelector: '#serie_title_en', value: info.title_en },
+                                { targetSelector: '#serie_ticket_code', value: info.ticket_code },
+                                { targetSelector: '#serie_expected_visitors', value: info.expected_visitors },
+                                { targetSelector: '#_backingAudienceId', value: info.audience_id },
+                                { targetSelector: '#_backingArrangementTypeId', value: info.arrangement_type_id },
+                                { targetSelector: '#id_status', value: info.status_id },
+                                { targetSelector: '#id_display_text', value: info.display_text },
+                                { targetSelector: '#id_display_text_en', value: info.display_text_en },
+                            ].forEach( (mapping) => {
+                                $newTimePlanDialog.find( mapping.targetSelector ).val( mapping.value );
+                                console.log($newTimePlanDialog.find( mapping.targetSelector ),  mapping.value)
+                            } );
 
                             info.display_layouts.forEach(display_layout => {
                                 $newTimePlanDialog.find('#id_display_layouts_serie_planner_' + ( display_layout - 1))
