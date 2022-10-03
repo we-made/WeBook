@@ -217,7 +217,7 @@
                             <div class="col-6">
                                 <div class="form-outline datetimepicker" id="startDateTime"
                                     data-mdb-default-date="{{object.start|date:'m/d//Y' }}" 
-                                    data-mdb-default-time="{{object.start|date:'G:i:s' }}">
+                                    data-mdb-default-time="{{object.start|date:'G:i' }}">
                                     <input type="text" class="form-control form-control-lg" id="startDateTimeInput" 
                                         value="{{ object.start|date:'d.m.Y G:i' }}"/>
                                     <label for="datetimepickerExample" class="form-label h5">Startdato og tidspunkt</label>
@@ -226,7 +226,7 @@
                             <div class="col-6">
                                 <div class="form-outline datetimepicker" id="endDateTime"
                                     data-mdb-default-date="{{object.end|date:'m/d/Y' }}" 
-                                    data-mdb-default-time="{{object.end|date:'G:i:s' }}">
+                                    data-mdb-default-time="{{object.end|date:'G:i' }}">
                                     <input type="text" class="form-control form-control-lg" id="endDateTimeInput" 
                                         value="{{ object.end|date:'d.m.Y G:i' }}" />
                                     <label for="datetimepickerExample" class="form-label h5">Sluttdato og tidspunkt</label>
