@@ -5,24 +5,29 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
     }
 
     [
-        { to: "#serie_uuid", value: serie._uuid },
-        { to: "#serie_title", value: serie.time.title },
-        { to: "#serie_title_en", value: serie.time.title_en },
-        { to: "#serie_start", value: serie.time.start },
-        { to: "#serie_end", value: serie.time.end },
-        { to: "#serie_ticket_code", value: serie.time.ticket_code },
-        { to: "#serie_expected_visitors", value: serie.time.expected_visitors },
-        { to: "#area_start_date", value: serie.time_area.start_date },
-        { to: "#buffer_before_start", value: serie.buffer.before?.start },
-        { to: "#buffer_before_end", value: serie.buffer.before?.end },
-        { to: "#buffer_after_start", value: serie.buffer.after?.start },
-        { to: "#buffer_after_end", value: serie.buffer.after?.end },
-        { to: "#meeting_place", value: serie.time.meeting_place },
-        { to: "#responsible", value: serie.time.responsible },
-        { to: '#display_text', value: serie.time.display_text },
-        { to: '#display_text_en', value: serie.time.display_text_en },
-    ].forEach( (mapping) => { $dialogElement.find(mapping.to).val(mapping.value).trigger('change'); } );
-    
+        { target: '#serie_uuid', value: serie._uuid },
+        { target: '#serie_title', value: serie.time.title },
+        { target: '#serie_title_en', value: serie.time.title_en },
+        { target: '#serie_start', value: serie.time.start },
+        { target: '#serie_end', value: serie.time.end },
+        { target: '#serie_ticket_code', value: serie.time.ticket_code },
+        { target: '#serie_expected_visitors', value: serie.time.expected_visitors },
+        { target: '#area_start_date', value: serie.time_area.start_date },
+        { target: '#buffer_before_start', value: serie.buffer.before?.start },
+        { target: '#buffer_before_end', value: serie.buffer.before?.after },
+        { target: '#buffer_after_start', value: serie.buffer.after?.start },
+        { target: '#buffer_after_end', value: serie.buffer.after?.end },
+        { target: '#id_status', value: serie.time.status },
+        { target: '#_backingArrangementTypeId', value: serie.time.arrangement_type },
+        { target: '#_backingAudienceId', value: serie.time.audience },
+        { target: '#id_responsible', value: serie.time.responsible },
+        { target: '#id_meeting_place', value: serie.time.meeting_place },
+        { target: '#id_meeting_place_en', value: serie.time.meeting_place_en },
+        { target: '#display_text', value: serie.time.display_text },
+        { target: '#display_text_en', value: serie.time.display_text_en },
+    ].forEach( (mapping) => {
+        $dialogElement.find( mapping.target ).val( mapping.value );
+    } );
 
     // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
     // has "selected" rooms as they would through the dialog interface.
@@ -322,22 +327,35 @@ export function PopulateCreateEventDialog(event, $dialogElement) {
         else throw "Invalid value or type"
     }
 
+    console.log(event);
+
     let [fromDate, fromTime]    = parseDateOrStringToArtifacts(event.start);
     let [toDate, toTime]        = parseDateOrStringToArtifacts(event.end);
 
-    $dialogElement.find('#event_uuid').val(event._uuid);
-    $dialogElement.find('#title').val(event.title);
-    $dialogElement.find('#title_en').val(event.title_en);
-    $dialogElement.find('#ticket_code').val(event.ticket_code);
-    $dialogElement.find('#expected_visitors').val(event.expected_visitors);
-    $dialogElement.find('#fromDate').val(fromDate);
-    $dialogElement.find('#fromTime').val(fromTime);
-    $dialogElement.find('#toDate').val(toDate);
-    $dialogElement.find('#toTime').val(toTime);
-    $dialogElement.find('#buffer_before_start').val(event.before_buffer_start);
-    $dialogElement.find('#buffer_before_end').val(event.before_buffer_end);
-    $dialogElement.find('#buffer_after_start').val(event.after_buffer_start);
-    $dialogElement.find('#buffer_after_end').val(event.after_buffer_end);
+    [
+        { target: "#event_uuid", value: event._uuid },
+        { target: "#title", value: event.title },
+        { target: "#title_en", value: event.title_en },
+        { target: "#ticket_code", value: event.ticket_code },
+        { target: '#expected_visitors', value: event.expected_visitors },
+        { target: '#fromDate', value: fromDate },
+        { target: '#fromTime', value: fromTime },
+        { target: '#toDate', value: toDate },
+        { target: '#toTime', value: toTime },
+        { target: '#buffer_before_start', value: event.before_buffer_start },
+        { target: '#buffer_before_end', value: event.before_buffer_end },
+        { target: '#buffer_after_start', value: event.after_buffer_start },
+        { target: '#buffer_after_end', value: event.after_buffer_end },
+        { target: '#_backingAudienceId', value: event.audience },
+        { target: '#_backingArrangementTypeId', value: event.arrangement_type },
+        { target: '#id_meeting_place', value: event.meeting_place },
+        { target: '#id_meeting_place_en', value: event.meeting_place_en },
+        { target: '#id_status', value: event.status },
+        { target: '#id_responsible', value: event.responsible },
+    ].forEach( (mapping) => {
+        $dialogElement.find( mapping.target ).val( mapping.value );
+    } )
+
 
     if (Array.isArray(event.display_layouts)) {
         event.display_layouts.forEach(element => {

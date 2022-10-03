@@ -134,9 +134,14 @@ export class ArrangementCreator {
                                 if (context.series !== undefined) {
                                     let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                                     const $dialogElement = $(this.dialogManager.$getDialogElement("newTimePlanDialog"));
+                                    
                                     PopulateCreateSerieDialogFromSerie(serie, $dialogElement);
                                 }
                             }
+                            
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
                         destructure: () => {},
                         onUpdatedCallback: () => {
