@@ -23,8 +23,8 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         { target: '#id_responsible', value: serie.time.responsible },
         { target: '#id_meeting_place', value: serie.time.meeting_place },
         { target: '#id_meeting_place_en', value: serie.time.meeting_place_en },
-        { target: '#display_text', value: serie.time.display_text },
-        { target: '#display_text_en', value: serie.time.display_text_en },
+        { target: '#id_display_text', value: serie.time.display_text },
+        { target: '#id_display_text_en', value: serie.time.display_text_en },
     ].forEach( (mapping) => {
         $dialogElement.find( mapping.target ).val( mapping.value );
     } );
@@ -352,6 +352,8 @@ export function PopulateCreateEventDialog(event, $dialogElement) {
         { target: '#id_meeting_place_en', value: event.meeting_place_en },
         { target: '#id_status', value: event.status },
         { target: '#id_responsible', value: event.responsible },
+        { target: '#id_display_text', value: event.display_text },
+        { target: '#id_display_text_en', value: event.display_text_en },
     ].forEach( (mapping) => {
         $dialogElement.find( mapping.target ).val( mapping.value );
     } )
