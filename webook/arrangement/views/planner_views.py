@@ -399,6 +399,11 @@ class PlannerEventInspectorDialogView (LoginRequiredMixin, DialogView, UpdateVie
     pk_url_kwarg="pk"
     template_name="arrangement/planner/dialogs/arrangement_dialogs/inspectEventDialog.html"
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
+        return context
+
 planner_event_inspector_dialog_view = PlannerEventInspectorDialogView.as_view()
 
 
@@ -421,6 +426,8 @@ class PlannerArrangementInformationDialogView(LoginRequiredMixin, DialogView, Up
             sets[event.sequence_guid]["events"].append(event)
             sets[event.sequence_guid]["title"] = event.title
 
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
+
         context["sets"] = sets.values()
         context["arrangement"] = arrangement_in_focus
 
@@ -439,6 +446,11 @@ class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, DialogVie
     form_class = PlannerCreateArrangementModelForm
     model = Arrangement
     template_name="arrangement/planner/dialogs/arrangement_dialogs/createArrangementDialog.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
+        return context
 
     def get_success_url(self) -> str:
         context = self.get_context_data()
@@ -475,6 +487,7 @@ class PlannerArrangementCreateSimpleEventDialogView (LoginRequiredMixin, DialogV
         context["dialogIcon"] = self.request.GET.get("dialogIcon", "fa-calendar-plus")
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
 
         return context
 
@@ -789,6 +802,8 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
             arrangement = Arrangement.objects.get(slug=arrangement_slug)
             context["arrangementPk"] = arrangement.pk
         else: context["arrangementPk"] = 0
+        
+        context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
 
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")

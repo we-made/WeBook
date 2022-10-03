@@ -1,18 +1,14 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    DetailView,
-    UpdateView,
-    ListView,
-    CreateView,
-)
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.views.generic.edit import DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from webook.screenshow.models import DisplayLayout, ScreenResource, ScreenGroup
+
 from webook.screenshow.forms import DisplayLayoutForm
-from webook.utils.meta_utils.meta_mixin import MetaMixin
+from webook.screenshow.models import DisplayLayout, ScreenGroup, ScreenResource
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
+from webook.utils.meta_utils.meta_mixin import MetaMixin
 
 
 def get_section_manifest():
@@ -48,7 +44,7 @@ class LayoutSectionManifestMixin(UserPassesTestMixin):
 
 class LayoutListView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, GenericListTemplateMixin, ListView):
     queryset = DisplayLayout.objects.all()
-    template_name = "screenshow/list_view.html"
+    template_name = "common/list_view.html"
     model = DisplayLayout
     view_meta = ViewMeta.Preset.table(DisplayLayout)
     fields = [
@@ -117,7 +113,7 @@ class LayoutDeleteView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
     model = DisplayLayout
     slug_field = "slug"
     slug_url_kwarg = "slug"
-    template_name = "screenshow/delete_view.html"
+    template_name = "common/delete_view.html"
     view_meta = ViewMeta.Preset.delete(DisplayLayout)
 
     def get_success_url(self) -> str:
@@ -126,4 +122,3 @@ class LayoutDeleteView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
         )
 
 layout_delete_view = LayoutDeleteView.as_view()
-

@@ -232,7 +232,8 @@ export class DialogSimpleRenderer extends DialogBaseRenderer {
                     .ready( () => {
                         dialog._$getDialogEl().dialog( dialog.dialogOptions );
                         dialog.onRenderedCallback(dialog, context);
-                        dialog._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
+
+                        dialog._$getDialogEl().parent().find('.ui-dialog-titlebar-close')
                             .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
                             .click( () => {
                                 dialog.destroy();
@@ -284,11 +285,12 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                     .ready( () => {
                         dialog._$getDialogEl().dialog( dialog.dialogOptions );
                         dialog.onRenderedCallback(dialog, context);
-                        dialog._$getDialogEl().dialog("widget").find('.ui-dialog-titlebar-close')
-                            .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
-                            .click( () => {
-                                dialog.destroy();
-                            });
+                        dialog._$getDialogEl().prepend( 
+                            $("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
+                                .on('click', () => {
+                                    dialog.destroy();
+                                })
+                        );
                         
                         this._isRendering = false;
                     });

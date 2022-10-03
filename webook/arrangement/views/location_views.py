@@ -43,7 +43,7 @@ class LocationListView(LoginRequiredMixin, LocationSectionManifestMixin, Generic
     queryset = Location.objects.all()
     model = Location
     view_meta = ViewMeta.Preset.table(Location)
-    template_name = "arrangement/list_view.html"
+    template_name = "common/list_view.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -114,7 +114,7 @@ class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
     model = Location
     slug_field = "slug"
     slug_url_kwarg = "slug"
-    template_name = "arrangement/delete_view.html"
+    template_name = "common/delete_view.html"
     view_meta = ViewMeta.Preset.delete(Location)
     
     def get_success_url(self) -> str:

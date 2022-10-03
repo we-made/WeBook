@@ -1,22 +1,17 @@
 from typing import List
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-)
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.views.generic.edit import DeleteView
-from webook.arrangement.views.generic_views.archive_view import ArchiveView
-from webook.utils.meta_utils.section_manifest import SectionManifest
+
 from webook.arrangement.models import OrganizationType
-from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
+from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
+from webook.utils.meta_utils.meta_mixin import MetaMixin
+from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap, SectionManifest
 
 
 def get_section_manifest():
@@ -42,7 +37,7 @@ class OrganizationTypeSectionManifestMixin:
 
 class OrganizationTypeListView (LoginRequiredMixin, OrganizationTypeSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
     queryset = OrganizationType.objects.all()
-    template_name = "arrangement/list_view.html"
+    template_name = "common/list_view.html"
     model = OrganizationType
     view_meta = ViewMeta.Preset.table(OrganizationType)
 
@@ -90,7 +85,7 @@ class OrganizationTypeDeleteView(LoginRequiredMixin, OrganizationTypeSectionMani
     model = OrganizationType 
     slug_field = "slug"
     slug_url_kwarg = "slug"
-    template_name = "arrangement/delete_view.html"
+    template_name = "common/delete_view.html"
     view_meta = ViewMeta.Preset.delete(OrganizationType)
     
     def get_success_url(self) -> str:

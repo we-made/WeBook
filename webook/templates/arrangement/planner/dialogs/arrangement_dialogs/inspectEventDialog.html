@@ -248,8 +248,27 @@
                     </div>
                     
                     <div class="mt-2">
-                        <label class="d-block form-label">{% trans "Vises på skjerm:" %}</label>
-                        {{form.display_layouts}}
+                        <div class="row">
+                            <div class="col-lg-4 col-sm-12">
+                                <label class="d-block form-label">Vises på skjerm:</label>
+                                {{form.display_layouts}}
+                            </div>
+                            <div class="col-lg-8 col-sm-12 mt-sm-2">
+                                <div 
+                                    class="form-group"
+                                    id="display-layout-text-group"
+                                    style="display:none;">
+
+                                    <div>
+                                        {{ form.display_text|as_crispy_field }}
+                                    </div>
+                                    <div>
+                                        {{ form.display_text_en|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div> 
                     
                     <div class="row">
@@ -309,33 +328,6 @@
                         </span>
                     </div>
                 {% endfor %}
-                <!-- <table class="table w-100" id="inspectEventDialog__filesTable"> -->
-                    <!-- <thead>
-                        <tr>
-                            <th>Filnavn</th>
-                            <th>Lastet opp</th>
-                            <th>Valg</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for file in object.files.all %}
-                            <tr id="fileRow_{{file.pk}}">
-                                <td>{{file.filename}}</td>
-                                <td><i class="text-muted">Av {{file.uploader.full_name}} den {{file.created}}</i></td>
-                                <td>
-                                    <a class="btn wb-btn-secondary rounded-pill" href="/media/{{file.file}}" download>
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                    <a class="btn wb-btn-secondary rounded-pill"
-                                        d-arg-file_id="{{file.pk}}"
-                                        d-trigger="deleteFile">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table> -->
             </div>
         </div>
 
@@ -835,13 +827,15 @@
                     status:             dialog.interior.id_status.value,
                     display_layouts:    [...dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
                                             .map(element => element.value),
-                    before_buffer_start: dialog.interior.buffer_before_start != undefined ? dialog.interior.buffer_before_start.value : "", 
-                    before_buffer_end:  dialog.interior.buffer_before_end != undefined ? dialog.interior.buffer_before_end.value : "",
-                    after_buffer_start: dialog.interior.buffer_after_start != undefined ? dialog.interior.buffer_after_start.value : "",
-                    after_buffer_end: dialog.interior.buffer_after_end != undefined ? dialog.interior.buffer_after_end.value : "",
-                    responsible:        dialog.interior.id_responsible.value,
-                    meeting_place:      dialog.interior.id_meeting_place.value,
-                    meeting_place_en: dialog.interior.id_meeting_place_en.value,
+                    before_buffer_start:    dialog.interior.buffer_before_start != undefined ? dialog.interior.buffer_before_start.value : "", 
+                    before_buffer_end:      dialog.interior.buffer_before_end != undefined ? dialog.interior.buffer_before_end.value : "",
+                    after_buffer_start:     dialog.interior.buffer_after_start != undefined ? dialog.interior.buffer_after_start.value : "",
+                    after_buffer_end:       dialog.interior.buffer_after_end != undefined ? dialog.interior.buffer_after_end.value : "",
+                    responsible:            dialog.interior.id_responsible.value,
+                    meeting_place:          dialog.interior.id_meeting_place.value,
+                    meeting_place_en:       dialog.interior.id_meeting_place_en.value,
+                    display_text:           dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
+                    display_text_en:        dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text_en.value : '',
                 };
 
                 dialog.raiseSubmitEvent({
@@ -864,6 +858,21 @@
             peopleMap: new Map(),
             roomsMap: new Map(),
         },
+        plugins: [
+            {
+                name: 'showIfSelected',
+                pluginClass: DialogShowIfSelectedPlugin,
+                args: {
+                    checkboxesSelector: "[name='display_layouts']",
+                    elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
+                    showIfAnyOfTheseValuesMap: new Map([
+                        {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
+                            [ "{{ display_layout.id }}", true],
+                        {% endfor %}
+                    ]),
+                },
+            }
+        ],
     })
 
     $(document).ready(function () {

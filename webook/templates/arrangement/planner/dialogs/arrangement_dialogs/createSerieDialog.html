@@ -287,11 +287,28 @@
             </table> 
         </div>
         <div id="step-5">
-            <i class="fas fa-tv"></i>&nbsp; Vises på
-            {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
-                <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
-                <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label></li>
-            {% endfor %}
+            <div class="row">
+                <div class="col-lg-4 col-sm-12">
+                    <i class="fas fa-tv"></i>&nbsp; Vises på
+                    {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
+                        <li> 
+                            <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
+                            <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label>
+                        </li>
+                    {% endfor %}
+                </div>
+
+                <div class="col-lg-8 col-sm-12 mt-sm-2">
+                    <div class="form-group" id="display-layout-text-group" style="display: none;">
+                        <div>
+                            {{ form.display_text|as_crispy_field }}
+                        </div>
+                        <div>
+                            {{ form.display_text_en|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="form-group mt-2">
                 {{ form.meeting_place | as_crispy_field }}
@@ -825,7 +842,9 @@
                     meeting_place: dialog.interior.id_meeting_place.value,
                     meeting_place_en: dialog.interior.id_meeting_place_en.value,
                     responsible: dialog.interior.id_responsible.value,
-                }
+                    display_text: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
+                    display_text_en: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text_en.value : '',
+                };
 
                 let pattern = {}
                 let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
@@ -1081,12 +1100,26 @@
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
-                console.log(">> setAudienceFromParent", payload);
-                // dialog.data.audienceJsTreeSelect.
+                dialog.data.audienceJsTreeSelect.setSelected(payload);
             } },
             { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
-                console.log(">> setArrangementTypeFromParent", payload);
+                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
             } },
-        ]
+        ],
+        plugins: [
+            {
+                name: 'showIfSelected',
+                pluginClass: DialogShowIfSelectedPlugin,
+                args: {
+                    checkboxesSelector: "[name='display_layouts_serie_planner']",
+                    elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
+                    showIfAnyOfTheseValuesMap: new Map([
+                        {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
+                            [ "{{ display_layout.id }}", true],
+                        {% endfor %}
+                    ]),
+                },
+            }
+        ],
     });
 </script>

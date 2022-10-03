@@ -6,6 +6,7 @@ class Dialog {
         postInit,
         methods={},
         data={},
+        binds={},
         plugins={},
         when={},
     } = {}) {
@@ -18,6 +19,7 @@ class Dialog {
         this.data = data;
         this.when = when;
         this.plugins = plugins;
+        this.binds = binds;
 
         this.$interior = null;
         this.interior = null;
@@ -276,8 +278,8 @@ class Dialog {
         
         this.$interior = this.$dialogElement.find("input, select, textarea");
         this.$interior.each((index, element) => {
-                interior[element.id] = element;
-            });
+            interior[element.id] = element;
+        });
 
         this.interior = interior;
     }
@@ -293,11 +295,22 @@ class DialogPluginBase {
         this.querySelectorAll = this.dialog.querySelectorAll;
 
         for (const prop in args) {
-            this[prop] = args[prop];
+            this[prop] = typeof args[prop] === "function" ? args[prop]( dialog ) : args[prop];
         }
     }
 }
 
+
+class DialogFieldBind {
+    constructor (element, eventHandlers) {
+        this._element = element;
+        this._eventHandlers = eventHandlers;
+    }
+
+    activateEventHandler( eventHandler ) {
+        $(this._element).on( eventHandler.events, eventHandler.do );
+    }
+}
 
 class AbstractBaseStep {
     constructor (onStepIn, onStepOut, wrapperElement) {

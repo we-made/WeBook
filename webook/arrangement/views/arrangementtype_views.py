@@ -42,7 +42,7 @@ class ArrangementTypeSectionManifestMixin:
 
 
 class ArrangementTypeListView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, GenericTreeListTemplateMixin, MetaMixin, ListView):
-    template_name = "arrangement/tree_list_view.html"
+    template_name = "common/tree_list_view.html"
     model = ArrangementType
     queryset = ArrangementType.objects.all()
     view_meta = ViewMeta.Preset.table(ArrangementType)
@@ -100,7 +100,7 @@ arrangement_type_update_view = ArrangementTypeUpdateView.as_view()
 class ArrangementTypeDeleteView(LoginRequiredMixin, ArrangementTypeSectionManifestMixin, MetaMixin, ArchiveView, DialogView):
     model = ArrangementType
     view_meta = ViewMeta.Preset.delete(ArrangementType)
-    template_name = "arrangement/dialog_delete_view.html"
+    template_name = "common/dialog_delete_view.html"
 
     def get_success_url(self) -> str:
         return reverse(

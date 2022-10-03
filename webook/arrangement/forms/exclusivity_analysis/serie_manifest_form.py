@@ -50,6 +50,9 @@ class SerieManifestForm(forms.Form):
     audience = forms.ModelChoiceField(queryset=Audience.objects.all(), required=False)
     arrangement_type = forms.ModelChoiceField(queryset=ArrangementType.objects.all(), required=False)
 
+    display_text = forms.CharField(required=False)
+    display_text_en = forms.CharField(required=False)
+
     responsible = forms.ModelChoiceField(queryset=Person.objects.all(), required=False)
 
     meeting_place = forms.CharField(max_length=512, required=False)
@@ -69,7 +72,7 @@ class SerieManifestForm(forms.Form):
     after_buffer_end = forms.TimeField(required=False)
 
     def as_plan_manifest(self):
-        """Convert the SerieManifestForm to a valid PlanManifest """
+        """Convert the SerieManifestForm to a valid PlanManifest"""
         plan_manifest = PlanManifest()
         plan_manifest.pattern = self.cleaned_data["pattern"]
         plan_manifest.pattern_strategy = self.cleaned_data["patternRoutine"]
@@ -107,6 +110,9 @@ class SerieManifestForm(forms.Form):
 
         plan_manifest.meeting_place = self.cleaned_data["meeting_place"]
         plan_manifest.meeting_place_en = self.cleaned_data["meeting_place_en"]
+
+        plan_manifest.display_text = self.cleaned_data["display_text"]
+        plan_manifest.display_text_en = self.cleaned_data["display_text_en"]
         
         plan_manifest.save()
 
@@ -181,14 +187,23 @@ class CreateSerieForm(SerieManifestForm):
             event.meeting_place_en = manifest.meeting_place_en
             event.responsible = manifest.responsible
 
+            event.display_text = manifest.display_text
+            event.display_text_en = manifest.display_text_en
+
             event.before_buffer_start = manifest.before_buffer_start
             event.before_buffer_end = manifest.before_buffer_end
             event.after_buffer_start = manifest.after_buffer_start
             event.after_buffer_end = manifest.after_buffer_end
 
+            event.save()
+
             create_events.append(event)
 
-        created_events = Event.objects.bulk_create(create_events)
+        # created_events = Event.objects.bulk_create(create_events)
+        created_events = create_events
+
+        # if (created_events and created_events[0]):
+        #     raise Exception("Issue encountered while bulk saving serie events -- events were not created.")
 
         if (manifest.before_buffer_start and manifest.before_buffer_end 
             and manifest.after_buffer_start and manifest.after_buffer_end):

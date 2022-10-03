@@ -59,7 +59,7 @@ class RoomPresetsSectionManifestMixin:
 
 
 class RoomPresetsListView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
-    template_name = "arrangement/list_view.html"
+    template_name = "common/list_view.html"
     model = RoomPreset
     queryset = RoomPreset.objects.all()
     view_meta = ViewMeta.Preset.table(RoomPreset)
@@ -117,7 +117,7 @@ room_preset_update_view = RoomPresetUpdateView.as_view()
 class RoomPresetDeleteView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, ArchiveView):
     model = RoomPreset
     view_meta = ViewMeta.Preset.delete(RoomPreset)
-    template_name = "arrangement/delete_view.html"
+    template_name = "common/delete_view.html"
 
     def get_success_url(self) -> str:
         return reverse(

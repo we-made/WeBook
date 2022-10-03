@@ -102,30 +102,33 @@ export class ArrangementCreator {
                                 const $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
                                 const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
 
-                                $thisDialog.find('#serie_ticket_code').attr('value', $mainDialog.find('#id_ticket_code')[0].value);
-                                $thisDialog.find('#serie_title').attr('value', $mainDialog.find('#id_name')[0].value);
-                                $thisDialog.find('#serie_title_en').attr('value', $mainDialog.find('#id_name_en')[0].value);
-                                $thisDialog.find('#serie_expected_visitors').attr('value', $mainDialog.find('#id_expected_visitors')[0].value);
-                                    
-                                const idOfAudienceSelectedOnMainDialog = $mainDialog.find('#_audienceId').val();
-                                const idOfArrangementTypeSelectedOnMainDialog = $mainDialog.find('#_arrangementTypeId').val();
+                                [
+                                    { from: '#id_ticket_code', to: '#serie_ticket_code' },
+                                    { from: '#id_name', to: '#serie_title' },
+                                    { from: '#id_name_en', to: '#serie_title_en' },
+                                    { from: '#id_expected_visitors', to: '#serie_expected_visitors'},
+                                    { from: '#id_meeting_place', to: '#id_meeting_place' },
+                                    { from: '#id_meeting_place_en', to: '#id_meeting_place_en' },
+                                    { from: '#id_responsible', to: '#id_responsible' },
+                                    { from: '#id_status', to: '#id_status' },
+                                    { from: '#_audienceId', to: '#_backingAudienceId' },
+                                    { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId' },
+                                    { from: '#id_display_text', to: '#id_display_text' },
+                                    { from: '#id_display_text_en', to: '#id_display_text_en' },
+                                ].forEach( (mapping) => { 
+                                    $thisDialog.find( mapping.to ).val( $mainDialog.find( mapping.from )[0].value );
+                                });
 
-                                $thisDialog.find('#id_meeting_place').val($mainDialog.find('#id_meeting_place').val());
-                                $thisDialog.find('#id_meeting_place_en').val($mainDialog.find('#id_meeting_place_en').val());
-                                $thisDialog.find('#id_responsible').val($mainDialog.find('#id_responsible').val());
-
-                                $thisDialog.find("#_backingAudienceId").val(idOfAudienceSelectedOnMainDialog);
-                                $thisDialog.find("#_backingArrangementTypeId").val(idOfArrangementTypeSelectedOnMainDialog);
-
-                                $thisDialog.find('#id_status').val($mainDialog.find("#id_status")[0].value);
-
+                                $thisDialog.find('#serie_uuid').val(crypto.randomUUID());
                                 $mainDialog[0].querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
                                         $thisDialog.find('#id_display_layouts_serie_planner_' + checkboxElement.value)
                                             .prop( "checked", true );
                                     });
 
-                                $thisDialog.find('#serie_uuid').val(crypto.randomUUID());
+                                document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                    new mdb.Input(formOutline).init();
+                                });
                             }
                             else {
                                 if (context.series !== undefined) {
@@ -324,29 +327,30 @@ export class ArrangementCreator {
                             if (context.lastTriggererDetails?.event_uuid === undefined) {
                                 const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
                                 this.dialogManager.setTitle("newSimpleActivityDialog", "Opprett aktivitet");
-                                $simpleActivityDialog.find('#ticket_code').attr('value',         $mainDialog.find('#id_ticket_code').val() );
-                                $simpleActivityDialog.find('#title').attr('value',               $mainDialog.find('#id_name').val() );
-                                $simpleActivityDialog.find('#title_en').attr('value',            $mainDialog.find('#id_name_en').val() );
-                                $simpleActivityDialog.find('#expected_visitors').attr('value',   $mainDialog.find('#id_expected_visitors').val() );
-                                $simpleActivityDialog.find('#id_status').val($mainDialog.find("#id_status")[0].value);
 
-                                $simpleActivityDialog.find('#id_meeting_place').val($mainDialog.find('#id_meeting_place').val());
-                                $simpleActivityDialog.find('#id_meeting_place_en').val($mainDialog.find('#id_meeting_place_en').val());
-                                $simpleActivityDialog.find('#id_responsible').val($mainDialog.find('#id_responsible').val());
+                                [
+                                    { from: '#id_ticket_code', to: '#ticket_code' },
+                                    { from: '#id_name', to: '#title' },
+                                    { from: '#id_name_en', to: '#title_en' },
+                                    { from: '#id_expected_visitors', to: '#expected_visitors'},
+                                    { from: '#id_status', to: '#id_status' },
+                                    { from: '#id_meeting_place', to: '#id_meeting_place' },
+                                    { from: '#id_meeting_place_en', to: '#id_meeting_place_en' },
+                                    { from: '#id_responsible', to: '#id_responsible' },
+                                    { from: '#id_display_text', to: '#id_display_text' },
+                                    { from: '#id_display_text_en', to: '#id_display_text_en' },
+                                    { from: '#_audienceId', to: '#_backingAudienceId' },
+                                    { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId'},
+                                ].forEach( (mapping) => { 
+                                    $simpleActivityDialog.find( mapping.to ).val( $mainDialog.find( mapping.from )[0].value );
+                                });
 
+                                $simpleActivityDialog.find('#event_uuid').val(crypto.randomUUID());
                                 $mainDialog[0].querySelectorAll("input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
                                         $simpleActivityDialog.find(`#${checkboxElement.value}_dlcheck`)
                                             .prop( "checked", true );
                                     })
-
-                                const idOfAudienceSelectedOnMainDialog = $mainDialog.find('#_audienceId').val();
-                                const idOfArrangementTypeSelectedOnMainDialog = $mainDialog.find('#_arrangementTypeId').val();
-
-                                $simpleActivityDialog.find("#_backingAudienceId").val(idOfAudienceSelectedOnMainDialog);
-                                $simpleActivityDialog.find("#_backingArrangementTypeId").val(idOfArrangementTypeSelectedOnMainDialog);
-
-                                $simpleActivityDialog.find('#event_uuid').val(crypto.randomUUID());
 
                                 return;
                             }

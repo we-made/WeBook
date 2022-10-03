@@ -1,8 +1,8 @@
-from django.db import models
-from django_extensions.db.models import TimeStampedModel
 from autoslug import AutoSlugField
-from django.utils.translation import gettext_lazy as _
+from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 
 
 class ScreenResource(TimeStampedModel):
@@ -20,9 +20,10 @@ class ScreenResource(TimeStampedModel):
     generated_name = models.CharField(verbose_name=_("Generated Name"), max_length=255, blank=False, null=True)
 
     slug = AutoSlugField(populate_from="screen_model", unique=True)
+    
     instance_name_attribute_name = "screen_model"
-    entity_name_singular = _("ScreenResource")
-    entity_name_plural = _("ScreenResources")
+    entity_name_singular = _("Screen Resource")
+    entity_name_plural = _("Screen Resources")
 
     @property
     def resolved_name(self):
@@ -50,8 +51,8 @@ class ScreenGroup(TimeStampedModel):
 
     slug = AutoSlugField(populate_from="group_name", unique=True)
     instance_name_attribute_name = "group_name"
-    entity_name_singular = _("ScreenGroup")
-    entity_name_plural = _("ScreenGroups")
+    entity_name_singular = _("Screen Group")
+    entity_name_plural = _("Screen Groups")
 
     @property
     def resolved_name(self):
@@ -76,6 +77,9 @@ class DisplayLayout(TimeStampedModel):
     all_events = models.BooleanField(verbose_name=_("All Events"), default=True)
     is_active = models.BooleanField(verbose_name=_("Layout Enabled"), default=True)
 
+    """ If this display layout is selected, should the user be presented with the option of Display Layout Text field? """
+    triggers_display_layout_text = models.BooleanField(verbose_name=_("Triggers Display Layout Text Fields"), default=False)
+
     screens = models.ManyToManyField(to=ScreenResource, verbose_name=_("Screen Resources"), related_name="layouts")
     groups = models.ManyToManyField(to=ScreenGroup, verbose_name=_("Screen Groups"), related_name="layouts")
 
@@ -85,8 +89,8 @@ class DisplayLayout(TimeStampedModel):
     slug = AutoSlugField(populate_from="name", unique=True)
 
     instance_name_attribute_name = "name"
-    entity_name_singular = _("DisplayLayout")
-    entity_name_plural = _("DisplayLayouts")
+    entity_name_singular = _("Display Layout")
+    entity_name_plural = _("Display Layouts")
 
 
     def get_absolute_url(self):
@@ -111,8 +115,8 @@ class DisplayLayoutSetting(TimeStampedModel):
     file_output_path = models.TextField(verbose_name=_("File Output Path"), max_length=255, blank=True)
 
     slug = AutoSlugField(populate_from="name", unique=True)
-    entity_name_singular = _("DisplayLayoutSetting")
-    entity_name_plural = _("DisplayLayoutSettings")
+    entity_name_singular = _("Display Layout Setting")
+    entity_name_plural = _("Display Layout Settings")
 
     def __str__(self):
         """Return display layout name"""

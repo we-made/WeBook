@@ -1,4 +1,4 @@
-{% extends "screenshow/meta_base.html" %}
+{% extends "common/meta_base.html" %}
 {% load static i18n %}
 
 
@@ -13,57 +13,44 @@
 {% endblock %}
 
 {% block content %}
-
 <section>
     <div class="row">
-
         <div class="col-6 ps-5">
-
             <div>
                 <h5>
                     {% trans "Layout Name:" %}
                   <span>{{ object.name }}</span>
                 </h5>
-
             </div>
-
             <div class="mt-4">
                 <h5>
                     {% trans "Layout Description:" %}
                    <span>{{ object.description }}</span>
                 </h5>
-
             </div>
-
             <div class="mt-5">
                 <h5>
                     {% trans "Number of items showing: " %}
                    <span>{{ object.quantity }}</span>
                 </h5>
-
             </div>
-
            <div class="mt-4">
                 <h5>
                     {% trans "Is Room screen based: " %}
                   <span>{{ object.is_room_based }}</span>
                 </h5>
-
             </div>
-
            <div class="mt-4">
                 <h5>
                     {% trans "Showing all events: " %}
                   <span>{{ object.all_events }}</span>
                 </h5>
-
             </div>
            <div class="mt-4">
                 <h5>
                     {% trans "Is Active: " %}
                   <span>{{ object.is_active }}</span>
                 </h5>
-
             </div>
         </div>
         <div class="col-6">
@@ -104,6 +91,4 @@
         </div>
     </div>
 </section>
-
-
 {% endblock %}
