@@ -4,18 +4,30 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement) {
         debugger;
     }
 
-    $dialogElement.find('#serie_uuid').val(serie._uuid);
-    $dialogElement.find('#serie_title').val(serie.time.title);
-    $dialogElement.find('#serie_title_en').val(serie.time.title_en);
-    $dialogElement.find('#serie_start').val(serie.time.start).change();
-    $dialogElement.find('#serie_end').val(serie.time.end).change();
-    $dialogElement.find('#serie_ticket_code').val(serie.time.ticket_code);
-    $dialogElement.find('#serie_expected_visitors').val(serie.time.expected_visitors);
-    $dialogElement.find('#area_start_date').val(serie.time_area.start_date);
-    $dialogElement.find('#buffer_before_start').val(serie.buffer.before?.start);
-    $dialogElement.find('#buffer_before_end').val(serie.buffer.before?.end);
-    $dialogElement.find('#buffer_after_start').val(serie.buffer.after?.start);
-    $dialogElement.find('#buffer_after_end').val(serie.buffer.after?.end);
+    console.log(serie);
+
+    [
+        { target: '#serie_uuid', value: serie._uuid },
+        { target: '#serie_title', value: serie.time.title },
+        { target: '#serie_title_en', value: serie.time.title_en },
+        { target: '#serie_start', value: serie.time.start },
+        { target: '#serie_end', value: serie.time.end },
+        { target: '#serie_ticket_code', value: serie.time.ticket_code },
+        { target: '#serie_expected_visitors', value: serie.time.expected_visitors },
+        { target: '#area_start_date', value: serie.time_area.start_date },
+        { target: '#buffer_before_start', value: serie.buffer.before?.start },
+        { target: '#buffer_before_end', value: serie.buffer.before?.after },
+        { target: '#buffer_after_start', value: serie.buffer.after?.start },
+        { target: '#buffer_after_end', value: serie.buffer.after?.end },
+        { target: '#id_status', value: serie.time.status },
+        { target: '#_backingArrangementTypeId', value: serie.time.arrangement_type },
+        { target: '#_backingAudienceId', value: serie.time.audience },
+        { target: '#id_responsible', value: serie.time.responsible },
+        { target: '#id_meeting_place', value: serie.time.meeting_place },
+        { target: '#id_meeting_place_en', value: serie.time.meeting_place_en },
+    ].forEach( (mapping) => {
+        $dialogElement.find( mapping.target ).val( mapping.value );
+    } );
 
     // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
     // has "selected" rooms as they would through the dialog interface.

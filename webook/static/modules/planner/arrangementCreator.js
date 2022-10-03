@@ -102,14 +102,10 @@ export class ArrangementCreator {
                                 const $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
                                 const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
 
-                                $thisDialog.find('#serie_ticket_code')
-                                    .attr('value', $mainDialog.find('#id_ticket_code')[0].value);
-                                $thisDialog.find('#serie_title')
-                                    .attr('value', $mainDialog.find('#id_name')[0].value);
-                                $thisDialog.find('#serie_title_en')
-                                    .attr('value', $mainDialog.find('#id_name_en')[0].value);
-                                $thisDialog.find('#serie_expected_visitors')
-                                    .attr('value', $mainDialog.find('#id_expected_visitors')[0].value);
+                                $thisDialog.find('#serie_ticket_code').attr('value', $mainDialog.find('#id_ticket_code')[0].value);
+                                $thisDialog.find('#serie_title').attr('value', $mainDialog.find('#id_name')[0].value);
+                                $thisDialog.find('#serie_title_en').attr('value', $mainDialog.find('#id_name_en')[0].value);
+                                $thisDialog.find('#serie_expected_visitors').attr('value', $mainDialog.find('#id_expected_visitors')[0].value);
                                     
                                 const idOfAudienceSelectedOnMainDialog = $mainDialog.find('#_audienceId').val();
                                 const idOfArrangementTypeSelectedOnMainDialog = $mainDialog.find('#_arrangementTypeId').val();
@@ -130,18 +126,19 @@ export class ArrangementCreator {
                                     });
 
                                 $thisDialog.find('#serie_uuid').val(crypto.randomUUID());
-
-                                document.querySelectorAll('.form-outline').forEach((formOutline) => {
-                                    new mdb.Input(formOutline).init();
-                                });
                             }
                             else {
                                 if (context.series !== undefined) {
                                     let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                                     const $dialogElement = $(this.dialogManager.$getDialogElement("newTimePlanDialog"));
+                                    
                                     PopulateCreateSerieDialogFromSerie(serie, $dialogElement);
                                 }
                             }
+                            
+                            document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                                new mdb.Input(formOutline).init();
+                            });
                         },
                         destructure: () => {},
                         onUpdatedCallback: () => {
