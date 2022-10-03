@@ -312,6 +312,7 @@
             ].forEach((select) => {
                 const mdbSelect = new mdb.Select(select.element, {
                     filter: true,
+                    container: "[class='{{discriminator}}']",
                     validation: true,
                     noResultText: "Ingen resultater",
                     invalidFeedback: select.invalidFeedback,
