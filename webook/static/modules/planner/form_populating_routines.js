@@ -318,22 +318,35 @@ export function PopulateCreateEventDialog(event, $dialogElement) {
         else throw "Invalid value or type"
     }
 
+    console.log(event);
+
     let [fromDate, fromTime]    = parseDateOrStringToArtifacts(event.start);
     let [toDate, toTime]        = parseDateOrStringToArtifacts(event.end);
 
-    $dialogElement.find('#event_uuid').val(event._uuid);
-    $dialogElement.find('#title').val(event.title);
-    $dialogElement.find('#title_en').val(event.title_en);
-    $dialogElement.find('#ticket_code').val(event.ticket_code);
-    $dialogElement.find('#expected_visitors').val(event.expected_visitors);
-    $dialogElement.find('#fromDate').val(fromDate);
-    $dialogElement.find('#fromTime').val(fromTime);
-    $dialogElement.find('#toDate').val(toDate);
-    $dialogElement.find('#toTime').val(toTime);
-    $dialogElement.find('#buffer_before_start').val(event.before_buffer_start);
-    $dialogElement.find('#buffer_before_end').val(event.before_buffer_end);
-    $dialogElement.find('#buffer_after_start').val(event.after_buffer_start);
-    $dialogElement.find('#buffer_after_end').val(event.after_buffer_end);
+    [
+        { target: "#event_uuid", value: event._uuid },
+        { target: "#title", value: event.title },
+        { target: "#title_en", value: event.title_en },
+        { target: "#ticket_code", value: event.ticket_code },
+        { target: '#expected_visitors', value: event.expected_visitors },
+        { target: '#fromDate', value: fromDate },
+        { target: '#fromTime', value: fromTime },
+        { target: '#toDate', value: toDate },
+        { target: '#toTime', value: toTime },
+        { target: '#buffer_before_start', value: event.before_buffer_start },
+        { target: '#buffer_before_end', value: event.before_buffer_end },
+        { target: '#buffer_after_start', value: event.after_buffer_start },
+        { target: '#buffer_after_end', value: event.after_buffer_end },
+        { target: '#_backingAudienceId', value: event.audience },
+        { target: '#_backingArrangementTypeId', value: event.arrangement_type },
+        { target: '#id_meeting_place', value: event.meeting_place },
+        { target: '#id_meeting_place_en', value: event.meeting_place_en },
+        { target: '#id_status', value: event.status },
+        { target: '#id_responsible', value: event.responsible },
+    ].forEach( (mapping) => {
+        $dialogElement.find( mapping.target ).val( mapping.value );
+    } )
+
 
     if (Array.isArray(event.display_layouts)) {
         event.display_layouts.forEach(element => {
