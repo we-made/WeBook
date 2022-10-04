@@ -406,6 +406,38 @@ export class PlannerCalendar extends FullCalendarBased {
                         }
                     },
                 },
+                eventContent: function (arg) {
+                    if (arg.view.type === "dayGridMonth") {
+                        let nodes = [];
+
+                        const eventIsSameDay = (arg.event.start !== null && arg.event.end !== null) &&
+                            arg.event.start.getFullYear() === arg.event.end.getFullYear() &&
+                            arg.event.start.getMonth() === arg.event.end.getMonth() &&
+                            arg.event.start.getDate() === arg.event.end.getDate();
+
+                        let colorDot = document.createElement('div');
+                        colorDot.classList.add("fc-daygrid-event-dot");
+                        colorDot.style = "border-color: " + arg.backgroundColor;
+                        if (eventIsSameDay === true)
+                        nodes.push(colorDot);
+
+                        let timeText = document.createElement('strong');
+                        timeText.innerText = `(${arg.timeText})`;
+                        nodes.push(timeText);
+
+                        let iconsRail = document.createElement('span');
+                        // iconsRail.innerHTML = "<i class='fas fa-sync'></i>";
+                        // iconsRail.classList.add("ms-1");
+                        nodes.push(iconsRail);
+
+                        let eventTitle = document.createElement('span');
+                        eventTitle.classList.add("ms-2");
+                        eventTitle.innerText = arg.event.title;
+                        nodes.push(eventTitle);
+
+                        return { domNodes: nodes };
+                    }
+                },
                 headerToolbar: { left: '' , center: '', right: '' },
                 eventSources: [
                     {
