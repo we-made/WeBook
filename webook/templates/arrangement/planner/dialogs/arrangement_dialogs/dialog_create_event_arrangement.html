@@ -149,10 +149,27 @@
                 <thead></thead>
                 <tbody>
                     <tr>
-                        <th colspan="3" class="h5">Opprigg før aktiviteten:</th>
+                        <th colspan="3" class="h4">Opprigg før aktiviteten:</th>
+                    </tr>
+                    <tr style="border-bottom:none;">
+                       <td colspan="2" style="border: none;">
+                        <div>
+                            <label for="buffer_before_title" class="form-label">
+                                Tittel
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="buffer_before_title" placeholder="Tittel... (valgfritt)">
+                        </div>
+
+                        <div class="mt-2">
+                            <label for="buffer_before_date" class="form-label">
+                                Dato
+                            </label>
+                            <input type="date" name="" id="buffer_before_date" class="form-control form-control-lg">
+                        </div>
+                       </td> 
                     </tr>
                     <tr>
-                        <td>
+                        <td style="padding-top: 0;">
                             <label for="buffer_before_start" class="form-label">
                                 Fra
                             </label>
@@ -160,7 +177,7 @@
                                 <input type="time" id="buffer_before_start" name="buffer_before_start" class="form-control form-control-lg" />
                             </div>
                         </td>
-                        <td>
+                        <td style="padding-top: 0;">
                             <label for="buffer_before_end" class="form-label">
                                 Til
                             </label>
@@ -172,8 +189,25 @@
                     <tr>
                         <th colspan="3" class="h5">Nedrigg etter aktiviteten:</th>
                     </tr>
+                    <tr style="border-bottom:none;">
+                        <td colspan="2" style="border: none;">
+                         <div>
+                            <label for="after_buffer_title" class="form-label">
+                                Tittel
+                            </label>
+                             <input type="text" class="form-control form-control-lg" id="buffer_after_title" placeholder="Tittel... (valgfritt)">
+                         </div>
+ 
+                         <div class="mt-2">
+                            <label for="" class="form-label">
+                                Dato
+                            </label>
+                            <input type="date" name="" class="form-control form-control-lg" id="buffer_after_date">
+                         </div>
+                        </td> 
+                     </tr>
                     <tr>
-                        <td>
+                        <td style="padding-top: 0;">
                             <label for="buffer_after_start" class="form-label">
                                 Fra
                             </label>
@@ -181,7 +215,7 @@
                                 <input type="time" id="buffer_after_start" name="buffer_after_start" class="form-control form-control-lg" />
                             </div>
                         </td>
-                        <td>
+                        <td style="padding-top:0;">
                             <lable for="buffer_after_end" class="form-label">
                                 Til
                             </lable>
@@ -406,8 +440,12 @@
                     people:                     Array.from(dialog.data.selectedPeopleIds.keys()),
                     people_name_map:            dialog.data.peopleNameMap,      // Kept due to edit - not pertinent for save
                     room_name_map:              dialog.data.roomsNameMap,       // Kept due to edit - not pertinent for save
+                    before_buffer_title:        dialog.interior.buffer_before_title.value ?? "",
+                    before_buffer_date:         dialog.interior.buffer_before_date.value,
                     before_buffer_start:        dialog.interior.buffer_before_start.value ?? "",
                     before_buffer_end:          dialog.interior.buffer_before_end.value ?? "",
+                    after_buffer_title:         dialog.interior.buffer_after_title.value ?? "",
+                    after_buffer_date:          dialog.interior.buffer_after_date.value,
                     after_buffer_start:         dialog.interior.buffer_after_start.value ?? "",
                     after_buffer_end:           dialog.interior.buffer_after_end.value ?? "",
                     meeting_place:              dialog.interior.id_meeting_place.value,

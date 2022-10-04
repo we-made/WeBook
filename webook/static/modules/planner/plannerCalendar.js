@@ -241,7 +241,13 @@ export class PlannerCalendar extends FullCalendarBased {
             </span>`
         }
 
-        console.log("statusColor", arrangement.status_color);
+        let statusForegroundTextColor = "black";
+        if (arrangement.status_color) {
+            const contrast_rating = new Color(arrangement.status_color).contrast(new Color("black"), "WCAG21");
+            if (contrast_rating > 3)
+                statusForegroundTextColor = "white";
+        }
+
         new mdb.Popover(elementToBindWith, {
             trigger: "hover",
             allowList: {
@@ -312,7 +318,7 @@ export class PlannerCalendar extends FullCalendarBased {
                         ${arrangement.arrangement_type}
                     </div>
                     <div class='col-12 text-center mt-2'>
-                        <div class='border border-1 p-2 rounded-pill fw-bold' style='background-color: ${arrangement.status_color}'>
+                        <div class='border border-1 p-2 rounded-pill fw-bold' style='background-color: ${arrangement.status_color};color:${statusForegroundTextColor};'>
                             ${ arrangement.status_name ?? "Ingen status" }
                         </div>
                     </div>

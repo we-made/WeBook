@@ -66,8 +66,16 @@ class IconClassMixin(models.Model):
 
 class BufferFieldsMixin(models.Model):
     """Mixin for the common fields for buffer functionality"""
+
+    before_buffer_title = models.CharField(null=True, blank=True, max_length=512)
+    before_buffer_date = models.DateField(null=True, blank=True)
+    before_buffer_date_offset = models.IntegerField(null=True, blank=True)
     before_buffer_start = models.TimeField(null=True, blank=True)
     before_buffer_end = models.TimeField(null=True, blank=True)
+    
+    after_buffer_title = models.CharField(null=True, blank=True, max_length=512)
+    after_buffer_date = models.DateField(null=True, blank=True)
+    after_buffer_date_offset = models.IntegerField(null=True, blank=True)
     after_buffer_start = models.TimeField(null=True, blank=True)
     after_buffer_end = models.TimeField(null=True, blank=True)
 
@@ -1055,10 +1063,15 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
         if self.before_buffer_start and self.before_buffer_end:
             before_activity_buffer = Event()
-            before_activity_buffer.title = "Opprigg for " + self.title
+            before_activity_buffer.title = self.before_buffer_title or "Opprigg for " + self.title
             before_activity_buffer.arrangement = self.arrangement
-            before_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.start, self.before_buffer_start))
-            before_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.start, self.before_buffer_end))
+
+            offset_start = None
+            if self.before_buffer_date_offset:
+                offset_start = self.start - datetime.timedelta(days=self.before_buffer_date_offset)
+
+            before_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or offset_start or self.start, self.before_buffer_start))
+            before_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or offset_start or self.start, self.before_buffer_end))
             before_activity_buffer.save()
             before_activity_buffer.rooms.set(self.rooms.all())
             before_activity_buffer.people.set(self.people.all())
@@ -1067,10 +1080,15 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             self.save()
         if self.after_buffer_start and self.after_buffer_end:
             after_activity_buffer = Event()
-            after_activity_buffer.title = "Nedrigg for " + self.title
+            after_activity_buffer.title = self.after_buffer_title or "Nedrigg for " + self.title
             after_activity_buffer.arrangement = self.arrangement
-            after_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.end, self.after_buffer_start))
-            after_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.end, self.after_buffer_end))
+
+            offset_end = None
+            if self.after_buffer_date_offset:
+                offset_end = self.end + datetime.timedelta(days=self.after_buffer_date_offset)
+
+            after_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or offset_end or self.end, self.after_buffer_start))
+            after_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or offset_end or self.end, self.after_buffer_end))
             after_activity_buffer.save()
             after_activity_buffer.rooms.set(self.rooms.all())
             after_activity_buffer.people.set(self.people.all())
