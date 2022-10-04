@@ -27,10 +27,14 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
 
     if (serie.buffer) {
         if (serie.buffer.before) {
+            formData.append(`${keyPrefix}before_buffer_title`, serie.buffer.before.title);
+            formData.append(`${keyPrefix}before_buffer_date`, serie.buffer.before.date);
             formData.append(`${keyPrefix}before_buffer_start`, serie.buffer.before.start);
             formData.append(`${keyPrefix}before_buffer_end`, serie.buffer.before.end);
         }
         if (serie.buffer.after) {
+            formData.append(`${keyPrefix}after_buffer_title`, serie.buffer.after.title);
+            formData.append(`${keyPrefix}after_buffer_date`, serie.buffer.after.date);
             formData.append(`${keyPrefix}after_buffer_start`, serie.buffer.after.start);
             formData.append(`${keyPrefix}after_buffer_end`, serie.buffer.after.end);
         }

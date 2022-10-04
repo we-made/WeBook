@@ -252,14 +252,33 @@
                     <tr>
                         <th colspan="3" class="fw-bold">Opprigg:</th>
                     </tr>
+                    
+                    <tr style="border-bottom: none;">
+                        <td colspan="2" style="border:none;">
+                            <div>
+                                <label for="buffer_before_title" class="form-label">
+                                    Tittel
+                                </label>
+                                <input type="text" name="" id="buffer_before_title" class="form-control form-control-lg">
+                            </div>
+
+                            <div class="mt-2">
+                                <label for="buffer_before_date" class="form-label">
+                                    Dato
+                                </label>
+                                <input type="date" name="" id="buffer_before_date" class="form-control form-control-lg">
+                            </div>
+                        </td>
+                    </tr>
+
                     <tr>
-                        <td>
+                        <td style="padding-top: 0;">
                             Fra
                             <div>
                                 <input type="time" id="buffer_before_start" class="form-control form-control-lg" />
                             </div>
                         </td>
-                        <td>
+                        <td style="padding-top: 0;">
                             Til
                             <div>
                                 <input type="time" id="buffer_before_end" class="form-control form-control-lg" />
@@ -270,14 +289,34 @@
                         <th colspan="3" class="fw-bold">Nedrigg:</th>
                     </tr>
                     <tr>
-                        <td>
-                            Fra
+                        <td colspan="2">
+                            <div>
+                                <label for="buffer_after_title" class="form-label">
+                                    Tittel
+                                </label>
+                                <input type="text" name="" id="buffer_after_title" class="form-control form-control-lg">
+                            </div>
+                            <div class="mt-2">
+                                <label for="buffer_after_date" class="form-label">
+                                    Dato
+                                </label>
+                                <input type="date" name="" id="buffer_after_date" class="form-control form-control-lg">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 0;">
+                            <label for="buffer_after_start" class="form-label">
+                                Fra
+                            </label>
                             <div>
                                 <input type="time" id="buffer_after_start" class="form-control form-control-lg" />
                             </div>
                         </td>
-                        <td>
-                            Til
+                        <td style="padding-top: 0;">
+                            <label for="buffer_after_end" class="buffer_after_end">
+                                Til
+                            </label>
                             <div>
                                 <input type="time" id="buffer_after_end" class="form-control form-control-lg" />
                             </div>
@@ -938,12 +977,16 @@
                 serie.buffer = {}
                 if ( dialog.$('#buffer_before_start').val() && dialog.$('#buffer_before_end').val() ) {
                     serie.buffer.before = {
+                        title: dialog.$('#buffer_before_title').val(),
+                        date: dialog.$('#buffer_before_date').val(),
                         start: dialog.$('#buffer_before_start').val(),
                         end: dialog.$('#buffer_before_end').val(),
                     }
                 }
                 if ( dialog.$('#buffer_after_start').val() && dialog.$('#buffer_after_end').val() ) {
                     serie.buffer.after = {
+                        title: dialog.$('#buffer_after_title').val(),
+                        date: dialog.$('#buffer_after_date').val(),
                         start: dialog.$('#buffer_after_start').val(),
                         end: dialog.$('#buffer_after_end').val(),
                     }
