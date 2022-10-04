@@ -66,8 +66,14 @@ class IconClassMixin(models.Model):
 
 class BufferFieldsMixin(models.Model):
     """Mixin for the common fields for buffer functionality"""
+
+    before_buffer_title = models.CharField(null=True, blank=True, max_length=512)
+    before_buffer_date = models.DateField(null=True, blank=True)
     before_buffer_start = models.TimeField(null=True, blank=True)
     before_buffer_end = models.TimeField(null=True, blank=True)
+    
+    after_buffer_title = models.CharField(null=True, blank=True, max_length=512)
+    after_buffer_date = models.DateField(null=True, blank=True)
     after_buffer_start = models.TimeField(null=True, blank=True)
     after_buffer_end = models.TimeField(null=True, blank=True)
 
