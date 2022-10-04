@@ -22,6 +22,11 @@
     text-transform: none;
 }
 
+.webook-tabs .nav-link.active {
+    color: var(--ACTIVE-TEXT-COLOR);
+    border-bottom: solid 3.2px var(--ACTIVE-TEXT-COLOR);
+}
+
 .webook-tabs > .nav-item > .nav-link.active {
     color: var(--ACTIVE-TEXT-COLOR);
     border-bottom: solid 3.2px var(--ACTIVE-TEXT-COLOR);
