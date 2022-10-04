@@ -59,7 +59,7 @@
                             aria-labelledby="tabs-{{location.slug}}-tab">
 
                             <div class="table-responsive">
-                                <table class="table table-sm table-striped mt-2" id="{{location.slug}}_roomsTable">
+                                <table class="table table-sm table-striped mt-2 rooms-in-location-table" id="{{location.slug}}_roomsTable">
                                     <thead>
                                         <tr>
                                             <th>Rom</th>
@@ -165,6 +165,16 @@
                         {% endfor %}
                     ]),
                     checkboxIdPrefix: "roomCheck",
+                    rooms: new Map([
+                        {% for location in locations %}
+                            {% for room in location.rooms.all %}
+                            [
+                                {{ room.pk }}, "{{ room.name }}"
+                            ],
+                            {% endfor %}
+                        {% endfor %}
+                    ]),
+                    datatables: ( dialog ) => { return dialog.querySelectorAll("table.rooms-in-location-table") },
                 }
             }
         ],
