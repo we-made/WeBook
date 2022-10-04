@@ -22,8 +22,12 @@ _ALWAYS_FIELDS = ( "title",
                    "display_layouts",
                    "people",
                    "rooms",
+                   "before_buffer_title",
+                   "before_buffer_date",
                    "before_buffer_start",
                    "before_buffer_end",
+                   "after_buffer_title",
+                   "after_buffer_date",
                    "after_buffer_start",
                    "after_buffer_end",
                    "status",
@@ -37,13 +41,16 @@ _ALWAYS_FIELDS = ( "title",
 
 
 class BaseEventForm(forms.ModelForm):
-
+    before_buffer_title = forms.CharField(required=False)
+    before_buffer_date = forms.DateField(required=False)
     before_buffer_start = forms.TimeField(required=False)
     before_buffer_end = forms.TimeField(required=False)
+
+    after_buffer_title = forms.CharField(required=False)
+    after_buffer_date = forms.DateField(required=False)
     after_buffer_start = forms.TimeField(required=False)
     after_buffer_end = forms.TimeField(required=False)
     
-    display_text = forms.CharField(required=False)
     display_text_en = forms.CharField(required=False)
 
     def save(self, commit: bool=True):
@@ -60,13 +67,21 @@ class BaseEventForm(forms.ModelForm):
         if self.instance.is_buffer_event:
             if self.instance.before_buffer_for.exists():
                 pre_buffering_event = self.instance.before_buffer_for.get()
+
+                pre_buffering_event.before_buffer_title = self.instance.before_buffer_title
+                pre_buffering_event.before_buffer_date = self.instance.before_buffer_date
                 pre_buffering_event.before_buffer_start = utc_to_current(self.instance.start).strftime("%H:%M")
                 pre_buffering_event.before_buffer_end = utc_to_current(self.instance.end).strftime("%H:%M")
+
                 pre_buffering_event.save()
             if self.instance.after_buffer_for.exists():
                 post_buffering_event = self.instance.after_buffer_for.get()
+
+                post_buffering_event.after_buffer_title = self.instance.after_buffer_title
+                post_buffering_event.after_buffer_date = self.instance.after_buffer_date
                 post_buffering_event.after_buffer_start = utc_to_current(self.instance.start).strftime("%H:%M")
                 post_buffering_event.after_buffer_end = utc_to_current(self.instance.end).strftime("%H:%M")
+
                 post_buffering_event.save()
 
         _ : Tuple[Optional[Event], Optional[Event]] = self.instance.refresh_buffers()
