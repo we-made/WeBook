@@ -29,8 +29,8 @@
 
             <h5 class="mt-3">Eller velg rom manuelt</h5>
             <div class="row">
-                <div class="col-3">
-                  <div class="nav flex-column nav-tabs text-center"
+                <div class="col-12 mb-2">
+                  <div class="nav flex-column webook-tabs text-center"
                     id="tabs-tab"
                     role="tablist"
                     aria-orientation="vertical">
@@ -49,7 +49,7 @@
                   </div>
                 </div>
               
-                <div class="col-9">
+                <div class="col-12">
                   <div class="tab-content" id="v-tabs-tabContent">
                       {% for location in locations %}
                         <div
@@ -59,7 +59,7 @@
                             aria-labelledby="tabs-{{location.slug}}-tab">
 
                             <div class="table-responsive">
-                                <table class="table table-sm table-striped mt-2" id="{{location.slug}}_roomsTable">
+                                <table class="table table-sm table-striped mt-2 rooms-in-location-table" id="{{location.slug}}_roomsTable">
                                     <thead>
                                         <tr>
                                             <th>Rom</th>
@@ -165,6 +165,16 @@
                         {% endfor %}
                     ]),
                     checkboxIdPrefix: "roomCheck",
+                    rooms: new Map([
+                        {% for location in locations %}
+                            {% for room in location.rooms.all %}
+                            [
+                                {{ room.pk }}, "{{ room.name }}"
+                            ],
+                            {% endfor %}
+                        {% endfor %}
+                    ]),
+                    datatables: ( dialog ) => { return dialog.querySelectorAll("table.rooms-in-location-table") },
                 }
             }
         ],

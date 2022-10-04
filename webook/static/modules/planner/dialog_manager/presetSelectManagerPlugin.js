@@ -9,6 +9,23 @@ class DialogPresetSelectManager extends DialogPluginBase {
 
         this.flatCheckboxToPresetMap = new Map();
 
+        /**
+         * Whenever DataTables refreshes it removes the rows (and thus our checkboxes) from
+         * the document. We keep an internal store of the state of the users selection, so that we
+         * can persist these changes beyond the confines of DataTables and the evolving document.
+         * The solution then in this case becomes to listen for draw events on all datatables, and
+         * should one be found we try to toggle all the checkboxes we know are to be considered as checked. It works out well.
+         * This should ideally be rewritten sooner or later, probably to the core --- the reliance on the document for state, even as small as it is now,
+         * is not, I see in retrospect, a good or sane approach. There are without doubt better, and more succinct ways to implement this.
+         */
+        this.datatables.forEach((datatableElement) => {
+            dialog.$(datatableElement).on('draw.dt', () => { // table has been paginated
+                Array.from(this.selectedItemsMap.keys()).forEach((id) => { 
+                    dialog.$('#' + id).attr("checked", true);
+                });
+            });
+        });
+
         // generates a map that can be used to find all presets that a checkbox is part of
         this.checkboxPresetMap = this._generateCheckboxToPresetMap();
     }
@@ -52,10 +69,18 @@ class DialogPresetSelectManager extends DialogPluginBase {
 
     activatePreset(presetKey) {
         const preset = this.presets.get(presetKey);
+        console.log(Array.from(this.rooms.keys()))
         preset.ids.forEach((id) => {
+            const roomName = this.rooms.get(parseInt(id))
             let $checkboxElement = this.dialog.$('#' + id);
-            $checkboxElement.attr("checked", true);
-            this.selectedItemsMap.set($checkboxElement.attr("id"), $checkboxElement.siblings("label").text());
+            if ($checkboxElement) {
+                $checkboxElement.attr("checked", true);
+            }
+
+            this.selectedItemsMap.set(
+                id, 
+                roomName,
+            );
         });
         
         this.activePresets.set(presetKey, true);
@@ -70,6 +95,8 @@ class DialogPresetSelectManager extends DialogPluginBase {
 
     getSelected() {
         let viewables = [];
+
+        console.log(Array.from(this.selectedItemsMap.values()));
 
         let results = {
             allPresets: this.presets,
@@ -86,6 +113,8 @@ class DialogPresetSelectManager extends DialogPluginBase {
         viewables = viewables.concat(Array.from(selectedItemsMapExcludingPresetSubjects, ([name, value]) => ({id: name, text: value})));
 
         results.viewables = viewables;
+
+        console.log("Results", results);
 
         return results;
     }
