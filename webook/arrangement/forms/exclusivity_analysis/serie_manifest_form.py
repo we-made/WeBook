@@ -219,37 +219,6 @@ class CreateSerieForm(SerieManifestForm):
         # created_events = Event.objects.bulk_create(create_events)
         created_events = create_events
 
-        # if (created_events and created_events[0]):
-        #     raise Exception("Issue encountered while bulk saving serie events -- events were not created.")
-
-        # if (manifest.before_buffer_start and manifest.before_buffer_end 
-        #     and manifest.after_buffer_start and manifest.after_buffer_end):
-        #     for created_event in created_events:
-        #         if manifest.before_buffer_start and manifest.before_buffer_end:
-        #             before_buffer_event = Event()
-        #             before_buffer_event.title = "Opprigg for " + event.title
-        #             before_buffer_event.arrangement = serie.arrangement
-        #             before_buffer_event.start = manifest.tz.localize(datetime.combine(created_event.start, manifest.before_buffer_start))
-        #             before_buffer_event.end = manifest.tz.localize(datetime.combine(created_event.start, manifest.before_buffer_end))
-        #             before_buffer_event.save()
-        #             before_buffer_event.rooms.set(room_ids)
-        #             before_buffer_event.people.set(people_ids)
-        #             before_buffer_event.display_layouts.set(display_layout_ids)
-        #             created_event.buffer_before_event = before_buffer_event
-        #             created_event.save()
-        #         if manifest.after_buffer_start and manifest.after_buffer_end:
-        #             after_buffer_event = Event()
-        #             after_buffer_event.title = "Nedrigg for " + event.title
-        #             after_buffer_event.arrangement = serie.arrangement
-        #             after_buffer_event.start = manifest.tz.localize(datetime.combine(created_event.end, manifest.after_buffer_start))
-        #             after_buffer_event.end = manifest.tz.localize(datetime.combine(created_event.end, manifest.after_buffer_end))
-        #             after_buffer_event.save()
-        #             after_buffer_event.rooms.set(room_ids)
-        #             after_buffer_event.people.set(people_ids)
-        #             after_buffer_event.display_layouts.set(display_layout_ids)
-        #             created_event.buffer_after_event = after_buffer_event
-        #             created_event.save()
-
         room_throughs = []
         people_throughs = []
         display_layout_throughs = []
