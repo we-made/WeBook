@@ -85,8 +85,13 @@ class SerieManifestForm(forms.Form):
         plan_manifest.title = self.cleaned_data["title"]
         plan_manifest.title_en = self.cleaned_data["title_en"]
 
+        plan_manifest.before_buffer_title = self.cleaned_data["before_buffer_title"]
+        plan_manifest.before_buffer_date = self.cleaned_data["before_buffer_data"]
         plan_manifest.before_buffer_start = self.cleaned_data["before_buffer_start"]
         plan_manifest.before_buffer_end = self.cleaned_data["before_buffer_end"]
+
+        plan_manifest.after_buffer_title = self.cleaned_data["after_buffer_title"]
+        plan_manifest.after_buffer_date = self.cleaned_data["after_buffer_date"]
         plan_manifest.after_buffer_start = self.cleaned_data["after_buffer_start"]
         plan_manifest.after_buffer_end = self.cleaned_data["after_buffer_end"]
 
@@ -190,8 +195,13 @@ class CreateSerieForm(SerieManifestForm):
             event.display_text = manifest.display_text
             event.display_text_en = manifest.display_text_en
 
+            event.before_buffer_title = manifest.before_buffer_title
+            event.before_buffer_date = manifest.before_buffer_date
             event.before_buffer_start = manifest.before_buffer_start
             event.before_buffer_end = manifest.before_buffer_end
+
+            event.after_buffer_title = manifest.after_buffer_title
+            event.after_buffer_date = manifest.after_buffer_date
             event.after_buffer_start = manifest.after_buffer_start
             event.after_buffer_end = manifest.after_buffer_end
 
