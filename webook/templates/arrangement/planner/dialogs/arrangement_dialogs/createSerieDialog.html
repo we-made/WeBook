@@ -263,10 +263,10 @@
                             </div>
 
                             <div class="mt-2">
-                                <label for="buffer_before_date" class="form-label">
-                                    Dato
+                                <label for="buffer_before_date_offset" class="form-label">
+                                    Hvor mange dager før? ( 0 for samme dag )
                                 </label>
-                                <input type="date" name="" id="buffer_before_date" class="form-control form-control-lg">
+                                <input type="number" name="" id="buffer_before_date_offset" class="form-control form-control-lg" min="0">
                             </div>
                         </td>
                     </tr>
@@ -297,10 +297,10 @@
                                 <input type="text" name="" id="buffer_after_title" class="form-control form-control-lg">
                             </div>
                             <div class="mt-2">
-                                <label for="buffer_after_date" class="form-label">
-                                    Dato
+                                <label for="buffer_after_date_offset" class="form-label">
+                                    Hvor mange dager etter? ( 0 for samme dag )
                                 </label>
-                                <input type="date" name="" id="buffer_after_date" class="form-control form-control-lg">
+                                <input type="number" name="" id="buffer_after_date_offset" class="form-control form-control-lg" min="0">
                             </div>
                         </td>
                     </tr>
@@ -978,7 +978,7 @@
                 if ( dialog.$('#buffer_before_start').val() && dialog.$('#buffer_before_end').val() ) {
                     serie.buffer.before = {
                         title: dialog.$('#buffer_before_title').val(),
-                        date: dialog.$('#buffer_before_date').val(),
+                        date_offset: dialog.$('#buffer_before_date_offset').val(),
                         start: dialog.$('#buffer_before_start').val(),
                         end: dialog.$('#buffer_before_end').val(),
                     }
@@ -986,7 +986,7 @@
                 if ( dialog.$('#buffer_after_start').val() && dialog.$('#buffer_after_end').val() ) {
                     serie.buffer.after = {
                         title: dialog.$('#buffer_after_title').val(),
-                        date: dialog.$('#buffer_after_date').val(),
+                        date_offset: dialog.$('#buffer_after_date_offset').val(),
                         start: dialog.$('#buffer_after_start').val(),
                         end: dialog.$('#buffer_after_end').val(),
                     }

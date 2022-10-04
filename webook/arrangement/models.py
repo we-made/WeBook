@@ -1065,8 +1065,13 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             before_activity_buffer = Event()
             before_activity_buffer.title = self.before_buffer_title or "Opprigg for " + self.title
             before_activity_buffer.arrangement = self.arrangement
-            before_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or self.start, self.before_buffer_start))
-            before_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or self.start, self.before_buffer_end))
+
+            offset_start = None
+            if self.before_buffer_date_offset:
+                offset_start = self.start - datetime.timedelta(days=self.before_buffer_date_offset)
+
+            before_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or offset_start or self.start, self.before_buffer_start))
+            before_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or offset_start or self.start, self.before_buffer_end))
             before_activity_buffer.save()
             before_activity_buffer.rooms.set(self.rooms.all())
             before_activity_buffer.people.set(self.people.all())
@@ -1077,8 +1082,13 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             after_activity_buffer = Event()
             after_activity_buffer.title = self.after_buffer_title or "Nedrigg for " + self.title
             after_activity_buffer.arrangement = self.arrangement
-            after_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or self.end, self.after_buffer_start))
-            after_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or self.end, self.after_buffer_end))
+
+            offset_end = None
+            if self.after_buffer_date_offset:
+                offset_end = self.end + datetime.timedelta(days=self.after_buffer_date_offset)
+
+            after_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or offset_end or self.end, self.after_buffer_start))
+            after_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or offset_end or self.end, self.after_buffer_end))
             after_activity_buffer.save()
             after_activity_buffer.rooms.set(self.rooms.all())
             after_activity_buffer.people.set(self.people.all())
