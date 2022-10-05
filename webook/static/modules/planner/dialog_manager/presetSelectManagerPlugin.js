@@ -63,13 +63,14 @@ class DialogPresetSelectManager extends DialogPluginBase {
 
     softUntogglePreset(presetKey) {
         if (this.activePresets.has(presetKey)) {
+            if (typeof this.activePresets.get(presetKey) === "object")
+                this.activePresets.get(presetKey).classList.remove("border", "border-success");
             this.activePresets.delete(presetKey);
         }
     }
 
-    activatePreset(presetKey) {
+    activatePreset(presetKey, triggerElement=undefined) {
         const preset = this.presets.get(presetKey);
-        console.log(Array.from(this.rooms.keys()))
         preset.ids.forEach((id) => {
             const roomName = this.rooms.get(parseInt(id))
             let $checkboxElement = this.dialog.$('#' + id);
@@ -82,8 +83,11 @@ class DialogPresetSelectManager extends DialogPluginBase {
                 roomName,
             );
         });
-        
-        this.activePresets.set(presetKey, true);
+
+        if (triggerElement !== undefined)
+            triggerElement.classList.add("border", "border-success");
+
+        this.activePresets.set(presetKey, triggerElement !== undefined ? triggerElement : true);
     }
 
     uncheckAll() {
