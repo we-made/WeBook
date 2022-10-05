@@ -4,6 +4,8 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         debugger;
     }
 
+    console.log("serie", serie);
+
     [
         { target: '#serie_uuid', value: serie._uuid },
         { target: '#serie_title', value: serie.time.title },
@@ -13,8 +15,12 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         { target: '#serie_ticket_code', value: serie.time.ticket_code },
         { target: '#serie_expected_visitors', value: serie.time.expected_visitors },
         { target: '#area_start_date', value: serie.time_area.start_date },
+        { target: '#buffer_before_title', value: serie.buffer.before?.title },
+        { target: '#buffer_before_date_offset', value: serie.buffer.before?.date_offset },
         { target: '#buffer_before_start', value: serie.buffer.before?.start },
-        { target: '#buffer_before_end', value: serie.buffer.before?.after },
+        { target: '#buffer_before_end', value: serie.buffer.before?.end },
+        { target: '#buffer_after_title', value: serie.buffer.after?.title },
+        { target: '#buffer_after_date_offset', value: serie.buffer.after?.date_offset },
         { target: '#buffer_after_start', value: serie.buffer.after?.start },
         { target: '#buffer_after_end', value: serie.buffer.after?.end },
         { target: '#id_status', value: serie.time.status },
