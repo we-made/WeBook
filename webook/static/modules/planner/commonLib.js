@@ -211,6 +211,7 @@ export class ArrangementStore extends BaseStore {
     _mapArrangementToFullCalendarEvent(arrangement) {
         const slugClass = writeSlugClass(arrangement.slug);
         const pkClass = "pk:" + arrangement.event_pk;
+
         return new FullCalendarEvent({
             title: arrangement.name,
             start: arrangement.starts,
@@ -225,6 +226,8 @@ export class ArrangementStore extends BaseStore {
                 starts: arrangement.starts, 
                 ends: arrangement.ends,
                 arrangementType: arrangement.arrangement_type,
+                isSerie: !!arrangement.evserie_id,
+                isRigging: arrangement.is_rigging,
             },
         });
     }
