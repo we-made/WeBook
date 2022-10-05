@@ -125,10 +125,10 @@
             /* Uncheck all checkboxes in the order room dialog */
             uncheckAll(dialog, {} = {}, triggeredByElement) {
                 dialog.plugins.presetSelectManager.uncheckAll();
-            },        
+            },
             /* Takes an array of room ids and checks their corresponding checkboxes in the room selector */
             activateRoomIds(dialog, { presetKey } = {}, triggeredByElement) {
-                dialog.plugins.presetSelectManager.activatePreset(presetKey);
+                dialog.plugins.presetSelectManager.activatePreset(presetKey, triggeredByElement);
             },
             order(dialog, {} = {}, triggeredByElement) {
                 let selectedBundle = dialog.plugins.presetSelectManager.getSelected();
