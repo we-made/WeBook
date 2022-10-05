@@ -493,7 +493,7 @@
                             <td colspan="2">
                                 <div class="form-group">
                                     <label for="" class="form-label">Tittel</label>
-                                    <input type="text" id="buffer_before_title" class="form-control form-control-lg" value="{{ form.before_buffer_title.value }}" />
+                                    <input type="text" id="buffer_before_title" class="form-control form-control-lg" value="{{ form.before_buffer_title.value|default:'' }}" />
                                 </div>
                                 
                                 <div class="form-group mt-2">
@@ -535,7 +535,7 @@
                             <td colspan="2">
                                 <div class="form-group">
                                     <label for="" class="form-label">Tittel</label>
-                                    <input type="text" id="buffer_after_title" class="form-control form-control-lg" value="{{ form.after_buffer_title.value }}" />
+                                    <input type="text" id="buffer_after_title" class="form-control form-control-lg" value="{{ form.after_buffer_title.value|default:'' }}" />
                                 </div>
                                 
                                 <div class="form-group mt-2">
