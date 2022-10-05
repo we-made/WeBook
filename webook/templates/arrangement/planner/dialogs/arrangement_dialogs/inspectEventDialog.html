@@ -428,13 +428,14 @@
             {% for note in object.notes.all %}
             <div class="shadow-3 p-3 border-bottom {% if note.has_personal_information %}border-warning{% else %}border-success{% endif %}" id="note_{{note.pk}}">
                 {{note.content|safe}}
-
+                
                 <div class="clearfix">
                     <em class="text-muted small float-start"></em>
                     <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created }}</em>
                 </div>
-                
+
                 <hr>
+
                 <div class="clearfix">
                     <div class="float-end">
                         <a href="#" class="btn wb-btn-secondary"
@@ -471,45 +472,57 @@
                 <table class="table table-bordered table-sm">
                     <thead></thead>
                     <tbody>
-                        <tr style="background-color: whitesmoke;">
+                        <tr>
                             <th colspan="3" class="fw-bold">
                                 {% if object.buffer_before_event %}
                                 <div class="clearfix">
-                                    <h5 class="float-start mb-0">Opprigg</h6>
+                                    <h4 class="float-start mb-0">Opprigg</h4>
 
-                                    <div class="float-end">
-                                        <a href="#" 
-                                            d-trigger="inspectOtherEvent"
-                                            d-arg-event_id="{{ object.buffer_before_event.pk }}"
-                                            class="btn btn-sm btn-white">
-                                            Åpne aktivitet
-                                        </a>
-                                    </div>
+                                    <a href="#" 
+                                        d-trigger="inspectOtherEvent"
+                                        d-arg-event_id="{{ object.buffer_before_event.pk }}"
+                                        class="btn btn-sm wb-btn-main float-end">
+                                        Åpne aktivitet
+                                    </a>
                                 </div>
                                 {% endif %}
                             </th>
                         </tr>
 
                         <tr>
+                            <td colspan="2">
+                                <div class="form-group">
+                                    <label for="" class="form-label">Tittel</label>
+                                    <input type="text" id="buffer_before_title" class="form-control form-control-lg" value="{{ form.before_buffer_title.value|default:'' }}" />
+                                </div>
+                                
+                                <div class="form-group mt-2">
+                                    <label for="" class="form-label">Dato</label>
+                                    <input type="date" name="" id="buffer_before_date" class="form-control form-control-lg" value="{{ form.before_buffer_date.value|date:'Y-m-d' }}">
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
                             <td>
-                                Fra
+                                <label for="" class="form-label">Fra</label>
                                 <div class="form-outline">
                                     <input type="time" id="buffer_before_start" value="{{ form.before_buffer_start.value|date:'H:i' }}" class="form-control form-control-lg" />
                                 </div>
                             </td>
                             <td>
-                                Til
+                                <label for="" class="form-label">Til</label>
                                 <div class="form-outline">
                                     <input type="time" id="buffer_before_end" value="{{ form.before_buffer_end.value|date:'H:i' }}" class="form-control form-control-lg" />
                                 </div>
                             </td>
                         </tr>
-                        <tr style="background-color: whitesmoke;">
+                        <tr>
                             <th colspan="3" class="fw-bold" 
                             style="justify-content: center; align-items:center;">
                                 {% if object.buffer_after_event %}
-                                <h5 class="float-start mb-0">Nedrigg</h5>
-                                <a href="#" class="btn btn-sm btn-white float-end" 
+                                <h4 class="float-start mb-0">Nedrigg</h4>
+                                <a href="#" class="btn btn-sm wb-btn-main float-end" 
                                     d-trigger="inspectOtherEvent"
                                     d-arg-event_id="{{ object.buffer_before_event.pk }}">
                                     Åpne aktivitet
@@ -519,14 +532,28 @@
                         </tr>
 
                         <tr>
+                            <td colspan="2">
+                                <div class="form-group">
+                                    <label for="" class="form-label">Tittel</label>
+                                    <input type="text" id="buffer_after_title" class="form-control form-control-lg" value="{{ form.after_buffer_title.value|default:'' }}" />
+                                </div>
+                                
+                                <div class="form-group mt-2">
+                                    <label for="" class="form-label">Dato</label>
+                                    <input type="date" name="" id="buffer_after_date" class="form-control form-control-lg"  value="{{ form.after_buffer_date.value|date:'Y-m-d' }}">
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
                             <td>
-                                Fra
+                                <label for="" class="form-label">Fra</label>
                                 <div class="form-outline">
                                     <input type="time" id="buffer_after_start" value="{{ form.after_buffer_start.value|date:'H:i' }}" class="form-control form-control-lg" />
                                 </div>
                             </td>
                             <td>
-                                Til
+                                <label for="" class="form-label">Til</label>
                                 <div class="form-outline">
                                     <input type="time" id="buffer_after_end" value="{{ form.after_buffer_end.value|date:'H:i' }}" class="form-control form-control-lg" />
                                 </div>
@@ -823,14 +850,21 @@
                     actual_visitors:    dialog.interior.id_actual_visitors.value,
                     arrangement:        '{{object.arrangement.pk}}',
                     people:             dialog.getSelectedPeopleIds(),
-                    rooms:              dialog.getSelectedRoomIds(),
+                    rooms:              dialog.getSelectedRoomIds(),    
                     status:             dialog.interior.id_status.value,
                     display_layouts:    [...dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
                                             .map(element => element.value),
+                                            
+                    before_buffer_title:    dialog.interior.buffer_before_title != undefined ? dialog.interior.buffer_before_title.value : "",
+                    before_buffer_date:     dialog.interior.buffer_before_date != undefined ? dialog.interior.buffer_before_date.value : "",
                     before_buffer_start:    dialog.interior.buffer_before_start != undefined ? dialog.interior.buffer_before_start.value : "", 
                     before_buffer_end:      dialog.interior.buffer_before_end != undefined ? dialog.interior.buffer_before_end.value : "",
+                    
+                    after_buffer_title:     dialog.interior.buffer_after_title != undefined ? dialog.interior.buffer_after_title.value : "",
+                    after_buffer_date:      dialog.interior.buffer_after_date != undefined ? dialog.interior.buffer_after_date.value : "",
                     after_buffer_start:     dialog.interior.buffer_after_start != undefined ? dialog.interior.buffer_after_start.value : "",
                     after_buffer_end:       dialog.interior.buffer_after_end != undefined ? dialog.interior.buffer_after_end.value : "",
+
                     responsible:            dialog.interior.id_responsible.value,
                     meeting_place:          dialog.interior.id_meeting_place.value,
                     meeting_place_en:       dialog.interior.id_meeting_place_en.value,

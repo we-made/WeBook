@@ -13,8 +13,12 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         { target: '#serie_ticket_code', value: serie.time.ticket_code },
         { target: '#serie_expected_visitors', value: serie.time.expected_visitors },
         { target: '#area_start_date', value: serie.time_area.start_date },
+        { target: '#buffer_before_title', value: serie.buffer.before?.title },
+        { target: '#buffer_before_date_offset', value: serie.buffer.before?.date_offset },
         { target: '#buffer_before_start', value: serie.buffer.before?.start },
-        { target: '#buffer_before_end', value: serie.buffer.before?.after },
+        { target: '#buffer_before_end', value: serie.buffer.before?.end },
+        { target: '#buffer_after_title', value: serie.buffer.after?.title },
+        { target: '#buffer_after_date_offset', value: serie.buffer.after?.date_offset },
         { target: '#buffer_after_start', value: serie.buffer.after?.start },
         { target: '#buffer_after_end', value: serie.buffer.after?.end },
         { target: '#id_status', value: serie.time.status },
@@ -161,7 +165,6 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
  * @param {*} manifest
  */
 export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement) {
-    console.log("manifest", manifest);
     [
         { to: "#serie_uuid", value: serie_uuid },
         { to: "#serie_title", value: manifest.title },
@@ -327,8 +330,6 @@ export function PopulateCreateEventDialog(event, $dialogElement) {
         else throw "Invalid value or type"
     }
 
-    console.log(event);
-
     let [fromDate, fromTime]    = parseDateOrStringToArtifacts(event.start);
     let [toDate, toTime]        = parseDateOrStringToArtifacts(event.end);
 
@@ -342,8 +343,12 @@ export function PopulateCreateEventDialog(event, $dialogElement) {
         { target: '#fromTime', value: fromTime },
         { target: '#toDate', value: toDate },
         { target: '#toTime', value: toTime },
+        { target: '#buffer_before_title', value: event.before_buffer_title },
+        { target: '#buffer_before_date', value: event.before_buffer_date },
         { target: '#buffer_before_start', value: event.before_buffer_start },
         { target: '#buffer_before_end', value: event.before_buffer_end },
+        { target: '#buffer_after_title', value: event.after_buffer_title },
+        { target: '#buffer_after_date', value: event.after_buffer_date },
         { target: '#buffer_after_start', value: event.after_buffer_start },
         { target: '#buffer_after_end', value: event.after_buffer_end },
         { target: '#_backingAudienceId', value: event.audience },

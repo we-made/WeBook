@@ -164,7 +164,7 @@
                             <label for="buffer_before_date" class="form-label">
                                 Dato
                             </label>
-                            <input type="date" name="" id="buffer_before_date" class="form-control form-control-lg">
+                            <input type="date" id="buffer_before_date" class="form-control form-control-lg">
                         </div>
                        </td> 
                     </tr>
@@ -183,11 +183,11 @@
                             </label>
                             <div class="form-outline">
                                 <input type="time" id="buffer_before_end" name="buffer_before_end" class="form-control form-control-lg" />
-                            </div>
+                            </div>  
                         </td>
                     </tr>
                     <tr>
-                        <th colspan="3" class="h5">Nedrigg etter aktiviteten:</th>
+                        <th colspan="3" class="h4">Nedrigg etter aktiviteten:</th>
                     </tr>
                     <tr style="border-bottom:none;">
                         <td colspan="2" style="border: none;">
@@ -303,6 +303,13 @@
         postInit: function (dialog) {
             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                 new mdb.Input(formOutline).init();
+            });
+
+            dialog.$('#fromDate').on('change', (e) => {
+                dialog.interior.buffer_before_date.value = e.target.value;
+            });
+            dialog.$('#toDate').on('change', (e) => {
+                dialog.interior.buffer_after_date.value = e.target.value;
             });
 
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({

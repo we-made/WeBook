@@ -1068,10 +1068,11 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
             offset_start = None
             if self.before_buffer_date_offset:
-                offset_start = self.start - datetime.timedelta(days=self.before_buffer_date_offset)
+                offset_start = self.start - datetime.timedelta(days=self.before_buffer_date_offset) 
 
             before_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or offset_start or self.start, self.before_buffer_start))
             before_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or offset_start or self.start, self.before_buffer_end))
+            self.before_buffer_date = before_activity_buffer.start.strftime("%Y-%m-%d")
             before_activity_buffer.save()
             before_activity_buffer.rooms.set(self.rooms.all())
             before_activity_buffer.people.set(self.people.all())
@@ -1089,6 +1090,7 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
             after_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or offset_end or self.end, self.after_buffer_start))
             after_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or offset_end or self.end, self.after_buffer_end))
+            self.after_buffer_date = after_activity_buffer.start.strftime("%Y-%m-%d")
             after_activity_buffer.save()
             after_activity_buffer.rooms.set(self.rooms.all())
             after_activity_buffer.people.set(self.people.all())
