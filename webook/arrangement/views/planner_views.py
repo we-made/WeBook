@@ -326,6 +326,8 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                     f'''    SELECT audience.icon_class as audience_icon, arr.name as arrangement_name, audience.name as audience, audience.slug as audience_slug, (resp.first_name || ' ' || resp.last_name) as mainPlannerName,
                                 arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts, arr.created as created_when, ev.association_type as association_type,
                                 ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug, evserie.id as evserie_id, status.name as status_name, status.color as status_color,
+                                ev.buffer_after_event_id as after_buffer_ev_id, ev.buffer_before_event_id as before_buffer_ev_id,
+                                (SELECT EXISTS(SELECT id from arrangement_event WHERE buffer_before_event_id = ev.id OR buffer_after_event_id = ev.id)) AS is_rigging,
                                 array_agg( DISTINCT room.name) as room_names,
                                 array_agg( DISTINCT participants.first_name || ' ' || participants.last_name ) as people_names,
                                 (loc.slug || ',' || array_to_string(array_agg(DISTINCT room.slug ), ',') || ',' || array_to_string(array_agg(DISTINCT participants.slug), ',')) as slug_list
@@ -346,15 +348,17 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                     event_pk, audience.icon_class, audience.name, audience.slug,
                                     resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
                                     loc.name, loc.slug, arrtype.name, arrtype.slug, evserie.id,
-                                    status.name, status.color 
+                                    status.name, status.color
                             ''', [start, end] )
             elif (db_vendor == 'sqlite'):
                 cursor.execute(
                     f'''	SELECT audience.icon_class as audience_icon, arr.name as arrangement_name, audience.name as audience, audience.slug as audience_slug, resp.first_name || " " || resp.last_name as mainPlannerName,
                             arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts, arr.created as created_when, ev.association_type as association_type,
                             ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug, evserie.id as evserie_id, status.name as status_name, status.color as status_color,
+                            ev.buffer_after_event_id as after_buffer_ev_id, ev.buffer_before_event_id as before_buffer_ev_id,
+                            (SELECT EXISTS(SELECT id from arrangement_event WHERE buffer_before_event_id = ev.id OR buffer_after_event_id = ev.id)) AS is_rigging,
                             GROUP_CONCAT( DISTINCT room.name) as room_names, 
-                            GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
+                            GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.las   t_name ) as people_names,
                             (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
                             from arrangement_arrangement as arr 
                             JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id

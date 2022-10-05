@@ -60,10 +60,34 @@ export class PlannerCalendar extends FullCalendarBased {
             [5, {
                 "key": 5,
                 "title": "Uke",
-                "isParent": false,
+                "isParent": true,
                 "view": "timeGridWeek",
                 "parent": undefined,
                 "weight": 300,
+            }],
+            [8, {
+                "key": '5',
+                "title": "Tidsgrid",
+                "isParent": false,
+                "view": "timeGridWeek",
+                "parent": 5,
+                "weight": undefined,
+            }],
+            [9, {
+                "key": '5',
+                "title": "Dagsgrid",
+                "isParent": false,
+                "view": "dayGridWeek",
+                "parent": 5,
+                "weight": undefined,
+            }],
+            [7, {
+                "key": '5',
+                "title": "Liste",
+                "isParent": false,
+                "view": "listWeek",
+                "parent": 5,
+                "weight": undefined,
             }],
             [6, {
                 "key": 6,
@@ -407,7 +431,7 @@ export class PlannerCalendar extends FullCalendarBased {
                     },
                 },
                 eventContent: function (arg) {
-                    if (arg.view.type === "dayGridMonth") {
+                    if (arg.view.type === "dayGridMonth" || arg.view.type === "dayGridWeek") {
                         let nodes = [];
 
                         const eventIsSameDay = (arg.event.start !== null && arg.event.end !== null) &&
@@ -419,21 +443,119 @@ export class PlannerCalendar extends FullCalendarBased {
                         colorDot.classList.add("fc-daygrid-event-dot");
                         colorDot.style = "border-color: " + arg.backgroundColor;
                         if (eventIsSameDay === true)
-                        nodes.push(colorDot);
+                            nodes.push(colorDot);
 
                         let timeText = document.createElement('strong');
                         timeText.innerText = `(${arg.timeText})`;
                         nodes.push(timeText);
 
                         let iconsRail = document.createElement('span');
-                        // iconsRail.innerHTML = "<i class='fas fa-sync'></i>";
-                        // iconsRail.classList.add("ms-1");
                         nodes.push(iconsRail);
+
+                        if (arg.event.extendedProps.isRigging === true) {
+                            let riggingIconEl = document.createElement('i');
+                            riggingIconEl.classList.add("fas", "fa-hammer", "ms-1", "me-1");
+                            nodes.push(riggingIconEl);
+                        }
+                        if (arg.event.extendedProps.isSerie === true) {
+                            let serieIconEl = document.createElement('i');
+                            serieIconEl.classList.add("fas", "fa-sync", "ms-1", "me-1");
+                            nodes.push(serieIconEl);
+                        }
 
                         let eventTitle = document.createElement('span');
                         eventTitle.classList.add("ms-2");
                         eventTitle.innerText = arg.event.title;
                         nodes.push(eventTitle);
+
+                        return { domNodes: nodes };
+                    }
+                    if (arg.view.type === "timelineMonth" || arg.view.type === "timelineYear") {
+                        let nodes = [];
+
+                        let timeText = document.createElement('strong');
+                        timeText.classList.add('d-block');
+                        timeText.innerText = `(${arg.timeText})`;
+                        nodes.push(timeText);
+
+                        let iconsRail = document.createElement('div');
+                        nodes.push(iconsRail);
+
+                        if (arg.event.extendedProps.isRigging === true) {
+                            let riggingIconEl = document.createElement('i');
+                            riggingIconEl.classList.add("fas", "fa-hammer");
+                            iconsRail.appendChild(riggingIconEl);
+                        }
+                        if (arg.event.extendedProps.isSerie === true) {
+                            let serieIconEl = document.createElement('i');
+                            serieIconEl.classList.add("fas", "fa-sync");
+                            iconsRail.appendChild(serieIconEl);
+                        }
+
+                        let eventTitle = document.createElement('span');
+                        eventTitle.innerText = arg.event.title;
+                        nodes.push(eventTitle);
+
+                        return { domNodes: nodes };
+                    }
+                    if (arg.view.type === "timeGridDay" || arg.view.type === "timeGridWeek") {
+                        let nodes = [];
+
+                        let wrapper = document.createElement('div');
+                        wrapper.classList.add("p-2");
+
+                        let iconsRail = document.createElement('div');
+                        wrapper.appendChild(iconsRail);
+
+                        if (arg.event.extendedProps.isRigging === true) {
+                            let riggingIconEl = document.createElement('i');
+                            riggingIconEl.classList.add("fas", "fa-hammer");
+                            iconsRail.appendChild(riggingIconEl);
+                        }
+                        if (arg.event.extendedProps.isSerie === true) {
+                            let serieIconEl = document.createElement('i');
+                            serieIconEl.classList.add("fas", "fa-sync");
+                            iconsRail.appendChild(serieIconEl);
+                        }
+
+                        let timeText = document.createElement('strong');
+                        timeText.classList.add('d-block');
+                        timeText.innerText = `(${arg.timeText})`;
+                        wrapper.appendChild(timeText);
+
+                        let eventTitle = document.createElement('strong');
+                        eventTitle.classList.add("mb-2");
+                        eventTitle.innerText = arg.event.title;
+                        wrapper.appendChild(eventTitle);
+
+                        nodes.push(wrapper);
+
+                        return { domNodes: nodes };
+                    }
+                    if (arg.view.type === "listWeek") {
+                        let nodes = [];
+
+                        if (arg.event.extendedProps.isRigging === true ||
+                            arg.event.extendedProps.isSerie === true) {
+                                
+                            let iconsRail = document.createElement('span');
+                            iconsRail.classList.add("me-2");
+                            if (arg.event.extendedProps.isRigging === true) {
+                                let riggingIconEl = document.createElement('i');
+                                riggingIconEl.classList.add("fas", "fa-hammer");
+                                iconsRail.appendChild(riggingIconEl);
+                            }
+                            if (arg.event.extendedProps.isSerie === true) {
+                                let serieIconEl = document.createElement('i');
+                                serieIconEl.classList.add("fas", "fa-sync");
+                                iconsRail.appendChild(serieIconEl);
+                            }
+                            nodes.push(iconsRail);
+                        }
+
+                        let titleElement = document.createElement('span');
+                        titleElement.innerText = arg.event.title;
+                        nodes.push(titleElement);
 
                         return { domNodes: nodes };
                     }
