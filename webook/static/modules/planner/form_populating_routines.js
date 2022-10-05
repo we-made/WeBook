@@ -4,8 +4,6 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         debugger;
     }
 
-    console.log("serie", serie);
-
     [
         { target: '#serie_uuid', value: serie._uuid },
         { target: '#serie_title', value: serie.time.title },
@@ -167,7 +165,6 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
  * @param {*} manifest
  */
 export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement) {
-    console.log("manifest", manifest);
     [
         { to: "#serie_uuid", value: serie_uuid },
         { to: "#serie_title", value: manifest.title },
@@ -332,8 +329,6 @@ export function PopulateCreateEventDialog(event, $dialogElement) {
             return Utils.splitDateIntoDateAndTimeStrings(event.start);
         else throw "Invalid value or type"
     }
-
-    console.log(event);
 
     let [fromDate, fromTime]    = parseDateOrStringToArtifacts(event.start);
     let [toDate, toTime]        = parseDateOrStringToArtifacts(event.end);
