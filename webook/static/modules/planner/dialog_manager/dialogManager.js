@@ -45,6 +45,11 @@
 
     async render(context, html) {
         let result = await this.renderer.render(context, this, html);
+        
+        $(this.renderer.$dialogElement).on("dialogclose", (event) => {
+            this.destroy();
+        });
+
         this.plugins.forEach((plugin) => plugin.onRender(context));
         this.communicationLane = new DialogEventCommunicationLane(this.renderer.dialogElement.children[0]);
         return result;
