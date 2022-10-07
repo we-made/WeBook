@@ -881,11 +881,10 @@
                 dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesDialog", { $parent: dialog.dialogElement });
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                console.log(`${dialog.managerName}.orderRoomDialog`)
-                dialog.raiseTriggerEvent(dialog.managerName, "orderRoomDialog", { $parent: dialog.dialogElement });
+                dialog.raiseTriggerEvent(dialog.managerName, "orderRoomDialog", { $parent: dialog.dialogElement, sendTo: '{{ dialogId }}' });
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement });
+                dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{ dialogId }}' });
             },
         },
         data: {

@@ -18,13 +18,15 @@ class DialogPresetSelectManager extends DialogPluginBase {
          * This should ideally be rewritten sooner or later, probably to the core --- the reliance on the document for state, even as small as it is now,
          * is not, I see in retrospect, a good or sane approach. There are without doubt better, and more succinct ways to implement this.
          */
-        this.datatables.forEach((datatableElement) => {
-            dialog.$(datatableElement).on('draw.dt', () => { // table has been paginated
-                Array.from(this.selectedItemsMap.keys()).forEach((id) => { 
-                    dialog.$('#' + id).attr("checked", true);
+        if (this.datatables) {
+            this.datatables.forEach((datatableElement) => {
+                dialog.$(datatableElement).on('draw.dt', () => { // table has been paginated
+                    Array.from(this.selectedItemsMap.keys()).forEach((id) => { 
+                        dialog.$('#' + id).attr("checked", true);
+                    });
                 });
             });
-        });
+        }
 
         // generates a map that can be used to find all presets that a checkbox is part of
         this.checkboxPresetMap = this._generateCheckboxToPresetMap();

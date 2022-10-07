@@ -190,6 +190,8 @@ class Dialog {
             payload.dialog = this.dialogId;
         }
 
+        debugger;
+
         document.dispatchEvent(
             new CustomEvent(`${this.managerName}.submit`, {
                 "detail": payload
