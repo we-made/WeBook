@@ -663,7 +663,7 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, DialogView, Templat
                         room.is_selected = True
         
         context["locations"] = locations
-        context["mode"] = self.request.GET.get("mode", None)
+        context["recipientDialogId"] = self.request.GET.get("recipientDialogId", None)
 
         return context
 
@@ -688,7 +688,7 @@ class PlannerCalendarOrderPersonDialogView(LoginRequiredMixin, DialogView, Templ
                     person.is_selected = True
         context["people"] = people
 
-        context["mode"] = self.request.GET.get("mode", None)
+        context["recipientDialogId"] = self.request.GET.get("recipientDialogId", None)
 
         return context
 

@@ -415,7 +415,7 @@ export class ArrangementCreator {
                                 managerName: 'arrangementCreator',
                                 customParameters: {
                                     event_pk: 0,
-                                    mode: context.lastTriggererDetails.mode,
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
                                 }
                             })
                         },
@@ -430,8 +430,7 @@ export class ArrangementCreator {
                             });
                         },
                         onSubmit: (context, details, dialogManager) => {
-                            let recipientDialog = details.mode === "serie" ? "newTimePlanDialog" : "newSimpleActivityDialog";
-                            dialogManager._dialogRepository.get(recipientDialog)
+                            dialogManager._dialogRepository.get(details.recipientDialog)
                                 .communicationLane.send("roomsSelected", details.selectedBundle);
                         }
                     })
@@ -449,7 +448,7 @@ export class ArrangementCreator {
                                 dialogId: 'orderPersonDialog',
                                 customParameters: {
                                     event_pk: 0,
-                                    mode: context.lastTriggererDetails.mode,
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
                                 }
                             });
                         },
@@ -464,8 +463,7 @@ export class ArrangementCreator {
                             });
                         },
                         onSubmit: (context, details, dialogManager) => {
-                            let recipientDialog = details.mode === "serie" ? "newTimePlanDialog" : "newSimpleActivityDialog";
-                            dialogManager._dialogRepository.get(recipientDialog)
+                            dialogManager._dialogRepository.get(details.recipientDialog)
                                 .communicationLane.send("peopleSelected", details.selectedBundle);
                         }
                     })
