@@ -247,9 +247,6 @@
                         <div>
                             {{ form.display_text|as_crispy_field }}
                         </div>
-                        <div>
-                            {{ form.display_text_en|as_crispy_field }}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -459,7 +456,6 @@
                     meeting_place_en:           dialog.interior.id_meeting_place_en.value,
                     responsible:                dialog.interior.id_responsible.value,
                     display_text:               dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
-                    display_text_en:            dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text_en.value : '',
                 };
 
                 console.log("qualifiedEvent", qualifiedEvent);
