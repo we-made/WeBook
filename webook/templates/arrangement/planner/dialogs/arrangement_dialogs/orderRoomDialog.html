@@ -137,7 +137,7 @@
                 dialog.$('#roomsTable').DataTable().destroy();
 
                 dialog.raiseSubmitEvent({
-                    mode: "{{mode}}",
+                    recipientDialog: "{{recipientDialogId}}",
                     selectedBundle: selectedBundle,
                     csrf_token: "{{csrf_token}}",
                 });

@@ -558,12 +558,12 @@ export class ArrangementInspector {
                                 dialogId: 'editEventSerieDialog',
                                 customParameters: {
                                     orderRoomDialog: 'nestedOrderRoomDialog',
-                                    orderPersonDialog: 'orderPersonDialog',
+                                    orderPersonDialog: 'nestedOrderPersonDialog',
                                 }
                             });
                         },
                         onRenderedCallback: async (dialogManager, context) => {
-                            context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk;
+                            context.editing_serie_pk = context.lastTriggererDetails.event_serie_pk
 
                             let $dialogElement = $(this.dialogManager.$getDialogElement("editEventSerieDialog"));
                             let manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
@@ -739,12 +739,13 @@ export class ArrangementInspector {
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return this.loadDialogHtml({
+                            return await this.dialogManager.loadDialogHtml({
                                 url: '/arrangement/planner/dialogs/order_person',
                                 dialogId: 'orderPersonDialog',
                                 managerName: 'arrangementInspector',
                                 customParameters: {
-                                    serie_guid: context.serie_guid
+                                    event_pk: 0,
+                                    mode: context.lastTriggererDetails.mode,
                                 }
                             });
                         },
@@ -776,7 +777,8 @@ export class ArrangementInspector {
                                 managerName: 'arrangementInspector',
                                 dialogId: 'orderRoomDialog',
                                 customParameters: {
-                                    serie_guid: context.serie_guid
+                                    event_pk: 0,
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
                                 }
                             });
                         },
@@ -899,7 +901,8 @@ export class ArrangementInspector {
                                 managerName: 'arrangementInspector',
                                 dialogId: 'nestedOrderRoomDialog',
                                 customParameters: {
-                                    event_pk: 0
+                                    event_pk: 0,
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
                                 }
                             });
                         },
@@ -910,17 +913,8 @@ export class ArrangementInspector {
                             toastr.success("Rom har blitt lagt til");
                         },
                         onSubmit: (context, details) => {
-                            context.rooms = details.formData.get("room_ids");
-                            context.room_name_map = details.room_name_map;
-
-                            document.dispatchEvent(new CustomEvent(
-                                `arrangementInspector.d1_roomsSelected`,
-                                { detail: { context: context } }
-                            ));
-                            document.dispatchEvent(new CustomEvent(
-                                `arrangementInspector.d2_roomsSelected`,
-                                { detail: { context: context } }
-                            ));
+                            this.dialogManager._dialogRepository.get(details.recipientDialog)
+                                .communicationLane.send("roomsSelected", details.selectedBundle);
                         }
                     })
                 ],
@@ -936,9 +930,8 @@ export class ArrangementInspector {
                                 dialogId: 'nestedOrderPersonDialog',
                                 managerName: 'arrangementInspector',
                                 customParameters: {
-                                    event_pk:0,
-                                    orderRoomDialog: 'orderRoomDialog',
-                                    orderPersonDialog: 'orderPersonDialog',
+                                    event_pk: 0,
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
                                 }
                             });
                         },
@@ -949,22 +942,8 @@ export class ArrangementInspector {
                             toastr.success("Personer har blitt lagt til");
                         },
                         onSubmit: (context, details) => {
-                            let people_ids = details.formData.get("people_ids");
-                            context.people = people_ids;
-                            context.people_name_map = details.people_name_map;
-
-                            document.dispatchEvent(new CustomEvent(
-                                "arrangementInspector.d1_peopleSelected",
-                                { detail: {
-                                    context: context
-                                } }
-                            ));
-                            document.dispatchEvent(new CustomEvent(
-                                "arrangementInspector.d2_peopleSelected",
-                                { detail: {
-                                    context: context
-                                } }
-                            ));
+                            this.dialogManager._dialogRepository.get(details.recipientDialog)
+                                .communicationLane.send("peopleSelected", details.selectedBundle);
                         }
                     })
                 ],
