@@ -114,7 +114,6 @@ export class ArrangementCreator {
                                     { from: '#_audienceId', to: '#_backingAudienceId' },
                                     { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId' },
                                     { from: '#id_display_text', to: '#id_display_text' },
-                                    { from: '#id_display_text_en', to: '#id_display_text_en' },
                                 ].forEach( (mapping) => { 
                                     $thisDialog.find( mapping.to ).val( $mainDialog.find( mapping.from )[0].value );
                                 });
@@ -338,7 +337,6 @@ export class ArrangementCreator {
                                     { from: '#id_meeting_place_en', to: '#id_meeting_place_en' },
                                     { from: '#id_responsible', to: '#id_responsible' },
                                     { from: '#id_display_text', to: '#id_display_text' },
-                                    { from: '#id_display_text_en', to: '#id_display_text_en' },
                                     { from: '#_audienceId', to: '#_backingAudienceId' },
                                     { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId'},
                                 ].forEach( (mapping) => { 

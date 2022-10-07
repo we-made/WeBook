@@ -187,9 +187,6 @@
                         <div>
                             {{ form.display_text|as_crispy_field }}
                         </div>
-                        <div>
-                            {{ form.display_text_en|as_crispy_field }}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -493,7 +490,6 @@
                 formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
                 formData.append("status",           dialog.interior.id_status.value);
                 formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
-                formData.append("display_text_en",  dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text_en.value : '');
 
                 let displayLayouts = [];
                 dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {

@@ -36,8 +36,7 @@ _ALWAYS_FIELDS = ( "title",
                    "audience",
                    "arrangement_type",
                    "responsible",
-                   "display_text",
-                   "display_text_en",)
+                   "display_text",)
 
 
 class BaseEventForm(forms.ModelForm):
@@ -51,7 +50,6 @@ class BaseEventForm(forms.ModelForm):
     after_buffer_start = forms.TimeField(required=False)
     after_buffer_end = forms.TimeField(required=False)
     
-    display_text_en = forms.CharField(required=False)
 
     def save(self, commit: bool=True):
         if self.instance.serie is not None:
