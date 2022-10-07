@@ -114,10 +114,10 @@ div.modal-body > .bootbox-close-button {
 
 .ui-dialog {
   background-color: white;
-  box-shadow: 0 1px 20px 1px  grey;
-  /* border: solid 1px var(--DIALOG-BORDER-COLOR); */
+  box-shadow: 0 1px 20px 1px  var(--MAIN-COLOR);
+  /* border: solid 2.5px var(--MAIN-COLOR)!important; */
   border-radius: 15px!important;
-  padding: 1.5em!important;
+  padding: 1.5em!important; 
 }
 
 /* .ui-dialog.ui-widget.ui-widget-content {
