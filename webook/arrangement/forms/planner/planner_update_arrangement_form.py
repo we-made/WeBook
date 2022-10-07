@@ -19,6 +19,5 @@ class PlannerUpdateArrangementModelForm(forms.ModelForm):
                     "actual_visitors",
                     "display_layouts",
                     "status",
-                    "display_text",
-                    "display_text_en",)
+                    "display_text",)
         widgets = { "display_layouts": CheckboxSelectMultiple(), "location": forms.Select(attrs={"class": "form-control form-control-lg"}) }
