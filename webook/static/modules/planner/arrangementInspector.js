@@ -123,7 +123,7 @@ export class ArrangementInspector {
                                 this.dialogManager.reloadDialog("mainDialog");
                             });
                         },
-                        onUpdatedCallback: () => { this.dialogManager.reloadDialog("mainDialog"); },
+                        onUpdatedCallback: () => { this.dialogManager.closeDialog("mainDialog"); },
                         dialogOptions: { width: 800, height: 800, dialogClass: 'no-titlebar'  }
                     }),
                 ],
