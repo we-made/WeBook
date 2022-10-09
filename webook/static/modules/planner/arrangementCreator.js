@@ -134,7 +134,9 @@ export class ArrangementCreator {
                                     let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                                     const $dialogElement = $(this.dialogManager.$getDialogElement("newTimePlanDialog"));
                                     
-                                    PopulateCreateSerieDialogFromSerie(serie, $dialogElement);
+                                    this.dialogManager._dialogRepository.get("newTimePlanDialog");
+
+                                    PopulateCreateSerieDialogFromSerie(serie, $dialogElement, "newTimePlanDialog");
                                 }
                             }
                             

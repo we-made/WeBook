@@ -36,7 +36,26 @@ class Dialog {
         this._initializePlugins();
         this._listenToEventLaneCommunication()
         
+        this.oldMessages = window.MessagesFacility.addressedTo(self.dialogId)?._messages;
+        window.MessagesFacility.addressedTo(self.dialogId)?.clear();
+
+        this._listenToGlobalBroadcasts();
+
         postInit(this);
+    }
+
+    _listenToGlobalBroadcasts () {
+        window.MessagesFacility.subscribe(
+            this.dialogId,
+            (messageKey, message) => { 
+                console.log("TRIGGER::::" + messageKey, message)
+                if (this._whenMap.has(messageKey))
+                {
+                    console.log("TRIGGER::::" + messageKey, message)
+                    this._whenMap.get(messageKey)(this, message);
+                }
+            }
+        )
     }
 
     _mapWhenMethods() {
@@ -50,6 +69,7 @@ class Dialog {
     }
 
     _listenToEventLaneCommunication() {
+        console.log("whens listen on ---> ", this.$dialogElement);
         this.$dialogElement.on("laneCommunication", (event) => {
             this._whenMap.get(event.detail.name)(this, event.detail.payload);
         });

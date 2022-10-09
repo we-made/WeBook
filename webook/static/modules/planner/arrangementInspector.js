@@ -1,4 +1,4 @@
-import { CollisionsUtil } from "./collisions_util.js";
+    import { CollisionsUtil } from "./collisions_util.js";
 import { convertObjToFormData } from "./commonLib.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
 import { PopulateCreateSerieDialogFromManifest } from "./form_populating_routines.js";

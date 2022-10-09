@@ -396,6 +396,11 @@
       <script type="module">
         import dialogApi from "{% static 'modules/planner/dialog_manager/dialogApi.js' %}";
         import { Popover } from "{% static 'js/popover.js' %}";
+        import { MessagesFacility } from "{% static 'modules/planner/broadcast.js' %}";
+
+        $(document).ready(function () {
+          window.MessagesFacility = new MessagesFacility();
+        });
 
         const othersPopover = new Popover({
             triggerElement: document.getElementById('toggleOthersPopover'),

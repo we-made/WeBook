@@ -1,4 +1,5 @@
-export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog) {
+
+export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialogId, discriminator) {
     if (serie === undefined) {
         console.error("Serie is undefined", serie);
         debugger;
@@ -33,30 +34,50 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         $dialogElement.find( mapping.target ).val( mapping.value );
     } );
 
-    // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
-    // has "selected" rooms as they would through the dialog interface.
-    if (serie.people.length > 0) {
-        let peopleSelectContext = Object();
-        peopleSelectContext.people = serie.people.join(",");
-        peopleSelectContext.people_name_map = serie.people_name_map;
-        document.dispatchEvent(new CustomEvent(
-            "arrangementCreator.d2_peopleSelected",
-            { detail: {
-                context: peopleSelectContext
-            } }
-        ));
+    if (serie.room_payload) {
+        window.MessagesFacility.send(dialogId, serie.room_payload, "roomsSelected");
     }
-    if (serie.rooms.length > 0) {
-        let roomSelectContext = Object();
-        roomSelectContext.rooms = serie.rooms.join(",");
-        roomSelectContext.room_name_map = serie.room_name_map;
-        document.dispatchEvent(new CustomEvent(
-            "arrangementCreator.d2_roomsSelected",
-            { detail: {
-                context: roomSelectContext
-            } }
-        ));
-    }
+    if (serie.people_payload)
+        $dialogElement.find("#" + dialogId)[0].dispatchEvent(new CustomEvent("peopleSelected", {
+            detail: {
+                payload: serie.people_payload
+            }
+        }));
+
+    // if (serie.people.length > 0) {
+    //     $dialogElement[0].dispatchEvent("peopleSelected", {
+    //         detail: {
+    //             payload: { 
+    //                 viewables: {  }
+    //             }
+    //         }
+    //     })
+    // }
+
+    // // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
+    // // has "selected" rooms as they would through the dialog interface.
+    // if (serie.people.length > 0) {
+    //     let peopleSelectContext = Object();
+    //     peopleSelectContext.people = serie.people.join(",");
+    //     peopleSelectContext.people_name_map = serie.people_name_map;
+    //     document.dispatchEvent(new CustomEvent(
+    //         "arrangementCreator.d2_peopleSelected",
+    //         { detail: {
+    //             context: peopleSelectContext
+    //         } }
+    //     ));
+    // }
+    // if (serie.rooms.length > 0) {
+    //     let roomSelectContext = Object();
+    //     roomSelectContext.rooms = serie.rooms.join(",");
+    //     roomSelectContext.room_name_map = serie.room_name_map;
+    //     document.dispatchEvent(new CustomEvent(
+    //         "arrangementCreator.d2_roomsSelected",
+    //         { detail: {
+    //             context: roomSelectContext
+    //         } }
+    //     ));
+    // }
 
     serie.display_layouts.split(",").forEach(element => {
         $dialogElement.find('#id_display_layouts_serie_planner_' + element).prop( "checked", true );
