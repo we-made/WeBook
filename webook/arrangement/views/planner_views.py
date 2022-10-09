@@ -358,7 +358,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             ev.buffer_after_event_id as after_buffer_ev_id, ev.buffer_before_event_id as before_buffer_ev_id,
                             (SELECT EXISTS(SELECT id from arrangement_event WHERE buffer_before_event_id = ev.id OR buffer_after_event_id = ev.id)) AS is_rigging,
                             GROUP_CONCAT( DISTINCT room.name) as room_names, 
-                            GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.las   t_name ) as people_names,
+                            GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
                             (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
                             from arrangement_arrangement as arr 
                             JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
