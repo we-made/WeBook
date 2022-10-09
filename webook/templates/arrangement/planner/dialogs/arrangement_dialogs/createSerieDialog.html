@@ -1122,10 +1122,13 @@
         },
         when: [
             { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                console.log("!!roomsSelected!! -- " + dialog.dialogId, payload)
+                console.log("{{discriminator}} got a message!", payload);
+                // console.log("!!roomsSelected!! -- " + dialog.dialogId, payload)
                 let wrapper = dialog.$( '#roomChips' );
                 wrapper.empty();
-
+                
+                console.log("wrapper before", wrapper);
+                
                 payload.viewables.forEach((room) => {
                     wrapper.append(
                         $(`<selected-pill name='${room.text}'
@@ -1135,6 +1138,8 @@
                            </selected-pill>`)  
                     )
                 });
+
+                console.log("wrapper after", wrapper);
 
                 dialog.data.selectedRoomIds = new Map();
                 dialog.data.roomPresets = new Map();

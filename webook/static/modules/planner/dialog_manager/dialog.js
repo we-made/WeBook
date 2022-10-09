@@ -16,6 +16,8 @@ class Dialog {
         this.dialogId = dialogId;
         this.discriminator = discriminator;
 
+        this.dialogId = dialogId;
+
         this.data = data;
         this.when = when;
         this.plugins = plugins;
@@ -36,8 +38,14 @@ class Dialog {
         this._initializePlugins();
         this._listenToEventLaneCommunication()
         
-        this.oldMessages = window.MessagesFacility.addressedTo(self.dialogId)?._messages;
-        window.MessagesFacility.addressedTo(self.dialogId)?.clear();
+        this.oldMessages = window.MessagesFacility.addressedTo(this.dialogId)?._messages;
+        if (this.oldMessages) {
+            for (let [key, value] of this.oldMessages)
+            {
+                this._handleMessage(key, value);
+            }
+            window.MessagesFacility.addressedTo(self.dialogId)?.clear();
+        }
 
         this._listenToGlobalBroadcasts();
 
@@ -47,15 +55,13 @@ class Dialog {
     _listenToGlobalBroadcasts () {
         window.MessagesFacility.subscribe(
             this.dialogId,
-            (messageKey, message) => { 
-                console.log("TRIGGER::::" + messageKey, message)
-                if (this._whenMap.has(messageKey))
-                {
-                    console.log("TRIGGER::::" + messageKey, message)
-                    this._whenMap.get(messageKey)(this, message);
-                }
-            }
+            this._handleMessage,
         )
+    }
+
+    _handleMessage(messageKey, message) {
+        if (this._whenMap.has(messageKey))
+            this._whenMap.get(messageKey)(this, message);
     }
 
     _mapWhenMethods() {
