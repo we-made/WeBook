@@ -44,7 +44,7 @@ class Dialog {
             {
                 this._handleMessage(key, value);
             }
-            window.MessagesFacility.addressedTo(self.dialogId)?.clear();
+            window.MessagesFacility.addressedTo(this.dialogId)?.clear();
         }
 
         this._listenToGlobalBroadcasts();
