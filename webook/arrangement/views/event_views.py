@@ -25,6 +25,7 @@ from webook.arrangement.models import (
     Person,
     PlanManifest,
     Room,
+    RoomPreset,
 )
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
@@ -179,21 +180,44 @@ class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
         people = []
         display_layouts = []
 
-        for room in manifest.rooms.all():
-            rooms.append({
-                "id": room.id,
-                "name": room.name
-            })
-        for person in manifest.people.all():
-            people.append({
-                "id": person.id,
-                "name": person.full_name
-            })
         for display_layout in manifest.display_layouts.all():
             display_layouts.append({
                 "id": display_layout.id,
                 "name": display_layout.name
             })
+        
+        room_presets = RoomPreset.objects.all()
+        selected_rooms =  {
+            "allPresets": { room_preset.slug: room_preset.name for room_preset in room_presets },
+            "allSelectedEntityIds": [],
+            "viewables": [],
+            "selectedPresets": [],
+            "eventPk": "", 
+        }
+
+        rooms = { room.id: room.name for room in manifest.rooms.all() }
+        viewables = { **rooms }
+        room_ids = set([ room for room in rooms.keys() ])
+
+        for a_room_preset in room_presets:
+            room_preset_member_rooms = set([ room.id for room in a_room_preset.rooms.all() ])
+            if (room_preset_member_rooms.issubset(room_ids)):
+                selected_rooms["selectedPresets"].append(a_room_preset.slug)
+                viewables[a_room_preset.slug] = a_room_preset.name
+                for room_id in room_preset_member_rooms:
+                    del viewables[room_id]
+
+        selected_rooms["viewables"] = [ { "id": key, "text": value } for (key, value) in viewables.items() ]
+        selected_rooms["allSelectedEntityIds"] = [ { "id": key, "text": value } for (key, value) in rooms.items() ]
+
+        people = [ { "id": person.id, "text": person.full_name } for person in manifest.people.all() ]
+        selected_people = { 
+            "allPresets": [],
+            "allSelectedEntityIds": people,
+            "viewables": people,
+            "selectedPresets": [],
+            "eventPk": "", 
+        }
 
         return {
             "expected_visitors": manifest.expected_visitors,
@@ -226,8 +250,8 @@ class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
             "stop_within": manifest.stop_within,
             "stop_after_x_occurences": manifest.stop_after_x_occurences,
             "project_x_months_into_future": manifest.project_x_months_into_future,
-            "rooms": rooms,
-            "people": people,
+            "rooms": selected_rooms,
+            "people": selected_people,
             "display_layouts": display_layouts,
             "display_text": manifest.display_text,
             "display_text_en": manifest.display_text_en,

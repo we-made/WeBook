@@ -39,6 +39,7 @@ class Dialog {
         this._listenToEventLaneCommunication()
         
         this.oldMessages = window.MessagesFacility.addressedTo(this.dialogId)?._messages;
+        console.log("oldMessages", this.oldMessages);
         if (this.oldMessages) {
             for (let [key, value] of this.oldMessages)
             {
@@ -55,8 +56,8 @@ class Dialog {
     _listenToGlobalBroadcasts () {
         window.MessagesFacility.subscribe(
             this.dialogId,
-            this._handleMessage,
-        )
+            this._handleMessage.bind(this),
+        );
     }
 
     _handleMessage(messageKey, message) {
@@ -75,6 +76,7 @@ class Dialog {
                 this._whenMap.set(when.eventKnownAs, when.do);
             });
         }
+        console.log("doneMapped")
     }
 
     _listenToEventLaneCommunication() {
