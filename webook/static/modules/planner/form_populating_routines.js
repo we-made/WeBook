@@ -34,50 +34,14 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         $dialogElement.find( mapping.target ).val( mapping.value );
     } );
 
+    console.log("serie", serie);
+
     if (serie.room_payload) {
         window.MessagesFacility.send(dialogId, serie.room_payload, "roomsSelected");
     }
-    if (serie.people_payload)
-        $dialogElement.find("#" + dialogId)[0].dispatchEvent(new CustomEvent("peopleSelected", {
-            detail: {
-                payload: serie.people_payload
-            }
-        }));
-
-    // if (serie.people.length > 0) {
-    //     $dialogElement[0].dispatchEvent("peopleSelected", {
-    //         detail: {
-    //             payload: { 
-    //                 viewables: {  }
-    //             }
-    //         }
-    //     })
-    // }
-
-    // // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
-    // // has "selected" rooms as they would through the dialog interface.
-    // if (serie.people.length > 0) {
-    //     let peopleSelectContext = Object();
-    //     peopleSelectContext.people = serie.people.join(",");
-    //     peopleSelectContext.people_name_map = serie.people_name_map;
-    //     document.dispatchEvent(new CustomEvent(
-    //         "arrangementCreator.d2_peopleSelected",
-    //         { detail: {
-    //             context: peopleSelectContext
-    //         } }
-    //     ));
-    // }
-    // if (serie.rooms.length > 0) {
-    //     let roomSelectContext = Object();
-    //     roomSelectContext.rooms = serie.rooms.join(",");
-    //     roomSelectContext.room_name_map = serie.room_name_map;
-    //     document.dispatchEvent(new CustomEvent(
-    //         "arrangementCreator.d2_roomsSelected",
-    //         { detail: {
-    //             context: roomSelectContext
-    //         } }
-    //     ));
-    // }
+    if (serie.people_payload) {
+        window.MessagesFacility.send(dialogId, serie.people_payload, "peopleSelected");
+    }
 
     serie.display_layouts.split(",").forEach(element => {
         $dialogElement.find('#id_display_layouts_serie_planner_' + element).prop( "checked", true );
@@ -342,7 +306,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
  *
  * @param {*} event
  */
-export function PopulateCreateEventDialog(event, $dialogElement) {
+export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
     let parseDateOrStringToArtifacts = function (dateOrString) {
         if (dateOrString instanceof String)
             return Utils.splitStrDate(dateOrString);
@@ -387,36 +351,15 @@ export function PopulateCreateEventDialog(event, $dialogElement) {
 
     if (Array.isArray(event.display_layouts)) {
         event.display_layouts.forEach(element => {
-            $dialogElement.find(`#${String(parseInt(element))}_dlcheck`)
-                .prop( "checked", true );
+            $dialogElement.find(`#${String(parseInt(element))}_dlcheck`).prop( "checked", true );
         })
     }
     else {
         throw "Display layouts must be an array";
     }
 
-    // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
-    // has "selected" rooms as they would through the dialog interface.
-    if (event.people.length > 0) {
-        var peopleSelectContext = Object();
-        peopleSelectContext.people = event.people.join(",");
-        peopleSelectContext.people_name_map = event.people_name_map;
-        document.dispatchEvent(new CustomEvent(
-            "arrangementCreator.d1_peopleSelected",
-            { detail: {
-                context: peopleSelectContext
-            } }
-        ));
-    }
-    if (event.rooms.length > 0) {
-        var roomSelectContext = Object();
-        roomSelectContext.rooms = event.rooms.join(",");
-        roomSelectContext.room_name_map = event.room_name_map;
-        document.dispatchEvent(new CustomEvent(
-            "arrangementCreator.d1_roomsSelected",
-            { detail: {
-                context: roomSelectContext
-            } }
-        ));
-    }
+    if (event.people_payload)
+        window.MessagesFacility.send(dialogId, event.people_payload, "peopleSelected");
+    if (event.room_payload)
+        window.MessagesFacility.send(dialogId, event.room_payload, "roomsSelected");
 }

@@ -1122,12 +1122,8 @@
         },
         when: [
             { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                console.log("{{discriminator}} got a message!", payload);
-                // console.log("!!roomsSelected!! -- " + dialog.dialogId, payload)
                 let wrapper = dialog.$( '#roomChips' );
                 wrapper.empty();
-                
-                console.log("wrapper before", wrapper);
                 
                 payload.viewables.forEach((room) => {
                     wrapper.append(
@@ -1138,8 +1134,6 @@
                            </selected-pill>`)  
                     )
                 });
-
-                console.log("wrapper after", wrapper);
 
                 dialog.data.selectedRoomIds = new Map();
                 dialog.data.roomPresets = new Map();
@@ -1167,7 +1161,7 @@
                 payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
 
-                dialog.data.personPayload = payload;
+                dialog.data.peoplePayload = payload;
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
                 dialog.data.audienceJsTreeSelect.setSelected(payload);

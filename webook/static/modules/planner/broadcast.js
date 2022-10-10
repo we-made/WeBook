@@ -20,7 +20,7 @@ class Recipient {
     }
 
     clear() {
-        this._messages = [];
+        this._messages = new Map();
     }
 }
 
@@ -36,8 +36,27 @@ export class MessagesFacility {
         
         this._recipients.get(recipient).leaveMessage(key, payload);
         
-        if (this._subscriptions.get(recipient))
-            this._subscriptions.get(recipient).forEach((subscriptionFunction) => { subscriptionFunction(key, payload) });
+        if (this._subscriptions.get(recipient)) {
+            const subscriptionsOnRecipient = this._subscriptions.get(recipient);
+            for (let i = 0; i < subscriptionsOnRecipient.length; i++) {
+                const result = subscriptionsOnRecipient[i](key, payload)
+                if (result === null)
+                {
+                    debugger;
+                    /**
+                     * If a subscription function returns null we read this as if the
+                     * subscription instance has perished, and should therefore be removed.
+                     */
+                    subscriptionsOnRecipient.splice(i, 1);
+                    this._subscriptions.set(recipient, subscriptionsOnRecipient);
+                }
+            }
+            this._subscriptions.get(recipient).forEach((subscriptionFunction) => { 
+                const result = subscriptionFunction(key, payload);
+                if (result === null)
+                    this._subscriptions.get(recipient)
+            });
+        }
     }
 
     addressedTo(recipient) {

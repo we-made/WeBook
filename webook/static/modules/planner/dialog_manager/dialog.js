@@ -60,6 +60,9 @@ class Dialog {
     }
 
     _handleMessage(messageKey, message) {
+        if (this === undefined || this._whenMap === undefined)
+            return null;
+
         if (this._whenMap.has(messageKey))
             this._whenMap.get(messageKey)(this, message);
     }
