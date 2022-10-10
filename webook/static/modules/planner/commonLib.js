@@ -261,7 +261,9 @@ export class ArrangementStore extends BaseStore {
         let arrangements = this._getStoreAsArray();
         let filteredArrangements = [];
 
-        let filterMap = new Map(filterSet.map( (slug) => slug.id, true));
+        console.log("filterSet", filterSet);
+
+        let filterMap = new Map(filterSet.map( (slug) => [ slug.id, true ]));
 
         let arrangementTypesMap =   arrangement_types !== undefined && arrangement_types.length > 0 ? new Map(arrangement_types.map(i => [i, true])) : undefined;
         let audienceTypesMap =      audience_types !== undefined && audience_types.length > 0 ? new Map(audience_types.map(i => [i, true])) : undefined;
@@ -275,11 +277,17 @@ export class ArrangementStore extends BaseStore {
                 isWithinFilter = false;
             }
 
-            arrangement.slug_list.forEach( (slug) => {
-                if (filterMap.has(slug) === true) {
-                    isWithinFilter = false;
+            if (filterMap.size > 0) {
+                let match = false;
+                for (let y = 0; y < arrangement.slug_list.length; y++) {
+                    const slug = arrangement.slug_list[y];
+                    if (filterMap.has(slug) === true) {
+                        match = true;
+                        break;
+                    }
                 }
-            })
+                isWithinFilter = match;
+            }
 
             if (isWithinFilter === true) {
                 filteredArrangements.push(arrangement);

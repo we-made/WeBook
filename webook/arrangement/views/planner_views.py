@@ -330,7 +330,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                                 (SELECT EXISTS(SELECT id from arrangement_event WHERE buffer_before_event_id = ev.id OR buffer_after_event_id = ev.id)) AS is_rigging,
                                 array_agg( DISTINCT room.name) as room_names,
                                 array_agg( DISTINCT participants.first_name || ' ' || participants.last_name ) as people_names,
-                                (loc.slug || ',' || array_to_string(array_agg(DISTINCT room.slug ), ',') || ',' || array_to_string(array_agg(DISTINCT participants.slug), ',')) as slug_list
+                                (array_to_string(array_agg(DISTINCT room.slug ), ',') || ',' || array_to_string(array_agg(DISTINCT participants.slug), ',')) as slug_list
                                 from arrangement_arrangement as arr
                                 JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
                                 JOIN arrangement_location as loc on loc.id = arr.location_id
@@ -359,7 +359,7 @@ class GetArrangementsInPeriod (LoginRequiredMixin, ListView):
                             (SELECT EXISTS(SELECT id from arrangement_event WHERE buffer_before_event_id = ev.id OR buffer_after_event_id = ev.id)) AS is_rigging,
                             GROUP_CONCAT( DISTINCT room.name) as room_names, 
                             GROUP_CONCAT( DISTINCT participants.first_name || " " || participants.last_name ) as people_names,
-                            (loc.slug || "," || GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
+                            (GROUP_CONCAT(DISTINCT room.slug ) || "," || GROUP_CONCAT(DISTINCT participants.slug) ) as slug_list
                             from arrangement_arrangement as arr 
                             JOIN arrangement_arrangementtype as arrtype on arrtype.id = arr.arrangement_type_id
                             JOIN arrangement_location as loc on loc.id = arr.location_id

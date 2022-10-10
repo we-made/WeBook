@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponse
@@ -10,6 +10,8 @@ from django.views.generic.edit import DeleteView
 
 from webook.arrangement.models import Location
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.generic_views.json_list_view import JsonListView
+from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.json_serial import json_serial
@@ -123,6 +125,20 @@ class LocationDeleteView(LoginRequiredMixin, LocationSectionManifestMixin, MetaM
         )
 
 location_delete_view = LocationDeleteView.as_view()
+
+
+class LocationsTreeJsonView (LoginRequiredMixin, LocationSectionManifestMixin, JsonListView):
+    def get_queryset(self):
+        nodes: List[Dict] = []
+        all_locations = Location.objects.all()
+
+        location: Location
+        for location in all_locations:
+            nodes.append(location.as_tree_node(populate_children=True))
+
+        return nodes
+
+locations_tree_json_view = LocationsTreeJsonView.as_view()
 
 
 class LocationsCalendarResourcesListView (LoginRequiredMixin, ListView):

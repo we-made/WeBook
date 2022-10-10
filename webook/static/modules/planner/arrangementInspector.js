@@ -577,7 +577,7 @@ export class ArrangementInspector {
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
-                         },
+                        },
                         onUpdatedCallback: () => {
                             this.dialogManager.reloadDialog("mainDialog");
                             this.dialogManager.closeDialog("editEventSerieDialog");

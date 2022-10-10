@@ -1,29 +1,22 @@
 import uuid
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    DetailView,
-    RedirectView,
-    UpdateView,
-    ListView,
-    CreateView,
-    TemplateView
-)
-from django.urls import reverse, reverse_lazy
-from webook.arrangement.forms.audience_forms import CreateAudienceForm, UpdateAudienceForm
 
-from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse, reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
 from django.views.generic.edit import DeleteView
+
+from webook.arrangement.forms.audience_forms import CreateAudienceForm, UpdateAudienceForm
 from webook.arrangement.models import Arrangement, Audience
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
 from webook.arrangement.views.generic_views.search_view import SearchView
-from webook.utils.meta_utils.meta_mixin import MetaMixin
+from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
-from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin, GenericTreeListTemplateMixin
-from webook.utils.meta_utils import SectionManifest, ViewMeta, SectionCrudlPathMap
+from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
+from webook.utils.meta_utils.meta_mixin import MetaMixin
 
 
 def get_section_manifest():
