@@ -257,10 +257,10 @@ class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
             "display_text_en": manifest.display_text_en,
             "meeting_place": manifest.meeting_place,
             "meeting_place_en": manifest.meeting_place_en,
-            "status": manifest.status.pk if manifest.status else "",
-            "audience": manifest.audience.pk if manifest.audience else "",
-            "arrangement_type": manifest.arrangement_type.pk if manifest.arrangement_type else "",
-            "responsible": manifest.responsible.pk if manifest.responsible else ""
+            "status": manifest.status.pk if manifest.status else None,
+            "audience": manifest.audience.pk if manifest.audience else None,
+            "arrangement_type": manifest.arrangement_type.pk if manifest.arrangement_type else None,
+            "responsible": manifest.responsible.pk if manifest.responsible else None
         }
 
 event_serie_manifest_view = EventSerieManifestView.as_view()
