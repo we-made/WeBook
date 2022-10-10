@@ -87,8 +87,6 @@ export class AdvancedTreeFilter extends Popover {
             popoverContentEl.appendChild(titleEl);
 
             if (this.isSearchable) {
-                let inputGroup
-
                 let searchInput = document.createElement("input");
                 searchInput.setAttribute("type", "search");
                 searchInput.setAttribute("placeholder", "Søk...");
