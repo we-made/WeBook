@@ -258,8 +258,8 @@ class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
             "meeting_place": manifest.meeting_place,
             "meeting_place_en": manifest.meeting_place_en,
             "status": manifest.status.pk if manifest.status else "",
-            "audience": manifest.audience.pk,
-            "arrangement_type": manifest.arrangement_type.pk,
+            "audience": manifest.audience.pk if manifest.audience else "",
+            "arrangement_type": manifest.arrangement_type.pk if manifest.arrangement_type else "",
             "responsible": manifest.responsible.pk
         }
 
