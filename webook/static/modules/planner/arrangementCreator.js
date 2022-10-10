@@ -134,7 +134,9 @@ export class ArrangementCreator {
                                     let serie = context.series.get(context.lastTriggererDetails.serie_uuid);
                                     const $dialogElement = $(this.dialogManager.$getDialogElement("newTimePlanDialog"));
                                     
-                                    PopulateCreateSerieDialogFromSerie(serie, $dialogElement);
+                                    this.dialogManager._dialogRepository.get("newTimePlanDialog");
+
+                                    PopulateCreateSerieDialogFromSerie(serie, $dialogElement, "newTimePlanDialog");
                                 }
                             }
                             
@@ -355,7 +357,7 @@ export class ArrangementCreator {
                             
                             this.dialogManager.setTitle("newSimpleActivityDialog", "Rediger aktivitet");
                             const $dialogElement = $(this.dialogManager.$getDialogElement("newSimpleActivityDialog"));
-                            PopulateCreateEventDialog(context.events.get(context.lastTriggererDetails.event_uuid), $dialogElement);
+                            PopulateCreateEventDialog(context.events.get(context.lastTriggererDetails.event_uuid), $dialogElement, "newSimpleActivityDialog");
 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();

@@ -1,4 +1,4 @@
-import { CollisionsUtil } from "./collisions_util.js";
+    import { CollisionsUtil } from "./collisions_util.js";
 import { convertObjToFormData } from "./commonLib.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
 import { PopulateCreateSerieDialogFromManifest } from "./form_populating_routines.js";
@@ -568,7 +568,7 @@ export class ArrangementInspector {
                             let $dialogElement = $(this.dialogManager.$getDialogElement("editEventSerieDialog"));
                             let manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
                             
-                            PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk, $dialogElement);
+                            PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk, $dialogElement, "editEventSerieDialog");
 
                             const editEventSerieDialog = this.dialogManager._dialogRepository.get("editEventSerieDialog");
                             editEventSerieDialog.communicationLane.send("setAudienceFromParent", manifest.audience);

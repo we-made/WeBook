@@ -593,6 +593,9 @@
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
+
+            console.log(dialog.oldMessages);
+
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
@@ -1008,7 +1011,9 @@
                 serie.rooms = Array.from(dialog.data.selectedRoomIds.keys());
                 serie.people = Array.from(dialog.data.selectedPeopleIds.keys());
                 serie.room_name_map = dialog.data.roomsNameMap;
+                serie.room_payload = dialog.data.roomPayload;
                 serie.people_name_map = dialog.data.peopleNameMap;
+                serie.people_payload = dialog.data.peoplePayload;
                 serie.display_layouts = display_layouts.join(",");
 
                 dialog.raiseSubmitEvent({
@@ -1117,9 +1122,11 @@
         },
         when: [
             { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                console.log("roomsSelected!!", payload);
+
                 let wrapper = dialog.$( '#roomChips' );
                 wrapper.empty();
-
+                
                 payload.viewables.forEach((room) => {
                     wrapper.append(
                         $(`<selected-pill name='${room.text}'
@@ -1134,11 +1141,13 @@
                 dialog.data.roomPresets = new Map();
                 payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+
+                dialog.data.roomPayload = payload;
             } },
             { eventKnownAs: "peopleSelected", do: (dialog, payload) => { 
                 let wrapper = dialog.$( '#peopleChips' );
                 wrapper.empty();
-
+                
                 payload.viewables.forEach((person) => {
                     wrapper.append(
                         $(`<selected-pill name='${person.text}'
@@ -1153,12 +1162,20 @@
                 dialog.data.personPresets = new Map();
                 payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
+
+                dialog.data.peoplePayload = payload;
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
-                dialog.data.audienceJsTreeSelect.setSelected(payload);
+                if (dialog.data.audienceJsTreeSelect)
+                    dialog.data.audienceJsTreeSelect.setSelected(payload);
+                else
+                    dialog.$('#_backingAudienceId').val(payload);
             } },
             { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
-                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
+                if (dialog.data.arrangementTypeJsTreeSelect)
+                    dialog.data.arrangementTypeJsTreeSelect.setSelected(payload)
+                else
+                    dialog.$('#_backingArrangementTypeId').val(payload);
             } },
         ],
         plugins: [

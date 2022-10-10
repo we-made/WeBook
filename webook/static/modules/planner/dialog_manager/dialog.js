@@ -16,6 +16,8 @@ class Dialog {
         this.dialogId = dialogId;
         this.discriminator = discriminator;
 
+        this.dialogId = dialogId;
+
         this.data = data;
         this.when = when;
         this.plugins = plugins;
@@ -36,7 +38,34 @@ class Dialog {
         this._initializePlugins();
         this._listenToEventLaneCommunication()
         
+        this.oldMessages = window.MessagesFacility.addressedTo(this.dialogId)?._messages;
+        console.log("oldMessages", this.oldMessages);
+        if (this.oldMessages) {
+            for (let [key, value] of this.oldMessages)
+            {
+                this._handleMessage(key, value);
+            }
+            window.MessagesFacility.addressedTo(this.dialogId)?.clear();
+        }
+
+        this._listenToGlobalBroadcasts();
+
         postInit(this);
+    }
+
+    _listenToGlobalBroadcasts () {
+        window.MessagesFacility.subscribe(
+            this.dialogId,
+            this._handleMessage.bind(this),
+        );
+    }
+
+    _handleMessage(messageKey, message) {
+        if (this === undefined || this._whenMap === undefined)
+            return null;
+
+        if (this._whenMap.has(messageKey))
+            this._whenMap.get(messageKey)(this, message);
     }
 
     _mapWhenMethods() {
@@ -47,9 +76,11 @@ class Dialog {
                 this._whenMap.set(when.eventKnownAs, when.do);
             });
         }
+        console.log("doneMapped")
     }
 
     _listenToEventLaneCommunication() {
+        console.log("whens listen on ---> ", this.$dialogElement);
         this.$dialogElement.on("laneCommunication", (event) => {
             this._whenMap.get(event.detail.name)(this, event.detail.payload);
         });

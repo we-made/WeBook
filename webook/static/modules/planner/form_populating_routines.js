@@ -1,4 +1,5 @@
-export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog) {
+
+export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialogId, discriminator) {
     if (serie === undefined) {
         console.error("Serie is undefined", serie);
         debugger;
@@ -33,29 +34,13 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         $dialogElement.find( mapping.target ).val( mapping.value );
     } );
 
-    // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
-    // has "selected" rooms as they would through the dialog interface.
-    if (serie.people.length > 0) {
-        let peopleSelectContext = Object();
-        peopleSelectContext.people = serie.people.join(",");
-        peopleSelectContext.people_name_map = serie.people_name_map;
-        document.dispatchEvent(new CustomEvent(
-            "arrangementCreator.d2_peopleSelected",
-            { detail: {
-                context: peopleSelectContext
-            } }
-        ));
+    console.log("serie", serie);
+
+    if (serie.room_payload) {
+        window.MessagesFacility.send(dialogId, serie.room_payload, "roomsSelected");
     }
-    if (serie.rooms.length > 0) {
-        let roomSelectContext = Object();
-        roomSelectContext.rooms = serie.rooms.join(",");
-        roomSelectContext.room_name_map = serie.room_name_map;
-        document.dispatchEvent(new CustomEvent(
-            "arrangementCreator.d2_roomsSelected",
-            { detail: {
-                context: roomSelectContext
-            } }
-        ));
+    if (serie.people_payload) {
+        window.MessagesFacility.send(dialogId, serie.people_payload, "peopleSelected");
     }
 
     serie.display_layouts.split(",").forEach(element => {
@@ -164,7 +149,7 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
  *
  * @param {*} manifest
  */
-export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement) {
+export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement, dialogId) {
     [
         { to: "#serie_uuid", value: serie_uuid },
         { to: "#serie_title", value: manifest.title },
@@ -182,44 +167,22 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
         { to: '#id_display_text_en', value: manifest.display_text_en },
     ].forEach( (mapping) => { $dialogElement.find(mapping.to).val(mapping.value ).trigger('change'); } );
 
-    if (manifest.rooms.length > 0) {
-        let roomSelectContext = Object();
-        roomSelectContext.rooms = manifest.rooms.map(a => a.id).join(",");
-        roomSelectContext.room_name_map = new Map();
+    window.MessagesFacility.send(dialogId, manifest.audience, "setAudienceFromParent");
+    window.MessagesFacility.send(dialogId, manifest.arrangement_type, "setArrangementTypeFromParent");
 
-        for (let i = 0; i < manifest.rooms.length; i++) {
-            let room = manifest.rooms[i];
-            roomSelectContext.room_name_map.set(String(room.id), room.name);
-        }
+    if (manifest.rooms) {
+        manifest.rooms.allPresets = new Map([
+            Object.entries(manifest.rooms.allPresets).map(x => [ x, manifest.rooms.allPresets[x]] )
+        ]);
 
-        document.dispatchEvent(new CustomEvent(
-            "arrangementInspector.d2_roomsSelected",
-            { detail: {
-                context: roomSelectContext
-            } }
-        ));
+        window.MessagesFacility.send(dialogId, manifest.rooms, "roomsSelected");
     }
-    if (manifest.people.length > 0) {
-        let peopleSelectContext = Object();
-        peopleSelectContext.people = manifest.people.map(a => a.id).join(",");
-        peopleSelectContext.people_name_map = new Map();
-
-        for (let i = 0; i < manifest.people.length; i++) {
-            let person = manifest.people[i];
-            peopleSelectContext.people_name_map.set(String(person.id), person.name);
-        }
-
-        document.dispatchEvent(new CustomEvent(
-            "arrangementInspector.d2_peopleSelected",
-            { detail: {
-                context: peopleSelectContext
-            } }
-        ));
+    if (manifest.people) {
+        window.MessagesFacility.send(dialogId, manifest.people, "peopleSelected");
     }
 
     manifest.display_layouts.forEach(display_layout => {
-        $dialogElement.find('#id_display_layouts_serie_planner_' + display_layout.id)
-            .prop( "checked", true );
+        $dialogElement.find('#id_display_layouts_serie_planner_' + display_layout.id).prop( "checked", true );
     })
 
     switch(manifest.recurrence_strategy) {
@@ -321,7 +284,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
  *
  * @param {*} event
  */
-export function PopulateCreateEventDialog(event, $dialogElement) {
+export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
     let parseDateOrStringToArtifacts = function (dateOrString) {
         if (dateOrString instanceof String)
             return Utils.splitStrDate(dateOrString);
@@ -366,36 +329,16 @@ export function PopulateCreateEventDialog(event, $dialogElement) {
 
     if (Array.isArray(event.display_layouts)) {
         event.display_layouts.forEach(element => {
-            $dialogElement.find(`#${String(parseInt(element))}_dlcheck`)
-                .prop( "checked", true );
+            $dialogElement.find(`#${String(parseInt(element))}_dlcheck`).prop( "checked", true );
         })
     }
     else {
         throw "Display layouts must be an array";
     }
 
-    // This is fairly messy I am afraid, but the gist of what we're doing here is simulating that the user
-    // has "selected" rooms as they would through the dialog interface.
-    if (event.people.length > 0) {
-        var peopleSelectContext = Object();
-        peopleSelectContext.people = event.people.join(",");
-        peopleSelectContext.people_name_map = event.people_name_map;
-        document.dispatchEvent(new CustomEvent(
-            "arrangementCreator.d1_peopleSelected",
-            { detail: {
-                context: peopleSelectContext
-            } }
-        ));
-    }
-    if (event.rooms.length > 0) {
-        var roomSelectContext = Object();
-        roomSelectContext.rooms = event.rooms.join(",");
-        roomSelectContext.room_name_map = event.room_name_map;
-        document.dispatchEvent(new CustomEvent(
-            "arrangementCreator.d1_roomsSelected",
-            { detail: {
-                context: roomSelectContext
-            } }
-        ));
+    if (event.people_payload)
+        window.MessagesFacility.send(dialogId, event.people_payload, "peopleSelected");
+    if (event.room_payload) {
+        window.MessagesFacility.send(dialogId, event.room_payload, "roomsSelected");
     }
 }

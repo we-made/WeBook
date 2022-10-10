@@ -456,6 +456,8 @@
                     meeting_place_en:           dialog.interior.id_meeting_place_en.value,
                     responsible:                dialog.interior.id_responsible.value,
                     display_text:               dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
+                    room_payload:               dialog.data.roomPayload,
+                    people_payload:             dialog.data.peoplePayload,
                 };
 
                 console.log("qualifiedEvent", qualifiedEvent);
@@ -503,7 +505,6 @@
                 }
 
                 if (id.startsWith("preset_")) {
-                    debugger;
                     const preset = appropriatePresetMap.get(id.split("_")[1]);
                     preset.ids.forEach((id) => appropriateIdMap.delete(id));
                 }
@@ -545,6 +546,8 @@
                 dialog.data.roomPresets = new Map();
                 payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+
+                dialog.data.roomPayload = payload;
             } },
             { eventKnownAs: "peopleSelected", do: (dialog, payload) => {
                 let wrapper = dialog.$('#selectedPeopleWrapper');
@@ -563,6 +566,8 @@
                 dialog.data.personPresets = new Map();
                 payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
+
+                dialog.data.peoplePayload = payload;
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
                 dialog.data.audienceJsTreeSelect.setSelected(payload);
