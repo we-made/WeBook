@@ -1,19 +1,25 @@
 from django.urls import path
-from webook.arrangement.views import (
-    location_list_view,
-    location_create_view,
-    location_update_view,
-    location_detail_view,
-    location_delete_view,
-    locations_calendar_resources_list_view,
-)
 
+from webook.arrangement.views import (
+    location_create_view,
+    location_delete_view,
+    location_detail_view,
+    location_list_view,
+    location_update_view,
+    locations_calendar_resources_list_view,
+    locations_tree_json_view,
+)
 
 location_urls = [
     path(
         route="location/list/",
         view=location_list_view,
         name="location_list",
+    ),
+    path(
+        route="location/tree/",
+        view=locations_tree_json_view,
+        name="location_tree",
     ),
     path(
         route="location/create/",

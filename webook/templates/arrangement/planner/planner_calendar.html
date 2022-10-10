@@ -221,7 +221,7 @@ container-fluid
     import { PersonCalendar } from "{% static 'modules/planner/personCalendar.js' %}";
     import { ArrangementCreator } from "{% static 'modules/planner/arrangementCreator.js' %}";
     import { AdvancedCategoricalFilter } from "{% static 'js/advancedCategoricalFilter.js' %}";
-    import { AdvancedTreeFilter } from "{% static 'js/advancedTreeFilter.js' %}";
+    import { AdvancedTreeFilter, NORMAL_CASCADE_BEHAVIOUR, PARENT_INDEPENDENT_CASCADE_BEHAVIOUR } from "{% static 'js/advancedTreeFilter.js' %}";
     import { CalendarFilter } from "{% static 'modules/planner/commonLib.js' %}";
 
     let activeCalendar;
@@ -236,6 +236,7 @@ container-fluid
             calendarFilter.filterArrangementTypes(slugs);
         },
         treeSrcUrl: "{% url 'arrangement:arrangement_type_tree_list' %}",
+        cascadeBehaviour: PARENT_INDEPENDENT_CASCADE_BEHAVIOUR
     });
 
     const audienceTreeFilter = new AdvancedTreeFilter({
@@ -247,9 +248,32 @@ container-fluid
             calendarFilter.filterAudiences(slugs);
         },
         treeSrcUrl: "{% url 'arrangement:audience_tree' %}",
+        cascadeBehaviour: PARENT_INDEPENDENT_CASCADE_BEHAVIOUR
     });
 
-    let locationAndRoomsPopFilter = new AdvancedCategoricalFilter({
+    const locationAndRoomsFilter = new AdvancedTreeFilter({
+        title: 'Lokasjoner & Rom',
+        triggerElement: document.getElementById('location-and-rooms-popover-filter-trigger'),
+        wrapperElement: document.getElementById('location-and-rooms-popover-filter-content'),
+        onSubmit: function (selectedNodes, undeterminedNodes) {
+            let totalItemsCount = 0;
+
+            selectedNodes = selectedNodes.concat(undeterminedNodes);
+
+            let locationSlugs = selectedNodes.filter( x => !!x.parents == false ).map( x => x.id );
+            let roomSlugs = selectedNodes.filter( x => !!x.parents ).map( x => { return { id: x.id }; } );
+            
+            console.log("roomSlugs", roomSlugs);
+            console.log("SelectedNodes;; ", selectedNodes);
+
+            calendarFilter.filterRooms(roomSlugs, false);
+            calendarFilter.filterLocations(locationSlugs);
+        },
+        treeSrcUrl: "{% url 'arrangement:location_tree' %}",
+        cascadeBehaviour: NORMAL_CASCADE_BEHAVIOUR
+    })
+
+    {% comment %} let locationAndRoomsPopFilter = new AdvancedCategoricalFilter({
         triggerMode: AdvancedCategoricalFilter.TRIGGERMODE_ONUPDATE,
         triggerElement: document.getElementById('location-and-rooms-popover-filter-trigger'),
         wrapperElement: document.getElementById('location-and-rooms-popover-filter-content'),
@@ -305,7 +329,7 @@ container-fluid
             },
             {% endfor %}
         ],
-    });
+    }); {% endcomment %}
 
     const colorSwatch = [
         "#63b598", "#ce7d78", "#ea9e70", "#a48a9e", "#c6e1e8", "#648177", "#0d5ac1",

@@ -81,6 +81,7 @@ from .location_views import (
     location_list_view,
     location_update_view,
     locations_calendar_resources_list_view,
+    locations_tree_json_view,
 )
 from .note_views import delete_note_view, get_notes_view, notes_on_entity_view, post_note_view
 from .organization_views import (

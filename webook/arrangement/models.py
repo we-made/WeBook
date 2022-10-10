@@ -404,6 +404,17 @@ class Location (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         verbose_name = _("Location")
         verbose_name_plural = _("Locations")
 
+    def as_tree_node(self, populate_children=True) -> dict:
+        """ Return a valid representation of this location as a JSTree like tree node
+        Set populate_children to True if you want rooms to be added to children.
+        """
+        return {
+            "id": self.slug,
+            "icon": "fas fa-building",
+            "text": self.name,
+            "children": [ room.as_tree_node() for room in self.rooms.all() ] if populate_children else None
+        }
+
     def on_archive(self, person_archiving_this):
         rooms = self.rooms.all()
         for room in rooms:
@@ -441,6 +452,14 @@ class Room(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     class Meta:
         verbose_name = _("Room")
         verbose_name_plural = _("Rooms")
+
+    def as_tree_node(self) -> Dict:
+        return {
+            "id": self.slug,
+            "icon": "",
+            "text": self.name,
+            "children": None,
+        }
 
     objects = ArchivedManager()
     name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=True, null=True)

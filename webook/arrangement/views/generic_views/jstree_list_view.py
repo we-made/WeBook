@@ -4,6 +4,8 @@ from webook.arrangement.views.generic_views.json_list_view import JsonListView
 
 
 class JSTreeListView(JsonListView):
+    """JSTreeListView valid for models with the nested mixin applied
+    This returns a JSON document which can be given to JSTREE and used to render a tree."""
     inject_resolved_crudl_urls_into_nodes = False
 
     def get_queryset(self):
@@ -27,3 +29,4 @@ class JSTreeListView(JsonListView):
                     item["data"][attr_name] = reverse(url, kwargs={ "slug": item["data"]["slug"] })
             if "children" in item:
                 self._process_urls(item["children"])
+    

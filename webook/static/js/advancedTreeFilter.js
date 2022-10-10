@@ -1,5 +1,21 @@
 import { Popover } from "./popover.js";
 
+export const NORMAL_CASCADE_BEHAVIOUR = Symbol("NormalCascadeBehaviour")
+export const PARENT_INDEPENDENT_CASCADE_BEHAVIOUR = Symbol("ParentIndependentCascadeBehaviour")
+
+function getCascadeSettingsFromCascadeBehaviour(cascadeBehaviour) {
+    switch(cascadeBehaviour) {
+        case NORMAL_CASCADE_BEHAVIOUR:
+            return { };
+        case PARENT_INDEPENDENT_CASCADE_BEHAVIOUR:
+            return { 
+                "three_state": false,
+                "cascade": "up+undetermined",
+            };
+        default:
+            throw Error("No such cascade behaviour known!");
+    }
+}
 
 export class AdvancedTreeFilter extends Popover {
     constructor ( { 
@@ -11,6 +27,7 @@ export class AdvancedTreeFilter extends Popover {
         onSelectionUpdate,
         onSubmit,
         treeSrcUrl,
+        cascadeBehaviour=NORMAL_CASCADE_BEHAVIOUR,
         } = {} ) 
         { 
             super({
@@ -19,6 +36,7 @@ export class AdvancedTreeFilter extends Popover {
             });
 
             this.title = title;
+            this.cascadeBehaviour = cascadeBehaviour;
 
             this._instanceDiscriminator = crypto.randomUUID();
 
@@ -72,23 +90,19 @@ export class AdvancedTreeFilter extends Popover {
             submitBtnElement.onclick = (event) => {
                 this._selectedMap.clear();
                 const selectedNodes = $(this._jsTreeElement).jstree("get_selected", true);
-                this._onSubmit(selectedNodes);
-                // selectedNodes.forEach((node) => {
-                //     this._selectedMap.set(node.id, node.text);
-                // });
-                // this.onSubmit( this.getSelectedValues() );
+                const undeterminedNodes = $(this._jsTreeElement).jstree("get_undetermined", true);
+
+                this._onSubmit(selectedNodes, undeterminedNodes);
             }
             popoverContentEl.appendChild(submitBtnElement)
 
             this._loadTreeJson()
                 .then(treeValidObj => {
                     this._jsTree = $(treeHolder).jstree({
-                        'checkbox': {
-                            "three_state": false,
-                            "cascade": "up+undetermined",
-                        },
+                        'checkbox': getCascadeSettingsFromCascadeBehaviour(this.cascadeBehaviour),
                         'plugins': [ 'checkbox', ], 
                         'core': {
+                            "themes" : { "icons": false },
                             'data': treeValidObj,
                             'multiple': true,
                         }
