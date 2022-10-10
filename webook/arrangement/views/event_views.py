@@ -260,7 +260,7 @@ class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
             "status": manifest.status.pk if manifest.status else "",
             "audience": manifest.audience.pk if manifest.audience else "",
             "arrangement_type": manifest.arrangement_type.pk if manifest.arrangement_type else "",
-            "responsible": manifest.responsible.pk
+            "responsible": manifest.responsible.pk if manifest.responsible else ""
         }
 
 event_serie_manifest_view = EventSerieManifestView.as_view()
