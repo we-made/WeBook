@@ -236,7 +236,8 @@ container-fluid
             calendarFilter.filterArrangementTypes(slugs);
         },
         treeSrcUrl: "{% url 'arrangement:arrangement_type_tree_list' %}",
-        cascadeBehaviour: PARENT_INDEPENDENT_CASCADE_BEHAVIOUR
+        cascadeBehaviour: PARENT_INDEPENDENT_CASCADE_BEHAVIOUR,
+        isSearchable: true,
     });
 
     const audienceTreeFilter = new AdvancedTreeFilter({
@@ -248,7 +249,8 @@ container-fluid
             calendarFilter.filterAudiences(slugs);
         },
         treeSrcUrl: "{% url 'arrangement:audience_tree' %}",
-        cascadeBehaviour: PARENT_INDEPENDENT_CASCADE_BEHAVIOUR
+        cascadeBehaviour: PARENT_INDEPENDENT_CASCADE_BEHAVIOUR,
+        isSearchable: true,
     });
 
     const locationAndRoomsFilter = new AdvancedTreeFilter({
@@ -257,8 +259,6 @@ container-fluid
         wrapperElement: document.getElementById('location-and-rooms-popover-filter-content'),
         onSubmit: function (selectedNodes, undeterminedNodes) {
             let totalItemsCount = 0;
-
-            selectedNodes = selectedNodes.concat(undeterminedNodes);
 
             let locationSlugs = selectedNodes.filter( x => !!x.parents == false ).map( x => x.id );
             let roomSlugs = selectedNodes.filter( x => !!x.parents ).map( x => { return { id: x.id }; } );
@@ -270,7 +270,8 @@ container-fluid
             calendarFilter.filterLocations(locationSlugs);
         },
         treeSrcUrl: "{% url 'arrangement:location_tree' %}",
-        cascadeBehaviour: NORMAL_CASCADE_BEHAVIOUR
+        cascadeBehaviour: NORMAL_CASCADE_BEHAVIOUR,
+        isSearchable: true,
     })
 
     {% comment %} let locationAndRoomsPopFilter = new AdvancedCategoricalFilter({
