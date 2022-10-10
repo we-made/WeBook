@@ -167,7 +167,8 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
         { to: '#id_display_text_en', value: manifest.display_text_en },
     ].forEach( (mapping) => { $dialogElement.find(mapping.to).val(mapping.value ).trigger('change'); } );
 
-    console.log("manifest", manifest)
+    window.MessagesFacility.send(dialogId, manifest.audience, "setAudienceFromParent");
+    window.MessagesFacility.send(dialogId, manifest.arrangement_type, "setArrangementTypeFromParent");
 
     if (manifest.rooms) {
         manifest.rooms.allPresets = new Map([
@@ -181,8 +182,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
     }
 
     manifest.display_layouts.forEach(display_layout => {
-        $dialogElement.find('#id_display_layouts_serie_planner_' + display_layout.id)
-            .prop( "checked", true );
+        $dialogElement.find('#id_display_layouts_serie_planner_' + display_layout.id).prop( "checked", true );
     })
 
     switch(manifest.recurrence_strategy) {

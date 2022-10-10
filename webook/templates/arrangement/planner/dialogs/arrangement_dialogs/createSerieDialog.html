@@ -1166,10 +1166,16 @@
                 dialog.data.peoplePayload = payload;
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
-                dialog.data.audienceJsTreeSelect.setSelected(payload);
+                if (dialog.data.audienceJsTreeSelect)
+                    dialog.data.audienceJsTreeSelect.setSelected(payload);
+                else
+                    dialog.$('#_backingAudienceId').val(payload);
             } },
             { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
-                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
+                if (dialog.data.arrangementTypeJsTreeSelect)
+                    dialog.data.arrangementTypeJsTreeSelect.setSelected(payload)
+                else
+                    dialog.$('#_backingArrangementTypeId').val(payload);
             } },
         ],
         plugins: [
