@@ -39,7 +39,7 @@ class Dialog {
         this._listenToEventLaneCommunication()
         
         this.oldMessages = window.MessagesFacility.addressedTo(this.dialogId)?._messages;
-        console.log("oldMessages", this.oldMessages);
+
         if (this.oldMessages) {
             for (let [key, value] of this.oldMessages)
             {
@@ -76,11 +76,9 @@ class Dialog {
                 this._whenMap.set(when.eventKnownAs, when.do);
             });
         }
-        console.log("doneMapped")
     }
 
     _listenToEventLaneCommunication() {
-        console.log("whens listen on ---> ", this.$dialogElement);
         this.$dialogElement.on("laneCommunication", (event) => {
             this._whenMap.get(event.detail.name)(this, event.detail.payload);
         });
