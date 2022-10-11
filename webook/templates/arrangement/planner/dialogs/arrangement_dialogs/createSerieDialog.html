@@ -1122,8 +1122,6 @@
         },
         when: [
             { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                console.log("roomsSelected!!", payload);
-
                 let wrapper = dialog.$( '#roomChips' );
                 wrapper.empty();
                 
