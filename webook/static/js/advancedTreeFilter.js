@@ -29,6 +29,7 @@ export class AdvancedTreeFilter extends Popover {
         treeSrcUrl,
         cascadeBehaviour=NORMAL_CASCADE_BEHAVIOUR,
         isSearchable=false,
+        onChange=null,
         } = {} ) 
         { 
             super({
@@ -39,6 +40,8 @@ export class AdvancedTreeFilter extends Popover {
             this.title = title;
             this.isSearchable = isSearchable;
             this.cascadeBehaviour = cascadeBehaviour;
+
+            this.onChange = onChange;
 
             this._instanceDiscriminator = crypto.randomUUID();
 
@@ -56,12 +59,25 @@ export class AdvancedTreeFilter extends Popover {
             this._categorySearchMap = new Map();
 
             this._render();
+            this._bindOnChange();
         }
 
         async _loadTreeJson() {
             return fetch(this.treeSrcUrl, {
                 method: 'GET'
             }).then(response => response.json())
+        }
+        
+        _$getJsTreeElement() {
+            return $(this._jsTreeElement);
+        }
+
+        _bindOnChange() {
+            if (typeof this.onChange === "function") {
+                $(this._jsTreeElement).on("changed.jstree", (e, data) => {
+                    this.onChange( this, data );
+                });
+            }
         }
 
         getSelectedValues() {
@@ -107,7 +123,7 @@ export class AdvancedTreeFilter extends Popover {
                 const selectedNodes = $(this._jsTreeElement).jstree("get_selected", true);
                 const undeterminedNodes = $(this._jsTreeElement).jstree("get_undetermined", true);
 
-                this._onSubmit(selectedNodes, undeterminedNodes);
+                this._onSubmit(this, selectedNodes, undeterminedNodes);
             }
             popoverContentEl.appendChild(submitBtnElement)
 
@@ -119,7 +135,7 @@ export class AdvancedTreeFilter extends Popover {
                 .then(treeValidObj => {
                     this._jsTree = $(treeHolder).jstree({
                         'checkbox': getCascadeSettingsFromCascadeBehaviour(this.cascadeBehaviour),
-                        'plugins': [ 'checkbox', 'search' ], 
+                        'plugins': [ 'checkbox', 'search', 'changed' ], 
                         'core': {
                             "themes" : { "icons": false },
                             'data': treeValidObj,
