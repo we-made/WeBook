@@ -258,13 +258,8 @@ container-fluid
         triggerElement: document.getElementById('location-and-rooms-popover-filter-trigger'),
         wrapperElement: document.getElementById('location-and-rooms-popover-filter-content'),
         onSubmit: function (selectedNodes, undeterminedNodes) {
-            let totalItemsCount = 0;
-
-            let locationSlugs = selectedNodes.filter( x => !!x.parents == false ).map( x => x.id );
-            let roomSlugs = selectedNodes.filter( x => !!x.parents ).map( x => { return { id: x.id }; } );
-            
-            console.log("roomSlugs", roomSlugs);
-            console.log("SelectedNodes;; ", selectedNodes);
+            let locationSlugs = selectedNodes.filter( x => x.parent === "#" ).map( x => x.id );
+            let roomSlugs = selectedNodes.filter( x => x.parent !== "#" ).map( x => { return { id: x.id }; } );
 
             calendarFilter.filterRooms(roomSlugs, false);
             calendarFilter.filterLocations(locationSlugs);
@@ -272,65 +267,7 @@ container-fluid
         treeSrcUrl: "{% url 'arrangement:location_tree' %}",
         cascadeBehaviour: NORMAL_CASCADE_BEHAVIOUR,
         isSearchable: true,
-    })
-
-    {% comment %} let locationAndRoomsPopFilter = new AdvancedCategoricalFilter({
-        triggerMode: AdvancedCategoricalFilter.TRIGGERMODE_ONUPDATE,
-        triggerElement: document.getElementById('location-and-rooms-popover-filter-trigger'),
-        wrapperElement: document.getElementById('location-and-rooms-popover-filter-content'),
-        onSubmit: function (data) {
-            let roomSlugs = [];
-            let locationSlugs = [];
-            let totalItemsCount = 0;
-
-            data.forEach(function (category) {
-                totalItemsCount += category.items.length;
-                let notSelectedRoomSlugs = category.items.filter(x => x.active === false).map(x => x.key);
-                if (category.items.length == notSelectedRoomSlugs.length) {
-                    locationSlugs.push(category.category);
-                }
-
-                roomSlugs = roomSlugs.concat(notSelectedRoomSlugs);
-            });
-
-            if (totalItemsCount === roomSlugs.length) {
-                roomSlugs = [];
-                locationSlugs = [];
-            }
-
-            calendarFilter.filterRooms(roomSlugs, false);
-            calendarFilter.filterLocations(locationSlugs);
-        },
-        data: [
-            {% for location in LOCATIONS %}
-                {
-                    "key": "{{location.slug}}",
-                    "category": "{{location}}",
-                    "items": [
-                        {% for room in location.rooms.all %}
-                            {
-                                "key": "{{ room.slug }}",
-                                "text": "{{ room.name }}",
-                                "active": false,
-                            },
-                        {% endfor %}
-                    ]
-                },
-            {% endfor %}
-        ],
-        selectionPresets: [
-            {% for preset in ROOM_PRESETS %}
-            {
-                "title": "{{ preset.name }}",
-                "activates": [
-                    {% for room in preset.rooms.all %}
-                        "{{room.slug}}",
-                    {% endfor %}
-                ]
-            },
-            {% endfor %}
-        ],
-    }); {% endcomment %}
+    });
 
     const colorSwatch = [
         "#63b598", "#ce7d78", "#ea9e70", "#a48a9e", "#c6e1e8", "#648177", "#0d5ac1",

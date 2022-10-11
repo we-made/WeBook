@@ -277,15 +277,18 @@ export class ArrangementStore extends BaseStore {
                 isWithinFilter = false;
             }
 
+            console.log(arrangement.slug_list);
+
             if (filterMap.size > 0) {
                 let match = false;
                 for (let y = 0; y < arrangement.slug_list.length; y++) {
                     const slug = arrangement.slug_list[y];
-                    if (filterMap.has(slug) === true) {
+                    if (filterMap.has(slug)) {
                         match = true;
                         break;
                     }
                 }
+
                 isWithinFilter = match;
             }
 
