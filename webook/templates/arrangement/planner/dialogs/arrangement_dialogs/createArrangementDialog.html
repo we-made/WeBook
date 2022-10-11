@@ -165,6 +165,35 @@
                         {{ form.expected_visitors.errors }}
                     </div>
                 {% endif %}
+
+                <div class="form-group">
+                    <label for="{{form.responsible.id_for_label}}"
+                            class="form-label">
+                        <i class="fas fa-users"></i>&nbsp;
+                        Personer
+                    </label>
+                    <div>
+                        <button class="btn wb-btn-secondary border"
+                                d-trigger="triggerAddPeople">
+                            Velg personer
+                        </button>
+                    </div>
+                    <div id="peopleChips" class="mb-1 mt-1"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="" class="form-label">
+                        <i class="fas fa-building"></i>&nbsp;
+                        Rom
+                    </label>
+                    <div>
+                        <button class="btn wb-btn-secondary border"
+                            d-trigger="triggerAddRooms">
+                            Velg rom
+                        </button>
+                    </div>
+                    <div id="roomChips" class="mb-1 mt-1"></div>
+                </div>
             </form>
         </div>
         <div id="step-3">
@@ -468,6 +497,12 @@
                 return dialog.data.seriesMap !== undefined && dialog.data.seriesMap.size > 0 ||
                     dialog.data.eventsMap !== undefined && dialog.data.eventsMap.size > 0;
             },
+            triggerAddRooms(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}' });
+            },
+            triggerAddPeople(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}' });
+            },
             submit(dialog, {} = {}, triggeredByElement) {
                 if (dialog.validate() === false) {
                     return;
@@ -655,7 +690,7 @@
                 dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { event_uuid: uuid, $parent: dialog.dialogElement });
             },
             createSimpleActivity(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { $parent: dialog.dialogElement })
+                dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { preselectedRooms: dialog.data.roomPayload, preselectedPeople: dialog.data.peoplePayload, $parent: dialog.dialogElement })
             },
             breakOutEvent(dialog, { serieUuid, collisionIndex } = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementCreator", "breakOutActivityDialog", {
@@ -667,10 +702,58 @@
                 dialog.raiseTriggerEvent("arrangementCreator", "newTimePlanDialog", { serie_uuid: uuid, $parent: dialog.dialogElement });
             },
             createSerie(dialog, {}={}, triggeredByElement) {
-                dialog.raiseTriggerEvent("arrangementCreator", "newTimePlanDialog", { $parent: dialog.dialogElement })
+                dialog.raiseTriggerEvent("arrangementCreator", "newTimePlanDialog", {  preselectedRooms: dialog.data.roomPayload, preselectedPeople: dialog.data.peoplePayload, $parent: dialog.dialogElement })
             },
         },
+        when: [
+        { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                let wrapper = dialog.$( '#roomChips' );
+                wrapper.empty();
+                
+                payload.viewables.forEach((room) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${room.text}'
+                                          id='${room.id}'
+                                          select-type='room'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)  
+                    )
+                });
+
+                dialog.data.selectedRoomIds = new Map();
+                dialog.data.roomPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+
+                dialog.data.roomPayload = payload;
+            } },
+            { eventKnownAs: "peopleSelected", do: (dialog, payload) => { 
+                let wrapper = dialog.$( '#peopleChips' );
+                wrapper.empty();
+                
+                payload.viewables.forEach((person) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${person.text}'
+                                          id='${person.id}'
+                                          select-type='person'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)
+                    )
+                });
+
+                dialog.data.selectedPeopleIds = new Map();
+                dialog.data.personPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
+
+                dialog.data.peoplePayload = payload;
+            } },
+        ],
         data: {
+            roomPresets: new Map(),
+            personPresets: new Map(),
+            selectedRoomIds: new Map(),
+            selectedPeopleIds: new Map(),
             seriesMap: new Map(),
             eventsMap: new Map(),
             stepper: null,

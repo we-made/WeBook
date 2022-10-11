@@ -454,6 +454,8 @@ class PlannerCreateArrangementInformatioDialogView(LoginRequiredMixin, DialogVie
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(triggers_display_layout_text=True)
+        context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
+        context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
         return context
 
     def get_success_url(self) -> str:

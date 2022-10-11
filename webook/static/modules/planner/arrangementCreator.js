@@ -21,6 +21,10 @@ export class ArrangementCreator {
                                 url: '/arrangement/planner/dialogs/create_arrangement',
                                 dialogId: "createArrangementDialog",
                                 managerName: "arrangementCreator",
+                                customParameters: {
+                                    orderRoomDialog: 'orderRoomDialog',
+                                    orderPersonDialog: 'orderPersonDialog',
+                                },
                             });
                         },
                         onPreRefresh: (dialog) => {
@@ -101,6 +105,13 @@ export class ArrangementCreator {
                             if (isCreatingNewTimeplan) {
                                 const $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
                                 const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
+
+                                if (context.lastTriggererDetails.preselectedPeople) {
+                                    window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preselectedPeople, "peopleSelected");
+                                }
+                                if (context.lastTriggererDetails.preselectedRooms) {
+                                    window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preselectedRooms, "roomsSelected");
+                                }
 
                                 [
                                     { from: '#id_ticket_code', to: '#serie_ticket_code' },
@@ -328,6 +339,13 @@ export class ArrangementCreator {
                             if (context.lastTriggererDetails?.event_uuid === undefined) {
                                 const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
                                 this.dialogManager.setTitle("newSimpleActivityDialog", "Opprett aktivitet");
+
+                                if (context.lastTriggererDetails.preselectedPeople) {
+                                    window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preselectedPeople, "peopleSelected");
+                                }
+                                if (context.lastTriggererDetails.preselectedRooms) {
+                                    window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preselectedRooms, "roomsSelected");
+                                }
 
                                 [
                                     { from: '#id_ticket_code', to: '#ticket_code' },
