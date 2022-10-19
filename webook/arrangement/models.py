@@ -28,7 +28,8 @@ from webook.utils.manifest_describe import describe_manifest
 
 
 class SelfNestedModelMixin(models.Model):
-    """ Mixin for adding the feature of nesting a model with itself """ 
+    """Mixin for adding the feature of nesting a model with itself"""
+
     parent = models.ForeignKey(
         to="self",
         related_name="nested_children",
@@ -38,13 +39,13 @@ class SelfNestedModelMixin(models.Model):
     )
 
     def as_node(self) -> Dict:
-        """ Convert this instance, and its nested children into a tree node """
+        """Convert this instance, and its nested children into a tree node"""
         return {
             "id": self.pk,
             "icon": self.icon_class if hasattr(self, "icon_class") else "",
             "text": self.resolved_name if hasattr(self, "resolved_name") else "Unknown",
             "children": [child.as_node() for child in self.nested_children.all()],
-            "data": { "slug": self.slug }
+            "data": {"slug": self.slug},
         }
 
     class Meta:
@@ -59,10 +60,13 @@ class ColorCodeMixin(models.Model):
 
 
 class IconClassMixin(models.Model):
-    icon_class = models.CharField(verbose_name=_("Icon Class"), max_length=255, blank=True)
+    icon_class = models.CharField(
+        verbose_name=_("Icon Class"), max_length=255, blank=True
+    )
 
     class Meta:
         abstract = True
+
 
 class BufferFieldsMixin(models.Model):
     """Mixin for the common fields for buffer functionality"""
@@ -72,7 +76,7 @@ class BufferFieldsMixin(models.Model):
     before_buffer_date_offset = models.IntegerField(null=True, blank=True)
     before_buffer_start = models.TimeField(null=True, blank=True)
     before_buffer_end = models.TimeField(null=True, blank=True)
-    
+
     after_buffer_title = models.CharField(null=True, blank=True, max_length=512)
     after_buffer_date = models.DateField(null=True, blank=True)
     after_buffer_date_offset = models.IntegerField(null=True, blank=True)
@@ -82,11 +86,12 @@ class BufferFieldsMixin(models.Model):
     class Meta:
         abstract = True
 
+
 class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
     """
-        A subclassed AutoSlugField that can see both archived and non archived entities, thus
-        preventing slug collisions with entities that are archived.
-        Use in tandem with ModelArchiveableMixin.
+    A subclassed AutoSlugField that can see both archived and non archived entities, thus
+    preventing slug collisions with entities that are archived.
+    Use in tandem with ModelArchiveableMixin.
     """
 
     def __init__(self, *args, **kwargs):
@@ -98,15 +103,14 @@ class ArchiveIrrespectiveAutoSlugField(AutoSlugField):
         super().__init__(*args, **kwargs, manager_name=manager_name)
 
 
-
 class ModelArchiveableMixin(models.Model):
-    """ Mixin for making a model archivable """
+    """Mixin for making a model archivable"""
 
     objects = ArchivedManager()
     all_objects = models.Manager()
 
     def archive(self, person_archiving_this):
-        """ Archive this object """
+        """Archive this object"""
         self.is_archived = True
         self.archived_by = person_archiving_this
         self.archived_when = datetime.datetime.now()
@@ -117,47 +121,47 @@ class ModelArchiveableMixin(models.Model):
 
         self.save()
 
-    is_archived = models.BooleanField(
-        verbose_name=_("Is archived"),
-        default=False
-    )
+    is_archived = models.BooleanField(verbose_name=_("Is archived"), default=False)
 
     archived_by = models.ForeignKey(
         verbose_name=_("Archived by"),
         related_name="%(class)s_archived_by",
         to="Person",
         null=True,
-        on_delete=models.RESTRICT
+        on_delete=models.RESTRICT,
     )
 
-    archived_when = models.DateTimeField(
-        verbose_name=_("Archived when"),
-        null=True
-    )
+    archived_when = models.DateTimeField(verbose_name=_("Archived when"), null=True)
 
     class Meta:
         abstract = True
 
 
 class ModelTicketCodeMixin(models.Model):
-    ticket_code = models.CharField(verbose_name=_("Ticket Code"), max_length=255, blank=True, null=True)
+    ticket_code = models.CharField(
+        verbose_name=_("Ticket Code"), max_length=255, blank=True, null=True
+    )
 
     class Meta:
         abstract = True
 
 
 class ModelVisitorsMixin(models.Model):
-    expected_visitors = models.IntegerField(verbose_name=_("Expected visitors"), default=0)
-    actual_visitors = models.IntegerField(verbose_name=_("Actual visitors"), default=0, blank=True, null=True)
+    expected_visitors = models.IntegerField(
+        verbose_name=_("Expected visitors"), default=0
+    )
+    actual_visitors = models.IntegerField(
+        verbose_name=_("Actual visitors"), default=0, blank=True, null=True
+    )
 
     class Meta:
         abstract = True
 
 
-class ModelHistoricallyConfirmableMixin():
+class ModelHistoricallyConfirmableMixin:
     """
-        Serves as a mixin to facilitate and standardize the business logic that comes after a ConfirmationReceipt state
-        has changed.
+    Serves as a mixin to facilitate and standardize the business logic that comes after a ConfirmationReceipt state
+    has changed.
     """
 
     def on_reset(self) -> None:
@@ -166,27 +170,33 @@ class ModelHistoricallyConfirmableMixin():
         self.save()
 
     def on_confirm(self) -> None:
-        """ Triggered when the request is confirmed """
-        print (">> Request confirmed")
+        """Triggered when the request is confirmed"""
+        print(">> Request confirmed")
         pass
 
     def on_cancelled(self) -> None:
-        """ Triggered when the request is cancelled """
+        """Triggered when the request is cancelled"""
         print(">> Request cancelled")
         pass
 
     def on_made(self) -> None:
-        """ Triggered when the request has been requested """
+        """Triggered when the request has been requested"""
         print(">> Request made")
         pass
 
     def on_denied(self) -> None:
-        """ Triggered when the request has been denied """
+        """Triggered when the request has been denied"""
         print(">> Request denied")
         pass
 
 
-class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, SelfNestedModelMixin, IconClassMixin):
+class Audience(
+    TimeStampedModel,
+    ModelNamingMetaMixin,
+    ModelArchiveableMixin,
+    SelfNestedModelMixin,
+    IconClassMixin,
+):
     """Audience represents a target audience, and is used for categorical purposes.
 
     :param name: The name of the audience
@@ -201,7 +211,9 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, Se
         verbose_name_plural = _("Audiences")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
+    name_en = models.CharField(
+        verbose_name=_("Name(English)"), max_length=255, blank=False, null=True
+    )
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
 
     entity_name_singular = _("Audience")
@@ -214,22 +226,24 @@ class Audience(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin, Se
         return super().archive(person_archiving_this)
 
     def get_absolute_url(self):
-        return reverse(
-            "arrangement:audience_detail", kwargs={"slug": self.slug}
-        )
+        return reverse("arrangement:audience_detail", kwargs={"slug": self.slug})
 
     def __str__(self):
         """Return audience name"""
         return self.name
 
 
-class ArrangementType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin, SelfNestedModelMixin):
+class ArrangementType(
+    TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin, SelfNestedModelMixin
+):
     class Meta:
         verbose_name = _("Arrangement type")
         verbose_name_plural = _("Arrangement types")
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=False, null=True)
+    name_en = models.CharField(
+        verbose_name=_("Name(English)"), max_length=255, blank=False, null=True
+    )
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
 
     entity_name_singular = _("Arrangement type")
@@ -247,11 +261,13 @@ class ArrangementType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMi
         )
 
     def __str__(self):
-        """ Return arrangement type name """
+        """Return arrangement type name"""
         return self.name
 
 
-class StatusType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin, ColorCodeMixin):
+class StatusType(
+    TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin, ColorCodeMixin
+):
     class Meta:
         verbose_name = _("Status type")
         verbose_name_plural = _("Status types")
@@ -266,17 +282,19 @@ class StatusType(TimeStampedModel, ModelArchiveableMixin, ModelNamingMetaMixin, 
         pass
 
     def __str__(self) -> str:
-        """ Return status name """
+        """Return status name"""
         return self.name
 
 
-class RoomPreset (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
+class RoomPreset(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """
-        A room preset is a group, or collection, or set, of rooms.
+    A room preset is a group, or collection, or set, of rooms.
     """
 
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
-    name = models.CharField(verbose_name=_("Name"), max_length=256,     null=False, blank=False)
+    name = models.CharField(
+        verbose_name=_("Name"), max_length=256, null=False, blank=False
+    )
     rooms = models.ManyToManyField(to="Room")
 
     instance_name_attribute_name = "name"
@@ -284,98 +302,163 @@ class RoomPreset (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin)
     entity_name_plural = _("Room Presets")
 
 
-class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArchiveableMixin):
+class Arrangement(
+    TimeStampedModel,
+    ModelNamingMetaMixin,
+    ModelTicketCodeMixin,
+    ModelVisitorsMixin,
+    ModelArchiveableMixin,
+):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
-     that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
-     could be an exhibition, which may have events stretching over a large timespan, but which have a shared nature,
-     which is of especial organizational interest
+    that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
+    could be an exhibition, which may have events stretching over a large timespan, but which have a shared nature,
+    which is of especial organizational interest
 
-     :param name: The name of the arrangement
-     :type name: str.
+    :param name: The name of the arrangement
+    :type name: str.
 
-     :param audience: The classification of the audience that this arrangement is geared towards
-     :type audience: Audience.
+    :param audience: The classification of the audience that this arrangement is geared towards
+    :type audience: Audience.
 
-     :param starts: The start of the arrangement, note that this does not concern the underlying events
-     :type starts: date.
+    :param starts: The start of the arrangement, note that this does not concern the underlying events
+    :type starts: date.
 
-     :param ends: The end of the arrangement, note that this does not concern the underlying events
-     :type ends: date
+    :param ends: The end of the arrangement, note that this does not concern the underlying events
+    :type ends: date
 
-     :param timeline_events: Events on the timeline of this arrangement
-     :type timeline_events: TimelineEvent.
+    :param timeline_events: Events on the timeline of this arrangement
+    :type timeline_events: TimelineEvent.
 
-     :param owners: Owners of this arrangement, owners are privileged and responsible for the arrangement
-     :type owners: Person.
+    :param owners: Owners of this arrangement, owners are privileged and responsible for the arrangement
+    :type owners: Person.
 
-     :param people_participants: The people who are participating in this arrangement, may connect to an o
-                                 organization_participant
-     :type people_participants: Person.
+    :param people_participants: The people who are participating in this arrangement, may connect to an o
+                                organization_participant
+    :type people_participants: Person.
 
-     :param organization_participants: The organizations who are participating in this arrangement
-     :type organization_participants: Organization.
-     """
+    :param organization_participants: The organizations who are participating in this arrangement
+    :type organization_participants: Organization.
+    """
 
     class Meta:
         verbose_name = _("Arrangement")
         verbose_name_plural = _("Arrangements")
 
     def on_archive(self, person_archiving_this):
-        """ Handle extra stuff when an arrangement is archived
-            We also need to archive events """
+        """Handle extra stuff when an arrangement is archived
+        We also need to archive events"""
         events = self.event_set.all()
         for event in events:
             event.archive(person_archiving_this)
 
     """ TODO: Write article doc in sphinx concerning the arrangements and how they 'flow' """
     """ Arrangement is in the planning phase """
-    PLANNING = 'planning'
+    PLANNING = "planning"
     """ Arrangement is in the requisitioning phase """
-    REQUISITIONING = 'requisitioning'
+    REQUISITIONING = "requisitioning"
     """ Arrangement is ready to launch -- requisitioning has been fully completed """
-    READY_TO_LAUNCH = 'ready_to_launch'
+    READY_TO_LAUNCH = "ready_to_launch"
     """ Arrangement has been launched, and is planning-wise to be considered finished """
-    IN_PRODUCTION = 'in_production'
+    IN_PRODUCTION = "in_production"
 
     STAGE_CHOICES = (
         (PLANNING, PLANNING),
         (REQUISITIONING, REQUISITIONING),
         (READY_TO_LAUNCH, READY_TO_LAUNCH),
-        (IN_PRODUCTION, IN_PRODUCTION)
+        (IN_PRODUCTION, IN_PRODUCTION),
     )
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
-    name_en = models.CharField(verbose_name=_("Name(English)"), max_length=255, blank=True, null=True)
+    name_en = models.CharField(
+        verbose_name=_("Name(English)"), max_length=255, blank=True, null=True
+    )
 
     stages = models.CharField(max_length=255, choices=STAGE_CHOICES, default=PLANNING)
 
-    location = models.ForeignKey(to="Location", verbose_name=_("Location"), on_delete=models.CASCADE, related_name="arrangements")
+    location = models.ForeignKey(
+        to="Location",
+        verbose_name=_("Location"),
+        on_delete=models.CASCADE,
+        related_name="arrangements",
+    )
 
-    meeting_place = models.CharField(verbose_name=_("Meeting Place"), max_length=255, blank=True, null=True)
-    meeting_place_en = models.CharField(verbose_name=_("Meeting Place (English)"), max_length=255, blank=True, null=True)
+    meeting_place = models.CharField(
+        verbose_name=_("Meeting Place"), max_length=255, blank=True, null=True
+    )
+    meeting_place_en = models.CharField(
+        verbose_name=_("Meeting Place (English)"), max_length=255, blank=True, null=True
+    )
 
-    audience = models.ForeignKey(to=Audience, verbose_name=_("Audience"), on_delete=models.CASCADE, related_name="arrangements")
-    arrangement_type = models.ForeignKey(to=ArrangementType, verbose_name=_("Arrangement Type"), on_delete=models.CASCADE, related_name="arrangements", null=True)
+    audience = models.ForeignKey(
+        to=Audience,
+        verbose_name=_("Audience"),
+        on_delete=models.CASCADE,
+        related_name="arrangements",
+    )
+    arrangement_type = models.ForeignKey(
+        to=ArrangementType,
+        verbose_name=_("Arrangement Type"),
+        on_delete=models.CASCADE,
+        related_name="arrangements",
+        null=True,
+    )
 
     starts = models.DateField(verbose_name=_("Starts"), null=True)
     ends = models.DateField(verbose_name=_("Ends"), null=True)
 
-    timeline_events = models.ManyToManyField(to="TimelineEvent", verbose_name=_("Timeline Events"))
+    timeline_events = models.ManyToManyField(
+        to="TimelineEvent", verbose_name=_("Timeline Events")
+    )
 
-    notes = models.ManyToManyField(to="Note", verbose_name=_("Notes"), related_name="arrangements")
+    notes = models.ManyToManyField(
+        to="Note", verbose_name=_("Notes"), related_name="arrangements"
+    )
 
-    responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="arrangements_responsible_for")
+    responsible = models.ForeignKey(
+        to="Person",
+        verbose_name=_("Responsible"),
+        on_delete=models.RESTRICT,
+        related_name="arrangements_responsible_for",
+    )
     planners = models.ManyToManyField(to="Person", verbose_name=_("Planners"))
 
-    status = models.ForeignKey(to="StatusType", on_delete=models.RESTRICT, null=True, blank=True, related_name="status_of_arrangements")
-    
-    display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
-    display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
+    status = models.ForeignKey(
+        to="StatusType",
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="status_of_arrangements",
+    )
 
-    people_participants = models.ManyToManyField(to="Person", verbose_name=_("People Participants"), related_name="participating_in")
-    organization_participants = models.ManyToManyField(to="Organization", verbose_name=_("Organization Participants"), related_name="participating_in")
-    show_on_multimedia_screen = models.BooleanField(verbose_name=_("Show on multimedia screen"), default=False)
-    display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layout"), related_name="arrangements", blank=True)
+    display_text = models.CharField(
+        verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True
+    )
+    display_text_en = models.CharField(
+        verbose_name=_("Screen Display Text(English)"),
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
+    people_participants = models.ManyToManyField(
+        to="Person",
+        verbose_name=_("People Participants"),
+        related_name="participating_in",
+    )
+    organization_participants = models.ManyToManyField(
+        to="Organization",
+        verbose_name=_("Organization Participants"),
+        related_name="participating_in",
+    )
+    show_on_multimedia_screen = models.BooleanField(
+        verbose_name=_("Show on multimedia screen"), default=False
+    )
+    display_layouts = models.ManyToManyField(
+        to=screen_models.DisplayLayout,
+        verbose_name=_("Display Layout"),
+        related_name="arrangements",
+        blank=True,
+    )
 
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
 
@@ -383,16 +466,14 @@ class Arrangement(TimeStampedModel, ModelNamingMetaMixin, ModelTicketCodeMixin, 
     entity_name_plural = _("Arrangements")
 
     def get_absolute_url(self):
-        return reverse(
-            "arrangement:arrangement_detail", kwargs={"slug": self.slug}
-        )
+        return reverse("arrangement:arrangement_detail", kwargs={"slug": self.slug})
 
     def __str__(self):
         """Return arrangement name"""
         return self.name
 
 
-class Location (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
+class Location(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     """Location represents a physical location, for instance a building.
     In practice a location is a group of rooms, primarily helpful in contextualization and filtering
 
@@ -405,14 +486,16 @@ class Location (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         verbose_name_plural = _("Locations")
 
     def as_tree_node(self, populate_children=True) -> dict:
-        """ Return a valid representation of this location as a JSTree like tree node
+        """Return a valid representation of this location as a JSTree like tree node
         Set populate_children to True if you want rooms to be added to children.
         """
         return {
             "id": self.slug,
             "icon": "fas fa-building",
             "text": self.name,
-            "children": [ room.as_tree_node() for room in self.rooms.all() ] if populate_children else None
+            "children": [room.as_tree_node() for room in self.rooms.all()]
+            if populate_children
+            else None,
         }
 
     def on_archive(self, person_archiving_this):
@@ -427,9 +510,7 @@ class Location (TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     entity_name_plural = _("Locations")
 
     def get_absolute_url(self):
-        return reverse(
-            "arrangement:location_detail", kwargs={"slug": self.slug}
-        )
+        return reverse("arrangement:location_detail", kwargs={"slug": self.slug})
 
     def __str__(self):
         """Return location name"""
@@ -462,18 +543,22 @@ class Room(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         }
 
     objects = ArchivedManager()
-    name_en = models.CharField(verbose_name=_("Name English"), max_length=255, blank=True, null=True)
+    name_en = models.CharField(
+        verbose_name=_("Name English"), max_length=255, blank=True, null=True
+    )
 
     location = models.ForeignKey(
         Location,
         verbose_name=_("Location"),
         on_delete=models.CASCADE,
-        related_name="rooms"
+        related_name="rooms",
     )
     max_capacity = models.IntegerField(verbose_name="Maximum Occupants")
     is_exclusive = models.BooleanField(verbose_name=_("Is Exclusive"), default=False)
     has_screen = models.BooleanField(verbose_name=_("Has Screen"), default=True)
-    business_hours = models.ManyToManyField(to="BusinessHour", verbose_name=_("Business Hours"))
+    business_hours = models.ManyToManyField(
+        to="BusinessHour", verbose_name=_("Business Hours")
+    )
 
     name = models.CharField(verbose_name=_("Name"), max_length=128)
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
@@ -482,9 +567,7 @@ class Room(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     entity_name_plural = _("Rooms")
 
     def get_absolute_url(self):
-        return reverse(
-            "arrangement:room_detail", kwargs={"slug": self.slug}
-        )
+        return reverse("arrangement:room_detail", kwargs={"slug": self.slug})
 
     def __str__(self):
         """Return room name"""
@@ -539,7 +622,7 @@ class OrganizationType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableM
         return self.name
 
 
-class TimelineEvent (TimeStampedModel, ModelArchiveableMixin):
+class TimelineEvent(TimeStampedModel, ModelArchiveableMixin):
     """A timeline event model represents an event on a timeline, not to be confused with an event on a calendar, which
     is represented by the Event model.
 
@@ -579,10 +662,8 @@ class ServiceType(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin)
     entity_name_singular = "Service Type"
     entity_name_plural = "Service Types"
 
-    def get_absolute_url (self):
-        return reverse(
-            "arrangement:servicetype_detail", kwargs={"slug": self.slug}
-        )
+    def get_absolute_url(self):
+        return reverse("arrangement:servicetype_detail", kwargs={"slug": self.slug})
 
     def __str__(self):
         """Return service type name"""
@@ -616,30 +697,37 @@ class BusinessHour(TimeStampedModel, ModelArchiveableMixin):
     """
 
     class Days(models.IntegerChoices):
-        MONDAY = 0, _('Monday')
-        TUESDAY = 1, _('Tuesday')
-        WEDNESDAY = 2, _('Wednesday')
-        THURSDAY = 3, _('Thursday')
-        FRIDAY = 4, _('Friday')
-        SATURDAY = 5, _('Saturday')
-        SUNDAY = 6, _('Sunday')
-        HOLIDAY = 7, _('Holiday')
-
+        MONDAY = 0, _("Monday")
+        TUESDAY = 1, _("Tuesday")
+        WEDNESDAY = 2, _("Wednesday")
+        THURSDAY = 3, _("Thursday")
+        FRIDAY = 4, _("Friday")
+        SATURDAY = 5, _("Saturday")
+        SUNDAY = 6, _("Sunday")
+        HOLIDAY = 7, _("Holiday")
 
     class Meta:
         verbose_name = _("Business Hour")
         verbose_name_plural = _("Business Hours")
 
-    day_of_week = models.IntegerField(verbose_name=_("Day Of Week"), choices=Days.choices,
-        default=Days.MONDAY)
-    start_of_business_hours = models.TimeField(verbose_name=_("Start Of Business Hours"))
+    day_of_week = models.IntegerField(
+        verbose_name=_("Day Of Week"), choices=Days.choices, default=Days.MONDAY
+    )
+    start_of_business_hours = models.TimeField(
+        verbose_name=_("Start Of Business Hours")
+    )
     end_of_business_hours = models.TimeField(verbose_name=_("End Of Business Hours"))
 
-    valid_from = models.DateTimeField(verbose_name=_("Valid From"), default=datetime.datetime.min)
-    valid_through = models.DateTimeField(verbose_name=_("Valid Through"), default=datetime.datetime.max)
+    valid_from = models.DateTimeField(
+        verbose_name=_("Valid From"), default=datetime.datetime.min
+    )
+    valid_through = models.DateTimeField(
+        verbose_name=_("Valid Through"), default=datetime.datetime.max
+    )
 
-    note = models.ForeignKey(to="Note", verbose_name=_("Note"),
-                             on_delete=models.RESTRICT, null=True)
+    note = models.ForeignKey(
+        to="Note", verbose_name=_("Note"), on_delete=models.RESTRICT, null=True
+    )
 
     def __str__(self):
         """Return from and to business hours"""
@@ -671,12 +759,19 @@ class Calendar(TimeStampedModel, ModelArchiveableMixin):
         verbose_name = _("Calendar")
         verbose_name_plural = _("Calendars")
 
-    owner = models.ForeignKey(to="Person", verbose_name=_("Owner"), on_delete=models.RESTRICT, related_name="owners")
+    owner = models.ForeignKey(
+        to="Person",
+        verbose_name=_("Owner"),
+        on_delete=models.RESTRICT,
+        related_name="owners",
+    )
 
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     is_personal = models.BooleanField(verbose_name=_("Is Personal"), default=True)
 
-    people_resources = models.ManyToManyField(to="Person", verbose_name=_("People Resources"))
+    people_resources = models.ManyToManyField(
+        to="Person", verbose_name=_("People Resources")
+    )
     room_resources = models.ManyToManyField(to="Room", verbose_name=_("Room Resources"))
 
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
@@ -698,16 +793,18 @@ class Note(TimeStampedModel, ModelArchiveableMixin):
 
     """
 
-    author = models.ForeignKey(to='Person', on_delete=models.RESTRICT)
+    author = models.ForeignKey(to="Person", on_delete=models.RESTRICT)
     content = models.TextField(verbose_name=_("Content"), max_length=1024)
-    has_personal_information = models.BooleanField(verbose_name=_("Has personal information"), default=False)
+    has_personal_information = models.BooleanField(
+        verbose_name=_("Has personal information"), default=False
+    )
 
     def __str__(self):
         """Return contents of note"""
         return self.content
 
 
-class ConfirmationReceipt (TimeStampedModel, ModelArchiveableMixin):
+class ConfirmationReceipt(TimeStampedModel, ModelArchiveableMixin):
     """Confirmation receipts are used to petition a person to confirm something, and allows a tracked
     record of confirmation
 
@@ -735,30 +832,29 @@ class ConfirmationReceipt (TimeStampedModel, ModelArchiveableMixin):
     """
 
     """ Confirmation request has been confirmed - receiver has responded to it """
-    CONFIRMED = 'confirmed'
+    CONFIRMED = "confirmed"
     """ Conformation request has been denied - receiver has responded to it """
-    DENIED = 'denied'
+    DENIED = "denied"
     """ Cofnirmation request is pending - receiver has not responded to ti """
-    PENDING = 'pending'
+    PENDING = "pending"
     """ Confirmation request has been cancelled """
-    CANCELLED = 'cancelled'
+    CANCELLED = "cancelled"
 
     STAGE_CHOICES = (
         (CONFIRMED, CONFIRMED),
         (DENIED, DENIED),
         (PENDING, PENDING),
-        (CANCELLED, CANCELLED)
+        (CANCELLED, CANCELLED),
     )
 
     TYPE_DEFAULT = "requisition_default"
-    TYPE_REQUISITION_PERSON = 'requisition_person'
-    TYPE_REQUISITION_SERVICE = 'requisition_service'
+    TYPE_REQUISITION_PERSON = "requisition_person"
+    TYPE_REQUISITION_SERVICE = "requisition_service"
 
     TYPE_CHOICES = (
         (TYPE_DEFAULT, TYPE_DEFAULT),
         (TYPE_REQUISITION_PERSON, TYPE_REQUISITION_PERSON),
         (TYPE_REQUISITION_SERVICE, TYPE_REQUISITION_SERVICE),
-
     )
 
     type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_DEFAULT)
@@ -769,20 +865,27 @@ class ConfirmationReceipt (TimeStampedModel, ModelArchiveableMixin):
         responded to without login (which may not always be possible - especially in the cases where a business
         is the recipient)...
     """
-    code = models.CharField(verbose_name=_("Code"), max_length=200, unique=True, db_index=True)
-    requested_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT, verbose_name=_("Requested By"))
+    code = models.CharField(
+        verbose_name=_("Code"), max_length=200, unique=True, db_index=True
+    )
+    requested_by = models.ForeignKey(
+        to="Person", on_delete=models.RESTRICT, verbose_name=_("Requested By")
+    )
     sent_to = models.EmailField(verbose_name=_("SentTo"), max_length=255)
-    sent_when = models.DateTimeField(verbose_name=_("SentWhen"), null=True, auto_now_add=True)
+    sent_when = models.DateTimeField(
+        verbose_name=_("SentWhen"), null=True, auto_now_add=True
+    )
 
-    note = models.ForeignKey(to="Note", verbose_name=_("Note"),
-                                     on_delete=models.RESTRICT, null=True)
+    note = models.ForeignKey(
+        to="Note", verbose_name=_("Note"), on_delete=models.RESTRICT, null=True
+    )
     """
         Reasoning supplied by the user when denying the request
     """
     denial_reasoning = models.TextField(verbose_name=_("Reason of denial"), blank=True)
 
     @property
-    def is_finished (self):
+    def is_finished(self):
         return self.state == self.CONFIRMED or self.state == self.DENIED
 
     def __str__(self):
@@ -814,20 +917,39 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     :param notes: Notes written about this person
     :type notes: Note.
     """
+
     class Meta:
         verbose_name = _("Person")
         verbose_name_plural = _("People")
 
-    personal_email = models.CharField(verbose_name=_("Personal Email"), max_length=255, blank=False, null=False)
+    social_provider_id = models.CharField(
+        verbose_name=_("Social ID"), max_length=1024, blank=True, null=True
+    )
+    social_provider_email = models.CharField(
+        verbose_name=_("Social Email"),
+        max_length=512,
+        blank=True,
+        null=True,
+    )
+
+    personal_email = models.CharField(
+        verbose_name=_("Personal Email"), max_length=255, blank=False, null=False
+    )
     first_name = models.CharField(verbose_name=_("First Name"), max_length=255)
-    middle_name = models.CharField(verbose_name=_("Middle Name"), max_length=255, blank=True)
+    middle_name = models.CharField(
+        verbose_name=_("Middle Name"), max_length=255, blank=True
+    )
     last_name = models.CharField(verbose_name=_("Last Name"), max_length=255)
     birth_date = models.DateField(verbose_name=_("Birth Date"), null=True, blank=True)
 
-    business_hours = models.ManyToManyField(to=BusinessHour, verbose_name=_("Business Hours"))
+    business_hours = models.ManyToManyField(
+        to=BusinessHour, verbose_name=_("Business Hours")
+    )
     notes = models.ManyToManyField(to=Note, verbose_name="Notes")
 
-    slug = AutoSlugField(populate_from="full_name", unique=True, manager_name="all_objects")
+    slug = AutoSlugField(
+        populate_from="full_name", unique=True, manager_name="all_objects"
+    )
 
     instance_name_attribute_name = "full_name"
     entity_name_singular = _("Person")
@@ -840,12 +962,12 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
 
     @property
     def full_name(self):
-        return ' '.join(name for name in (self.first_name, self.middle_name, self.last_name) if name)
+        return " ".join(
+            name for name in (self.first_name, self.middle_name, self.last_name) if name
+        )
 
     def get_absolute_url(self):
-        return reverse(
-            "arrangement:person_detail", kwargs={"slug": self.slug }
-        )
+        return reverse("arrangement:person_detail", kwargs={"slug": self.slug})
 
     def __str__(self):
         """Return full person name"""
@@ -853,7 +975,7 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
 
 
 class Organization(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
-    """ Organizations represent real world organizations
+    """Organizations represent real world organizations
 
     :param organization_number: The organization number associated with this organization - if any
     :type organization_number: int.
@@ -879,13 +1001,24 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin
         verbose_name = _("Organization")
         verbose_name_plural = _("Organizations")
 
-    organization_number = models.IntegerField(verbose_name=_("Organization Number"), null=True, blank=True)
+    organization_number = models.IntegerField(
+        verbose_name=_("Organization Number"), null=True, blank=True
+    )
     name = models.CharField(verbose_name="Name", max_length=255)
-    organization_type = models.ForeignKey(to=OrganizationType, verbose_name=_("Organization Type"), on_delete=models.RESTRICT, related_name="organizations")
+    organization_type = models.ForeignKey(
+        to=OrganizationType,
+        verbose_name=_("Organization Type"),
+        on_delete=models.RESTRICT,
+        related_name="organizations",
+    )
 
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
-    members = models.ManyToManyField(to=Person, verbose_name=_("Members"), related_name="organizations")
-    business_hours = models.ManyToManyField(to=BusinessHour, verbose_name=_("Business Hours"))
+    members = models.ManyToManyField(
+        to=Person, verbose_name=_("Members"), related_name="organizations"
+    )
+    business_hours = models.ManyToManyField(
+        to=BusinessHour, verbose_name=_("Business Hours")
+    )
 
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
 
@@ -893,9 +1026,7 @@ class Organization(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin
     entity_name_singular = _("Organization")
 
     def get_absolute_url(self):
-        return reverse(
-            "arrangement:organization_detail", kwargs={'slug': self.slug}
-        )
+        return reverse("arrangement:organization_detail", kwargs={"slug": self.slug})
 
     def __str__(self):
         """Return organization name"""
@@ -917,16 +1048,34 @@ class ServiceProvidable(TimeStampedModel, ModelArchiveableMixin):
     :type organization: Organization.
     """
 
-    service_contact = models.EmailField(verbose_name=_("Service contact"), blank=False, null=False)
-    service_type = models.ForeignKey(to=ServiceType, on_delete=models.RESTRICT, verbose_name=_("Service Type"), related_name="providers")
-    organization = models.ForeignKey(to=Organization, on_delete=models.RESTRICT, verbose_name=_("Organization"), related_name="services_providable")
+    service_contact = models.EmailField(
+        verbose_name=_("Service contact"), blank=False, null=False
+    )
+    service_type = models.ForeignKey(
+        to=ServiceType,
+        on_delete=models.RESTRICT,
+        verbose_name=_("Service Type"),
+        related_name="providers",
+    )
+    organization = models.ForeignKey(
+        to=Organization,
+        on_delete=models.RESTRICT,
+        verbose_name=_("Organization"),
+        related_name="services_providable",
+    )
 
     def __str__(self):
         """Return description of service provider"""
         return f"{self.service_name} of type {self.service_type} provided by {self.organization.name}"
 
 
-class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArchiveableMixin, BufferFieldsMixin):
+class Event(
+    TimeStampedModel,
+    ModelTicketCodeMixin,
+    ModelVisitorsMixin,
+    ModelArchiveableMixin,
+    BufferFieldsMixin,
+):
     """The event model represents an event, or happening that takes place in a set span of time, and which may
     reserve certain resources for use in that span of time (such as a room, or a person etc..).
 
@@ -967,80 +1116,147 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
 
-    ARRANGEMENT_EVENT = 'arrangement_event'
-    COLLISION_EVENT = 'collision_event'
-    HOLIDAY_EVENT = 'holiday_event'
+    ARRANGEMENT_EVENT = "arrangement_event"
+    COLLISION_EVENT = "collision_event"
+    HOLIDAY_EVENT = "holiday_event"
     EVENT_TYPE_CHOICES = (
-        ( ARRANGEMENT_EVENT, ARRANGEMENT_EVENT ),
-        ( HOLIDAY_EVENT, HOLIDAY_EVENT ),
+        (ARRANGEMENT_EVENT, ARRANGEMENT_EVENT),
+        (HOLIDAY_EVENT, HOLIDAY_EVENT),
     )
 
     objects = EventManager()
 
-    event_type = models.CharField(max_length=255, choices=EVENT_TYPE_CHOICES, default=ARRANGEMENT_EVENT)
-
-    NO_ASSOCIATION = 'no_association'
-    COLLISION_RESOLVED_ORIGINATING_OF_SERIE = 'collision_resolved_originating_of_serie'
-    DEGRADED_FROM_SERIE = 'degraded_from_serie'
-    ASSOCIATION_TYPE_CHOICES = (
-        ( NO_ASSOCIATION, NO_ASSOCIATION ),
-        ( DEGRADED_FROM_SERIE, DEGRADED_FROM_SERIE ),
-        ( COLLISION_RESOLVED_ORIGINATING_OF_SERIE, COLLISION_RESOLVED_ORIGINATING_OF_SERIE ),
+    event_type = models.CharField(
+        max_length=255, choices=EVENT_TYPE_CHOICES, default=ARRANGEMENT_EVENT
     )
-    association_type = models.CharField(max_length=255, choices=ASSOCIATION_TYPE_CHOICES, default=NO_ASSOCIATION)
-    associated_serie = models.ForeignKey(to="EventSerie", on_delete=models.RESTRICT, null=True, blank=True, related_name="associated_events")
+
+    NO_ASSOCIATION = "no_association"
+    COLLISION_RESOLVED_ORIGINATING_OF_SERIE = "collision_resolved_originating_of_serie"
+    DEGRADED_FROM_SERIE = "degraded_from_serie"
+    ASSOCIATION_TYPE_CHOICES = (
+        (NO_ASSOCIATION, NO_ASSOCIATION),
+        (DEGRADED_FROM_SERIE, DEGRADED_FROM_SERIE),
+        (
+            COLLISION_RESOLVED_ORIGINATING_OF_SERIE,
+            COLLISION_RESOLVED_ORIGINATING_OF_SERIE,
+        ),
+    )
+    association_type = models.CharField(
+        max_length=255, choices=ASSOCIATION_TYPE_CHOICES, default=NO_ASSOCIATION
+    )
+    associated_serie = models.ForeignKey(
+        to="EventSerie",
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="associated_events",
+    )
 
     buffer_before_event = models.ForeignKey(
         to="Event",
         on_delete=models.RESTRICT,
         null=True,
         blank=True,
-        related_name="before_buffer_for"
+        related_name="before_buffer_for",
     )
     buffer_after_event = models.ForeignKey(
         to="Event",
         on_delete=models.RESTRICT,
         null=True,
         blank=True,
-        related_name="after_buffer_for"
+        related_name="after_buffer_for",
     )
 
-    serie = models.ForeignKey(to="EventSerie", on_delete=models.RESTRICT, null=True, blank=True, related_name="events")
+    serie = models.ForeignKey(
+        to="EventSerie",
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="events",
+    )
 
     title = models.CharField(verbose_name=_("Title"), max_length=255)
-    title_en = models.CharField(verbose_name=_("Title (English)"), max_length=255, blank=True)
+    title_en = models.CharField(
+        verbose_name=_("Title (English)"), max_length=255, blank=True
+    )
 
     start = models.DateTimeField(verbose_name=_("Start"), null=False)
     end = models.DateTimeField(verbose_name=_("End"), null=False)
     all_day = models.BooleanField(verbose_name=_("AllDay"), default=False)
-    sequence_guid = models.CharField(verbose_name=_("SequenceGuid"), max_length=40, null=True, blank=True)
+    sequence_guid = models.CharField(
+        verbose_name=_("SequenceGuid"), max_length=40, null=True, blank=True
+    )
 
-    color = models.CharField(verbose_name=_("Primary Color"), max_length=40, null=True, blank=True)
+    color = models.CharField(
+        verbose_name=_("Primary Color"), max_length=40, null=True, blank=True
+    )
 
     is_locked = models.BooleanField(verbose_name=_("Is Locked"), default=False)
-    is_requisitionally_complete = models.BooleanField(verbose_name=_("Requisitions Finished"), default=False)
+    is_requisitionally_complete = models.BooleanField(
+        verbose_name=_("Requisitions Finished"), default=False
+    )
 
-    arrangement = models.ForeignKey(to=Arrangement, on_delete=models.CASCADE, verbose_name=_("Arrangement"))
-    people = models.ManyToManyField(to=Person, verbose_name=_("People"), related_name="my_events", blank=True)
+    arrangement = models.ForeignKey(
+        to=Arrangement, on_delete=models.CASCADE, verbose_name=_("Arrangement")
+    )
+    people = models.ManyToManyField(
+        to=Person, verbose_name=_("People"), related_name="my_events", blank=True
+    )
     rooms = models.ManyToManyField(to=Room, verbose_name=_("Rooms"), blank=True)
-    loose_requisitions = models.ManyToManyField(to="LooseServiceRequisition", verbose_name=_("Loose service requisitions"), related_name="events")
+    loose_requisitions = models.ManyToManyField(
+        to="LooseServiceRequisition",
+        verbose_name=_("Loose service requisitions"),
+        related_name="events",
+    )
     articles = models.ManyToManyField(to=Article, verbose_name=_("Articles"))
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
 
-    responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="events_responsible_for", null=True, blank=True)
+    responsible = models.ForeignKey(
+        to="Person",
+        verbose_name=_("Responsible"),
+        on_delete=models.RESTRICT,
+        related_name="events_responsible_for",
+        null=True,
+        blank=True,
+    )
 
-    status = models.ForeignKey(to="StatusType", on_delete=models.RESTRICT, null=True, blank=True, related_name="status_of_events")
+    status = models.ForeignKey(
+        to="StatusType",
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="status_of_events",
+    )
 
-    display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout, verbose_name=_("Display Layouts"),
-                                             related_name="events", blank=True)
-                                             
-    display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
-    display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
+    display_layouts = models.ManyToManyField(
+        to=screen_models.DisplayLayout,
+        verbose_name=_("Display Layouts"),
+        related_name="events",
+        blank=True,
+    )
 
-    meeting_place = models.CharField(verbose_name=_("Meeting Place"), max_length=255, blank=True, null=True)
-    meeting_place_en = models.CharField(verbose_name=_("Meeting Place (English)"), max_length=255, blank=True, null=True)
-    audience = models.ForeignKey(to=Audience, on_delete=models.RESTRICT, null=True, blank=True)
-    arrangement_type = models.ForeignKey(to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True)
+    display_text = models.CharField(
+        verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True
+    )
+    display_text_en = models.CharField(
+        verbose_name=_("Screen Display Text(English)"),
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
+    meeting_place = models.CharField(
+        verbose_name=_("Meeting Place"), max_length=255, blank=True, null=True
+    )
+    meeting_place_en = models.CharField(
+        verbose_name=_("Meeting Place (English)"), max_length=255, blank=True, null=True
+    )
+    audience = models.ForeignKey(
+        to=Audience, on_delete=models.RESTRICT, null=True, blank=True
+    )
+    arrangement_type = models.ForeignKey(
+        to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True
+    )
 
     @property
     def is_buffer_event(self) -> bool:
@@ -1049,26 +1265,28 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
     @property
     def buffer_for(self) -> Event:
-        """ 
-        Get the event which this event is buffering (if any) 
+        """
+        Get the event which this event is buffering (if any)
         :return: Event
         :raises: Exception
-        """ 
+        """
         if self.before_buffer_for.exists():
             return self.before_buffer_for.get
         elif self.after_buffer_for.exists():
             return self.after_buffer_for.get
         else:
-            raise Exception("Can not get buffering-for event since the event is not buffering any other event.")
+            raise Exception(
+                "Can not get buffering-for event since the event is not buffering any other event."
+            )
 
     def refresh_buffers(self) -> Tuple[Optional[Event], Optional[Event]]:
         """Manage buffers from the event instance, returning them in a tuple form
-        
+
         returns:
             A tuple consisting of two possibly None Event instances. The first item of the tuple is the pre-activity buffer,
             and the second item is the post-activity buffer. Either may be None if their requisite values are not defined.
 
-        """ 
+        """
         current_tz = pytz.timezone(str(dj_timezone.get_current_timezone()))
 
         if self.buffer_before_event:
@@ -1082,15 +1300,29 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
 
         if self.before_buffer_start and self.before_buffer_end:
             before_activity_buffer = Event()
-            before_activity_buffer.title = self.before_buffer_title or "Opprigg for " + self.title
+            before_activity_buffer.title = (
+                self.before_buffer_title or "Opprigg for " + self.title
+            )
             before_activity_buffer.arrangement = self.arrangement
 
             offset_start = None
             if self.before_buffer_date_offset:
-                offset_start = self.start - datetime.timedelta(days=self.before_buffer_date_offset) 
+                offset_start = self.start - datetime.timedelta(
+                    days=self.before_buffer_date_offset
+                )
 
-            before_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or offset_start or self.start, self.before_buffer_start))
-            before_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.before_buffer_date or offset_start or self.start, self.before_buffer_end))
+            before_activity_buffer.start = current_tz.localize(
+                datetime.datetime.combine(
+                    self.before_buffer_date or offset_start or self.start,
+                    self.before_buffer_start,
+                )
+            )
+            before_activity_buffer.end = current_tz.localize(
+                datetime.datetime.combine(
+                    self.before_buffer_date or offset_start or self.start,
+                    self.before_buffer_end,
+                )
+            )
             self.before_buffer_date = before_activity_buffer.start.strftime("%Y-%m-%d")
             before_activity_buffer.save()
             before_activity_buffer.rooms.set(self.rooms.all())
@@ -1100,15 +1332,29 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             self.save()
         if self.after_buffer_start and self.after_buffer_end:
             after_activity_buffer = Event()
-            after_activity_buffer.title = self.after_buffer_title or "Nedrigg for " + self.title
+            after_activity_buffer.title = (
+                self.after_buffer_title or "Nedrigg for " + self.title
+            )
             after_activity_buffer.arrangement = self.arrangement
 
             offset_end = None
             if self.after_buffer_date_offset:
-                offset_end = self.end + datetime.timedelta(days=self.after_buffer_date_offset)
+                offset_end = self.end + datetime.timedelta(
+                    days=self.after_buffer_date_offset
+                )
 
-            after_activity_buffer.start = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or offset_end or self.end, self.after_buffer_start))
-            after_activity_buffer.end = current_tz.localize(datetime.datetime.combine(self.after_buffer_date or offset_end or self.end, self.after_buffer_end))
+            after_activity_buffer.start = current_tz.localize(
+                datetime.datetime.combine(
+                    self.after_buffer_date or offset_end or self.end,
+                    self.after_buffer_start,
+                )
+            )
+            after_activity_buffer.end = current_tz.localize(
+                datetime.datetime.combine(
+                    self.after_buffer_date or offset_end or self.end,
+                    self.after_buffer_end,
+                )
+            )
             self.after_buffer_date = after_activity_buffer.start.strftime("%Y-%m-%d")
             after_activity_buffer.save()
             after_activity_buffer.rooms.set(self.rooms.all())
@@ -1138,8 +1384,8 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
             buffering_for.after_buffer_end = None
             buffering_for.save()
             self.after_buffer_for.clear()
-        
-        # If the event we are deleting has supporting rigging events then we want to delete these supporting 
+
+        # If the event we are deleting has supporting rigging events then we want to delete these supporting
         # rigging events when the parent owner is deleted.
         if self.buffer_before_event:
             self.buffer_before_event.delete()
@@ -1182,34 +1428,45 @@ class Event(TimeStampedModel, ModelTicketCodeMixin, ModelVisitorsMixin, ModelArc
         return f"{self.title} ({self.start} - {self.end})"
 
 
-class CollisionAnalysisReport (TimeStampedModel):
+class CollisionAnalysisReport(TimeStampedModel):
     generated_for = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT)
 
-class CollisionAnalysisRecord (TimeStampedModel):
+
+class CollisionAnalysisRecord(TimeStampedModel):
     DIMENSION_UNDEFINED = "dimension_undefined"
     DIMENSION_PERSON = "dimension_person"
     DIMENSION_ROOM = "dimension_room"
 
     DIMENSION_CHOICES = (
         (DIMENSION_PERSON, DIMENSION_PERSON),
-        (DIMENSION_ROOM, DIMENSION_ROOM)
+        (DIMENSION_ROOM, DIMENSION_ROOM),
     )
 
-    report = models.ForeignKey(to=CollisionAnalysisReport, on_delete=models.RESTRICT, related_name="records")
+    report = models.ForeignKey(
+        to=CollisionAnalysisReport, on_delete=models.RESTRICT, related_name="records"
+    )
 
-    dimension = models.CharField(max_length=255, choices=DIMENSION_CHOICES, default=DIMENSION_UNDEFINED)
+    dimension = models.CharField(
+        max_length=255, choices=DIMENSION_CHOICES, default=DIMENSION_UNDEFINED
+    )
 
     conflicted_room = models.ForeignKey(to=Room, on_delete=models.RESTRICT, null=True)
-    conflicted_person = models.ForeignKey(to=Person, on_delete=models.RESTRICT, null=True)
+    conflicted_person = models.ForeignKey(
+        to=Person, on_delete=models.RESTRICT, null=True
+    )
 
-    originator_event = models.ForeignKey(to=Event, on_delete=models.CASCADE, related_name="collision_records_focal")
-    collided_with_event = models.ForeignKey(to=Event, on_delete=models.CASCADE, related_name="collision_records_bystanded")
+    originator_event = models.ForeignKey(
+        to=Event, on_delete=models.CASCADE, related_name="collision_records_focal"
+    )
+    collided_with_event = models.ForeignKey(
+        to=Event, on_delete=models.CASCADE, related_name="collision_records_bystanded"
+    )
 
     @property
-    def get_conflicted_entity (self):
-        if (self.dimension == self.DIMENSION_PERSON):
+    def get_conflicted_entity(self):
+        if self.dimension == self.DIMENSION_PERSON:
             return self.conflicted_person
-        if (self.dimension == self.DIMENSION_ROOM):
+        if self.dimension == self.DIMENSION_ROOM:
             return self.conflicted_rooms
 
 
@@ -1234,17 +1491,29 @@ class EventService(TimeStampedModel, ModelArchiveableMixin):
     :type associated_people: Person.
     """
 
-    receipt = models.ForeignKey(to=ConfirmationReceipt, on_delete=models.RESTRICT, verbose_name=_("Receipt"))
-    event = models.ForeignKey(to=Event, on_delete=models.RESTRICT, verbose_name=_("Event"))
-    service_provider = models.ForeignKey(to=ServiceProvidable, on_delete=models.RESTRICT, verbose_name=_("Service Provider"), related_name="services_provided")
+    receipt = models.ForeignKey(
+        to=ConfirmationReceipt, on_delete=models.RESTRICT, verbose_name=_("Receipt")
+    )
+    event = models.ForeignKey(
+        to=Event, on_delete=models.RESTRICT, verbose_name=_("Event")
+    )
+    service_provider = models.ForeignKey(
+        to=ServiceProvidable,
+        on_delete=models.RESTRICT,
+        verbose_name=_("Service Provider"),
+        related_name="services_provided",
+    )
     notes = models.ManyToManyField(to=Note, verbose_name=_("Notes"))
-    associated_people = models.ManyToManyField(to=Person, verbose_name=_("Associated People"))
+    associated_people = models.ManyToManyField(
+        to=Person, verbose_name=_("Associated People")
+    )
 
-class RequisitionRecord (TimeStampedModel, ModelArchiveableMixin):
 
-    REQUISITION_UNDEFINED = 'undefined'
-    REQUISITION_PEOPLE = 'people'
-    REQUISITION_SERVICES = 'services'
+class RequisitionRecord(TimeStampedModel, ModelArchiveableMixin):
+
+    REQUISITION_UNDEFINED = "undefined"
+    REQUISITION_PEOPLE = "people"
+    REQUISITION_SERVICES = "services"
 
     REQUISITION_TYPE_CHOICES = (
         (REQUISITION_UNDEFINED, REQUISITION_UNDEFINED),
@@ -1255,38 +1524,57 @@ class RequisitionRecord (TimeStampedModel, ModelArchiveableMixin):
     confirmation_receipt = models.ForeignKey(
         to="ConfirmationReceipt",
         on_delete=models.RESTRICT,
-        related_name='requisition_record',
-        null=True)
+        related_name="requisition_record",
+        null=True,
+    )
     historic_confirmation_receipts = models.ManyToManyField(to="ConfirmationReceipt")
 
-    arrangement = models.ForeignKey(to="Arrangement", related_name="requisitions", on_delete=models.RESTRICT)
+    arrangement = models.ForeignKey(
+        to="Arrangement", related_name="requisitions", on_delete=models.RESTRICT
+    )
 
     """ Indicates wether there are locked events in wait for this requisition """
-    has_been_locked = models.BooleanField(verbose_name=_("Has been locked"), default=False)
+    has_been_locked = models.BooleanField(
+        verbose_name=_("Has been locked"), default=False
+    )
 
     """ Designates what is being requisitioned. Also directly equivocates to if order_requisition or person_requisition is set. """
-    type_of_requisition = models.CharField(max_length=255, choices=REQUISITION_TYPE_CHOICES, default=REQUISITION_UNDEFINED)
+    type_of_requisition = models.CharField(
+        max_length=255, choices=REQUISITION_TYPE_CHOICES, default=REQUISITION_UNDEFINED
+    )
 
     """ Set if requisition is of order """
-    service_requisition = models.ForeignKey(to="ServiceRequisition", related_name="parent_record", on_delete=models.RESTRICT, null=True)
+    service_requisition = models.ForeignKey(
+        to="ServiceRequisition",
+        related_name="parent_record",
+        on_delete=models.RESTRICT,
+        null=True,
+    )
     """ Set if requisition is of person """
-    person_requisition = models.ForeignKey(to="PersonRequisition", related_name="parent_record", on_delete=models.RESTRICT, null=True)
+    person_requisition = models.ForeignKey(
+        to="PersonRequisition",
+        related_name="parent_record",
+        on_delete=models.RESTRICT,
+        null=True,
+    )
 
     """ Which events are caught up in this requisition """
-    affected_events = models.ManyToManyField(to=Event, verbose_name=_("Affected Events"))
+    affected_events = models.ManyToManyField(
+        to=Event, verbose_name=_("Affected Events")
+    )
 
     """ If this requisition is complete """
     is_fulfilled = models.BooleanField(verbose_name=_("Is Fulfilled"), default=False)
 
     def get_requisition_data(self):
-        if (self.type_of_requisition == self.REQUISITION_PEOPLE):
+        if self.type_of_requisition == self.REQUISITION_PEOPLE:
             return self.person_requisition
-        if (self.type_of_requisition == self.REQUISITION_SERVICES):
+        if self.type_of_requisition == self.REQUISITION_SERVICES:
             return self.service_requisition
 
 
 class PlanManifest(TimeStampedModel, BufferFieldsMixin):
-    """ A time manifest is a manifest of the timeplan generation """
+    """A time manifest is a manifest of the timeplan generation"""
 
     expected_visitors = models.IntegerField(default=0)
     ticket_code = models.CharField(max_length=255, blank=True)
@@ -1308,7 +1596,14 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     meeting_place = models.CharField(max_length=512, blank=True, null=True)
     meeting_place_en = models.CharField(max_length=512, blank=True, null=True)
 
-    responsible = models.ForeignKey(to="Person", verbose_name=_("Responsible"), on_delete=models.RESTRICT, related_name="planmanifests_responsible_for", null=True, blank=True)
+    responsible = models.ForeignKey(
+        to="Person",
+        verbose_name=_("Responsible"),
+        on_delete=models.RESTRICT,
+        related_name="planmanifests_responsible_for",
+        null=True,
+        blank=True,
+    )
 
     # Strategy Specific Fields
     monday = models.BooleanField(default=False, null=True)
@@ -1326,14 +1621,31 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     # Strategy Shared Fields
     interval = models.IntegerField(blank=True, default=0, null=True)
 
-    status = models.ForeignKey(to=StatusType, on_delete=models.RESTRICT, related_name="manifests_of_status", null=True, blank=True)
-    audience = models.ForeignKey(to=Audience, on_delete=models.RESTRICT, null=True, blank=True)
-    arrangement_type = models.ForeignKey(to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True)
-    
-    display_text = models.CharField(verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True)
-    display_text_en = models.CharField(verbose_name=_("Screen Display Text(English)"), max_length=255, blank=True, null=True)
+    status = models.ForeignKey(
+        to=StatusType,
+        on_delete=models.RESTRICT,
+        related_name="manifests_of_status",
+        null=True,
+        blank=True,
+    )
+    audience = models.ForeignKey(
+        to=Audience, on_delete=models.RESTRICT, null=True, blank=True
+    )
+    arrangement_type = models.ForeignKey(
+        to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True
+    )
 
-    rooms =  models.ManyToManyField(to=Room)
+    display_text = models.CharField(
+        verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True
+    )
+    display_text_en = models.CharField(
+        verbose_name=_("Screen Display Text(English)"),
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
+    rooms = models.ManyToManyField(to=Room)
     people = models.ManyToManyField(to=Person)
     display_layouts = models.ManyToManyField(to=screen_models.DisplayLayout)
 
@@ -1359,12 +1671,14 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
             3: self.thursday,
             4: self.friday,
             5: self.saturday,
-            6: self.sunday
-        } 
+            6: self.sunday,
+        }
 
 
 class EventSerie(TimeStampedModel, ModelArchiveableMixin):
-    arrangement = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT, related_name="series")
+    arrangement = models.ForeignKey(
+        to=Arrangement, on_delete=models.RESTRICT, related_name="series"
+    )
     serie_plan_manifest = models.ForeignKey(to=PlanManifest, on_delete=models.RESTRICT)
 
     def on_archive(self, person_archiving_this):
@@ -1385,7 +1699,7 @@ class BaseFileRelAbstractModel(TimeStampedModel):
     uploader = models.ForeignKey(
         to="Person",
         on_delete=models.RESTRICT,
-        related_name="files_uploaded_to_%(class)s"
+        related_name="files_uploaded_to_%(class)s",
     )
 
     @property
@@ -1393,39 +1707,57 @@ class BaseFileRelAbstractModel(TimeStampedModel):
         return os.path.basename(self.file.name)
 
 
-class EventFile (BaseFileRelAbstractModel, ModelArchiveableMixin):
+class EventFile(BaseFileRelAbstractModel, ModelArchiveableMixin):
     associated_with = models.ForeignKey(
-        to=Event,
-        on_delete=models.CASCADE,
-        related_name="files"
+        to=Event, on_delete=models.CASCADE, related_name="files"
     )
 
 
 class EventSerieFile(BaseFileRelAbstractModel, ModelArchiveableMixin):
-    associated_with = models.ForeignKey(to=EventSerie, on_delete=models.RESTRICT, related_name="files")
+    associated_with = models.ForeignKey(
+        to=EventSerie, on_delete=models.RESTRICT, related_name="files"
+    )
 
 
 class ArrangementFile(BaseFileRelAbstractModel, ModelArchiveableMixin):
-    associated_with = models.ForeignKey(to=Arrangement, on_delete=models.RESTRICT, related_name="files")
+    associated_with = models.ForeignKey(
+        to=Arrangement, on_delete=models.RESTRICT, related_name="files"
+    )
 
 
 class LooseServiceRequisition(TimeStampedModel, ModelArchiveableMixin):
-    arrangement = models.ForeignKey(to="arrangement", related_name="loose_service_requisitions", on_delete=models.RESTRICT)
+    arrangement = models.ForeignKey(
+        to="arrangement",
+        related_name="loose_service_requisitions",
+        on_delete=models.RESTRICT,
+    )
     comment = models.TextField(verbose_name=_("Comment"), default="")
-    type_to_order = models.ForeignKey(to="ServiceType", on_delete=models.RESTRICT, verbose_name=_("Type to order"))
-    is_open_for_ordering = models.BooleanField(verbose_name=_("Is Open for Ordering"), default=False)
-    generated_requisition_record = models.ForeignKey(to="RequisitionRecord", on_delete=models.RESTRICT, null=True)
+    type_to_order = models.ForeignKey(
+        to="ServiceType", on_delete=models.RESTRICT, verbose_name=_("Type to order")
+    )
+    is_open_for_ordering = models.BooleanField(
+        verbose_name=_("Is Open for Ordering"), default=False
+    )
+    generated_requisition_record = models.ForeignKey(
+        to="RequisitionRecord", on_delete=models.RESTRICT, null=True
+    )
 
     @property
     def is_complete(self):
-        """ Return a bool indicating if the loose requisition has been fulfilled and completed """
+        """Return a bool indicating if the loose requisition has been fulfilled and completed"""
         return self.ordered_service is not None
 
 
 class ServiceRequisition(TimeStampedModel, ModelHistoricallyConfirmableMixin):
     order_information = models.TextField(blank=True)
-    provider = models.ForeignKey(to=ServiceProvidable, related_name="ordered_services", on_delete=models.RESTRICT)
-    originating_loose_requisition = models.ForeignKey(to="LooseServiceRequisition", related_name="actual_requisition", on_delete=models.RESTRICT)
+    provider = models.ForeignKey(
+        to=ServiceProvidable, related_name="ordered_services", on_delete=models.RESTRICT
+    )
+    originating_loose_requisition = models.ForeignKey(
+        to="LooseServiceRequisition",
+        related_name="actual_requisition",
+        on_delete=models.RESTRICT,
+    )
 
     def on_made(self) -> None:
         print(">> SREQ -> MADE")
