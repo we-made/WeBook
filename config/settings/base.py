@@ -321,6 +321,7 @@ SOCIALACCOUNT_PROVIDERS = {}
 
 SOCIALACCOUNT_PROVIDERS["microsoft"] = {
     "tenant": env("MICROSOFT_TENANT", default="common"),
+    "SCOPE": ["Contacts.Read", "Contacts.ReadWrite", "offline_access", "User.Read"],
     "APP": {
         "name": env("MICROSOFT_SOCIAL_NAME"),
         "client_id": env("MICROSOFT_CLIENT_ID"),
