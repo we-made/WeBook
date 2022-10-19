@@ -922,6 +922,16 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         verbose_name = _("Person")
         verbose_name_plural = _("People")
 
+    social_provider_id = models.CharField(
+        verbose_name=_("Social ID"), max_length=1024, blank=True, null=True
+    )
+    social_provider_email = models.CharField(
+        verbose_name=_("Social Email"),
+        max_length=512,
+        blank=True,
+        null=True,
+    )
+
     personal_email = models.CharField(
         verbose_name=_("Personal Email"), max_length=255, blank=False, null=False
     )
