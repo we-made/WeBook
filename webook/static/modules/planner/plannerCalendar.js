@@ -431,6 +431,13 @@ export class PlannerCalendar extends FullCalendarBased {
                     },
                 },
                 eventContent: function (arg) {
+                    const formatTime = function (text) {
+                        if (text.length == 2)
+                            text += ":00"
+                            
+                        return text;
+                    }
+
                     if (arg.view.type === "dayGridMonth" || arg.view.type === "dayGridWeek") {
                         let nodes = [];
 
@@ -446,7 +453,7 @@ export class PlannerCalendar extends FullCalendarBased {
                             nodes.push(colorDot);
 
                         let timeText = document.createElement('strong');
-                        timeText.innerText = `(${arg.timeText})`;
+                        timeText.innerText = `(${formatTime(arg.timeText)})`;
                         nodes.push(timeText);
 
                         let iconsRail = document.createElement('span');
@@ -475,7 +482,7 @@ export class PlannerCalendar extends FullCalendarBased {
 
                         let timeText = document.createElement('strong');
                         timeText.classList.add('d-block');
-                        timeText.innerText = `(${arg.timeText})`;
+                        timeText.innerText = `(${formatTime(arg.timeText)})`;
                         nodes.push(timeText);
 
                         let iconsRail = document.createElement('div');
@@ -521,7 +528,7 @@ export class PlannerCalendar extends FullCalendarBased {
 
                         let timeText = document.createElement('strong');
                         timeText.classList.add('d-block');
-                        timeText.innerText = `(${arg.timeText})`;
+                        timeText.innerText = `(${formatTime(arg.timeText)})`;
                         wrapper.appendChild(timeText);
 
                         let eventTitle = document.createElement('strong');
