@@ -302,6 +302,7 @@ LOGGING = {
 # django-allauth
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", False)
+ALLOW_SSO = env.bool("ALLOW_SSO", False)
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
@@ -317,11 +318,12 @@ ACCOUNT_USERNAME_REQUIRED = False
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 SOCIALACCOUNT_ADAPTER = "webook.users.adapters.MicrosoftPersonAccountAdapter"
 
+SOCIALACCOUNT_EMAIL_VERIFICATION = False
+
 SOCIALACCOUNT_PROVIDERS = {}
 
 SOCIALACCOUNT_PROVIDERS["microsoft"] = {
     "tenant": env("MICROSOFT_TENANT", default="common"),
-    "SCOPE": ["Contacts.Read", "Contacts.ReadWrite", "offline_access", "User.Read"],
     "APP": {
         "name": env("MICROSOFT_SOCIAL_NAME"),
         "client_id": env("MICROSOFT_CLIENT_ID"),

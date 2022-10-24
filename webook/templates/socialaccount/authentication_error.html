@@ -1,0 +1,32 @@
+{% extends "public_base.html" %}
+
+{% load static i18n %}
+
+{% block head_title %}Pålogging med Microsoft konto feilet{% endblock %}
+
+{% block content %}
+
+{% comment %} <h1>Pålogging feilet</h1> {% endcomment %}
+
+{% comment %} <h1 class="text-center text-danger"><i class="fas fa-times"></i></h1> {% endcomment %}
+
+<h5 class="text-center mb-3">
+    Innloggingen med din Microsoft konto feilet og kunne ikke gjennomføres.
+    <br>
+    Om dette er et vedvarende problem så må du kontakte din IT Administrator.
+</h5>
+
+<h1 class="text-center"> <i class="fas fa-question-circle"></i> </h1>
+<h5>
+Dette kan være mulige feil:
+<ul>
+    <li>Sjekk at du er logget inn med en gyldig Microsoft konto</li>
+</ul>
+</h5>
+
+
+{% comment %} {% include 'error_contact.html' %} {% endcomment %}
+
+<a class="btn wb-btn-main float-end" href="{% url 'account_login' %}">Tilbake til innlogging</a>
+
+{% endblock content %}
