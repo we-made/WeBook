@@ -464,7 +464,7 @@ export class PlannerCalendar extends FullCalendarBased {
                         }
 
                         let eventTitle = document.createElement('span');
-                        eventTitle.classList.add("ms-2");
+                        eventTitle.classList.add("ms-2", "event-title-text");
                         eventTitle.innerText = arg.event.title;
                         nodes.push(eventTitle);
 
@@ -493,6 +493,7 @@ export class PlannerCalendar extends FullCalendarBased {
                         }
 
                         let eventTitle = document.createElement('span');
+                        eventTitle.classList.add("event-title-text")
                         eventTitle.innerText = arg.event.title;
                         nodes.push(eventTitle);
 
@@ -524,7 +525,7 @@ export class PlannerCalendar extends FullCalendarBased {
                         wrapper.appendChild(timeText);
 
                         let eventTitle = document.createElement('strong');
-                        eventTitle.classList.add("mb-2");
+                        eventTitle.classList.add("mb-2", "event-title-text");
                         eventTitle.innerText = arg.event.title;
                         wrapper.appendChild(eventTitle);
 
@@ -555,6 +556,7 @@ export class PlannerCalendar extends FullCalendarBased {
 
                         let titleElement = document.createElement('span');
                         titleElement.innerText = arg.event.title;
+                        titleElement.classList.add("event-title-text");
                         nodes.push(titleElement);
 
                         return { domNodes: nodes };

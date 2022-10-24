@@ -17,6 +17,11 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+.event-title-text{
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 .socialaccount_provider:hover{
     background-color: var(--SECONDARY-COLOR);
 }
