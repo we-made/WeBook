@@ -17,6 +17,10 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+.socialaccount_provider:hover{
+    background-color: var(--SECONDARY-COLOR);
+}
+
 .form-error {
     padding: 0;
 }

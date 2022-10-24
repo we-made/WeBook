@@ -1,22 +1,30 @@
 from typing import Any, Dict
+
+from django import forms as dj_forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponse
 from django.urls import reverse
-from webook.arrangement.models import Person
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     DetailView,
-    RedirectView,
-    UpdateView,
     FormView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
 )
-from django.utils.translation import gettext_lazy as _
-from django import forms as dj_forms
 
+from webook.arrangement.models import Person
 from webook.users.forms import ComplexUserUpdateForm
 
-
 User = get_user_model()
+
+
+class SingleSignOnErrorView(TemplateView):
+    template_name: str = "error_sso.html"
+
+
+error_sso_view = SingleSignOnErrorView.as_view()
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -42,7 +50,7 @@ class UserUpdateView(LoginRequiredMixin, FormView):
     def get_success_url(self):
         return reverse(
             "users:detail",
-            kwargs={'slug': self.request.user.slug},
+            kwargs={"slug": self.request.user.slug},
         )
 
     def form_valid(self, form):
@@ -60,9 +68,7 @@ class UserUpdateView(LoginRequiredMixin, FormView):
     def get_initial(self):
         initial = super().get_initial()
         person_object = Person()
-        user = User.objects.get(
-            slug=self.request.user.slug
-        )
+        user = User.objects.get(slug=self.request.user.slug)
 
         if user is not None:
             if user.person is not None:
@@ -78,11 +84,18 @@ class UserUpdateView(LoginRequiredMixin, FormView):
                 user.person = person_object
                 user.save()
 
-        initial.update({ key: value for key, value in vars(person_object).items() if key in self.form_class.Meta.fields })
-        initial.update({"profile_picture": user.profile_picture })
-        initial.update({"timezone": user.timezone })
+        initial.update(
+            {
+                key: value
+                for key, value in vars(person_object).items()
+                if key in self.form_class.Meta.fields
+            }
+        )
+        initial.update({"profile_picture": user.profile_picture})
+        initial.update({"timezone": user.timezone})
 
         return initial
+
 
 user_update_view = UserUpdateView.as_view()
 

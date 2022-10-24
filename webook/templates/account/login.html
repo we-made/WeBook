@@ -4,16 +4,16 @@
 {% load account socialaccount %}
 {% load crispy_forms_tags %}
 
-{% block head_title %}{% trans "Sign In" %}{% endblock %}
+{% block head_title %}{% trans "Logg inn med..." %}{% endblock %}
 
 {% block inner %}
 
 {% get_providers as socialaccount_providers %}
 
 {% if socialaccount_providers %}
-<p>{% blocktrans with site.name as site_name %}Please sign in with one
+{% comment %} <p>{% blocktrans with site.name as site_name %}Please sign in with one
 of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
-for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
+for a {{ site_name }} account and sign in below:{% endblocktrans %}</p> {% endcomment %}
 
 <div class="socialaccount_ballot">
 
@@ -21,7 +21,7 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
     {% include "socialaccount/snippets/provider_list.html" with process="login" %}
   </ul>
 
-  <div class="login-or">{% trans 'or' %}</div>
+  <div class="login-or text-center">eller</div>
 
 </div>
 
@@ -38,7 +38,7 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
     <div class="form-outline">
       <input type="text" class="form-control form-control-lg" id="{{ form.login.id_for_label }}" name="{{ form.login.name}}"
              placeholder="{{ form.login.placeholder }}"/>
-      <label class="form-label" for="{{ form.login.id_for_label }}">{{ form.login.label }}</label>
+      <label class="form-label" for="{{ form.login.id_for_label }}">E-Post</label>
     </div>
     {{ form.login.errors }}
   </div>
@@ -48,7 +48,7 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
     <div class="form-outline">
       <input type="password" class="form-control form-control-lg" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}"
              placeholder="{{ form.password.placeholder }}"/>
-      <label class="form-label" for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+      <label class="form-label" for="{{ form.password.id_for_label }}">Passord</label>
     </div>
     {{ form.password.errors }}
   </div>
@@ -57,7 +57,7 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
   <div class="clearfix float-right">
     <a class="button secondaryAction wb-btn-secondary mt-2 float-end" href="{% url 'account_reset_password' %}">
     <i class="la la-lock"></i>
-    {% trans "Forgot Password?" %}</a>
+    Glemt passord?</a>
   </div>
   {% if redirect_field_value %}
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
@@ -65,7 +65,7 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
 
 
   <div class="clearfix mt-3">
-    <button class="primaryAction float-end btn btn-lg btn-block wb-btn-main" type="submit">{% trans "Sign In" %}</button>
+    <button class="primaryAction float-end btn btn-lg btn-block wb-btn-main" type="submit">Logg inn</button>
   </div>
 </form>
 {% endblock %}

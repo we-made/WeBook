@@ -40,10 +40,7 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
 
-LANGUAGES = [
-    ('en', _('English')),
-    ('nb', _('Norwegian'))
-]
+LANGUAGES = [("en", _("English")), ("nb", _("Norwegian"))]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#locale-paths
 LOCALE_PATHS = [str(BASE_DIR / "locale")]
@@ -105,6 +102,7 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.microsoft",
     "colorfield",
 ]
 
@@ -121,9 +119,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {
-    "sites": "webook.contrib.sites.migrations"
-}
+MIGRATION_MODULES = {"sites": "webook.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -156,15 +152,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 # MIDDLEWARE
@@ -239,7 +229,7 @@ TEMPLATES = [
 ]
 
 TEMPLATE_DIRS = (
-    BASE_DIR / "templates", # app-shared project templates (is this anti-pattern?)
+    BASE_DIR / "templates",  # app-shared project templates (is this anti-pattern?)
 )
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
@@ -273,9 +263,7 @@ EMAIL_BACKEND = env(
 )
 # https://docs.djangoproject.com/en/2.2/ref/settings/#email-timeout
 EMAIL_TIMEOUT = 5
-DEFAULT_FROM_EMAIL = env(
-    "DJANGO_DEFAULT_FROM_EMAIL", default="webook@webook.no"
-)
+DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="webook@webook.no")
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
 # ADMIN
@@ -313,9 +301,8 @@ LOGGING = {
 
 # django-allauth
 # ------------------------------------------------------------------------------
-ACCOUNT_ALLOW_REGISTRATION = env.bool(
-    "DJANGO_ACCOUNT_ALLOW_REGISTRATION", True
-)
+ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", False)
+ALLOW_SSO = env.bool("ALLOW_SSO", False)
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
@@ -324,39 +311,40 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_ADAPTER = "webook.users.adapters.AccountAdapter"
-ACCOUNT_FORMS = {
-    'signup': 'webook.users.forms.UserCreationForm'
-}
+ACCOUNT_FORMS = {"signup": "webook.users.forms.UserCreationForm"}
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = (
-    "webook.users.adapters.SocialAccountAdapter"
-)
+SOCIALACCOUNT_ADAPTER = "webook.users.adapters.MicrosoftPersonAccountAdapter"
+
+SOCIALACCOUNT_EMAIL_VERIFICATION = False
+
+SOCIALACCOUNT_PROVIDERS = {}
+
+SOCIALACCOUNT_PROVIDERS["microsoft"] = {
+    "tenant": env("MICROSOFT_TENANT", default="common"),
+    "APP": {
+        "name": env("MICROSOFT_SOCIAL_NAME"),
+        "client_id": env("MICROSOFT_CLIENT_ID"),
+        "secret": env("MICROSOFT_CLIENT_SECRET"),
+        "sites": env("MICROSOFT_CLIENT_SITES"),
+        "adapter": "webook.users.adapters.MicrosoftPersonAccountAdapter",
+    },
+}
 
 # Your stuff...
 # ------------------------------------------------------------------------------
-APP_LOGO = env(
-    "APP_LOGO",
-    default="static/images/wemade_logo.jpg"
-)
+APP_LOGO = env("APP_LOGO", default="static/images/wemade_logo.jpg")
 
-APP_TITLE = env(
-    "APP_TITLE",
-    default="WeBook"
-)
+APP_TITLE = env("APP_TITLE", default="WeBook")
 
 # Remember to override this with a valid key if project is commercial.
 FULLCALENDAR_LICENSE_KEY = env(
-    "FULLCALENDAR_LICENSE_KEY",
-    default="CC-Attribution-NonCommercial-NoDerivatives"
+    "FULLCALENDAR_LICENSE_KEY", default="CC-Attribution-NonCommercial-NoDerivatives"
 )
 
-ASSET_SERVER_URL = env(
-    "ASSET_SERVER_URL",
-    default="localhost/static"
-)
+ASSET_SERVER_URL = env("ASSET_SERVER_URL", default="localhost/static")
 
 # The default timezone that will be assigned to new users
 USER_DEFAULT_TIMEZONE = env(
