@@ -105,6 +105,7 @@ export class JSTreeSelect {
         const jsTree = $(this._jsTreeElement).jstree(true);
 
         if (!jsTree) { // if jsTree is false, then jsTree is not initialized yet, so we stage the set value.
+            console.log("STAGED");
             this.selected={ id: id };
             return;
         }

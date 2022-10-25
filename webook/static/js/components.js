@@ -27,7 +27,6 @@ class SelectedPill extends LinkedHTMLElement {
         super()
     
         const wrapper = document.createElement("span");
-        wrapper.classList.add("wb-bg-secondary", "rounded-pill", "p-3",);
 
         const textSpan = document.createElement("span");
         textSpan.innerText = this.getAttribute("name"); 

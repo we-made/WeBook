@@ -112,6 +112,9 @@ export class ArrangementCreator {
                                 if (context.lastTriggererDetails.preselectedRooms) {
                                     window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preselectedRooms, "roomsSelected");
                                 }
+                                if (context.lastTriggererDetails.preselectedMainPlanner) {
+                                    window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preselectedMainPlanner, "setPlanner");
+                                }
 
                                 [
                                     { from: '#id_ticket_code', to: '#serie_ticket_code' },
@@ -120,12 +123,11 @@ export class ArrangementCreator {
                                     { from: '#id_expected_visitors', to: '#serie_expected_visitors'},
                                     { from: '#id_meeting_place', to: '#id_meeting_place' },
                                     { from: '#id_meeting_place_en', to: '#id_meeting_place_en' },
-                                    { from: '#id_responsible', to: '#id_responsible' },
-                                    { from: '#id_status', to: '#id_status' },
                                     { from: '#_audienceId', to: '#_backingAudienceId' },
                                     { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId' },
+                                    { from: '#_statusTypeId', to: '#_statusTypeId' },
                                     { from: '#id_display_text', to: '#id_display_text' },
-                                ].forEach( (mapping) => { 
+                                ].forEach( (mapping) => {
                                     $thisDialog.find( mapping.to ).val( $mainDialog.find( mapping.from )[0].value );
                                 });
 
@@ -346,16 +348,18 @@ export class ArrangementCreator {
                                 if (context.lastTriggererDetails.preselectedRooms) {
                                     window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preselectedRooms, "roomsSelected");
                                 }
+                                if (context.lastTriggererDetails.preselectedMainPlanner) {
+                                    window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preselectedMainPlanner, "setPlanner");
+                                }
 
                                 [
                                     { from: '#id_ticket_code', to: '#ticket_code' },
                                     { from: '#id_name', to: '#title' },
                                     { from: '#id_name_en', to: '#title_en' },
                                     { from: '#id_expected_visitors', to: '#expected_visitors'},
-                                    { from: '#id_status', to: '#id_status' },
                                     { from: '#id_meeting_place', to: '#id_meeting_place' },
                                     { from: '#id_meeting_place_en', to: '#id_meeting_place_en' },
-                                    { from: '#id_responsible', to: '#id_responsible' },
+                                    { from: '#_statusTypeId', to: '#_statusTypeId' },
                                     { from: '#id_display_text', to: '#id_display_text' },
                                     { from: '#_audienceId', to: '#_backingAudienceId' },
                                     { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId'},
@@ -459,7 +463,11 @@ export class ArrangementCreator {
                         dialogElementId: "orderPersonDialog",
                         triggerElementId: undefined,
                         triggerByEvent: true,
-                        htmlFabricator: async (context) => {
+                        htmlFabricator: async (context, dialog) => {
+                            let multiple = context.lastTriggererDetails.multiple;
+                            if (multiple === undefined)
+                                multiple = true
+
                             return this.dialogManager.loadDialogHtml({
                                 url: '/arrangement/planner/dialogs/order_person',
                                 managerName: 'arrangementCreator',
@@ -467,6 +475,7 @@ export class ArrangementCreator {
                                 customParameters: {
                                     event_pk: 0,
                                     recipientDialogId: context.lastTriggererDetails.sendTo,
+                                    multiple: multiple,
                                 }
                             });
                         },
@@ -474,15 +483,16 @@ export class ArrangementCreator {
                         dialogOptions: { 
                             width: 500,
                             dialogClass: 'no-titlebar',
-                         },
+                        },
                         onUpdatedCallback: () => {
                             $(this.dialogManager.$getDialogElement("orderPersonDialog")).toggle("slide", () => {
                                 this.dialogManager.closeDialog("orderPersonDialog");
                             });
                         },
-                        onSubmit: (context, details, dialogManager) => {
+                        onSubmit: (context, details, dialogManager, dialog) => {
+                            const eventName = dialog.data.whenEventName || "peopleSelected";
                             dialogManager._dialogRepository.get(details.recipientDialog)
-                                .communicationLane.send("peopleSelected", details.selectedBundle);
+                                .communicationLane.send(eventName, details.selectedBundle);
                         }
                     })
                 ]

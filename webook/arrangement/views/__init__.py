@@ -1,9 +1,9 @@
 # Arrangement Views
 
 # Example:
-#from .arrangement_views import (
+# from .arrangement_views import (
 #   arrangement_create_view
-#)
+# )
 
 
 from .analysis_views import (
@@ -83,7 +83,12 @@ from .location_views import (
     locations_calendar_resources_list_view,
     locations_tree_json_view,
 )
-from .note_views import delete_note_view, get_notes_view, notes_on_entity_view, post_note_view
+from .note_views import (
+    delete_note_view,
+    get_notes_view,
+    notes_on_entity_view,
+    post_note_view,
+)
 from .organization_views import (
     organization_create_view,
     organization_delete_view,
@@ -190,5 +195,6 @@ from .status_type_views import (
     status_type_create_view,
     status_type_delete_view,
     status_type_list_view,
+    status_type_tree_json_view,
     status_type_update_view,
 )

@@ -128,33 +128,43 @@ export class ArrangementInspector {
                     }),
                 ],
                 [
-                    "addPlannerDialog",
+                    "selectPlannersDialog",
                     new Dialog({
-                        dialogElementId: "addPlannerDialog",
-                        triggerElementId: "mainDialog__addPlannerBtn",
+                        dialogElementId: "selectPlannersDialog",
+                        triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
-                            return await this.dialogManager.loadDialogHtml(
-                                {
-                                    url: "/arrangement/planner/dialogs/add_planner",
-                                    managerName: 'arrangementInspector',
-                                    dialogId: 'addPlannerDialog', 
-                                    customParameters: {
-                                        slug: context.arrangement.slug   
-                                    }
+                            let multiple = context.lastTriggererDetails.multiple;
+                            if (multiple === undefined)
+                                multiple = true
+                                
+                            return await this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/order_person',
+                                managerName: 'arrangementInspector',
+                                dialogId: 'selectPlannersDialog',
+                                customParameters: {
+                                    multiple: multiple,
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
                                 },
-                            );
+                            });
                         },
-                        onRenderedCallback: () => {},
+                        onRenderedCallback: () => { },
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
                         onUpdatedCallback: ( ) => {
                             this.dialogManager.reloadDialog("mainDialog");
-                            this.dialogManager.closeDialog("addPlannerDialog");
+                            this.dialogManager.closeDialog("selectPlannersDialog");
                             toastr.success("Planlegger(e) har blitt lagt til")
                         },
-                        onSubmit: async (context, details) => {
+                        onSubmit: (context, details, dialogManager, dialog) => {
                             let formData = new FormData();
-                            formData.append("planner_ids", details.plannerIds);
-                            formData.append("arrangement_slug", details.arrangementSlug);
+
+                            console.log("selectedBundle", details.selectedBundle)
+
+                            formData.append("planner_ids", details.selectedBundle.allSelectedEntityIds.map( (x) => x.id ) );
+                            formData.append("arrangement_slug", dialog.data.arrangementSlug);
 
                             fetch('/arrangement/planner/add_planners', {
                                 method: 'POST',
@@ -163,8 +173,7 @@ export class ArrangementInspector {
                                     "X-CSRFToken": details.csrf_token
                                 }
                             });
-                        },
-                        dialogOptions: { width: 700 }
+                        }
                     })
                 ],
                 [
@@ -925,6 +934,10 @@ export class ArrangementInspector {
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
+                            let multiple = context.lastTriggererDetails.multiple;
+                            if (multiple === undefined)
+                                multiple = true
+                                
                             return this.dialogManager.loadDialogHtml({
                                 url: '/arrangement/planner/dialogs/order_person',
                                 dialogId: 'nestedOrderPersonDialog',
@@ -932,6 +945,7 @@ export class ArrangementInspector {
                                 customParameters: {
                                     event_pk: 0,
                                     recipientDialogId: context.lastTriggererDetails.sendTo,
+                                    multiple: multiple,
                                 }
                             });
                         },
@@ -941,9 +955,10 @@ export class ArrangementInspector {
                             this.dialogManager.closeDialog("nestedOrderPersonDialog");
                             toastr.success("Personer har blitt lagt til");
                         },
-                        onSubmit: (context, details) => {
+                        onSubmit: (context, details, dialogManager, dialog) => {
+                            const eventName = dialog.data.whenEventName || "peopleSelected";
                             this.dialogManager._dialogRepository.get(details.recipientDialog)
-                                .communicationLane.send("peopleSelected", details.selectedBundle);
+                                .communicationLane.send(eventName, details.selectedBundle);
                         }
                     })
                 ],

@@ -278,6 +278,14 @@ class StatusType(
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = AutoSlugField(populate_from="name", unique=True, manager_name="all_objects")
 
+    def as_node(self):
+        return {
+            "id": self.pk,
+            "text": self.name,
+            "children": [],
+            "data": {"slug": self.slug},
+        }
+
     def get_absolute_url(self):
         pass
 

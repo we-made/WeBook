@@ -27,6 +27,8 @@
         this._isRendering = false;
         this.title = title;
 
+        this.data = {};
+
         this.formUrl = formUrl;
 
         this.renderer = renderer;
@@ -44,6 +46,9 @@
     }
 
     async render(context, html) {
+        if (context.lastTriggererDetails?.data !== undefined)
+            this.data = context.lastTriggererDetails.data;
+
         let result = await this.renderer.render(context, this, html);
         
         $(this.renderer.$dialogElement).on("dialogclose", (event) => {
@@ -64,9 +69,9 @@
             if (this.onPreRefresh !== undefined) {
                 await this.onPreRefresh(this);
             }
-
+            
             if (html === undefined) {
-                html = await this.htmlFabricator(context);
+                html = await this.htmlFabricator(context, this);
             }
             else { console.log(html); }
 
@@ -273,7 +278,7 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
             this._isRendering = true;
             if (dialog.isOpen() === false) {
                 if (!html)
-                    html = await dialog.htmlFabricator(context);
+                    html = await dialog.htmlFabricator(context, dialog);
 
                 let span = document.createElement("span");
                 span.innerHTML = html;
@@ -422,7 +427,7 @@ export class DialogManager {
     _listenForSubmitEvent() {
         document.addEventListener(`${this.managerName}.submit`, async (e) => {
             let dialog = this._dialogRepository.get(e.detail.dialog);
-            let submitResult = await dialog.onSubmit(this.context, e.detail, this);  // Trigger the dialogs onSubmit handling
+            let submitResult = await dialog.onSubmit(this.context, e.detail, this, dialog);  // Trigger the dialogs onSubmit handling
             if (submitResult !== false) {
                 dialog.onUpdatedCallback(this.context);  // Trigger the dialogs on update handling
             }

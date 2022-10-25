@@ -251,9 +251,9 @@
 
                         <div>
                             <a href='#' class='shadow-0 btn wb-btn-secondary btn-block mb-2 btn-sm'
-                                    d-trigger="triggerAddPlannerDialog">
+                                    d-trigger="triggerAddPlannersDialog">
                                 <i class='fas fa-plus'></i>
-                                Legg til planlegger
+                                Legg til planlegger(e)
                             </a>
                         </div>
                         <div>
@@ -798,6 +798,9 @@
             },
             triggerEditSerie(dialog, { eventSeriePk } = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementInspector", "editEventSerieDialog", { event_serie_pk: eventSeriePk, $parent: dialog.dialogElement });
+            },
+            triggerAddPlannersDialog(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementInspector", "selectPlannersDialog", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "addPlanners", arrangementSlug: "{{object.slug}}" } });
             },
             triggerAddPlannerDialog(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementInspector", "addPlannerDialog", { $parent: dialog.dialogElement });
