@@ -103,12 +103,31 @@
             <div>
                 <div>
                     <div class="row mb-2">
-                        <div class="col-12">
+                        {% comment %} <div class="col-12">
                             <label for="{{form.responsible.id_for_label}}" class="form-label">
                                 <i class="fas fa-star"></i>&nbsp;
                                 Ansvarlig
                             </label>
                             {{form.responsible}}
+                        </div> {% endcomment %}
+                        <div class="col-12">
+                            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+                                <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
+    
+                                <label for="" class="d-block form-label">
+                                    <i class="fas fa-star"></i>
+                                    Hovedplanlegger
+                                </label>
+                                <h5 class="mb-2" id="mainPlannerName">
+                                    {{ object.responsible }}
+                                </h5>
+                                <button class="wb-btn-main"
+                                    id="setMainPlannerButton"
+                                    type="button"
+                                    d-trigger="triggerSetPlanner">
+                                    Endre hovedplanlegger
+                                </button>
+                            </div>
                         </div>
 
                         <div class="col-6  mt-3">
@@ -236,12 +255,17 @@
 
                         <div class="row mt-2">
                             <div class="col-6">
-                                <div class="form-group">
-                                    <label for="{{ form.status.id_for_label }}" class="form-label">
+                                <div class="form-group mb-2">
+                                    <label>
                                         <i class="fas fa-cog"></i>&nbsp;
-                                        {{ form.status.label }}
+                                        Status
                                     </label>
-                                    {{form.status}}
+                                    <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
+                                    {% if form.status_type.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.status_type.errors }}
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -253,7 +277,7 @@
                                 <label class="d-block form-label">Vises på skjerm:</label>
                                 {{form.display_layouts}}
                             </div>
-                            <div class="col-lg-8 col-sm-12 mt-sm-2">
+                            <div class="col-lg-8 col-sm-12">
                                 <div 
                                     class="form-group"
                                     id="display-layout-text-group"
@@ -649,6 +673,25 @@
                 changeSelectedValueButtonText: 'Endre arrangementstype',
                 popoverSaveChoicesButtonText: 'Lagre valg',
             });
+            dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#status_type_jstree_select'),
+                initialSelected: { id: '{{ object.status.id }}', text: '{{ object.status.name }}' },
+                treeJsonSrcUrl: "/arrangement/statustype/tree",
+                valueSelectedLabelText: ( selected ) => {
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+
+                    labelText += selected.text;
+                    
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen status valgt ennå",
+                selectFirstTimeButtonText: 'Velg status',
+                changeSelectedValueButtonText: 'Endre status',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
 
             document.addEventListener("eventInspector.roomsUpdated", (e) => {
                 dialog.data.roomsMap = e.detail.context.room_name_map;
@@ -848,7 +891,7 @@
                     arrangement:        '{{object.arrangement.pk}}',
                     people:             dialog.getSelectedPeopleIds(),
                     rooms:              dialog.getSelectedRoomIds(),    
-                    status:             dialog.interior.id_status.value,
+                    status:             dialog.data.statusTypeJsTreeSelect.getSelectedValue(),
                     display_layouts:    [...dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
                                             .map(element => element.value),
                                             
@@ -880,13 +923,39 @@
                 dialog.raiseTriggerEvent(dialog.managerName, "orderRoomDialog", { $parent: dialog.dialogElement, sendTo: '{{ dialogId }}' });
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{ dialogId }}' });
+                dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{ dialogId }}', multiple: true, data: { whenEventName: "peopleSelected" } });
+            },
+            triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
             },
         },
         data: {
             peopleMap: new Map(),
             roomsMap: new Map(),
         },
+        when: [
+            { eventKnownAs: "setPlanner", do: (dialog, payload) => {
+                if (payload.allSelectedEntityIds.length == 0)
+                    return;
+
+                const person = payload.viewables[0];
+                
+                dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
+                dialog.getElementById('mainPlannerName').innerText = person.text;
+            } },
+            { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                dialog.data.roomsMap = new Map(
+                    payload.allSelectedEntityIds.map(x => [x.id, x.text])
+                );
+                dialog.setRooms(payload.allSelectedEntityIds.map(x => x.id).join(","));
+            } },
+            { eventKnownAs: "peopleSelected", do: (dialog, payload) => {
+                dialog.data.peopleMap = new Map(
+                    payload.allSelectedEntityIds.map(x => [x.id, x.text])
+                );
+                dialog.setPeople(payload.allSelectedEntityIds.map(x => x.id).join(","));
+            } },
+        ],
         plugins: [
             {
                 name: 'showIfSelected',

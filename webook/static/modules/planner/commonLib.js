@@ -261,8 +261,6 @@ export class ArrangementStore extends BaseStore {
         let arrangements = this._getStoreAsArray();
         let filteredArrangements = [];
 
-        console.log("filterSet", filterSet);
-
         let filterMap = new Map(filterSet.map( (slug) => [ slug.id, true ]));
 
         let arrangementTypesMap =   arrangement_types !== undefined && arrangement_types.length > 0 ? new Map(arrangement_types.map(i => [i, true])) : undefined;
@@ -276,8 +274,6 @@ export class ArrangementStore extends BaseStore {
             if (filterSet.showOnlyEventsWithNoRooms === true && arrangement.room_names.length > 0 && arrangement.room_names[0] !== null) {
                 isWithinFilter = false;
             }
-
-            console.log(arrangement.slug_list);
 
             if (filterMap.size > 0) {
                 let match = false;

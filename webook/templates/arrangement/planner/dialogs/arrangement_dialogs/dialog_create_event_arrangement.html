@@ -5,6 +5,7 @@
 
     <input type="hidden" id="_backingAudienceId" />
     <input type="hidden" id="_backingArrangementTypeId" />
+    <input type="hidden" id="_statusTypeId" />
 
     <div class="clearfix">
         <div class="float-start">
@@ -35,22 +36,6 @@
                     <label class="form-label" for="title_en">Tittel <i>(Engelsk)</i></label>
                     <input type="text" id="title_en" name="title_en" class="form-control form-control-lg" />
                 </div>
-    
-                <div class="form-group mb-2">
-                    <label class="form-label" for="ticket_code">
-                        <i class="fas fa-receipt"></i>&nbsp;
-                        Billettkode
-                    </label>
-                    <input type="text" id="ticket_code" name="ticket_code" class="form-control form-control-lg" />
-                </div>
-    
-                <div class="form-group mb-2">
-                    <label class="form-label" for="expected_visitors">
-                        <i class="fas fa-users"></i>
-                        Forventet besøkende
-                    </label>
-                    <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" required />
-                </div>
 
                 <div class="form-group mb-2">
                     <label>
@@ -80,8 +65,16 @@
                 </div>
 
                 <div class="form-group mb-2">
-                    <label for="{{form.status.id_for_label}}" class="form-label"><i class="fas fa-cog"></i>&nbsp; Status</label>
-                    {{ form.status }}
+                    <label>
+                        <i class="fas fa-cog"></i>&nbsp;
+                        Status
+                    </label>
+                    <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
+                    {% if form.status_type.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        {{ form.status_type.errors }}
+                    </div>
+                    {% endif %}
                 </div>
     
                 <div class="form-group mt-2">
@@ -118,45 +111,74 @@
             </form>
         </div>
         <div id="step-2">
-            <div class="form-group mb-2">
+            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+                <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
+
+                <label for="" class="d-block form-label">
+                    <i class="fas fa-star"></i>
+                    Hovedplanlegger
+                </label>
+                <h5 class="mb-2" id="mainPlannerName"></h5>
+                <button class="wb-btn-main"
+                    id="setMainPlannerButton"
+                    type="button"
+                    d-trigger="triggerSetPlanner">
+                    Velg hovedplanlegger
+                </button>
+            </div>
+            {% comment %} <div class="form-group mb-2">
                 <label for="{{form.responsible.id_for_label}}"
                         class="form-label">
                         <i class="fas fa-star"></i>&nbsp;
                         Hovedplanlegger
                 </label>
                 {{ form.responsible }}
-            </div>
+            </div> {% endcomment %}
 
-            <div class="form-group">
-                <label for="{{form.responsible.id_for_label}}"
-                        class="form-label">
+            <div class="border rounded box-shadow-2 wb-bg-secondary p-4">
+                <label for="{{form.responsible.id_for_label}}" class="form-label">
                     <i class="fas fa-users"></i>&nbsp;
                     Personer
                 </label>
                 <div>
-                    <button class="btn wb-btn-secondary border mb-1"
+                    <button class="wb-btn-main"
+                            type="button"
                             d-trigger="triggerAddPeople">
                         Velg personer
                     </button>
-                </div>
-                <br>
-                <div id="selectedPeopleWrapper" class="mb-1 mt-1"></div>
-                <br>
+                </div>  
+                <div id="selectedPeopleWrapper" class="chipsList"></div>
             </div>
             
-            <div class="form-group">
+            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
                 <label for="" class="form-label">
                     <i class="fas fa-building"></i>&nbsp;
                     Rom
                 </label>
                 <div>
-                    <button class="btn wb-btn-secondary border"
+                    <button class="wb-btn-main"
+                        type="button"
                         d-trigger="triggerAddRooms">
                         Velg rom
                     </button>
                 </div>
-                <br>
-                <div id="selectedRoomsWrapper" class="mb-1 mt-1"></div>
+                <div id="selectedRoomsWrapper" class="chipsList"></div>
+            </div>
+
+            <div class="form-group mb-2">
+                <label class="form-label" for="ticket_code">
+                    <i class="fas fa-receipt"></i>&nbsp;
+                    Billettkode
+                </label>
+                <input type="text" id="ticket_code" name="ticket_code" class="form-control form-control-lg" />
+            </div>
+
+            <div class="form-group mb-2">
+                <label class="form-label" for="expected_visitors">
+                    <i class="fas fa-users"></i>
+                    Forventet besøkende
+                </label>
+                <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" required />
             </div>
         </div>
         <div id="step-3">
@@ -368,6 +390,28 @@
                 changeSelectedValueButtonText: 'Endre arrangementstype',
                 popoverSaveChoicesButtonText: 'Lagre valg',
             });
+            dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#status_type_jstree_select'),
+                treeJsonSrcUrl: "/arrangement/statustype/tree",
+                initialSelected: dialog.getElementById('_statusTypeId').value ? { id: dialog.getElementById('_statusTypeId').value } : undefined,
+                onValueSet: ( data ) => {
+                    dialog.getElementById('_statusTypeId').value = data.selected[0];
+                },
+                valueSelectedLabelText: ( selected ) => {
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+
+                    labelText += selected.text;
+                    
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen status valgt ennå",
+                selectFirstTimeButtonText: 'Velg status',
+                changeSelectedValueButtonText: 'Endre status',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
 
             dialog.$("#fromTime").on("change", (event) => {
                 dialog.$("#buffer_before_end").val(event.target.value);
@@ -454,7 +498,7 @@
                     title_en:                   dialog.interior.title_en.value,
                     ticket_code:                dialog.interior.ticket_code.value,
                     expected_visitors:          dialog.interior.expected_visitors.value,
-                    status:                     dialog.interior.id_status.value,
+                    status:                     dialog.data.statusTypeJsTreeSelect.getSelectedValue(),
                     audience:                   dialog.data.audienceJsTreeSelect.getSelectedValue(),
                     arrangement_type:           dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
                     start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
@@ -478,6 +522,7 @@
                     display_text:               dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
                     room_payload:               dialog.data.roomPayload,
                     people_payload:             dialog.data.peoplePayload,
+                    planner_payload:            dialog.data.mainPlannerPayload,
                 };
 
                 console.log("qualifiedEvent", qualifiedEvent);
@@ -538,7 +583,10 @@
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}'  });
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}' });
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "peopleSelected" } });
+            },
+            triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
             },
         },
         data: {
@@ -557,6 +605,7 @@
                     wrapper.append(
                         $(`<selected-pill name='${room.text}'
                                           id='${room.id}'
+                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
                                           d-trigger='removeAssociation'>
                            </selected-pill>`)    
                     );
@@ -577,6 +626,7 @@
                     wrapper.append(
                         $(`<selected-pill name='${person.text}'
                                           id='${person.id}'
+                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
                                           d-trigger='removeAssociation'>
                            </selected-pill>`)    
                     );
@@ -588,6 +638,18 @@
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
 
                 dialog.data.peoplePayload = payload;
+            } },
+            { eventKnownAs: "setPlanner", do: (dialog, payload) => {
+                if (payload.allSelectedEntityIds.length == 0)
+                    return;
+
+                const person = payload.viewables[0];
+
+                dialog.data.mainPlannerPayload = payload;
+                
+                dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
+                dialog.getElementById('mainPlannerName').innerText = person.text;
+                dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
                 dialog.data.audienceJsTreeSelect.setSelected(payload);

@@ -5,6 +5,7 @@
 <div id="{{dialogId}}" class="{{discriminator}}" style="overflow-x: visible;">
     <input type="hidden" name="" id="_audienceId">
     <input type="hidden" name="" id="_arrangementTypeId">
+    <input type="hidden" name="" id="_statusTypeId">
 
     <div class="clearfix">
         <div class="float-start">
@@ -89,13 +90,20 @@
                             Status
                         </label>
 
-                        {{ form.status }}
+                        <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
+                        {% if form.status_type.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.status_type.errors }}
+                        </div>
+                        {% endif %}
+
+                        {% comment %} {{ form.status }}
 
                         {% if form.status.errors|length > 0 %}
                         <div class="alert alert-danger">
                             {{ form.status.errors }}
                         </div>
-                        {% endif %}
+                        {% endif %} {% endcomment %}
                     </div>
 
                     <div class="mb-2">
@@ -117,20 +125,53 @@
             <form id="arrangementDetailsForm">
                 <input type="submit" value="" style="display: none;">
 
-                <div class="mb-2">
-                    <label>
-                        <i class="fas fa-star"></i>&nbsp;
+                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+                    <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
+
+                    <label for="" class="d-block form-label">
+                        <i class="fas fa-star"></i>
                         Hovedplanlegger
                     </label>
-                    {{ form.responsible }}
+                    <h5 class="mb-2" id="mainPlannerName"></h5>
+                    <button class="wb-btn-main"
+                        id="setMainPlannerButton"
+                        type="button"
+                        d-trigger="triggerSetPlanner">
+                        Velg hovedplanlegger
+                    </button>
                 </div>
-                {% if form.responsible.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.responsible.errors }}
-                    </div>
-                {% endif %}
 
-                <div class="mb-2 form-group">
+                <div class="border rounded box-shadow-2 wb-bg-secondary p-4">
+                    <label for="{{form.responsible.id_for_label}}" class="form-label">
+                        <i class="fas fa-users"></i>&nbsp;
+                        Personer
+                    </label>
+                    <div>
+                        <button class="wb-btn-main"
+                                type="button"
+                                d-trigger="triggerAddPeople">
+                            Velg personer
+                        </button>
+                    </div>
+                    <div id="peopleChips" class="chipsList"></div>
+                </div>
+
+                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
+                    <label for="" class="form-label">
+                        <i class="fas fa-building"></i>&nbsp;
+                        Rom
+                    </label>
+                    <div>
+                        <button class="wb-btn-main"
+                            type="button"
+                            d-trigger="triggerAddRooms">
+                            Velg rom
+                        </button>
+                    </div>
+                    <div id="roomChips" class="chipsList"></div>
+                </div>
+
+                <div class="mb-2 mt-4 form-group">
                     <label>
                         <i class="fas fa-receipt"></i>&nbsp;
                         Billetkode
@@ -165,38 +206,6 @@
                         {{ form.expected_visitors.errors }}
                     </div>
                 {% endif %}
-
-                <div class="form-group">
-                    <label for="{{form.responsible.id_for_label}}"
-                            class="form-label">
-                        <i class="fas fa-users"></i>&nbsp;
-                        Personer
-                    </label>
-                    <div>
-                        <button class="btn wb-btn-secondary border mb-1"
-                                d-trigger="triggerAddPeople">
-                            Velg personer
-                        </button>
-                    </div>
-                    <br>
-                    <div id="peopleChips" class="mb-1 mt-1"></div>
-                    <br>
-                </div>
-                
-                <div class="form-group">
-                    <label for="" class="form-label">
-                        <i class="fas fa-building"></i>&nbsp;
-                        Rom
-                    </label>
-                    <div>
-                        <button class="btn wb-btn-secondary border"
-                            d-trigger="triggerAddRooms">
-                            Velg rom
-                        </button>
-                    </div>
-                    <br>
-                    <div id="roomChips" class="mb-1 mt-1"></div>
-                </div>
             </form>
         </div>
         <div id="step-3">
@@ -330,18 +339,18 @@
                     element: dialog.querySelector('#{{ form.location.id_for_label }}'),
                     invalidFeedback: "Vennligst velg en lokasjon",
                 },
-                {
+                {% comment %} {
                     element: dialog.querySelector('#{{ form.responsible.id_for_label }}'),
                     invalidFeedback: "Vennligst velg en hovedplanlegger",
-                },
-                {
+                }, {% endcomment %}
+                {% comment %} {
                     element: dialog.querySelector('#{{ form.status.id_for_label }}'),
                     invalidFeedback: 'Vennligst velg en status',
-                },
+                }, {% endcomment %}
             ].forEach((select) => {
                 const mdbSelect = new mdb.Select(select.element, {
-                    filter: true,
-                    container: "[class='{{discriminator}}']",
+                    {% comment %} filter: true, {% endcomment %}
+                    {% comment %} container: "[class='{{discriminator}}']", {% endcomment %}
                     validation: true,
                     noResultText: "Ingen resultater",
                     invalidFeedback: select.invalidFeedback,
@@ -395,6 +404,27 @@
                 changeSelectedValueButtonText: 'Endre arrangementstype',
                 popoverSaveChoicesButtonText: 'Lagre valg',
             });
+            dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#status_type_jstree_select'),
+                treeJsonSrcUrl: "/arrangement/statustype/tree",
+                onValueSet: ( data ) => {
+                    dialog.getElementById('_statusTypeId').value = data.selected[0];
+                },
+                valueSelectedLabelText: ( selected ) => {
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+
+                    labelText += selected.text;
+                    
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen status valgt ennå",
+                selectFirstTimeButtonText: 'Velg status',
+                changeSelectedValueButtonText: 'Endre status',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
 
             document.addEventListener("{{managerName}}.contextUpdated", (e) => {
                 if (e.detail.context.series !== undefined) {
@@ -413,6 +443,8 @@
                     title: 'Generelt',
                     stepIn: () => {},
                     stepOut: () => {
+                        return true;
+
                         let field_elements = dialog.$('#step-1').find("input, select");
                         [
                             mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
@@ -504,7 +536,10 @@
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}' });
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}' });
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "peopleSelected" } });
+            },
+            triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
             },
             submit(dialog, {} = {}, triggeredByElement) {
                 if (dialog.validate() === false) {
@@ -526,7 +561,7 @@
                 formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
                 formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
                 formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
-                formData.append("status",           dialog.interior.id_status.value);
+                formData.append("status",           dialog.data.statusTypeJsTreeSelect.getSelectedValue());
                 formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
 
                 let displayLayouts = [];
@@ -681,6 +716,35 @@
                     )
                 });
             },
+            removeAssociation(dialog, {} = {}, triggeredByElement) {
+                const itemId = triggeredByElement.id;
+                const type = triggeredByElement.getAttribute("select-type");
+
+                let mapOfSelectedItemIds = null;
+                let appropriatePresetMap = null;
+
+                if (type === "room") {
+                    mapOfSelectedItemIds = dialog.data.selectedRoomIds;
+                    appropriatePresetMap = dialog.data.roomPresets;
+                }
+                else if (type === "person") {
+                    mapOfSelectedItemIds = dialog.data.selectedPeopleIds;
+                    appropriatePresetMap = dialog.data.personPresets;
+                }
+                else {
+                    throw Error("Type not recognized")
+                }
+
+                if (itemId.startsWith("preset_")) {
+                    const preset = appropriatePresetMap.get(id.split("_")[1]);
+                    preset.ids.forEach((id) => mapOfSelectedItemIds.delete(id));
+                }
+                else {
+                    mapOfSelectedItemIds.delete(id);
+                }
+                
+                triggeredByElement.remove();
+            },
             removeSerie(dialog, { uuid } = {}, triggeredByElement) {
                 dialog.$(`#${uuid}`).remove();
                 dialog.data.seriesMap.delete(uuid);
@@ -693,7 +757,16 @@
                 dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { event_uuid: uuid, $parent: dialog.dialogElement });
             },
             createSimpleActivity(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { preselectedRooms: dialog.data.roomPayload, preselectedPeople: dialog.data.peoplePayload, $parent: dialog.dialogElement })
+                dialog.raiseTriggerEvent(
+                    "arrangementCreator", 
+                    "newSimpleActivityDialog", 
+                    { 
+                        preselectedMainPlanner: dialog.data.mainPlannerPayload,
+                        preselectedRooms: dialog.data.roomPayload, 
+                        preselectedPeople: dialog.data.peoplePayload, 
+                        $parent: dialog.dialogElement,
+                    }
+                )
             },
             breakOutEvent(dialog, { serieUuid, collisionIndex } = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementCreator", "breakOutActivityDialog", {
@@ -702,10 +775,26 @@
                 });
             },
             editSerie(dialog, { uuid } = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("arrangementCreator", "newTimePlanDialog", { serie_uuid: uuid, $parent: dialog.dialogElement });
+                dialog.raiseTriggerEvent(
+                    "arrangementCreator", 
+                    "newTimePlanDialog", 
+                    { 
+                        serie_uuid: uuid, 
+                        $parent: dialog.dialogElement 
+                    }
+                );
             },
             createSerie(dialog, {}={}, triggeredByElement) {
-                dialog.raiseTriggerEvent("arrangementCreator", "newTimePlanDialog", {  preselectedRooms: dialog.data.roomPayload, preselectedPeople: dialog.data.peoplePayload, $parent: dialog.dialogElement })
+                dialog.raiseTriggerEvent(
+                    "arrangementCreator", 
+                    "newTimePlanDialog", 
+                    { 
+                        preselectedMainPlanner: dialog.data.mainPlannerPayload,
+                        preselectedRooms: dialog.data.roomPayload, 
+                        preselectedPeople: dialog.data.peoplePayload, 
+                        $parent: dialog.dialogElement 
+                    }
+                );
             },
         },
         when: [
@@ -718,6 +807,7 @@
                         $(`<selected-pill name='${room.text}'
                                           id='${room.id}'
                                           select-type='room'
+                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
                                           d-trigger='removeAssociation'>
                            </selected-pill>`)  
                     )
@@ -739,6 +829,7 @@
                         $(`<selected-pill name='${person.text}'
                                           id='${person.id}'
                                           select-type='person'
+                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
                                           d-trigger='removeAssociation'>
                            </selected-pill>`)
                     )
@@ -751,6 +842,19 @@
 
                 dialog.data.peoplePayload = payload;
             } },
+            { eventKnownAs: "setPlanner", do: (dialog, payload) => {
+                if (payload.allSelectedEntityIds.length == 0)
+                    return;
+
+                // save the payload so that it can be re-used / re-applied to child activities / series
+                dialog.data.mainPlannerPayload = payload;
+
+                const person = payload.viewables[0];
+                
+                dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
+                dialog.getElementById('mainPlannerName').innerText = person.text;
+                dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
+            } }
         ],
         data: {
             roomPresets: new Map(),

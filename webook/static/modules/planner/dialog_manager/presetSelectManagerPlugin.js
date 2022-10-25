@@ -1,7 +1,7 @@
 class DialogPresetSelectManager extends DialogPluginBase {
     constructor(dialog, args) {
         super(dialog, args);
-        
+
         this._setup();
 
         this.selectedItemsMap = new Map();
@@ -102,8 +102,6 @@ class DialogPresetSelectManager extends DialogPluginBase {
     getSelected() {
         let viewables = [];
 
-        console.log(Array.from(this.selectedItemsMap.values()));
-
         let results = {
             allPresets: this.presets,
             selectedPresets: Array.from(this.activePresets.keys()),
@@ -119,8 +117,6 @@ class DialogPresetSelectManager extends DialogPluginBase {
         viewables = viewables.concat(Array.from(selectedItemsMapExcludingPresetSubjects, ([name, value]) => ({id: name, text: value})));
 
         results.viewables = viewables;
-
-        console.log("Results", results);
 
         return results;
     }

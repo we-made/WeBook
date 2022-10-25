@@ -22,10 +22,9 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         { target: '#buffer_after_date_offset', value: serie.buffer.after?.date_offset },
         { target: '#buffer_after_start', value: serie.buffer.after?.start },
         { target: '#buffer_after_end', value: serie.buffer.after?.end },
-        { target: '#id_status', value: serie.time.status },
+        { target: '#_statusTypeId', value: serie.time.status },
         { target: '#_backingArrangementTypeId', value: serie.time.arrangement_type },
         { target: '#_backingAudienceId', value: serie.time.audience },
-        { target: '#id_responsible', value: serie.time.responsible },
         { target: '#id_meeting_place', value: serie.time.meeting_place },
         { target: '#id_meeting_place_en', value: serie.time.meeting_place_en },
         { target: '#id_display_text', value: serie.time.display_text },
@@ -36,6 +35,9 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
 
     console.log("serie", serie);
 
+    if (serie.planner_payload) {
+        window.MessagesFacility.send(dialogId, serie.planner_payload, "setPlanner");
+    }
     if (serie.room_payload) {
         window.MessagesFacility.send(dialogId, serie.room_payload, "roomsSelected");
     }
@@ -161,14 +163,14 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
         { to: "#area_start_date", value: manifest.start_date },
         { to: "#id_meeting_place", value: manifest.meeting_place },
         { to: "#id_meeting_place_en", value: manifest.meeting_place_en },
-        { to: "#id_responsible", value: manifest.responsible },
-        { to: '#id_status', value: manifest.status },
+        { to: '#_statusTypeId', value: manifest.status },
         { to: '#id_display_text', value: manifest.display_text },
         { to: '#id_display_text_en', value: manifest.display_text_en },
     ].forEach( (mapping) => { $dialogElement.find(mapping.to).val(mapping.value ).trigger('change'); } );
 
     window.MessagesFacility.send(dialogId, manifest.audience, "setAudienceFromParent");
     window.MessagesFacility.send(dialogId, manifest.arrangement_type, "setArrangementTypeFromParent");
+    window.MessagesFacility.send(dialogId, manifest.status, "setStatusFromParent");
 
     if (manifest.rooms) {
         manifest.rooms.allPresets = new Map([
@@ -180,7 +182,9 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
     if (manifest.people) {
         window.MessagesFacility.send(dialogId, manifest.people, "peopleSelected");
     }
-
+    if (manifest.responsible)
+        window.MessagesFacility.send(dialogId, manifest.responsible, "setPlanner");
+    
     manifest.display_layouts.forEach(display_layout => {
         $dialogElement.find('#id_display_layouts_serie_planner_' + display_layout.id).prop( "checked", true );
     })
@@ -318,14 +322,12 @@ export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
         { target: '#_backingArrangementTypeId', value: event.arrangement_type },
         { target: '#id_meeting_place', value: event.meeting_place },
         { target: '#id_meeting_place_en', value: event.meeting_place_en },
-        { target: '#id_status', value: event.status },
-        { target: '#id_responsible', value: event.responsible },
+        { target: '#_statusTypeId', value: event.status },
         { target: '#id_display_text', value: event.display_text },
         { target: '#id_display_text_en', value: event.display_text_en },
     ].forEach( (mapping) => {
         $dialogElement.find( mapping.target ).val( mapping.value );
     } )
-
 
     if (Array.isArray(event.display_layouts)) {
         event.display_layouts.forEach(element => {
@@ -338,7 +340,8 @@ export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
 
     if (event.people_payload)
         window.MessagesFacility.send(dialogId, event.people_payload, "peopleSelected");
-    if (event.room_payload) {
+    if (event.room_payload)
         window.MessagesFacility.send(dialogId, event.room_payload, "roomsSelected");
-    }
+    if (event.planner_payload)
+        window.MessagesFacility.send(dialogId, event.planner_payload, "setPlanner");
 }

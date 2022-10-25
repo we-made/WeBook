@@ -4,6 +4,7 @@ from webook.arrangement.views import (
     status_type_create_view,
     status_type_delete_view,
     status_type_list_view,
+    status_type_tree_json_view,
     status_type_update_view,
 )
 
@@ -27,5 +28,8 @@ status_type_urls = [
         route="statustype/delete/<slug:slug>",
         view=status_type_delete_view,
         name="statustype_delete",
+    ),
+    path(
+        route="statustype/tree", view=status_type_tree_json_view, name="statustype_tree"
     ),
 ]

@@ -42,7 +42,6 @@ export class MessagesFacility {
                 const result = subscriptionsOnRecipient[i](key, payload)
                 if (result === null)
                 {
-                    debugger;
                     /**
                      * If a subscription function returns null we read this as if the
                      * subscription instance has perished, and should therefore be removed.

@@ -29,4 +29,3 @@ class JSTreeListView(JsonListView):
                     item["data"][attr_name] = reverse(url, kwargs={ "slug": item["data"]["slug"] })
             if "children" in item:
                 self._process_urls(item["children"])
-    

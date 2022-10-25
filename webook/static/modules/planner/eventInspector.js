@@ -47,12 +47,18 @@ export class EventInspector {
                         triggerElementId: "inspectEventDialog_addPeopleBtn",
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
+                            let multiple = context.lastTriggererDetails.multiple;
+                            if (multiple === undefined)
+                                multiple = true
+                                
                             return this.dialogManager.loadDialogHtml({
                                 url: '/arrangement/planner/dialogs/order_person',
                                 managerName: 'eventInspector',
                                 dialogId: 'orderPersonDialog',
                                 customParameters: {
-                                    event_pk: context.event.pk
+                                    event_pk: context.event.pk,
+                                    multiple: multiple,
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
                                 },
                             });
                         },
@@ -64,18 +70,10 @@ export class EventInspector {
                         onUpdatedCallback: () => { 
                             this.dialogManager.closeDialog("orderPersonDialog");
                         },
-                        onSubmit: (context, details) => {
-                            context.people = details.selectedBundle.allSelectedEntityIds.map(x => x.id).join(",");
-                            context.people_name_map = new Map(
-                                details.selectedBundle.allSelectedEntityIds.map(x => [x.id, x.text])
-                            );
-                            
-                            document.dispatchEvent(new CustomEvent(
-                                "eventInspector.peopleUpdated",
-                                { detail: {
-                                    context: context
-                                } }
-                            ));
+                        onSubmit: (context, details, dialogManager, dialog) => {
+                            const eventName = dialog.data.whenEventName || "peopleSelected";
+                            dialogManager._dialogRepository.get(details.recipientDialog)
+                                .communicationLane.send(eventName, details.selectedBundle);
                         }
                     })
                 ],
@@ -91,7 +89,8 @@ export class EventInspector {
                                 managerName: 'eventInspector',
                                 dialogId: 'orderRoomDialog',
                                 customParameters: {
-                                    event_pk: context.event.pk
+                                    event_pk: context.event.pk,
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
                                 }
                             });
                         },
@@ -103,13 +102,9 @@ export class EventInspector {
                         onUpdatedCallback: () => { 
                             this.dialogManager.closeDialog("orderRoomDialog"); 
                         },
-                        onSubmit: (context, details) => { 
-                            context.rooms = details.selectedBundle.allSelectedEntityIds.map(x => x.id).join(",");
-                            context.room_name_map = new Map(
-                                details.selectedBundle.allSelectedEntityIds.map(x => [x.id, x.text])
-                            );
-                            
-                            document.dispatchEvent(new CustomEvent("eventInspector.roomsUpdated", { detail: { context: context } }))
+                        onSubmit: (context, details, dialogManager) => { 
+                            dialogManager._dialogRepository.get(details.recipientDialog)
+                                .communicationLane.send("roomsSelected", details.selectedBundle);
                         }
                     })
                 ],
