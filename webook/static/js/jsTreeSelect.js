@@ -38,7 +38,6 @@ export class JSTreeSelect {
 
         this.onValueSet = onValueSet;
         this.selected = initialSelected;
-        console.log(">>initialSelected", this.selected);
 
         this.invalidFeedbackText = invalidFeedbackText;
 
@@ -103,14 +102,22 @@ export class JSTreeSelect {
 
     setSelected(id) {
         const jsTree = $(this._jsTreeElement).jstree(true);
-
-        if (!jsTree) { // if jsTree is false, then jsTree is not initialized yet, so we stage the set value.
-            console.log("STAGED");
+        if (jsTree === false) { // if jsTree is false, then jsTree is not initialized yet, so we stage the set value.
             this.selected={ id: id };
             return;
         }
 
+        /** 
+         * It is possible for JSTREE to be initialized, but not having finished loading the tree json from the endpoint yet
+         * We ascertain this state by get_node being False -- and again we default to staging the value.
+        */
         const selected = $(this._jsTreeElement).jstree(true).get_node(id);
+        if (selected === false)
+        {
+            this.selected={ id: id };
+            return;
+        }
+
         this._setSelectedValue(selected.id, selected.text, selected.parent);
     }
     
