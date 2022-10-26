@@ -37,15 +37,6 @@
                 Notater
             </a>
         </li>
-        <!-- Receipts -->
-        <!-- <li class="nav-item" role="presentation">
-            <a href="#arrangementInfoDialog_tabs_receipts"
-                class="nav-link"
-                role="tab"
-                data-mdb-toggle="tab">
-                Kvitteringer
-            </a>
-        </li> -->
         <!-- Files -->
         <li class="nav-item" role="presentation">
             <a href="#arrangementInfoDialog_tabs_files"
@@ -127,6 +118,19 @@
                             </div>
                             {% endif %}
                         </div>
+
+                        <div class="mb-2">
+                            <label>
+                                <i class="fas fa-cog"></i>&nbsp;
+                                Status
+                            </label>
+                            <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
+                            {% if form.status_type.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.status_type.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -145,10 +149,6 @@
                         {{ form.ticket_code.errors }}
                     </div>
                 {% endif %}
-            </div>
-
-            <div class="form-group mt-3">
-                {{ form.status|as_crispy_field }}
             </div>
 
             <div class="form-group mt-4">
@@ -668,6 +668,25 @@
                 changeSelectedValueButtonText: 'Endre arrangementstype',
                 popoverSaveChoicesButtonText: 'Lagre valg',
             });
+            dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#status_type_jstree_select'),
+                initialSelected: { id: '{{ object.status.id }}', text: '{{ object.status.name }}' },
+                treeJsonSrcUrl: "/arrangement/statustype/tree",
+                valueSelectedLabelText: ( selected ) => {
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+
+                    labelText += selected.text;
+                    
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen status valgt ennå",
+                selectFirstTimeButtonText: 'Velg status',
+                changeSelectedValueButtonText: 'Endre status',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
             
             {% for event in object.event_set.all %}
             new mdb.Popover(dialog.getElementById('eventsTable_event_{{event.pk}}'), {
@@ -785,7 +804,7 @@
                 formData.append("actual_visitors",      dialog.interior.id_actual_visitors.value);
                 formData.append("display_text",         dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
                 formData.append("csrfmiddlewaretoken",  "{{ csrf_token }}");
-                formData.append("status",               dialog.interior.id_status.value);
+                formData.append("status",               dialog.data.statusTypeJsTreeSelect.getSelectedValue());
 
                 dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
                     formData.append("display_layouts", element.value);
