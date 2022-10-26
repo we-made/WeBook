@@ -652,10 +652,22 @@
                 dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
-                dialog.data.audienceJsTreeSelect.setSelected(payload);
+                if (dialog.data.audienceJsTreeSelect)
+                    dialog.data.audienceJsTreeSelect.setSelected(payload);
+                else
+                    dialog.$('#_backingAudienceId').val(payload);
             } },
             { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
-                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
+                if (dialog.data.arrangementTypeJsTreeSelect)
+                    dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
+                else
+                    dialog.$('#_backingArrangementTypeId').val(payload);
+            } },
+            { eventKnownAs: "setStatusFromParent", do: (dialog, payload) => {
+                if (dialog.data.statusTypeJsTreeSelect)
+                    dialog.data.statusTypeJsTreeSelect.setSelected(payload);
+                else
+                    dialog.$('#_statusTypeId').val(payload);
             } },
         ],
         plugins: [

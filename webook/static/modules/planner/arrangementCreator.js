@@ -359,10 +359,10 @@ export class ArrangementCreator {
                                     { from: '#id_expected_visitors', to: '#expected_visitors'},
                                     { from: '#id_meeting_place', to: '#id_meeting_place' },
                                     { from: '#id_meeting_place_en', to: '#id_meeting_place_en' },
-                                    { from: '#_statusTypeId', to: '#_statusTypeId' },
                                     { from: '#id_display_text', to: '#id_display_text' },
                                     { from: '#_audienceId', to: '#_backingAudienceId' },
                                     { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId'},
+                                    { from: '#_statusTypeId', to: '#_statusTypeId' },
                                 ].forEach( (mapping) => { 
                                     $simpleActivityDialog.find( mapping.to ).val( $mainDialog.find( mapping.from )[0].value );
                                 });

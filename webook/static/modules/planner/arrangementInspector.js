@@ -280,9 +280,9 @@ export class ArrangementInspector {
                                 $newTimePlanDialog.find( mapping.targetSelector ).val( mapping.value );
                             } );
 
-                            const newTimePlanDialog = this.dialogManager._dialogRepository.get("newTimePlanDialog");
-                            newTimePlanDialog.communicationLane.send("setAudienceFromParent", info.audience_id);
-                            newTimePlanDialog.communicationLane.send("setArrangementTypeFromParent", info.arrangement_type_id);
+                            window.MessagesFacility.send("newTimePlanDialog", info.arrangement_type_id, "setArrangementTypeFromParent")
+                            window.MessagesFacility.send("newTimePlanDialog", info.audience_id, "setAudienceFromParent");
+                            window.MessagesFacility.send("newTimePlanDialog", info.status_id, "setStatusFromParent");
 
                             info.display_layouts.forEach(display_layout => {
                                 $newTimePlanDialog.find('#id_display_layouts_serie_planner_' + ( display_layout - 1))
@@ -495,7 +495,7 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: async (dialogManager, context) => {
                             let info = await this._getRecurringInfo( context.arrangement.arrangement_pk );
-                            
+                            const dialogId = "newSimpleActivityDialog";
                             this.dialogManager.setTitle("newSimpleActivityDialog", "Opprett aktivitet");
                             let $newSimpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
 
@@ -504,21 +504,21 @@ export class ArrangementInspector {
                                 { targetSelector: '#title_en', value: info.title_en },
                                 { targetSelector: '#ticket_code', value: info.ticket_code },
                                 { targetSelector: '#expected_visitors', value: info.expected_visitors },
-                                { targetSelector: '#_backingAudienceId', value: info.audience_id },
-                                { targetSelector: '#_backingArrangementTypeId', value: info.arrangement_type_id },
-                                { targetSelector: '#id_status', value: info.status_id },
                                 { targetSelector: '#id_display_text', value: info.display_text },
                                 { targetSelector: '#id_display_text_en', value: info.display_text_en },
                                 { targetSelector: '#id_responsible', value: info.responsible_id },
                                 { targetSelector: '#id_meeting_place', value: info.meeting_place },
                                 { targetSelector: '#id_meeting_place_en', value: info.meeting_place_en },
+                                { targetSelector: '#_statusTypeId', value: info.status_id },
+                                { targetSelector: '#_backingAudienceId', value: info.audience_id },
+                                { targetSelector: '#_backingArrangementTypeId', value: info.arrangement_type_id },
                             ].forEach( (mapping) => {
                                 $newSimpleActivityDialog.find( mapping.targetSelector ).val( mapping.value );
                             } );
 
-                            const simpleActivityDialog = this.dialogManager._dialogRepository.get("newSimpleActivityDialog");
-                            simpleActivityDialog.communicationLane.send("setAudienceFromParent", info.audience_id);
-                            simpleActivityDialog.communicationLane.send("setArrangementTypeFromParent", info.arrangement_type_id);
+                            window.MessagesFacility.send(dialogId, info.arrangement_type_id, "setArrangementTypeFromParent")
+                            window.MessagesFacility.send(dialogId, info.audience_id, "setAudienceFromParent");
+                            window.MessagesFacility.send(dialogId, info.status_id, "setStatusFromParent");
 
                             info.display_layouts.forEach(display_layout => {
                                 $newSimpleActivityDialog.find('#' + display_layout + "_dlcheck")
@@ -578,10 +578,6 @@ export class ArrangementInspector {
                             let manifest = await QueryStore.GetSerieManifest(context.editing_serie_pk);
                             
                             PopulateCreateSerieDialogFromManifest(manifest, context.editing_serie_pk, $dialogElement, "editEventSerieDialog");
-
-                            const editEventSerieDialog = this.dialogManager._dialogRepository.get("editEventSerieDialog");
-                            editEventSerieDialog.communicationLane.send("setAudienceFromParent", manifest.audience);
-                            editEventSerieDialog.communicationLane.send("setArrangementTypeFromParent", manifest.arrangement_type);
 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();

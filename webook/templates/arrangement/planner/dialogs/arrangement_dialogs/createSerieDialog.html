@@ -1219,13 +1219,13 @@
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
                 if (dialog.data.audienceJsTreeSelect)
-                    dialog.data.audienceJsTreeSelect.setSelected(String(payload));
+                    dialog.data.audienceJsTreeSelect.setSelected(payload);
                 else
                     dialog.$('#_backingAudienceId').val(payload);
             } },
             { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
                 if (dialog.data.arrangementTypeJsTreeSelect)
-                    dialog.data.arrangementTypeJsTreeSelect.setSelected(String(payload));
+                    dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
                 else
                     dialog.$('#_backingArrangementTypeId').val(payload);
             } },
