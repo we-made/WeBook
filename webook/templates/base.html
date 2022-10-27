@@ -119,7 +119,8 @@
           </div>
           <small class="fw-bold">Planlegging</small>
         </a>
-
+        
+        {% if not user|has_group:"readonly" %}
         <a href="{% url 'arrangement:location_list' %}" class="wb-sidebar-item p-2 pt-3 pb-3
               {% if url_name == 'location_list' %} active text-dark bg-weak-secondary border-dark border shadow-4 {% endif %}">
           <div>
@@ -151,40 +152,6 @@
           </div>
           <small class="fw-bold">Personer</small>
         </a>
-        
-        {% if user.is_superuser or user|has_group:"display_organizer" %}
-        <div>
-          <a href="#" id="toggleDisplayLayoutsPopover" class="wb-sidebar-item p-2 pt-3 pb-3">
-            <div>
-              <i class="fas fa-tv text-info h2 mb-0"></i>
-            </div>
-            <small class="fw-bolder">Skjermvisning</small>
-          </a>
-
-          <span class="popover_wrapper wb-popover-sidebar" id="displayLayoutsPopover">
-            <span class="popover_content">
-              <h4 class="text-start"><i class="fas fa-tv"></i>&nbsp; Skjermvisning...</h4>
-              <span style="display: flex; flex-direction: column; align-items: center;">
-                <a href="{% url 'screenshow:screen_list' %}"
-                   class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
-                          {% if not url_name == 'screen_list' %} bg-white border {% else %} active {% endif %}">
-                  {% trans "Screen Resource" %}
-                </a>
-                <a href="{% url 'screenshow:screen_group_list' %}"
-                   class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
-                          {% if not url_name == 'screen_group_list' %} bg-white border {% else %} active {% endif %}">
-                  {% trans "Screen Group" %}
-                </a>
-                <a href="{% url 'screenshow:layout_list' %}"
-                  class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
-                       {% if not url_name == 'layout_list' %} bg-white border {% else %} active {% endif %}">
-                  {% trans "Display Layout" %}
-                </a>
-            </span>
-          </span>
-        </div>
-        {% endif %}
-
         <div>
           <a href="#" id="toggleOthersPopover"
              class="{% if url_name == 'arrangement_type_list' or url_name == 'organizationtype_list' or url_name == 'servicetype_list' %}
@@ -234,6 +201,40 @@
             </span>
           </span>
         </div>
+        {% endif %}
+
+        {% if user.is_superuser or user|has_group:"display_organizer" %}
+        <div>
+          <a href="#" id="toggleDisplayLayoutsPopover" class="wb-sidebar-item p-2 pt-3 pb-3">
+            <div>
+              <i class="fas fa-tv text-info h2 mb-0"></i>
+            </div>
+            <small class="fw-bolder">Skjermvisning</small>
+          </a>
+
+          <span class="popover_wrapper wb-popover-sidebar" id="displayLayoutsPopover">
+            <span class="popover_content">
+              <h4 class="text-start"><i class="fas fa-tv"></i>&nbsp; Skjermvisning...</h4>
+              <span style="display: flex; flex-direction: column; align-items: center;">
+                <a href="{% url 'screenshow:screen_list' %}"
+                   class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
+                          {% if not url_name == 'screen_list' %} bg-white border {% else %} active {% endif %}">
+                  {% trans "Screen Resource" %}
+                </a>
+                <a href="{% url 'screenshow:screen_group_list' %}"
+                   class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
+                          {% if not url_name == 'screen_group_list' %} bg-white border {% else %} active {% endif %}">
+                  {% trans "Screen Group" %}
+                </a>
+                <a href="{% url 'screenshow:layout_list' %}"
+                  class="btn btn-block wb-btn-secondary p-2 text-start wb-sidebar-item-nested
+                       {% if not url_name == 'layout_list' %} bg-white border {% else %} active {% endif %}">
+                  {% trans "Display Layout" %}
+                </a>
+            </span>
+          </span>
+        </div>
+        {% endif %}
 
         <hr>
 

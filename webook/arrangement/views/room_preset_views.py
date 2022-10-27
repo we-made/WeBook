@@ -32,6 +32,7 @@ from webook.arrangement.models import (
 )
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
+from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -48,17 +49,23 @@ def get_section_manifest():
             edit_url="arrangement:room_preset_update",
             delete_url="arrangement:room_preset_delete",
             list_url="arrangement:room_preset_list",
-        )
+        ),
     )
 
 
-class RoomPresetsSectionManifestMixin:
+class RoomPresetsSectionManifestMixin(PlannerAuthorizationMixin):
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
 
 
-class RoomPresetsListView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
+class RoomPresetsListView(
+    LoginRequiredMixin,
+    RoomPresetsSectionManifestMixin,
+    GenericListTemplateMixin,
+    MetaMixin,
+    ListView,
+):
     template_name = "common/list_view.html"
     model = RoomPreset
     queryset = RoomPreset.objects.all()
@@ -69,59 +76,78 @@ class RoomPresetsListView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, G
         context["CRUDL_MAP"] = self.section.crudl_map
         return context
 
+
 room_presets_listview = RoomPresetsListView.as_view()
 
 
-class RoomPresetDetailView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, GenericListTemplateMixin, MetaMixin, DetailView):
-    template_name="arrangement/room_presets/detail.html"
+class RoomPresetDetailView(
+    LoginRequiredMixin,
+    RoomPresetsSectionManifestMixin,
+    GenericListTemplateMixin,
+    MetaMixin,
+    DetailView,
+):
+    template_name = "arrangement/room_presets/detail.html"
     model = RoomPreset
     slug_field = "slug"
     slug_url_kwarg = "slug"
     view_meta = ViewMeta.Preset.detail(RoomPreset)
 
+
 room_preset_detail_view = RoomPresetDetailView.as_view()
 
 
-class RoomPresetCreateView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, MultiRedirectMixin,  CreateView):
+class RoomPresetCreateView(
+    LoginRequiredMixin,
+    RoomPresetsSectionManifestMixin,
+    MetaMixin,
+    MultiRedirectMixin,
+    CreateView,
+):
     form_class = RoomPresetCreateForm
     model = RoomPreset
-    template_name="arrangement/room_presets/form.html"
+    template_name = "arrangement/room_presets/form.html"
     view_meta = ViewMeta.Preset.create(RoomPreset)
 
-    success_urls_and_messages = { 
-        "submitAndNew": { 
-            "url": reverse_lazy( "arrangement:room_preset_create" ),
-            "msg": _("Successfully created entity")
+    success_urls_and_messages = {
+        "submitAndNew": {
+            "url": reverse_lazy("arrangement:room_preset_create"),
+            "msg": _("Successfully created entity"),
         },
-        "submit": { 
+        "submit": {
             "url": reverse_lazy("arrangement:room_preset_list"),
-        }
+        },
     }
+
 
 room_preset_create_view = RoomPresetCreateView.as_view()
 
 
-class RoomPresetUpdateView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, UpdateView):
+class RoomPresetUpdateView(
+    LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, UpdateView
+):
     form_class = RoomPresetCreateForm
     model = RoomPreset
 
-    template_name="arrangement/room_presets/form.html"
+    template_name = "arrangement/room_presets/form.html"
     view_meta = ViewMeta.Preset.edit(RoomPreset)
 
     def get_success_url(self) -> str:
         return reverse("arrangement:room_preset_list")
 
+
 room_preset_update_view = RoomPresetUpdateView.as_view()
 
 
-class RoomPresetDeleteView(LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, ArchiveView):
+class RoomPresetDeleteView(
+    LoginRequiredMixin, RoomPresetsSectionManifestMixin, MetaMixin, ArchiveView
+):
     model = RoomPreset
     view_meta = ViewMeta.Preset.delete(RoomPreset)
     template_name = "common/delete_view.html"
 
     def get_success_url(self) -> str:
-        return reverse(
-            "arrangement:room_preset_list"
-        )
+        return reverse("arrangement:room_preset_list")
+
 
 room_preset_delete_view = RoomPresetDeleteView.as_view()

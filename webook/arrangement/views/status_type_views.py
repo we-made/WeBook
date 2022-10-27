@@ -28,6 +28,7 @@ from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListVi
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
+from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.crumbinator.crumb_node import CrumbNode
 from webook.utils import crumbs
 from webook.utils.crudl_utils.view_mixins import (
@@ -66,6 +67,7 @@ class StatusTypeSectionManifestMixin:
 
 class StatusTypeListView(
     LoginRequiredMixin,
+    PlannerAuthorizationMixin,
     StatusTypeSectionManifestMixin,
     GenericListTemplateMixin,
     MetaMixin,
@@ -82,6 +84,7 @@ status_type_list_view = StatusTypeListView.as_view()
 
 class StatusTypeCreateView(
     LoginRequiredMixin,
+    PlannerAuthorizationMixin,
     StatusTypeSectionManifestMixin,
     MetaMixin,
     CreateView,
@@ -102,6 +105,7 @@ status_type_create_view = StatusTypeCreateView.as_view()
 
 class StatusTypeUpdateView(
     LoginRequiredMixin,
+    PlannerAuthorizationMixin,
     StatusTypeSectionManifestMixin,
     MetaMixin,
     UpdateView,
@@ -121,7 +125,11 @@ status_type_update_view = StatusTypeUpdateView.as_view()
 
 
 class StatusTypeDeleteView(
-    LoginRequiredMixin, StatusTypeSectionManifestMixin, DialogView, ArchiveView
+    LoginRequiredMixin,
+    PlannerAuthorizationMixin,
+    StatusTypeSectionManifestMixin,
+    DialogView,
+    ArchiveView,
 ):
     model = StatusType
     view_meta = ViewMeta.Preset.delete(StatusType)

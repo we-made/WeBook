@@ -6,16 +6,27 @@ from django.core import serializers
 from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    UpdateView,
+)
 from django.views.generic.edit import DeleteView
 
 from webook.arrangement.models import ServiceType
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
+from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils.meta_mixin import MetaMixin
-from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap, SectionManifest, ViewMeta
+from webook.utils.meta_utils.section_manifest import (
+    SectionCrudlPathMap,
+    SectionManifest,
+    ViewMeta,
+)
 
 
 def get_section_manifest():
@@ -29,96 +40,116 @@ def get_section_manifest():
             edit_url="arrangement:servicetype_edit",
             delete_url="arrangement:servicetype_delete",
             list_url="arrangement:servicetype_list",
-        )
+        ),
     )
 
 
-class ServiceTypeSectionManifestMixin:
+class ServiceTypeSectionManifestMixin(PlannerAuthorizationMixin):
     def __init__(self) -> None:
         super().__init__()
         self.section = get_section_manifest()
 
 
-class ServiceTypeListView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, GenericListTemplateMixin, MetaMixin, ListView):
+class ServiceTypeListView(
+    LoginRequiredMixin,
+    ServiceTypeSectionManifestMixin,
+    GenericListTemplateMixin,
+    MetaMixin,
+    ListView,
+):
     queryset = ServiceType.objects.all()
     template_name = "common/list_view.html"
     model = ServiceType
     view_meta = ViewMeta.Preset.table(ServiceType)
 
     def get_context_data(self, **kwargs):
-        context =  super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["CRUDL_MAP"] = self.section.crudl_map
         return context
+
 
 service_type_list_view = ServiceTypeListView.as_view()
 
 
-class ServiceTypeDetailView(LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, DetailView):
+class ServiceTypeDetailView(
+    LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, DetailView
+):
     model = ServiceType
     slug_field = "slug"
     slug_url_kwarg = "slug"
     template_name = "arrangement/servicetype/servicetype_detail.html"
     view_meta = ViewMeta.Preset.detail(ServiceType)
 
+
 service_type_detail_view = ServiceTypeDetailView.as_view()
 
 
-class ServiceTypeUpdateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, UpdateView):
+class ServiceTypeUpdateView(
+    LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, UpdateView
+):
     model = ServiceType
-    fields = [
-        "name"
-    ]
+    fields = ["name"]
     template_name = "arrangement/servicetype/servicetype_form.html"
     view_meta = ViewMeta.Preset.edit(ServiceType)
+
 
 service_type_update_view = ServiceTypeUpdateView.as_view()
 
 
-class ServiceTypeCreateView (LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, MultiRedirectMixin, CreateView):
+class ServiceTypeCreateView(
+    LoginRequiredMixin,
+    ServiceTypeSectionManifestMixin,
+    MetaMixin,
+    MultiRedirectMixin,
+    CreateView,
+):
     model = ServiceType
-    fields = [
-        "name"
-    ]
+    fields = ["name"]
     template_name = "arrangement/servicetype/servicetype_form.html"
     view_meta = ViewMeta.Preset.create(ServiceType)
 
-    success_urls_and_messages = { 
-        "submitAndNew": { 
-            "url": reverse_lazy( "arrangement:servicetype_create" ),
-            "msg": _("Successfully created entity")
+    success_urls_and_messages = {
+        "submitAndNew": {
+            "url": reverse_lazy("arrangement:servicetype_create"),
+            "msg": _("Successfully created entity"),
         },
-        "submit": { 
+        "submit": {
             "url": reverse_lazy("arrangement:servicetype_list"),
-        }
+        },
     }
+
 
 service_type_create_view = ServiceTypeCreateView.as_view()
 
 
-class SearchServiceTypes (LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, SearchView):
+class SearchServiceTypes(
+    LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, SearchView
+):
     def search(self, search_term):
         service_types = []
-    
-        if (search_term == ""):
+
+        if search_term == "":
             service_types = ServiceType.objects.all()
-        else: 
+        else:
             service_types = ServiceType.objects.filter(name__contains=search_term)
 
         return service_types
 
+
 search_service_types = SearchServiceTypes.as_view()
 
 
-class ServiceTypeDeleteView(LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, ArchiveView):
-    model = ServiceType 
+class ServiceTypeDeleteView(
+    LoginRequiredMixin, ServiceTypeSectionManifestMixin, MetaMixin, ArchiveView
+):
+    model = ServiceType
     slug_field = "slug"
     slug_url_kwarg = "slug"
     template_name = "common/delete_view.html"
     view_meta = ViewMeta.Preset.delete(ServiceType)
 
     def get_success_url(self) -> str:
-        return reverse(
-            "arrangement:servicetype_list"
-        )
+        return reverse("arrangement:servicetype_list")
+
 
 service_type_delete_view = ServiceTypeDeleteView.as_view()
