@@ -4,6 +4,7 @@ from allauth.account.adapter import DefaultAccountAdapter
 from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.http import HttpRequest, HttpResponse
 from django.template.loader import render_to_string
 
@@ -80,6 +81,11 @@ class MicrosoftPersonAccountAdapter(DefaultSocialAccountAdapter):
             )
 
         user = super().save_user(request, sociallogin, form)
+
+        read_only_group = Group.objects.get(name="readonly")
+        if read_only_group is None:
+            raise Exception("'readonly' group does not exist")
+        read_only_group.user_set.add(user)
 
         user.person = Person.objects.get(id=sociallogin._person_pk)
         user.save()
