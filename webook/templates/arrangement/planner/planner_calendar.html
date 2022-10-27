@@ -1,5 +1,6 @@
 {% extends "common/meta_base.html" %}
 {% load static i18n %}
+{% load custom_tags %}
 
 {% block container_classes %}
 container-fluid
@@ -67,11 +68,13 @@ container-fluid
                         </li>
                     </ul>
                 </div>
+                {% if user|has_group:"planners" %}
                 <div class="col-4">
                     <button class="btn wb-btn-main float-end" id="newArrangementBtn">
                         <i class="fas fa-plus"></i>&nbsp; Opprett arrangement
                     </button>
                 </div>
+                {% endif %}
             </div>
           </div>
         </div>
@@ -158,6 +161,7 @@ container-fluid
                 <div id="arrangementPlannerCalendar"></div>
             </div>
             <div class="tab-pane" id="locationsCalendar" role="tabpanel" aria-labelledby="locationsCalendar-tab">
+                {% if user|has_group:"planners" %}
                 <div class="clearfix">
                     <div class="float-end">
                         <div class="btn-group shadow-0">
@@ -174,10 +178,12 @@ container-fluid
                         </div>
                     </div>
                 </div>
+                {% endif %}
 
                 <div id="locationsPlannerCalendar"></div>
             </div>
             <div class="tab-pane" id="peopleCalendar" role="tabpanel" aria-labelledby="peopleCalendar-tab">
+                {% if user|has_group:"planners" %}
                 <div class="clearfix">
                     <div class="float-end">
                         <div class="btn-group shadow-0">
@@ -194,6 +200,7 @@ container-fluid
                         </div>
                     </div>
                 </div>
+                {% endif %}
                 <div id="peoplePlannerCalendar"></div>
             </div>
         </div>
@@ -496,6 +503,9 @@ container-fluid
             calendarFilter: calendarFilter,
             licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
             navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
+            useOnclickEvents: {% if user|has_group:"planners" %}true{% else %}false{% endif %},
+            renderContextMenu: {% if user|has_group:"planners" %}true{% else %}false{% endif %},
+            renderPopovers: true,
         });
 
         let locationsCalendar = new LocationCalendar({

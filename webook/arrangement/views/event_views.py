@@ -14,7 +14,10 @@ from django.views.generic import (
 )
 
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
-from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import CreateSerieForm, SerieManifestForm
+from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import (
+    CreateSerieForm,
+    SerieManifestForm,
+)
 from webook.arrangement.forms.file_forms import UploadFilesForm
 from webook.arrangement.models import (
     Arrangement,
@@ -29,15 +32,23 @@ from webook.arrangement.models import (
 )
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
-from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
-from webook.arrangement.views.generic_views.upload_files_standard_form import UploadFilesStandardFormView
+from webook.arrangement.views.generic_views.json_form_view import (
+    JsonFormView,
+    JsonModelFormMixin,
+)
+from webook.arrangement.views.generic_views.upload_files_standard_form import (
+    UploadFilesStandardFormView,
+)
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
+from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
 
 
-class CreateEventSerieJsonFormView(LoginRequiredMixin, JsonFormView):
+class CreateEventSerieJsonFormView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, JsonFormView
+):
     """Create a new event serie / schedule"""
 
     form_class = CreateSerieForm
@@ -50,7 +61,9 @@ class CreateEventSerieJsonFormView(LoginRequiredMixin, JsonFormView):
 create_event_serie_json_view = CreateEventSerieJsonFormView.as_view()
 
 
-class CreateEventJsonFormView(LoginRequiredMixin, CreateView, JsonModelFormMixin):
+class CreateEventJsonFormView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, CreateView, JsonModelFormMixin
+):
     """View for event creation"""
 
     form_class = CreateEventForm
@@ -60,7 +73,9 @@ class CreateEventJsonFormView(LoginRequiredMixin, CreateView, JsonModelFormMixin
 create_event_json_view = CreateEventJsonFormView.as_view()
 
 
-class UpdateEventJsonFormView(LoginRequiredMixin, UpdateView, JsonModelFormMixin):
+class UpdateEventJsonFormView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, UpdateView, JsonModelFormMixin
+):
     """Update event"""
 
     model = Event
@@ -70,7 +85,9 @@ class UpdateEventJsonFormView(LoginRequiredMixin, UpdateView, JsonModelFormMixin
 update_event_json_view = UpdateEventJsonFormView.as_view()
 
 
-class DeleteEventJsonView(LoginRequiredMixin, JsonArchiveView):
+class DeleteEventJsonView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, JsonArchiveView
+):
     """Delete event"""
 
     model = Event
@@ -79,7 +96,9 @@ class DeleteEventJsonView(LoginRequiredMixin, JsonArchiveView):
 delete_event_json_view = DeleteEventJsonView.as_view()
 
 
-class UploadFilesToEventJsonFormView(LoginRequiredMixin, UploadFilesStandardFormView):
+class UploadFilesToEventJsonFormView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, UploadFilesStandardFormView
+):
     """FormView that handles file uploads to an event"""
 
     model = Event
@@ -89,7 +108,9 @@ class UploadFilesToEventJsonFormView(LoginRequiredMixin, UploadFilesStandardForm
 upload_files_to_event_json_form_view = UploadFilesToEventJsonFormView.as_view()
 
 
-class DeleteFileFromEventView(LoginRequiredMixin, JsonDeleteView):
+class DeleteFileFromEventView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, JsonDeleteView
+):
     """View that provides functionality for deleting a file from an event"""
 
     model = EventFile
@@ -100,7 +121,7 @@ delete_file_from_event_view = DeleteFileFromEventView.as_view()
 
 
 class UploadFilesToEventSerieJsonFormView(
-    LoginRequiredMixin, UploadFilesStandardFormView
+    LoginRequiredMixin, PlannerAuthorizationMixin, UploadFilesStandardFormView
 ):
     model = EventSerie
     file_relationship_model = EventSerieFile
@@ -111,7 +132,9 @@ upload_files_to_event_serie_json_form_view = (
 )
 
 
-class EventSerieDeleteFileView(LoginRequiredMixin, JsonDeleteView):
+class EventSerieDeleteFileView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, JsonDeleteView
+):
     model = EventSerieFile
     pk_url_kwarg = "pk"
 
@@ -119,7 +142,7 @@ class EventSerieDeleteFileView(LoginRequiredMixin, JsonDeleteView):
 event_serie_delete_file_view = EventSerieDeleteFileView.as_view()
 
 
-class DeleteEventSerie(LoginRequiredMixin, JsonArchiveView):
+class DeleteEventSerie(LoginRequiredMixin, PlannerAuthorizationMixin, JsonArchiveView):
     model = EventSerie
     pk_url_kwarg = "pk"
 
@@ -127,7 +150,9 @@ class DeleteEventSerie(LoginRequiredMixin, JsonArchiveView):
 delete_event_serie_view = DeleteEventSerie.as_view()
 
 
-class CalculateEventSerieView(LoginRequiredMixin, DetailView, JSONResponseMixin):
+class CalculateEventSerieView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, DetailView, JSONResponseMixin
+):
     model = PlanManifest
     pk_url_kwarg = "pk"
 
@@ -164,7 +189,9 @@ class CalculateEventSerieView(LoginRequiredMixin, DetailView, JSONResponseMixin)
 calculate_event_serie_view = CalculateEventSerieView.as_view()
 
 
-class CalculateEventSeriePreviewView(LoginRequiredMixin, DetailView):
+class CalculateEventSeriePreviewView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
+):
     """Preview calendar primarily used for testing and debugging the results of a calculation"""
 
     model = PlanManifest
@@ -175,7 +202,9 @@ class CalculateEventSeriePreviewView(LoginRequiredMixin, DetailView):
 calculate_event_serie_preview_view = CalculateEventSeriePreviewView.as_view()
 
 
-class EventSerieManifestView(LoginRequiredMixin, DetailView, JSONResponseMixin):
+class EventSerieManifestView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, DetailView, JSONResponseMixin
+):
     """
     EventSerieManifestView takes a given EventSerie, and serves the manifest used to generate
     that serie out in JSON format.

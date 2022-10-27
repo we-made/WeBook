@@ -1,7 +1,7 @@
 {% extends request.user.is_authenticated|yesno:"base.html,public_base.html" %}
 {% load static i18n %}
 
-{% block title %}{% trans "Forbidden" %} (403){% endblock %}
+{% block title %}{% trans "Forbidden" %} (403) - You do not have access to this resource{% endblock %}
 
 {% block content %}
 <h1>{% trans "Forbidden" %} (403)</h1>
@@ -9,6 +9,6 @@
 <p>{% trans "CSRF verification failed. Request aborted." %}</p>
 
 <br>
-{% include 'error_contact.html' %}
+{% comment %} {% include 'error_contact.html' %} {% endcomment %}
 
 {% endblock content %}

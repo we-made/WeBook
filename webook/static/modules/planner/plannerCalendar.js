@@ -20,9 +20,18 @@ export class PlannerCalendar extends FullCalendarBased {
         csrf_token=undefined, 
         licenseKey=undefined,
         navigationHeaderWrapperElement = undefined,
-        calendarFilter=undefined } = {},) {
+        calendarFilter=undefined,
+        useOnclickEvents=true,
+        renderContextMenu=true,
+        renderPopovers=true, } = {},) {
 
         super(navigationHeaderWrapperElement);
+
+        this.useOnclickEvents = useOnclickEvents;
+        this.renderContextMenu = renderContextMenu;
+        this.renderPopovers = renderPopovers;
+
+        console.log("renderContextMenu", this.renderContextMenu);
 
         this.viewButtons = new Map([
             [1, {
@@ -596,98 +605,101 @@ export class PlannerCalendar extends FullCalendarBased {
    
                 },
                 eventDidMount: (arg) => {
-                    this._bindPopover(arg.el);
-                    this._bindInspectorTrigger(arg.el);
+                    if (this.renderPopovers === true)
+                        this._bindPopover(arg.el);
+                    if (this.useOnclickEvents)
+                        this._bindInspectorTrigger(arg.el);
+                    if (this.renderContextMenu) {
+                        $.contextMenu({
+                            className: "",
+                            selector: ".fc-event",
+                            items: {
+                                arrangement_inspector: {
+                                    name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
+                                    isHtmlName: true,
+                                    callback: (key, opt) => {
+                                        let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                        let arrangement = _this._ARRANGEMENT_STORE.get({
+                                            pk: pk,
+                                            get_as: _NATIVE_ARRANGEMENT
+                                        });
+                                
+                                        this.arrangementInspectorUtility.inspect(arrangement);
+                                    }
+                                },
+                                event_inspector: {
+                                    name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
+                                    isHtmlName: true,
+                                    callback: (key, opt) => {
+                                        let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                        this.eventInspectorUtility.inspect(pk);
+                                    }
+                                },
+                                "section_sep_1": "---------",
+                                delete_arrangement: {
+                                    name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
+                                    isHtmlName: true,
+                                    callback: (key, opt) => {
+                                        Swal.fire({
+                                            title: 'Er du sikker?',
+                                            text: "Arrangementet og underliggende aktiviteter vil bli fjernet, og kan ikke hentes tilbake.",
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#3085d6',
+                                            cancelButtonColor: '#d33',
+                                            confirmButtonText: 'Ja',
+                                            cancelButtonText: 'Avbryt'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                let slug = _this._findSlugFromEl(opt.$trigger[0]);
+                                                fetch('/arrangement/arrangement/delete/' + slug, {
+                                                    method: 'DELETE',
+                                                    headers: {
+                                                        "X-CSRFToken": this.csrf_token
+                                                    }
+                                                }).then(_ => { 
+                                                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                                                });
+                                            }
+                                        })
+                                    }
+                                },
+                                delete_event: {
+                                    name: "<i class='fas fa-trash'></i>&nbsp; Slett aktivitet",
+                                    isHtmlName: true,
+                                    callback: (key, opt) => {
+                                        Swal.fire({
+                                            title: 'Er du sikker?',
+                                            text: "Hendelsen kan ikke hentes tilbake.",
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#3085d6',
+                                            cancelButtonColor: '#d33',
+                                            confirmButtonText: 'Ja',
+                                            cancelButtonText: 'Avbryt'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                let pk = _this._findEventPkFromEl(opt.$trigger[0]);
 
-                    $.contextMenu({
-                        className: "",
-                        selector: ".fc-event",
-                        items: {
-                            arrangement_inspector: {
-                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
-                                isHtmlName: true,
-                                callback: (key, opt) => {
-                                    let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                                    let arrangement = _this._ARRANGEMENT_STORE.get({
-                                        pk: pk,
-                                        get_as: _NATIVE_ARRANGEMENT
-                                    });
-                            
-                                    this.arrangementInspectorUtility.inspect(arrangement);
-                                }
-                            },
-                            event_inspector: {
-                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
-                                isHtmlName: true,
-                                callback: (key, opt) => {
-                                    let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                                    this.eventInspectorUtility.inspect(pk);
-                                }
-                            },
-                            "section_sep_1": "---------",
-                            delete_arrangement: {
-                                name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
-                                isHtmlName: true,
-                                callback: (key, opt) => {
-                                    Swal.fire({
-                                        title: 'Er du sikker?',
-                                        text: "Arrangementet og underliggende aktiviteter vil bli fjernet, og kan ikke hentes tilbake.",
-                                        icon: 'warning',
-                                        showCancelButton: true,
-                                        confirmButtonColor: '#3085d6',
-                                        cancelButtonColor: '#d33',
-                                        confirmButtonText: 'Ja',
-                                        cancelButtonText: 'Avbryt'
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            let slug = _this._findSlugFromEl(opt.$trigger[0]);
-                                            fetch('/arrangement/arrangement/delete/' + slug, {
-                                                method: 'DELETE',
-                                                headers: {
-                                                    "X-CSRFToken": this.csrf_token
-                                                }
-                                            }).then(_ => { 
-                                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
-                                            });
-                                        }
-                                    })
-                                }
-                            },
-                            delete_event: {
-                                name: "<i class='fas fa-trash'></i>&nbsp; Slett aktivitet",
-                                isHtmlName: true,
-                                callback: (key, opt) => {
-                                    Swal.fire({
-                                        title: 'Er du sikker?',
-                                        text: "Hendelsen kan ikke hentes tilbake.",
-                                        icon: 'warning',
-                                        showCancelButton: true,
-                                        confirmButtonColor: '#3085d6',
-                                        cancelButtonColor: '#d33',
-                                        confirmButtonText: 'Ja',
-                                        cancelButtonText: 'Avbryt'
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                                let formData = new FormData();
+                                                formData.append("eventIds", String(pk));
 
-                                            let formData = new FormData();
-                                            formData.append("eventIds", String(pk));
-
-                                            fetch('/arrangement/planner/delete_events/', {
-                                                method: 'POST',
-                                                body: formData,
-                                                headers: {
-                                                    "X-CSRFToken": this.csrf_token,
-                                                }
-                                            }).then(_ => { 
-                                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
-                                            });
-                                        }
-                                    })
+                                                fetch('/arrangement/planner/delete_events/', {
+                                                    method: 'POST',
+                                                    body: formData,
+                                                    headers: {
+                                                        "X-CSRFToken": this.csrf_token,
+                                                    }
+                                                }).then(_ => { 
+                                                    document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                                                });
+                                            }
+                                        })
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             })
         }

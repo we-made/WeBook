@@ -8,7 +8,14 @@ from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 
 from webook.arrangement.exceptions import UserHasNoPersonException
 from webook.arrangement.models import Event, Location, Person, Room
@@ -19,8 +26,8 @@ from webook.utils.meta_utils.meta_mixin import MetaMixin
 def get_section_manifest():
     return SectionManifest(
         section_title=_("Calendars"),
-        section_icon= "fas fa-calendar",
-        section_crumb_url=reverse("arrangement:arrangement_calendar")
+        section_icon="fas fa-calendar",
+        section_crumb_url=reverse("arrangement:arrangement_calendar"),
     )
 
 
@@ -36,15 +43,21 @@ class ResourceSourceViewMixin(ListView):
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         return JsonResponse(
-            [ self.convert_resource_to_fc_resource(resource) for resource in self.get_queryset().all()], 
-            safe=False)
+            [
+                self.convert_resource_to_fc_resource(resource)
+                for resource in self.get_queryset().all()
+            ],
+            safe=False,
+        )
 
-class RoomBasedResourceSourceView():
+
+class RoomBasedResourceSourceView:
     def convert_resource_to_fc_resource(self, resource):
         return {
             "id": resource.slug,
             "title": resource.name,
         }
+
 
 class AllPeopleResourceSourceView(ResourceSourceViewMixin):
     model = Person
@@ -54,6 +67,7 @@ class AllPeopleResourceSourceView(ResourceSourceViewMixin):
             "id": resource.slug,
             "title": resource.full_name,
         }
+
 
 all_people_resource_source_view = AllPeopleResourceSourceView.as_view()
 
@@ -67,6 +81,7 @@ class AllRoomsResourceSourceView(ResourceSourceViewMixin):
             "title": resource.name,
         }
 
+
 all_rooms_resource_source_view = AllRoomsResourceSourceView.as_view()
 
 
@@ -74,15 +89,15 @@ class AllLocationsResourceSourceView(ResourceSourceViewMixin):
     model = Location
 
     def convert_resource_to_fc_resource(self, resource):
-        return {
-            "id": resource.slug,
-            "title": resource.name
-        }
+        return {"id": resource.slug, "title": resource.name}
+
 
 all_locations_resource_source_view = AllLocationsResourceSourceView.as_view()
 
 
-class RoomsOnLocationResourceSourceView(RoomBasedResourceSourceView, ResourceSourceViewMixin):
+class RoomsOnLocationResourceSourceView(
+    RoomBasedResourceSourceView, ResourceSourceViewMixin
+):
     model = Room
 
     def get_queryset(self):
@@ -95,26 +110,27 @@ class RoomsOnLocationResourceSourceView(RoomBasedResourceSourceView, ResourceSou
 
         return location.rooms
 
+
 rooms_on_location_resource_source_view = RoomsOnLocationResourceSourceView.as_view()
 
 
 class EventSourceViewMixin(ListView):
     """A mixin for views that serve the express purpose of serving events to FullCalendar calendars
-    
+
     Attributes:
         handle_time_constraints_on_get (bool): A boolean designating if datetime constraints should be handled in the GET method. Set to False if you want to get all regardless of supplied time constraints, or do your own handling of constraints in the get_queryset method.
     """
+
     handle_time_constraints_on_get = True
 
     def convert_event_to_fc_event(self, event: Event):
-        """ Converts an event to a FullCalendar worthy event """
+        """Converts an event to a FullCalendar worthy event"""
         return {
             "title": event.title,
             "start": event.start,
             "end": event.end,
-            "resourceIds": 
-                [ room.slug for room in event.rooms.all() ] +
-                [ person.slug for person in event.people.all () ]
+            "resourceIds": [room.slug for room in event.rooms.all()]
+            + [person.slug for person in event.people.all()],
         }
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
@@ -126,14 +142,16 @@ class EventSourceViewMixin(ListView):
 
             if start and end is not None:
                 self.event_list = self.event_list.get_in_period(
-                    start = parser.parse(start),
-                    end = parser.parse(end),
+                    start=parser.parse(start),
+                    end=parser.parse(end),
                 )
-        
+
         if self.event_list.model is not Event:
             raise "Event source view mixin requires that the QuerySet is of the model Event"
 
-        events = [ self.convert_event_to_fc_event(event) for event in self.event_list.all() ]
+        events = [
+            self.convert_event_to_fc_event(event) for event in self.event_list.all()
+        ]
 
         return JsonResponse(events, safe=False)
 
@@ -145,9 +163,12 @@ class MyCalendarEventsSourceView(EventSourceViewMixin):
         user = self.request.user
 
         if user.person is None:
-            raise UserHasNoPersonException("Can not get events for a user that has no person associated with it!")
+            raise UserHasNoPersonException(
+                "Can not get events for a user that has no person associated with it!"
+            )
 
         return user.person.my_events
+
 
 my_calendar_events_source_view = MyCalendarEventsSourceView.as_view()
 
@@ -166,26 +187,33 @@ class LocationEventSourceView(EventSourceViewMixin):
         if location is None:
             raise Http404(f"Location with slug {location_slug} does not exist")
 
-        return Event.objects.filter(rooms__in=[ room.id for room in location.rooms.all() ])
+        return Event.objects.filter(
+            rooms__in=[room.id for room in location.rooms.all()]
+        )
+
 
 location_event_source_view = LocationEventSourceView.as_view()
 
 
-class CalendarSamplesOverview (LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView):
+class CalendarSamplesOverview(
+    LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView
+):
     template_name = "arrangement/calendar/calendars_list.html"
-    view_meta=ViewMeta(
-        subtitle=_("Calendar Samples"),
-        current_crumb_title=_("Calendar Samples")
+    view_meta = ViewMeta(
+        subtitle=_("Calendar Samples"), current_crumb_title=_("Calendar Samples")
     )
+
 
 calendar_samples_overview = CalendarSamplesOverview.as_view()
 
 
-class ArrangementCalendarView (LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView):
+class ArrangementCalendarView(
+    LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView
+):
     template_name = "arrangement/calendar/arrangement_calendar.html"
     view_meta = ViewMeta(
         subtitle=_("Arrangement Calendar"),
-        current_crumb_title=_("Arrangement Calendar")
+        current_crumb_title=_("Arrangement Calendar"),
     )
 
     def get_context_data(self, **kwargs):
@@ -194,14 +222,17 @@ class ArrangementCalendarView (LoginRequiredMixin, CalendarSectionManifestMixin,
         context["people"] = Person.objects.all()
         return context
 
+
 arrangement_calendar_view = ArrangementCalendarView.as_view()
 
 
-class DrillCalendarView(LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView):
+class DrillCalendarView(
+    LoginRequiredMixin, CalendarSectionManifestMixin, MetaMixin, TemplateView
+):
     template_name = "arrangement/calendar/drill_calendar.html"
     view_meta = ViewMeta(
-        subtitle=_("Drill Calendar"),
-        current_crumb_title=_("Drill Calendar")
+        subtitle=_("Drill Calendar"), current_crumb_title=_("Drill Calendar")
     )
+
 
 drill_calendar_view = DrillCalendarView.as_view()
