@@ -443,12 +443,11 @@
                     title: 'Generelt',
                     stepIn: () => {},
                     stepOut: () => {
-                        return true;
+                        debugger;
 
                         let field_elements = dialog.$('#step-1').find("input, select");
                         [
                             mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
-                            mdb.Select.getInstance(dialog.querySelector('#{{ form.responsible.id_for_label }}')),
                         ].forEach(mdbSelect => {
                             if (mdbSelect.hasSelection?.label === "---------" ) {
                                 $(mdbSelect._wrapper).find(".invalid-feedback").show();
