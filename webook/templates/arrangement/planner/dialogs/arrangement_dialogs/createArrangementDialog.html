@@ -132,6 +132,12 @@
                         <i class="fas fa-star"></i>
                         Hovedplanlegger
                     </label>
+
+                    <div class="text-danger" style="display: none;"
+                        id="mainPlanner_validationText">
+                        Vennligst velg en hovedplanlegger
+                    </div>
+
                     <h5 class="mb-2" id="mainPlannerName"></h5>
                     <button class="wb-btn-main"
                         id="setMainPlannerButton"
@@ -443,12 +449,11 @@
                     title: 'Generelt',
                     stepIn: () => {},
                     stepOut: () => {
-                        return true;
+                        debugger;
 
                         let field_elements = dialog.$('#step-1').find("input, select");
                         [
                             mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
-                            mdb.Select.getInstance(dialog.querySelector('#{{ form.responsible.id_for_label }}')),
                         ].forEach(mdbSelect => {
                             if (mdbSelect.hasSelection?.label === "---------" ) {
                                 $(mdbSelect._wrapper).find(".invalid-feedback").show();
@@ -484,6 +489,15 @@
                                 dialog.$("#arrangementDetailsForm").find(':submit').click();
                             }
                         });
+
+                        {% comment %} const selectedMainPlanner = dialog.getElementById('{{form.responsible.id_for_label}}').value;
+                        if (!!selectedMainPlanner === false) {
+                            dialog.$("#mainPlanner_validationText").show();
+                            return false;
+                        }
+                        else {
+                            dialog.$("#mainPlanner_validationText").hide();
+                        } {% endcomment %}
 
                         return true;
                     }
@@ -717,8 +731,6 @@
                 });
             },
             removeAssociation(dialog, {} = {}, triggeredByElement) {
-                debugger;
-
                 const itemId = triggeredByElement.id;
                 const type = triggeredByElement.getAttribute("select-type");
 
@@ -847,6 +859,8 @@
             { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                 if (payload.allSelectedEntityIds.length == 0)
                     return;
+
+                dialog.$("#mainPlanner_validationText").hide();
 
                 // save the payload so that it can be re-used / re-applied to child activities / series
                 dialog.data.mainPlannerPayload = payload;
