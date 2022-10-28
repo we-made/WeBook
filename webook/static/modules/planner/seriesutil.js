@@ -1,5 +1,5 @@
 
-class DateExtensions {
+export class DateExtensions {
     /* Overwrite the time values for one Date instance with the value of a time field (as a str) */
     static OverwriteDateTimeWithTimeInputValue(date_to_write_time_to, time_input_val_as_str) {
 

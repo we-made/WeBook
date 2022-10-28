@@ -108,6 +108,12 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="alert alert-danger mt-3"
+                    style="display:none;"
+                    id="eventTimesInvalidFeedback">
+                    Oppgitte tider er ugyldige
+                </div>
             </form>
         </div>
         <div id="step-2">
@@ -334,6 +340,7 @@
 
 <script type="module">
     import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
+    import { DateExtensions } from "{% static 'modules/planner/seriesutil.js' %}";
 
     new Dialog({
         dialogId: '{{ dialogId }}',
@@ -449,8 +456,28 @@
                              * This is not the case if you add input or selects to any other steps - and this will
                              * prevent progression to further steps, until the inputs in those future steps are considered
                              * valid, which is of course impossible, since one can not reach them due to this blanket-validation.
-                             * */
-                            return dialog.validate();
+                             * */                            
+                            if (dialog.validate() === false)
+                                return false;
+
+                            const fromDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
+                                dialog.interior.fromDate.value,
+                                dialog.interior.fromTime.value,
+                            )
+                            const toDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
+                                dialog.interior.toDate.value,
+                                dialog.interior.toTime.value,
+                            )
+
+                            if (fromDateTime >= toDateTime){
+                                $('#eventTimesInvalidFeedback').show();
+
+                                return false;
+                            }
+
+                            $('#eventTimesInvalidFeedback').hide();
+
+                            return true;
                         }
                     },
                     {
