@@ -166,7 +166,17 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
         { to: '#_statusTypeId', value: manifest.status },
         { to: '#id_display_text', value: manifest.display_text },
         { to: '#id_display_text_en', value: manifest.display_text_en },
+        { to: '#buffer_before_title', value: manifest.before_buffer_title },
+        { to: '#buffer_before_date_offset', value: manifest.before_buffer_date_offset },
+        { to: '#buffer_before_start', value: manifest.before_buffer_start },
+        { to: '#buffer_before_end', value: manifest.before_buffer_end },
+        { to: '#buffer_after_title', value: manifest.after_buffer_title },
+        { to: '#buffer_after_date_offset', value: manifest.after_buffer_date_offset },
+        { to: '#buffer_after_start', value: manifest.after_buffer_start },
+        { to: '#buffer_after_end', value: manifest.after_buffer_end },
     ].forEach( (mapping) => { $dialogElement.find(mapping.to).val(mapping.value ).trigger('change'); } );
+
+    console.log("MANIFEST!", manifest)
 
     window.MessagesFacility.send(dialogId, manifest.audience, "setAudienceFromParent");
     window.MessagesFacility.send(dialogId, manifest.arrangement_type, "setArrangementTypeFromParent");
