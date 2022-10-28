@@ -7,7 +7,7 @@ class BaseGroupsAuthorizationMixin(UserPassesTestMixin):
     def _is_member_of_group(self):
         return (
             self.request.user.groups.filter(name=self.group).exists()
-            # or self.request.user.is_superuser
+            or self.request.user.is_superuser
         )
 
     def test_func(self):
