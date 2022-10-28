@@ -1691,6 +1691,10 @@ class EventSerie(TimeStampedModel, ModelArchiveableMixin):
 
     def on_archive(self, person_archiving_this):
         for event in self.events.all():
+            if event.buffer_before_event is not None:
+                event.buffer_before_event.archive(person_archiving_this)
+            if event.buffer_after_event is not None:
+                event.buffer_after_event.archive(person_archiving_this)
             event.archive(person_archiving_this)
 
 
