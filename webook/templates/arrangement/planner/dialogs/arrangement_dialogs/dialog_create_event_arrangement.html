@@ -234,6 +234,14 @@
                             </div>  
                         </td>
                     </tr>
+                    <tr id="beforeRiggingTimesInvalidFeedback"
+                        style="display:none;">
+                        <td colspan="2">
+                            <div class="alert alert-danger">
+                                Ugyldige tider
+                            </div>
+                        </td>
+                    </tr>
                     <tr>
                         <th colspan="3" class="h4">Nedrigg etter aktiviteten:</th>
                     </tr>
@@ -269,6 +277,14 @@
                             </lable>
                             <div class="form-outline">
                                 <input type="time" id="buffer_after_end" name="buffer_after_end" class="form-control form-control-lg" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="afterRiggingTimesInvalidFeedback"
+                        style="display:none;">
+                        <td colspan="2">
+                            <div class="alert alert-danger">
+                                Ugyldige tider
                             </div>
                         </td>
                     </tr>
@@ -490,7 +506,34 @@
                         element: dialog.getElementById('step-3'),
                         title: 'Opp og ned-rigg',
                         stepIn: () => {},
-                        stepOut: () => {},
+                        stepOut: (isSteppingForwards) => {
+                            let isValid = true;
+                            if (dialog.interior.buffer_before_start.value &&
+                                dialog.interior.buffer_before_end.value)
+                                if (dialog.interior.buffer_before_start.value > dialog.interior.buffer_before_end.value) {
+                                    dialog.$('#beforeRiggingTimesInvalidFeedback').show();
+                                    isValid = false;
+                                }
+                                else {
+                                    dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
+                                }
+                            if (dialog.interior.buffer_after_start.value &&
+                                dialog.interior.buffer_after_end.value)
+                                if (dialog.interior.buffer_after_start.value > dialog.interior.buffer_after_end.value) {
+                                    dialog.$('#afterRiggingTimesInvalidFeedback').show();
+                                    isValid = false;
+                                }
+                                else {
+                                    dialog.$('#afterRiggingTimesInvalidFeedback').hide();
+                                }
+                            
+                            if (isValid === true) {
+                                dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
+                                dialog.$('#afterRiggingTimesInvalidFeedback').hide();
+                            }
+
+                            return isValid;
+                        },
                     },
                     {
                         element: dialog.getElementById('step-4'),
