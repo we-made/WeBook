@@ -420,8 +420,10 @@ class DialogStepper {
         const oldStep = this.steps[this.currentStep];
         const newStep = this.steps[indexToStepTo];
 
+        const isSteppingForwards = indexToStepTo > this.currentStep;
+
         if (typeof oldStep.stepOut !== "undefined" && hasMoved === true) {
-            const isAllowedToStepOut = oldStep.stepOut();
+            const isAllowedToStepOut = oldStep.stepOut(isSteppingForwards);
             if (isAllowedToStepOut === false)
                 return;
         }

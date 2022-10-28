@@ -55,6 +55,11 @@
                     </div>
                 </div>
 
+                <div class="alert alert-danger mt-3" id="invalidTimesStep1Feedback"
+                    style="display: none;">
+                    Ugyldige tider
+                </div>
+
                 <div class="form-group mb-2">
                     <label class="form-label" for="serie_ticket_code">Billettkode</label>
                     <input type="text" id="serie_ticket_code" class="form-control form-control-lg" />
@@ -700,14 +705,28 @@
                         title: 'Detaljer',
                         stepIn: () => { console.log("1. Step In") },
                         stepOut: () => {
-                            return ValidatorFunctions.validate_head(dialog.dialogElement);
+                            if (ValidatorFunctions.validate_head(dialog.dialogElement) === false)
+                                return false;
+                            
+                            debugger;
+
+                            if (dialog.interior.serie_start.value >= dialog.interior.serie_end.value) {
+                                dialog.$('#invalidTimesStep1Feedback').show();
+                                return false;
+                            }
+                            
+                            dialog.$('#invalidTimesStep1Feedback').hide();
+                            return true;
                         }
                     },
                     {
                         element: dialog.getElementById('step-2'),
                         title: 'Mønster & Område',
                         stepIn: () => {},
-                        stepOut: () => {
+                        stepOut: (isSteppingForwards) => {
+                            if (isSteppingForwards === false)
+                                return true;
+
                             let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
 
                             return ValidatorFunctions.validate_pattern_radio(dialog.dialogElement) &&
