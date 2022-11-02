@@ -1,4 +1,5 @@
-from typing import Any
+import json
+from typing import Any, List, Optional
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -28,11 +29,19 @@ from webook.arrangement.forms.planner_forms import (
     PromotePlannerToMainForm,
     RemovePlannerForm,
 )
-from webook.arrangement.models import Arrangement, ArrangementFile, Person
+from webook.arrangement.models import (
+    Arrangement,
+    ArrangementFile,
+    Event,
+    EventSerie,
+    Person,
+    PlanManifest,
+)
 from webook.arrangement.views.generic_views.archive_view import (
     ArchiveView,
     JsonArchiveView,
 )
+from webook.arrangement.views.generic_views.dialog_views import DialogView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.generic_views.upload_files_standard_form import (
@@ -44,6 +53,19 @@ from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
 from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
+
+_ARRANGEMENT_TO_EVENT_TRANSLATION_MAP = {
+    "name": "title",
+    "name_en": "title_en",
+    "meeting_place": "meeting_place",
+    "meeting_place_en": "meeting_place_en",
+    "audience": "audience",
+    "arrangement_type": "arrangement_type",
+    "status": "status",
+}
+_EVENT_TO_ARRANGEMENT_TRANSLATION_MAP = {
+    value: key for key, value in _ARRANGEMENT_TO_EVENT_TRANSLATION_MAP.items()
+}
 
 
 class ArrangementRecurringInformationJsonView(
@@ -296,3 +318,168 @@ class ArrangementDeleteFileView(
 
 
 arrangement_delete_file_view = ArrangementDeleteFileView.as_view()
+
+
+class ArrangementCascadeJsonTreeView(
+    LoginRequiredMixin,
+    PlannerAuthorizationMixin,
+    DialogView,
+    DetailView,
+    JSONResponseMixin,
+):
+    """View that serves the JSON cascade tree for specific arrangement, as defined by pk"""
+
+    model = Arrangement
+    pk_url_kwarg = "pk"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        arrangement = self.get_object()
+
+        cascadeable_attributes = {
+            "name": "Navn",
+            "name_en": "Navn (engelsk)",
+            "meeting_place": "Møtested",
+            "meeting_place_en": "Møtested (engelsk)",
+            "audience": "Målgruppe",
+            "arrangement_type": "Arrangementstype",
+            "status": "Status",
+        }
+
+        my_events: Optional[List[Event]] = Event.objects.filter(
+            arrangement_id=arrangement.id
+        ).order_by("start")
+
+        node_tree = []
+        for event in my_events:
+            event_node = {
+                "id": event.pk,
+                "icon": "",
+                "text": "<strong>"
+                + str(event.start.strftime("%d.%m.%Y"))
+                + "</strong> "
+                + event.title,
+                "children": [],
+                "li_attr": {},
+            }
+
+            not_equal_counter = 0
+
+            for attr, friendly_name in cascadeable_attributes.items():
+                arrangement_value = getattr(arrangement, attr)
+                event_value = getattr(
+                    event, _ARRANGEMENT_TO_EVENT_TRANSLATION_MAP[attr]
+                )
+
+                none_if_blank = lambda x: None if x == "" else x
+
+                is_equal = none_if_blank(event_value) == none_if_blank(
+                    arrangement_value
+                )
+
+                if not is_equal:
+                    not_equal_counter += 1
+
+                event_node["children"].append(
+                    {
+                        "id": str(event.pk) + "_" + attr,
+                        "icon": "fas fa-check" if is_equal else "fas fa-times",
+                        "li_attr": {
+                            "class": "node-success-icon"
+                            if is_equal
+                            else "node-danger-icon"
+                        },
+                        "data": {
+                            "fieldname": _ARRANGEMENT_TO_EVENT_TRANSLATION_MAP.get(attr)
+                        },
+                        "text": "<strong>"
+                        + friendly_name
+                        + ": '</strong>"
+                        + str(event_value)
+                        + "'",
+                    }
+                )
+
+            if not_equal_counter > 0:
+                event_node["icon"] = "fas fa-times"
+                event_node["li_attr"]["class"] = "node-danger-icon"
+                event_node["text"] = (
+                    event_node["text"]
+                    + " <em><i>("
+                    + str(not_equal_counter)
+                    + ")</i></em>"
+                )
+            else:
+                event_node["li_attr"]["class"] = "node-success-icon"
+                event_node["icon"] = "fas fa-check"
+
+            node_tree.append(event_node)
+
+        return JsonResponse(node_tree, safe=False)
+
+
+arrangement_cascade_tree_json_view = ArrangementCascadeJsonTreeView.as_view()
+
+
+class ArrangementCascadeTreeDialogView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, DialogView, DetailView
+):
+    model = Arrangement
+    pk_url_kwarg: str = "pk"
+    template_name = "arrangement/planner/dialogs/arrangement_dialogs/arrangementCascadeTreeDialog.html"
+
+
+arrangement_cascade_tree_dialog_view = ArrangementCascadeTreeDialogView.as_view()
+
+
+class SynchronizeEventsInArrangementView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, View, JSONResponseMixin
+):
+    def __fail_if_attr_not_on_obj(self, obj, attribute_name) -> None:
+        """If there is not attribute on object equivalent to the value of attribute_name then raise an exception
+        If not do nothing."""
+        if not hasattr(obj, attribute_name):
+            raise Exception(
+                "'%s' is not a valid attribute on the Event object" % attribute_name
+            )
+
+    def post(self, request, *args, **kwargs):
+        overwrite_attributes = [
+            "title",
+            "title_en",
+            "meeting_place",
+            "meeting_place_en",
+            "audience",
+            "arrangement_type",
+            "status",
+        ]
+
+        payload = json.loads(request.body)
+
+        response = {}
+
+        arrangement = Arrangement.objects.get(id=payload["arrangement_id"])
+
+        for event_and_fields_to_overwrite in payload["eventsAndFields"]:
+            event = Event.objects.get(id=event_and_fields_to_overwrite["event_id"])
+
+            for field in event_and_fields_to_overwrite["fields"]:
+                if field not in overwrite_attributes:
+                    raise Exception("%s is not a valid attribute for overwrite" % field)
+
+                self.__fail_if_attr_not_on_obj(event, field)
+
+                arrangement_value = getattr(
+                    arrangement, _EVENT_TO_ARRANGEMENT_TRANSLATION_MAP[field]
+                )
+                setattr(
+                    event,
+                    field,
+                    arrangement_value,
+                )
+
+            event.save()
+
+        return self.render_to_json_response(context=response)
+
+
+synchronize_events_in_arrangement_view = SynchronizeEventsInArrangementView.as_view()

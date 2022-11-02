@@ -5,7 +5,11 @@
 <div id="{{dialogId}}" title="{{object.name}}" class="{{discriminator}}">
     <h3>{{object.name}}</h3>
     <button class="btn wb-btn-secondary mb-3" d-trigger="delete"><i class="fas fa-trash"></i>&nbsp; Slett</button>
-
+    <button class="btn wb-btn-main mb-3 float-end" d-trigger="triggerCascadeTree">
+        <i class="fas fa-tree"></i>
+        Kaskadeendringer & Synkronisitet
+    </button>
+    
     <input type="hidden" id="_selectedAudienceId" />
     <input type="hidden" id="_selectedArrangementTypeId" />
 
@@ -817,6 +821,9 @@
             },
             triggerEditSerie(dialog, { eventSeriePk } = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementInspector", "editEventSerieDialog", { event_serie_pk: eventSeriePk, $parent: dialog.dialogElement });
+            },
+            triggerCascadeTree(dialog, { eventId } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementInspector", "cascadeTreeDialog", { $parent: dialog.dialogElement, pk: {{object.pk}} })
             },
             triggerAddPlannersDialog(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementInspector", "selectPlannersDialog", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "addPlanners", arrangementSlug: "{{object.slug}}" } });

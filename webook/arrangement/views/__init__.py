@@ -13,6 +13,8 @@ from .analysis_views import (
 )
 from .arrangement_views import (
     arrangement_add_planner_form_view,
+    arrangement_cascade_tree_dialog_view,
+    arrangement_cascade_tree_json_view,
     arrangement_create_json_view,
     arrangement_create_view,
     arrangement_delete_file_view,
@@ -25,6 +27,7 @@ from .arrangement_views import (
     arrangement_upload_files_json_form_view,
     planners_on_arrangement_table_view,
     planners_on_arrangement_view,
+    synchronize_events_in_arrangement_view,
 )
 from .arrangementtype_views import (
     arrangement_type_create_view,

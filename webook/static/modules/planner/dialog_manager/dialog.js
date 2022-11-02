@@ -215,11 +215,12 @@ class Dialog {
      * @param {*} payload 
      */
     raiseSubmitEvent(payload) {
+        if (payload === undefined)
+            payload = {};
+            
         if (!("dialog" in payload)) {
             payload.dialog = this.dialogId;
         }
-
-        debugger;
 
         document.dispatchEvent(
             new CustomEvent(`${this.managerName}.submit`, {

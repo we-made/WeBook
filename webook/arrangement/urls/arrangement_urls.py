@@ -1,21 +1,25 @@
 from unicodedata import name
-from django.urls import path
-from webook.arrangement.views import (
-    arrangement_create_view,
-    arrangement_update_view,
-    arrangement_delete_view,
-    planners_on_arrangement_view,
-    planners_on_arrangement_table_view,
-    arrangement_add_planner_form_view,
-    arrangement_remove_planner_form_view,
-    arrangement_promote_planner_to_main_view,
-    arrangement_search_view,
-    arrangement_create_json_view,
-    arrangement_delete_file_view,
-    arrangement_recurring_information_json_view,
-    arrangement_upload_files_json_form_view,
-)
 
+from django.urls import path
+
+from webook.arrangement.views import (
+    arrangement_add_planner_form_view,
+    arrangement_cascade_tree_dialog_view,
+    arrangement_cascade_tree_json_view,
+    arrangement_create_json_view,
+    arrangement_create_view,
+    arrangement_delete_file_view,
+    arrangement_delete_view,
+    arrangement_promote_planner_to_main_view,
+    arrangement_recurring_information_json_view,
+    arrangement_remove_planner_form_view,
+    arrangement_search_view,
+    arrangement_update_view,
+    arrangement_upload_files_json_form_view,
+    planners_on_arrangement_table_view,
+    planners_on_arrangement_view,
+    synchronize_events_in_arrangement_view,
+)
 
 arrangement_urls = [
     path(
@@ -82,5 +86,20 @@ arrangement_urls = [
         route="arrangement/files/delete/<int:pk>",
         view=arrangement_delete_file_view,
         name="arrangement_file_delete",
+    ),
+    path(
+        route="arrangement/<int:pk>/cascade_tree",
+        view=arrangement_cascade_tree_json_view,
+        name="arrangement_cascade_tree_json",
+    ),
+    path(
+        route="arrangement/<int:pk>/dialogs/cascade_tree",
+        view=arrangement_cascade_tree_dialog_view,
+        name="arrangement_cascade_tree_dialog",
+    ),
+    path(
+        route="arrangement/synchronize",
+        view=synchronize_events_in_arrangement_view,
+        name="arrangement_synchronize_events",
     ),
 ]

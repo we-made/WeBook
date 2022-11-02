@@ -17,6 +17,14 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+.node-danger-icon {
+    color: red;
+}
+
+.node-success-icon {
+    color: green;
+}
+
 .chipsList {
     display: flex;
     flex-wrap: wrap;
