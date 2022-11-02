@@ -1,0 +1,163 @@
+<div id="{{dialogId}}" class="{{discriminator}}" title="Velg planleggere">
+
+    <div class="titlebar-hack"
+        style="display:flex;">
+        <h4 class="fw-bold">Synkronisering</h4>
+
+        <span id="title-holder">
+
+        </span>
+    </div>
+
+    <div class="alert alert-info mt-3">
+        <div>
+            <i class="fas fa-info"></i>&nbsp; 
+            <strong>Om synkronisering</strong>
+        </div>
+        Herfra kan du synkronisere verdier fra arrangementet ned til aktiviteter på arrangementer. Hver node i treet
+        er en egen aktivitet. Hvis du ekspanderer noden vil du se hvilke felter som kan overskrives. Noder som er markert med
+        et <i class="fas fa-check text-success"></i> tegn er lik arrangementet, mens noder markert med <i class="fas fa-times text-danger"></i> devierer
+        fra arrangementet.
+        <br>
+        Du velger hvilke felter på hvilke aktiviteter som skal overskrives ved å huke av sjekkboksene. Når en sjekkboks er avhuket og synkronisering utføres så vil verdien som er
+        gjeldende på arrangementet bli skrevet inn på dette feltet på denne aktiviteten.
+    </div>
+
+    <div class="clearfix">
+        <button class="btn wb-btn-blank border float-end mb-2" d-trigger="selectAll" type="button"
+            data-mdb-toggle="tooltip" title="Huk av alle synlige elementer (kan kombineres med søk">
+            <i class="fas fa-check text-success"></i>&nbsp;
+            Velg alle
+        </button>
+        <button class="btn wb-btn-blank border float-end mb-2 me-2" d-trigger="deselectAll" type="button"
+            data-mdb-toggle="tooltip" title="Huk av alle synlige elementer (kan kombineres med søk">
+            <i class="fas fa-times text-danger"></i>&nbsp;
+            Fjern alle valg
+        </button>
+    </div>
+
+    <input type="search" class="form-control" id="cascade-tree-search" placeholder="Søk...">
+
+    <div id="cascade-tree" style="max-height: 350px; overflow: scroll;">
+    </div>
+
+    <p class="text-end mt-2">
+        <strong id="selectedCount">0</strong> av <strong id="totalCount">0</strong> valgt for synkronisering
+    </p>
+
+    <div class="clearfix">
+        <button class="wb-btn-main float-end" type="button" d-trigger="synchronize">
+            Synkroniser avhukede elementer
+        </button>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        new Dialog({
+            managerName: '{{managerName}}',
+            dialogId: '{{dialogId}}',
+            discriminator: '{{discriminator}}',
+            postInit: function (dialog) {
+                const dialogCloseButtonElement = dialog.$dialogElement.parent().find("span.dialogCloseButton");
+                dialog.$("#title-holder").append(dialogCloseButtonElement);
+
+                fetch("/arrangement/arrangement/{{object.pk}}/cascade_tree", {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(treeValidObj => {
+                    dialog.$('#cascade-tree').jstree({ 
+                        'checkbox': {
+                            "three_state": true,
+                        },
+                        'search': {
+                            "show_only_matches_children": true,
+                        },
+                        'plugins': [ 'checkbox', 'search', 'changed', ], 
+                        'core': {
+                            'data': treeValidObj,
+                            'multiple': true,
+                        }
+                    })
+                });
+                
+                dialog.$('#cascade-tree').on("changed.jstree", (e, data) => {
+                    dialog.$('#selectedCount').text(data.selected.length);
+                    dialog.$('#totalCount').text(data.instance._cnt);
+                });
+
+                dialog.getElementById("cascade-tree-search").addEventListener("input", (event) => {
+                    dialog.$('#cascade-tree').jstree("search", event.target.value, false, true);
+                });
+            },
+            methods: {
+                synchronize: (dialog, {} = {}, triggeredByElement) => {
+                    let payload = {
+                        arrangement_id: "{{object.id}}",
+                        eventsAndFields: [],
+                    }
+                    
+                    const jstree_selected = dialog.$('#cascade-tree').jstree('get_selected', true)
+
+                    let eventFieldMap = new Map();
+                    jstree_selected.forEach((node) => {
+                        if (node.parent !== "#") {
+                            if (eventFieldMap.has(node.parent) === false) {
+                                eventFieldMap.set(node.parent, []);
+                            }
+                            
+                            eventFieldMap.get(node.parent).push(node.data.fieldname);
+                        }
+                    });
+                    for (const [event, fields] of eventFieldMap.entries()) {
+                        payload.eventsAndFields.push({
+                            event_id: event,
+                            fields: fields
+                        });
+                    }
+
+                    Swal.fire({
+                        title: "Er du sikker?",
+                        icon: "warning",
+                        text: `${payload.eventsAndFields.length} aktiviteter vil bli oppdatert basert på de gjeldende valgene`,
+                        showCancelButton: true,
+                        showLoaderOnConfirm: true,
+                        confirmButtonText: "Synkroniser valgte felt(er)",
+                        cancelButtonText: "Avbryt",
+                        preConfirm: () => {
+                            return fetch('/arrangement/arrangement/synchronize', {
+                                method: 'POST',
+                                body: JSON.stringify(payload),
+                                headers: {
+                                    "content-type": "application/json",
+                                    "X-CSRFToken": "{{ csrf_token }}",
+                                },
+                            }).then(response => response.json())
+                        },
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.isConfirmed === true) {
+                            Swal.fire({
+                                title: 'Synkronisering utført',
+                                icon: 'success',
+                            }).then((result) => {
+                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // make calendar refresh to account for new changes
+                                dialog.raiseSubmitEvent(); // manager needs to reload the main dialog
+                                dialog.closeMe();
+                            });
+                        }
+                    })
+                },
+                selectAll: (dialog, {} = {}, triggeredByElement) => {
+                    dialog.$('#cascade-tree').jstree("select_all")
+                },
+                deselectAll: (dialog, {} = {}, triggeredByElement) => {
+                    dialog.$('#cascade-tree').jstree("deselect_all")
+                }
+            },
+            data: {
+            }
+        })
+    })
+</script>

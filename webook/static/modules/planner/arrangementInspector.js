@@ -106,11 +106,7 @@ export class ArrangementInspector {
                             });
                         },
                         onSubmit: async (context, details) => {
-                            for (const pair of details.formData){
-                                console.log(pair[0], pair[1]);
-                            }
-
-                            let html = await fetch("/arrangement/planner/dialogs/arrangement_information/" + context.arrangement.slug + "?managerName=arrangementInspector&dialogId=mainDialog", {
+                            await fetch("/arrangement/planner/dialogs/arrangement_information/" + context.arrangement.slug + "?managerName=arrangementInspector&dialogId=mainDialog", {
                                 method: 'POST',
                                 body: details.formData,
                                 credentials: 'same-origin',
@@ -124,7 +120,12 @@ export class ArrangementInspector {
                             });
                         },
                         onUpdatedCallback: () => { this.dialogManager.closeDialog("mainDialog"); },
-                        dialogOptions: { width: 800, height: 800, dialogClass: 'no-titlebar'  }
+                        dialogOptions: { 
+                            width: 800, 
+                            height: 800, 
+                            dialogClass: 'no-titlebar',
+                            position: "center center",
+                        }
                     }),
                 ],
                 [
@@ -160,8 +161,6 @@ export class ArrangementInspector {
                         },
                         onSubmit: (context, details, dialogManager, dialog) => {
                             let formData = new FormData();
-
-                            console.log("selectedBundle", details.selectedBundle)
 
                             formData.append("planner_ids", details.selectedBundle.allSelectedEntityIds.map( (x) => x.id ) );
                             formData.append("arrangement_slug", dialog.data.arrangementSlug);
@@ -588,8 +587,6 @@ export class ArrangementInspector {
                             this.dialogManager.closeDialog("editEventSerieDialog");
                         },
                         onSubmit: async (context, details) => {
-                            console.log(context);
-
                             details.serie.event_serie_pk = context.editing_serie_pk;
 
                             context.serie = details.serie;
@@ -699,7 +696,7 @@ export class ArrangementInspector {
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 }
-                            }).then(response => console.log("response", response));
+                            });
                         },
                         dialogOptions: { width: 500, dialogClass: 'no-titlebar' },
                     })
@@ -891,6 +888,34 @@ export class ArrangementInspector {
                                 this.dialogManager.reloadDialog("mainDialog"); 
                                 this.dialogManager.closeDialog("orderPersonForOneEventDialog"); 
                             });
+                        }
+                    })
+                ],
+                [
+
+                    "cascadeTreeDialog",
+                    new Dialog({
+                        dialogElementId: "cascadeTreeDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return await this.dialogManager.loadDialogHtml(
+                                {
+                                    url: '/arrangement/arrangement/' + context.arrangement.arrangement_pk + '/dialogs/cascade_tree',
+                                    managerName: 'arrangementInspector',
+                                    dialogId: 'cascadeTreeDialog',
+                                }
+                            )
+                        },
+                        onRenderedCallback: () => { this.dialogManager._makeAware() },
+                        dialogOptions: { 
+                            width: 200,
+                            dialogClass: 'no-titlebar',
+                        },
+                        onUpdatedCallback: () => {
+                        },
+                        onSubmit: async(context, details) => {
+                            this.dialogManager.reloadDialog("mainDialog"); 
                         }
                     })
                 ],
