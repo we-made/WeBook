@@ -31,7 +31,7 @@ class MicrosoftPersonAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         if sociallogin.is_existing == False:
             matching_person = Person.objects.filter(
-                social_provider_email=sociallogin.user.email
+                social_provider_id=sociallogin.uid
             ).first()
 
             if matching_person is None or matching_person.user_set.exists():
