@@ -120,7 +120,7 @@
           <small class="fw-bold">Planlegging</small>
         </a>
         
-        {% if not user|has_group:"readonly" %}
+        {% if user|has_group:"planners" %}
         <a href="{% url 'arrangement:location_list' %}" class="wb-sidebar-item p-2 pt-3 pb-3
               {% if url_name == 'location_list' %} active text-dark bg-weak-secondary border-dark border shadow-4 {% endif %}">
           <div>

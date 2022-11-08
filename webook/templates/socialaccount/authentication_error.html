@@ -16,13 +16,11 @@
     Om dette er et vedvarende problem så må du kontakte din IT Administrator.
 </h5>
 
-<h1 class="text-center"> <i class="fas fa-question-circle"></i> </h1>
-<h5>
-Dette kan være mulige feil:
-<ul>
-    <li>Sjekk at du er logget inn med en gyldig Microsoft konto</li>
-</ul>
-</h5>
+{% if reasoning_message %}
+<code>
+    {{reasoning_message}}
+</code>
+{% endif %}
 
 
 {% comment %} {% include 'error_contact.html' %} {% endcomment %}
