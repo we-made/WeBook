@@ -1,6 +1,6 @@
 import { CollisionsUtil } from "./collisions_util.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
-import { PopulateCreateEventDialog, PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
+import { PopulateCreateEventDialog, PopulateCreateEventDialogFromCollisionResolution, PopulateCreateSerieDialogFromSerie } from "./form_populating_routines.js";
 import { QueryStore } from "./querystore.js";
 import { serieConvert } from "./serieConvert.js";
 import { SerieMetaTranslator } from "./serie_meta_translator.js";
@@ -216,53 +216,19 @@ export class ArrangementCreator {
                             let serie = context.lastTriggererDetails.serie;
                             let collisionRecord = serie.collisions[context.lastTriggererDetails.collision_index];
 
-                            $('#ticket_code').val(serie.time.ticket_code).trigger('change');
-                            $('#title').val(serie.time.title).trigger('change');
-                            $('#title_en').attr('value', serie.time.title_en).trigger('change');
-                            $('#expected_visitors').attr('value', serie.time.expected_visitors).trigger('change');
-
-                            serie.display_layouts.split(",")
-                                .forEach(checkboxElement => {
-                                    $(`#${checkboxElement.value}_dlcheck`)
-                                        .prop( "checked", true );
-                                })
+                            const $breakOutActivityDialog = this.dialogManager.$getDialogElement("breakOutActivityDialog");
+                            PopulateCreateEventDialogFromCollisionResolution(
+                                $breakOutActivityDialog,
+                                "breakOutActivityDialog",
+                                collisionRecord,
+                                serie
+                            );
 
                             $('#breakOutActivityDialog').prepend( $(
                                 document.querySelector('.conflict_summary_'  + context.lastTriggererDetails.collision_index).outerHTML
                             ).addClass("mb-4"));
 
-                            let { fromDate, fromTime }  = Utils.splitDateFunc(collisionRecord.event_a_start);
-                            let { toDate, toTime }      = Utils.splitDateFunc(collisionRecord.event_a_end);
-
-                            $('#fromDate').val(fromDate).trigger('change');
-                            $('#fromTime').val(fromTime).trigger('change');
-                            $('#toDate').val(toDate).trigger('change');
-                            $('#toTime').val(toTime).trigger('change');
-
-                            if (serie.people.length > 0) {
-                                let peopleSelectContext = Object();
-                                peopleSelectContext.people = serie.people.join(",");
-                                peopleSelectContext.people_name_map = serie.people_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d1_peopleSelected",
-                                    { detail: {
-                                        context: peopleSelectContext
-                                    } }
-                                ));
-                            }
-                            if (serie.rooms.length > 0) {
-                                let roomSelectContext = Object();
-                                roomSelectContext.rooms = serie.rooms.join(",");
-                                roomSelectContext.room_name_map = serie.room_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementCreator.d1_roomsSelected",
-                                    { detail: {
-                                        context: roomSelectContext
-                                    } }
-                                ));
-                            }
-
-                            $('#event_uuid').val(crypto.randomUUID());
+                            $breakOutActivityDialog.find('#event_uuid').val(crypto.randomUUID());
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });

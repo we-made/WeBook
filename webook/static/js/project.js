@@ -36,7 +36,7 @@ Utils.prototype = {
      * @returns Array
      */
     splitStrDate(strToDateSplit) {
-        if (!(strToDateSplit instanceof String)) {
+        if (!(strToDateSplit instanceof String || typeof(strToDateSplit) === "string")) {
             throw "Received strToDateSplit is not a string", strToDateSplit;
         }
         if (!strToDateSplit) {

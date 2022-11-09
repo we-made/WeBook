@@ -295,12 +295,66 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
 }
 
 /**
+ * Populate a Create Event dialog based on a collision resolution and a serie
+ * This is then the "break-out" dialogs that are used when one is resolving a collision, so the dataset differs to some degree
+ * from the normal from-activity or from-in-mem-activity states normally encountered.
+ * @param {*} event 
+ * @param {*} $dialogElement 
+ * @param {*} dialogId 
+ * @param {*} collisionResolution 
+ * @param {*} serie 
+ */
+export function PopulateCreateEventDialogFromCollisionResolution($dialogElement, dialogId, collisionRecord, serie) {
+    serie.display_layouts.split(",")
+        .forEach(checkboxElement => {
+            $dialogElement.find(`#${checkboxElement.value}_dlcheck`)
+                .prop( "checked", true );
+        });
+
+    let parseDateOrStringToArtifacts = function (dateOrString) {
+        if (dateOrString instanceof String || typeof(dateOrString) === "string")
+            return Utils.splitStrDate(dateOrString);
+        else if (dateOrString instanceof Date)
+            return Utils.splitDateIntoDateAndTimeStrings(dateOrString);
+        else throw "Invalid value or type"
+    }
+
+    let [ fromDate, fromTime ]  = parseDateOrStringToArtifacts(collisionRecord.event_a_start);
+    let [ toDate, toTime ]      = parseDateOrStringToArtifacts(collisionRecord.event_a_end);
+
+
+    [
+        { target: "#ticket_code", value: serie.time.ticket_code },
+        { target: "#title", value: serie.time.title },
+        { target: "#title_en", value: serie.time.title_en },
+        { target: "#expected_visitors", value: serie.time.expected_visitors },
+        { target: "#fromDate", value: fromDate },
+        { target: "#fromTime", value: fromTime },
+        { target: "#toDate", value: toDate },
+        { target: "#toTime", value: toTime },
+    ].forEach( (mapping) => {
+        $dialogElement.find(mapping.target).val(mapping.value);
+    });
+
+    window.MessagesFacility.send(dialogId, serie.time.audience, "setAudienceFromParent");
+    window.MessagesFacility.send(dialogId, serie.time.arrangement_type, "setArrangementTypeFromParent");
+    window.MessagesFacility.send(dialogId, serie.time.status, "setStatusFromParent");
+
+    if (serie.planner_payload)
+        window.MessagesFacility.send(dialogId, serie.planner_payload, "setPlanner");
+    if (serie.room_payload)
+        window.MessagesFacility.send(dialogId, serie.room_payload, "roomsSelected");
+    if (serie.people_payload)
+        window.MessagesFacility.send(dialogId, serie.people_payload, "peopleSelected");
+}
+
+/**
  *
  * @param {*} event
  */
 export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
     let parseDateOrStringToArtifacts = function (dateOrString) {
-        if (dateOrString instanceof String)
+        if (dateOrString instanceof String || typeof(dateOrString) === "string")
             return Utils.splitStrDate(dateOrString);
         else if (dateOrString instanceof Date)
             return Utils.splitDateIntoDateAndTimeStrings(event.start);
