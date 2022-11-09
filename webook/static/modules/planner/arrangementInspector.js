@@ -374,7 +374,7 @@ export class ArrangementInspector {
                                 serie
                             );
 
-                            $breakOutActivityDialog('#event_uuid').val(crypto.randomUUID());
+                            $breakOutActivityDialog.find('#event_uuid').val(crypto.randomUUID());
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
@@ -444,7 +444,7 @@ export class ArrangementInspector {
 
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
-                        dialogOptions: { width: 700 }
+                        dialogOptions: { width: 700, dialogClass: 'no-titlebar' }
                     })
                 ],
                 [
@@ -505,7 +505,7 @@ export class ArrangementInspector {
                             this.dialogManager.reloadDialog("mainDialog");
                             this.dialogManager.closeDialog("newSimpleActivityDialog");
                         },
-                        dialogOptions: { width: 500, dialogClass: 'no-titlebar' },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar', modal: true },
                         onSubmit: async (context, details) => {
                             details.event.startDate = (new Date(details.event.start)).toISOString();
                             details.event.endDate = (new Date(details.event.end)).toISOString();
