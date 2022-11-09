@@ -30,6 +30,9 @@ export class ArrangementCreator {
                         onPreRefresh: (dialog) => {
                             dialog._active_tab = active;
                         },
+                        onDestroy: () => {
+                            this.dialogManager.closeAllDialogs(false);
+                        },
                         onRenderedCallback: (dialog) => {
                             if (this.dialogManager.context.series !== undefined) {
                                 this.dialogManager.context.series = new Map();

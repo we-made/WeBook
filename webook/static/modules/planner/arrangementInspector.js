@@ -87,6 +87,9 @@ export class ArrangementInspector {
                         onPreRefresh: (dialog) => {
                             dialog._active_tab = $('#tabs').tabs ( "option", "active" );
                         },
+                        onDestroy: () => {
+                            this.dialogManager.closeAllDialogs(false);
+                        },
                         onRenderedCallback: (dialog) => {
                             $('#tabs').tabs();
 

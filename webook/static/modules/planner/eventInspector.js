@@ -24,6 +24,9 @@ export class EventInspector {
                                 dialogTitle: "Inspect event",
                             });
                         },
+                        onDestroy: () => {
+                            this.dialogManager.closeAllDialogs(false);
+                        },
                         onRenderedCallback: () => { 
                             this.dialogManager._makeAware(); 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {

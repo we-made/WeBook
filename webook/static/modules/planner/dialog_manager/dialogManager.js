@@ -11,6 +11,7 @@
                    customTriggerName=undefined,
                    title=undefined,
                    formUrl=undefined,
+                   onDestroy=undefined,
                    renderer=new DialogComplexDiscriminativeRenderer(),
                    plugins=[ ],
                 } = {}) {
@@ -22,6 +23,7 @@
         this.onRenderedCallback = onRenderedCallback;
         this.onUpdatedCallback = onUpdatedCallback;
         this.onSubmit = onSubmit;
+        this.onDestroy = onDestroy || this.standardOnDestroy;
         this.onPreRefresh = onPreRefresh;
         this.dialogOptions = dialogOptions;
         this._isRendering = false;
@@ -39,6 +41,9 @@
             plugin.dialog = this;
             this.plugins.push( plugin );
         });
+    }
+
+    standardOnDestroy() {
     }
 
     _$getDialogEl() {
@@ -246,6 +251,7 @@ export class DialogSimpleRenderer extends DialogBaseRenderer {
                         dialog._$getDialogEl().parent().find('.ui-dialog-titlebar-close')
                             .html("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
                             .click( () => {
+                                dialog.onDestroy();
                                 dialog.destroy();
                             });
                         
@@ -298,6 +304,7 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                         dialog._$getDialogEl().prepend( 
                             $("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
                                 .on('click', () => {
+                                    dialog.onDestroy();
                                     dialog.destroy();
                                 })
                         );
@@ -386,11 +393,15 @@ export class DialogManager {
     } 
 
     closeDialog(dialogId) {
-        this._dialogRepository.get(dialogId).close();
+        const dialog = this._dialogRepository.get(dialogId);
+        dialog.onDestroy();
+        dialog.close();
     }
 
-    closeAllDialogs() {
+    closeAllDialogs(triggerOnDestroy=false) {
         this._dialogRepository.forEach( (dialog) => {
+            if (triggerOnDestroy)
+                dialog.onDestroy();
             dialog.close();
         });
     }
