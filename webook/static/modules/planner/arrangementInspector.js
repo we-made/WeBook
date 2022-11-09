@@ -1,7 +1,7 @@
     import { CollisionsUtil } from "./collisions_util.js";
 import { convertObjToFormData } from "./commonLib.js";
 import { Dialog, DialogManager } from "./dialog_manager/dialogManager.js";
-import { PopulateCreateSerieDialogFromManifest } from "./form_populating_routines.js";
+import { PopulateCreateEventDialogFromCollisionResolution, PopulateCreateSerieDialogFromManifest } from "./form_populating_routines.js";
 import { QueryStore } from "./querystore.js";
 
 
@@ -364,50 +364,17 @@ export class ArrangementInspector {
                             let collision_uuid = context._lastTriggererDetails.collision_uuid;
                             let resolution_bundle = context.collision_resolution.get(collision_uuid);
                             let collision_record = resolution_bundle.collision;
+                            
+                            let $breakOutActivityDialog = this.dialogManager.$getDialogElement("breakOutActivityDialog");
 
-                            $('#ticket_code').val(serie.time.ticket_code).trigger('change');
-                            $('#title').val(serie.time.title).trigger('change');
-                            $('#title_en').attr('value', serie.time.title_en).trigger('change');
-                            $('#expected_visitors').attr('value', serie.time.expected_visitors).trigger('change');
+                            PopulateCreateEventDialogFromCollisionResolution(
+                                $breakOutActivityDialog,
+                                "breakOutActivityDialog",
+                                collision_record,
+                                serie
+                            );
 
-                            serie.display_layouts.split(",")
-                                .forEach(checkboxElement => {
-                                    $(`#${checkboxElement.value}_dlcheck`)
-                                        .prop( "checked", true );
-                                });
-
-                            let { fromDate, fromTime }  = Utils.splitDateFunc(collision_record.event_a_start);
-                            let { toDate, toTime }      = Utils.splitDateFunc(collision_record.event_a_end);
-
-                            $('#fromDate').val(fromDate).trigger('change');
-                            $('#fromTime').val(fromTime).trigger('change');
-                            $('#toDate').val(toDate).trigger('change');
-                            $('#toTime').val(toTime).trigger('change');
-
-                            if (serie.people.length > 0) {
-                                let peopleSelectContext = Object();
-                                peopleSelectContext.people = serie.people.join(",");
-                                peopleSelectContext.people_name_map = serie.people_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementInspector.d1_peopleSelected",
-                                    { detail: {
-                                        context: peopleSelectContext
-                                    } }
-                                ));
-                            }
-                            if (serie.rooms.length > 0) {
-                                let roomSelectContext = Object();
-                                roomSelectContext.rooms = serie.rooms.join(",");
-                                roomSelectContext.room_name_map = serie.room_name_map;
-                                document.dispatchEvent(new CustomEvent(
-                                    "arrangementInspector.d1_roomsSelected",
-                                    { detail: {
-                                        context: roomSelectContext
-                                    } }
-                                ));
-                            }
-
-                            $('#event_uuid').val(crypto.randomUUID());
+                            $breakOutActivityDialog('#event_uuid').val(crypto.randomUUID());
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();
                             });
