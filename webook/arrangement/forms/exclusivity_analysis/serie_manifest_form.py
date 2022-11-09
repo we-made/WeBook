@@ -23,7 +23,8 @@ from webook.utils.serie_calculator import calculate_serie
 
 
 class SerieManifestForm(forms.Form):
-    """ Form representing a serie manifest, tightly related to the model PlanManifest """
+    """Form representing a serie manifest, tightly related to the model PlanManifest"""
+
     pattern = forms.CharField(max_length=255)
     patternRoutine = forms.CharField(max_length=255)
     timeAreaMethod = forms.CharField(max_length=255)
@@ -35,8 +36,12 @@ class SerieManifestForm(forms.Form):
     title = forms.CharField(max_length=512)
     title_en = forms.CharField(max_length=512, required=False)
     rooms = forms.ModelMultipleChoiceField(queryset=Room.objects.all(), required=False)
-    people = forms.ModelMultipleChoiceField(queryset=Person.objects.all(), required=False)
-    display_layouts = forms.ModelMultipleChoiceField(queryset=DisplayLayout.objects.all(), required=False)
+    people = forms.ModelMultipleChoiceField(
+        queryset=Person.objects.all(), required=False
+    )
+    display_layouts = forms.ModelMultipleChoiceField(
+        queryset=DisplayLayout.objects.all(), required=False
+    )
     interval = forms.IntegerField(required=False)
     day_of_month = forms.IntegerField(required=False)
     arbitrator = forms.IntegerField(required=False)
@@ -48,11 +53,15 @@ class SerieManifestForm(forms.Form):
 
     status = forms.ModelChoiceField(queryset=StatusType.objects.all(), required=False)
     audience = forms.ModelChoiceField(queryset=Audience.objects.all(), required=False)
-    arrangement_type = forms.ModelChoiceField(queryset=ArrangementType.objects.all(), required=False)
+    arrangement_type = forms.ModelChoiceField(
+        queryset=ArrangementType.objects.all(), required=False
+    )
 
     display_text = forms.CharField(required=False)
 
     responsible = forms.ModelChoiceField(queryset=Person.objects.all(), required=False)
+
+    predecessorSerie = forms.IntegerField(required=False)
 
     meeting_place = forms.CharField(max_length=512, required=False)
     meeting_place_en = forms.CharField(max_length=512, required=False)
@@ -90,12 +99,16 @@ class SerieManifestForm(forms.Form):
         plan_manifest.title_en = self.cleaned_data["title_en"]
 
         plan_manifest.before_buffer_title = self.cleaned_data["before_buffer_title"]
-        plan_manifest.before_buffer_date_offset = self.cleaned_data["before_buffer_date_offset"]
+        plan_manifest.before_buffer_date_offset = self.cleaned_data[
+            "before_buffer_date_offset"
+        ]
         plan_manifest.before_buffer_start = self.cleaned_data["before_buffer_start"]
         plan_manifest.before_buffer_end = self.cleaned_data["before_buffer_end"]
 
         plan_manifest.after_buffer_title = self.cleaned_data["after_buffer_title"]
-        plan_manifest.after_buffer_date_offset = self.cleaned_data["after_buffer_date_offset"]
+        plan_manifest.after_buffer_date_offset = self.cleaned_data[
+            "after_buffer_date_offset"
+        ]
         plan_manifest.after_buffer_start = self.cleaned_data["after_buffer_start"]
         plan_manifest.after_buffer_end = self.cleaned_data["after_buffer_end"]
 
@@ -106,7 +119,9 @@ class SerieManifestForm(forms.Form):
         plan_manifest.month = self.cleaned_data["month"]
         plan_manifest.stop_within = self.cleaned_data["stopWithin"]
         plan_manifest.stop_after_x_occurences = self.cleaned_data["stopAfterXInstances"]
-        plan_manifest.project_x_months_into_future = self.cleaned_data["projectionDistanceInMonths"]
+        plan_manifest.project_x_months_into_future = self.cleaned_data[
+            "projectionDistanceInMonths"
+        ]
         plan_manifest.monday = self.cleaned_data["monday"]
         plan_manifest.tuesday = self.cleaned_data["tuesday"]
         plan_manifest.wednesday = self.cleaned_data["wednesday"]
@@ -121,7 +136,9 @@ class SerieManifestForm(forms.Form):
         plan_manifest.meeting_place_en = self.cleaned_data["meeting_place_en"]
 
         plan_manifest.display_text = self.cleaned_data["display_text"]
-        
+
+        plan_manifest._predecessor_serie = self.cleaned_data["predecessorSerie"]
+
         plan_manifest.save()
 
         plan_manifest.rooms.set(self.cleaned_data["rooms"])
@@ -137,17 +154,18 @@ class SerieManifestForm(forms.Form):
 
     class Meta:
         widgets = {
-            "responsible": forms.Select(attrs={'class': 'form-control form-control-lg'}),
+            "responsible": forms.Select(
+                attrs={"class": "form-control form-control-lg"}
+            ),
         }
 
 
 class CreateSerieForm(SerieManifestForm):
     arrangementPk = forms.IntegerField()
-    predecessorSerie = forms.IntegerField(required=False)
 
     def save(self, form, *args, **kwargs) -> JsonResponse:
         manifest = form.as_plan_manifest()
-        
+
         manifest.timezone = kwargs["user"].timezone
         manifest.save()
 
@@ -156,28 +174,37 @@ class CreateSerieForm(SerieManifestForm):
         for ev in calculated_serie:
             ev.rooms = [int(room.id) for room in manifest.rooms.all()]
 
-        _ = analyze_collisions(calculated_serie)
+        pk_of_preceding_event_serie = form.cleaned_data["predecessorSerie"]
+
+        _ = analyze_collisions(
+            calculated_serie, ignore_serie_pk=pk_of_preceding_event_serie
+        )
 
         serie = EventSerie()
-        serie.arrangement = Arrangement.objects.get(id=form.cleaned_data["arrangementPk"])
+        serie.arrangement = Arrangement.objects.get(
+            id=form.cleaned_data["arrangementPk"]
+        )
         serie.serie_plan_manifest = manifest
         serie.save()
 
-        pk_of_preceding_event_serie = form.cleaned_data["predecessorSerie"];
         if pk_of_preceding_event_serie:
-            predecessor_event_serie = EventSerie.objects.get(id=pk_of_preceding_event_serie)
+            predecessor_event_serie = EventSerie.objects.get(
+                id=pk_of_preceding_event_serie
+            )
             predecessor_event_serie.archive(kwargs["user"].person)
 
         room_ids = [room.id for room in manifest.rooms.all()]
         people_ids = [person.id for person in manifest.people.all()]
-        display_layout_ids = [display_layout.id for display_layout in manifest.display_layouts.all()]
+        display_layout_ids = [
+            display_layout.id for display_layout in manifest.display_layouts.all()
+        ]
 
         create_events = []
 
         for ev in calculated_serie:
             if ev.is_collision:
                 continue
-            
+
             event = Event()
             event.arrangement = serie.arrangement
             event.title = manifest.title
@@ -221,10 +248,23 @@ class CreateSerieForm(SerieManifestForm):
         display_layout_throughs = []
 
         for event in created_events:
-            room_throughs = room_throughs + [Event.rooms.through(event_id=event.id, room_id=room_id) for room_id in room_ids if room_ids]
-            people_throughs = people_throughs + [Event.people.through(event_id=event.id, person_id=person_id) for person_id in people_ids if people_ids]
-            display_layout_throughs = display_layout_throughs + [Event.display_layouts.through(event_id=event.id, displaylayout_id=display_layout_id) 
-                                                                 for display_layout_id in display_layout_ids if display_layout_ids]
+            room_throughs = room_throughs + [
+                Event.rooms.through(event_id=event.id, room_id=room_id)
+                for room_id in room_ids
+                if room_ids
+            ]
+            people_throughs = people_throughs + [
+                Event.people.through(event_id=event.id, person_id=person_id)
+                for person_id in people_ids
+                if people_ids
+            ]
+            display_layout_throughs = display_layout_throughs + [
+                Event.display_layouts.through(
+                    event_id=event.id, displaylayout_id=display_layout_id
+                )
+                for display_layout_id in display_layout_ids
+                if display_layout_ids
+            ]
 
         Event.rooms.through.objects.bulk_create(room_throughs)
         Event.people.through.objects.bulk_create(people_throughs)

@@ -193,6 +193,8 @@ export class CollisionsUtil {
             collisions = await this.GetCollisionsForSerie(serieConvert(serie, new FormData(), ""), csrf_token);
         }
 
+        debugger;
+
         /*
             We can be operating in two states;
                 1. A resolution is in progress, and the SWAL is re-fired after something else has happened
@@ -201,85 +203,84 @@ export class CollisionsUtil {
             we need to set up the map.
         */
 
-        if (collisions.length > 0) {
-            let trHtml = "";
-
-            collisions.forEach(function (collision) {
-                let uuid = "";
-                let collision_record = undefined;
-
-                if (is_reading_from_resolution_map) {
-                    uuid = collision[0];
-                    collision_record = collision[1].collision;
-                }
-                else {
-                    uuid = crypto.randomUUID();
-                    collision_record = collision;
-                    collision_resolution.set(uuid, new CollisionState(collision_record));
-                }
-
-                trHtml += this._GenerateCollisionSwalTableRowHtml(collision_record, uuid, name_of_event_to_trigger_on_resolve);
-            }, this);
-
-            Swal.fire({
-                title: "Kollisjoner",
-                width: 1500,
-                showCancelButton: true,
-                confirmButtonText: "<i class='fas fa-save'></i>&nbsp; Lagre med gjeldende resolusjoner",
-                cancelButtonText: "<i class='fas fa-times'></i>&nbsp; Avbryt",
-                html: 
-                `
-                    <div class="alert alert-danger text-start">
-                        <div class='mb-2'>Den gitte forandringen vil medføre kollisjoner på eksklusive ressurser.</div>
-
-                        <p>Du kan velge å;</p>
-                        <ul>
-                            <li>Løse kollisjonene</li>
-                            <li>Lagre uansett</li>
-                        </ul>
-                        <div>
-                            Om du velger å løse kollisjonene så kan du endre rom for hver individuelle kollisjon her, eller 
-                            trykke på <strong>avbryt</strong> og gå tilbake til redigering av serie, for så og endre rom for hele serien.
-                            Hvis du da endrer rom individuelt her så vil de andre hendelsene som ikke er i kollisjon benytte seg 
-                            av det originale valget.
-                        </div>
-                        <div>
-                            Du kan også lagre uansett, men da vil de hendelsene som er i kollisjon på en eller flere eksklusive ressurser
-                            bli ignorert og dermed ikke opprettet.
-                        </div>
-                    </div>
-    
-                    <div class="table-responsive">
-                        <table class="table table-borderless table-sm">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${trHtml}
-                            </tbody>
-                        </table>
-                    </div>
-                `,
-                icon: 'error',
-            }).then(result => {
-                if (result.isConfirmed) {
-                    on_confirmed(
-                        serie,
-                        csrf_token,
-                        arrangement_pk,
-                        collision_resolution,
-                    )
-                }
-            }).then(_ => after_on_confirmed_is_done() );
-            
-            return true;
-        }
-        else {
+        if (collisions.length == 0) {
             return false;
         }
+
+        let trHtml = "";
+
+        collisions.forEach(function (collision) {
+            let uuid = "";
+            let collision_record = undefined;
+
+            if (is_reading_from_resolution_map) {
+                uuid = collision[0];
+                collision_record = collision[1].collision;
+            }
+            else {
+                uuid = crypto.randomUUID();
+                collision_record = collision;
+                collision_resolution.set(uuid, new CollisionState(collision_record));
+            }
+
+            trHtml += this._GenerateCollisionSwalTableRowHtml(collision_record, uuid, name_of_event_to_trigger_on_resolve);
+        }, this);
+
+        Swal.fire({
+            title: "Kollisjoner",
+            width: 1500,
+            showCancelButton: true,
+            confirmButtonText: "<i class='fas fa-save'></i>&nbsp; Lagre med gjeldende resolusjoner",
+            cancelButtonText: "<i class='fas fa-times'></i>&nbsp; Avbryt",
+            html: 
+            `
+                <div class="alert alert-danger text-start">
+                    <div class='mb-2'>Den gitte forandringen vil medføre kollisjoner på eksklusive ressurser.</div>
+
+                    <p>Du kan velge å;</p>
+                    <ul>
+                        <li>Løse kollisjonene</li>
+                        <li>Lagre uansett</li>
+                    </ul>
+                    <div>
+                        Om du velger å løse kollisjonene så kan du endre rom for hver individuelle kollisjon her, eller 
+                        trykke på <strong>avbryt</strong> og gå tilbake til redigering av serie, for så og endre rom for hele serien.
+                        Hvis du da endrer rom individuelt her så vil de andre hendelsene som ikke er i kollisjon benytte seg 
+                        av det originale valget.
+                    </div>
+                    <div>
+                        Du kan også lagre uansett, men da vil de hendelsene som er i kollisjon på en eller flere eksklusive ressurser
+                        bli ignorert og dermed ikke opprettet.
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-borderless table-sm">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${trHtml}
+                        </tbody>
+                    </table>
+                </div>
+            `,
+            icon: 'error',
+        }).then(result => {
+            if (result.isConfirmed) {
+                on_confirmed(
+                    serie,
+                    csrf_token,
+                    arrangement_pk,
+                    collision_resolution,
+                )
+            }
+        }).then(_ => after_on_confirmed_is_done() );
+        
+        return true;
     }
 }
