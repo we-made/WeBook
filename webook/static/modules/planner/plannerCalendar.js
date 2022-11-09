@@ -31,8 +31,6 @@ export class PlannerCalendar extends FullCalendarBased {
         this.renderContextMenu = renderContextMenu;
         this.renderPopovers = renderPopovers;
 
-        console.log("renderContextMenu", this.renderContextMenu);
-
         this.viewButtons = new Map([
             [1, {
                 "key": 1,
@@ -425,7 +423,6 @@ export class PlannerCalendar extends FullCalendarBased {
                 datesSet: (dateInfo) => {
                     $('#plannerCalendarHeader').text("");
                     $(".popover").popover('hide');
-                    console.log(">> datesSet, current ", this._fcCalendar.getDate())
                     $('#plannerCalendarHeader').text(this._headerGenerator.generate(
                         dateInfo.view.type,
                         this._fcCalendar.getDate(),
