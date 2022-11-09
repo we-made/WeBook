@@ -17,6 +17,17 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+li.jstree-node:not(.jstree-leaf) > .jstree-icon.jstree-ocl {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Angle_right_font_awesome.svg/512px-Angle_right_font_awesome.svg.png');
+    background-size: 22px 22px;
+    background-position: center !important;
+    background-repeat: no-repeat;
+    transition: all 0.3s ease;
+}
+li.jstree-node.jstree-open:not(.jstree-leaf) > .jstree-icon.jstree-ocl {
+    transform: rotate(90deg);
+}
+
 .dropdown-menu.show {
     z-index: 40000!important;
 }
