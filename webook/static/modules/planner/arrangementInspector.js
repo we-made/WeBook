@@ -119,7 +119,7 @@ export class ArrangementInspector {
                                 this.dialogManager.reloadDialog("mainDialog");
                             });
                         },
-                        onUpdatedCallback: () => { this.dialogManager.closeDialog("mainDialog"); },
+                        onUpdatedCallback: () => {  },
                         dialogOptions: { 
                             width: 800, 
                             height: 800, 
