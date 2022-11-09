@@ -52,7 +52,10 @@ class AnalyzeNonExistentSerieManifest(
         for ev in calculated_serie:
             ev.rooms = rooms_list
 
-        records = analyze_collisions(calculated_serie)
+        pk_of_preceding_event_serie = manifest._predecessor_serie
+        records = analyze_collisions(
+            calculated_serie, ignore_serie_pk=pk_of_preceding_event_serie
+        )
         return JsonResponse([vars(record) for record in records], safe=False)
 
 
