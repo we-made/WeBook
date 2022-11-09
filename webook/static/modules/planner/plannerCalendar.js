@@ -602,6 +602,7 @@ export class PlannerCalendar extends FullCalendarBased {
                                         get_as: _FC_EVENT, 
                                         locations: this.filter.locations,
                                         arrangement_types: this.filter.arrangementTypes,
+                                        statuses: this.filter.statuses,
                                         audience_types: this.filter.audiences,
                                         filterSet: this.filter.rooms,
                                     }

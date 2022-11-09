@@ -157,6 +157,15 @@ container-fluid
                     <span id="arrangement-type-popover-filter-content">
                     </span>
                 </div>
+                <div id="status-type-popover-filter" class="mb-2  d-inline">
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" id="status-type-popover-filter-trigger">
+                        <i class="fas fa-cog text-dark"></i>&nbsp;
+                        Status
+                        <i class="fas fa-angle-down"></i>
+                    </button>
+                    <span id="status-type-popover-filter-content">
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -193,7 +202,7 @@ container-fluid
                         <div class="btn-group shadow-0">
                             <a class="btn float-end wb-btn-blank border mt-2"
                                 href="{% url 'arrangement:person_list' %}">
-                                
+
                                 <i class="fas fa-list"></i>&nbsp;
                                 Alle personer
                             </a>
@@ -252,6 +261,21 @@ container-fluid
             filter.triggerElement.classList.add("border-dark");
         }
     }
+
+    const statusTypeFilter = new AdvancedTreeFilter({
+        title: 'Status',
+        triggerElement: document.getElementById('status-type-popover-filter-trigger'),
+        wrapperElement: document.getElementById('status-type-popover-filter-content'),
+        onSubmit: function (filter, selectedNodes) {
+            const slugs = selectedNodes.map( (node) => node.data.slug );
+            calendarFilter.filterStatusTypes(slugs);
+
+            reflectFilterStateOnTriggerElement(filter, slugs.length);
+        },
+        treeSrcUrl: "{% url 'arrangement:statustype_tree' %}",
+        cascadeBehaviour: PARENT_INDEPENDENT_CASCADE_BEHAVIOUR,
+        isSearchable: false,
+    });
 
     const arrangementTypeTreeFilter = new AdvancedTreeFilter({
         title: 'Arrangementstyper',

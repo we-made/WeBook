@@ -257,19 +257,23 @@ export class ArrangementStore extends BaseStore {
      * @param {*} param0 
      * @returns An array of arrangements, whose form depends on get_as param.
      */
-    get_all({ get_as, locations=undefined, arrangement_types=undefined, audience_types=undefined, filterSet=undefined } = {}) {
+    get_all({ get_as, locations=undefined, arrangement_types=undefined, statuses=undefined, audience_types=undefined, filterSet=undefined } = {}) {
         let arrangements = this._getStoreAsArray();
         let filteredArrangements = [];
 
         let filterMap = new Map(filterSet.map( (slug) => [ slug.id, true ]));
 
-        let arrangementTypesMap =   arrangement_types !== undefined && arrangement_types.length > 0 ? new Map(arrangement_types.map(i => [i, true])) : undefined;
-        let audienceTypesMap =      audience_types !== undefined && audience_types.length > 0 ? new Map(audience_types.map(i => [i, true])) : undefined;
+        const mapTypeFilter = (types) => types !== undefined && types.length > 0 ? new Map(types.map(i => [i, true])) : undefined;
+
+        let arrangementTypesMap =   mapTypeFilter(arrangement_types);
+        let audienceTypesMap =      mapTypeFilter(audience_types);
+        let statusTypesMap =        mapTypeFilter(statuses);
 
         arrangements.forEach ( (arrangement) => {
             let isWithinFilter =
                 (arrangementTypesMap === undefined  || arrangementTypesMap.has(arrangement.arrangement_type_slug) === true) &&
-                (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true)
+                (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true) &&
+                (statusTypesMap === undefined       || statusTypesMap.has(arrangement.status_slug) === true)
 
             if (filterSet.showOnlyEventsWithNoRooms === true && arrangement.room_names.length > 0 && arrangement.room_names[0] !== null) {
                 isWithinFilter = false;
@@ -343,6 +347,12 @@ export class CalendarFilter {
 
     filterRooms (roomSlugs, runOnFilterUpdate=true) {
         this.rooms = roomSlugs;
+        if (runOnFilterUpdate)
+            this.onFilterUpdated(this);
+    }
+
+    filterStatusTypes(statusSlugs, runOnFilterUpdate=true) {
+        this.statuses = statusSlugs;
         if (runOnFilterUpdate)
             this.onFilterUpdated(this);
     }
