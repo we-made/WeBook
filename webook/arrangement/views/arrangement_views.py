@@ -7,46 +7,19 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    ListView,
-    RedirectView,
-    TemplateView,
-    UpdateView,
-)
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
 from django.views.generic.edit import DeleteView, FormView
 from requests import delete
 
-from webook.arrangement.forms.delete_arrangement_file_form import (
-    DeleteArrangementFileForm,
-)
-from webook.arrangement.forms.planner.planner_create_arrangement_form import (
-    PlannerCreateArrangementModelForm,
-)
-from webook.arrangement.forms.planner_forms import (
-    AddPlannerForm,
-    PromotePlannerToMainForm,
-    RemovePlannerForm,
-)
-from webook.arrangement.models import (
-    Arrangement,
-    ArrangementFile,
-    Event,
-    EventSerie,
-    Person,
-    PlanManifest,
-)
-from webook.arrangement.views.generic_views.archive_view import (
-    ArchiveView,
-    JsonArchiveView,
-)
+from webook.arrangement.forms.delete_arrangement_file_form import DeleteArrangementFileForm
+from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
+from webook.arrangement.forms.planner_forms import AddPlannerForm, PromotePlannerToMainForm, RemovePlannerForm
+from webook.arrangement.models import Arrangement, ArrangementFile, Event, EventSerie, Person, PlanManifest
+from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
 from webook.arrangement.views.generic_views.dialog_views import DialogView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.arrangement.views.generic_views.search_view import SearchView
-from webook.arrangement.views.generic_views.upload_files_standard_form import (
-    UploadFilesStandardFormView,
-)
+from webook.arrangement.views.generic_views.upload_files_standard_form import UploadFilesStandardFormView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin

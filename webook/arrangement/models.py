@@ -1185,7 +1185,7 @@ class Event(
 
     title = models.CharField(verbose_name=_("Title"), max_length=255)
     title_en = models.CharField(
-        verbose_name=_("Title (English)"), max_length=255, blank=True
+        verbose_name=_("Title (English)"), max_length=255, blank=True, null=True
     )
 
     start = models.DateTimeField(verbose_name=_("Start"), null=False)
