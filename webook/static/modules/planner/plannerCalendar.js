@@ -441,6 +441,8 @@ export class PlannerCalendar extends FullCalendarBased {
                 },
                 eventContent: function (arg) {
                     const formatTime = function (text) {
+                        if (text.length == 1 || text.length == 3)
+                            text = "0" + text
                         if (text.length == 2)
                             text += ":00"
                             
