@@ -370,45 +370,6 @@ export class CalendarFilter {
     }
 }
 
-/**
- * Simple little class to accurately track where we are date-wise
- * This is needed because it is surprisingly difficult to ascertain the current concrete month
- * or date in FullCalendar.
- */
-class FCDateStateTracker {
-    constructor(initialDate = undefined) {
-        this._date = initialDate || new Date();
-    }
-
-    asInstanceOfDate() {
-        return this._date;
-    }
-
-    getDate() {
-        return this._date.getDate();
-    }
-
-    getMonth() {
-        return this._date.getMonth();
-    }
-
-    getYear() {
-        return this._date.getYear();
-    }
-
-    addDays(numberOfDaysToAdd) {
-        this._date.setDate(this._date.getDate() + numberOfDaysToAdd);
-    }
-
-    addMonths(numberOfMonthsToAdd) {
-        this._date.setMonth(this._date.getMonth() + numberOfMonthsToAdd);
-    }
-
-    addYears(numberOfYearsToAdd) {
-        this._date.setFullYear(this._date.getFullYear() + numberOfYearsToAdd);
-    }
-}
-
 export class FullCalendarBased {
     constructor(navigationHeaderWrapperElement = undefined) {
         this._instanceUUID = self.crypto.randomUUID();
