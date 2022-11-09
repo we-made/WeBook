@@ -667,7 +667,7 @@
                                 </div>
                                 <div class="clearfix">
                                     <a href="#" class="btn wb-btn-secondary shadow-0"
-                                        onclick='createArrangementDialog__breakOutEvent("${element._uuid}", ${collisionsCounter})'><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
+                                        d-trigger="breakOutEvent" d-arg-serie_uuid="${element._uuid}" d-arg-collision_index="${collisionsCounter}"><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
                                     </a>
                                 </div>
                             </div>
@@ -715,7 +715,7 @@
                                         </a>
                                         </h2>
                                         <div id="collisionsCollapse_${element._uuid}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-mdb-parent="#accordion_series_${element._uuid}">
-                                            <div class="accordion-body">
+                                            <div class="accordion-body" style="max-height: 35em; overflow: scroll;">
                                                 <div class="alert alert-danger small">
                                                     <strong>OBS: </strong> kollisjoner som ikke blir <abbr title="Bryt ut kollisjoner til enkle aktiviteter og løs kollisjonen">brutt ut</abbr> og løst vil ikke bli opprettet
                                                     når arrangementet opprettes.
@@ -784,7 +784,7 @@
             },
             breakOutEvent(dialog, { serieUuid, collisionIndex } = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementCreator", "breakOutActivityDialog", {
-                    serie: seriesMap.get(serieUuid),
+                    serie: dialog.data.seriesMap.get(serieUuid),
                     collision_index: collisionIndex,
                 });
             },

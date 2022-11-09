@@ -20,6 +20,9 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}responsible`, serie.time.responsible);
     formData.append(`${keyPrefix}display_text`, serie.time.display_text);
 
+    if (serie.event_serie_pk)
+        formData.append(`${keyPrefix}predecessorSerie`, serie.event_serie_pk);
+
     appendArrayToFormData(serie.rooms, formData, `${keyPrefix}rooms`);
     appendArrayToFormData(serie.people, formData, `${keyPrefix}people`);
     appendArrayToFormData(serie.display_layouts.split(","), formData, `${keyPrefix}display_layouts`);
