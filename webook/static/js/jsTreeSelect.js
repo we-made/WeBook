@@ -25,6 +25,7 @@ export class JSTreeSelect {
         initialSelected=null,
         onValueSet=null,
         allowMultipleSelect=false,
+        isSearchable=true,
         noneSelectedLabelText="None selected",
         valueSelectedLabelText=undefined,
         selectFirstTimeButtonText="Select",
@@ -35,6 +36,8 @@ export class JSTreeSelect {
         this.element = element;
         this.srcUrl = treeJsonSrcUrl;
         this.allowMultipleSelect = allowMultipleSelect;
+
+        this.isSearchable = isSearchable;
 
         this.onValueSet = onValueSet;
         this.selected = initialSelected;
@@ -170,6 +173,10 @@ export class JSTreeSelect {
         return labelElement;
     }
 
+    _search(term) {
+        $(this._jsTreeElement).jstree("search", term, false, true);
+    }
+
     /**
      * Generate a HTML element containing the trigger for the popover containing the JS Tree, and a button for triggering the
      * said popover to show. As a side effect this function will also  set the variable _popover on the instance to the popover instance
@@ -191,6 +198,19 @@ export class JSTreeSelect {
         let popoverContent = document.createElement("span");
         popoverContent.classList.add("popover_content");
         popoverWrapper.appendChild(popoverContent);
+
+        if (this.isSearchable) {
+            let searchInput = document.createElement("input");
+            searchInput.setAttribute("type", "search");
+            searchInput.setAttribute("placeholder", "Søk...");
+            searchInput.classList.add("form-control", "mb-1");
+            
+            searchInput.addEventListener("input", (event) => { 
+                this._search( event.target.value );
+            });
+
+            popoverContent.appendChild(searchInput);
+        }
 
         let treeElement = document.createElement("div");
         popoverContent.appendChild(treeElement);
@@ -216,7 +236,7 @@ export class JSTreeSelect {
                         "three_state": false,
                         "cascade": "up+undetermined",
                     },
-                    'plugins': [ 'checkbox', ], 
+                    'plugins': [ 'checkbox',  'search',], 
                     'core': {
                         'data': treeValidObj,
                         'multiple': false,
@@ -251,6 +271,7 @@ export class JSTreeSelect {
         wrapper.style = "align-items:center; justify-content: space-between;";
         this._labelElement = this._generateLabelElement();
         wrapper.append( this._labelElement, this._generateJsTreeTriggerElement() );
+
         this.element.appendChild(wrapper);
     }
 
