@@ -17,6 +17,10 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+.dropdown-menu.show {
+    z-index: 40000!important;
+}
+
 .node-danger-icon {
     color: red;
 }
