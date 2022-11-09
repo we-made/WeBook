@@ -336,8 +336,6 @@ export function PopulateCreateEventDialogFromCollisionResolution($dialogElement,
         $dialogElement.find(mapping.target).val(mapping.value);
     });
 
-    console.log("SERIEEE____", serie)
-
     window.MessagesFacility.send(dialogId, serie.time.audience, "setAudienceFromParent");
     window.MessagesFacility.send(dialogId, serie.time.arrangement_type, "setArrangementTypeFromParent");
     window.MessagesFacility.send(dialogId, serie.time.status, "setStatusFromParent");
