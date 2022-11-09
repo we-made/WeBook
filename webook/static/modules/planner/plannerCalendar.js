@@ -462,25 +462,37 @@ export class PlannerCalendar extends FullCalendarBased {
                             nodes.push(colorDot);
 
                         let timeText = document.createElement('strong');
-                        timeText.innerText = `(${formatTime(arg.timeText)})`;
+                        timeText.style="font-family: 'Roboto Mono';"
+                        timeText.innerText = `${formatTime(arg.timeText)}`;
                         nodes.push(timeText);
 
                         let iconsRail = document.createElement('span');
                         nodes.push(iconsRail);
 
+                        let hasIcon = false;
+
                         if (arg.event.extendedProps.isRigging === true) {
                             let riggingIconEl = document.createElement('i');
-                            riggingIconEl.classList.add("fas", "fa-hammer", "ms-1", "me-1");
+                            riggingIconEl.classList.add("fas", "fa-hammer", "fa-fw", "ms-2", "me-1");
                             nodes.push(riggingIconEl);
+                            hasIcon = true;
                         }
                         if (arg.event.extendedProps.isSerie === true) {
                             let serieIconEl = document.createElement('i');
-                            serieIconEl.classList.add("fas", "fa-sync", "ms-1", "me-1");
+                            serieIconEl.classList.add("fas", "fa-sync", "fa-fw", "ms-2", "me-1");
                             nodes.push(serieIconEl);
+                            hasIcon = true;
+                        }
+
+                        if (hasIcon === false) {
+                            let spacerElement = document.createElement("i")
+                            spacerElement.classList.add("fas", "fa-sync", "fa-fw", "ms-2", "me-1");
+                            spacerElement.style = "visibility: hidden!important;"
+                            nodes.push(spacerElement);
                         }
 
                         let eventTitle = document.createElement('span');
-                        eventTitle.classList.add("ms-2", "event-title-text");
+                        eventTitle.classList.add("ms-1", "event-title-text");
                         eventTitle.innerText = arg.event.title;
                         nodes.push(eventTitle);
 
