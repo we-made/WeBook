@@ -87,6 +87,9 @@ export class ArrangementInspector {
                         onPreRefresh: (dialog) => {
                             dialog._active_tab = $('#tabs').tabs ( "option", "active" );
                         },
+                        onDestroy: () => {
+                            this.dialogManager.closeAllDialogs(false);
+                        },
                         onRenderedCallback: (dialog) => {
                             $('#tabs').tabs();
 
@@ -119,7 +122,7 @@ export class ArrangementInspector {
                                 this.dialogManager.reloadDialog("mainDialog");
                             });
                         },
-                        onUpdatedCallback: () => { this.dialogManager.closeDialog("mainDialog"); },
+                        onUpdatedCallback: () => {  },
                         dialogOptions: { 
                             width: 800, 
                             height: 800, 
