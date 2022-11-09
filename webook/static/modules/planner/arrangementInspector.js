@@ -240,7 +240,10 @@ export class ArrangementInspector {
                                 }
                             });
                         },
-                        dialogOptions: { width: 400 },
+                        dialogOptions: { 
+                            width: 400,
+                            dialogClass: 'no-titlebar',
+                        },
                     })
                 ],
                 [
