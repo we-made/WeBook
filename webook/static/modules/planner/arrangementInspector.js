@@ -755,7 +755,7 @@ export class ArrangementInspector {
                             });
                         },
                         onRenderedCallback: () => { this.dialogManager._makeAware(); },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar', },
                         onSubmit: async (context, details) => {
                             fetch("/arrangement/planner/dialogs/order_people_form", {
                                 method: "POST",
@@ -788,7 +788,7 @@ export class ArrangementInspector {
                             });
                         },
                         onRenderedCallback: () => { this.dialogManager._makeAware(); },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar', },
                         onUpdatedCallback: () => {
                             this.dialogManager.reloadDialog("mainDialog");
                             this.dialogManager.closeDialog("orderRoomDialog");
@@ -818,7 +818,7 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => {},
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar', },
                         onUpdatedCallback: () => {
                             toastr.success("Rom lagt til");
                             this.dialogManager.closeDialog("orderRoomForLocalEventDialog");
@@ -849,7 +849,7 @@ export class ArrangementInspector {
                             this.dialogManager.closeDialog("orderRoomForOneEventDialog");
                             this.dialogManager.reloadDialog("mainDialog"); 
                         },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar', },
                         onSubmit: async (context, details) => {
                             fetch("/arrangement/planner/dialogs/order_rooms_for_event_form", {
                                 method: "POST",
@@ -875,7 +875,7 @@ export class ArrangementInspector {
                                 .then(response => response.text());
                         },
                         onRenderedCallback: () => { this.dialogManager._makeAware(); },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar', },
                         onUpdatedCallback: () => { 
                             this.dialogManager.closeDialog("orderPersonForOneEventDialog");
                             this.dialogManager.reloadDialog("mainDialog"); 
@@ -940,7 +940,7 @@ export class ArrangementInspector {
                             });
                         },
                         onRenderedCallback: () => { },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar' },
                         onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("nestedOrderRoomDialog");
                             toastr.success("Rom har blitt lagt til");
@@ -974,7 +974,7 @@ export class ArrangementInspector {
                             });
                         },
                         onRenderedCallback: () => { },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar', },
                         onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("nestedOrderPersonDialog");
                             toastr.success("Personer har blitt lagt til");
