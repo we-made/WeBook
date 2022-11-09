@@ -40,10 +40,6 @@ export class StandardGenerator {
     }
 
     month(date) {
-        if (date.getDate() !== 1) {
-            date = new Date(date.setMonth(date.getMonth() + 1));
-        }
-
         let text = `${date.toLocaleString("default", { month: "long" })} ${date.getFullYear()}`;
         text = text.replace(/^./, text[0].toUpperCase());
         return text;

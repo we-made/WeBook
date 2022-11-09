@@ -425,10 +425,10 @@ export class PlannerCalendar extends FullCalendarBased {
                 datesSet: (dateInfo) => {
                     $('#plannerCalendarHeader').text("");
                     $(".popover").popover('hide');
-
+                    console.log(">> datesSet, current ", this._fcCalendar.getDate())
                     $('#plannerCalendarHeader').text(this._headerGenerator.generate(
                         dateInfo.view.type,
-                        dateInfo.start,
+                        this._fcCalendar.getDate(),
                     ));
                 },
                 customButtons: {
