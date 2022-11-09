@@ -439,7 +439,7 @@
                                                     class="accordion-collapse collapse"
                                                     aria-labelledby="flush-headingTwo"
                                                     data-mdb-parent="#accordion_{{event_serie.pk}}">
-                                                    <div class="accordion-body wb-bg-extra">
+                                                    <div class="accordion-body wb-bg-extra" style="max-height: 30em; overflow: scroll;">
                                                         {% for event in event_serie.events.all %}
                                                             <div class="bg-white p-3 mt-2 rounded-pill">
                                                                 <span>
