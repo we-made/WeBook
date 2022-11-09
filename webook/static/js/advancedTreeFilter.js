@@ -128,6 +128,7 @@ export class AdvancedTreeFilter extends Popover {
             popoverContentEl.appendChild(submitBtnElement)
 
             let treeHolder = document.createElement("div");
+            treeHolder.style = "max-height: 35em; overflow: scroll;"
             popoverContentEl.appendChild(treeHolder);
             this._jsTreeElement = treeHolder;
 
