@@ -578,6 +578,41 @@
                     return;
                 }
 
+                const save = () => {
+                    let formData = new FormData();
+                    formData.append("name",             dialog.interior.id_name.value);
+                    formData.append("name_en",          dialog.interior.id_name_en.value);
+                    formData.append("audience",         dialog.data.audienceJsTreeSelect.getSelectedValue());
+                    formData.append("location",         dialog.interior.id_location.value);
+                    formData.append("arrangement_type", dialog.data.arrangementTypeJsTreeSelect.getSelectedValue());
+                    formData.append("responsible",      dialog.interior.id_responsible.value);
+                    formData.append("ticket_code",      dialog.interior.id_ticket_code.value);
+                    formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
+                    formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
+                    formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
+                    formData.append("status",           dialog.data.statusTypeJsTreeSelect.getSelectedValue());
+                    formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
+    
+                    let displayLayouts = [];
+                    dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
+                        formData.append("display_layouts", element.value);
+                    })  
+    
+                    formData.append("csrf_token",       "{{csrf_token}}");
+    
+                    let seriesArray = dialog.data.seriesMap !== undefined ? Array.from(dialog.data.seriesMap.values()) : [];
+                    let eventsArray = dialog.data.eventsMap !== undefined ? Array.from(dialog.data.eventsMap.values()) : [];
+    
+                    document.dispatchEvent(
+                        new CustomEvent("{{managerName}}.submit", { "detail": {
+                            dialog: "createArrangementDialog",
+                            formData: formData,
+                            series: seriesArray,
+                            events: eventsArray,
+                        }})
+                    );
+                }
+
                 if (dialog.hasUnresolvedCollisions()) {
                     const result = Swal.fire({
                         title: 'Uoppklarte kollisjoner',
@@ -590,40 +625,12 @@
                         confirmButtonText: 'Ja, ignorer uoppklarte kollisjoner'
                     }).then((result) => {
                         if (result.isConfirmed === true) {
-                            let formData = new FormData();
-                            formData.append("name",             dialog.interior.id_name.value);
-                            formData.append("name_en",          dialog.interior.id_name_en.value);
-                            formData.append("audience",         dialog.data.audienceJsTreeSelect.getSelectedValue());
-                            formData.append("location",         dialog.interior.id_location.value);
-                            formData.append("arrangement_type", dialog.data.arrangementTypeJsTreeSelect.getSelectedValue());
-                            formData.append("responsible",      dialog.interior.id_responsible.value);
-                            formData.append("ticket_code",      dialog.interior.id_ticket_code.value);
-                            formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
-                            formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
-                            formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
-                            formData.append("status",           dialog.data.statusTypeJsTreeSelect.getSelectedValue());
-                            formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
-            
-                            let displayLayouts = [];
-                            dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
-                                formData.append("display_layouts", element.value);
-                            })  
-            
-                            formData.append("csrf_token",       "{{csrf_token}}");
-            
-                            let seriesArray = dialog.data.seriesMap !== undefined ? Array.from(dialog.data.seriesMap.values()) : [];
-                            let eventsArray = dialog.data.eventsMap !== undefined ? Array.from(dialog.data.eventsMap.values()) : [];
-            
-                            document.dispatchEvent(
-                                new CustomEvent("{{managerName}}.submit", { "detail": {
-                                    dialog: "createArrangementDialog",
-                                    formData: formData,
-                                    series: seriesArray,
-                                    events: eventsArray,
-                                }})
-                            );
+                            save();
                         }
                     });
+                }
+                else {
+                    save();
                 }
             },
             setEvents(dialog, { events } = {}, triggeredByElement) {
@@ -665,14 +672,22 @@
             setSeries(dialog, { series } = {}, triggeredByElement) {
                 dialog.data.seriesMap = series;
 
+                console.log(dialog.data.seriesMap);
+
                 let tbody = dialog.$('#timeplansBody');
                 tbody.html("")
 
                 series.forEach(element => {
                     let collisions_html = "";
+                    console.log("collisions", element.collisions);
                     if (element.collisions !== undefined && element.collisions.length > 0) {
                         let collisionsCounter = 0;
                         element.collisions.forEach(collisionRecord => {
+                            let riggingHtml = "";
+                            if (collisionRecord.is_rigging === true) {
+                                riggingHtml = "<i class='fas fa-hammer'></i>&nbsp;Riggehendelse";
+                            }
+
                             collisions_html += `
                             <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}"
                                 style='background-color: #f6f6f0'>
@@ -699,6 +714,8 @@
                                         d-trigger="breakOutEvent" d-arg-serie_uuid="${element._uuid}" d-arg-collision_index="${collisionsCounter}"><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
                                     </a>
                                 </div>
+                                <br>
+                                ${riggingHtml}
                             </div>
                             `;
                             collisionsCounter++;

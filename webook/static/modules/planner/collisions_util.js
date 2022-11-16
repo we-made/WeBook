@@ -193,8 +193,6 @@ export class CollisionsUtil {
             collisions = await this.GetCollisionsForSerie(serieConvert(serie, new FormData(), ""), csrf_token);
         }
 
-        debugger;
-
         /*
             We can be operating in two states;
                 1. A resolution is in progress, and the SWAL is re-fired after something else has happened

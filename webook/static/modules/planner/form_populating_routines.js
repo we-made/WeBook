@@ -322,11 +322,17 @@ export function PopulateCreateEventDialogFromCollisionResolution($dialogElement,
     let [ fromDate, fromTime ]  = parseDateOrStringToArtifacts(collisionRecord.event_a_start);
     let [ toDate, toTime ]      = parseDateOrStringToArtifacts(collisionRecord.event_a_end);
 
+    console.log("coll.pop", collisionRecord);
 
     [
+        { target: '#title_before_collision_resolution', value: serie.time.title },
+        { target: "#start_before_collision_resolution", value: collisionRecord.event_a_start },
+        { target: "#end_before_collision_resolution", value: collisionRecord.event_a_end },
+        { target: "#_serie_reference", value: serie._uuid },
+        { target: "#_serie_position_hash", value: collisionRecord.my_serie_position_hash },
+        { target: "#_parent_serie_position_hash", value: collisionRecord.parent_serie_position_hash },
         { target: "#ticket_code", value: serie.time.ticket_code },
-        { target: "#title", value: serie.time.title },
-        { target: "#title_en", value: serie.time.title_en },
+        { target: "#title", value: collisionRecord.event_a_title },
         { target: "#expected_visitors", value: serie.time.expected_visitors },
         { target: "#fromDate", value: fromDate },
         { target: "#fromTime", value: fromTime },

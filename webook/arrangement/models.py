@@ -1188,6 +1188,17 @@ class Event(
         verbose_name=_("Title (English)"), max_length=255, blank=True, null=True
     )
 
+    is_resolution = models.BooleanField(
+        verbose_name=_("Is the result of a collision resolution"), default=False
+    )
+    title_before_collision_resolution = models.CharField(max_length=255, default=None, blank=True, null=True)
+    start_before_collision_resolution = models.DateTimeField(
+        verbose_name=_("Start before collision resolution"), null=True, default=None
+    )
+    end_before_collision_resolution = models.DateTimeField(
+        verbose_name=_("End before collision resolution"), null=True, default=None
+    )
+
     start = models.DateTimeField(verbose_name=_("Start"), null=False)
     end = models.DateTimeField(verbose_name=_("End"), null=False)
     all_day = models.BooleanField(verbose_name=_("AllDay"), default=False)
@@ -1287,6 +1298,73 @@ class Event(
                 "Can not get buffering-for event since the event is not buffering any other event."
             )
 
+    def generate_rigging_events(self):
+        # TODO: Rewrite this to avoid duplication.
+        _title_generators_per_position = {
+            "before": lambda root_name: "Opprigging for " + root_name,
+            "after": lambda root_name: "Nedrigging for " + root_name,
+        }
+
+        time_pairs: List[Tuple[datetime.datetime, datetime.datetime, int]] = [
+            (
+                self.before_buffer_date,
+                self.before_buffer_start,
+                self.before_buffer_end,
+                self.before_buffer_date_offset,
+            ),
+            (
+                self.after_buffer_date,
+                self.after_buffer_start,
+                self.after_buffer_end,
+                self.after_buffer_date_offset,
+            ),
+        ]
+
+        current_tz = pytz.timezone(str(dj_timezone.get_current_timezone()))
+
+        rigging_events = {"root": self}
+
+        root_event_rooms = self.rooms
+        root_event_people = self.people
+
+        is_before = True
+        for date, start_time, end_time, date_offset in time_pairs:
+            if start_time is None or end_time is None:
+                # We need both start and end to generate a rigging event
+                # Without both present there is really no point.
+                is_before = False
+                continue
+
+            position_key = "before" if is_before else "after"
+            is_before = False
+
+            rigging_event = Event()
+            rigging_event.title = _title_generators_per_position[position_key](
+                self.title
+            )
+            rigging_event.arrangement_id = self.arrangement.pk
+
+            offset: Optional[datetime.datetime] = None
+            if date_offset:
+                offset = start_time - datetime.timedelta(days=date_offset)
+
+            # We default in the worst case to the root events start. Do note that this is not rigging event start, but root event start.
+            # These are two distinct concepts.
+            rigging_event.start = current_tz.localize(
+                datetime.datetime.combine(date or offset or self.start, start_time)
+            )
+            rigging_event.end = current_tz.localize(
+                datetime.datetime.combine(date or offset or self.end, end_time)
+            )
+
+            # We can not set rooms or people before the event has been saved -- unfortunately.
+            rigging_event._rooms = root_event_rooms.values_list("id", flat=True)
+            rigging_event._people = root_event_people.values_list("id", flat=True)
+
+            rigging_events[position_key] = rigging_event
+
+        return rigging_events
+
     def refresh_buffers(self) -> Tuple[Optional[Event], Optional[Event]]:
         """Manage buffers from the event instance, returning them in a tuple form
 
@@ -1295,80 +1373,31 @@ class Event(
             and the second item is the post-activity buffer. Either may be None if their requisite values are not defined.
 
         """
-        current_tz = pytz.timezone(str(dj_timezone.get_current_timezone()))
-
         if self.buffer_before_event:
             self.buffer_before_event.archive(None)
-            self.buffer_befor_event = None
+            self.buffer_before_event = None
         if self.buffer_after_event:
             self.buffer_after_event.archive(None)
             self.buffer_after_event = None
 
-        before_activity_buffer = after_activity_buffer = None
-
-        if self.before_buffer_start and self.before_buffer_end:
-            before_activity_buffer = Event()
-            before_activity_buffer.title = (
-                self.before_buffer_title or "Opprigg for " + self.title
-            )
-            before_activity_buffer.arrangement = self.arrangement
-
-            offset_start = None
-            if self.before_buffer_date_offset:
-                offset_start = self.start - datetime.timedelta(
-                    days=self.before_buffer_date_offset
-                )
-
-            before_activity_buffer.start = current_tz.localize(
-                datetime.datetime.combine(
-                    self.before_buffer_date or offset_start or self.start,
-                    self.before_buffer_start,
-                )
-            )
-            before_activity_buffer.end = current_tz.localize(
-                datetime.datetime.combine(
-                    self.before_buffer_date or offset_start or self.start,
-                    self.before_buffer_end,
-                )
-            )
-            self.before_buffer_date = before_activity_buffer.start.strftime("%Y-%m-%d")
-            before_activity_buffer.save()
-            before_activity_buffer.rooms.set(self.rooms.all())
-            before_activity_buffer.people.set(self.people.all())
-            before_activity_buffer.save()
-            self.buffer_before_event = before_activity_buffer
+        if self.pk is None:
             self.save()
-        if self.after_buffer_start and self.after_buffer_end:
-            after_activity_buffer = Event()
-            after_activity_buffer.title = (
-                self.after_buffer_title or "Nedrigg for " + self.title
-            )
-            after_activity_buffer.arrangement = self.arrangement
 
-            offset_end = None
-            if self.after_buffer_date_offset:
-                offset_end = self.end + datetime.timedelta(
-                    days=self.after_buffer_date_offset
-                )
+        rigging_results = self.generate_rigging_events()
+        before_activity_buffer = rigging_results.get("before", None)
+        after_activity_buffer = rigging_results.get("after", None)
 
-            after_activity_buffer.start = current_tz.localize(
-                datetime.datetime.combine(
-                    self.after_buffer_date or offset_end or self.end,
-                    self.after_buffer_start,
-                )
-            )
-            after_activity_buffer.end = current_tz.localize(
-                datetime.datetime.combine(
-                    self.after_buffer_date or offset_end or self.end,
-                    self.after_buffer_end,
-                )
-            )
-            self.after_buffer_date = after_activity_buffer.start.strftime("%Y-%m-%d")
-            after_activity_buffer.save()
-            after_activity_buffer.rooms.set(self.rooms.all())
-            after_activity_buffer.people.set(self.people.all())
-            after_activity_buffer.save()
+        if before_activity_buffer is not None:
+            self.buffer_before_event = before_activity_buffer
+            self.buffer_before_event.save()
+            self.buffer_before_event.rooms.set(self.buffer_before_event._rooms)
+            self.buffer_before_event.people.set(self.buffer_before_event._people)
+            self.save()
+        if after_activity_buffer is not None:
             self.buffer_after_event = after_activity_buffer
+            self.buffer_after_event.save()
+            self.buffer_after_event.rooms.set(self.buffer_after_event._rooms)
+            self.buffer_after_event.people.set(self.buffer_after_event._people)
             self.save()
 
         return (before_activity_buffer, after_activity_buffer)
@@ -1583,6 +1612,13 @@ class RequisitionRecord(TimeStampedModel, ModelArchiveableMixin):
 
 class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     """A time manifest is a manifest of the timeplan generation"""
+
+    # Internal UUID used in the creation process to produce hashes of events in the serie
+    # before the creation of the serie actual. Kept on model for reference on creation of
+    # broken out rigging events.
+    internal_uuid = models.CharField(
+        max_length=512, blank=True, null=True, default=None
+    )
 
     expected_visitors = models.IntegerField(default=0)
     ticket_code = models.CharField(max_length=255, blank=True)

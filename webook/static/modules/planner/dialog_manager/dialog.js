@@ -362,8 +362,13 @@ class DialogStepper {
         if ( !(Array.isArray(steps)) || steps.length == 0 ) {
             throw Error("Steps is not of a valid value, or length", steps)
         }
-
-        this.steps = steps;
+        
+        this.steps = steps.filter(
+            (step) => step.visible === undefined || step.visible === true
+        )
+        this.invisibleSteps = steps.filter(
+            (step) => step.visible === false
+        )
         this.currentStep = 0;
         this.railWrapperElement = railWrapperElement instanceof Node ? railWrapperElement : document.querySelector(railWrapperElement);
         this.allowRailBasedNavigation = false;
@@ -392,14 +397,20 @@ class DialogStepper {
     }
 
     _setupSteps() {
-      this.steps.forEach(function (step) {
-        if (!(step.element instanceof Node)) {
-          step.element = document.querySelector(step.element);
-        }
-        step.element.style.display = 'none';
-      });
+        
+        this.steps.forEach(function (step) {
+            if (step.element instanceof Node === false)
+                step.element = document.querySelector(step.element);
+            step.element.style.display = 'none';
+        });
 
-      this.stepTo(this.currentStep);
+        this.invisibleSteps.forEach(function(step) {
+            if (step.element instanceof Node === false)
+                step.element = document.querySelector(step.element);
+            step.element.style.display = 'none';
+        });
+
+        this.stepTo(this.currentStep);
     }
 
     next = () => this.stepTo(this.currentStep + 1);
