@@ -52,7 +52,8 @@ class MicrosoftPersonAccountAdapter(DefaultSocialAccountAdapter):
                 self._triggerStandardErrorPage(
                     reasoning_message="There are no registered people in the application matching the values of the given social login."
                 )
-            sociallogin.existing_user = matching_person.user_set.get()
+            if matching_person.user_set.exists():
+                sociallogin.existing_user = matching_person.user_set.get()
             sociallogin.person_id = matching_person.pk
 
     def is_open_for_signup(self, request, sociallogin):
