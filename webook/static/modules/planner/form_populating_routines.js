@@ -322,8 +322,6 @@ export function PopulateCreateEventDialogFromCollisionResolution($dialogElement,
     let [ fromDate, fromTime ]  = parseDateOrStringToArtifacts(collisionRecord.event_a_start);
     let [ toDate, toTime ]      = parseDateOrStringToArtifacts(collisionRecord.event_a_end);
 
-    console.log("coll.pop", collisionRecord);
-
     [
         { target: '#title_before_collision_resolution', value: serie.time.title },
         { target: "#start_before_collision_resolution", value: collisionRecord.event_a_start },
@@ -363,7 +361,7 @@ export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
         if (dateOrString instanceof String || typeof(dateOrString) === "string")
             return Utils.splitStrDate(dateOrString);
         else if (dateOrString instanceof Date)
-            return Utils.splitDateIntoDateAndTimeStrings(event.start);
+            return Utils.splitDateIntoDateAndTimeStrings(dateOrString);
         else throw "Invalid value or type"
     }
 
