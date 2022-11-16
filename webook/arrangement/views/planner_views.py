@@ -638,6 +638,10 @@ class PlannerArrangementCreateSimpleEventDialogView(
             triggers_display_layout_text=True
         )
 
+        hide_rigging = self.request.GET.get("hideRigging", False)
+        if not isinstance(hide_rigging, bool):
+            hide_rigging = hide_rigging == "true"
+        context["HIDE_RIGGING"] = hide_rigging
         return context
 
 

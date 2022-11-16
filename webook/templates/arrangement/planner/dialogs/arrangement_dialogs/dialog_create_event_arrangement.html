@@ -7,6 +7,14 @@
     <input type="hidden" id="_backingArrangementTypeId" />
     <input type="hidden" id="_statusTypeId" />
 
+    <input type="hidden" id="_serie_reference">
+    <input type="hidden" id="_serie_position_hash" name="">
+    <input type="hidden" id="_parent_serie_position_hash" name="">
+
+    <input type="hidden" id="start_before_collision_resolution">
+    <input type="hidden" id="end_before_collision_resolution">
+    <input type="hidden" id="title_before_collision_resolution" name="">
+
     <div class="clearfix">
         <div class="float-start">
             <h6>
@@ -505,6 +513,7 @@
                     {
                         element: dialog.getElementById('step-3'),
                         title: 'Opp og ned-rigg',
+                        visible: {% if HIDE_RIGGING %}false{% else %}true{% endif %},
                         stepIn: () => {},
                         stepOut: (isSteppingForwards) => {
                             let isValid = true;
@@ -593,6 +602,12 @@
                     room_payload:               dialog.data.roomPayload,
                     people_payload:             dialog.data.peoplePayload,
                     planner_payload:            dialog.data.mainPlannerPayload,
+                    serie_uuid:                 dialog.interior._serie_reference.value,
+                    serie_position_hash:        dialog.interior._serie_position_hash.value,
+                    parent_serie_position_hash: dialog.interior._parent_serie_position_hash.value,
+                    start_before_collision_resolution: dialog.interior.start_before_collision_resolution.value,
+                    end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
+                    title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
                 };
 
                 console.log("qualifiedEvent", qualifiedEvent);

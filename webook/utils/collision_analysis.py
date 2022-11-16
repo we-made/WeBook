@@ -19,9 +19,23 @@ class CollisionRecord:
     event_b_end: datetime
     contested_resource_id: int
     contested_resource_name: str
+    is_rigging: bool = False
+    is_resolution: bool = False
+    my_serie_position_hash: Optional[str] = None
+    parent_serie_position_hash: Optional[str] = None
 
 
 RoomCalendar = namedtuple("RoomCalendar", ["room", "events"])
+
+
+def explode_rigging_events(event_to_explode: Event):
+    """
+    Explode the rigging events of a given event -- manifesting them for collision analysis
+
+    Returns a dict containing two keys, before and after, each key may have a value of an event, which is the exploded
+    rigging event. If the value is none, then there is no properly configured rigging event for this position relative to the given event.
+    """
+    pass
 
 
 def analyze_collisions(
@@ -100,6 +114,9 @@ def _analyze_multiple_events(
                             event_b_end=r_event.end,
                             contested_resource_id=room_calendar.room.id,
                             contested_resource_name=room_calendar.room.name,
+                            my_serie_position_hash=event.serie_positional_hash,
+                            parent_serie_position_hash=event.sph_of_root_event,
+                            is_rigging=event.is_rigging,
                         )
                     )
                     if hasattr(event, "is_collision"):

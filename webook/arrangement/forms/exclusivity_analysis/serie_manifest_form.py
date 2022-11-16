@@ -25,6 +25,8 @@ from webook.utils.serie_calculator import calculate_serie
 class SerieManifestForm(forms.Form):
     """Form representing a serie manifest, tightly related to the model PlanManifest"""
 
+    internal_uuid = forms.CharField(max_length=1024)  # serie position hash base
+
     pattern = forms.CharField(max_length=255)
     patternRoutine = forms.CharField(max_length=255)
     timeAreaMethod = forms.CharField(max_length=255)
@@ -87,6 +89,9 @@ class SerieManifestForm(forms.Form):
     def as_plan_manifest(self):
         """Convert the SerieManifestForm to a valid PlanManifest"""
         plan_manifest = PlanManifest()
+
+        plan_manifest.internal_uuid = self.cleaned_data["internal_uuid"]
+
         plan_manifest.pattern = self.cleaned_data["pattern"]
         plan_manifest.pattern_strategy = self.cleaned_data["patternRoutine"]
         plan_manifest.recurrence_strategy = self.cleaned_data["timeAreaMethod"]

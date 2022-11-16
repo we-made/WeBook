@@ -46,6 +46,15 @@ export class ArrangementCreator {
                         onSubmit: async (context, details) => {
                             let csrf_token = details.formData.get("csrf_token");
 
+                            let eventSort = ( a, b ) => {
+                                if ( a.parent_position_hash ) {
+                                  return 1;
+                                }
+                                else {
+                                  return -1;
+                                }
+                            }
+
                             await fetch("/arrangement/arrangement/ajax/create", {
                                 method: 'POST',
                                 body: details.formData,
@@ -65,6 +74,7 @@ export class ArrangementCreator {
                                 
                                 if (details.events !== undefined) {
                                     details.events.forEach((event) => event.arrangement = arrId.arrangementPk);
+                                    details.events = details.events.sort(eventSort)
                                     await QueryStore.SaveEvents(details.events, csrf_token);
                                 }
                               })
@@ -176,6 +186,7 @@ export class ArrangementCreator {
                             }
 
                             details.serie.collisions = await CollisionsUtil.GetCollisionsForSerie(serieConvert(details.serie, new FormData(), ""), details.csrf_token);
+                            console.log("serie onsubmit collisions => ", details.serie.collisions);
                             context.series.set(details.serie._uuid, details.serie);
                             document.dispatchEvent(new CustomEvent(this.dialogManager.managerName + ".contextUpdated", { detail: { context: context } }))
                         },
@@ -200,6 +211,7 @@ export class ArrangementCreator {
                                     slug: 0,
                                     orderPersonDialog: "orderPersonDialog",
                                     orderRoomDialog: "orderRoomDialog",
+                                    hideRigging: true,
                                 }
                             })
                         },

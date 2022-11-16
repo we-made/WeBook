@@ -44,6 +44,8 @@ class _Event:
     start: time
     end: time
 
+    serie_positional_hash: Optional[str] = None
+    sph_of_root_event: Optional[str] = None
 
 @dataclass
 class _CycleInstruction:

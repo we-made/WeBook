@@ -2,6 +2,7 @@ import { appendArrayToFormData } from "./commonLib.js";
 
 
 export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
+    formData.append(`${keyPrefix}internal_uuid`, serie._uuid);
     formData.append(`${keyPrefix}pattern`, serie.pattern.pattern_type);
     formData.append(`${keyPrefix}patternRoutine`, serie.pattern.pattern_routine);
     formData.append(`${keyPrefix}timeAreaMethod`, serie.time_area.method_name);
