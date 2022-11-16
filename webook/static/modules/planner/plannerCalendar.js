@@ -348,6 +348,9 @@ export class PlannerCalendar extends FullCalendarBased {
                         </div>
                         ${arrangement.arrangement_type}
                     </div>
+                    <div class='text-end mt-2'>
+                        <i>Forventet antall besøkende:</i> ${arrangement.expected_visitors}
+                    </div>
                     <div class='col-12 text-center mt-2'>
                         <div class='border border-1 p-2 rounded-pill fw-bold' style='background-color: ${arrangement.status_color};color:${statusForegroundTextColor};'>
                             ${ arrangement.status_name ?? "Ingen status" }

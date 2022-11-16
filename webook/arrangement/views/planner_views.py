@@ -19,13 +19,23 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.decorators.http import require_http_methods
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 from django.views.generic.edit import DeleteView, FormView
 
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.facilities.calendar import analysis_strategies
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
-from webook.arrangement.forms.file_forms import UploadFilesToArrangementForm, UploadFilesToEventSerieForm
+from webook.arrangement.forms.file_forms import (
+    UploadFilesToArrangementForm,
+    UploadFilesToEventSerieForm,
+)
 from webook.arrangement.forms.note_forms import CreateNoteForm, UpdateNoteForm
 from webook.arrangement.forms.ordering_forms import (
     LooselyOrderServiceForm,
@@ -36,9 +46,15 @@ from webook.arrangement.forms.ordering_forms import (
     RemovePersonFromEventForm,
     RemoveRoomFromEventForm,
 )
-from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
-from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
-from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
+from webook.arrangement.forms.planner.planner_create_arrangement_form import (
+    PlannerCreateArrangementModelForm,
+)
+from webook.arrangement.forms.planner.planner_plan_serie_form import (
+    PlannerPlanSerieForm,
+)
+from webook.arrangement.forms.planner.planner_update_arrangement_form import (
+    PlannerUpdateArrangementModelForm,
+)
 from webook.arrangement.forms.planner_forms import AddPlannersForm, RemovePlannersForm
 from webook.arrangement.models import (
     Arrangement,
@@ -57,8 +73,14 @@ from webook.arrangement.models import (
     Room,
     RoomPreset,
 )
-from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
-from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.generic_views.archive_view import (
+    ArchiveView,
+    JsonArchiveView,
+)
+from webook.arrangement.views.generic_views.json_form_view import (
+    JsonFormView,
+    JsonModelFormMixin,
+)
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
@@ -388,7 +410,7 @@ class GetArrangementsInPeriod(LoginRequiredMixin, ListView):
                     f"""    SELECT audience.icon_class as audience_icon, arr.name as arrangement_name, audience.name as audience, audience.slug as audience_slug, (resp.first_name || ' ' || resp.last_name) as mainPlannerName,
                                 arr.id as arrangement_pk, ev.id as event_pk, arr.slug as slug, ev.title as name, ev.start as starts, arr.created as created_when, ev.association_type as association_type,
                                 ev.end as ends, loc.name as location, loc.slug as location_slug, arrtype.name as arrangement_type, arrtype.slug as arrangement_type_slug, evserie.id as evserie_id, status.name as status_name, status.color as status_color,
-                                status.slug as status_slug,
+                                status.slug as status_slug, arr.expected_visitors as expected_visitors,
                                 ev.buffer_after_event_id as after_buffer_ev_id, ev.buffer_before_event_id as before_buffer_ev_id,
                                 (SELECT EXISTS(SELECT id from arrangement_event WHERE buffer_before_event_id = ev.id OR buffer_after_event_id = ev.id)) AS is_rigging,
                                 array_agg( DISTINCT room.name) as room_names,
@@ -411,7 +433,7 @@ class GetArrangementsInPeriod(LoginRequiredMixin, ListView):
                                     event_pk, audience.icon_class, audience.name, audience.slug,
                                     resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
                                     loc.name, loc.slug, arrtype.name, arrtype.slug, evserie.id,
-                                    status.name, status.color, status.slug
+                                    status.name, status.color, status.slug, arr.expected_visitors
                             """,
                     [start, end],
                 )
