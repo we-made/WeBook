@@ -84,24 +84,20 @@ class BaseEventForm(forms.ModelForm):
         par_pos_hash = self.cleaned_data["parent_serie_position_hash"]
 
         serie = None
+        source_manifest = PlanManifest.objects.filter(internal_uuid=serie_uuid).last()
 
         self.instance.is_resolution = (
             self.instance.start_before_collision_resolution is not None
             and self.instance.end_before_collision_resolution is not None
         )
 
-        if serie_uuid is not None:
-            source_manifest = PlanManifest.objects.filter(
-                internal_uuid=serie_uuid
-            ).last()
+        if self.instance.associated_serie is not None:
+            serie = self.instance.associated_serie
+        elif serie_uuid is not None and source_manifest is not None:
             serie: EventSerie = source_manifest.eventserie_set.first()
             self.instance.associated_serie = serie
 
-        if serie is not None and pos_hash is not None and par_pos_hash is not None:
-            source_manifest = PlanManifest.objects.filter(
-                internal_uuid=serie_uuid
-            ).last()
-            serie: EventSerie = source_manifest.eventserie_set.first()
+        if serie is not None:
             events_in_serie: List[Event] = serie.associated_events.all()
 
             parent_event: Event = None
@@ -116,26 +112,27 @@ class BaseEventForm(forms.ModelForm):
                     if event.end_before_collision_resolution
                     else event.end
                 )
+                if pos_hash and par_pos_hash:
+                    ev_hash = get_serie_positional_hash(
+                        serie_uuid=serie_uuid,
+                        event_title=event.title_before_collision_resolution
+                        or event.title,
+                        start=start,
+                        end=end,
+                    )
 
-                ev_hash = get_serie_positional_hash(
-                    serie_uuid=serie_uuid,
-                    event_title=event.title_before_collision_resolution or event.title,
-                    start=start,
-                    end=end,
-                )
+                    if ev_hash == par_pos_hash:
+                        parent_event = event
 
-                if ev_hash == par_pos_hash:
-                    parent_event = event
+                        self.instance.save()
 
-                    self.instance.save()
+                        is_before = self.instance.start < parent_event.start
+                        if is_before:
+                            parent_event.buffer_before_event = self.instance
+                        else:
+                            parent_event.buffer_after_event = self.instance
 
-                    is_before = self.instance.start < parent_event.start
-                    if is_before:
-                        parent_event.buffer_before_event = self.instance
-                    else:
-                        parent_event.buffer_after_event = self.instance
-
-                    parent_event.save()
+                        parent_event.save()
 
         if self.instance.is_buffer_event:
             if self.instance.before_buffer_for.exists():

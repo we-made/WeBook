@@ -116,7 +116,9 @@ def _analyze_multiple_events(
                             contested_resource_name=room_calendar.room.name,
                             my_serie_position_hash=event.serie_positional_hash,
                             parent_serie_position_hash=event.sph_of_root_event,
-                            is_rigging=event.is_rigging,
+                            is_rigging=event.is_rigging
+                            if hasattr(event, "is_rigging")
+                            else None,
                         )
                     )
                     if hasattr(event, "is_collision"):
