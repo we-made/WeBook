@@ -95,7 +95,7 @@ class MicrosoftPersonAccountAdapter(DefaultSocialAccountAdapter):
             raise Exception("'readonly' group does not exist")
         read_only_group.user_set.add(user)
 
-        user.person = sociallogin.person_id
+        user.person = Person.objects.get(id=sociallogin.person_id)
         user.save()
 
         delattr(sociallogin, "person_id")
