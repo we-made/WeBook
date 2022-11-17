@@ -99,6 +99,7 @@ class MicrosoftPersonAccountAdapter(DefaultSocialAccountAdapter):
         user.save()
 
         delattr(sociallogin, "person_id")
-        delattr(sociallogin, "existing_user")
+        if hasattr(sociallogin, "existing_user"):
+            delattr(sociallogin, "existing_user")
 
         return user
