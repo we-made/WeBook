@@ -168,9 +168,9 @@ class BaseEventForm(forms.ModelForm):
 
                 post_buffering_event.save()
 
+        self.instance.save()
         self.instance.rooms.set(self.cleaned_data["rooms"])
         self.instance.people.set(self.cleaned_data["people"])
-        self.instance.save()
 
         _: Tuple[Optional[Event], Optional[Event]] = self.instance.refresh_buffers()
 

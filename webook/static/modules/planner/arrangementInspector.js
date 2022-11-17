@@ -124,8 +124,9 @@ export class ArrangementInspector {
                         },
                         onUpdatedCallback: () => {  },
                         dialogOptions: { 
-                            width: 800, 
-                            height: 800, 
+                            width: $(window).width() * 0.45, 
+                            maxHeight: 100,
+                            modal: true,
                             dialogClass: 'no-titlebar',
                             position: "center center",
                         }
