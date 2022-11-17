@@ -24,7 +24,6 @@
     {% if event.serie %}
     <div class="alert mb-4 mt-2 border" style="background-color:  #f6f6f0 !important;">
             <div>
-                <!-- <h6 class="mb-0 d-inline fw-lighter">Denne aktiviteten tilhører en gjentagende serie:</h4> -->
                 <h4 class="mb-0"><span class="h3"><i class="fas fa-sync"></i></span>&nbsp;&nbsp; {{event.serie.serie_plan_manifest.schedule_description }}</h4>
                 <small><i class="fas fa-info-circle"></i>&nbsp; Ved redigering vil denne aktiviteten brytes ut av serien, og vil ikke lenger bli ansett som en del av denne serien</small>
             </div>
@@ -910,6 +909,8 @@
                     meeting_place_en:       dialog.interior.id_meeting_place_en.value,
                     display_text:           dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
                 };
+
+                console.log(qualifiedEvent);
 
                 dialog.raiseSubmitEvent({
                     event: qualifiedEvent,
