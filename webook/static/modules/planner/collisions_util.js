@@ -207,6 +207,8 @@ export class CollisionsUtil {
 
         let trHtml = "";
 
+        console.log("collisions", collisions);
+
         collisions.forEach(function (collision) {
             let uuid = "";
             let collision_record = undefined;

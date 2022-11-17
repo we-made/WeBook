@@ -308,6 +308,8 @@ export class ArrangementInspector {
                             dialogClass: 'no-titlebar',
                         },
                         onSubmit: async (context, details) => {
+                            details.serie._uuid = crypto.randomUUID();
+
                             context.serie = details.serie;
                             context.collision_resolution = new Map();
 
