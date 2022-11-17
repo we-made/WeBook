@@ -309,6 +309,10 @@ class RoomPreset(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     entity_name_singular = _("Room Preset")
     entity_name_plural = _("Room Presets")
 
+    def __str__(self):
+        """Return room preset name"""
+        return self.name
+
 
 class Arrangement(
     TimeStampedModel,
@@ -1191,7 +1195,9 @@ class Event(
     is_resolution = models.BooleanField(
         verbose_name=_("Is the result of a collision resolution"), default=False
     )
-    title_before_collision_resolution = models.CharField(max_length=255, default=None, blank=True, null=True)
+    title_before_collision_resolution = models.CharField(
+        max_length=255, default=None, blank=True, null=True
+    )
     start_before_collision_resolution = models.DateTimeField(
         verbose_name=_("Start before collision resolution"), null=True, default=None
     )

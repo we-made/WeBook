@@ -11,10 +11,20 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.decorators.http import require_http_methods
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 from django.views.generic.edit import DeleteView, FormView
 
-from webook.arrangement.forms.ordering_forms import LooselyOrderServiceForm, OrderServiceForm
+from webook.arrangement.forms.ordering_forms import (
+    LooselyOrderServiceForm,
+    OrderServiceForm,
+)
 from webook.arrangement.forms.requisition_forms import (
     CancelServiceRequisitionForm,
     RequisitionPersonForm,
