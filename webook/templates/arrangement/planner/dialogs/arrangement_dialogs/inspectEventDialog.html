@@ -112,7 +112,7 @@
                         <div class="col-12">
                             <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
                                 <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}"
-                                    value="{{form.responsible.value}}">
+                                    value="{{form.responsible.value|default:''}}">
     
                                 <label for="" class="d-block form-label">
                                     <i class="fas fa-star"></i>

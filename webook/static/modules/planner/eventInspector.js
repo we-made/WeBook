@@ -38,8 +38,33 @@ export class EventInspector {
                             this.dialogManager.closeDialog("inspectEventDialog");
                         },
                         onSubmit: async (context, details) => {
-                            await QueryStore.UpdateEvents( [details.event], details.csrf_token )
-                                .then(_ => document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")));
+                            const responses = await QueryStore.UpdateEvents( [details.event], details.csrf_token );
+                            const response = responses[0];
+
+                            if (response.success === true) {
+                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                            }
+
+                            let collisionText = "";
+                            let subtext = "Forandringer på selve aktiviteten har blitt lagret, men aktiviteter for rigging har ikke blitt opprettet."
+                            if (response.main_event_is_in_collision === true) {
+                                collisionText = "aktiviteten"
+                                subtext = "";
+                            }
+                            else if (response.post_buffer_event_is_in_collision === true) {
+                                collisionText = "riggetid etter aktiviteten"
+                            }
+                            else if (response.pre_buffer_event_is_in_collision) {
+                                collisionText = "riggetid før aktiviteten"
+                            }
+
+                            Swal.fire(
+                                'Kollisjon',
+                                `Endringen kunne ikke lagres da ${collisionText} er i en kollisjon med en annen aktivitet på en eksklusiv ressurs.\n${subtext}`,
+                                'warning'
+                            )
+
+                            return false;
                         }
                     }),
                 ],

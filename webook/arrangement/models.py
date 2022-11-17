@@ -109,7 +109,7 @@ class ModelArchiveableMixin(models.Model):
     objects = ArchivedManager()
     all_objects = models.Manager()
 
-    def archive(self, person_archiving_this):
+    def archive(self, person_archiving_this: Optional[Person] = None):
         """Archive this object"""
         self.is_archived = True
         self.archived_by = person_archiving_this

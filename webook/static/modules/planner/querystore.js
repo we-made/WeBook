@@ -53,8 +53,9 @@ export class QueryStore {
 
 
     static async UpdateEvents (events, csrf_token) {
+        let responses = [];
         for (const formData of events.map((event) => convertObjToFormData(event, true))) {
-            await fetch("/arrangement/planner/update_event/" + formData.get("id"), {
+            let response = await fetch("/arrangement/planner/update_event/" + formData.get("id"), {
                 method: "POST",
                 body: formData,
                 headers: {
@@ -62,7 +63,9 @@ export class QueryStore {
                 },
                 credentials: 'same-origin',
             })
+            responses.push(await response.json())
         }
+        return responses;
     }
 
 

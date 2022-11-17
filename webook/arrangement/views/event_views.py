@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.views.generic import (
     CreateView,
@@ -61,6 +62,7 @@ class CreateEventSerieJsonFormView(
 create_event_serie_json_view = CreateEventSerieJsonFormView.as_view()
 
 
+@transaction.non_atomic_requests
 class CreateEventJsonFormView(
     LoginRequiredMixin, PlannerAuthorizationMixin, CreateView, JsonModelFormMixin
 ):
@@ -73,6 +75,7 @@ class CreateEventJsonFormView(
 create_event_json_view = CreateEventJsonFormView.as_view()
 
 
+@transaction.non_atomic_requests
 class UpdateEventJsonFormView(
     LoginRequiredMixin, PlannerAuthorizationMixin, UpdateView, JsonModelFormMixin
 ):
@@ -80,6 +83,39 @@ class UpdateEventJsonFormView(
 
     model = Event
     form_class = UpdateEventForm
+
+    def form_valid(self, form: UpdateEventForm) -> HttpResponse:
+        form.save()
+
+        check_and_get = (
+            lambda obj, attr_name, default: obj.attr_name
+            if hasattr(obj, attr_name)
+            else default
+        )
+
+        main_event_is_in_collision = getattr(form, "main_collision", False)
+        pre_buffer_event_is_in_collision = getattr(form, "pre_buffer_collision", False)
+        post_buffer_event_is_in_collision = getattr(
+            form, "post_buffer_collision", False
+        )
+
+        is_in_collision = (
+            main_event_is_in_collision
+            or pre_buffer_event_is_in_collision
+            or post_buffer_event_is_in_collision
+        )
+
+        if not is_in_collision:
+            return JsonResponse({"success": False})
+
+        return JsonResponse(
+            {
+                "success": False,
+                "main_event_is_in_collision": main_event_is_in_collision,
+                "pre_buffer_event_is_in_collision": pre_buffer_event_is_in_collision,
+                "post_buffer_event_is_in_collision": post_buffer_event_is_in_collision,
+            }
+        )
 
 
 update_event_json_view = UpdateEventJsonFormView.as_view()

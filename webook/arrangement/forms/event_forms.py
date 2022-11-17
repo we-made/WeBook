@@ -3,10 +3,12 @@ from typing import List, Optional, Tuple
 
 import pytz
 from django import forms
-from django.forms import CharField, fields
+from django.forms import CharField, ValidationError, fields
 from django.utils import timezone as dj_timezone
 
+from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.models import Event, EventSerie, PlanManifest
+from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.sph_gen import get_serie_positional_hash
 from webook.utils.utc_to_current import utc_to_current
 
@@ -168,11 +170,74 @@ class BaseEventForm(forms.ModelForm):
 
                 post_buffering_event.save()
 
+        collisions_with_main = analyze_collisions(
+            [
+                EventDTO(
+                    id=self.instance.id,
+                    title=self.instance.title,
+                    start=self.instance.start,
+                    end=self.instance.end,
+                    rooms=self.instance.rooms.values_list("id", flat=True),
+                    before_buffer_title=self.instance.before_buffer_title,
+                    before_buffer_date_offset=self.instance.before_buffer_date_offset,
+                    before_buffer_start=self.instance.before_buffer_start,
+                    before_buffer_end=self.instance.before_buffer_end,
+                    after_buffer_title=self.instance.after_buffer_title,
+                    after_buffer_date_offset=self.instance.after_buffer_date_offset,
+                    after_buffer_start=self.instance.after_buffer_start,
+                    after_buffer_end=self.instance.after_buffer_end,
+                )
+            ]
+        )
+        if len(collisions_with_main) > 0:
+            self.main_collision = True
+            return
+
+        pre_buffer, post_buffer = self.instance.refresh_buffers()
+        if pre_buffer is not None:
+            pre_buffer_dto = EventDTO(
+                id=pre_buffer.id,
+                title=pre_buffer.title,
+                start=pre_buffer.start,
+                end=pre_buffer.end,
+                rooms=pre_buffer.rooms.values_list("id", flat=True),
+                before_buffer_title=pre_buffer.before_buffer_title,
+                before_buffer_date_offset=pre_buffer.before_buffer_date_offset,
+                before_buffer_start=pre_buffer.before_buffer_start,
+                before_buffer_end=pre_buffer.before_buffer_end,
+                after_buffer_title=pre_buffer.after_buffer_title,
+                after_buffer_date_offset=pre_buffer.after_buffer_date_offset,
+                after_buffer_start=pre_buffer.after_buffer_start,
+                after_buffer_end=pre_buffer.after_buffer_end,
+            )
+            pre_buffer_collisions = analyze_collisions([pre_buffer_dto])
+            if len(pre_buffer_collisions) > 0:
+                self.pre_buffer_collision = True
+                pre_buffer.archive(None)
+        if post_buffer is not None:
+            post_buffer_dto = EventDTO(
+                id=post_buffer.id,
+                title=post_buffer.title,
+                start=post_buffer.start,
+                end=post_buffer.end,
+                rooms=post_buffer.rooms.values_list("id", flat=True),
+                before_buffer_title=post_buffer.before_buffer_title,
+                before_buffer_date_offset=post_buffer.before_buffer_date_offset,
+                before_buffer_start=post_buffer.before_buffer_start,
+                before_buffer_end=post_buffer.before_buffer_end,
+                after_buffer_title=post_buffer.after_buffer_title,
+                after_buffer_date_offset=post_buffer.after_buffer_date_offset,
+                after_buffer_start=post_buffer.after_buffer_start,
+                after_buffer_end=post_buffer.after_buffer_end,
+            )
+            post_buffer_collisions = analyze_collisions([post_buffer_dto])
+            if len(post_buffer_collisions) > 0:
+                self.post_buffer_collision = True
+                post_buffer.archive(None)
+
         self.instance.save()
         self.instance.rooms.set(self.cleaned_data["rooms"])
         self.instance.people.set(self.cleaned_data["people"])
-
-        _: Tuple[Optional[Event], Optional[Event]] = self.instance.refresh_buffers()
 
     class Meta:
         model = Event
@@ -196,13 +261,16 @@ class CreateEventForm(BaseEventForm):
 
 
 class UpdateEventForm(BaseEventForm):
+    def __init__(self, *args, **kwargs):
+        # first call parent's constructor
+        super(BaseEventForm, self).__init__(*args, **kwargs)
+        # there's a `fields` property now
+        self.fields["responsible"].required = False
+
     class Meta:
         model = Event
         fields = ("id",) + _ALWAYS_FIELDS
         widgets = {
-            "responsible": forms.Select(
-                attrs={"class": "form-control form-control-lg"}
-            ),
             "display_layouts": forms.CheckboxSelectMultiple(
                 attrs={
                     "id": "display_layouts_create_event",

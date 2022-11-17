@@ -11,10 +11,12 @@ from webook.utils.sph_gen import get_serie_positional_hash
 
 @dataclass
 class EventDTO:
+
     title: str
     start: datetime
     end: datetime
 
+    id: Optional[int] = None
     title_en: str = ""
 
     rooms: list = field(default_factory=list)
