@@ -132,6 +132,13 @@ export class CollisionsUtil {
     }
 
     static async FireOneToOneCollisionWarningSwal(collision) {
+        debugger;
+
+        const event_a_start = new Date(collision.event_a_start);
+        const event_a_end = new Date(collision.event_a_end);
+        const event_b_start = new Date(collision.event_b_start);
+        const event_b_end = new Date(collision.event_b_end);
+
         return Swal.fire({
             title: 'Kollisjon',
             width: 600,
@@ -144,7 +151,7 @@ export class CollisionsUtil {
                             <div class='card-body'>
                                 <span class='fw-bold'>${collision.event_a_title}</span>
                                 <div class='small text-muted'>
-                                    ${collision.event_a_start} - ${collision.event_a_end}
+                                    ${event_a_start.toLocaleDateString("nb-NO")} ${event_a_start.toLocaleTimeString("nb-NO")} - ${event_a_end.toLocaleDateString("nb-NO")} ${event_a_end.toLocaleTimeString("nb-NO")}
                                 </div>
                             </div>
                         </div>
@@ -157,7 +164,7 @@ export class CollisionsUtil {
                             <div class='card-body'>
                                 <span class='fw-bold'>${collision.event_b_title}</span>
                                 <div class='small text-muted'>
-                                    ${collision.event_b_start} - ${collision.event_b_end}
+                                    ${event_b_start.toLocaleDateString("nb-NO")} ${event_b_start.toLocaleTimeString("nb-NO")} - ${event_b_end.toLocaleDateString("nb-NO")} ${event_b_end.toLocaleTimeString("nb-NO")}
                                 </div>
                             </div>
                         </div>

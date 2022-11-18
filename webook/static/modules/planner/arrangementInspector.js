@@ -523,8 +523,12 @@ export class ArrangementInspector {
                         onSubmit: async (context, details) => {
                             details.event.startDate = (new Date(details.event.start)).toISOString();
                             details.event.endDate = (new Date(details.event.end)).toISOString();
+                            details.event.fromDate = details.event.startDate;
+                            details.event.toDate = details.event.endDate;
                             details.event.arrangement = context.arrangement.arrangement_pk;
                             details.event.id = 0;
+
+                            debugger;
 
                             details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(convertObjToFormData(details.event), details.csrf_token);
 
