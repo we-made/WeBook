@@ -20,6 +20,9 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}meeting_place_en`, serie.time.meeting_place_en);
     formData.append(`${keyPrefix}responsible`, serie.time.responsible);
     formData.append(`${keyPrefix}display_text`, serie.time.display_text);
+    if (serie.collision_resolution_behaviour === undefined)
+        serie.collision_resolution_behaviour = 0
+    formData.append(`${keyPrefix}collision_resolution_behaviour`, serie.collision_resolution_behaviour);
 
     if (serie.event_serie_pk)
         formData.append(`${keyPrefix}predecessorSerie`, serie.event_serie_pk);

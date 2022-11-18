@@ -81,6 +81,8 @@ class SerieManifestForm(forms.Form):
     before_buffer_start = forms.TimeField(required=False)
     before_buffer_end = forms.TimeField(required=False)
 
+    collision_resolution_behaviour = forms.IntegerField(required=False, initial=0)
+
     after_buffer_title = forms.CharField(required=False)
     after_buffer_date_offset = forms.IntegerField(required=False)
     after_buffer_start = forms.TimeField(required=False)
@@ -102,6 +104,11 @@ class SerieManifestForm(forms.Form):
         plan_manifest.expected_visitors = self.cleaned_data["expectedVisitors"]
         plan_manifest.title = self.cleaned_data["title"]
         plan_manifest.title_en = self.cleaned_data["title_en"]
+
+        plan_manifest.collision_resolution_behaviour = (
+            self.cleaned_data["collision_resolution_behaviour"]
+            or PlanManifest.CollisionResolutionBehaviour.IGNORE_COLLIDING_ACTIVITIES
+        )
 
         plan_manifest.before_buffer_title = self.cleaned_data["before_buffer_title"]
         plan_manifest.before_buffer_date_offset = self.cleaned_data[
@@ -169,7 +176,7 @@ class CreateSerieForm(SerieManifestForm):
     arrangementPk = forms.IntegerField()
 
     def save(self, form, *args, **kwargs) -> JsonResponse:
-        manifest = form.as_plan_manifest()
+        manifest: PlanManifest = form.as_plan_manifest()
 
         manifest.timezone = kwargs["user"].timezone
         manifest.save()
@@ -207,10 +214,13 @@ class CreateSerieForm(SerieManifestForm):
         create_events = []
 
         for ev in calculated_serie:
-            if ev.is_collision:
+            if ev.is_collision and manifest.collision_resolution_behaviour == 0:
                 continue
 
             event = Event()
+
+            event.is_collision = ev.is_collision
+
             event.arrangement = serie.arrangement
             event.title = manifest.title
             event.title_en = manifest.title_en
@@ -252,12 +262,19 @@ class CreateSerieForm(SerieManifestForm):
         people_throughs = []
         display_layout_throughs = []
 
+        event: Event
         for event in created_events:
-            room_throughs = room_throughs + [
-                Event.rooms.through(event_id=event.id, room_id=room_id)
-                for room_id in room_ids
-                if room_ids
-            ]
+            if not (
+                manifest.collision_resolution_behaviour
+                == PlanManifest.CollisionResolutionBehaviour.REMOVE_CONTESTED_RESOURCE
+                and event.is_collision
+            ):
+                room_throughs = room_throughs + [
+                    Event.rooms.through(event_id=event.id, room_id=room_id)
+                    for room_id in room_ids
+                    if room_ids
+                ]
+
             people_throughs = people_throughs + [
                 Event.people.through(event_id=event.id, person_id=person_id)
                 for person_id in people_ids

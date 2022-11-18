@@ -103,7 +103,11 @@ def _analyze_multiple_events(
         for exlusive_room_id in exclusive_room_ids:
             room_calendar = rooms[int(exlusive_room_id)]
             for r_event in room_calendar.events:
-                if event.id is not None and r_event.id == event.id:
+                if (
+                    hasattr(event, "id")
+                    and event.id is not None
+                    and r_event.id == event.id
+                ):
                     continue
                 if r_event.start < event.end and r_event.end > event.start:
                     records.append(

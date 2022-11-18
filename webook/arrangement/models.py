@@ -1626,6 +1626,19 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
         max_length=512, blank=True, null=True, default=None
     )
 
+    class CollisionResolutionBehaviour(models.IntegerChoices):
+        # Ignore colliding activities; don't create them at all
+        IGNORE_COLLIDING_ACTIVITIES = 0, _("Ignore colliding activities")
+        # Remove the references to contested resources on the colliding activities, which creates them.
+        REMOVE_CONTESTED_RESOURCE = 1, _(
+            "Remove contested resources from activity on collisions"
+        )
+
+    collision_resolution_behaviour = models.IntegerField(
+        choices=CollisionResolutionBehaviour.choices,
+        default=CollisionResolutionBehaviour.IGNORE_COLLIDING_ACTIVITIES,
+    )
+
     expected_visitors = models.IntegerField(default=0)
     ticket_code = models.CharField(max_length=255, blank=True)
     title = models.CharField(max_length=255)
