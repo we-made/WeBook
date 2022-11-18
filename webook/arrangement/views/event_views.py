@@ -87,12 +87,6 @@ class UpdateEventJsonFormView(
     def form_valid(self, form: UpdateEventForm) -> HttpResponse:
         form.save()
 
-        check_and_get = (
-            lambda obj, attr_name, default: obj.attr_name
-            if hasattr(obj, attr_name)
-            else default
-        )
-
         main_event_is_in_collision = getattr(form, "main_collision", False)
         pre_buffer_event_is_in_collision = getattr(form, "pre_buffer_collision", False)
         post_buffer_event_is_in_collision = getattr(
@@ -106,7 +100,7 @@ class UpdateEventJsonFormView(
         )
 
         if not is_in_collision:
-            return JsonResponse({"success": False})
+            return JsonResponse({"success": True})
 
         return JsonResponse(
             {
