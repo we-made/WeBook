@@ -1,9 +1,11 @@
 from datetime import datetime, time, timedelta
 from typing import List
 
+import pytz
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone as dj_timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     CreateView,
@@ -82,7 +84,7 @@ class AnalyzeNonExistentSerieManifest(
                 rigging_before_event.sph_of_root_event = event_dto.serie_positional_hash
                 rigging_before_event.serie_positional_hash = (
                     rigging_before_event.generate_serie_positional_hash(
-                        manifest.internal_uuid  
+                        manifest.internal_uuid
                     )
                 )
                 events.append(rigging_before_event)
@@ -151,6 +153,14 @@ class AnalyzeNonExistantEvent(
         )
 
         records = analyze_collisions(events)
+        current_tz = pytz.timezone(str(dj_timezone.get_current_timezone()))
+
+        for record in records:
+            record.event_a_start = record.event_a_start.astimezone(current_tz)
+            record.event_a_end = record.event_a_end.astimezone(current_tz)
+            record.event_b_start = record.event_b_start.astimezone(current_tz)
+            record.event_b_end = record.event_b_end.astimezone(current_tz)
+
         return JsonResponse([vars(record) for record in records], safe=False)
 
     def form_invalid(self, form) -> JsonResponse:
