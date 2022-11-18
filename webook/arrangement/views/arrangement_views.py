@@ -86,6 +86,24 @@ class ArrangementRecurringInformationJsonView(
     def get_data(self, context):
         arrangement = context["object"]
 
+        responsible_list = (
+            [
+                {
+                    "id": arrangement.responsible.id,
+                    "text": arrangement.responsible.full_name,
+                }
+            ]
+            if arrangement.responsible
+            else []
+        )
+        responsible = {
+            "allPresets": [],
+            "allSelectedEntityIds": responsible_list,
+            "viewables": responsible_list,
+            "selectedPresets": [],
+            "eventPk": "",
+        }
+
         return {
             "title": arrangement.name,
             "title_en": arrangement.name_en,
@@ -107,6 +125,7 @@ class ArrangementRecurringInformationJsonView(
             "responsible_id": arrangement.responsible.pk
             if arrangement.responsible
             else "",
+            "responsible": responsible,
             "meeting_place": arrangement.meeting_place,
             "meeting_place_en": arrangement.meeting_place_en,
         }

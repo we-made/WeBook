@@ -286,9 +286,12 @@ export class ArrangementInspector {
                                 $newTimePlanDialog.find( mapping.targetSelector ).val( mapping.value );
                             } );
 
+                            // console.log("info", info);
+
                             window.MessagesFacility.send("newTimePlanDialog", info.arrangement_type_id, "setArrangementTypeFromParent")
                             window.MessagesFacility.send("newTimePlanDialog", info.audience_id, "setAudienceFromParent");
                             window.MessagesFacility.send("newTimePlanDialog", info.status_id, "setStatusFromParent");
+                            window.MessagesFacility.send("newTimePlanDialog", info.responsible, "setPlanner");
 
                             info.display_layouts.forEach(display_layout => {
                                 $newTimePlanDialog.find('#id_display_layouts_serie_planner_' + ( display_layout - 1))
@@ -494,6 +497,7 @@ export class ArrangementInspector {
                             window.MessagesFacility.send(dialogId, info.arrangement_type_id, "setArrangementTypeFromParent")
                             window.MessagesFacility.send(dialogId, info.audience_id, "setAudienceFromParent");
                             window.MessagesFacility.send(dialogId, info.status_id, "setStatusFromParent");
+                            window.MessagesFacility.send(dialogId, info.responsible, "setPlanner")
 
                             info.display_layouts.forEach(display_layout => {
                                 $newSimpleActivityDialog.find('#' + display_layout + "_dlcheck")
