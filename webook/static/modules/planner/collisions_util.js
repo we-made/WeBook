@@ -134,10 +134,41 @@ export class CollisionsUtil {
     static async FireOneToOneCollisionWarningSwal(collision) {
         debugger;
 
-        const event_a_start = new Date(collision.event_a_start);
-        const event_a_end = new Date(collision.event_a_end);
-        const event_b_start = new Date(collision.event_b_start);
-        const event_b_end = new Date(collision.event_b_end);
+        const generateTimeText = (date_a, date_b, to_locale) => {
+            const _getComparableDate = (date) => {
+                return date.getFullYear() + "_" + date.getMonth() + "_" + date.getDate()
+            }
+
+            let dateCompareText = null;
+
+            const date_options = {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+            }
+            const time_options = {
+                hour: "2-digit",
+                minute: "2-digit",
+            }
+
+            const isSameDay = _getComparableDate(date_a) === _getComparableDate(date_b);
+            if (isSameDay) {
+                dateCompareText = `${date_a.toLocaleDateString("nb-NO", date_options)} ${date_a.toLocaleTimeString("nb-NO", time_options)}-${date_b.toLocaleTimeString("nb-NO", time_options)}`;
+            }
+            else {
+                dateCompareText = `${date_a.toLocaleDateString("nb-NO", date_options)} ${date_a.toLocaleTimeString("nb-NO", time_options)} - ${date_b.toLocaleDateString("nb-NO", date_options)} ${date_b.toLocaleTimeString("nb-NO", time_options)}`;
+            }
+
+            return dateCompareText;
+        }
+
+        const eventAStart   = new Date(collision.event_a_start);
+        const eventAEnd     = new Date(collision.event_a_end);
+        const eventBStart   = new Date(collision.event_b_start);
+        const eventBEnd     = new Date(collision.event_b_end);
+
+        let startTimeText   = generateTimeText(eventAStart, eventAEnd);
+        let endTimeText     = generateTimeText(eventBStart, eventBEnd);
 
         return Swal.fire({
             title: 'Kollisjon',
@@ -151,7 +182,7 @@ export class CollisionsUtil {
                             <div class='card-body'>
                                 <span class='fw-bold'>${collision.event_a_title}</span>
                                 <div class='small text-muted'>
-                                    ${event_a_start.toLocaleDateString("nb-NO")} ${event_a_start.toLocaleTimeString("nb-NO")} - ${event_a_end.toLocaleDateString("nb-NO")} ${event_a_end.toLocaleTimeString("nb-NO")}
+                                    ${startTimeText}
                                 </div>
                             </div>
                         </div>
@@ -164,7 +195,7 @@ export class CollisionsUtil {
                             <div class='card-body'>
                                 <span class='fw-bold'>${collision.event_b_title}</span>
                                 <div class='small text-muted'>
-                                    ${event_b_start.toLocaleDateString("nb-NO")} ${event_b_start.toLocaleTimeString("nb-NO")} - ${event_b_end.toLocaleDateString("nb-NO")} ${event_b_end.toLocaleTimeString("nb-NO")}
+                                    ${endTimeText}
                                 </div>
                             </div>
                         </div>
