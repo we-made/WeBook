@@ -230,6 +230,8 @@ export class CollisionsUtil {
             title: "Kollisjoner",
             width: 1500,
             showCancelButton: true,
+            showDenyButton: true,
+            denyButtonText: "Fjern bestridte ressurser og lagre",
             confirmButtonText: "<i class='fas fa-save'></i>&nbsp; Lagre med gjeldende resolusjoner",
             cancelButtonText: "<i class='fas fa-times'></i>&nbsp; Avbryt",
             html: 
@@ -240,6 +242,7 @@ export class CollisionsUtil {
                     <p>Du kan velge å;</p>
                     <ul>
                         <li>Løse kollisjonene</li>
+                        <li>Fjerne rommene som kolliderer</li>
                         <li>Lagre uansett</li>
                     </ul>
                     <div>
@@ -247,6 +250,10 @@ export class CollisionsUtil {
                         trykke på <strong>avbryt</strong> og gå tilbake til redigering av serie, for så og endre rom for hele serien.
                         Hvis du da endrer rom individuelt her så vil de andre hendelsene som ikke er i kollisjon benytte seg 
                         av det originale valget.
+                    </div>
+                    <div>
+                        Alternativt kan du også velge å fjerne de rommene som er i kollisjon. Da vil disse rommene fjernes hvor de er i tvist, noe
+                        som tillater aktiviteten å bli opprettet as-is uten den bestridte ressursen.
                     </div>
                     <div>
                         Du kan også lagre uansett, men da vil de hendelsene som er i kollisjon på en eller flere eksklusive ressurser
@@ -277,6 +284,16 @@ export class CollisionsUtil {
                     csrf_token,
                     arrangement_pk,
                     collision_resolution,
+                    0
+                )
+            }
+            if (result.isDenied) {
+                on_confirmed(
+                    serie,
+                    csrf_token,
+                    arrangement_pk,
+                    collision_resolution,
+                    1,
                 )
             }
         }).then(_ => after_on_confirmed_is_done() );

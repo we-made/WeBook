@@ -50,7 +50,14 @@ export class ArrangementInspector {
         })
     }
 
-    async saveSerieWithCollisionResolutions (serie, csrf_token, arrangement_pk, collision_resolution_map) {
+    async saveSerieWithCollisionResolutions (serie, csrf_token, arrangement_pk, collision_resolution_map, collision_resolution_behaviour=undefined) {
+        if (collision_resolution_behaviour === undefined)
+            collision_resolution_behaviour = 0;
+
+        serie.collision_resolution_behaviour = collision_resolution_behaviour;
+
+        debugger;
+
         let solutionEventFormDatas = [];
 
         for (let entry of collision_resolution_map) {
