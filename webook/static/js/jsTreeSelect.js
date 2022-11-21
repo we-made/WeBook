@@ -97,10 +97,9 @@ export class JSTreeSelect {
      * @returns id or key of the selected value, if any
      */
     getSelectedValue() {
-        if (!this._hasSelectedValue())
+        if (!this._hasSelectedValue() || this.selected.id === null || this.selected.id === "null")
             return undefined;
-            // throw Error("No value selected");
-        
+            
         return this.selected.id;
     }
 

@@ -9,11 +9,11 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}startDate`, serie.time_area.start_date);
     formData.append(`${keyPrefix}startTime`, serie.time.start);
     formData.append(`${keyPrefix}endTime`, serie.time.end);
-    formData.append(`${keyPrefix}ticketCode`, serie.time.ticket_code);
+    formData.append(`${keyPrefix}ticketCode`, serie.time.ticket_cod );
     formData.append(`${keyPrefix}expectedVisitors`, serie.time.expected_visitors);
     formData.append(`${keyPrefix}title`, serie.time.title);
     formData.append(`${keyPrefix}title_en`, serie.time.title_en);
-    if (serie.time.status !== undefined)
+    if (serie.time.status !== undefined && serie.time.status !== null)
         formData.append(`${keyPrefix}status`, serie.time.status);
     formData.append(`${keyPrefix}audience`, serie.time.audience);
     formData.append(`${keyPrefix}arrangement_type`, serie.time.arrangement_type);
