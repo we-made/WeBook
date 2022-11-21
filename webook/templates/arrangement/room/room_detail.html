@@ -1,6 +1,9 @@
 {% extends "common/meta_base.html" %}
 {% load static i18n %}
 
+{% block section_title_block %}
+    {{ object.name }}
+{% endblock %}
 
 {% block beneath_breadcrumbs_block %}
     <a class="btn btn-webook">

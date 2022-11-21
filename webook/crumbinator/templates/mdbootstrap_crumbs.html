@@ -22,7 +22,7 @@
                         {% for sibling in crumb.siblings %}
                             <li>
                                 <a class="dropdown-item {{crumb.joined_html_class}}" href="{{sibling.url}}">
-                                    {{ sibling.icon_html | safe}}
+                                    {{ sibling.icon_html | safe }}
                                     {{sibling.title}}
                                 </a>
                             </li>

@@ -2,6 +2,14 @@
 {% load static i18n %}
 {% load crispy_forms_tags %}
 
+{% block section_title_block %}
+    {% if object.pk != 0 %}
+        {{ object.location.name }} / {{ object.name }}
+    {% else %}
+        Nytt rom
+    {% endif %}
+{% endblock %}
+
 
 {% block content %}
     <form method="post">
