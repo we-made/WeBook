@@ -571,13 +571,13 @@
                     return;
                 }
 
+
                 let qualifiedEvent = {
                     _uuid:                      dialog.interior.event_uuid.value,
                     title:                      dialog.interior.title.value,
                     title_en:                   dialog.interior.title_en.value,
                     ticket_code:                dialog.interior.ticket_code.value,
                     expected_visitors:          dialog.interior.expected_visitors.value,
-                    status:                     dialog.data.statusTypeJsTreeSelect.getSelectedValue(),
                     audience:                   dialog.data.audienceJsTreeSelect.getSelectedValue(),
                     arrangement_type:           dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
                     start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
@@ -609,6 +609,12 @@
                     end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
                     title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
                 };
+
+                debugger;
+
+                let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
+                if (statusValue !== undefined)
+                    qualifiedEvent.status = statusValue;
 
                 console.log("qualifiedEvent", qualifiedEvent);
 

@@ -39,6 +39,7 @@ export class QueryStore {
      * @returns {*} promise
      */
     static async SaveEvents(events, csrf_token) {
+        console.log("events", events);
         for (const formData of events.map((event) => convertObjToFormData(event, true))) {
             await fetch("/arrangement/event/create", {
                 method: "POST",

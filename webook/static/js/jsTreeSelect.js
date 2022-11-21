@@ -98,7 +98,8 @@ export class JSTreeSelect {
      */
     getSelectedValue() {
         if (!this._hasSelectedValue())
-            throw Error("No value selected");
+            return undefined;
+            // throw Error("No value selected");
         
         return this.selected.id;
     }

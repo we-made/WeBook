@@ -590,7 +590,10 @@
                     formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
                     formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
                     formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
-                    formData.append("status",           dialog.data.statusTypeJsTreeSelect.getSelectedValue());
+
+                    let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
+                    if (statusValue !== undefined)
+                        formData.append("status", statusValue);
                     formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
                     formData.append("collision_resolution_behaviour", resolution_behaviour);
     

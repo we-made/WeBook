@@ -255,7 +255,6 @@ class BaseEventForm(forms.ModelForm):
                     "name": "display_layouts_create_event",
                 }
             ),
-            "status": forms.Select(attrs={"class": "form-control form-control-lg"}),
         }
 
 
