@@ -168,7 +168,7 @@ class BaseEventForm(forms.ModelForm):
                     title=self.instance.title,
                     start=self.instance.start,
                     end=self.instance.end,
-                    rooms=self.cleaned_data["rooms"],
+                    rooms=self.cleaned_data["rooms"].values_list("id", flat=True),
                     before_buffer_title=self.instance.before_buffer_title,
                     before_buffer_date_offset=self.instance.before_buffer_date_offset,
                     before_buffer_start=self.instance.before_buffer_start,
