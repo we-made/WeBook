@@ -4,6 +4,10 @@
 {% block section_title %}
 {% endblock %}
 
+{% block container_classes %}
+container-fluid
+{% endblock %}
+
 {%block noheader%}
 {%endblock%}
 
@@ -14,8 +18,8 @@
 {% url "account_email" as emails_url %}
 {% url "account_reset_password" as account_reset_password_url %}
 
-<div style="padding-top: 100px;">
-  <div class="container pb-0 mb-0">
+<div>
+  <div class=" pb-0 mb-0">
     {% if request.user.profile_picture %}
     <div class=" d-inline">
       <img src="{{ request.user.profile_picture.url }}" class="border border-4 border-light mb-4" style="width:400px">
