@@ -47,7 +47,7 @@
                     csrf_token: '{{csrf_token}}',
                 });
             
-                fetch("{% url 'arrangement:arrangement_promote_planner_to_main' %}", {
+                {% comment %} fetch("{% url 'arrangement:arrangement_promote_planner_to_main' %}", {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -59,7 +59,7 @@
                             dialog: "promotePlannerDialog",
                         }})
                     )}
-                );
+                ); {% endcomment %}
             }
         },
         data: {}
