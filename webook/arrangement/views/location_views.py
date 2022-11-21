@@ -29,7 +29,7 @@ from webook.utils.meta_utils.section_manifest import SectionCrudlPathMap
 
 def get_section_manifest():
     return SectionManifest(
-        section_title=_("Locations"),
+        section_title="Lokasjoner",
         section_icon="fas fa-building",
         section_crumb_url=reverse("arrangement:location_list"),
         crudl_map=SectionCrudlPathMap(

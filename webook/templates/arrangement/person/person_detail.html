@@ -1,6 +1,9 @@
 {% extends "common/meta_base.html" %}
 {% load static i18n %}
 
+{% block section_title_block %}
+    {{ object.full_name }}
+{% endblock %}
 
 {% block beneath_breadcrumbs_block %}
     <a class="btn btn-webook">
@@ -25,7 +28,7 @@
         role="tab"
         aria-controls="ex1-tabs-1"
         aria-selected="true"
-        >About</a
+        ><i class="fas fa-info"></i>&nbsp; Om {{object.full_name}}</a
       >
     </li>
     <li class="nav-item" role="presentation">
@@ -38,26 +41,10 @@
           aria-controls="ex1-tabs-4"
           aria-selected="false"
           >
-          Calendar
+          <i class="fas fa-calendar"></i>&nbsp; Kalender
           </a
         >
       </li>
-      {% if user.is_superuser %}
-      <li class="nav-item" role="presentation">
-        <a
-          class="nav-link"
-          id="ex1-tab-5"
-          data-mdb-toggle="tab"
-          href="#ex1-tabs-5"
-          role="tab"
-          aria-controls="ex1-tabs-5"
-          aria-selected="false"
-          >
-          Active Directory & SSO
-          </a
-        >
-      </li>
-      {% endif %}
   </ul>
   <!-- Tabs navs -->
   
@@ -71,48 +58,98 @@
     >
         <div class="row">
             <div class="col-lg-6 col-sm-12">
-                <section>
-                    <h5>{% trans "Name" %}</h5>
-                    <span>{{ object.full_name }}</span>
-                </section>
-        
-                <section>
-                    <h5 class="mt-4">{% trans "Personal Email" %}</h5>
-                    <span>{{ object.personal_email }}</span>
-                </section>
-        
-                <section>
-                    <h5 class="mt-4">{% trans "Date of birth" %}</h5>
-                    <span>{{ object.birth_date }}</span>
-                </section>
-        
-                <section>
-                    <h5 class="mt-4">
-                        {% trans "Has user?" %}
-                    </h5>
-                    <span>
-                        {% if object.user_set.exists %}
-                            <i class="fas fa-check text-success"></i>
-                        {% else %}
-                            <i class="fas fa-times text-danger"></i>
-                        {% endif %}
-                    </span>
-                </section>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info"></i>&nbsp; Personinformasjon
+                    </div>
+
+                    <div class="card-body">
+                        <section>
+                            <h5>{% trans "Name" %}</h5>
+                            <span>{{ object.full_name }}</span>
+                        </section>
+                
+                        <section>
+                            <h5 class="mt-4">{% trans "Personal Email" %}</h5>
+                            <span>{{ object.personal_email }}</span>
+                        </section>
+                
+                        <section>
+                            <h5 class="mt-4">{% trans "Date of birth" %}</h5>
+                            <span>{{ object.birth_date }}</span>
+                        </section>
+                
+                        <section>
+                            <h5 class="mt-4">
+                                {% trans "Has user?" %}
+                            </h5>
+                            <span>
+                                {% if object.user_set.exists %}
+                                    <i class="fas fa-check text-success"></i>
+                                {% else %}
+                                    <i class="fas fa-times text-danger"></i>
+                                {% endif %}
+                            </span>
+                        </section>  
+                    </div>
+                </div>
             </div>
             <div class="col-lg-6 col-sm-12">
-                <section>
-                    <h5>
-                        <i class="fas fa-link"></i>
-                        {% trans "Associate with user" %}
-                    </h5>
-                    <p>
-                        {% trans "Associate this person with an existing user account." %}
-                    </p>
-                    <a class="btn btn-webook"
-                       href="{% url 'arrangement:associate_person_with_user' slug=object.slug %}">
-                        {% trans "Associate with user" %}
-                    </a>
-                </section>
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-cog"></i>&nbsp; Bruker / Innlogging</div>
+                    <div class="card-body">
+                        {% if not object.user_set.exists %}
+                        <div class="alert alert-warning">
+                            <h4><i class="fas fa-exclamation-triangle"></i>&nbsp; Ingen bruker</h4>
+                            Denne personen har ingen bruker enda. Brukere opprettes når personen logger inn gjennom SSO, alternativt kan du også manuelt knytte denne personen mot en eksisterende bruker.
+                            Du vil da bare kunne knytte mot brukere som ikke har en tilknyttet person enda.
+                        </div>
+
+                        <section class="mt-4">
+                            <h5>
+                                <i class="fas fa-link"></i>
+                                Knytt personen til en bruker
+                            </h5>
+                            <p>
+                                Knytt denne personen til en eksisterende bruker/innlogging.
+                            </p>
+                            <a class="btn btn-webook"
+                               href="{% url 'arrangement:associate_person_with_user' slug=object.slug %}">
+                               Knytt personen til en bruker
+                            </a>
+                        </section>
+                        {% else %}
+                        <div class="alert alert-success">
+                            <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i>&nbsp; Tilknyttet til en bruker</h4>
+                        </div>
+
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header"><i class="fas fa-lock"></i>&nbsp; Azure Active Directory -- Single Sign On</div>
+                    <div class="card-body">
+                        <div class="border border-2 p-2 mb-4 text-center">
+                            <h5 class="mb-0 fw-bold">AAD SSO</h5>
+                            {% if object.is_sso_capable %}
+                                <i class="fas fa-check h4 text-success mb-0"></i>
+                                <p class="mb-0">{{ object.full_name }} kan logge inn med AAD SSO</p>
+                            {% else %}
+                                <i class="fas fa-times h4 text-danger mb-0"></i>
+                                <p class="mb-0">{{ object.full_name }} kan ikke logge inn med AAD SSO</p>
+                            {% endif %}
+                        </div>
+                        <section>
+                            <h5>{% trans "Object ID" %}</h5>
+                            <span>{{ object.social_provider_id }}</span>
+                        </section>
+                        <section>
+                            <h5 class="mt-4">{% trans "User Principal Name" %}</h5>
+                            <span>{{ object.social_provider_email }}</span>
+                        </section>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

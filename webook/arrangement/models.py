@@ -969,6 +969,14 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     entity_name_plural = _("People")
 
     @property
+    def is_sso_capable(self):
+        return self.social_provider_id is not None and self.social_provider_email is not None
+
+    @property
+    def is_synced(self):
+        return self.social_provider_id is not None
+
+    @property
     def resolved_name(self):
         # override template name mixin, as it relies on "name" attribute which is no good in this context. We want to use full_name instead.
         return self.full_name

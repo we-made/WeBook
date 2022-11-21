@@ -395,6 +395,7 @@ export class PlannerCalendar extends FullCalendarBased {
         if (this._fcCalendar === undefined) {
             this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
                 schedulerLicenseKey: this._fcLicenseKey,
+                stickyFooterToolbar: true,
                 initialView: initialView,
                 selectable: true,
                 weekNumbers: true,

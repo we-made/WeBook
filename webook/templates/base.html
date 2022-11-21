@@ -96,8 +96,8 @@
         INPUT:-webkit-autofill,SELECT:-webkit-autofill,TEXTAREA:-webkit-autofill{animation-name:onautofillstart}INPUT:not(:-webkit-autofill),SELECT:not(:-webkit-autofill),TEXTAREA:not(:-webkit-autofill){animation-name:onautofillcancel}@keyframes onautofillstart{from{}}@keyframes onautofillcancel{from{}}
       </style>
 
-    <div style="display:flex;" class="border-tooltip">
-      <div style="display: flex; flex-direction: column;" class="text-center border-end p-2">
+    <div style="display:flex; height: 100%;" class="border-tooltip">
+      <div style="display: flex; flex-direction: column; height: 100%;" class="text-center border-end  p-2">
 
         <div class="sticky-top">
         <a class="ripple d-flex justify-content-center mt-3 mb-3" href="#!" data-mdb-ripple-color="primary">
@@ -252,9 +252,9 @@
       
       <div class="w-100">
         <header>
-          <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light wb-bg-secondary shadow-0">
+          <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light shadow-0 border-bottom" >
             <div class="container-fluid d-flex">
-              <h2 class="fw-bold mb-0 ms-2">{{APP_TITLE}}</h2>
+              <h2 class=" mb-0 ms-2 wb-text-main text-uppercase">{{APP_TITLE}}</h2>
               <ul class="navbar-nav ms-auto d-flex flex-row">
                 <!-- Search form -->
 
@@ -320,34 +320,32 @@
         </header> 
         <div  id="mainBodyContainer" class="{% block container_classes %} container {% endblock %}">
           {% block superheader %}
-          <div class="mt-5"></div>
-        {% endblock %}
+            <div class="mt-5"></div>
+          {% endblock %}
           {% block noheader %}
-          <!-- <button class="btn wb-btn-secondary btn-lg mb-5">
-            <i class="fas fa-angle-left"></i>&nbsp; 
-            Tilbake til planlegging
-          </button> -->
-          <section class="bg-white  header-fonted">
-            <h1 class="h1 fw-bolder header-fonted">
+          <section class="header-fonted rounded-4 wb-bg-secondary p-5" style="box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;">
+            <h1 class="h1 mb-0 fw-bolder header-fonted">
               <i class="{% block section_icon_class %}{% endblock %}"></i>
+              {% block section_title_block %}
               <span class="header-fonted">
               {% block section_title %}
               {% endblock section_title%}
               </span>
               | <small class="text-muted h4">{% block section_subtitle %}{% endblock %}</small>
+              {% endblock section_title_block %}
             </h1>
-    
-            {% if CRUMBS  %}
-              {{ CRUMBS|crumbinator }}
-            {% endif %}
+            
+            <div class="crumbs-without-margin-bottom">
+              {% if CRUMBS  %}
+                {{ CRUMBS|crumbinator }}
+              {% endif %}
+            </div>
+            <div class="mt-3">
+              {% block beneath_breadcrumbs_block %}
+              {% endblock %}
+            </div>
           </section>
-          <div class="mt-1">
-            {% block beneath_breadcrumbs_block %}
-            {% endblock %}
-          </div>
           {% endblock %}
-    
-          <div class="mb-4"></div>
         </section>
     
     

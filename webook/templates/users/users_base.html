@@ -4,6 +4,10 @@
 {% block section_title %}
 {% endblock %}
 
+{% block container_classes %}
+container-fluid
+{% endblock %}
+
 {%block noheader%}
 {%endblock%}
 
@@ -14,8 +18,8 @@
 {% url "account_email" as emails_url %}
 {% url "account_reset_password" as account_reset_password_url %}
 
-<div style="padding-top: 100px;">
-  <div class="container pb-0 mb-0">
+<div>
+  <div class="mt-5 pb-0 mb-0">
     {% if request.user.profile_picture %}
     <div class=" d-inline">
       <img src="{{ request.user.profile_picture.url }}" class="border border-4 border-light mb-4" style="width:400px">
@@ -24,7 +28,7 @@
   
 
     <h1 class="fw-bold ps-0 pb-1 pt-1 mb-0 header-fonted">
-      <i class="fa fa-home"></i>&nbsp; {% trans "Welcome" %}, {{ request.user.person.full_name }}
+      Velkommen tilbake, {{ request.user.person.full_name }}
     </h1>
     <div class="d-inline-block h5 mb-0">
     </div>
@@ -36,7 +40,7 @@
           aria-controls="v-tabs-overview"
           aria-selected="{% if request.get_full_path == overview_url %}true{% else %}false{% endif %}">
           <i class="fas fa-user"></i>&nbsp; 
-          {% trans "My Page" %}
+          Min side
       </a>
       <a
         class="nav-link {% if request.get_full_path == my_info_url %}active{% endif %}"
@@ -45,7 +49,7 @@
         aria-controls="v-tabs-my-info"
         aria-selected="{% if request.get_full_path == my_info_url %}true{% else %}false{% endif %}">
         <i class="fas fa-info-circle"></i>&nbsp; 
-        {% trans "My Info" %}
+        Brukerinformasjon
       </a>
       <a
         class="nav-link {% if request.get_full_path == emails_url %}active{% endif %}"
@@ -54,8 +58,7 @@
         aria-controls="v-tabs-email"
         aria-selected="{% if request.get_full_path == emails_url %}true{% else %}false{% endif %}">
         <i class="fas fa-at"></i>&nbsp; 
-        {% trans "E-Mail" %}</a>
-
+        E-Post
         <a
         class="nav-link {% if request.get_full_path == account_reset_password_url %}active{% endif %}"
         id="v-tabs-reset-password-tab"
@@ -63,7 +66,7 @@
         aria-controls="v-tabs-reset-password"
         aria-selected="{% if request.get_full_path == account_reset_password_url %}true{% else %}false{% endif %}">
         <i class="fas fa-lock"></i>&nbsp; 
-        {% trans "Reset Password" %}
+        Endre passord
       </a>
     </ul>
   </div>
