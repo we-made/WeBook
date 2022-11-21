@@ -61,6 +61,12 @@
                         dialogElementId: 'detail',
                         triggerElementId: undefined,
                         triggerByEvent: true,
+                        options: { 
+                            "classes": {
+                                "ui-dialog": "testeli",
+                                "ui-dialog-titlebar": "ui-corner-all",
+                            }
+                        },
                         plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
                         htmlFabricator: async (context, dialog) => {
                             if (!context.lastTriggererDetails.url) {
@@ -106,6 +112,7 @@
                             });
                         },
                         dialogOptions: {
+                            classes: { "ui-dialog": "wb-dialog" },
                             width: 600,
                             modal: true,
                         },
@@ -123,12 +130,13 @@
                     "delete",
                     new Dialog({
                         dialogElementId: 'delete',
-                        title: 'Delete',
+                        title: '<i class="fas fa-trash"></i> Delete',
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         renderer: new DialogSimpleRenderer(),
                         plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
                         dialogOptions: {
+                            classes: { "ui-dialog": "wb-dialog" },
                             width: 600,
                             modal: true,
                         },
@@ -166,6 +174,7 @@
                         renderer: new DialogSimpleRenderer(),
                         plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
                         dialogOptions: {
+                            classes: { "ui-dialog": "wb-dialog" },
                             width: 600,
                             modal: true,
                         },
@@ -229,18 +238,18 @@
     function getContextMenuItems(node) {
         return {
             editItem: {
-                label: "{% trans 'Edit' %}",
+                label: "<i class='fas fa-edit'></i> {% trans 'Edit' %}",
                 action: function () {
                     document.dispatchEvent(
-                        new CustomEvent(`genericManager.edit.trigger`, { "detail": { url: node.data.edit_url, title: `{% trans 'Edit' %} '${node.text}'` } })
+                        new CustomEvent(`genericManager.edit.trigger`, { "detail": { url: node.data.edit_url, title: `<i class='fas fa-edit'></i>&nbsp; Rediger <i>'${node.text}'</i>` } })
                     );
                 }
             },
             deleteItem: {
-                label: "{% trans 'Delete' %}",
+                label: "<i class='fas fa-trash'></i> {% trans 'Delete' %}",
                 action: function () {
                     document.dispatchEvent(
-                        new CustomEvent(`genericManager.delete.trigger`, { "detail": { url: node.data.delete_url, title: `{% trans 'Delete' %} '${node.text}'` } })
+                        new CustomEvent(`genericManager.delete.trigger`, { "detail": { url: node.data.delete_url, title: `<i class='fas fa-trash'></i>&nbsp; Slett <i>'${node.text}'</i>` } })
                     );
                 }
             }

@@ -363,6 +363,11 @@ class Arrangement(
         for event in events:
             event.archive(person_archiving_this)
 
+    class ArrangementStates(Enum):
+        PAST = 0
+        UNDERGOING = 1
+        FUTURE = 2
+
     """ TODO: Write article doc in sphinx concerning the arrangements and how they 'flow' """
     """ Arrangement is in the planning phase """
     PLANNING = "planning"
@@ -417,6 +422,34 @@ class Arrangement(
 
     starts = models.DateField(verbose_name=_("Starts"), null=True)
     ends = models.DateField(verbose_name=_("Ends"), null=True)
+
+    @property
+    def state(self) -> ArrangementStates:
+        start, end = self.date_range
+        utc_tz = pytz.timezone("utc")
+        now: datetime.datetime = utc_tz.localize(datetime.datetime.now())
+        if start.start > now:
+            return self.ArrangementStates.FUTURE
+        elif end.end > now:
+            return self.ArrangementStates.UNDERGOING
+        else:
+            return self.ArrangementStates.PAST
+
+    @property
+    def date_range(self) -> Tuple[datetime.datetime, datetime.datetime]:
+        """Get a tuple of two datetimes, first of which is the start of the earliest event in the arrangement, and the last which is the end of the latest
+        event in the arrangement."""
+        return self.start, self.end
+
+    @property
+    def start(self) -> Optional[datetime.datetime]:
+        """Get the datetime of when the earliest event in this arrangement starts -- ergo the start of the arrangement"""
+        return self.event_set.order_by("start").first()
+
+    @property
+    def end(self) -> Optional[datetime.datetime]:
+        """Get the datetime of when the latest event in this arrangement ends -- ergo the end of the arrangement"""
+        return self.event_set.order_by("-end").first()
 
     timeline_events = models.ManyToManyField(
         to="TimelineEvent", verbose_name=_("Timeline Events")
@@ -970,7 +1003,10 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
 
     @property
     def is_sso_capable(self):
-        return self.social_provider_id is not None and self.social_provider_email is not None
+        return (
+            self.social_provider_id is not None
+            and self.social_provider_email is not None
+        )
 
     @property
     def is_synced(self):
