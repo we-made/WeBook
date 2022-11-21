@@ -1,12 +1,78 @@
 {% extends "users/users_base.html" %}
 {% load static %}
 {% load static i18n %}
+{% load custom_tags %}
+
 
 {% block title %}User: {{ object.get_representative_name }}{% endblock %}
 
 {% block inner %}
-    <div id="day_calendar" class="mb-4"></div>
-    
+
+    {% if request.user|has_group:"planners" %}
+
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-clipboard"></i>&nbsp; Min Agenda
+                </div>
+                <div class="card-body">
+                    <div id="day_calendar"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-clipboard"></i>&nbsp; Mine pågående og fremtidige arrangementer
+                </div>
+                <div class="card-body">
+                    <div id="day_calendar"></div>
+                   
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Dato</th>
+                                    <th>Status</th>
+                                    <th>Navn</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for arrangement in FUTURE_ARRANGEMENTS_RESPONSIBLE %}
+                                <tr>
+                                    <td>{{arrangement.start.start}} -- {{arrangement.end.end}}</td>
+                                    <td>
+                                        {% if arrangement.state.value == 2 %}
+                                            <div class="badge badge-info">
+                                                Fremtidig
+                                            </div>    
+                                        {% elif arrangement.state.value == 0 %}
+                                            <div class="badge badge-light">
+                                                Fortidig
+                                            </div>
+                                        {% elif arrangement.state.value == 1 %}
+                                            <div class="badge badge-success">
+                                                Pågår
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{arrangement.name}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+        <div id="day_calendar"></div>
+    {% endif %}
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('day_calendar');

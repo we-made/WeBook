@@ -1,10 +1,13 @@
+import datetime
 from typing import Any, Dict
 
+import pytz
 from django import forms as dj_forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponse
 from django.urls import reverse
+from django.utils import timezone as dj_timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
     DetailView,
@@ -15,6 +18,7 @@ from django.views.generic import (
 )
 
 from webook.arrangement.models import Person
+from webook.arrangement.templatetags.custom_tags import has_group
 from webook.users.forms import ComplexUserUpdateForm
 
 User = get_user_model()
@@ -33,6 +37,24 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     #   Lookups by Username
     slug_field = "slug"
     slug_url_kwarg = "slug"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        user = self.get_object()
+
+        context["FUTURE_ARRANGEMENTS_RESPONSIBLE"] = None
+
+        if user is not None and has_group(user, "planners") and user.person is not None:
+            # TODO: Rewrite this to use the QuerySet API - this will not scale well.
+            utc_tz = pytz.timezone("UTC")
+
+            context["FUTURE_ARRANGEMENTS_RESPONSIBLE"] = [
+                arrangement
+                for arrangement in user.person.arrangements_responsible_for.all()
+                if arrangement.end.end > utc_tz.localize(datetime.datetime.now())
+            ]
+
+        return context
 
 
 user_detail_view = UserDetailView.as_view()
