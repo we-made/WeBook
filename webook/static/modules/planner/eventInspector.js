@@ -43,6 +43,7 @@ export class EventInspector {
 
                             if (response.success === true) {
                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                                return true;
                             }
 
                             let collisionText = "";

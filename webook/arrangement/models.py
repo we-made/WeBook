@@ -429,6 +429,7 @@ class Arrangement(
     responsible = models.ForeignKey(
         to="Person",
         verbose_name=_("Responsible"),
+        null=True,
         on_delete=models.RESTRICT,
         related_name="arrangements_responsible_for",
     )
@@ -1352,7 +1353,12 @@ class Event(
 
             offset: Optional[datetime.datetime] = None
             if date_offset:
-                offset = start_time - datetime.timedelta(days=date_offset)
+                offset = (
+                    datetime.datetime.now().replace(
+                        hour=start_time.hour, minute=start_time.minute
+                    )
+                    - datetime.timedelta(days=date_offset)
+                ).time()
 
             # We default in the worst case to the root events start. Do note that this is not rigging event start, but root event start.
             # These are two distinct concepts.

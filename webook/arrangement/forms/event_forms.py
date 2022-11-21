@@ -69,16 +69,6 @@ class BaseEventForm(forms.ModelForm):
     parent_serie_position_hash = forms.CharField(required=False)
 
     def save(self, commit: bool = True):
-        if self.instance.serie is not None:
-            """
-            When a serie event has been edited it has become more specific - thus we want to degrade it to "association" status.
-            This means that the more specific changes made here will not be altered by serie edits, and this event will not be deleted
-            if the serie is.
-            """
-            self.instance.degrade_to_association_status(commit=False)
-
-            super().save(commit)
-
         current_tz = pytz.timezone(str(dj_timezone.get_current_timezone()))
 
         serie_uuid = self.cleaned_data["serie_uuid"]
@@ -170,6 +160,7 @@ class BaseEventForm(forms.ModelForm):
 
                 post_buffering_event.save()
 
+        self.instance.save()
         collisions_with_main = analyze_collisions(
             [
                 EventDTO(
@@ -177,7 +168,7 @@ class BaseEventForm(forms.ModelForm):
                     title=self.instance.title,
                     start=self.instance.start,
                     end=self.instance.end,
-                    rooms=self.instance.rooms.values_list("id", flat=True),
+                    rooms=self.cleaned_data["rooms"],
                     before_buffer_title=self.instance.before_buffer_title,
                     before_buffer_date_offset=self.instance.before_buffer_date_offset,
                     before_buffer_start=self.instance.before_buffer_start,
@@ -214,6 +205,7 @@ class BaseEventForm(forms.ModelForm):
             if len(pre_buffer_collisions) > 0:
                 self.pre_buffer_collision = True
                 pre_buffer.archive(None)
+                return
         if post_buffer is not None:
             post_buffer_dto = EventDTO(
                 id=post_buffer.id,
@@ -234,6 +226,17 @@ class BaseEventForm(forms.ModelForm):
             if len(post_buffer_collisions) > 0:
                 self.post_buffer_collision = True
                 post_buffer.archive(None)
+                return
+
+        if self.instance.serie is not None:
+            """
+            When a serie event has been edited it has become more specific - thus we want to degrade it to "association" status.
+            This means that the more specific changes made here will not be altered by serie edits, and this event will not be deleted
+            if the serie is.
+            """
+            self.instance.degrade_to_association_status(commit=False)
+
+            super().save(commit)
 
         self.instance.save()
         self.instance.rooms.set(self.cleaned_data["rooms"])
