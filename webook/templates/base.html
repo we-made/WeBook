@@ -252,7 +252,7 @@
       
       <div class="w-100">
         <header>
-          <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light shadow-0 border-bottom" >
+          <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light shadow-0 border-bottom">
             <div class="container-fluid d-flex">
               <h2 class=" mb-0 ms-2 wb-text-main text-uppercase">{{APP_TITLE}}</h2>
               <ul class="navbar-nav ms-auto d-flex flex-row">
@@ -320,18 +320,21 @@
         </header> 
         <div  id="mainBodyContainer" class="{% block container_classes %} container {% endblock %}">
           {% block superheader %}
-            <div class="mt-5"></div>
+            <div class="mt-2"></div>
           {% endblock %}
           {% block noheader %}
-          <section class="header-fonted rounded-4 wb-bg-secondary p-5" style="box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;">
-            <h1 class="h1 mb-0 fw-bolder header-fonted">
+          <section>
+            <h1 class="h1 mb-0 text-muted h2 header-fonted">
               <i class="{% block section_icon_class %}{% endblock %}"></i>
               {% block section_title_block %}
-              <span class="header-fonted">
+              
               {% block section_title %}
               {% endblock section_title%}
-              </span>
-              | <small class="text-muted h4">{% block section_subtitle %}{% endblock %}</small>
+
+              {% comment %} <span class="header-fonted">
+
+              {% comment %} </span> {% endcomment %}
+              {% comment %} <small class="text-muted h4">{% block section_subtitle %}{% endblock %}</small> {% endcomment %}
               {% endblock section_title_block %}
             </h1>
             
