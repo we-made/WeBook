@@ -3,31 +3,23 @@
 
 {% block content %}
 
-
-<div class="row mb-3">
-    <div class="col-8">
-        <div class="form-outline">
-            <input type="text" class="form-control form-control-md" id="datatable-search-input">
-            <label for="datatable-search-input" class="form-label">
-                <i class="fas fa-search"></i>&nbsp;
-                {% trans "Search for " %} {{ENTITY_NAME_PLURAL}}
-            </label>
-        </div>
-    </div>
-
-    <div class="col-4">
-        {% if SHOW_CREATE_BUTTON %}
-        <div class="clearfix">
-            <a class="btn wb-btn-main shadow-0 btn-md mb-2 float-end"
-                href="{% url CRUDL_MAP.create_url %}">
-                <i class="fas fa-plus"></i>&nbsp;
-                {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
-            </a>
-        </div>
-        {% endif %}
-    </div>
+{% if SHOW_CREATE_BUTTON %}
+<div class="clearfix">
+    <a class="btn wb-btn-main shadow-0 btn-md mb-2"
+        href="{% url CRUDL_MAP.create_url %}">
+        <i class="fas fa-plus"></i>&nbsp;
+        {% trans "Create" %} {{ ENTITY_NAME_SINGULAR }}
+    </a>
 </div>
+{% endif %}
 
+<div class="form-outline mb-3">
+    <input type="text" class="form-control form-control-md" id="datatable-search-input">
+    <label for="datatable-search-input" class="form-label">
+        <i class="fas fa-search"></i>&nbsp;
+        {% trans "Search for " %} {{ENTITY_NAME_PLURAL}}
+    </label>
+</div>
 
 {% if object_list|length == 0 %}
 <div class="alert wb-alert-secondary">
