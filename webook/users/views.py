@@ -51,7 +51,8 @@ class UserDetailView(LoginRequiredMixin, DetailView):
             context["FUTURE_ARRANGEMENTS_RESPONSIBLE"] = [
                 arrangement
                 for arrangement in user.person.arrangements_responsible_for.all()
-                if arrangement.end.end > utc_tz.localize(datetime.datetime.now())
+                if arrangement is not None
+                and arrangement.end.end > utc_tz.localize(datetime.datetime.now())
             ]
 
         return context
