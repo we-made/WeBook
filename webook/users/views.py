@@ -47,13 +47,16 @@ class UserDetailView(LoginRequiredMixin, DetailView):
         if user is not None and has_group(user, "planners") and user.person is not None:
             # TODO: Rewrite this to use the QuerySet API - this will not scale well.
             utc_tz = pytz.timezone("UTC")
-
-            context["FUTURE_ARRANGEMENTS_RESPONSIBLE"] = [
-                arrangement
-                for arrangement in user.person.arrangements_responsible_for.all()
-                if arrangement is not None
-                and arrangement.end.end > utc_tz.localize(datetime.datetime.now())
-            ]
+            try:
+                context["FUTURE_ARRANGEMENTS_RESPONSIBLE"] = [
+                    arrangement
+                    for arrangement in user.person.arrangements_responsible_for.all()
+                    if arrangement is not None
+                    and arrangement.end is not None
+                    and arrangement.end.end > utc_tz.localize(datetime.datetime.now())
+                ]
+            except:
+                pass
 
         return context
 
