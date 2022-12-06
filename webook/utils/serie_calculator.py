@@ -278,7 +278,7 @@ def _area_strategy_no_stop_date(recurrence_instructions: _RecurrenceInstruction)
         forward in time based on current date. (On every month shift should do)
     """
     # We -1 from month move-forward to account for zero-indexing.
-    tmp = recurrence_instructions.start_date + relativedelta(month = recurrence_instructions.start_date.month + ( recurrence_instructions.projection_distance_in_months - 1)) 
+    tmp = recurrence_instructions.start_date + relativedelta(months = recurrence_instructions.projection_distance_in_months - 1) 
     stop_within_date = recurrence_instructions.tz.localize(datetime.combine(tmp.replace( day = calendar.monthrange( tmp.year, tmp.month )[1] ), datetime.max.time()))
 
     return _Scope(
