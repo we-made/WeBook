@@ -60,12 +60,14 @@ container-fluid
                                 Lokasjoner
                             </a>
                         </li>
+                        {% if user|has_group:"planners" or user.is_superuser %}
                         <li class="nav-item" role="presentation">
                             <a href="#" onclick="$('#people-tab')[0].click(); setNavActive(this);" class="nav-link">
                                 <i class="fas fa-users"></i>&nbsp; 
                                 Personer
                             </a>
                         </li>
+                        {% endif %}
                     </ul>
                 </div>
                 {% if user|has_group:"planners" or user.is_superuser %}
@@ -548,6 +550,7 @@ container-fluid
             navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
         });
 
+        {% if user|has_group:"planners" or user.is_superuser %}
         let peopleCalendar = new PersonCalendar({
             calendarElement: document.getElementById('peoplePlannerCalendar'),
             colorProviders: [ 
@@ -560,6 +563,7 @@ container-fluid
             licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
             navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
         });
+        {% endif %}
 
         activeCalendar = plannerCalendar; // default active calendar
         activeCalendar.renderNavigationButtons();
@@ -601,6 +605,7 @@ container-fluid
             mainCalendarFilterWrapper.hide();
             locationsCalendar.refresh();
         });
+        {% if user|has_group:"planners" or user.is_superuser %}
         $('#people-tab')[0].addEventListener('shown.mdb.tab', (event) => {
             document.dispatchEvent(new CustomEvent('plannerCalendar.calendarChange', {
                 detail: {
@@ -611,6 +616,7 @@ container-fluid
             mainCalendarFilterWrapper.hide();
             peopleCalendar.refresh();
         });
+        {% endif %}
     });
 </script>
 
