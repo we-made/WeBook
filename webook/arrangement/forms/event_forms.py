@@ -239,6 +239,7 @@ class BaseEventForm(forms.ModelForm):
             super().save(commit)
 
         self.instance.save()
+        self.instance.display_layouts.set(self.cleaned_data["display_layouts"])
         self.instance.rooms.set(self.cleaned_data["rooms"])
         self.instance.people.set(self.cleaned_data["people"])
 
