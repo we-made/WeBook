@@ -245,6 +245,8 @@ export class DialogSimpleRenderer extends DialogBaseRenderer {
                 $('body')
                     .append(span)
                     .ready( () => {
+                        console.log("SimpleRenderer");
+
                         dialog._$getDialogEl().dialog( dialog.dialogOptions );
                         dialog.onRenderedCallback(dialog, context);
 

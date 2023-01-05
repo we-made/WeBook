@@ -1,0 +1,15 @@
+{% load static i18n %}
+
+{% block content %}
+    <div id="user_sso_detail">
+        <h3>SSO</h3>
+
+        {% comment %} {% if user.person is None %}     {% endcomment %}
+            <div class="alert alert-danger">
+                <h5>Ingen tilknyttet person</h5>
+                Denne brukeren har ingen tilknyttet person og kan dermed ikke benytte SSO.
+                SSO verdier er tilknyttet personen, ikke brukeren.
+            </div>
+        {% comment %} {%endif%} {% endcomment %}
+    </div>
+{% endblock %}
