@@ -40,6 +40,7 @@ class ComplexUserUpdateFormWithRole(ComplexUserUpdateForm):
         choices=(("planners", "Planlegger"), ("readonly", "Lesetilgang")),
         required=True,
     )
+    is_user_admin = dj_forms.BooleanField(required=False)
 
     class Meta(forms.UserChangeForm.Meta):
         model = Person
@@ -51,6 +52,7 @@ class ComplexUserUpdateFormWithRole(ComplexUserUpdateForm):
             "profile_picture",
             "timezone",
             "user_role",
+            "is_user_admin",
         ]
 
 

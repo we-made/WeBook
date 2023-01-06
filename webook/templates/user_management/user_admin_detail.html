@@ -76,6 +76,9 @@
                                 <div class="mt-3">
                                     <h4><i class="fas fa-lock"></i>&nbsp; Tilgangsnivå</h4>
                                     {{form.user_role|as_crispy_field}}
+
+                                    <h5 class="mt-3">Brukeradministrator</h5>
+                                    {{ form.is_user_admin|as_crispy_field }}
                                 </div>
                         </div>
                         <div

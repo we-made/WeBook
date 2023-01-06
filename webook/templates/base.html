@@ -241,6 +241,17 @@
         {% endif %}
 
         <hr>
+        
+        {% if user.is_superuser or user.is_user_admin %}
+        <a href="{% url 'users:user_admin_list' %}" class="wb-sidebar-item p-2 pt-3 pb-3 d-block">
+          <div>
+            <i class="fas fa-user-shield text-dark h2 mb-0"></i>
+          </div>
+          <small class="fw-bold">Brukere</small>
+        </a>
+        {% endif %}
+
+
 
         <a href="{% url 'account_logout' %}" class="wb-sidebar-item p-2 pt-3 pb-3 d-block">
           <div>

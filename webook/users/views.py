@@ -24,6 +24,7 @@ from django.views.generic import (
 from webook.arrangement.models import Person
 from webook.arrangement.templatetags.custom_tags import has_group
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
+from webook.authorization_mixins import UserAdminAuthorizationMixin
 from webook.users.forms import (
     BatchChangeUserGroupForm,
     BatchChangeUserStateForm,
@@ -80,7 +81,9 @@ users_json_list_view = UsersJsonListView.as_view()
 
 
 # TODO: Rewrite to mixin
-class BatchChangeeUserStateView(LoginRequiredMixin, FormView):
+class BatchChangeeUserStateView(
+    LoginRequiredMixin, UserAdminAuthorizationMixin, FormView
+):
     form_class = BatchChangeUserStateForm
 
     def form_valid(self, form) -> JsonResponse:
@@ -98,7 +101,9 @@ class BatchChangeeUserStateView(LoginRequiredMixin, FormView):
 batch_change_user_state_view = BatchChangeeUserStateView.as_view()
 
 
-class BatchChangeUserGroupView(LoginRequiredMixin, FormView):
+class BatchChangeUserGroupView(
+    LoginRequiredMixin, UserAdminAuthorizationMixin, FormView
+):
     form_class = BatchChangeUserGroupForm
 
     def form_valid(self, form) -> HttpResponse:
@@ -121,7 +126,9 @@ class BatchChangeUserGroupView(LoginRequiredMixin, FormView):
 batch_change_user_group_view = BatchChangeUserGroupView.as_view()
 
 
-class ToggleUserActiveStateView(LoginRequiredMixin, FormView):
+class ToggleUserActiveStateView(
+    LoginRequiredMixin, UserAdminAuthorizationMixin, FormView
+):
     form_class = ToggleUserActiveStateForm
 
     def form_valid(self, form) -> JsonResponse:
@@ -145,10 +152,11 @@ class ToggleUserActiveStateView(LoginRequiredMixin, FormView):
     def form_invalid(self, form) -> JsonResponse:
         return JsonResponse(form.errors)
 
+
 toggle_user_active_state_view = ToggleUserActiveStateView.as_view()
 
 
-class UsersListView(LoginRequiredMixin, ListView):
+class UsersListView(LoginRequiredMixin, UserAdminAuthorizationMixin, ListView):
     model = User
     template_name = "user_management/list.html"
 
@@ -156,7 +164,7 @@ class UsersListView(LoginRequiredMixin, ListView):
 users_list_view = UsersListView.as_view()
 
 
-class UserSSODetailView(LoginRequiredMixin, DetailView):
+class UserSSODetailView(LoginRequiredMixin, UserAdminAuthorizationMixin, DetailView):
     model = User
     template_name = "user_management/sso_detail_dialog.html"
     slug_field = "slug"
@@ -229,8 +237,7 @@ class UserUpdateView(LoginRequiredMixin, FormView):
 user_update_view = UserUpdateView.as_view()
 
 
-class UserAdminDetailView(UserUpdateView):
-
+class UserAdminDetailView(UserAdminAuthorizationMixin, UserUpdateView):
     form_class = ComplexUserUpdateFormWithRole
     model = Person
     template_name = "user_management/user_admin_detail.html"
@@ -261,6 +268,7 @@ class UserAdminDetailView(UserUpdateView):
 
         user.profile_picture = form.cleaned_data["profile_picture"]
         user.timezone = form.cleaned_data["timezone"]
+        user.is_user_admin = form.cleaned_data["is_user_admin"]
         selected_role = form.cleaned_data["user_role"]
         group = Group.objects.get(name=selected_role)
         if group is not None:
@@ -287,6 +295,8 @@ class UserAdminDetailView(UserUpdateView):
                 initial.update({"user_role": groups[0]})
             else:
                 initial.update({"user_role": "readonly"})
+
+            initial.update({"is_user_admin": user.is_user_admin})
 
             if user.person is not None:
                 person_object = user.person
