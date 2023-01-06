@@ -60,6 +60,8 @@ class User(AbstractUser):
     TIMEZONE_CHOICES = zip(pytz.all_timezones, pytz.all_timezones)
     timezone = models.CharField(max_length=255, default=settings.USER_DEFAULT_TIMEZONE)
 
+    is_user_admin = models.BooleanField(verbose_name="User Administrator", default=False)
+
     objects = CustomUserManager()
 
     profile_picture = models.ImageField(

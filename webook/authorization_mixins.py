@@ -18,3 +18,8 @@ class PlannerAuthorizationMixin(BaseGroupsAuthorizationMixin):
     """Require the user to be of the group planners or super user"""
 
     group = "planners"
+
+
+class UserAdminAuthorizationMixin(BaseGroupsAuthorizationMixin):
+    def _is_member_of_group(self) -> bool:
+        return self.request.user.is_user_admin or self.request.user.is_superuser

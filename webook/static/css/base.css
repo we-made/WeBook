@@ -218,6 +218,10 @@ html, body {
     padding: .5rem 1.5rem .5rem;
 }
 
+.wb-sm {
+    padding: .375rem 1rem .3125rem!important;
+}
+
 .wb-btn-main.btn-lg {
     padding: .5rem 1rem!important;
     border-radius: .3rem!important;
@@ -493,3 +497,15 @@ html, body {
 
 .fc-day-sat { background-color: #f6f6f0; }
 .fc-day-sun { background-color: #f6f6f0; }
+
+.ex-dialog {
+    box-shadow: none!important;
+    border: solid 0.1em;
+    border-radius:0!important;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px!important;
+}
+
+
+.activeTable tbody tr:hover {
+    background-color:rgba(60, 64, 67, 0.15);
+}
