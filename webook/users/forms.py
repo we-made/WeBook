@@ -2,6 +2,7 @@ import pytz
 from allauth.account.forms import SignupForm
 from django import forms as dj_forms
 from django.contrib.auth import forms, get_user_model
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.db.models import fields
 from django.utils.translation import gettext_lazy as _
@@ -62,15 +63,24 @@ class MultipleStringsield(dj_forms.TypedMultipleChoiceField):
         return True
 
 
-class BatchDeactivateUsersForm(dj_forms.Form):
+class BatchChangeUserStateForm(dj_forms.Form):
     slugs = dj_forms.CharField(max_length=10000)
+    new_active_state = dj_forms.BooleanField(required=False)
+
+    class Meta:
+        fields = ("slugs",)
+
+
+class BatchChangeUserGroupForm(dj_forms.Form):
+    slugs = dj_forms.CharField(max_length=10000, required=True)
+    group = dj_forms.CharField(max_length=50, required=True)
 
     class Meta:
         fields = ("slugs",)
 
 
 class ToggleUserActiveStateForm(dj_forms.Form):
-    user_slug: dj_forms.IntegerField()
+    user_slug = dj_forms.CharField(max_length=5000)
 
     class Meta:
         fields = ("user_slug",)

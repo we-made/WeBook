@@ -4,6 +4,7 @@
 
 {% block content %}
     <link rel="stylesheet" href="{% static 'vue-simple-context-menu/dist/vue-simple-context-menu.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <h2 class="fw-bolder">
         <i class="fas fa-user"></i>
@@ -52,6 +53,7 @@
             :componentKey="componentKey"
             @trigger-view-more-dialog="openViewMoreDialog"
             @batch-deactivate-users="batchDeactivateUsers"
+            @batch-activate-users="batchActivateUsers"
             @batch-promote-users="batchPromoteUsers"
             @deactivate-user-dialog="deactivateUserDialog"
             @activate-user-dialog="activateUserDialog">
@@ -134,8 +136,17 @@
                         cancelButtonText: "Avbryt",
                         confirmButtonText: 'Deaktiver bruker'
                     }).then((result) => {
-                        
-                    });
+                        let formData = new FormData();
+                        formData.append("user_slug", user.slug);
+
+                        fetch("/users/administration/toggle_active", {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': "{{ csrf_token }}"
+                            },
+                            body: formData
+                        }).then(_ => window.vueRefresh());
+                    })
                 },
                 activateUserDialog(user) {
                     Swal.fire({
@@ -147,10 +158,52 @@
                         cancelButtonText: "Avbryt",
                         confirmButtonText: 'Aktiver bruker'
                     }).then((result) => {
-                        
+                        let formData = new FormData();
+                        formData.append("user_slug", user.slug);
+
+                        fetch("/users/administration/toggle_active", {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': "{{ csrf_token }}"
+                            },
+                            body: formData
+                        }).then(_ => window.vueRefresh());
                     });
                 },
-                batchDeactivateUsers(users) {
+                batchActivateUsers(users,) {
+                    Swal.fire({
+                        title: 'Er du sikker på at du vil aktivere disse brukerene?',
+                        html: `
+                            <table>
+                                <thead></thead>
+                                <tbody>
+                                    ${ users.map( (user) => user.name ).join(", ") }    
+                                </tbody>
+                            </table>
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        cancelButtonText: "Avbryt",
+                        confirmButtonText: 'Aktiver disse brukerene'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formData = new FormData();
+                            formData.append("slugs", users.map( (user) => user.slug ).join(",") )
+                            formData.append("new_active_state", true);
+
+                            fetch("/users/administration/batch_change_user_state", {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-CSRFToken': "{{ csrf_token }}",
+                                }
+                            }).then(_ => window.vueRefresh());
+                        }
+                    })
+                },
+                batchDeactivateUsers(users,) {
                     Swal.fire({
                         title: 'Er du sikker på at du vil deaktivere disse brukerene?',
                         html: `
@@ -171,15 +224,15 @@
                         if (result.isConfirmed) {
                             let formData = new FormData();
                             formData.append("slugs", users.map( (user) => user.slug ).join(",") )
+                            formData.append("new_active_state", false);
 
-                            fetch("/users/administration/batch_deactivate_users", {
+                            fetch("/users/administration/batch_change_user_state", {
                                 method: 'POST',
-                                
                                 body: formData,
                                 headers: {
                                     'X-CSRFToken': "{{ csrf_token }}",
                                 }
-                            });
+                            }).then(_ => window.vueRefresh());
                         }
                     })
                 },
@@ -194,7 +247,7 @@
                                 </tbody>
                             </table>
 
-                            <select class="form-control form-control-lg select mt-2">
+                            <select class="form-control form-control-lg select mt-2" id="groupSelect">
                                 <option value="planners">Planlegger</option>
                                 <option value="readonly">Lesetilgang</option>
                             </select>
@@ -207,11 +260,19 @@
                         confirmButtonText: 'Endre roller for disse brukerene'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            Swal.fire(
-                            'Deleted!',
-                            'Your file has been deleted.',
-                            'success'
-                            )
+                            let formData = new FormData();
+                            formData.append("slugs", users.map( (user) => user.slug ).join(",") )
+                            formData.append("group", $('#groupSelect').val())
+
+                            console.log($('#groupSelect').val())
+
+                            fetch("/users/administration/batch_change_user_group_view", {
+                                method: 'POST',
+                                headers: {
+                                    "X-CSRFToken": "{{ csrf_token }}",
+                                },
+                                body: formData
+                            }).then(_ => window.vueRefresh());
                         }
                     })
                 }
@@ -220,7 +281,7 @@
                 this.allUsers = await this.getUsers();
                 // this.visibleUsers = this.allUsers;
 
-                window.vueRefresh = async () => { this.allUsers = await this.getUsers() };
+                window.vueRefresh = async () => { this.allUsers = await this.getUsers(); };
             },
             delimiters: ['[[',']]']
         });
@@ -237,7 +298,6 @@
 
         onResponseOk() {
             toastr.success("Forandringene har blitt lagret!");
-
             window.vueRefresh();
         }
     }

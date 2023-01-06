@@ -1,7 +1,8 @@
 from django.urls import path
 
 from webook.users.views import (
-    batch_deactivate_users_view,
+    batch_change_user_group_view,
+    batch_change_user_state_view,
     sso_detail_dialog_view,
     toggle_user_active_state_view,
     user_admin_detail_dialog_view,
@@ -30,9 +31,14 @@ urlpatterns = [
         name="user_admin_detail",
     ),
     path(
-        "administration/batch_deactivate_users",
-        view=batch_deactivate_users_view,
-        name="user_admin_batch_deactivate",
+        "administration/batch_change_user_state",
+        view=batch_change_user_state_view,
+        name="user_admin_batch_change_active_state",
+    ),
+    path(
+        "administration/batch_change_user_group_view",
+        view=batch_change_user_group_view,
+        name="user_admin_batch_change_group"
     ),
     path(
         "administration/toggle_active",

@@ -32,6 +32,9 @@ export default {
             return Math.ceil(this.users.length / this.pageSize)
         },
     },
+    watch: {
+        users() { this.checkedUsers = []; }
+    },
     methods: {
         closeAllDropdowns() {
             console.log(document.querySelectorAll(".dropdown.show"))
@@ -47,6 +50,9 @@ export default {
         },
         deactivateSelectedUsers() {
             this.$emit("batchDeactivateUsers", this.checkedUsers);
+        },
+        activateSelectedUsers() {
+            this.$emit("batchActivateUsers", this.checkedUsers);
         },
         roleChangeSelectedUsers() {
             this.$emit("batchPromoteUsers", this.checkedUsers);
@@ -126,7 +132,7 @@ export default {
                         </button>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <button class="btn wb-btn-secondary border btn-md btn-block shadow-0" @click="deactivateSelectedUsers">
+                        <button class="btn wb-btn-secondary border btn-md btn-block shadow-0" @click="activateSelectedUsers">
                             Aktiver
                         </button>
                     </div>
@@ -164,10 +170,8 @@ export default {
                     <td>{{user.last_login}}</td>
                     <td>{{user.date_joined}}</td>
                     <td>
-                    
                         <i class="fas fa-check text-success" v-if="user.is_active === true"></i>
                         <i class="fas fa-times text-danger" v-else></i>
-
                     </td>
                     <td>
                         <div class='btn-group shadow-0'>
@@ -188,9 +192,7 @@ export default {
                                 <li> <a class="dropdown-item" @click.stop="() => { openViewMoreDialog(user.slug, user.name); closeAllDropdowns(); }"> <i class='fas fa-edit'></i> Rediger</a> </li>
                                 <li v-if="user.is_active === true" @click.stop="() => { deactivateUserDialog(user); closeAllDropdowns(); }"> <a class="dropdown-item"> <i class='fas fa-times text-danger'></i> Deaktiver</a> </li>
                                 <li v-else> <a class="dropdown-item" @click.stop="() => { activateUserDialog(user); closeAllDropdowns(); }"> <i class='fas fa-check text-success'></i> Aktiver</a> </li>
-                                <li> <a class="dropdown-item" @click="() => { closeAllDropdowns(); }"><i class='fas fa-lock text-warning'></i> Endre tilgangsnivå</a> </li>
                             </ul>
-
                         </div>
                     </td>
                 </tr>

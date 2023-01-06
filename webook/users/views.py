@@ -25,7 +25,8 @@ from webook.arrangement.models import Person
 from webook.arrangement.templatetags.custom_tags import has_group
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.users.forms import (
-    BatchDeactivateUsersForm,
+    BatchChangeUserGroupForm,
+    BatchChangeUserStateForm,
     ComplexUserUpdateForm,
     ComplexUserUpdateFormWithRole,
     ToggleUserActiveStateForm,
@@ -79,13 +80,13 @@ users_json_list_view = UsersJsonListView.as_view()
 
 
 # TODO: Rewrite to mixin
-class BatchDeactivateUsersView(LoginRequiredMixin, FormView):
-    form_class = BatchDeactivateUsersForm
+class BatchChangeeUserStateView(LoginRequiredMixin, FormView):
+    form_class = BatchChangeUserStateForm
 
     def form_valid(self, form) -> JsonResponse:
         for user_slug in form.cleaned_data["slugs"].split(","):
             user: User = User.objects.get(slug=user_slug)
-            user.is_active = False
+            user.is_active = form.cleaned_data["new_active_state"]
             user.save()
 
         return JsonResponse({"message": "Users have been deactivated"})
@@ -94,7 +95,30 @@ class BatchDeactivateUsersView(LoginRequiredMixin, FormView):
         return JsonResponse(form.errors)
 
 
-batch_deactivate_users_view = BatchDeactivateUsersView.as_view()
+batch_change_user_state_view = BatchChangeeUserStateView.as_view()
+
+
+class BatchChangeUserGroupView(LoginRequiredMixin, FormView):
+    form_class = BatchChangeUserGroupForm
+
+    def form_valid(self, form) -> HttpResponse:
+        group: Group = Group.objects.get(name=form.cleaned_data["group"])
+
+        for user_slug in form.cleaned_data["slugs"].split(","):
+            user: User = User.objects.get(slug=user_slug)
+            user.groups.clear()
+            group.user_set.add(user)
+            user.save()
+
+        return JsonResponse(
+            {"message": "Groups have been changed for the specified users"}
+        )
+
+    def form_invalid(self, form) -> HttpResponse:
+        return JsonResponse(form.errors)
+
+
+batch_change_user_group_view = BatchChangeUserGroupView.as_view()
 
 
 class ToggleUserActiveStateView(LoginRequiredMixin, FormView):
@@ -120,7 +144,6 @@ class ToggleUserActiveStateView(LoginRequiredMixin, FormView):
 
     def form_invalid(self, form) -> JsonResponse:
         return JsonResponse(form.errors)
-
 
 toggle_user_active_state_view = ToggleUserActiveStateView.as_view()
 
