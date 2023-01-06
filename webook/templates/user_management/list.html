@@ -82,6 +82,7 @@
                 return {
                     showInactiveUsers: true,
                     allUsers: [],
+                    visibleUsers: [],
                     componentCounter: 0,
                     usersSearchTerm: "",
                     showReadOnlyUsers: true,
@@ -98,17 +99,6 @@
                 },
             },
             computed: {
-                visibleUsers() {
-                    let matches = this.allUsers.filter(user => user.name.includes(this.usersSearchTerm) || user.email.includes(this.usersSearchTerm));
-                    if (!this.showSystemAdministrators)
-                        matches = matches.filter( (user) => user.is_superuser === false )
-                    if (!this.showPlanners)
-                        matches = matches.filter( (user) => user.groups.indexOf("planners") === -1 )
-                    if (!this.showReadOnlyUsers)
-                        matches = matches.filter( (user) => user.groups.indexOf("readonly") === -1 && user.groups.length > 0 )
-
-                    return matches;
-                },
                 totalsCount() {
                     return this.allUsers.length;
                 },
@@ -125,6 +115,17 @@
                         'genericManager.user_admin_detail.trigger',
                         { detail: { url: '/users/administration/' + slug + "/dialogs/user_admin_detail", title: full_name } }  
                     ));
+                },
+                filter(value) {
+                    let matches = this.allUsers.filter(user => user.name.includes(this.usersSearchTerm) || user.email.includes(this.usersSearchTerm));
+                    if (!this.showSystemAdministrators)
+                        matches = matches.filter( (user) => user.is_superuser === false )
+                    if (!this.showPlanners)
+                        matches = matches.filter( (user) => user.groups.indexOf("planners") === -1 )
+                    if (!this.showReadOnlyUsers)
+                        matches = matches.filter( (user) => user.groups.indexOf("readonly") === -1 && user.groups.length > 0 )
+
+                    return matches;
                 },
                 deactivateUserDialog(user) {
                     Swal.fire({
@@ -279,7 +280,7 @@
             },
             async mounted() {
                 this.allUsers = await this.getUsers();
-                // this.visibleUsers = this.allUsers;
+                this.visibleUsers = this.allUsers;
 
                 window.vueRefresh = async () => { this.allUsers = await this.getUsers(); };
             },
