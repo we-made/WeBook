@@ -82,7 +82,6 @@
                 return {
                     showInactiveUsers: true,
                     allUsers: [],
-                    visibleUsers: [],
                     componentCounter: 0,
                     usersSearchTerm: "",
                     showReadOnlyUsers: true,
@@ -90,15 +89,10 @@
                     showPlanners: true,
                 }
             },
-            watch: {
-                usersSearchTerm: function (value) {
-                    if (value.length >= 3)
-                        this.visibleUsers = this.filter(value);
-                    else
-                        this.visibleUsers = this.allUsers;
-                },
-            },
             computed: {
+                visibleUsers() {
+                    return this.filter( this.allUsers );
+                },
                 totalsCount() {
                     return this.allUsers.length;
                 },
@@ -116,8 +110,12 @@
                         { detail: { url: '/users/administration/' + slug + "/dialogs/user_admin_detail", title: full_name } }  
                     ));
                 },
-                filter(value) {
-                    let matches = this.allUsers.filter(user => user.name.includes(this.usersSearchTerm) || user.email.includes(this.usersSearchTerm));
+                filter() {
+                    let matches = this.allUsers;
+                    if (this.usersSearchTerm.length >= 3) {
+                        matches = matches.filter(user => user.name.includes(this.usersSearchTerm) || user.email.includes(this.usersSearchTerm));
+                    }
+
                     if (!this.showSystemAdministrators)
                         matches = matches.filter( (user) => user.is_superuser === false )
                     if (!this.showPlanners)
@@ -280,7 +278,6 @@
             },
             async mounted() {
                 this.allUsers = await this.getUsers();
-                this.visibleUsers = this.allUsers;
 
                 window.vueRefresh = async () => { this.allUsers = await this.getUsers(); };
             },

@@ -41,8 +41,6 @@ export default {
             document.querySelectorAll(".dropdown-menu.show").forEach( (element) => { element.classList.toggle("show"); } )
         },
         handleClickUserRow(event, user) {
-            console.log(this.$refs)
-            console.log(this.$refs.vueSimpleContextMenu.showMenu)
             this.$refs.vueSimpleContextMenu.showMenu(event, {});
         },
         openViewMoreDialog(slug, name) {
@@ -140,7 +138,7 @@ export default {
             </div>
         </div>
 
-        <table class="table datatable activeTable" id='usersTable'>
+        <table class="table table-sm datatable activeTable" id='usersTable'>
             <thead>
                 <tr>
                     <th></th>
