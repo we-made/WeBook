@@ -235,7 +235,7 @@
                         <div class="row mt-2">
                             <div class="col-6">
                                 <div class="form-outline datetimepicker" id="startDateTime"
-                                    data-mdb-default-date="{{object.start|date:'m/d//Y' }}" 
+                                    data-mdb-default-date="{{object.start|date:'d/m/Y' }}" 
                                     data-mdb-default-time="{{object.start|date:'G:i' }}">
                                     <input type="text" class="form-control form-control-lg" id="startDateTimeInput" 
                                         value="{{ object.start|date:'d.m.Y G:i' }}"/>
@@ -244,7 +244,7 @@
                             </div>
                             <div class="col-6">
                                 <div class="form-outline datetimepicker" id="endDateTime"
-                                    data-mdb-default-date="{{object.end|date:'m/d/Y' }}" 
+                                    data-mdb-default-date="{{object.end|date:'d/m/Y' }}" 
                                     data-mdb-default-time="{{object.end|date:'G:i' }}">
                                     <input type="text" class="form-control form-control-lg" id="endDateTimeInput" 
                                         value="{{ object.end|date:'d.m.Y G:i' }}" />
@@ -635,6 +635,16 @@
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
+
+            new mdb.Datetimepicker(dialog.getElementById('startDateTime', {
+                container: "[id='{{dialogId}}'][class='{{discriminator}}']",
+                datepicker: { format: 'dd.mm.yyyy' },
+            }));
+            new mdb.Datetimepicker(dialog.getElementById('endDateTime', {
+                container: "[id='{{dialogId}}'][class='{{discriminator}}']",
+                datepicker: { format: 'dd.mm.yyyy' },
+            }));
+
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 initialSelected: { id: '{{ object.audience.id }}', text: '{{ object.audience.name }}', parent: '{{object.audience.parent_id}}' },
@@ -976,14 +986,7 @@
     })
 
     $(document).ready(function () {
-        new mdb.Datetimepicker(document.getElementById('startDateTime', {
-            container: "[id='{{dialogId}}'][class='{{discriminator}}']",
-            format: 'dd-mm-yyyy',
-        }));
-        new mdb.Datetimepicker(document.getElementById('endDateTime', {
-            container: "[id='{{dialogId}}'][class='{{discriminator}}']",
-            format: 'dd-mm-yyyy',
-        }));
+
 
         const personAsyncFilter = async (query) => {
         const url = `{% url "arrangement:search_people_ajax_view" %}?term=${encodeURI(query)}`;

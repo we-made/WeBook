@@ -22,12 +22,10 @@ class Command(BaseCommand):
             if latest_activity is None:
                 continue
 
-            latest_end = latest_activity.end
-
             tz = pytz.timezone("Europe/Oslo")
 
             is_ready_for_deletion = (
-                tz.localize(datetime.now()) - latest_end
+                tz.localize(datetime.now()) - latest_activity.end
             ).days >= options["delete_after_n_days"]
 
             if not is_ready_for_deletion:
