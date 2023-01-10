@@ -91,7 +91,10 @@
             },
             computed: {
                 visibleUsers() {
-                    return this.filter( this.allUsers );
+                    let users = this.allUsers;
+                    if (!this.showInactiveUsers)
+                        users = users.filter( user => user.is_active );
+                    return this.filter( users );
                 },
                 totalsCount() {
                     return this.allUsers.length;
@@ -110,8 +113,8 @@
                         { detail: { url: '/users/administration/' + slug + "/dialogs/user_admin_detail", title: full_name } }  
                     ));
                 },
-                filter() {
-                    let matches = this.allUsers;
+                filter( users ) {
+                    let matches = users;
                     if (this.usersSearchTerm.length >= 3) {
                         matches = matches.filter(user => user.name.includes(this.usersSearchTerm) || user.email.includes(this.usersSearchTerm));
                     }

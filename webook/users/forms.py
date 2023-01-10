@@ -44,6 +44,7 @@ class ComplexUserUpdateFormWithRole(ComplexUserUpdateForm):
 
     class Meta(forms.UserChangeForm.Meta):
         model = Person
+        # widgets = {"first_name": dj_forms.TextInput(attrs={"class": "form-control-sm"})}
         fields = [
             "first_name",
             "middle_name",
