@@ -6,7 +6,7 @@ from django_extensions.db.models import TimeStampedModel
 
 
 class ScreenResource(TimeStampedModel):
-
+    
     class ScreenStatus(models.IntegerChoices):
         AVAILABLE = 0, _('Available')
         UNAVAILABLE = 1, _('Unavailable')
