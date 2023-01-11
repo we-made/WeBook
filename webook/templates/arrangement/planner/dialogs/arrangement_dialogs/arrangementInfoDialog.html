@@ -4,14 +4,53 @@
 
 <div id="{{dialogId}}" title="{{object.name}}" class="{{discriminator}}">
     <h3>{{object.name}}</h3>
+    <h5>Fra {{object.start.start}} til {{object.end.end}}</h5>
     <button class="btn wb-btn-secondary mb-3" d-trigger="delete"><i class="fas fa-trash"></i>&nbsp; Slett</button>
-    <button class="btn wb-btn-main mb-3 float-end" d-trigger="triggerCascadeTree">
+    <button class="btn wb-btn-main mb-3" 
+        d-trigger="triggerCascadeTree"
+        data-mdb-toggle="tooltip"
+        title="Synkroniser verdier fra arrangementet ned til aktivitetene">
         <i class="fas fa-tree"></i>
         Kaskadeendringer & Synkronisitet
     </button>
     
     <input type="hidden" id="_selectedAudienceId" />
     <input type="hidden" id="_selectedArrangementTypeId" />
+
+    <div class="row">
+        <div class="col-4">
+            <div class="alert wb-bg-secondary">
+                <div class="clearfix">
+                    <div class="float-start">
+                        <h6 class="mb-0 d-inline fw-lighter"><i class="fas fa-star"></i> Hovedplanlegger:</h4>
+                        <h4 class="mb-0">{{ object.responsible }}</h4>
+
+                        <small class="d-block"><i class="fas fa-envelope"></i> {{ object.responsible.personal_email }}</small>
+                            
+                    </div>
+                    <a class="btn wb-btn-blank float-end shadow-0" href="#"
+                            type="button"
+                            id="mainPlannerDialog__promotePlannerBtn">
+                        Endre
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% if object.next_event %}
+        <div class="col-4">
+            <div class="alert wb-bg-secondary">
+                <h6 class="mb-0 d-inline fw-lighter">
+                    <i class="fas fa-calendar"></i>
+                    Neste aktivitet
+                    <h4 class="mb-0">{{object.next_event.title}}</h4>
+                    <small>{{object.next_event.start|date:"d.m.Y H:i:s"}} - {{object.next_event.end|date:"d.m.Y H:i:s"}}</small>
+                </h6>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
 
     <ul class="nav nav-tabs webook-tabs">
         <!-- Information/General -->
@@ -20,7 +59,7 @@
                 class="nav-link active"
                 role="tab"
                 data-mdb-toggle="tab">
-                Informasjon
+                Arrangementsinformasjon
             </a>
         </li>
         <!-- Timeslots -->
@@ -29,7 +68,7 @@
                 class="nav-link"
                 role="tab"
                 data-mdb-toggle="tab">
-                Tidspunkter
+                Tidsplaner & Aktiviteter
             </a>
         </li>
         <!-- Notes -->
@@ -55,242 +94,233 @@
     <div class="tab-content pt-4">
         <!-- Information / General Tab -->
         <div class="tab-pane fade show active" id="arrangementInfoDialog_tabs_information" role="tabpanel">
-            <div class="form-group">
-                <div class="row">
-                    <div class="col-lg-6 col-sm-12">
-                        <div class="form-group mb-2">
-                            <label class="form-label">Navn:</label>
-                            <input type="text"
-                                class="form-control form-control-lg"
-                                id="{{ form.name.id_for_label }}"
-                                value="{{ form.name.value|default:'' }}"
-                                name="{{ form.name.name }}"
-                                placeholder="{% trans 'Name of the arrangement' %}..."/>
-                            
-                            {% if form.name.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.name.errors }}
-                                </div>
-                            {% endif %}
-                        </div>
 
-                        <div class="form-group mb-2">
-                            <label class="form-label">Navn (<em class="small">Engelsk</em>):</label>
-                            <input type="text"
-                                class="form-control form-control-lg"
-                                id="{{ form.name_en.id_for_label }}"
-                                value="{{ form.name_en.value|default:'' }}"
-                                name="{{ form.name_en.name }}"
-                                placeholder="{% trans 'Name of the arrangement (in english)' %}..."/>
-        
-                            {% if form.name_en.errors|length > 0 %}
-                                <div class="alert alert-danger">
-                                    {{ form.name_en.errors }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="form-group">
-                            <label for="{{form.location.id_for_label}}" class="form-label">Lokasjon</label>
-                            {{ form.location }}
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-sm-12">
-                        <div class="mb-2">
-                            <label for="{{ form.audience.id_for_label }}" class="form-label">
-                                <i class="fas fa-users"></i>&nbsp;
-                                Målgruppe
-                            </label>
-                            <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
-                            
-                            {% if form.audience.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.audience.errors }}
+            <div class="row">
+                <div class="col-8">
+    
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group mb-2">
+                                <label class="form-label">Navn:</label>
+                                <input type="text"
+                                    class="form-control form-control-md"
+                                    id="{{ form.name.id_for_label }}"
+                                    value="{{ form.name.value|default:'' }}"
+                                    name="{{ form.name.name }}"
+                                    placeholder="{% trans 'Name of the arrangement' %}..."/>
+                                
+                                {% if form.name.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.name.errors }}
+                                    </div>
+                                {% endif %}
                             </div>
-                            {% endif %}
                         </div>
-
-                        <div class="mb-2">
-                            <label for="{{ form.arrangement_type.id_for_label }}" class="form-label select-label">
-                                <i class="fas fa-cog"></i>&nbsp;
-                                Arrangementstype
-                            </label>
-                            <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
-                            {% if form.arrangement_type.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.arrangement_type.errors }}
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-2">
-                            <label>
-                                <i class="fas fa-cog"></i>&nbsp;
-                                Status
-                            </label>
-                            <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
-                            {% if form.status_type.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.status_type.errors }}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <div class="col-6">
+                            <div class="form-group mb-2">
+                                <label class="form-label">Navn (<em class="small">Engelsk</em>):</label>
+                                <input type="text"
+                                    class="form-control form-control-md"
+                                    id="{{ form.name_en.id_for_label }}"
+                                    value="{{ form.name_en.value|default:'' }}"
+                                    name="{{ form.name_en.name }}"
+                                    placeholder="{% trans 'Name of the arrangement (in english)' %}..."/>
             
-            <div class="form-group mt-3">
-                <label class="form-label">Billettkode:</label>
-                <input type="text"
-                    class="form-control form-control-lg"
-                    id="{{ form.ticket_code.id_for_label }}"
-                    value="{{ form.ticket_code.value|default:'' }}"
-                    name="{{ form.ticket_code.name }}"
-                    placeholder="{% trans 'Ticket code' %}..."/>
-
-                {% if form.ticket_code.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.ticket_code.errors }}
+                                {% if form.name_en.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.name_en.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group mt-4">
-                <div class="row mt-2">
-                    <div class="col-lg-6 col-sm-12">
-                        <h4 class="mb-0">Møtested</h4>
-                        <label class="form-label">Møtested:</label>
+                    <div class="form-group">
+                        <label class="form-label">Billettkode:</label>
                         <input type="text"
-                            class="form-control form-control-lg"
-                            id="{{ form.meeting_place.id_for_label }}"
-                            value="{{ form.meeting_place.value|default:'' }}"
-                            name="{{ form.meeting_place.name }}"
-                            placeholder="Møtested..."/>
+                            class="form-control form-control-md"
+                            id="{{ form.ticket_code.id_for_label }}"
+                            value="{{ form.ticket_code.value|default:'' }}"
+                            name="{{ form.ticket_code.name }}"
+                            placeholder="{% trans 'Ticket code' %}..."/>
         
-                        {% if form.meeting_place.errors|length > 0 %}
+                        {% if form.ticket_code.errors|length > 0 %}
                             <div class="alert alert-danger">
-                                {{ form.meeting_place.errors }}
+                                {{ form.ticket_code.errors }}
                             </div>
                         {% endif %}
                     </div>
-
-                    <div class="col-lg-6 col-sm-12">
-                        <h4 class="mb-0">Besøkende</h4>
-                        <label class="form-label">Forventet antall besøkende:</label>
-                        <input type="number"
-                            min="0"
-                            class="form-control form-control-lg"
-                            id="{{ form.expected_visitors.id_for_label }}"
-                            value="{{ form.expected_visitors.value|default:'0' }}"
-                            name="{{ form.expected_visitors.name }}"
-                            placeholder="{% trans 'Forventet antall besøkende' %}..."
-                            required/>
+    
+                    <div class="form-group mt-4">
+                        <div class="row mt-2">
+                            <div class="col-lg-6 col-sm-12">
+                                <h4 class="mb-0">Møtested</h4>
+                                <label class="form-label">Møtested:</label>
+                                <input type="text"
+                                    class="form-control form-control-md"
+                                    id="{{ form.meeting_place.id_for_label }}"
+                                    value="{{ form.meeting_place.value|default:'' }}"
+                                    name="{{ form.meeting_place.name }}"
+                                    placeholder="Møtested..."/>
+                
+                                {% if form.meeting_place.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.meeting_place.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
         
-                        {% if form.expected_visitors.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.expected_visitors.errors }}
+                            <div class="col-lg-6 col-sm-12">
+                                <h4 class="mb-0">Besøkende</h4>
+                                <label class="form-label">Forventet antall besøkende:</label>
+                                <input type="number"
+                                    min="0"
+                                    class="form-control form-control-md"
+                                    id="{{ form.expected_visitors.id_for_label }}"
+                                    value="{{ form.expected_visitors.value|default:'0' }}"
+                                    name="{{ form.expected_visitors.name }}"
+                                    placeholder="{% trans 'Forventet antall besøkende' %}..."
+                                    required/>
+                
+                                {% if form.expected_visitors.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.expected_visitors.errors }}
+                                    </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-lg-6 col-sm-12">
-                        <label class="form-label">Møtested (Engelsk):</label>
-                        <input type="text"
-                            class="form-control form-control-lg"
-                            id="{{ form.meeting_place_en.id_for_label }}"
-                            value="{{ form.meeting_place_en.value|default:'' }}"
-                            name="{{ form.meeting_place_en.name }}"
-                            placeholder="{% trans 'Meeting place (english)' %}..."/>
-
-                        {% if form.meeting_place_en.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.meeting_place.errors }}
+        
+                            <div class="col-lg-6 col-sm-12">
+                                <label class="form-label">Møtested (Engelsk):</label>
+                                <input type="text"
+                                    class="form-control form-control-md"
+                                    id="{{ form.meeting_place_en.id_for_label }}"
+                                    value="{{ form.meeting_place_en.value|default:'' }}"
+                                    name="{{ form.meeting_place_en.name }}"
+                                    placeholder="{% trans 'Meeting place (english)' %}..."/>
+        
+                                {% if form.meeting_place_en.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.meeting_place.errors }}
+                                    </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-lg-6 col-sm-12">
-                        <label class="form-label">Faktisk antall besøkende:</label>
-                        <input type="number"
-                            min="0"
-                            class="form-control form-control-lg"
-                            id="{{ form.actual_visitors.id_for_label }}"
-                            value="{{ form.actual_visitors.value|default:'' }}"
-                            name="{{ form.actual_visitors.name }}"
-                            placeholder="{% trans 'Faktisk antall besøkende' %}..."/>
-
-                        {% if form.actual_visitors.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.actual_visitors.errors }}
+        
+                            <div class="col-lg-6 col-sm-12">
+                                <label class="form-label">Faktisk antall besøkende:</label>
+                                <input type="number"
+                                    min="0"
+                                    class="form-control form-control-md"
+                                    id="{{ form.actual_visitors.id_for_label }}"
+                                    value="{{ form.actual_visitors.value|default:'' }}"
+                                    name="{{ form.actual_visitors.name }}"
+                                    placeholder="{% trans 'Faktisk antall besøkende' %}..."/>
+        
+                                {% if form.actual_visitors.errors|length > 0 %}
+                                    <div class="alert alert-danger">
+                                        {{ form.actual_visitors.errors }}
+                                    </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group mt-3">
-                <label class='form-label'>Hovedplanlegger:</label> 
-                <em>{{ object.responsible.full_name }}</em> 
-                <a href='#' id="mainPlannerDialog__promotePlannerBtn" class='text-primary'>
-                    (Endre...)
-                </a>
-            </div>
-
-            <div class="form-group mt-2">
-                <label class="form-label">Planleggere:</label>
-                <div class="row">
-                    <div class="col-lg-6 col-sm-12">
-                        <div>
-                            <select multiple id="mainPlannerDialog_plannersSelect" class="form-control">
-                                <option value="MAIN" data-toggle="tooltip" title="Hovedplanlegger" disabled>{{object.responsible}}</option>
-                                {% for planner in object.planners.all %}
-                                    <option value="{{planner.pk}}">{{planner}}</option>
-                                {% endfor %}
-                            </select>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-sm-12">
-
-                        <div>
-                            <a href='#' class='shadow-0 btn wb-btn-secondary btn-block mb-2 btn-sm'
-                                    d-trigger="triggerAddPlannersDialog">
-                                <i class='fas fa-plus'></i>
-                                Legg til planlegger(e)
-                            </a>
-                        </div>
-                        <div>
-                            <a href='#' class='shadow-0 btn wb-btn-secondary btn-block btn-sm' id='mainDialog_removePlannerBtn'
-                                d-trigger="removePlanners">
-                                <i class='fas fa-trash'></i>
-                                Fjern valgte planleggere
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group mt-3">
-                <h3>Skjermvisning</h3>
-
-                <div class="row">
-                    <div class="col-lg-4 col-sm-12">
-                        <label class="form-label">Vises på skjermen: </label>
-                        {{ form.display_layouts }}
-                    </div>
-                    <div class="col-lg-8 col-sm-12 mt-sm-2 mt-lg-0 mb-2">
-                        <div 
-                            class="form-group"
-                            id="display-layout-text-group"
-                            style="display:none;">
-                            
-                            <div>
-                                {{ form.display_text|as_crispy_field }}
+                    <h4 class="mt-3">Planleggere</h4>
+                    <div class="form-group mt-2">
+                        <label class="form-label">Planleggere:</label>
+                        <div class="row">
+                            <div class="col-lg-6 col-sm-12">
+                                <div>
+                                    <select multiple id="mainPlannerDialog_plannersSelect" class="form-control">
+                                        <option value="MAIN" data-toggle="tooltip" title="Hovedplanlegger" disabled>{{object.responsible}}</option>
+                                        {% for planner in object.planners.all %}
+                                            <option value="{{planner.pk}}">{{planner}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12">
+        
+                                <div>
+                                    <a href='#' class='shadow-0 btn wb-btn-secondary btn-block mb-2 btn-sm'
+                                            d-trigger="triggerAddPlannersDialog">
+                                        <i class='fas fa-plus'></i>
+                                        Legg til planlegger(e)
+                                    </a>
+                                </div>
+                                <div>
+                                    <a href='#' class='shadow-0 btn wb-btn-secondary btn-block btn-sm' id='mainDialog_removePlannerBtn'
+                                        d-trigger="removePlanners">
+                                        <i class='fas fa-trash'></i>
+                                        Fjern valgte planleggere
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="{{form.location.id_for_label}}" class="form-label">Lokasjon</label>
+                        {{ form.location }}
+                    </div>
+                    <div class="mb-2 mt-2">
+                        <label for="{{ form.audience.id_for_label }}" class="form-label">
+                            <i class="fas fa-users"></i>&nbsp;
+                            Målgruppe
+                        </label>
+                        <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
+                        
+                        {% if form.audience.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.audience.errors }}
+                        </div>
+                        {% endif %}
+                    </div>            
+                    <div class="mb-2">
+                        <label for="{{ form.arrangement_type.id_for_label }}" class="form-label select-label">
+                            <i class="fas fa-cog"></i>&nbsp;
+                            Arrangementstype
+                        </label>
+                        <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
+                        {% if form.arrangement_type.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.arrangement_type.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-2">
+                        <label>
+                            <i class="fas fa-cog"></i>&nbsp;
+                            Status
+                        </label>
+                        <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
+                        {% if form.status_type.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.status_type.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group mt-3">
+                        <h4>Skjermvisning</h4>
+        
+                        <div class="row">
+                            <div class="col-lg-4 col-sm-12">
+                                <label class="form-label">Vises på skjermen: </label>
+                                {{ form.display_layouts }}
+                            </div>
+                            <div class="col-lg-8 col-sm-12 mt-sm-2 mt-lg-0 mb-2">
+                                <div 
+                                    class="form-group"
+                                    id="display-layout-text-group"
+                                    style="display:none;">
+                                    
+                                    <div>
+                                        {{ form.display_text|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
 
             {{ form.errors }}
 
@@ -330,7 +360,7 @@
             <ul class="nav nav-tabs webook-tabs mt-1" role="tablist">
                 <li class="nav-item" role="presentation">
                     <a href="#timeslots_tabs_series" class="nav-link active" data-mdb-toggle="tab">
-                        Gjentagende aktiviteter
+                        Tidsplaner
                     </a>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -352,7 +382,7 @@
                                 {% for event_serie in object.series.all %}
                                 <tr>
                                     <td>
-                                        <div class="p-4 border rounded-6 wb-bg-extra">
+                                        <div class="p-4 rounded-6 wb-bg-extra">
                                             <h4>
                                                 <i class="fas fa-redo"></i>&nbsp;
                                                 {{event_serie.serie_plan_manifest.title}}
@@ -361,6 +391,19 @@
                                                 <h6>
                                                     {{ event_serie.serie_plan_manifest.schedule_description }}
                                                     <small>({{event_serie.serie_plan_manifest.start_time}} - {{event_serie.serie_plan_manifest.end_time}})</small>
+
+                                                    <small class="d-block mt-2">
+                                                        <i class="fas fa-star"></i> {{event_serie.serie_plan_manifest.responsible}}
+                                                    </small>
+                                                    <small class="d-block mt-2">
+                                                        <i class="fas fa-users"></i> {{event_serie.serie_plan_manifest.audience}}
+                                                    </small>
+                                                    <small class="d-block mt-2">
+                                                        <i class="fas fa-cogs"></i> {{event_serie.serie_plan_manifest.arrangement_type}}
+                                                    </small>
+                                                    <small class="d-block mt-2">
+                                                        <i class="fas fa-cogs"></i> {{event_serie.serie_plan_manifest.status}}
+                                                    </small>
                                                 </h6>
                                             </div>
             
@@ -462,19 +505,21 @@
 
                                                     
                                         <div class="mt-2">
+                                            <button class="btn wb-btn-blank"
+                                                data-mdb-toggle="tooltip"
+                                                title="Delete this time plan"
+                                                d-arg-event_serie_pk="{{event_serie.pk}}"
+                                                d-trigger="deleteEventSerie">
+                                                <i class="fas fa-trash"></i>
+                                                Slett
+                                            </button>
                                             <button class="btn btn-sm wb-btn-blank"
                                                 data-mdb-toggle="tooltip"
                                                 title="Edit this time plan"
                                                 d-arg-event_serie_pk="{{event_serie.pk}}"
                                                 d-trigger="triggerEditSerie">
+                                                <i class="fas fa-edit"></i>
                                                 Rediger tidsplan
-                                            </button>
-                                            <button class="btn wb-btn-auto btn-link"
-                                                data-mdb-toggle="tooltip"
-                                                title="Delete this time plan"
-                                                d-arg-event_serie_pk="{{event_serie.pk}}"
-                                                d-trigger="deleteEventSerie">
-                                                Slett
                                             </button>
                                         </div>
 
@@ -490,8 +535,8 @@
 
                 <!-- Activities/Events Tab -->
                 <div class="tab-pane fade" id="timeslots_tabs_activities" role="tabpanel">
-                    <div class="table-responsive">
-                        <table class="table table-sm interactiveTable" id="eventsTable">
+                    <div class="table-responsive"  style="max-height:20rem!important; overflow-y: scroll;">
+                        <table class="table table-sm interactiveTable"  id="eventsTable">
                             <thead>
                                 <tr class="wb-bg-secondary">
                                     <th>
@@ -507,7 +552,9 @@
                                     <tr id="eventsTable_event_{{event.pk}}"
                                         d-trigger="triggerInspectEvent"
                                         d-arg-event_pk="{{event.pk}}">
-                                        <td>{{event}}</td>
+                                        <td>
+                                            {{ event.title }} - <small>{{event.start|date:"d.m.Y H:i:s"}} - {{event.end|date:"d.m.Y H:i:s"}}</small>
+                                        </td>
                                         <td>
                                             {% if event.serie %}
                                                 <i class="fas fa-check text-success"></i>
@@ -526,26 +573,44 @@
 
         <!-- Notes Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_notes" role="tabpanel">
-            <div class="clearfix">
-                <a class="btn wb-btn-main shadow-0 mb-2 float-end" 
-                    d-trigger="triggerNewNoteDialog">
-                    <i class="fas fa-feather"></i>
-                    Nytt notat
-                </a>
-            </div>
-            
-            {% for note in object.notes.all %}
-            <div class="shadow-3 p-3 border-bottom {% if note.has_personal_information %}border-warning{% else %}border-success{% endif %}" id="note_{{note.pk}}">
-                {{note.content|safe}}
-
-                <div class="clearfix">
-                    <em class="text-muted small float-start"></em>
-                    <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created }}</em>
+            {% if not object.notes.exists %}
+                <div class="alert wb-bg-secondary">
+                    <h4 class="text-center">Ingen notater skrevet ennå!</h4>
+                    <div class="row">
+                        <div class="col text-center">
+                            <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
+                            d-trigger="triggerNewNoteDialog">
+                            <i class="fas fa-feather"></i>
+                            Nytt notat
+                        </a>
+                        </div>
+                    </div>
                 </div>
+            {% else %}
+                <div class="clearfix">
+                    <a class="btn wb-btn-main shadow-0 mb-2 float-end" 
+                        d-trigger="triggerNewNoteDialog">
+                        <i class="fas fa-feather"></i>
+                        Nytt notat
+                    </a>
+                </div>
+            {% endif %}
+
+            {% for note in object.notes.all %}
+            <div class="p-3 border rounded-6 shadow-3 mt-2" id="note_{{note.pk}}">
+                {{note.content|safe}}
 
                 <hr>
 
                 <div class="clearfix">
+                    <div class="float-start">
+                        <div class="float-start">
+                            {% if note.has_personal_information %}
+                                <i class="fas fa-shield-alt text-warning h3"></i> <strong>Inneholder <abbr class="me-3" title="Personlig identifiserende informasjon">PII</abbr></strong>
+                            {% endif %}
+                            <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created|date:'d.m.Y H:i' }}</em>
+                        </div>
+                    </div>
                     <div class="float-end">
                         <a href="#" class="btn wb-btn-main"
                             d-trigger="deleteNote"
@@ -559,11 +624,6 @@
                         <i class="fas fa-edit"></i>
                     </a>
                     </div>
-
-                    {% if note.has_personal_information %}
-                        <i class="fas fa-shield-alt text-warning h3 float-start"></i>
-                    {% endif %}
-
                 </div>
             </div>
             {% endfor %}
@@ -576,49 +636,65 @@
 
         <!-- Files Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_files" role="tabpanel">
-            <div class="clearfix">
-                <a class="btn wb-btn-main shadow-0 float-end"
-                        d-trigger="triggerUploadFilesToArrangementDialog"
-                        href="#">
-                    <i class="fas fa-upload"></i>
-                    Upload file(s)
-                </a>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Fil</th>
-                        </tr>
-                    </thead>
-    
-                    <tbody>
-                        {% for file in arrangement.files.all %}
+            {% if arrangement.files.exists %}
+                <div class="clearfix">
+                    <a class="btn wb-btn-main shadow-0 float-end"
+                            d-trigger="triggerUploadFilesToArrangementDialog"
+                            href="#">
+                        <i class="fas fa-upload"></i>
+                        Upload file(s)
+                    </a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
                             <tr>
-                                <td>
-                                    <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
-                                        data-mdb-toggle="tooltip"
-                                        title="{% trans 'Delete this file' %}"
-                                        d-trigger="deleteFile"
-                                        d-arg-type_discriminator="arrangement"
-                                        d-arg-file_id="{{file.pk}}">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                    <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
-                                        data-mdb-toggle="tooltip"
-                                        title="{% trans 'Download this file' %}"
-                                        href="/media/{{file.file}}" download>
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                </td>
-                                <td>{{ file.filename }}</td>
+                                <th></th>
+                                <th>Fil</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+        
+                        <tbody>
+                            {% for file in arrangement.files.all %}
+                                <tr>
+                                    <td>
+                                        <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
+                                            data-mdb-toggle="tooltip"
+                                            title="{% trans 'Delete this file' %}"
+                                            d-trigger="deleteFile"
+                                            d-arg-type_discriminator="arrangement"
+                                            d-arg-file_id="{{file.pk}}">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                        <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
+                                            data-mdb-toggle="tooltip"
+                                            title="{% trans 'Download this file' %}"
+                                            href="/media/{{file.file}}" download>
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </td>
+                                    <td>{{ file.filename }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert wb-bg-secondary">
+                    <h4 class="text-center">Ingen filer lastet opp her ennå!</h4>
+                    <div class="row">
+                        <div class="col text-center">
+                            <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
+                            d-trigger="triggerUploadFilesToArrangementDialog"
+                            href="#">
+                            <i class="fas fa-upload"></i>
+                            Last opp
+                        </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -698,7 +774,13 @@
                 content: `
                     <h5 class='mb-0 mt-0 fw-bold'>{{event.title}}</h5>
 
-                    {{event.start}} - {{event.end}}
+                    {{event.start|date:"d.m.Y H:i:s"}} - {{event.end|date:"d.m.Y H:i:s"}}
+
+                    <small class='d-block'><strong><i class='fas fa-star'></i> {{event.responsible}}</strong></small>
+                    <small class='d-block'><strong><i class='fas fa-cog'></i> {{event.arrangement_type}}</strong></small>
+                    <small class='d-block'><strong><i class='fas fa-users'></i> {{event.audience}}</strong></small>
+                    <small class='d-block'><strong><i class='fas fa-cog'></i> {{event.status}}</strong></small>
+
                 `
             });
             {% endfor %}

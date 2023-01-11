@@ -131,11 +131,11 @@ export class ArrangementInspector {
                         },
                         onUpdatedCallback: () => {  },
                         dialogOptions: { 
-                            width: $(window).width() * 0.45, 
+                            width: "90%", 
                             maxHeight: 100,
                             modal: true,
                             dialogClass: 'no-titlebar',
-                            position: "center center",
+                            // position: "center center",
                         }
                     }),
                 ],
@@ -519,7 +519,7 @@ export class ArrangementInspector {
                             this.dialogManager.reloadDialog("mainDialog");
                             this.dialogManager.closeDialog("newSimpleActivityDialog");
                         },
-                        dialogOptions: { width: 500, dialogClass: 'no-titlebar', modal: true },
+                        dialogOptions: { width: "30%", dialogClass: 'no-titlebar', modal: true },
                         onSubmit: async (context, details) => {
                             details.event.startDate = (new Date(details.event.start)).toISOString();
                             details.event.endDate = (new Date(details.event.end)).toISOString();
@@ -527,8 +527,6 @@ export class ArrangementInspector {
                             details.event.toDate = details.event.endDate;
                             details.event.arrangement = context.arrangement.arrangement_pk;
                             details.event.id = 0;
-
-                            debugger;
 
                             details.event.collisions = await CollisionsUtil.GetCollisionsForEvent(convertObjToFormData(details.event), details.csrf_token);
 
@@ -652,7 +650,7 @@ export class ArrangementInspector {
                                 }
                             });
                         },
-                        dialogOptions: { width: 500 },
+                        dialogOptions: { width: 500, dialogClass: 'no-titlebar'  },
                     })
                 ],
                 [
@@ -900,7 +898,8 @@ export class ArrangementInspector {
                         },
                         onRenderedCallback: () => { this.dialogManager._makeAware() },
                         dialogOptions: { 
-                            width: 200,
+                            width: "50%",
+                            modal: true,
                             dialogClass: 'no-titlebar',
                         },
                         onUpdatedCallback: () => {
