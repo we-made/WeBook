@@ -486,19 +486,21 @@ export class DialogManager {
                         });
                         current.on("dialogdrag", function (event, ui) {
                             console.log("current drag")
-                            $(parent).dialog("option","position", { my: "right top", at: "left top", of: current[0].parentNode } )
+                            $(parent).dialog("option", "modal", true);
+                            // $(parent).dialog("option","position", { my: "right top", at: "left top", of: current[0].parentNode } )
                         });
 
-                        value.dialogOptions = { 
-                            dialogClass: "slave-dialog" + value.dialogOptions.dialogClass !== undefined ? (" " + value.dialogOptions.dialogClass) : "",
-                            classes: {
-                                "ui-dialog": "slave-dialog"
-                            },
-                            position: { my: "left top", at: "right top", of: parent.parentNode },
-                            height: parent.parentNode.offsetHeight,
-                            width: 600,
-                            show: { effect: "slide", direction: "left", duration: 400 }
-                        }
+                        // value.dialogOptions = { 
+                        //     dialogClass: "slave-dialog" + value.dialogOptions.dialogClass !== undefined ? (" " + value.dialogOptions.dialogClass) : "",
+                        //     classes: {
+                        //         "ui-dialog": "slave-dialog"
+                        //     },
+                        //     // position: { my: "left top", at: "right top", of: parent.parentNode },
+                        //     modal: true,
+                        //     height: parent.parentNode.offsetHeight,
+                        //     width: 600,
+                        //     show: { effect: "slide", direction: "left", duration: 400 }
+                        // }
                     }
                 });
             }

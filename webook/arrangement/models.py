@@ -442,6 +442,11 @@ class Arrangement(
         return self.start, self.end
 
     @property
+    def next_event(self):
+        """Get the next event that transpires in this arrangement"""
+        return self.event_set.filter(start__gte=datetime.datetime.now()).first()
+
+    @property
     def start(self) -> Optional[datetime.datetime]:
         """Get the datetime of when the earliest event in this arrangement starts -- ergo the start of the arrangement"""
         return self.event_set.order_by("start").first()

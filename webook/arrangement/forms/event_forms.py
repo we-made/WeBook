@@ -50,6 +50,11 @@ _ALWAYS_FIELDS = (
 
 
 class BaseEventForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs["class"] = "form-control"
+
     before_buffer_title = forms.CharField(required=False)
     before_buffer_date = forms.DateField(required=False)
     before_buffer_start = forms.TimeField(required=False)

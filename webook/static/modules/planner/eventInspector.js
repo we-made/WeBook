@@ -33,7 +33,7 @@ export class EventInspector {
                                 new mdb.Input(formOutline).init();
                             });
                         },
-                        dialogOptions: { width: 1000, height: 900, dialogClass: 'no-titlebar', modal:true, },
+                        dialogOptions: { width: "80%", height: "100%", dialogClass: 'no-titlebar', modal:true, },
                         onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("inspectEventDialog");
                         },
