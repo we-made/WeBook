@@ -81,9 +81,9 @@
         <li class="nav-item" role="presentation">
             <a
                 class="nav-link"
-                id="ex1-tab-2"
+                id="files-tab-link"
                 data-mdb-toggle="tab"
-                href="#ex1-tabs-2"
+                href="#files-tab"
                 role="tab"
                 aria-controls="ex1-tabs-2"
                 aria-selected="false">
@@ -93,9 +93,9 @@
         <li class="nav-item" role="presentation">
             <a
                 class="nav-link"
-                id="ex1-tab-3"
+                id="notes-tab-link"
                 data-mdb-toggle="tab"
-                href="#ex1-tabs-3"
+                href="#notes-tab"
                 role="tab"
                 aria-controls="ex1-tabs-3"
                 aria-selected="false">
@@ -114,7 +114,7 @@
                 data-mdb-toggle="tab"
                 href="#ex1-tabs-4"
                 role="tab"
-                aria-controls="ex1-tabs-3"
+                aria-controls="ex1-tabs-4"
                 aria-selected="false"
                 >Opprigg & Nedrigg
             </a>
@@ -326,7 +326,7 @@
             </div>
         </form>
         </div>
-        <div class="tab-pane fade" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
+        <div class="tab-pane fade" id="files-tab" role="tabpanel" aria-labelledby="ex1-tab-2">
             {% if object.arrangement.files.exists or object.files.exists %}
             <div class="clearfix">
                 <div class="float-end">
@@ -334,36 +334,14 @@
                 </div>
             </div>
 
-            {% for file in object.arrangement.files.all %}
-                <div class="wb-bg-extra p-3 mt-2 rounded-pill" id="fileRow_{{file.pk}}">
-                    <span><i class="fas fa-arrow-down"></i> <small class="me-2 fw-bold">Fra arrangement</small>&nbsp; {{file.filename}}</span>
-                    <span class="float-end">
-                        <a href="#" class="text-muted"
-                            data-mdb-toggle="tooltip"
-                            title="Denne filen kommer fra arrangementet og kan dermed bare slettes der">
-                            <i class="fas fa-trash"></i>
-                        </a>
-
-                        <a data-mdb-toggle="tooltip"
-                                class="ms-2 me-3"
-                                title="{% trans 'Download this file' %}"
-                                href="/media/{{file.file}}"
-                                download>
-                            <i class="fas fa-download"></i>
-                        </a>
-                    </span>
-                </div>
-            {% endfor %}
-
-            <div class="mb-2">
-                {% for file in object.files.all %}
+            <div data-mdb-perfect-scrollbar="true" data-mdb-handlers="click-rail" style="position: relative; max-height: 30em; overflow-y: scroll;">
+                {% for file in object.arrangement.files.all %}
                     <div class="wb-bg-extra p-3 mt-2 rounded-pill" id="fileRow_{{file.pk}}">
-                        <span>{{file.filename}}</span>
+                        <span><i class="fas fa-arrow-down"></i> <small class="me-2 fw-bold">Fra arrangement</small>&nbsp; {{file.filename}}</span>
                         <span class="float-end">
-                            <a href="#"
-                                    d-trigger="deleteFile"
-                                    d-arg-type_discriminator="event_serie"
-                                    d-arg-file_id="{{file.pk}}">
+                            <a href="#" class="text-muted"
+                                data-mdb-toggle="tooltip"
+                                title="Denne filen kommer fra arrangementet og kan dermed bare slettes der">
                                 <i class="fas fa-trash"></i>
                             </a>
 
@@ -377,6 +355,31 @@
                         </span>
                     </div>
                 {% endfor %}
+
+
+                <div class="mb-2">
+                    {% for file in object.files.all %}
+                        <div class="wb-bg-extra p-3 mt-2 rounded-pill" id="fileRow_{{file.pk}}">
+                            <span>{{file.filename}}</span>
+                            <span class="float-end">
+                                <a href="#"
+                                        d-trigger="deleteFile"
+                                        d-arg-type_discriminator="event_serie"
+                                        d-arg-file_id="{{file.pk}}">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+
+                                <a data-mdb-toggle="tooltip"
+                                        class="ms-2 me-3"
+                                        title="{% trans 'Download this file' %}"
+                                        href="/media/{{file.file}}"
+                                        download>
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
             {% else %}
             <div class="alert wb-bg-secondary">
@@ -480,7 +483,7 @@
             {% endif %}
         </div>
 
-        <div class="tab-pane fade" id="ex1-tabs-3" role="tabpanel" aria-labelledby="ex1-tabs-3">
+        <div class="tab-pane fade" id="notes-tab" role="tabpanel" aria-labelledby="notes-tab">
             {% if object.arrangement.notes.exists or object.notes.exists %}
                 <div class="clearfix">
                     <a class="btn wb-btn-main shadow-0 mb-2 float-end"
@@ -490,56 +493,59 @@
                     </a>
                 </div>
 
-                {% for note in object.arrangement.notes.all %}
-                <div class="p-3 border rounded-6 shadow-3 mt-2 wb-bg-secondary " id="note_{{note.pk}}">
-                    {{note.content|safe}}
+                <div style="overflow-y: scroll; max-height: 30em;">
+                    {% for note in object.arrangement.notes.all %}
+                    <div class="p-3 border rounded-6 shadow-3 mt-2 wb-bg-secondary " id="note_{{note.pk}}">
+                        {{note.content|safe}}
 
-                    <hr>
+                        <hr>
 
-                    <div class="clearfix">
-                        <div class="float-start">
-                            <i class="fas fa-arrow-down me-3 h3"></i>
-                            {% if note.has_personal_information %}
-                                <i class="fas fa-shield-alt text-warning h3"></i> <strong>Inneholder <abbr class="me-3" title="Personlig identifiserende informasjon">PII</abbr></strong>
-                            {% endif %}
-                            <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created|date:'d.m.Y H:i' }}</em>
-                        </div>
-                        <div class="float-end">
-                            <em><small> <i class="far fa-question-circle"></i> Notatet kommer fra arrangementet og kan bare redigeres/slettes der</small></em>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-
-                {% for note in object.notes.all %}
-                <div class="p-3 border rounded-6 shadow-3 mt-2" id="note_{{note.pk}}">
-                    {{note.content|safe}}
-
-                    <hr>
-
-                    <div class="clearfix">
-                        <div class="float-start">
-                            {% if note.has_personal_information %}
-                                <i class="fas fa-shield-alt text-warning h3"></i> <strong>Inneholder <abbr class="me-3" title="Personlig identifiserende informasjon">PII</abbr></strong>
-                            {% endif %}
-                            <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created|date:'d.m.Y H:i' }}</em>
-                        </div>
-                        <div class="float-end">
-                            <a href="#" class="btn wb-btn-secondary"
-                                d-trigger="deleteNote"
-                                d-arg-note_pk="{{ note.pk }}">
-                                <i class="fas fa-trash"></i>
-                            </a>
-
-                            <a href="#" class="btn wb-btn-secondary"
-                                d-trigger="updateNoteDialog"
-                                d-arg-note_pk="{{note.pk}}">
-                                <i class="fas fa-edit"></i>
-                            </a>
+                        <div class="clearfix">
+                            <div class="float-start">
+                                <i class="fas fa-arrow-down me-3 h3"></i>
+                                {% if note.has_personal_information %}
+                                    <i class="fas fa-shield-alt text-warning h3"></i> <strong>Inneholder <abbr class="me-3" title="Personlig identifiserende informasjon">PII</abbr></strong>
+                                {% endif %}
+                                <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created|date:'d.m.Y H:i' }}</em>
+                            </div>
+                            <div class="float-end">
+                                <em><small> <i class="far fa-question-circle"></i> Notatet kommer fra arrangementet og kan bare redigeres/slettes der</small></em>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
+
+                    {% for note in object.notes.all %}
+                    <div class="p-3 border rounded-6 shadow-3 mt-2" id="note_{{note.pk}}">
+                        {{note.content|safe}}
+
+                        <hr>
+
+                        <div class="clearfix">
+                            <div class="float-start">
+                                {% if note.has_personal_information %}
+                                    <i class="fas fa-shield-alt text-warning h3"></i> <strong>Inneholder <abbr class="me-3" title="Personlig identifiserende informasjon">PII</abbr></strong>
+                                {% endif %}
+                                <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created|date:'d.m.Y H:i' }}</em>
+                            </div>
+                            <div class="float-end">
+                                <a href="#" class="btn wb-btn-secondary"
+                                    d-trigger="deleteNote"
+                                    d-arg-note_pk="{{ note.pk }}">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+
+                                <a href="#" class="btn wb-btn-secondary"
+                                    d-trigger="updateNoteDialog"
+                                    d-arg-note_pk="{{note.pk}}">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+
             {% else %}
                 <div class="alert wb-bg-secondary">
                     <h4 class="text-center">Ingen notater skrevet ennå!</h4>
@@ -711,6 +717,10 @@
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
+            console.log("postInit.dialog", dialog);
+            if (dialog.data.stagedMoveTo)
+                dialog.moveToTab({ "tab": dialog.data.stagedMoveTo })
+
             new mdb.Datetimepicker(dialog.getElementById('startDateTime', {
                 container: "[id='{{dialogId}}'][class='{{discriminator}}']",
                 datepicker: { format: 'dd.mm.yyyy' },
@@ -1004,6 +1014,7 @@
                 });
             },
             triggerUploadFilesDialog(dialog, {}={}, triggeredByElement) {
+                console.log("triggerUploadFilesDialog");
                 dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesDialog", { $parent: dialog.dialogElement });
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
@@ -1015,10 +1026,14 @@
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
             },
+            moveToTab(dialog, { tab } = {}, triggeredByElement) {
+                $( document.querySelector("#" + tab + "-link") )[0].click()
+            }
         },
         data: {
             peopleMap: new Map(),
             roomsMap: new Map(),
+            stagedMoveTo: null
         },
         when: [
             { eventKnownAs: "setPlanner", do: (dialog, payload) => {
@@ -1029,6 +1044,9 @@
                 
                 dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                 dialog.getElementById('mainPlannerName').innerText = person.text;
+            } },
+            { eventKnownAs: "moveToTab", do: (dialog, payload) => {
+                dialog.querySelector("#" + payload.tab + "-link").click()
             } },
             { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
                 dialog.data.roomsMap = new Map(
@@ -1061,8 +1079,6 @@
     })
 
     $(document).ready(function () {
-
-
         const personAsyncFilter = async (query) => {
         const url = `{% url "arrangement:search_people_ajax_view" %}?term=${encodeURI(query)}`;
         const response = await fetch(url);
@@ -1072,7 +1088,7 @@
         for (let i = 0; i < data.length; i++) {
           let entry = data[i]
           entry.fields.id = entry.pk;
-          if (peopleMap.has(entry.fields.id) !== true) {
+          if (!peopleMap.has(entry.fields.id)) {
             people.push(entry.fields)
           }
         }

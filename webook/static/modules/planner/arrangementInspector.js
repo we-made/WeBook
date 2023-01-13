@@ -129,10 +129,11 @@ export class ArrangementInspector {
                                 this.dialogManager.reloadDialog("mainDialog");
                             });
                         },
-                        onUpdatedCallback: () => {  },
+                        onUpdatedCallback: () => { },
                         dialogOptions: { 
                             width: "90%", 
-                            maxHeight: 100,
+                            height: "100%",
+                            // maxHeight: "",
                             modal: true,
                             dialogClass: 'no-titlebar',
                             // position: "center center",
@@ -200,9 +201,10 @@ export class ArrangementInspector {
                             });
                         },
                         onRenderedCallback: () => {},
-                        onUpdatedCallback: () => { 
-                            this.dialogManager.reloadDialog("mainDialog"); 
+                        onUpdatedCallback: async () => { 
                             this.dialogManager.closeDialog("uploadFilesToArrangementDialog"); 
+                            await this.dialogManager.reloadDialog("mainDialog"); 
+                            window.MessagesFacility.send( "mainDialog", { tab: "arrangementInfoDialog_tabs_files" }, "moveToTab" );
                         },
                         onSubmit: async (context, details) => {
                             details.formData.append("slug", context.arrangement.slug);
@@ -234,9 +236,11 @@ export class ArrangementInspector {
                             });
                         },
                         onRenderedCallback: () => { console.info("Upload files to event serie dialog rendered") },
-                        onUpdatedCallback: () => { 
-                            this.dialogManager.reloadDialog("mainDialog"); 
-                            this.dialogManager.closeDialog("uploadFilesToEventSerieDialog"); 
+                        onUpdatedCallback: async () => { 
+                            this.dialogManager.closeDialog("uploadFilesToEventSerieDialog");
+                            await this.dialogManager.reloadDialog("mainDialog");
+
+                            window.MessagesFacility.send( "mainDialog", { tab: "arrangementInfoDialog_tabs_files" }, "moveToTab" );
                         },
                         onSubmit: async (context, details) => {
                             details.formData.append("pk", context.lastTriggererDetails.event_serie_pk);
@@ -293,8 +297,6 @@ export class ArrangementInspector {
                                 $newTimePlanDialog.find( mapping.targetSelector ).val( mapping.value );
                             } );
 
-                            // console.log("info", info);
-
                             window.MessagesFacility.send("newTimePlanDialog", info.arrangement_type_id, "setArrangementTypeFromParent")
                             window.MessagesFacility.send("newTimePlanDialog", info.audience_id, "setAudienceFromParent");
                             window.MessagesFacility.send("newTimePlanDialog", info.status_id, "setStatusFromParent");
@@ -309,9 +311,11 @@ export class ArrangementInspector {
                                 new mdb.Input(formOutline).init();
                             });
                         },
-                        onUpdatedCallback: () => {
-                            this.dialogManager.reloadDialog("mainDialog");
+                        onUpdatedCallback: async () => {
                             this.dialogManager.closeDialog("newTimePlanDialog");
+
+                            await this.dialogManager.reloadDialog("mainDialog");
+                            window.MessagesFacility.send( "mainDialog", { tab: "arrangementInfoDialog_tabs_timeslots" }, "moveToTab" );
                         },
                         dialogOptions: { 
                             width: 700,
@@ -515,9 +519,11 @@ export class ArrangementInspector {
                                 new mdb.Input(formOutline).init();
                             });
                         },
-                        onUpdatedCallback: () => {
-                            this.dialogManager.reloadDialog("mainDialog");
+                        onUpdatedCallback: async () => {
                             this.dialogManager.closeDialog("newSimpleActivityDialog");
+
+                            await this.dialogManager.reloadDialog("mainDialog");
+                            window.MessagesFacility.send( "mainDialog", { tab: "arrangementInfoDialog_tabs_timeslots" }, "moveToTab" );
                         },
                         dialogOptions: { width: "30%", dialogClass: 'no-titlebar', modal: true },
                         onSubmit: async (context, details) => {
@@ -571,9 +577,11 @@ export class ArrangementInspector {
                                 new mdb.Input(formOutline).init();
                             });
                         },
-                        onUpdatedCallback: () => {
-                            this.dialogManager.reloadDialog("mainDialog");
+                        onUpdatedCallback: async () => {
                             this.dialogManager.closeDialog("editEventSerieDialog");
+
+                            await this.dialogManager.reloadDialog("mainDialog");
+                            window.MessagesFacility.send( "mainDialog", { tab: "arrangementInfoDialog_tabs_timeslots" }, "moveToTab" );                            
                         },
                         onSubmit: async (context, details) => {
                             details.serie.event_serie_pk = context.editing_serie_pk;
@@ -673,9 +681,11 @@ export class ArrangementInspector {
                             )
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => {
-                            this.dialogManager.reloadDialog("mainDialog");
+                        onUpdatedCallback: async () => {
                             this.dialogManager.closeDialog("newNoteDialog");
+                            await this.dialogManager.reloadDialog("mainDialog");
+                            
+                            window.MessagesFacility.send( "mainDialog", { tab: "arrangementInfoDialog_tabs_notes" }, "moveToTab" );
                         },
                         onSubmit: async (context, details) => {
                             await fetch('/arrangement/note/post', {
@@ -704,9 +714,11 @@ export class ArrangementInspector {
                             });
                         },
                         onRenderedCallback: () => { console.info("Rendered"); },
-                        onUpdatedCallback: () => {
-                            this.dialogManager.reloadDialog("mainDialog");
+                        onUpdatedCallback: async () => {
                             this.dialogManager.closeDialog("editNoteDialog");
+                            await this.dialogManager.reloadDialog("mainDialog");
+                            
+                            window.MessagesFacility.send( "mainDialog", { tab: "arrangementInfoDialog_tabs_notes" }, "moveToTab" );
                         },
                         onSubmit: async (context, details) => {
                             await fetch('/arrangement/planner/dialogs/edit_note/' + details.id, {
