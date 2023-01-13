@@ -61,7 +61,7 @@
         });
 
         this.plugins.forEach((plugin) => plugin.onRender(context));
-        this.communicationLane = new DialogEventCommunicationLane(this.renderer.dialogElement.children[0]);
+        this.communicationLane = new DialogEventCommunicationLane(this.renderer.dialogElement.querySelector("div"));
         return result;
     }
 
@@ -78,9 +78,8 @@
             if (html === undefined) {
                 html = await this.htmlFabricator(context, this);
             }
-            else { console.log(html); }
 
-            this.destroy();
+            // this.destroy();
             this.render(context, html);
 
             this.onRenderedCallback(this, context);
@@ -107,10 +106,9 @@
         }
 
         let elements = document.querySelectorAll(selector);
-
         elements.forEach(element => {
             element.remove();
-        })
+        });
     }
 
     getInstance() {
@@ -118,6 +116,8 @@
     }
 
     destroy() {
+        if (!this.renderer.dialogElement)
+            return;
         this._$getDialogEl().dialog( "destroy" );
         this.renderer.removeFromDOM();
         this.discriminator=null;
@@ -125,11 +125,7 @@
 
     isOpen() {
         const $dialogElement = this._$getDialogEl();
-        if ($dialogElement === null || $dialogElement === undefined || this.getInstance() === false || $dialogElement.dialog("isOpen") === false) {
-            return false;
-        }
-
-        return true;
+        return !($dialogElement === null || $dialogElement === undefined || this.getInstance() === false || this.getInstance() === undefined || $dialogElement.dialog("isOpen") === false)
     }
 }
 
@@ -245,8 +241,6 @@ export class DialogSimpleRenderer extends DialogBaseRenderer {
                 $('body')
                     .append(span)
                     .ready( () => {
-                        console.log("SimpleRenderer");
-
                         dialog._$getDialogEl().dialog( dialog.dialogOptions );
                         dialog.onRenderedCallback(dialog, context);
 
@@ -279,20 +273,22 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
     }
 
     async render(context, dialog, html=null) {
-        if (this.discriminator) {
-            dialog.destroy();
-        }
+        // if (this.discriminator) {
+        //     dialog.destroy();
+        // }
+
         if (this._isRendering === false) {
             this._isRendering = true;
-            if (dialog.isOpen() === false) {
-                if (!html)
-                    html = await dialog.htmlFabricator(context, dialog);
 
+            if (!html)
+                html = await dialog.htmlFabricator(context, dialog);
+        
+
+            if (!this.$dialogElement) { // Dialog does not exist in DOM and must be instantialized
                 let span = document.createElement("span");
                 span.innerHTML = html;
-                
+
                 let dialogEl = span.querySelector("#" + dialog.dialogElementId);
-                $(dialogEl).toggle("highlight");
                 dialog.discriminator = dialogEl.getAttribute("class");
 
                 this.dialogElement = span;
@@ -314,7 +310,25 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                         this._isRendering = false;
                     });
             }
-            else {
+            else { // Dialog already exists in DOM -- let's update its HTML instead
+                let span = document.createElement("span");
+                span.innerHTML = html;
+
+                let dialogEl = span.querySelector("#" + dialog.dialogElementId);
+                dialog.discriminator = dialogEl.getAttribute("class");
+                
+                this.dialogElement.innerHTML = "";
+                this.$dialogElement.append(span);
+
+                dialog.onRenderedCallback(dialog, context);
+                dialog._$getDialogEl().prepend( 
+                    $("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
+                        .on('click', () => {
+                            dialog.onDestroy();
+                            dialog.destroy();
+                    })
+                );
+                // dialog._$getDialogEl().dialog( "moveToTop" );
                 this._isRendering = false;
             }
         }
@@ -376,8 +390,10 @@ export class DialogManager {
         this.context = ctxObj;
     }
 
-    reloadDialog(dialogId, customHtml=undefined) {
-        this._dialogRepository.get(dialogId).refresh(this.context, customHtml);
+    async reloadDialog(dialogId, customHtml=undefined) {
+        await this._dialogRepository
+            .get(dialogId)
+            .refresh(this.context, customHtml);
     }
 
     openDialog(dialogId) {
@@ -485,8 +501,7 @@ export class DialogManager {
                             $(value._$getDialogEl()).dialog("option", "position", { my: "left+20 top", at: "right top", of: parent.parentNode });
                         });
                         current.on("dialogdrag", function (event, ui) {
-                            console.log("current drag")
-                            $(parent).dialog("option", "modal", true);
+                            // $(parent).dialog("option", "modal", true);
                             // $(parent).dialog("option","position", { my: "right top", at: "left top", of: current[0].parentNode } )
                         });
 

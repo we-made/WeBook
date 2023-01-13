@@ -101,7 +101,7 @@ export class EventInspector {
                         },
                         onSubmit: (context, details, dialogManager, dialog) => {
                             const eventName = dialog.data.whenEventName || "peopleSelected";
-                            dialogManager._dialogRepository.get(details.recipientDialog)
+                            this.dialogManager._dialogRepository.get(details.recipientDialog)
                                 .communicationLane.send(eventName, details.selectedBundle);
                         }
                     })
@@ -155,9 +155,11 @@ export class EventInspector {
                             width: 600, 
                             dialogClass: 'no-titlebar',
                         },
-                        onUpdatedCallback: () => { 
+                        onUpdatedCallback: async () => { 
                             this.dialogManager.closeDialog("uploadFilesDialog"); 
-                            this.dialogManager.reloadDialog("inspectEventDialog"); 
+                            await this.dialogManager.reloadDialog("inspectEventDialog");
+
+                            window.MessagesFacility.send( "inspectEventDialog", { tab: "files-tab" }, "moveToTab" );
                         },
                         onSubmit: async (context, details) => {
                             details.formData.append("pk", context.event.pk);
@@ -191,9 +193,11 @@ export class EventInspector {
                             );
                         },
                         onRenderedCallback: () => { console.info("Rendered") },
-                        onUpdatedCallback: () => {
-                            this.dialogManager.reloadDialog("inspectEventDialog");
+                        onUpdatedCallback: async () => {
                             this.dialogManager.closeDialog("newNoteDialog");
+                            await this.dialogManager.reloadDialog("inspectEventDialog");
+
+                            window.MessagesFacility.send( "inspectEventDialog", { tab: "notes-tab" }, "moveToTab" );
                         },
                         onSubmit: async (context, details) => {
                             await fetch('/arrangement/note/post', {
@@ -227,9 +231,11 @@ export class EventInspector {
                             );
                         },
                         onRenderedCallback: () => { console.info("Rendered"); },
-                        onUpdatedCallback: () => {
-                            this.dialogManager.reloadDialog("inspectEventDialog");
+                        onUpdatedCallback: async () => {
                             this.dialogManager.closeDialog("editNoteDialog");
+                            await this.dialogManager.reloadDialog("inspectEventDialog");
+
+                            window.MessagesFacility.send( "inspectEventDialog", { tab: "notes-tab" }, "moveToTab" );
                         },
                         onSubmit: async (context, details) => {
                             await fetch('/arrangement/planner/dialogs/edit_note/' + details.id, {
