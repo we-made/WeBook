@@ -717,9 +717,15 @@
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
-            console.log("postInit.dialog", dialog);
-            if (dialog.data.stagedMoveTo)
-                dialog.moveToTab({ "tab": dialog.data.stagedMoveTo })
+            
+            dialog.querySelectorAll("a[data-mdb-toggle='tab']")
+                .forEach( (element) => {
+                    element.addEventListener('click', (event) => {
+                        console.log("event", event);
+                        dialog.data.currentlyActiveTab = event.target.id;
+                        console.log(dialog.data.currentlyActiveTab)
+                    })
+                } )
 
             new mdb.Datetimepicker(dialog.getElementById('startDateTime', {
                 container: "[id='{{dialogId}}'][class='{{discriminator}}']",
@@ -1006,8 +1012,6 @@
                     display_text:           dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
                 };
 
-                console.log(qualifiedEvent);
-
                 dialog.raiseSubmitEvent({
                     event: qualifiedEvent,
                     csrf_token: '{{ csrf_token }}',
@@ -1026,14 +1030,10 @@
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
             },
-            moveToTab(dialog, { tab } = {}, triggeredByElement) {
-                $( document.querySelector("#" + tab + "-link") )[0].click()
-            }
         },
         data: {
             peopleMap: new Map(),
             roomsMap: new Map(),
-            stagedMoveTo: null
         },
         when: [
             { eventKnownAs: "setPlanner", do: (dialog, payload) => {
@@ -1044,9 +1044,6 @@
                 
                 dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                 dialog.getElementById('mainPlannerName').innerText = person.text;
-            } },
-            { eventKnownAs: "moveToTab", do: (dialog, payload) => {
-                dialog.querySelector("#" + payload.tab + "-link").click()
             } },
             { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
                 dialog.data.roomsMap = new Map(
@@ -1074,8 +1071,12 @@
                         {% endfor %}
                     ]),
                 },
+            },
+            {
+                name: "syncDataToManager",
+                pluginClass: SyncDialogDataToManagerContextPlugin,
             }
-        ],
+        ]
     })
 
     $(document).ready(function () {

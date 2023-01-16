@@ -52,7 +52,7 @@
     </div>
 
 
-    <ul class="nav nav-tabs webook-tabs">
+    <ul class="nav nav-tabs webook-tabs" id="arrangement-info-dialog-tabs">
         <!-- Information/General -->
         <li class="nav-item" role="presentation">
             <a  href="#arrangementInfoDialog_tabs_information"
@@ -714,6 +714,14 @@
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
+            dialog.querySelectorAll("#arrangement-info-dialog-tabs a[data-mdb-toggle='tab']")
+                .forEach( (element) => {
+                    element.addEventListener('click', (event) => {
+                        console.log(event);
+                        dialog.data.currentlyActiveTab = event.target.id;
+                    })
+                } )
+
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 initialSelected: { id: '{{ object.audience.id }}', text: '{{ object.audience.name }}', parent: '{{object.audience.parent_id}}' },
@@ -1073,12 +1081,9 @@
                 })
             },
         },
-        data: {},
-        when: [
-            { eventKnownAs: "moveToTab", do: (dialog, payload) => {
-                dialog.querySelector("#" + payload.tab + "-link").click()
-            } },
-        ],
+        data: {
+            currentlyActiveTab: "",
+        },
         plugins: [
             {
                 name: 'showIfSelected',
@@ -1092,6 +1097,10 @@
                         {% endfor %}
                     ]),
                 },
+            },
+            {
+                name: "syncDataToManager",
+                pluginClass: SyncDialogDataToManagerContextPlugin,
             }
         ],
     })
