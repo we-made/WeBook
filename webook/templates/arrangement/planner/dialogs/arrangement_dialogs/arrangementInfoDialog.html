@@ -1,10 +1,13 @@
 {% load static i18n %}
 {% load crispy_forms_tags %}
+{% load custom_tags %}
 
 
 <div id="{{dialogId}}" title="{{object.name}}" class="{{discriminator}}">
     <h3>{{object.name}}</h3>
     <h5>Fra {{object.start.start}} til {{object.end.end}}</h5>
+
+    {% if user|has_group:"planners" or user.is_superuser %}
     <button class="btn wb-btn-secondary mb-3" d-trigger="delete"><i class="fas fa-trash"></i>&nbsp; Slett</button>
     <button class="btn wb-btn-main mb-3" 
         d-trigger="triggerCascadeTree"
@@ -13,6 +16,7 @@
         <i class="fas fa-tree"></i>
         Kaskadeendringer & Synkronisitet
     </button>
+    {% endif %}
     
     <input type="hidden" id="_selectedAudienceId" />
     <input type="hidden" id="_selectedArrangementTypeId" />
@@ -28,11 +32,13 @@
                         <small class="d-block"><i class="fas fa-envelope"></i> {{ object.responsible.personal_email }}</small>
                             
                     </div>
+                    {% if user|has_group:"planner" or user.is_superuser %}
                     <a class="btn wb-btn-blank float-end shadow-0" href="#"
                             type="button"
                             id="mainPlannerDialog__promotePlannerBtn">
                         Endre
                     </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -240,8 +246,8 @@
                                     </select>
                                 </div>
                             </div>
+                            {% if user|has_group:"planner" or user.is_superuser %}
                             <div class="col-lg-6 col-sm-12">
-        
                                 <div>
                                     <a href='#' class='shadow-0 btn wb-btn-secondary btn-block mb-2 btn-sm'
                                             d-trigger="triggerAddPlannersDialog">
@@ -257,6 +263,7 @@
                                     </a>
                                 </div>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -265,42 +272,44 @@
                         <label for="{{form.location.id_for_label}}" class="form-label">Lokasjon</label>
                         {{ form.location }}
                     </div>
-                    <div class="mb-2 mt-2">
-                        <label for="{{ form.audience.id_for_label }}" class="form-label">
-                            <i class="fas fa-users"></i>&nbsp;
-                            Målgruppe
-                        </label>
-                        <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
-                        
-                        {% if form.audience.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.audience.errors }}
+                    <div id="jsTreeSelects">
+                        <div class="mb-2 mt-2">
+                            <label for="{{ form.audience.id_for_label }}" class="form-label">
+                                <i class="fas fa-users"></i>&nbsp;
+                                Målgruppe
+                            </label>
+                            <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
+                            
+                            {% if form.audience.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.audience.errors }}
+                            </div>
+                            {% endif %}
+                        </div>            
+                        <div class="mb-2">
+                            <label for="{{ form.arrangement_type.id_for_label }}" class="form-label select-label">
+                                <i class="fas fa-cog"></i>&nbsp;
+                                Arrangementstype
+                            </label>
+                            <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
+                            {% if form.arrangement_type.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.arrangement_type.errors }}
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                    </div>            
-                    <div class="mb-2">
-                        <label for="{{ form.arrangement_type.id_for_label }}" class="form-label select-label">
-                            <i class="fas fa-cog"></i>&nbsp;
-                            Arrangementstype
-                        </label>
-                        <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
-                        {% if form.arrangement_type.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.arrangement_type.errors }}
+                        <div class="mb-2">
+                            <label>
+                                <i class="fas fa-cog"></i>&nbsp;
+                                Status
+                            </label>
+                            <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
+                            {% if form.status_type.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.status_type.errors }}
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                    </div>
-                    <div class="mb-2">
-                        <label>
-                            <i class="fas fa-cog"></i>&nbsp;
-                            Status
-                        </label>
-                        <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
-                        {% if form.status_type.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.status_type.errors }}
-                        </div>
-                        {% endif %}
                     </div>
                     <div class="form-group mt-3">
                         <h4>Skjermvisning</h4>
@@ -328,6 +337,7 @@
 
             {{ form.errors }}
 
+            {% if user|has_group:"planners" or user.is_superuser %}
             <div class="clearfix  border-top pt-3">
                 <div class="float-end">
                     <a href="#" class="btn wb-btn-secondary btn-lg"
@@ -343,11 +353,13 @@
                     </a>
                 </div>
             </div>
+            {% endif %}
         </div>
         
 
         <!-- Timeslots Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_timeslots" role="tabpanel">
+            {% if user|has_group:"planner" or user.is_superuser %}
             <div class="clearfix">
                 <div class="float-end">
                     <a class="btn wb-btn-main"
@@ -360,6 +372,7 @@
                     </a>
                 </div>
             </div>
+            {% endif %}
 
             <ul class="nav nav-tabs webook-tabs mt-1" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -431,6 +444,7 @@
                                                     data-mdb-parent="#accordion_{{event_serie.pk}}">
                                                     <div class="accordion-body  wb-bg-extra">
                                                         <div title="Last opp filer under '{{arrangement.name}}'" class=" wb-bg-extra">
+                                                            {% if user|has_group:"planner" or user.is_superuser %}
                                                             <div class="clearfix">
                                                                 <button class="btn btn-sm wb-btn-secondary float-end"
                                                                     d-trigger="uploadFilesToEventSerie"
@@ -439,6 +453,11 @@
                                                                     Last opp fil(er)
                                                                 </button>
                                                             </div>
+                                                            {% endif %}
+
+                                                            {% if not event_serie.files.exists %}
+                                                            <h6>Ingen filer lastet opp her ennå</h6>
+                                                            {% endif %}
 
 
                                                             {% for file in event_serie.files.all %}
@@ -490,7 +509,8 @@
                                                                 <span>
                                                                     {{event.start}} / {{event.end}}
                                                                 </span>
-
+                                                                
+                                                                {% if user|has_group:"planner" or user.is_superuser %}
                                                                 <span class="float-end">
                                                                     <a href="#" d-trigger="openEditEvent" d-arg-event_pk="{{ event.pk }}">
                                                                         <i class="fas fa-edit"></i>
@@ -500,6 +520,7 @@
                                                                         <i class="fas fa-trash"></i>
                                                                     </a>
                                                                 </span>
+                                                                {% endif %}
                                                             </div>
                                                         {% endfor %}
                                                     </div>
@@ -507,7 +528,7 @@
                                             </div>
                                         </div>
 
-                                                    
+                                        {% if user|has_group:"planners" or user.is_superuser %}
                                         <div class="mt-2">
                                             <button class="btn wb-btn-blank"
                                                 data-mdb-toggle="tooltip"
@@ -526,7 +547,7 @@
                                                 Rediger tidsplan
                                             </button>
                                         </div>
-
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>
@@ -577,9 +598,11 @@
 
         <!-- Notes Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_notes" role="tabpanel">
+
             {% if not object.notes.exists %}
                 <div class="alert wb-bg-secondary">
                     <h4 class="text-center">Ingen notater skrevet ennå!</h4>
+                    {% if user|has_group:"planner" or user.is_superuser %}
                     <div class="row">
                         <div class="col text-center">
                             <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
@@ -588,9 +611,10 @@
                             Nytt notat
                         </a>
                         </div>
-                    </div>
+                    </div
+                    {% endif %}
                 </div>
-            {% else %}
+            {% elif user|has_group:"planner" or user.is_superuser %}
                 <div class="clearfix">
                     <a class="btn wb-btn-main shadow-0 mb-2 float-end" 
                         d-trigger="triggerNewNoteDialog">
@@ -616,6 +640,7 @@
                                 <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created|date:'d.m.Y H:i' }}</em>
                             </div>
                         </div>
+                        {% if user|has_group:"planner" or user.is_superuser %}
                         <div class="float-end">
                             <a href="#" class="btn wb-btn-main"
                                 d-trigger="deleteNote"
@@ -626,9 +651,10 @@
                             <a href="#" class="btn wb-btn-main"
                                 d-trigger="triggerUpdateNoteDialog"
                                 d-arg-note_pk="{{ note.pk }}">
-                            <i class="fas fa-edit"></i>
-                        </a>
+                                <i class="fas fa-edit"></i>
+                            </a>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -643,6 +669,7 @@
         <!-- Files Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_files" role="tabpanel">
             {% if arrangement.files.exists %}
+                {% if user|has_group:"planner" or user.is_superuser %}
                 <div class="clearfix">
                     <a class="btn wb-btn-main shadow-0 float-end"
                             d-trigger="triggerUploadFilesToArrangementDialog"
@@ -651,6 +678,7 @@
                         Upload file(s)
                     </a>
                 </div>
+                {% endif %}
 
                 <div class="table-responsive">
                     <table class="table table-sm">
@@ -665,6 +693,7 @@
                             {% for file in arrangement.files.all %}
                                 <tr>
                                     <td>
+                                        {% if user|has_group:"planner" or user.is_superuser %}
                                         <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
                                             data-mdb-toggle="tooltip"
                                             title="{% trans 'Delete this file' %}"
@@ -673,6 +702,7 @@
                                             d-arg-file_id="{{file.pk}}">
                                             <i class="fas fa-trash"></i>
                                         </a>
+                                        {% endif %}
                                         <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
                                             data-mdb-toggle="tooltip"
                                             title="{% trans 'Download this file' %}"
@@ -689,6 +719,7 @@
             {% else %}
                 <div class="alert wb-bg-secondary">
                     <h4 class="text-center">Ingen filer lastet opp her ennå!</h4>
+                    {% if user|has_group:"planner" or user.is_superuser %}
                     <div class="row">
                         <div class="col text-center">
                             <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
@@ -699,6 +730,7 @@
                         </a>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
@@ -714,6 +746,10 @@
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
+            {% if user|has_group:"readonly_level_2" and user.is_superuser == False %}
+                dialog.querySelectorAll("input,select").forEach( (inputElement) => inputElement.setAttribute("disabled", "") );
+            {% endif %}
+
             dialog.querySelectorAll("#arrangement-info-dialog-tabs a[data-mdb-toggle='tab']")
                 .forEach( (element) => {
                     element.addEventListener('click', (event) => {
@@ -738,7 +774,7 @@
                 },
                 noneSelectedLabelText: "Ingen målgruppe valgt ennå",
                 selectFirstTimeButtonText: 'Velg målgruppe',
-                changeSelectedValueButtonText: 'Endre målgruppe',
+                changeSelectedValueButtonText: 'målgruppe',
                 popoverSaveChoicesButtonText: 'Lagre valg',
             });
             dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
@@ -798,6 +834,11 @@
                 `
             });
             {% endfor %}
+
+            {% if user|has_group:"readonly_level_2" and user.is_superuser == False %}
+                document.querySelectorAll("#jsTreeSelects button").forEach( (buttonElement) => buttonElement.remove() );
+            {% endif %}
+            dialog.querySelectorAll("#jsTreeSelects button").forEach( (buttonElement) => buttonElement.remove() );
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {

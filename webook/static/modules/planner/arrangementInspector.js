@@ -129,8 +129,9 @@ export class ArrangementInspector {
                         },
                         onUpdatedCallback: () => { },
                         dialogOptions: { 
-                            width: "90%", 
+                            width: "70%", 
                             height: "100%",
+                            // position: "top right",
                             // maxHeight: "",
                             modal: true,
                             dialogClass: 'no-titlebar',

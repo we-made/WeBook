@@ -533,9 +533,10 @@ container-fluid
             calendarFilter: calendarFilter,
             licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
             navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
-            useOnclickEvents: {% if user|has_group:"planners" or user.is_superuser %}true{% else %}false{% endif %},
-            renderContextMenu: {% if user|has_group:"planners" or user.is_superuser %}true{% else %}false{% endif %},
+            useOnclickEvents: {% if user|has_group:"planners" or user|has_group:"readonly_level_2" or user.is_superuser %}true{% else %}false{% endif %},
+            renderContextMenu: {% if user|has_group:"planners" or user|has_group:"readonly_level_2" or user.is_superuser %}true{% else %}false{% endif %},
             renderPopovers: true,
+            showAdministrativeActionsInContextMenu: {% if user|has_group:"planners" or user.is_superuser %}true{% else %}false{% endif %},
         });
 
         let locationsCalendar = new LocationCalendar({
