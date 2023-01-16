@@ -10,6 +10,7 @@ export class ArrangementCreator {
     constructor () {
         this.dialogManager = new DialogManager({
             managerName: "arrangementCreator",
+            renderInChain: true,
             dialogs: [
                 [
                     "createArrangementDialog",
