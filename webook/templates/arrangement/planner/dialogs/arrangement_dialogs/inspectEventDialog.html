@@ -345,7 +345,7 @@
             <div data-mdb-perfect-scrollbar="true" data-mdb-handlers="click-rail" style="position: relative; max-height: 30em; overflow-y: scroll;">
                 {% for file in object.arrangement.files.all %}
                     <div class="wb-bg-extra p-3 mt-2 rounded-pill" id="fileRow_{{file.pk}}">
-                        <span><i class="fas fa-arrow-down"></i> <small class="me-2 fw-bold">Fra arrangement</small>&nbsp; {{file.filename}}</span>
+                        <span><i class="fas fa-arrow-down"></i> <small class="me-2 fw-bold">Hentet fra arrangementet</small>&nbsp; {{file.filename}}</span>
                         <span class="float-end">
                             {% if user|has_group:"planner" or user.is_superuser %}
                             <a href="#" class="text-muted"
@@ -424,7 +424,8 @@
                         {% endif %}
                     </div>
                     <hr>
-        
+                    
+                    {% if object.rooms.exists %}
                     <div class="table-responsive">
                         <table class="table table-sm table-borderless">
                             <tbody id="roomsTableBody">
@@ -446,6 +447,9 @@
                             </tbody>
                         </table>
                     </div>
+                    {% else %}
+                    <h6><i class="fas fa-times"></i> Ingen rom registrert på denne aktiviteten</h6>
+                    {% endif %}
                 </div>
                 <div class="col-lg-6 col-sm-12">
                     <div class="cmb-2 mt-4">
@@ -460,6 +464,8 @@
                     </div>
         
                     <hr>
+
+                    {% if object.people.exists %}
                     <div class="table-responsive">
                         <table class="table table-sm table-borderless">
                             <tbody id="peopleTableBody">
@@ -481,6 +487,9 @@
                             </tbody>
                         </table>
                     </div>
+                    {% else %}
+                    <h6><i class="fas fa-times"></i> Ingen personer registrert på denne aktiviteten</h6>
+                    {% endif %}
                 </div>
             </div>
         </div>
