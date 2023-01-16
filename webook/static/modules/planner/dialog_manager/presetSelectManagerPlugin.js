@@ -53,7 +53,7 @@ class DialogPresetSelectManager extends DialogPluginBase {
                     this.selectedItemsMap.set(e.target.id, $(e.target).siblings("label.form-check-label").text());
                 }
                 else {
-                    this.selectedItemsMap.delete(e.target.value);
+                    this.selectedItemsMap.delete(e.target.id);
                     
                     if (Array.isArray(presetsIAmPartOf)) {
                         presetsIAmPartOf.forEach((presetKey) => this.softUntogglePreset(presetKey));
