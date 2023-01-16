@@ -477,7 +477,9 @@ class Arrangement(
         on_delete=models.RESTRICT,
         related_name="arrangements_responsible_for",
     )
-    planners = models.ManyToManyField(to="Person", verbose_name=_("Planners"))
+    planners = models.ManyToManyField(
+        to="Person", verbose_name=_("Planners"), null=True, blank=True
+    )
 
     status = models.ForeignKey(
         to="StatusType",

@@ -177,6 +177,21 @@
                     <div id="roomChips" class="chipsList"></div>
                 </div>
 
+                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
+                    <label for="" class="form-label">
+                        <i class="fas fa-users-cog"></i>&nbsp;
+                        Planleggere
+                    </label>
+                    <div>
+                        <button class="wb-btn-main"
+                            type="button"
+                            d-trigger="triggerAddPlanners">
+                            Velg planleggere
+                        </button>
+                    </div>
+                    <div id="plannerChips" class="chipsList"></div>
+                </div>
+
                 <div class="mb-2 mt-4 form-group">
                     <label>
                         <i class="fas fa-receipt"></i>&nbsp;
@@ -566,6 +581,9 @@
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "peopleSelected" } });
             },
+            triggerAddPlanners(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "plannersSelected" } });
+            },
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
             },
@@ -590,6 +608,9 @@
                     formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
                     formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
                     formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
+                    if (dialog.data.selectedPlannerIds)
+                        Array.from(dialog.data.selectedPlannerIds.keys())
+                            .forEach( ( id ) => formData.append("planners", id) )
 
                     let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
                     if (statusValue !== undefined)
@@ -872,7 +893,7 @@
                     { 
                         preselectedMainPlanner: dialog.data.mainPlannerPayload,
                         preselectedRooms: dialog.data.roomPayload, 
-                        preselectedPeople: dialog.data.peoplePayload, 
+                        preselectedPeople: dialog.data.peoplePayload,
                         $parent: dialog.dialogElement 
                     }
                 );
@@ -922,6 +943,28 @@
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
 
                 dialog.data.peoplePayload = payload;
+            } },
+            { eventKnownAs: "plannersSelected", do: (dialog, payload) => {
+                let wrapper = dialog.$( '#plannerChips' );
+                wrapper.empty();
+                
+                payload.viewables.forEach((person) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${person.text}'
+                                          id='${person.id}'
+                                          select-type='person'
+                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)
+                    )
+                });
+
+                dialog.data.selectedPlannerIds = new Map();
+                dialog.data.plannerPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPlannerIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.plannerPresets.set(presetId, payload.allPresets.get(presetId)));
+
+                dialog.data.plannerPayload = payload;
             } },
             { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                 if (payload.allSelectedEntityIds.length == 0)

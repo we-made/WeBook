@@ -424,7 +424,7 @@ export class ArrangementCreator {
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { 
-                            width: 500,
+                            width: "50%",
                             dialogClass: 'no-titlebar',
                         },
                         onUpdatedCallback: () => {

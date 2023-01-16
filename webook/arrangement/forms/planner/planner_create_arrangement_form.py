@@ -26,6 +26,7 @@ class PlannerCreateArrangementModelForm(forms.ModelForm):
             "display_layouts",
             "status",
             "display_text",
+            "planners",
         )
         widgets = {
             "display_layouts": CheckboxSelectMultiple(),
