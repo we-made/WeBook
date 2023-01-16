@@ -24,10 +24,18 @@ export class EventInspector {
                                 dialogTitle: "Inspect event",
                             });
                         },
+                        onPreRefresh: (dialog) => {
+                            dialog._active_tab = dialog.internalDialogData.currentlyActiveTab;
+                        },
                         onDestroy: () => {
                             this.dialogManager.closeAllDialogs(false);
                         },
-                        onRenderedCallback: () => { 
+                        onRenderedCallback: (dialog) => { 
+                            if (dialog._active_tab !== undefined) {
+                                document.getElementById(dialog._active_tab).click();
+                                dialog._active_tab = undefined;
+                            }
+
                             this.dialogManager._makeAware(); 
                             document.querySelectorAll('.form-outline').forEach((formOutline) => {
                                 new mdb.Input(formOutline).init();

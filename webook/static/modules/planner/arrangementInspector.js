@@ -92,16 +92,14 @@ export class ArrangementInspector {
                             });
                         },
                         onPreRefresh: (dialog) => {
-                            dialog._active_tab = $('#tabs').tabs ( "option", "active" );
+                            dialog._active_tab = dialog.internalDialogData.currentlyActiveTab;
                         },
                         onDestroy: () => {
                             this.dialogManager.closeAllDialogs(false);
                         },
                         onRenderedCallback: (dialog) => {
-                            $('#tabs').tabs();
-
                             if (dialog._active_tab !== undefined) {
-                                $('#tabs').tabs("option", "active", dialog._active_tab);
+                                document.getElementById(dialog._active_tab).click();
                                 dialog._active_tab = undefined;
                             }
 

@@ -332,7 +332,6 @@ class DialogPluginBase {
     }
 }
 
-
 class DialogFieldBind {
     constructor (element, eventHandlers) {
         this._element = element;

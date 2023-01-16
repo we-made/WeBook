@@ -31,6 +31,10 @@
 
         this.data = {};
 
+        // The internal data on the dialog itself. Synced up from the dialog instance, and allows viewing the data[ {} .. .] 
+        // The data-to-manager syncing plugin must be activated on the respective dialgo for this to be populated.
+        this.internalDialogData = {}
+
         this.formUrl = formUrl;
 
         this.renderer = renderer;
@@ -364,6 +368,7 @@ export class DialogManager {
         this._listenForCloseAllEvent();
         this._listenForReloadEvent();
         this._listenForCloseDialogEvent();
+        this._listenForDataUpdateEvent();
 
         this._dialogRepository = new Map(dialogs);
         this.context = {};
@@ -422,6 +427,19 @@ export class DialogManager {
                 dialog.onDestroy();
             dialog.close();
         });
+    }
+
+    // Listen for data update events -- dialog.data synced to dialog.context in manager SOI
+    _listenForDataUpdateEvent() {
+        document.addEventListener(`${this.managerName}.dataUpdate`, (event) => {
+            const dialogId = event.detail.dialog;
+            const propertyName = event.detail.prop;
+            const newPropertyValue = event.detail.propValue;
+
+            const dialog = this._dialogRepository.get(dialogId);
+            dialog.internalDialogData[propertyName] = newPropertyValue;
+            console.log("dialog.internalDialogData", dialog.internalDialogData);
+        })
     }
 
     _listenForCloseDialogEvent() {
