@@ -1,5 +1,6 @@
 {% load static i18n %}
 {% load crispy_forms_tags %}
+{% load custom_tags %}
 
 <div id="{{dialogId}}"
     class="{{discriminator}}">
@@ -273,12 +274,14 @@
                                 <h5 class="mb-2" id="mainPlannerName">
                                     {{ object.responsible }}
                                 </h5>
+                                {% if user|has_group:"planners" or user.is_superuser %}
                                 <button class="wb-btn-main"
                                     id="setMainPlannerButton"
                                     type="button"
                                     d-trigger="triggerSetPlanner">
                                     Endre hovedplanlegger
                                 </button>
+                                {% endif %}
                             </div>
 
                             <div class="mt-3">
