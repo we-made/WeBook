@@ -247,9 +247,7 @@ class AssociatePersonWithUserFormView(
 associate_person_with_user_form_view = AssociatePersonWithUserFormView.as_view()
 
 
-class PeopleCalendarResourcesListView(
-    LoginRequiredMixin, PlannerAuthorizationMixin, ListView
-):
+class PeopleCalendarResourcesListView(LoginRequiredMixin, ListView):
     def get(self, request, *args, **kwargs):
         people = Person.objects.all()
         serializable_people = []

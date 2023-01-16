@@ -623,6 +623,8 @@ export class PlannerCalendar extends FullCalendarBased {
    
                 },
                 eventDidMount: (arg) => {
+                    console.log("eventDidMount:")
+
                     if (this.renderPopovers === true)
                         this._bindPopover(arg.el);
                     if (this.useOnclickEvents)
