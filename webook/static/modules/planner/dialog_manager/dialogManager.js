@@ -359,9 +359,12 @@ class DialogEventCommunicationLane {
 
 
 export class DialogManager {
-    constructor ({ managerName, dialogs, allowMultipleOpenAtOnce=true }) {
+    constructor ({ managerName, dialogs, allowMultipleOpenAtOnce=true, renderInChain=false }) {
         this.managerName = managerName;
         this.allowMultipleOpenAtOnce = allowMultipleOpenAtOnce;
+
+        /// Designates if we are to render the subsequently triggered dialogs in a chain -- side by side
+        this.renderInChain = renderInChain;
 
         this._listenForUpdatedEvent();
         this._listenForSubmitEvent();
@@ -514,26 +517,33 @@ export class DialogManager {
 
                     let parent = event.detail.$parent;
                     let current = $(value._$getDialogEl());
-                    if (parent) {
-                        $(parent).on("dialogdrag", function (event, ui) {
-                            $(value._$getDialogEl()).dialog("option", "position", { my: "left+20 top", at: "right top", of: parent.parentNode });
-                        });
-                        current.on("dialogdrag", function (event, ui) {
-                            // $(parent).dialog("option", "modal", true);
-                            // $(parent).dialog("option","position", { my: "right top", at: "left top", of: current[0].parentNode } )
-                        });
 
-                        // value.dialogOptions = { 
-                        //     dialogClass: "slave-dialog" + value.dialogOptions.dialogClass !== undefined ? (" " + value.dialogOptions.dialogClass) : "",
-                        //     classes: {
-                        //         "ui-dialog": "slave-dialog"
-                        //     },
-                        //     // position: { my: "left top", at: "right top", of: parent.parentNode },
-                        //     modal: true,
-                        //     height: parent.parentNode.offsetHeight,
-                        //     width: 600,
-                        //     show: { effect: "slide", direction: "left", duration: 400 }
-                        // }
+                    // if (this.renderInChain) {
+                    //     console.log("SHould")
+                    //     console.log(parent);
+                    //     $(value._$getDialogEl()).dialog("option", "position", { my: "left+20 top", at: "right top", of: parent.parentNode });
+                    // }
+
+                    if (parent && this.renderInChain) {
+                        // $(parent).on("dialogdrag", function (event, ui) {
+                        //     $(value._$getDialogEl()).dialog("option", "position", { my: "left+20 top", at: "right top", of: parent.parentNode });
+                        // });
+                        // current.on("dialogdrag", function (event, ui) {
+                        //     // $(parent).dialog("option", "modal", true);
+                        //     // $(parent).dialog("option","position", { my: "right top", at: "left top", of: current[0].parentNode } )
+                        // });
+
+                        value.dialogOptions = { 
+                            dialogClass: "slave-dialog" + value.dialogOptions.dialogClass !== undefined ? (" " + value.dialogOptions.dialogClass) : "",
+                            classes: {
+                                "ui-dialog": "slave-dialog"
+                            },
+                            position: { my: "left top", at: "right top", of: parent.parentNode },
+                            modal: true,
+                            height: parent.parentNode.offsetHeight,
+                            width: 600,
+                            show: { effect: "slide", direction: "left", duration: 400 }
+                        }
                     }
                 });
             }
