@@ -37,7 +37,11 @@ class ComplexUserUpdateForm(forms.UserChangeForm):
 
 class ComplexUserUpdateFormWithRole(ComplexUserUpdateForm):
     user_role = dj_forms.ChoiceField(
-        choices=(("planners", "Planlegger"), ("readonly", "Lesetilgang")),
+        choices=(
+            ("planners", "Planlegger"),
+            ("readonly", "Lesetilgang"),
+            ("readonly_level_2", "Lesetilgang - Nivå 2"),
+        ),
         required=True,
     )
     is_user_admin = dj_forms.BooleanField(required=False)
