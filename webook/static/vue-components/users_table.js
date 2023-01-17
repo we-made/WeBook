@@ -163,6 +163,7 @@ export default {
                     <td>
                         <span class="badge badge-danger" v-if="user.is_superuser === true"><i class='fas fa-user-shield'></i>&nbsp; Systemadministrator</span>
                         <span class="badge badge-primary" v-else-if="user.groups.length > 0 && user.groups[0] == 'planners'"><i class='fas fa-eye'></i>&nbsp; Planlegger</span>
+                        <span class="badge badge-secondary" v-else-if="user.groups.length > 0 && user.groups[0] == 'readonly_level_2'">Lesetilgang - Nivå 2</span>
                         <span class="badge badge-light" v-else><i class='fas fa-eye'></i>&nbsp; Lesetilgang</span>
                     </td>
                     <td>{{user.last_login}}</td>

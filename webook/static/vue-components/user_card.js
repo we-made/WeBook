@@ -47,6 +47,11 @@ export default {
               Planlegger
             </role-badge>
             <role-badge
+              v-else-if"usersActiveRolesMap.has('readonly_level_2')"
+              class="badge-primary">
+              Lesetilgang - Nivå 2
+            </role-badge>
+            <role-badge
               v-else
               class="badge-light">
               Lesetilgang
