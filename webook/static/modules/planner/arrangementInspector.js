@@ -944,8 +944,7 @@ export class ArrangementInspector {
                             toastr.success("Rom har blitt lagt til");
                         },
                         onSubmit: (context, details) => {
-                            this.dialogManager._dialogRepository.get(details.recipientDialog)
-                                .communicationLane.send("roomsSelected", details.selectedBundle);
+                            window.MessagesFacility.send(details.recipientDialog, details.selectedBundle, "roomsSelected");
                         }
                     })
                 ],
@@ -979,8 +978,7 @@ export class ArrangementInspector {
                         },
                         onSubmit: (context, details, dialogManager, dialog) => {
                             const eventName = dialog.data.whenEventName || "peopleSelected";
-                            this.dialogManager._dialogRepository.get(details.recipientDialog)
-                                .communicationLane.send(eventName, details.selectedBundle);
+                            window.MessagesFacility.send(details.recipientDialog, details.selectedBundle, eventName);
                         }
                     })
                 ],
