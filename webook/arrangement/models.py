@@ -1778,6 +1778,10 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     )
 
     @property
+    def rooms_str_list(self):
+        return ", ".join(list(map(lambda room: room.name, self.rooms.all())))
+
+    @property
     def tz(self):
         return pytz.timezone(self.timezone)
 

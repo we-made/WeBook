@@ -409,6 +409,12 @@
                                                     {{ event_serie.serie_plan_manifest.schedule_description }}
                                                     <small>({{event_serie.serie_plan_manifest.start_time}} - {{event_serie.serie_plan_manifest.end_time}})</small>
 
+                                                    {% if event_serie.serie_plan_manifest.rooms.exists %}
+                                                    <div>
+                                                        <strong>På: </strong> {{event_serie.serie_plan_manifest.rooms_str_list}}
+                                                    </div>
+                                                    {% endif %}
+
                                                     <small class="d-block mt-2">
                                                         <i class="fas fa-star"></i> {{event_serie.serie_plan_manifest.responsible}}
                                                     </small>
