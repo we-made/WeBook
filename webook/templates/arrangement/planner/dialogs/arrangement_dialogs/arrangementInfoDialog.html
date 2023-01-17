@@ -753,7 +753,6 @@
             dialog.querySelectorAll("#arrangement-info-dialog-tabs a[data-mdb-toggle='tab']")
                 .forEach( (element) => {
                     element.addEventListener('click', (event) => {
-                        console.log(event);
                         dialog.data.currentlyActiveTab = event.target.id;
                     })
                 } )

@@ -247,9 +247,13 @@ container-fluid
     import { AdvancedCategoricalFilter } from "{% static 'js/advancedCategoricalFilter.js' %}";
     import { AdvancedTreeFilter, NORMAL_CASCADE_BEHAVIOUR, PARENT_INDEPENDENT_CASCADE_BEHAVIOUR } from "{% static 'js/advancedTreeFilter.js' %}";
     import { CalendarFilter } from "{% static 'modules/planner/commonLib.js' %}";
+    import { EventInspector } from "{% static 'modules/planner/eventInspector.js' %}";
+    import { ArrangementInspector } from "{% static 'modules/planner/arrangementInspector.js' %}";
 
     let activeCalendar;
     let calendarFilter = new CalendarFilter( (filter) => { activeCalendar.init(); } );
+    let eventInspector = new EventInspector();
+    let arrangementInspector = new ArrangementInspector();
 
     function reflectFilterStateOnTriggerElement(filter, countOfSelectedItems=0) {
         filter.triggerElement.classList.remove("border-dark");
@@ -519,6 +523,8 @@ container-fluid
 
         let plannerCalendar = new PlannerCalendar({
             calendarElement: document.getElementById('arrangementPlannerCalendar'),
+            arrangementInspectorUtility: arrangementInspector,
+            eventInspectorUtility: eventInspector,
             eventsSrcUrl: "{% url 'arrangement:arrangement_events' %}",
             colorProviders: [ 
                 { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
@@ -541,6 +547,8 @@ container-fluid
 
         let locationsCalendar = new LocationCalendar({
             calendarElement: document.getElementById('locationsPlannerCalendar'),
+            arrangementInspector,
+            eventInspector,
             colorProviders: [ 
                 { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
                 { key: "audience", provider: new ColorByAudienceColorProvider() },
@@ -555,6 +563,8 @@ container-fluid
         {% if user|has_group:"planners" or user.is_superuser %}
         let peopleCalendar = new PersonCalendar({
             calendarElement: document.getElementById('peoplePlannerCalendar'),
+            arrangementInspector: arrangementInspector,
+            eventInspector: eventInspector,
             colorProviders: [ 
                 { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
                 { key: "audience", provider: new ColorByAudienceColorProvider() },

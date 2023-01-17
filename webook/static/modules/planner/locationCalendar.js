@@ -1,15 +1,15 @@
-import { ArrangementInspector } from "./arrangementInspector.js";
 import { HeaderGenerator } from "./calendar_utilities/header_generator.js";
 import { ArrangementStore, CalendarFilter, FullCalendarBased, LocationStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE, _NATIVE_ARRANGEMENT } from "./commonLib.js";
-import { EventInspector } from "./eventInspector.js";
 export class LocationCalendar extends FullCalendarBased {
 
-    constructor ( {calendarElement, 
+    constructor({ calendarElement,
+        arrangementInspector,
+        eventInspector,
         colorProviders=[], 
         initialColorProvider="", 
         navigationHeaderWrapperElement = undefined,
         licenseKey=undefined,
-        calendarFilter=undefined } = {} ) {
+        calendarFilter = undefined,} = {}) {
         super(navigationHeaderWrapperElement);
 
         this.viewButtons = new Map([
@@ -52,8 +52,8 @@ export class LocationCalendar extends FullCalendarBased {
             this._colorProviders.set(bundle.key, bundle.provider)
         });
 
-        this.arrangementInspectorUtility = new ArrangementInspector();
-        this.eventInspectorUtility = new EventInspector();
+        this.arrangementInspectorUtility = arrangementInspector;
+        this.eventInspectorUtility = eventInspector;
 
         this.filter = calendarFilter ?? new CalendarFilter( /* OnFilterUpdated: */ (filter) => this.init() );
 
@@ -261,7 +261,6 @@ export class LocationCalendar extends FullCalendarBased {
                     console.log(eventClickInfo);
                 },
                 eventDidMount: (arg) => {
-                    console.log("eventDidMount!")
                     this._bindPopover(arg.el);
                     this._bindInspectorTrigger(arg.el);
                 },

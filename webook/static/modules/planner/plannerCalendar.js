@@ -1,11 +1,9 @@
-import { ArrangementInspector } from "./arrangementInspector.js";
 import { HeaderGenerator, ViewClassifiers } from "./calendar_utilities/header_generator.js";
 import {
     ArrangementStore, CalendarFilter, FullCalendarBased, LocationStore,
     PersonStore, StandardColorProvider, _FC_EVENT,
     _NATIVE_ARRANGEMENT
 } from "./commonLib.js";
-import { EventInspector } from "./eventInspector.js";
 // import { FilterDialog } from "./filterDialog.js";
 
 const ARIA_ATTRIBUTE_PATTERN = /^aria-[\w-]*$/i;
@@ -14,6 +12,8 @@ export class PlannerCalendar extends FullCalendarBased {
 
     constructor({ 
         calendarElement, 
+        arrangementInspectorUtility,
+        eventInspectorUtility,
         eventsSrcUrl, 
         colorProviders=[], 
         initialColorProvider="",
@@ -149,9 +149,8 @@ export class PlannerCalendar extends FullCalendarBased {
 
         this.init();
 
-        this.arrangementInspectorUtility = new ArrangementInspector();
-        this.eventInspectorUtility = new EventInspector();
-
+        this.arrangementInspectorUtility = arrangementInspectorUtility;
+        this.eventInspectorUtility = eventInspectorUtility;
         // this.filterDialog = new FilterDialog();
 
         this._listenToInspectArrangementEvents();
@@ -623,8 +622,6 @@ export class PlannerCalendar extends FullCalendarBased {
    
                 },
                 eventDidMount: (arg) => {
-                    console.log("eventDidMount:")
-
                     if (this.renderPopovers === true)
                         this._bindPopover(arg.el);
                     if (this.useOnclickEvents)
