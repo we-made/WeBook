@@ -53,6 +53,8 @@
             dialog.data.editor = new Quill('#{{dialogId}} #{{form.content.id_for_label}}', {
                 theme: 'snow'
             });
+
+            dialog.data.editor.focus();
         },
         methods: {
             cancel(dialog) {

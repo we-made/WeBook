@@ -277,6 +277,49 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
         super();
 
         this.discriminator = null;
+
+        this.headerButtons = [
+            {
+                tooltip: "Lukk denne dialogen",
+                icon: "fa-times",
+                action: (dialog, $buttonNode) => {
+                    dialog.onDestroy();
+                    dialog.destroy();
+                },
+            },
+            {
+                tooltip: "Ekspander dialogen til å dekke hele skjermen",
+                icon: "fa-expand",
+                action: (dialog, clickEvent) => {
+
+                    console.log("clickEvent", clickEvent);
+
+                    const changeIcon = (node, newClass) => {
+                        if (node.tagName === "SPAN")
+                            node = node.children[0];
+                        node.setAttribute("class", "fas " + newClass)
+                    };
+
+                    let options = {};
+                    if (dialog._isExpanded === true) {
+                        options = { height: dialog._originalHeight, width: dialog._originalWidth };
+                        changeIcon(clickEvent.target, "fa-expand");
+                    }
+                    else {
+                        options = { height: "100%", width: "100%" };
+                        dialog._originalHeight = dialog._$getDialogEl().dialog("option", "height");
+                        dialog._originalWidth = dialog._$getDialogEl().dialog("option", "width");
+                        // clickEvent.setAttribute("class", "fas fa-expand");
+                        changeIcon(clickEvent.target, "fa-compress");
+                    }
+                        
+
+                    dialog._$getDialogEl().dialog("option", options);
+
+                    dialog._isExpanded = !dialog._isExpanded;
+                }
+            }
+        ];
     }
 
     async render(context, dialog, html=null) {
@@ -290,54 +333,46 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
             if (!html)
                 html = await dialog.htmlFabricator(context, dialog);
         
+            let span = document.createElement("span");
+            span.innerHTML = html;
+
+            let dialogEl = span.querySelector("#" + dialog.dialogElementId);
+            dialog.discriminator = dialogEl.getAttribute("class");
+
+            let instantializeDialog;
 
             if (!this.$dialogElement) { // Dialog does not exist in DOM and must be instantialized
-                let span = document.createElement("span");
-                span.innerHTML = html;
-
-                let dialogEl = span.querySelector("#" + dialog.dialogElementId);
-                dialog.discriminator = dialogEl.getAttribute("class");
-
                 this.dialogElement = span;
                 this.$dialogElement = $(span);
-
-                $('body')
-                    .append(this.dialogElement)
-                    .ready( () => {
-                        dialog._$getDialogEl().dialog( dialog.dialogOptions );
-                        dialog.onRenderedCallback(dialog, context);
-                        dialog._$getDialogEl().prepend( 
-                            $("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
-                                .on('click', () => {
-                                    dialog.onDestroy();
-                                    dialog.destroy();
-                                })
-                        );
-                        
-                        this._isRendering = false;
-                    });
+                
+                $('body').append(this.dialogElement);
+                dialog._$getDialogEl().dialog( dialog.dialogOptions );
             }
             else { // Dialog already exists in DOM -- let's update its HTML instead
-                let span = document.createElement("span");
-                span.innerHTML = html;
-
-                let dialogEl = span.querySelector("#" + dialog.dialogElementId);
-                dialog.discriminator = dialogEl.getAttribute("class");
-                
                 this.dialogElement.innerHTML = "";
                 this.$dialogElement.append(span);
-
-                dialog.onRenderedCallback(dialog, context);
-                dialog._$getDialogEl().prepend( 
-                    $("<span id='railing'></span><span class='dialogCloseButton'><i class='fas fa-times float-end'></i></span>")
-                        .on('click', () => {
-                            dialog.onDestroy();
-                            dialog.destroy();
-                    })
-                );
-                // dialog._$getDialogEl().dialog( "moveToTop" );
-                this._isRendering = false;
+                instantializeDialog = false;
             }
+
+            let $buttonHolder = $("<span id ='railing'></span>");
+
+            for (let i = 0; i < this.headerButtons.length; i++) {1
+                const buttonConfig = this.headerButtons[i];
+
+                let marginClass = "";
+                if (i != this.headerButtons.length)
+                    marginClass = "ms-3";
+
+                $buttonHolder.append(
+                    $(`<span class='dialogCloseButton ${marginClass} float-end' data-mdb-toggle='tooltip' title='${buttonConfig.tooltip}'> <i class='fas ${buttonConfig.icon}' </span>`)
+                        .on('click', (clickEvent) => { buttonConfig.action(dialog, clickEvent) })
+                )
+            }
+
+            dialog._$getDialogEl().prepend($buttonHolder);
+            dialog.onRenderedCallback(dialog, context);
+
+            this._isRendering = false;
         }
         else {
             console.warn("Dialog is already rendering...")

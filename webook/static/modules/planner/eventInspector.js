@@ -220,7 +220,8 @@ export class EventInspector {
                             }).then(response => console.log("response", response));
                         },
                         dialogOptions: { 
-                            width: 500,
+                            width: 700,
+                            height: "100%",
                             dialogClass: 'no-titlebar',
                         },
                     })

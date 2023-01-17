@@ -332,12 +332,20 @@ html, body {
     background-color: white;
 }
 
+.dialogCloseButton {
+    padding: 15px;
+}
+
 .dialogCloseButton > i {
     background-color: var(--SECONDARY-COLOR);
-    padding: 1em;
     border-radius: 50%;
-    font-size: 11px;
     color: --WEAK-TEXT-COLOR;
+}
+
+.dialogCloseButton:hover {
+    color: var(--ACTIVE-TEXT-COLOR);
+    box-shadow: 0 1px 3px 1px  grey!important;
+    border-radius: 50%;
 }
 
 .wb-sidenav {
