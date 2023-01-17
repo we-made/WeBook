@@ -292,9 +292,6 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                 tooltip: "Ekspander dialogen til å dekke hele skjermen",
                 icon: "fa-expand",
                 action: (dialog, clickEvent) => {
-
-                    console.log("clickEvent", clickEvent);
-
                     const changeIcon = (node, newClass) => {
                         if (node.tagName === "SPAN")
                             node = node.children[0];
@@ -310,10 +307,8 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                         options = { height: "100%", width: "100%" };
                         dialog._originalHeight = dialog._$getDialogEl().dialog("option", "height");
                         dialog._originalWidth = dialog._$getDialogEl().dialog("option", "width");
-                        // clickEvent.setAttribute("class", "fas fa-expand");
                         changeIcon(clickEvent.target, "fa-compress");
                     }
-                        
 
                     dialog._$getDialogEl().dialog("option", options);
 

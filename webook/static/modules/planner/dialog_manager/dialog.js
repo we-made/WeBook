@@ -241,7 +241,7 @@ class Dialog {
      * Close this dialog (will close all dialogs on the owning manager)
      */
     closeMe() {
-        $(this.dialogElement.parentNode).toggle("slide", () => {
+        $(this.dialogElement.parentNode).toggle("", () => {
             document.dispatchEvent(new CustomEvent(`${this.managerName}.closeDialog`, { 
                 "detail": { dialog: this.dialogId } }
             ));
