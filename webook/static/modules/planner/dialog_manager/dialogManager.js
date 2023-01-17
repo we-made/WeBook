@@ -1,3 +1,4 @@
+
  export class Dialog {
     constructor ({ dialogElementId, 
                    triggerElementId, 
@@ -554,7 +555,6 @@ export class DialogManager {
                 }
 
                 document.addEventListener(`${this.managerName}.${triggerName}.trigger`, (event) => {
-                    
                     if (this.allowMultipleOpenAtOnce === false) {
                         this.closeAllDialogs();
                     }
@@ -562,10 +562,13 @@ export class DialogManager {
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
 
+                    debugger;
+
                     let parent = event.detail.$parent;
+                    let overrideRenderInChain = event.detail.renderInChain;
                     let current = $(value._$getDialogEl());
 
-                    if (parent && this.renderInChain) {
+                    if (parent && this.renderInChain || overrideRenderInChain) {
                         // $(parent).on("dialogdrag", function (event, ui) {
                         //     $(value._$getDialogEl()).dialog("option", "position", { my: "left+20 top", at: "right top", of: parent.parentNode });
                         // });

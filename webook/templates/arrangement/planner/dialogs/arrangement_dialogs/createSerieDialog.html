@@ -1187,13 +1187,13 @@
                 }
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}' });
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true });
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "peopleSelected" } });
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true, multiple: true, data: { whenEventName: "peopleSelected" } });
             },
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } });
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true, multiple: false, data: { whenEventName: "setPlanner" } });
             },
             removeAssociation(dialog, {} = {}, triggeredByElement) {
                 let $triggeredByElement = $(triggeredByElement);

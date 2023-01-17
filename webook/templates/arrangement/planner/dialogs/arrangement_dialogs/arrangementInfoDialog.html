@@ -32,7 +32,7 @@
                         <small class="d-block"><i class="fas fa-envelope"></i> {{ object.responsible.personal_email }}</small>
                             
                     </div>
-                    {% if user|has_group:"planner" or user.is_superuser %}
+                    {% if user|has_group:"planners" or user.is_superuser %}
                     <a class="btn wb-btn-blank float-end shadow-0" href="#"
                             type="button"
                             id="mainPlannerDialog__promotePlannerBtn">
@@ -246,7 +246,7 @@
                                     </select>
                                 </div>
                             </div>
-                            {% if user|has_group:"planner" or user.is_superuser %}
+                            {% if user|has_group:"planners" or user.is_superuser %}
                             <div class="col-lg-6 col-sm-12">
                                 <div>
                                     <a href='#' class='shadow-0 btn wb-btn-secondary btn-block mb-2 btn-sm'
@@ -359,7 +359,7 @@
 
         <!-- Timeslots Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_timeslots" role="tabpanel">
-            {% if user|has_group:"planner" or user.is_superuser %}
+            {% if user|has_group:"planners" or user.is_superuser %}
             <div class="clearfix">
                 <div class="float-end">
                     <a class="btn wb-btn-main"
@@ -444,7 +444,7 @@
                                                     data-mdb-parent="#accordion_{{event_serie.pk}}">
                                                     <div class="accordion-body  wb-bg-extra">
                                                         <div title="Last opp filer under '{{arrangement.name}}'" class=" wb-bg-extra">
-                                                            {% if user|has_group:"planner" or user.is_superuser %}
+                                                            {% if user|has_group:"planners" or user.is_superuser %}
                                                             <div class="clearfix">
                                                                 <button class="btn btn-sm wb-btn-secondary float-end"
                                                                     d-trigger="uploadFilesToEventSerie"
@@ -510,7 +510,7 @@
                                                                     {{event.start}} / {{event.end}}
                                                                 </span>
                                                                 
-                                                                {% if user|has_group:"planner" or user.is_superuser %}
+                                                                {% if user|has_group:"planners" or user.is_superuser %}
                                                                 <span class="float-end">
                                                                     <a href="#" d-trigger="openEditEvent" d-arg-event_pk="{{ event.pk }}">
                                                                         <i class="fas fa-edit"></i>
@@ -602,7 +602,7 @@
             {% if not object.notes.exists %}
                 <div class="alert wb-bg-secondary">
                     <h4 class="text-center">Ingen notater skrevet ennå!</h4>
-                    {% if user|has_group:"planner" or user.is_superuser %}
+                    {% if user|has_group:"planners" or user.is_superuser %}
                     <div class="row">
                         <div class="col text-center">
                             <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
@@ -614,7 +614,7 @@
                     </div
                     {% endif %}
                 </div>
-            {% elif user|has_group:"planner" or user.is_superuser %}
+            {% elif user|has_group:"planners" or user.is_superuser %}
                 <div class="clearfix">
                     <a class="btn wb-btn-main shadow-0 mb-2 float-end" 
                         d-trigger="triggerNewNoteDialog">
@@ -640,7 +640,7 @@
                                 <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created|date:'d.m.Y H:i' }}</em>
                             </div>
                         </div>
-                        {% if user|has_group:"planner" or user.is_superuser %}
+                        {% if user|has_group:"planners" or user.is_superuser %}
                         <div class="float-end">
                             <a href="#" class="btn wb-btn-main"
                                 d-trigger="deleteNote"
@@ -669,7 +669,7 @@
         <!-- Files Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_files" role="tabpanel">
             {% if arrangement.files.exists %}
-                {% if user|has_group:"planner" or user.is_superuser %}
+                {% if user|has_group:"planners" or user.is_superuser %}
                 <div class="clearfix">
                     <a class="btn wb-btn-main shadow-0 float-end"
                             d-trigger="triggerUploadFilesToArrangementDialog"
@@ -693,7 +693,7 @@
                             {% for file in arrangement.files.all %}
                                 <tr>
                                     <td>
-                                        {% if user|has_group:"planner" or user.is_superuser %}
+                                        {% if user|has_group:"planners" or user.is_superuser %}
                                         <a class="btn wb-btn-secondary btn-sm" style="border-radius: 50%!important; padding: 0.7rem;"
                                             data-mdb-toggle="tooltip"
                                             title="{% trans 'Delete this file' %}"
@@ -719,7 +719,7 @@
             {% else %}
                 <div class="alert wb-bg-secondary">
                     <h4 class="text-center">Ingen filer lastet opp her ennå!</h4>
-                    {% if user|has_group:"planner" or user.is_superuser %}
+                    {% if user|has_group:"planners" or user.is_superuser %}
                     <div class="row">
                         <div class="col text-center">
                             <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
