@@ -106,11 +106,13 @@ export class EventInspector {
                         },
                         onUpdatedCallback: () => { 
                             this.dialogManager.closeDialog("orderPersonDialog");
+                            // this.dialogManager.reloadDialog("inspectEventDialog")
                         },
                         onSubmit: (context, details, dialogManager, dialog) => {
                             const eventName = dialog.data.whenEventName || "peopleSelected";
-                            this.dialogManager._dialogRepository.get(details.recipientDialog)
-                                .communicationLane.send(eventName, details.selectedBundle);
+
+                            window.MessagesFacility.send("inspectEventDialog", details.selectedBundle, eventName);
+                            toastr.success("Valgte personer er blitt lagt til i arrangementet");
                         }
                     })
                 ],

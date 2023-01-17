@@ -40,6 +40,8 @@
         this.renderer = renderer;
         this.discriminator = null;
 
+        this.communicationLane = new FakeOutDialogEventCommunicationLane(this.dialogElementId);
+
         this.plugins = [];
         plugins.forEach((plugin) => {
             plugin.dialog = this;
@@ -63,9 +65,10 @@
         $(this.renderer.$dialogElement).on("dialogclose", (event) => {
             this.destroy();
         });
+        
+        debugger;
 
         this.plugins.forEach((plugin) => plugin.onRender(context));
-        this.communicationLane = new DialogEventCommunicationLane(this.renderer.dialogElement.querySelector("div"));
         return result;
     }
 
@@ -357,6 +360,16 @@ class DialogEventCommunicationLane {
     }
 }
 
+class FakeOutDialogEventCommunicationLane {
+    constructor(dialogElementId) {
+        this.dialogElementId = dialogElementId;
+    }
+
+    send(typeName, payload) {
+        window.MessagesFacility.send("inspectEventDialog", payload, typeName);
+    }
+}
+
 
 export class DialogManager {
     constructor ({ managerName, dialogs, allowMultipleOpenAtOnce=true, renderInChain=false }) {
@@ -441,7 +454,6 @@ export class DialogManager {
 
             const dialog = this._dialogRepository.get(dialogId);
             dialog.internalDialogData[propertyName] = newPropertyValue;
-            console.log("dialog.internalDialogData", dialog.internalDialogData);
         })
     }
 
@@ -517,12 +529,6 @@ export class DialogManager {
 
                     let parent = event.detail.$parent;
                     let current = $(value._$getDialogEl());
-
-                    // if (this.renderInChain) {
-                    //     console.log("SHould")
-                    //     console.log(parent);
-                    //     $(value._$getDialogEl()).dialog("option", "position", { my: "left+20 top", at: "right top", of: parent.parentNode });
-                    // }
 
                     if (parent && this.renderInChain) {
                         // $(parent).on("dialogdrag", function (event, ui) {

@@ -1,15 +1,15 @@
 import { HeaderGenerator } from "./calendar_utilities/header_generator.js";
-import { ArrangementStore, CalendarFilter, FullCalendarBased, LocationStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
-
-
+import { ArrangementStore, CalendarFilter, FullCalendarBased, LocationStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE, _NATIVE_ARRANGEMENT } from "./commonLib.js";
 export class LocationCalendar extends FullCalendarBased {
 
-    constructor ( {calendarElement, 
+    constructor({ calendarElement,
+        arrangementInspector,
+        eventInspector,
         colorProviders=[], 
         initialColorProvider="", 
         navigationHeaderWrapperElement = undefined,
         licenseKey=undefined,
-        calendarFilter=undefined } = {} ) {
+        calendarFilter = undefined,} = {}) {
         super(navigationHeaderWrapperElement);
 
         this.viewButtons = new Map([
@@ -51,6 +51,9 @@ export class LocationCalendar extends FullCalendarBased {
         colorProviders.forEach( (bundle) => {
             this._colorProviders.set(bundle.key, bundle.provider)
         });
+
+        this.arrangementInspectorUtility = arrangementInspector;
+        this.eventInspectorUtility = eventInspector;
 
         this.filter = calendarFilter ?? new CalendarFilter( /* OnFilterUpdated: */ (filter) => this.init() );
 
@@ -219,6 +222,14 @@ export class LocationCalendar extends FullCalendarBased {
         return this._colorProviders.get(this.activeColorProvider);
     }
 
+    _bindInspectorTrigger (elementToBindWith) {
+        let _this = this;
+        $(elementToBindWith).on('click', (ev) => {
+            let pk = _this._findEventPkFromEl(ev.currentTarget);
+            this.eventInspectorUtility.inspect(pk);
+        })
+    }
+
     refresh() {
         this.init()
     }
@@ -246,103 +257,13 @@ export class LocationCalendar extends FullCalendarBased {
                       duration: { month: 1 }
                     }
                 },
-                eventRender: function (event, element, view) {
-                    // $(element).find(".fc-list-item-title").append("<div>" + event.resourceId + "</div>");
+                eventClick: (eventClickInfo) => {
+                    console.log(eventClickInfo);
                 },
-                // eventDidMount: (arg) => {
-                //     this._bindPopover(arg.el);
-                //     this._bindInspectorTrigger(arg.el);
-
-                //     $.contextMenu({
-                //         className: "",
-                //         selector: ".fc-event",
-                //         items: {
-                //             arrangement_inspector: {
-                //                 name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
-                //                 isHtmlName: true,
-                //                 callback: (key, opt) => {
-                //                     let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                //                     let arrangement = _this._ARRANGEMENT_STORE.get({
-                //                         pk: pk,
-                //                         get_as: _NATIVE_ARRANGEMENT
-                //                     });
-                            
-                //                     this.arrangementInspectorUtility.inspect(arrangement);
-                //                 }
-                //             },
-                //             event_inspector: {
-                //                 name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
-                //                 isHtmlName: true,
-                //                 callback: (key, opt) => {
-                //                     let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                //                     this.eventInspectorUtility.inspect(pk);
-                //                 }
-                //             },
-                //             "section_sep_1": "---------",
-                //             delete_arrangement: {
-                //                 name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
-                //                 isHtmlName: true,
-                //                 callback: (key, opt) => {
-                //                     Swal.fire({
-                //                         title: 'Er du sikker?',
-                //                         text: "Arrangementet og underliggende aktiviteter vil bli fjernet, og kan ikke hentes tilbake.",
-                //                         icon: 'warning',
-                //                         showCancelButton: true,
-                //                         confirmButtonColor: '#3085d6',
-                //                         cancelButtonColor: '#d33',
-                //                         confirmButtonText: 'Ja',
-                //                         cancelButtonText: 'Avbryt'
-                //                     }).then((result) => {
-                //                         if (result.isConfirmed) {
-                //                             let slug = _this._findSlugFromEl(opt.$trigger[0]);
-                //                             fetch('/arrangement/arrangement/delete/' + slug, {
-                //                                 method: 'DELETE',
-                //                                 headers: {
-                //                                     "X-CSRFToken": this.csrf_token
-                //                                 }
-                //                             }).then(_ => { 
-                //                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
-                //                             });
-                //                         }
-                //                     })
-                //                 }
-                //             },
-                //             delete_event: {
-                //                 name: "<i class='fas fa-trash'></i>&nbsp; Slett aktivitet",
-                //                 isHtmlName: true,
-                //                 callback: (key, opt) => {
-                //                     Swal.fire({
-                //                         title: 'Er du sikker?',
-                //                         text: "Hendelsen kan ikke hentes tilbake.",
-                //                         icon: 'warning',
-                //                         showCancelButton: true,
-                //                         confirmButtonColor: '#3085d6',
-                //                         cancelButtonColor: '#d33',
-                //                         confirmButtonText: 'Ja',
-                //                         cancelButtonText: 'Avbryt'
-                //                     }).then((result) => {
-                //                         if (result.isConfirmed) {
-                //                             let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-
-                //                             let formData = new FormData();
-                //                             formData.append("eventIds", String(pk));
-
-                //                             fetch('/arrangement/planner/delete_events/', {
-                //                                 method: 'POST',
-                //                                 body: formData,
-                //                                 headers: {
-                //                                     "X-CSRFToken": this.csrf_token,
-                //                                 }
-                //                             }).then(_ => { 
-                //                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
-                //                             });
-                //                         }
-                //                     })
-                //                 }
-                //             }
-                //         }
-                //     });
-                // },
+                eventDidMount: (arg) => {
+                    this._bindPopover(arg.el);
+                    this._bindInspectorTrigger(arg.el);
+                },
                 navLinks: true,
                 locale: 'nb',
                 eventSources: [
@@ -354,6 +275,7 @@ export class LocationCalendar extends FullCalendarBased {
                                         get_as: _FC_EVENT, 
                                         locations: this.filter.locations,
                                         arrangement_types: this.filter.arrangementTypes,
+                                        statuses: this.filter.statuses,
                                         audience_types: this.filter.audiences,
                                         filterSet: this.filter.rooms,
                                     }

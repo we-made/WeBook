@@ -1,10 +1,12 @@
 import { HeaderGenerator } from "./calendar_utilities/header_generator.js";
-import { ArrangementStore, CalendarFilter, FullCalendarBased, PersonStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE } from "./commonLib.js";
+import { ArrangementStore, CalendarFilter, FullCalendarBased, PersonStore, StandardColorProvider, _FC_EVENT, _FC_RESOURCE, _NATIVE_ARRANGEMENT } from "./commonLib.js";
 
 export class PersonCalendar extends FullCalendarBased {
 
     constructor ( {calendarElement, 
-        initialColorProvider="", 
+        initialColorProvider = "", 
+        arrangementInspector,
+        eventInspector,
         colorProviders=[],
         navigationHeaderWrapperElement = undefined,
         licenseKey=undefined,
@@ -39,6 +41,9 @@ export class PersonCalendar extends FullCalendarBased {
         this._calendarElement = calendarElement;
         
         this._headerGenerator = new HeaderGenerator();
+
+        this.arrangementInspector = arrangementInspector;
+        this.eventInspector = eventInspector;
         
         this._colorProviders = new Map();
         this._colorProviders.set("DEFAULT", new StandardColorProvider());
@@ -225,19 +230,20 @@ export class PersonCalendar extends FullCalendarBased {
 
                     $.contextMenu({
                         className: "",
-                        selector: ".fc-event",
+                        selector: "#peoplePlannerCalendar .fc-event",
                         items: {
                             arrangement_inspector: {
                                 name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
                                 isHtmlName: true,
                                 callback: (key, opt) => {
-                                    let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                    let pk = parseInt(_this._findEventPkFromEl(opt.$trigger[0]));
+
                                     let arrangement = _this._ARRANGEMENT_STORE.get({
-                                        pk: pk,
+                                        pk: parseInt(pk),
                                         get_as: _NATIVE_ARRANGEMENT
                                     });
                             
-                                    this.arrangementInspectorUtility.inspect(arrangement);
+                                    this.arrangementInspector.inspect(arrangement);
                                 }
                             },
                             event_inspector: {
@@ -245,7 +251,7 @@ export class PersonCalendar extends FullCalendarBased {
                                 isHtmlName: true,
                                 callback: (key, opt) => {
                                     let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                                    this.eventInspectorUtility.inspect(pk);
+                                    this.eventInspector.inspect(pk);
                                 }
                             },
                             "section_sep_1": "---------",

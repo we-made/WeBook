@@ -176,7 +176,7 @@
                                 </div>
                                 <div class="col-6 mt-3">
                                     <div class="form-outline datetimepicker form-control-md" id="startDateTime"
-                                        data-mdb-default-date="{{object.start|date:'d/m/Y' }}" 
+                                        data-mdb-default-date="{{object.start|date:'d.m.Y' }}" 
                                         data-mdb-default-time="{{object.start|date:'G:i' }}">
                                         <input type="text" class="form-control form-control-lg" id="startDateTimeInput" 
                                             value="{{ object.start|date:'d.m.Y G:i' }}"/>
@@ -185,7 +185,7 @@
                                 </div>
                                 <div class="col-6 mt-3">
                                     <div class="form-outline datetimepicker form-control-md" id="endDateTime"
-                                        data-mdb-default-date="{{object.end|date:'d/m/Y' }}" 
+                                        data-mdb-default-date="{{object.end|date:'d.m.Y' }}" 
                                         data-mdb-default-time="{{object.end|date:'G:i' }}">
                                         <input type="text" class="form-control form-control-lg" id="endDateTimeInput" 
                                             value="{{ object.end|date:'d.m.Y G:i' }}" />
@@ -334,7 +334,7 @@
         <div class="tab-pane fade" id="files-tab" role="tabpanel" aria-labelledby="ex1-tab-2">
             {% if object.arrangement.files.exists or object.files.exists %}
             
-            {% if user|has_group:"planner" or user.is_superuser %}
+            {% if user|has_group:"planners" or user.is_superuser %}
             <div class="clearfix">
                 <div class="float-end">
                     <a class="btn wb-btn-main" d-trigger="triggerUploadFilesDialog"><i class="fas fa-upload"></i>&nbsp; Last opp fil(er)</a>
@@ -347,7 +347,7 @@
                     <div class="wb-bg-extra p-3 mt-2 rounded-pill" id="fileRow_{{file.pk}}">
                         <span><i class="fas fa-arrow-down"></i> <small class="me-2 fw-bold">Hentet fra arrangementet</small>&nbsp; {{file.filename}}</span>
                         <span class="float-end">
-                            {% if user|has_group:"planner" or user.is_superuser %}
+                            {% if user|has_group:"planners" or user.is_superuser %}
                             <a href="#" class="text-muted"
                                 data-mdb-toggle="tooltip"
                                 title="Denne filen kommer fra arrangementet og kan dermed bare slettes der">
@@ -394,7 +394,7 @@
             {% else %}
             <div class="alert wb-bg-secondary">
                 <h4 class="text-center">Ingen filer lastet opp her ennå!</h4>
-                {% if user|has_group:"planner" or user.is_superuser %}
+                {% if user|has_group:"planners" or user.is_superuser %}
                 <div class="row">
                     <div class="col text-center">
                         <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
@@ -415,7 +415,7 @@
                 <div class="col-lg-6 col-sm-12">
                     <div class=" mb-2 mt-4">
                         <label class="form-label">Rom</label>
-                        {% if user|has_group:"planner" or user.is_superuser %}
+                        {% if user|has_group:"planners" or user.is_superuser %}
                         <a class="btn btn-sm wb-btn-secondary wb-bg-secondary float-end"
                             d-trigger="triggerAddRooms"
                             type="button">
@@ -425,14 +425,13 @@
                     </div>
                     <hr>
                     
-                    {% if object.rooms.exists %}
                     <div class="table-responsive">
                         <table class="table table-sm table-borderless">
                             <tbody id="roomsTableBody">
                                 {% for room in object.rooms.all %}
                                 <tr rowid="{{room.pk}}">
                                     <td>{{room}}</td>
-                                    {% if user|has_group:"planner" or user.is_superuser %}
+                                    {% if user|has_group:"planners" or user.is_superuser %}
                                     <td>
                                         <a href="#" class="text-danger"
                                             data-mdb-toggle="tooltip"
@@ -447,14 +446,11 @@
                             </tbody>
                         </table>
                     </div>
-                    {% else %}
-                    <h6><i class="fas fa-times"></i> Ingen rom registrert på denne aktiviteten</h6>
-                    {% endif %}
                 </div>
                 <div class="col-lg-6 col-sm-12">
                     <div class="cmb-2 mt-4">
                         <label class="form-label">Personer</label>
-                        {% if user|has_group:"planner" or user.is_superuser %}
+                        {% if user|has_group:"planners" or user.is_superuser %}
                         <a class="btn btn-sm wb-btn-secondary wb-bg-secondary float-end"
                             d-trigger="triggerAddPeople"
                             type="button">
@@ -465,14 +461,14 @@
         
                     <hr>
 
-                    {% if object.people.exists %}
+
                     <div class="table-responsive">
                         <table class="table table-sm table-borderless">
                             <tbody id="peopleTableBody">
                                 {% for person in object.people.all %}
                                     <tr rowid="{{person.pk}}">
                                         <td>{{person}}</td>
-                                        {% if user|has_group:"planner" or user.is_superuser %}
+                                        {% if user|has_group:"planners" or user.is_superuser %}
                                         <td>
                                             <a href="#" class="text-danger"
                                                 data-mdb-toggle="tooltip"
@@ -487,9 +483,6 @@
                             </tbody>
                         </table>
                     </div>
-                    {% else %}
-                    <h6><i class="fas fa-times"></i> Ingen personer registrert på denne aktiviteten</h6>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -514,7 +507,7 @@
 
         <div class="tab-pane fade" id="notes-tab" role="tabpanel" aria-labelledby="notes-tab">
             {% if object.arrangement.notes.exists or object.notes.exists %}
-                {% if user|has_group:"planner" or user.is_superuser %}
+                {% if user|has_group:"planners" or user.is_superuser %}
                 <div class="clearfix">
                     <a class="btn wb-btn-main shadow-0 mb-2 float-end"
                         d-trigger="triggerNewNoteDialog">
@@ -559,7 +552,7 @@
                                 {% endif %}
                                 <em class="text-muted small float-end">Opprettet av {{note.author}} den {{ note.created|date:'d.m.Y H:i' }}</em>
                             </div>
-                            {% if user|has_group:"planner" or user.is_superuser %}
+                            {% if user|has_group:"planners" or user.is_superuser %}
                             <div class="float-end">
                                 <a href="#" class="btn wb-btn-secondary"
                                     d-trigger="deleteNote"
@@ -582,7 +575,7 @@
             {% else %}
                 <div class="alert wb-bg-secondary">
                     <h4 class="text-center">Ingen notater skrevet ennå!</h4>
-                    {% if user|has_group:"planner" or user.is_superuser %}
+                    {% if user|has_group:"planners" or user.is_superuser %}
                     <div class="row">
                         <div class="col text-center">
                             <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
@@ -723,7 +716,7 @@
         </div>
     </div>
 
-    {% if user|has_group:"planner" or user.is_superuser %}
+    {% if user|has_group:"planners" or user.is_superuser %}
     <div class="clearfix border-top pt-3">
         <div class="float-start">
             <a href="#" class="btn wb-btn-blank"
@@ -761,9 +754,7 @@
             dialog.querySelectorAll("a[data-mdb-toggle='tab']")
                 .forEach( (element) => {
                     element.addEventListener('click', (event) => {
-                        console.log("event", event);
                         dialog.data.currentlyActiveTab = event.target.id;
-                        console.log(dialog.data.currentlyActiveTab)
                     })
                 } )
 
@@ -924,7 +915,7 @@
                     tbody.append(
                         $(`<tr rowid='${id}'>
                             <td>${dialog.data.roomsMap.get(id)}</td>
-                            {% if user|has_group:"planner" or user.is_superuser %}
+                            {% if user|has_group:"planners" or user.is_superuser %}
                             <td>
                                 <a href="#" class="text-danger"
                                             data-mdb-toggle="tooltip"
@@ -945,7 +936,7 @@
                     tbody.append(
                         $(`<tr rowid='${id}'>
                             <td>${dialog.data.peopleMap.get(id)}</td>
-                            {% if user|has_group:"planner" or user.is_superuser %}
+                            {% if user|has_group:"planners" or user.is_superuser %}
                             <td>
                                 <a href="#" class="text-danger"
                                             data-mdb-toggle="tooltip"
@@ -1019,9 +1010,11 @@
                 }
 
                 const getDateISOStringFromMdbDateTimePickerInstance = function (mdbDatetimePicker) {
-                    let isoStr = (mdbDatetimePicker._datepicker._selectedDate ??
-                                    new Date(mdbDatetimePicker._dateValue + " " + mdbDatetimePicker._timeValue)).toISOString();
-                    return isoStr;
+                    let [ day, month, year ] = mdbDatetimePicker._dateValue.split(".");
+                    
+                    let isoStrCandidate = (mdbDatetimePicker._datepicker._selectedDate ??
+                                    new Date(`${month}/${day}/${year} ` + mdbDatetimePicker._timeValue));
+                    return isoStrCandidate.toISOString();
                 }
                 let dateTimeStartMdbInstance = mdb.Datetimepicker.getInstance(dialog.getElementById("startDateTime"));
                 let dateTimeEndMdbInstance = mdb.Datetimepicker.getInstance(dialog.getElementById("endDateTime"));
@@ -1066,7 +1059,6 @@
                 });
             },
             triggerUploadFilesDialog(dialog, {}={}, triggeredByElement) {
-                console.log("triggerUploadFilesDialog");
                 dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesDialog", { $parent: dialog.dialogElement });
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
