@@ -1059,6 +1059,8 @@
                             }
                         })
                         .then(_ => {
+                            $(triggeredByElement).parent().parent().remove();
+
                             document.dispatchEvent(
                                 new CustomEvent("arrangementInspector.hasBeenUpdated", {"detail": {
                                     dialog: "mainDialog",
