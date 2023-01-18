@@ -452,10 +452,8 @@ html, body {
     top: 0px!important; /* To offset for a weird issue where chained dialogs are top+ something */
     box-shadow: 10px 1px 20px 1px  grey!important;
     background-color: var(--SECONDARY-COLOR)!important;
-    border-left: none!important;
     border-top-left-radius: 0px!important;
     border-bottom-left-radius: 0px!important;
-    border-left: solid 2px grey!important;
     background-color: white!important;
     /* background-color:  #f6f6f0 !important; */
     /* margin-left: 20px!important; */
