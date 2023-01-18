@@ -1783,7 +1783,6 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
 
     @property
     def people_str_list(self):
-        all_people = self.people.all()
         return ", ".join(list(map(lambda room: room.full_name, self.people.all())))
 
     @property

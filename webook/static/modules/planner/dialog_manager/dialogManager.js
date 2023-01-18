@@ -350,7 +350,7 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                 instantializeDialog = false;
             }
 
-            let $buttonHolder = $("<span id ='railing'></span>");
+            let $buttonHolder = $("<span id='railing'></span>");
 
             for (let i = 0; i < this.headerButtons.length; i++) {1
                 const buttonConfig = this.headerButtons[i];
@@ -360,7 +360,7 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                     marginClass = "ms-3";
 
                 $buttonHolder.append(
-                    $(`<span class='dialogCloseButton ${marginClass} float-end' data-mdb-toggle='tooltip' title='${buttonConfig.tooltip}'> <i class='fas ${buttonConfig.icon}' </span>`)
+                    $(`<span class='dialogHeaderButton ${marginClass} float-end' data-mdb-toggle='tooltip' title='${buttonConfig.tooltip}'> <i class='fas ${buttonConfig.icon}' </span>`)
                         .on('click', (clickEvent) => { buttonConfig.action(dialog, clickEvent) })
                 )
             }
