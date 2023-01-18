@@ -175,7 +175,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6 mt-3">
-                                    <div class="form-outline datetimepicker form-control-md" id="startDateTime"
+                                    <div class="form-outline form-control-md" id="startDateTime"
                                         data-mdb-default-date="{{object.start|date:'d.m.Y' }}" 
                                         data-mdb-default-time="{{object.start|date:'G:i' }}">
                                         <input type="text" class="form-control form-control-lg" id="startDateTimeInput" 
@@ -184,7 +184,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6 mt-3">
-                                    <div class="form-outline datetimepicker form-control-md" id="endDateTime"
+                                    <div class="form-outline form-control-md" id="endDateTime"
                                         data-mdb-default-date="{{object.end|date:'d.m.Y' }}" 
                                         data-mdb-default-time="{{object.end|date:'G:i' }}">
                                         <input type="text" class="form-control form-control-lg" id="endDateTimeInput" 
@@ -758,14 +758,17 @@
                     })
                 } )
 
-            new mdb.Datetimepicker(dialog.getElementById('startDateTime', {
-                container: "[id='{{dialogId}}'][class='{{discriminator}}']",
+            let startDateTimePicker = new mdb.Datetimepicker(dialog.getElementById('startDateTime'), {
+                timepicker: { format24: true },
                 datepicker: { format: 'dd.mm.yyyy' },
-            }));
-            new mdb.Datetimepicker(dialog.getElementById('endDateTime', {
-                container: "[id='{{dialogId}}'][class='{{discriminator}}']",
+                timepicker: { "format24": true }
+
+            }); 
+            let endDateTimePicker = new mdb.Datetimepicker(dialog.getElementById('endDateTime'), {
+                timepicker: { format24: true },
                 datepicker: { format: 'dd.mm.yyyy' },
-            }));
+                timepicker: { "format24": true }
+            });
 
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
@@ -1011,9 +1014,8 @@
 
                 const getDateISOStringFromMdbDateTimePickerInstance = function (mdbDatetimePicker) {
                     let [ day, month, year ] = mdbDatetimePicker._dateValue.split(".");
-                    
-                    let isoStrCandidate = (mdbDatetimePicker._datepicker._selectedDate ??
-                                    new Date(`${month}/${day}/${year} ` + mdbDatetimePicker._timeValue));
+                    let isoStrCandidate = new Date(`${month}/${day}/${year} ` + mdbDatetimePicker._timeValue);
+
                     return isoStrCandidate.toISOString();
                 }
                 let dateTimeStartMdbInstance = mdb.Datetimepicker.getInstance(dialog.getElementById("startDateTime"));
