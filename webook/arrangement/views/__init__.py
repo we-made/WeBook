@@ -186,6 +186,13 @@ from .room_views import (
     search_room_ajax_view,
     search_rooms_ajax_view,
 )
+from .service_views import (
+    create_service_view,
+    services_add_email_view,
+    services_dashboard_view,
+    services_json_list_view,
+    update_service_view,
+)
 from .servicetype_views import (
     search_service_types,
     service_type_create_view,

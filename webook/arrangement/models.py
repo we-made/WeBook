@@ -1883,6 +1883,22 @@ class LooseServiceRequisition(TimeStampedModel, ModelArchiveableMixin):
         return self.ordered_service is not None
 
 
+class ServiceEmail(TimeStampedModel):
+    email = models.EmailField()
+
+
+class Service(TimeStampedModel):
+    """Represents a Service that can be ordered onto events. A service can be used on multiple events.
+    A service is managed by the emails set on it -- these emails will receive requests of confirmation for orders of this specific service."""
+
+    name = models.CharField(max_length=512, blank=False)
+    emails = models.ManyToManyField(to="ServiceEmail", related_name="emails")
+    events = models.ManyToManyField(to="Event")
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class ServiceRequisition(TimeStampedModel, ModelHistoricallyConfirmableMixin):
     order_information = models.TextField(blank=True)
     provider = models.ForeignKey(

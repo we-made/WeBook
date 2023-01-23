@@ -43,7 +43,9 @@ class SingleSignOnErrorView(TemplateView):
 error_sso_view = SingleSignOnErrorView.as_view()
 
 
-class UsersJsonListView(LoginRequiredMixin, ListView, JSONResponseMixin):
+class UsersJsonListView(
+    LoginRequiredMixin, ListView, UserAdminAuthorizationMixin, JSONResponseMixin
+):
     """JSON data source view for the User Administration list view
     The list (sort-of) view uses Vue and should load its requisite data from this view
     """
