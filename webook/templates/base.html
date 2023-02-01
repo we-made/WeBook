@@ -156,6 +156,15 @@
           </div>
           <small class="fw-bold">Personer</small>
         </a>
+
+        <a href="{% url 'arrangement:services_dashboard' %}" class="wb-sidebar-item p-2 pt-3 pb-3 d-block
+              {% if url_name == 'services_dashboard' %} active text-dark bg-weak-primary border-dark border shadow-4 {% endif %}">
+          <div>
+            <i class="fas fa-briefcase text-primary h2 mb-0"></i>
+          </div>
+          <small class="fw-bold">Tjenester</small>
+        </a>
+
         <div>
           <a href="#" id="toggleOthersPopover"
              class="{% if url_name == 'arrangement_type_list' or url_name == 'organizationtype_list' or url_name == 'servicetype_list' %}

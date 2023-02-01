@@ -982,6 +982,27 @@ export class ArrangementInspector {
                         }
                     })
                 ],
+                [
+                    "orderServiceDialog",
+                    new Dialog({
+                        dialogElementId: "orderServiceDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        htmlFabricator: async (context) => {
+                            return this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/order_service',
+                                dialogId: 'orderServiceDialog',
+                                managerName: 'arrangementInspector',
+                            });
+                        },
+                        onRenderedCallback: () => { },
+                        dialogOptions: { width: "70%", dialogClass: 'no-titlebar', },
+                        onUpdatedCallback: () => {
+                        },
+                        onSubmit: (context, details, dialogManager, dialog) => {
+                        }
+                    })
+                ],
             ]}
         )
     }

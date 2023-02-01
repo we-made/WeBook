@@ -67,8 +67,6 @@
     import UserCard from "{% static 'vue-components/user_card.js' %}";
     import UsersTable from "{% static 'vue-components/users_table.js' %}";
 
-    
-
     let app = null;
 
     function initialize() {
@@ -137,17 +135,19 @@
                         cancelButtonColor: '#d33',
                         cancelButtonText: "Avbryt",
                         confirmButtonText: 'Deaktiver bruker'
-                    }).then((result) => {
-                        let formData = new FormData();
-                        formData.append("user_slug", user.slug);
+                    }).then(result => {
+                        if (result.isConfirmed) { 
+                            let formData = new FormData();
+                            formData.append("user_slug", user.slug);
 
-                        fetch("/users/administration/toggle_active", {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRFToken': "{{ csrf_token }}"
-                            },
-                            body: formData
-                        }).then(_ => window.vueRefresh());
+                            fetch("/users/administration/toggle_active", {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': "{{ csrf_token }}"
+                                },
+                                body: formData
+                            }).then(_ => window.vueRefresh());
+                        }
                     })
                 },
                 activateUserDialog(user) {
@@ -335,6 +335,12 @@
                                 dialogId: "detail",
                                 managerName: "genericManager",
                             });
+                        },
+                        onRenderedCallback: (dialogManager, context) => {
+                        },
+                        onUpdatedCallback: (dialogManager, context) => {
+                        },
+                        onSubmit: async (context, details) => {
                         }
                     }),
                 ],

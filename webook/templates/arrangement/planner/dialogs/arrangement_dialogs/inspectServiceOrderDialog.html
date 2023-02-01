@@ -1,0 +1,161 @@
+{% load static i18n %}
+
+
+<div id="{{dialogId}}" class="{{discriminator}}">
+    <h3>Bestilling av tjeneste {{object.service}}</h3>
+
+    <div class="d-flex alert alert-light" style="align-items: center;">
+        <h3>Status:</h3>
+        <div class="p-2 w-25 ms-3">
+            <h4 class="">
+                {% if object.state == "awaiting" %}
+                    Venter svar
+                    <h6>Koordinator har ikke ennå besvart denne bestillingen, og vi venter svar.</h6>
+                {% elif object.state == "denied" %}
+                    Avvist
+                    <h6>Koordinator har avvist denne bestillingen</h6>
+                {% elif object.state == "confirmed" %}
+                    Bekreftet
+                    <h6>Koordinator har bekreftet denne bestillingen</h6>
+                {% elif object.state == "cancelled" %}
+                    Kansellert
+                    <h6>Planlegger har kansellert denne bestillingen</h6>
+                {% endif %}
+            </h4>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- <div class="badge badge-light"></div> -->
+    <!-- <div class="row">
+        <div class="col-3">
+            <div class="d-flex" style="justify-content: space-between;">
+                <h4>Logg</h4>
+                <input type="search" name="" class="form-control w-50" id="">
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr class="h5">
+                        <th>Hendelse</th>
+                        <th>Av</th>
+                        <th>Når</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-bold"><strong>Bestillinging opprettet</strong></td>
+                        <td>Magnus</td>
+                        <td>31/01/2023</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Opprettet</strong></td>
+                    </tr>
+                </tbody>
+            </table> -->
+
+            <!-- <div class="clearfix mb-3 mt-3">
+                <div class="float-end">
+                    <button class="btn wb-btn-main">
+                        <i class="fas fa-plus"></i>
+                        Legg til nye tjenester
+                    </button>
+                </div>
+            </div>
+            <table class="table table-sm" style="align-items: center;">
+                <tr v-for="service in selectedServices">
+                    <td>
+                        <span class="fa-stack text-muted fa-sm" @click="toggleExpansion(service.id)">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="fa fa-arrow-down fa-stack-1x fa-inverse" v-else></i>
+                        </span> 
+                    </td>
+                    <td>
+                        {{object.name}}
+                    </td>
+                </tr>
+            </table> -->
+        <!-- </div> -->
+        <div class="col-12">
+            <form action="">
+                {% csrf_token %}
+                <div class="mb-3 wb-bg-secondary shadow-0 p-3 rounded-6">
+                    <input type="hidden" name="id" value="{{object.id}}">
+                    <div class="row">
+                        <div class="col-5">
+                            <h3> {{object.name}}</h3>
+                            
+                            <!-- <div class="text-center p-3 bg-danger border border-dark rounded-2">
+                                <h6 class="mb-0 text-white mt-0 ">IKKE OPPRETTET</h6>
+                            </div> -->
+
+                            <h5 class="mb-0 mt-3"><i class="fas fa-users"></i>&nbsp; Koordinerende:</h5>
+                            <small><em>Personer ansvarlig for denne ressursen, og som vil kunne behandle denne bestillingen</em></small>
+                            <div class="bg-white p-3 border border-dark rounded-2">
+                                <ul>
+                                    {% for coordinator in object.service.emails.all %}
+                                    <li>{{coordinator}}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <h5 class="mt-3 mb-0"><i class="fas fa-users"></i>&nbsp; Utførende</h5>
+                            <small><em>Utførende settes av koordinerende</em></small>
+                            <div class="bg-white p-3 border border-dark rounded-2">
+                                <ul>
+                                    <li>Utførende 1</li>
+                                    <li>Utførende 2</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <!-- <div class="form-group">
+                                <label for="">Velg konfigurasjon (valgfritt):</label>
+                                <select class="form-control">Preset</select>
+                            </div> -->
+                            <label for="" class="mt-3 h5">Kommentar</label>
+                            <textarea name="" id="" cols="30" rows="10" class="form-control" disabled>{{object.freetext_comment}}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clearfix">
+                    <div class="float-start">
+                        <button class="btn wb-btn-blank">
+                            <i class="fas fa-times"></i>
+                            Kanseller bestillingen
+                        </button>
+                    </div>
+                    <!-- <div class="float-end">
+                        <button class="btn wb-btn-secondary">
+                            Avbryt
+                        </button>
+                        <button class="btn wb-btn-main" type="submit">
+                            Lagre
+                        </button>
+                    </div> -->
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    import { DialogFormInterceptorPlugin } from  "{% static 'modules/planner/dialog_manager/dialogManager.js' %}";
+
+
+
+    new Dialog({
+        managerName: '{{managerName}}',
+        dialogId: "{{dialogId}}",
+        discriminator: "{{discriminator}}",
+        postInit: function (dialog) {},
+        methods: {
+            submit(dialog, {} = {}, triggeredByElement) {
+
+            }
+        },
+        data: {}
+    })
+</script>

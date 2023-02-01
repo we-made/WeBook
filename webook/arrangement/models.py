@@ -13,6 +13,7 @@ import pytz
 from autoslug import AutoSlugField
 from colorfield.fields import ColorField
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import FileField
 from django.db.models.deletion import RESTRICT
@@ -1886,17 +1887,94 @@ class LooseServiceRequisition(TimeStampedModel, ModelArchiveableMixin):
 class ServiceEmail(TimeStampedModel):
     email = models.EmailField()
 
+    def __str__(self) -> str:
+        return self.email
 
-class Service(TimeStampedModel):
+
+class Service(TimeStampedModel, ModelArchiveableMixin):
     """Represents a Service that can be ordered onto events. A service can be used on multiple events.
     A service is managed by the emails set on it -- these emails will receive requests of confirmation for orders of this specific service."""
 
     name = models.CharField(max_length=512, blank=False)
-    emails = models.ManyToManyField(to="ServiceEmail", related_name="emails")
+    emails = models.ManyToManyField(to="ServiceEmail", related_name="services")
     events = models.ManyToManyField(to="Event")
+
+    resources = models.ManyToManyField(to="Person")
 
     def __str__(self) -> str:
         return self.name
+
+
+class States(models.TextChoices):
+    """A ServiceOrder may pass through different states in its lifetime
+    When a ServiceOrder is created, provided it is not a Template, it will initially be in the
+    Awaiting state, as the name suggests, awaiting response of confirmation or denial. Progressively the
+    state advances to CONFIRMED/DENIED. CANCELLED is an exceptional state applied when the orderer of the service,
+    or the planner, cancels the service.
+    ServiceOrders with the state of TEMPLATE do not progress, as they are templates.
+    """
+
+    AWAITING = "awaiting", _("Awaiting")
+    DENIED = "denied", _("Denied")
+    CONFIRMED = "confirmed", _("Confirmed")
+    CANCELLED = "cancelled", _("Cancelled")
+    TEMPLATE = "template", _("Template")
+
+
+class ServiceOrder(TimeStampedModel):
+    is_template = models.BooleanField(default=False)
+
+    template_for = models.ForeignKey(
+        to="Service", on_delete=models.RESTRICT, null=True, blank=True, default=None
+    )
+
+    associated_manifest = models.ForeignKey(  # Only relevant in templating!
+        to="PlanManifest",
+        blank=True,
+        null=True,
+        related_name="orders",
+        on_delete=models.CASCADE,
+    )
+    state = models.CharField(
+        max_length=10,
+        choices=States.choices,
+        default=States.AWAITING,
+    )
+    events = models.ManyToManyField(to="Event", related_name="orders")
+
+    service = models.ForeignKey(
+        to="Service", related_name="associated_lines", on_delete=models.RESTRICT
+    )
+
+    assigned_personell = models.ManyToManyField(
+        to="Person", related_name="services_assigned_to"
+    )
+
+    freetext_comment = models.TextField()
+
+
+class ServiceOrderProcessingRequest(TimeStampedModel):
+    """Log of a request of processing performed in relation to a service order"""
+
+    expires_at = models.DateTimeField(blank=True, null=True)
+    related_to_order = models.ForeignKey(
+        to="ServiceOrder", related_name="requests", on_delete=models.CASCADE
+    )
+    recipient = models.EmailField()
+    code = models.CharField(max_length=512)
+    has_confirmed = models.BooleanField(default=False)
+
+    def construct_url(self):
+        """Get the absolute URL to the processing page of this service"""
+        return (
+            "https://"
+            + Site.objects.get_current().domain
+            + (
+                reverse(
+                    "arrangement:process_service_order", kwargs={"token": self.code}
+                )
+            )
+        )
 
 
 class ServiceRequisition(TimeStampedModel, ModelHistoricallyConfirmableMixin):

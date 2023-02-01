@@ -43,3 +43,4 @@ urlpatterns = [
     *status_type_urls,
     *service_urls,
 ]
+    

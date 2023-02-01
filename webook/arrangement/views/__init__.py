@@ -132,6 +132,8 @@ from .planner_views import (
     create_arrangement_dialog_view,
     get_arrangements_in_period_view,
     get_collision_analysis_view,
+    inspect_service_order_dialog_view,
+    order_service_dialog_view,
     plan_arrangement_view,
     plan_create_event,
     plan_delete_events,
@@ -187,10 +189,15 @@ from .room_views import (
     search_rooms_ajax_view,
 )
 from .service_views import (
+    create_service_template_view,
     create_service_view,
+    delete_service_email_from_service_view,
+    process_service_request_view,
     services_add_email_view,
+    services_add_person_view,
     services_dashboard_view,
     services_json_list_view,
+    toggle_service_active_json_view,
     update_service_view,
 )
 from .servicetype_views import (

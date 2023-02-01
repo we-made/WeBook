@@ -120,6 +120,18 @@
                 >Opprigg & Nedrigg
             </a>
         </li>
+        <li class="nav-item" role="presentation">
+            <a 
+                href="#service-orders-tab"
+                id="service-orders-tab-link" 
+                role="tab"
+                data-mdb-toggle="tab"
+                aria-controls="service-orders-tab"
+                aria-selected="false"
+                class="nav-link">
+                Tjenester
+            </a>
+        </li>
     </ul>
 
     <div class="tab-content" id="ex1-content">
@@ -714,6 +726,69 @@
             </div>
             {% endif %}
         </div>
+        
+        <div class="tab-pane fade" id="service-orders-tab" role="tabpanel" aria-labelledby="service-orders-tab">
+            <div class="clearfix mb-2">
+                <button class="btn wb-btn-main float-end" d-trigger="triggerOrderServiceDialog">
+                    Bestill tjeneste(r)
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <!-- <thead>
+                        <th>Tjeneste</th>
+                        <th>Status</th>
+                        <th>Valg</th>
+                    </thead> -->
+                    <tbody>
+                        {% for service_order in object.orders.all %}
+                        <tr>
+                            <td class="h5">{{service_order.service}}</td>
+                            <td>
+                                {% if service_order.state == "awaiting" %}
+                                    <div class="badge badge-warning">
+                                        <h5 class="mb-0">
+                                            Venter behandling
+                                        </h5>
+                                    </div>
+                                {% elif service_order.state == "cancelled" %}
+                                    <div class="badge badge-dark">
+                                        <h5 class="mb-0">
+                                            Kansellert
+                                        </h5>
+                                    </div>
+                                {% elif service_order.state == "denied" %}
+                                    <div class="badge badge-danger">
+                                        <h5 class="mb-0">
+                                            Avvist
+                                        </h5>
+                                    </div>
+                                {% elif service_order.state == "confirmed" %}
+                                    <div class="badge badge-success">
+                                        <h5 class="mb-0">
+                                            Bekreftet
+                                        </h5>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td><button class="btn wb-btn-main" d-trigger="triggerInspectServiceOrderDialog" d-arg-order_id="{{service_order.id}}">Rediger</button></td>
+                        </tr>
+                        {% endfor %}
+                        <!-- <tr>
+                            <td class="h5">## Tjeneste</td>
+                            <td><div class="badge badge-danger"><h5 class="mb-0">Avvist</h5></div></td>
+                            <td><button class="btn wb-btn-main">Rediger</button></td>
+                        </tr>
+                        <tr>
+                            <td class="h5">## Tjeneste</td>
+                            <td><div class="badge badge-success"><h5 class="mb-0">Ferdigstilt</h5></div></td>
+                            <td><button class="btn wb-btn-main">Rediger</button></td>
+                        </tr> -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     {% if user|has_group:"planners" or user.is_superuser %}
@@ -866,6 +941,13 @@
             },
             triggerNewNoteDialog(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("eventInspector", "newNoteDialog", { $parent: dialog.dialogElement });
+            },
+            triggerOrderServiceDialog(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("eventInspector", "orderServiceDialog", {});
+            },
+            triggerInspectServiceOrderDialog(dialog, { orderId } = {}, triggeredByElement) {
+                console.log(">> triggerInspectServiceOrderDialog")
+                dialog.raiseTriggerEvent("eventInspector", "inspectServiceOrderDialog", { "order_id": orderId })
             },
             /* Delete a note, identified by note_pk */
             deleteNote: (dialog, { notePk } = {}) => {

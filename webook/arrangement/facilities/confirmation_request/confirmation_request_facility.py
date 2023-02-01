@@ -22,7 +22,7 @@ class InvalidRequestCodeException(Exception):
     pass
 
 
-class MailMessageFactory():
+class MailMessageFactory(): 
     class ROUTINES(Enum):
         NOTIFY_REQUEST_MADE=1
         NOTIFY_REQUEST_CANCELLED=2

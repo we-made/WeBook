@@ -66,8 +66,6 @@
         $(this.renderer.$dialogElement).on("dialogclose", (event) => {
             this.destroy();
         });
-        
-        debugger;
 
         this.plugins.forEach((plugin) => plugin.onRender(context));
         return result;
@@ -87,7 +85,6 @@
                 html = await this.htmlFabricator(context, this);
             }
 
-            // this.destroy();
             this.render(context, html);
 
             this.onRenderedCallback(this, context);
@@ -181,8 +178,16 @@ export class DialogFormInterceptorPlugin {
             formElement.onsubmit = function (event) {
                 event.preventDefault();
 
-                const action = formElement.getAttribute("action") || this.dialog.formUrl;
+                console.log("dialog.formUrl", this.dialog.formUrl)
+
+                let action = formElement.getAttribute("action") || this.dialog.formUrl;
                 const formData = new FormData(formElement);
+
+                for (const pair of formData.entries()) { // allow using <<variable>> to populate dynamic values from formData
+                    action = action.replace("<<" + pair[0] + ">>", pair[1]);
+                }
+
+                console.log("ACTION::", action);
 
                 fetch(action, {
                     method: 'POST',
@@ -419,6 +424,10 @@ export class DialogManager {
 
         this._dialogRepository = new Map(dialogs);
         this.context = {};
+    }
+
+    get(dialogName) {
+        return this._dialogRepository.has(dialogName) ? this._dialogRepository.get(dialogName) : undefined;
     }
     
     async loadDialogHtml( 

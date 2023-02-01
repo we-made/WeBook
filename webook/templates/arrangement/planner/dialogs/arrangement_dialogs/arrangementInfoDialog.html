@@ -99,6 +99,13 @@
                 Filer
             </a>
         </li>
+        <!-- Service Orders -->
+        <li class="nav-item" role="presentation">
+            <a href="#arrangementInfoDialog_tabs_service_orders" class="nav-link" id="arrangementInfoDialog_tabs_service_orders-link"
+                data-mdb-toggle="tab" role="tab">
+                Tjenestebestilling
+            </a>
+        </li>
     </ul>
 
     <div class="tab-content pt-4">
@@ -213,7 +220,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-        
+        0
                             <div class="col-lg-6 col-sm-12">
                                 <label class="form-label">Faktisk antall besøkende:</label>
                                 <input type="number"
@@ -356,7 +363,6 @@
             {% endif %}
         </div>
         
-
         <!-- Timeslots Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_timeslots" role="tabpanel">
             {% if user|has_group:"planners" or user.is_superuser %}
@@ -740,6 +746,14 @@
                         {% endif %}
                     </div>
                 {% endif %}
+        </div>
+
+        <!-- Service Orders Tabs -->
+        <div class="tab-pane fade" id="arrangementInfoDialog_tabs_service_orders" role="tabpanel">
+            <div class="clearfix">
+                <button class="btn wb-btn-main float-end" d-trigger="triggerOrderServiceDialog" d-arg-event_pk="{{ event.pk }}">
+                    Bestill tjeneste
+                </button>
             </div>
         </div>
     </div>
@@ -866,6 +880,9 @@
             },
             triggerUploadFilesToArrangementDialog(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesToArrangementDialog", { $parent: dialog.dialogElement });
+            },
+            triggerOrderServiceDialog(dialog, { eventPk } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "orderServiceDialog", { eventPk: eventPk });
             },
             deleteNote(dialog, { notePk } = {}, triggeredByElement) {
                 Swal.fire({

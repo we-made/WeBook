@@ -2,6 +2,7 @@
 Base settings to build other settings files upon.
 """
 
+import mimetypes
 from pathlib import Path
 
 import environ
@@ -19,6 +20,10 @@ ENV_FILE = BASE_DIR / ".env"
 if Path(ENV_FILE).exists():
     # OS environment variables take precedence over variables from .env
     env.read_env(str(ENV_FILE))
+
+mimetypes.add_type("text/plain", ".vue", True)
+
+WHITENOISE_MIMETYPES = {".vue": "text/plain"}
 
 # GENERAL
 # ------------------------------------------------------------------------------

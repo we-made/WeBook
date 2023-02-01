@@ -51,7 +51,7 @@ def get_section_manifest():
     return SectionManifest(
         section_title=_("Requisitions"),
         section_icon="fas fa-phone",
-        section_crumb_url=reverse("arrangement:requisitions_dashboard"),
+        section_crumb_url=reverse("arrangement:requisitwions_dashboard"),
     )
 
 

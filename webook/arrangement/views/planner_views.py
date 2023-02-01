@@ -19,13 +19,23 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.decorators.http import require_http_methods
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 from django.views.generic.edit import DeleteView, FormView
 
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.facilities.calendar import analysis_strategies
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
-from webook.arrangement.forms.file_forms import UploadFilesToArrangementForm, UploadFilesToEventSerieForm
+from webook.arrangement.forms.file_forms import (
+    UploadFilesToArrangementForm,
+    UploadFilesToEventSerieForm,
+)
 from webook.arrangement.forms.note_forms import CreateNoteForm, UpdateNoteForm
 from webook.arrangement.forms.ordering_forms import (
     LooselyOrderServiceForm,
@@ -36,10 +46,20 @@ from webook.arrangement.forms.ordering_forms import (
     RemovePersonFromEventForm,
     RemoveRoomFromEventForm,
 )
-from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
-from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
-from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
+from webook.arrangement.forms.planner.planner_create_arrangement_form import (
+    PlannerCreateArrangementModelForm,
+)
+from webook.arrangement.forms.planner.planner_plan_serie_form import (
+    PlannerPlanSerieForm,
+)
+from webook.arrangement.forms.planner.planner_update_arrangement_form import (
+    PlannerUpdateArrangementModelForm,
+)
 from webook.arrangement.forms.planner_forms import AddPlannersForm, RemovePlannersForm
+from webook.arrangement.forms.service_forms import (
+    OrderServiceForActivityForm,
+    UpdateServiceOrderForm,
+)
 from webook.arrangement.models import (
     Arrangement,
     ArrangementFile,
@@ -56,9 +76,16 @@ from webook.arrangement.models import (
     RequisitionRecord,
     Room,
     RoomPreset,
+    ServiceOrder,
 )
-from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
-from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.generic_views.archive_view import (
+    ArchiveView,
+    JsonArchiveView,
+)
+from webook.arrangement.views.generic_views.json_form_view import (
+    JsonFormView,
+    JsonModelFormMixin,
+)
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
@@ -1016,3 +1043,38 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
 
 
 arrangement_create_serie_dialog_view = PlanSerieForm.as_view()
+
+
+class OrderServiceDialog(LoginRequiredMixin, DialogView, JsonFormView):
+    template_name = (
+        "arrangement/planner/dialogs/arrangement_dialogs/orderServiceDialog.html"
+    )
+    form_class = OrderServiceForActivityForm
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        event_id = self.kwargs.get("eventId")
+        context["EVENT"] = Event.objects.get(id=event_id)
+        return context
+    def form_valid(self, form) -> JsonResponse:
+        form.save()
+        return super().form_valid(form)
+
+
+order_service_dialog_view = OrderServiceDialog.as_view()
+
+
+class InspectServiceOrderDialogView(
+    LoginRequiredMixin, DialogView, UpdateView, JsonFormView
+):
+    model = ServiceOrder
+    template_name = (
+        "arrangement/planner/dialogs/arrangement_dialogs/inspectServiceOrderDialog.html"
+    )
+    pk_url_kwarg = "pk"
+    pk_field = "pk"
+    fields = ["freetext_comment"]
+    # form_class = UpdateServiceOrderForm
+
+
+inspect_service_order_dialog_view = InspectServiceOrderDialogView.as_view()
