@@ -15,6 +15,7 @@
                     Avvist
                     <h6>Koordinator har avvist denne bestillingen</h6>
                 {% elif object.state == "confirmed" %}
+                    <i class="fas fa-check text-success"></i>&nbsp;
                     Bekreftet
                     <h6>Koordinator har bekreftet denne bestillingen</h6>
                 {% elif object.state == "cancelled" %}

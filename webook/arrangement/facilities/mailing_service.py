@@ -42,12 +42,21 @@ class MailMessageFactory:
         self.routines[key] = Routine(template=template)
 
     def send(
-        self, routine_key: Any, subject: str, recipients: List[str], context: dict
+        self,
+        routine_key: Any,
+        subject: str,
+        recipients: List[str],
+        context: dict,
+        is_html: bool = False,
     ) -> None:
         routine = self.routines[routine_key]
 
         email_message: EmailMessage = routine.to_mail(context)
         email_message.subject = subject
         email_message.to = recipients
+
+        email_message.content_subtype = (
+            "html" if is_html else email_message.content_subtype
+        )
 
         email_message.send()

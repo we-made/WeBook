@@ -6,15 +6,14 @@
 {% block content %}
 
 <div id="app">
-    <h1 class="text-center">Behandling av bestilling</h1>
-    <h3 class="text-center">{{ object.related_to_order.service }}</h3>
-    <hr>
+    <!-- <h1 class="text-center">Behandling av bestilling</h1>
+    <h3 class="text-center">{{ object.related_to_order.service }}</h3> -->
 
     <div class="row mb-3">
         <div class="col-2">
             <div class="bg-white rounded-3 shadow-3 p-4">
                 <h3 class="text-center"><i class="fas fa-receipt"></i>&nbsp; Bestilling</h3>
-                <div class="rounded-4 p-3 shadow-0">
+                <div class="rounded-4 shadow-0">
                     <table class="table">
                         <tbody>
                             <tr>
@@ -22,8 +21,8 @@
                                 <td>{{ object.created }}</td>
                             </tr>
                             <tr>
-                                <th class="fw-bold text-upper">TIDSSTEMPEL: </th>
-                                <td>{{ object.created }}</td>
+                                <th class="fw-bold text-upper">Plassert av: </th>
+                                <td><div class="badge badge-info">TBD</div></td>
                             </tr>
                         </tbody>
                     </table>
@@ -34,74 +33,64 @@
 {{object.related_to_order.freetext_comment}}
                     </textarea>
                 </div>
+
+                <em class="small float-end mb-3">
+                    [[noOfFinishedProvisions]] av [[activities.length]] forespørsler/aktiviteter behandlet
+                </em>
+
+                <div class="clearfix mt-3 rounded-3 ">
+                    <div class="float-end">
+                        <button class="btn btn-block btn-danger shadow-0 btn-lg" @click="denyOrder()">
+                            <i class="fas fa-times"></i>
+                            Avvis
+                        </button>
+                        <button class="btn btn-block btn-success shadow-0 btn-lg ms-3" @click="confirmOrder()">
+                            <i class="fas fa-check"></i>
+                            Bekreft
+                        </button>
+                    </div>
+                </div>
             </div>
 
+            <div class="bg-white rounded-3 shadow-3 p-4 mt-3">
+                <div>
+                    <h3 class="text-center fw-bold"><i class="fas fa-users"></i>&nbsp; Ressurser</h3>
+                    <h6 class="text-center">Huk av en ressurs for å vise de i kalenderen</h6>
+                    
+                    <div class="form-check mt-3 rounded-3 pl-5 ps-5 pt-2 pb-2"
+                        v-for="resource in resources">
+                        <input class="form-check-input" type="checkbox" :value="resource" :id="resource.id" v-model="focusedResources" />
+                        <label class="form-check-label" :for="resource.id">[[ resource.name ]]</label>
+                    </div>
 
-
+                    <div class="mt-3 text-center">
+                        <small>
+                            Ressurser legges til på selve tjenesten
+                        </small>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col-10">
             <div class="bg-white rounded-3 shadow-3 p-4">
                 <div class="row">
-                    <div class="col-2 border-end">
-                        <div>
-                            <div>
-                                <h3 class="text-center fw-bold">Aktiviteter</h3>
-                                <hr>
-                                <table class="table">
-                                    <tbody>
-                                        {% for event in object.related_to_order.events.all %}
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex" style="justify-content: space-between; align-items: center;">
-                                                        <h5>{{event.start}} - {{event.end}}</h5>
-                                                        <button class="btn wb-btn-main">Tildel</button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div>
-                                <h3 class="text-center fw-bold">Ressurser</h3>
-                                <h6 class="text-center">Huk av en ressurs for å vise de i kalenderen</h6>
-                                
-                                <div class="form-check mt-3 rounded-3 pl-5 ps-5 pt-2 pb-2"
-                                    v-for="resource in resources">
-                                    <input class="form-check-input" type="checkbox" :value="resource.id" :id="resource.id" v-model="focusedResources" />
-                                    <label class="form-check-label" :for="resource.id">[[ resource.name ]]</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-10">
+                    <div class="col-12">
                         <div id="activitiesCalendar">
-
                         </div>
                     </div>
                 </div>
             </div>        
         </div>
     </div>
-
-
-    <div class="clearfix mt-3 bg-white rounded-3 shadow-3 p-4">
-        <div class="float-end">
-            <button class="btn btn-danger btn-lg">
-                <i class="fas fa-times"></i>
-                Avvis
-            </button>
-            <button class="btn btn-success btn-lg ms-3" disabled>
-                <i class="fas fa-check"></i>
-                Bekreft
-            </button>
-        </div>
-    </div>
 </div>  
 
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.1/index.min.js" integrity="sha512-88/heKGrsHjGwV3/5hCfhqseY7Nge7OmzbufE3VSHGK79SiMhypEbexl6i13hh7fKhh5hlomX/6kkQtFZernQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
-<script >
+<script type="module">
+    import { Dialog, DialogManager, DialogSimpleRenderer, DialogFormInterceptorPlugin } from  "{% static 'modules/planner/dialog_manager/dialogManager.js' %}";
+    import { ColorRepository } from "{% static 'js/colorRepository.js' %}";
     
+    const ARIA_ATTRIBUTE_PATTERN = /^aria-[\w-]*$/i;
+
     document.addEventListener('DOMContentLoaded', function() {
         const app = Vue.createApp({
             components: {
@@ -109,19 +98,24 @@
             },
             data() {
                 return {
+                    fcCalendar: {},
                     focusedResources: [],
                     order: {
                         service_name: "{{ object.related_to_order.service.name }}",
                         created_when: "{{ object.created_when }}",
-                        planners_comment: "{{ object.related_to_order.freetext_comment }}"
                     },
                     activities: [
-                        {% for item in object.related_to_order.events.all %}
+                        {% for provision in object.related_to_order.provisions.all %}
                         {
-                            id: '{{item.id}}',
-                            title: '{{item.title}}',
-                            start: '{{item.start|date:'Y-m-d H:i'}}',
-                            end: '{{item.end|date:'Y-m-d H:i'}}'
+                            id: '{{provision.id}}',
+                            title: '{{provision.for_event.title}}',
+                            start: '{{provision.for_event.start|date:'Y-m-d H:i'}}',
+                            end: '{{provision.for_event.end|date:'Y-m-d H:i'}}',
+                            classNames: [ {% if provision.is_complete %}'mild-success'{% else %}'mild-danger'{% endif %}, "fc-custom-focused-event" ],
+                            extendedProps: {
+                                isProvisioned: {% if provision.is_complete %}true{% else %}false{% endif %},
+                                provisionedResources: [ {% for resource in provision.selected_personell.all %}'{{resource}}',{% endfor %} ]
+                            }
                         },
                         {% endfor %}
                     ],
@@ -137,31 +131,239 @@
             },
             watch: {
                 focusedResources() {
-                    console.log(this.focusedResources)
+                    let eventSources = this.fcCalendar.getEventSources();
+
+                    eventSources.forEach((eventSource) => {
+                        if (Array.isArray(eventSource.internalEventSource.meta) === false)
+                        {
+                            eventSource.remove();
+                        }
+                    });
+
+                    this.resources.forEach((resource) => {
+                        let checkboxElement = document.getElementById(`${resource.id}`).parentNode;
+                        checkboxElement.style.backgroundColor = "";
+                        checkboxElement.style.borderColor = "";
+                        checkboxElement.style.color = ""
+                    })
+
+                    this.focusedResources.forEach((resource) => {
+                        let checkboxElement = document.getElementById(`${resource.id}`).parentNode;
+                        checkboxElement.style.backgroundColor = resource.colors.background;
+                        checkboxElement.style.borderColor = resource.colors.border;
+                        checkboxElement.style.color = resource.colors.text;
+
+                        const eventSourceFunc = async () => {
+                            return await fetch("/arrangement/service/provisioning/{{SOPR_TOKEN}}/resource/events/" + resource.id, {
+                                method: 'GET',
+                                headers: {
+                                    "X-CSRFToken": "{{csrf_token}}"
+                                }
+                            }).then(async response => { 
+                                if (response.status !== 200)
+                                    throw Error("Failed retrieving events for " + resource.id)
+                                    
+                                let data = await response.json();
+                                data.forEach((event) => {
+                                    event.backgroundColor = resource.colors.background;
+                                    event.borderColor = resource.colors.border;
+                                    event.textColor = resource.colors.text;
+                                    event.classNames = ["custom-fc-external-event"];
+                                    event.extendedProps = {
+                                        isExternalEvent: true,
+                                        isProvisioned: false,
+                                        provisionedResources: [ 
+                                        ],
+                                        externalCalendarName: resource.name,
+                                        colors: resource.colors,
+                                    }
+                                });
+
+                                return data;
+                            });
+                        }
+
+                        this.fcCalendar.addEventSource( eventSourceFunc );
+                    });
                 }
             },
             computed: {
-    
+                noOfFinishedProvisions() {
+                    return this.activities.filter(x => x.extendedProps.isProvisioned).length;
+                }
             },
             methods: {
+                denyOrder() {
+                    Swal.fire({
+                        title: 'Er du sikker?',
+                        text: "Er du sikker på at du vil avvise denne bestillingen?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        cancelButtonText: 'Avbryt',
+                        confirmButtonText: 'Avvis bestilling'
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          let formData = new FormData();
+                          formData.append("token", "{{SOPR_TOKEN}}")
+
+                          fetch("/arrangement/service/provisioning/deny", {
+                            method: 'POST',
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                            },
+                            body: formData
+                          }).then(async response => {
+                            if (response.status == 200)
+                                return await response.json();
+                            
+                            console.log(await response.text());
+
+                            throw Error("Denying service order failed", response);
+                          }).then((responseObj) => console.log("Denied"))
+                        }
+                      })
+                },
+                confirmOrder() {
+                    Swal.fire({
+                        title: 'Er du sikker?',
+                        text: "Er du sikker på at du vil bekrefte denne bestillingen?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        cancelButtonText: 'Avbryt',
+                        confirmButtonText: 'Bekreft bestilling'
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          let formData = new FormData();
+                          formData.append("token", "{{SOPR_TOKEN}}")
+
+                          fetch("/arrangement/service/provisioning/confirm", {
+                            method: 'POST',
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                            },
+                            body: formData
+                          }).then(async response => {
+                            if (response.status == 200)
+                                return await response.json();
+                            
+                            console.log(await response.text());
+
+                            throw Error("Confirming service order failed", response);
+                          }).then((responseObj) => console.log("Confirmed"))
+                        }
+                      })
+                },
                 initializeCalendar() {
                     var calendarEl = document.getElementById('activitiesCalendar');
-                    var calendar = new FullCalendar.Calendar(calendarEl, {
-                      initialView: 'listYear',
-                      views: [ "dayGridWeek" ],
-                      eventTimeFormat: { 
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12:false
+                    this.fcCalendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'listYear',
+                        views: [ "timeGridWeek" ],
+                        eventClick: function (clickInfo) {
+                            const provisionId = clickInfo.event.id;
+
+                            document.dispatchEvent(new CustomEvent(
+                                "requestProcessingDialogManager.provision_personell_dialog.trigger",
+                                { detail: { provisionId: provisionId } }
+                            ));
                         },
-                        eventBackgroundColor: '#14a9ad',
+                        eventTimeFormat: { 
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        },
+                        eventTextColor: "black",
+                        eventBorderColor: "green",
                         displayEventEnd: true,
-                      headerToolbar: {
-                        start: 'title', // will normally be on the left. if RTL, will be on the right
-                        center: 'dayGridWeek,listYear',
-                        end: 'today prev,next' // will normally be on the right. if RTL, will be on the left
-                      },
-                      eventContent: function (arg) {
+                            headerToolbar: {
+                                start: 'title', // will normally be on the left. if RTL, will be on the right
+                                center: 'timeGridWeek,listYear',
+                                end: 'today prev,next' // will normally be on the right. if RTL, will be on the left
+                        },
+                        buttonText: {
+                            today:  "I dag",
+                            month:  "Måned",
+                            week:   "Ukesvisning",
+                            day:    "Dag",
+                            list:   "Listevisning"
+                        },
+                        eventDidMount: function (arg) {
+                            console.log(arg);
+                            
+                            let badgeNode = null;
+                            let provisionedNode = $('<span></span>');
+
+                            if (arg.event.extendedProps.isExternalEvent) {
+                                badgeNode = $(`<span class="badge badge-light">
+                                                ${arg.event.extendedProps.externalCalendarName}
+                                               </span>`)
+                            } else {
+                                if (arg.event.extendedProps.isProvisioned) {
+                                    badgeNode = $(`<span class="badge badge-success">
+                                                    Ferdig behandlet
+                                                   </span>`)
+                                    provisionedNode = $(`<ul class='mb-0'></ul>`)[0]
+                                    for (let i = 0; i < arg.event.extendedProps.provisionedResources.length; i++) {
+                                        let resource = arg.event.extendedProps.provisionedResources[i];
+                                        provisionedNode.appendChild($(`<li>${resource}</li>`)[0])
+                                    }
+                                }
+                                else {
+                                    badgeNode = $(`<span class="badge badge-danger">
+                                                    Venter behandling
+                                                  </span>`)
+                                }
+                            }
+
+                            badgeNode = badgeNode ? badgeNode[0] : null;
+
+                            new mdb.Popover(arg.el, {
+                                trigger: "hover",
+                                allowList: {
+                                    '*': ['class', 'dir', 'id', 'lang', 'role', ARIA_ATTRIBUTE_PATTERN],
+                                    a: ['target', 'href', 'title', 'rel'],
+                                    area: [],
+                                    b: [],
+                                    br: [],
+                                    col: [],
+                                    code: [],
+                                    div: ['style'],
+                                    em: [],
+                                    hr: [],
+                                    h1: [],
+                                    h2: [],
+                                    h3: [],
+                                    h4: [],
+                                    h5: [],
+                                    h6: [],
+                                    i: [],
+                                    img: ['src', 'srcset', 'alt', 'title', 'width', 'height'],
+                                    li: [],
+                                    ol: [],
+                                    p: [],
+                                    pre: [],
+                                    s: [],
+                                    small: [],
+                                    span: [],
+                                    sub: [],
+                                    sup: [],
+                                    strong: [],
+                                    u: [],
+                                    ul: [],
+                                },
+                                content: `
+                                    <h6 class='mb-0'>${arg.event.title}</h6>
+                                    <div>${arg.timeText}</div>
+                                    ${badgeNode.outerHTML}
+                                    ${provisionedNode.outerHTML}
+                                    `,
+                                html: true,
+                            })
+                        },
+                        eventContent: function (arg) {
                             const formatTime = function (text) {
                                 if (text.length == 1 || text.length == 3)
                                     text = "0" + text
@@ -172,40 +374,144 @@
                             }
             
                             let nodes = [];
-            
-                            let wrapper = document.createElement('div');
-            
-                            console.log(arg);
 
-                            let timeText = document.createElement('strong');
-                            timeText.classList.add('d-block');
-                            timeText.innerText = `(${formatTime(arg.timeText)})`;
-                            wrapper.appendChild(timeText);
-            
-                            let eventTitle = document.createElement('strong');
-                            eventTitle.classList.add("mb-2", "event-title-text");
-                            eventTitle.innerText = arg.event.title;
-                            wrapper.appendChild(eventTitle);
-            
-                            nodes.push(wrapper);
-            
-                            return { domNodes: nodes };
+                            if (arg.view.type == "listYear") {
+                                if (arg.event.extendedProps.isExternalEvent) {
+                                    const calendarNameBadge = $(`<span class='badge me-2' style='background-color:${arg.event.extendedProps.colors.background}; color:${arg.event.extendedProps.colors.text}'>
+                                        ${arg.event.extendedProps.externalCalendarName}
+                                    </span>`);
+                                    const nameSpan = $(`<span>${arg.event.title}</span>`);
+                                    const externalHint = $(`<span class='float-end wb-bg-secondary p-1 rounded-6'>
+                                        <i class='fas fa-calendar'></i>
+                                        EKSTERN KALENDER
+                                    </span>`)
+                                    nodes.push(calendarNameBadge[0], nameSpan[0], externalHint[0]);
+                                }
+                                else {
+                                    const isProvisioned = arg.event.extendedProps.isProvisioned;
+                                    
+                                    const nameSpan = $(`<span>${arg.event.title}</span>`);
+                                    let statusHint = null;
+
+                                    if (isProvisioned)
+                                        statusHint = $(`<span class='badge badge-success float-end'>
+                                                            <i class='fas fa-check'></i>
+                                                            Ferdig
+                                                        </span>`);
+                                    else
+                                        statusHint = $(`<span class='badge badge-danger float-end'>
+                                                            <i class='fas fa-exclamation-triangle'></i>
+                                                            Venter behandling
+                                                        </span>`);
+
+                                    nodes.push(nameSpan[0], statusHint[0]);
+                                }
+                            } else if (arg.view.type == "timeGridWeek") {
+                                if (arg.event.extendedProps.isExternalEvent) {
+                                    const typeBadge = $(`<div class='badge badge-light'>
+                                                            ${arg.event.extendedProps.externalCalendarName} sin kalender
+                                                        </div>`)
+
+                                    nodes.push(typeBadge[0])
+                                }
+                                else {
+                                    const isProvisioned = arg.event.extendedProps.isProvisioned;
+                                    let statusBadge = null;
+
+                                    if (isProvisioned)
+                                        statusBadge = $(`<div class='badge badge-success'>
+                                                            <i class='fas fa-check'></i>
+                                                            Ferdig
+                                                        </div>`);
+                                    else
+                                        statusBadge = $(`<div class='badge badge-danger text-dark>
+                                                            <i class='fas fa-exclamation-triangle'></i>
+                                                            Venter behandling
+                                                         </div>`);
+                                    
+                                    nodes.push(statusBadge[0]);
+                                }
+                                const time = $(`<div>
+                                                    ${arg.timeText}
+                                                </div>`);
+                                const title = $(`<div>
+                                                    ${arg.event.title}
+                                                </div>`);
+
+                                nodes.push(time[0], title[0]);
+                            }
+
+                            return { "domNodes": nodes };
                         },
-                      schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
-                      resources: this.resources.map(x => { return {id: x.id, title: x.name} }),
-                      events: this.activities
-                    });
-                    calendar.render();
-                }
+                        schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+                        resources: this.resources.map(x => { return {id: "P_" + x.id, title: x.name} }),
+                        eventSources: [
+                            this.activities
+                        ]
+                });
+                this.fcCalendar.render();
+            }
             },
             mounted() {
-                console.log(this.activities);
+                this.colorRepository = new ColorRepository();
+
+                this.resources.forEach((resource) => {
+                    resource.colors = this.colorRepository.getColor()
+                });
+
                 this.initializeCalendar();
             },
             delimiters: ["[[", "]]"]
         });
-    
+        
         app.mount('#app');
+
+        class CustomDialogFormInterceptorPlugin extends DialogFormInterceptorPlugin {
+            constructor (csrf_token) {
+                super(csrf_token);
+            }
+    
+            onResponseOk() {
+                //window.vueRefresh();
+                location.reload();
+            }
+        }
+
+        const dialogManager = new DialogManager({
+            managerName: "requestProcessingDialogManager",
+            allowMultipleOpenAtOnce: false,
+            dialogs: [
+                [
+                    "provision_personell_dialog",
+                    new Dialog({
+                        dialogElementId: 'provision_personell_dialog',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        formUrl: "/arrangement/service/provisioning/{{SOPR_TOKEN}}/<<provision>>",
+                        dialogOptions: {
+                            width: "40%",
+                            dialogClass: "no-titlebar",
+                            modal: true,
+                        },
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        htmlFabricator: async (context, dialog) => {
+                            dialog.formUrl = "/arrangement/service/provisioning/{{SOPR_TOKEN}}/" + context.lastTriggererDetails.provisionId
+                            return dialogManager.loadDialogHtml({
+                                url: "/arrangement/service/provisioning/{{SOPR_TOKEN}}/" + context.lastTriggererDetails.provisionId,
+                                dialogId: "provision_personell_dialog",
+                                managerName: "requestProcessingDialogManager"
+                            })
+                        },
+                        onRenderedCallback: (dialogManager, context) => {},
+                        onUpdatedCallback: (dialogManager, context) => {},
+                        onSubmit: async (context, details) => {
+                        }
+                    })
+                ]
+            ]
+        });
+
+        dialogManager._makeAware();
     });
 </script>
 

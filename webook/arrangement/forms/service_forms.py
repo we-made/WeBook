@@ -1,15 +1,22 @@
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
+from django.forms.widgets import Textarea
 
 from webook.arrangement.facilities import service_ordering as ordering_service
-from webook.arrangement.forms.widgets.table_multi_select import TableMultiSelectWidget
+from webook.arrangement.forms.widgets.table_multi_select import (
+    TableMultiSelectWidget,
+    TableSimpleMultiSelectWidget,
+)
 from webook.arrangement.models import (
     Event,
     Person,
     Service,
     ServiceEmail,
     ServiceOrder,
+    ServiceOrderProcessingRequest,
+    ServiceOrderProvision,
     States,
 )
 
@@ -33,6 +40,27 @@ class AddEmailForm(forms.Form):
         service.save()
 
 
+def sopr_token_validator(value):
+    """Validate the given token"""
+    sopr = ServiceOrderProcessingRequest.objects.get(code=value)
+    if sopr is None:
+        raise forms.ValidationError("Invalid token/code supplied")
+
+
+class ProvisionPersonellForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        self.base_fields["selected_personell"].queryset = kwargs.pop("personell_qs")
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = ServiceOrderProvision
+        fields = ["id", "selected_personell", "is_complete", "freetext_comment"]
+        widgets = {
+            "selected_personell": TableSimpleMultiSelectWidget,
+            "freetext_comment": Textarea(attrs={"class": "form-control"}),
+        }
+
+
 class AddPersonForm(forms.ModelForm):
     # resources = forms.ModelMultipleChoiceField(
     #     queryset=Person.objects, widget=TableMultiSelectWidget
@@ -41,6 +69,38 @@ class AddPersonForm(forms.ModelForm):
         model = Service
         fields = ["id", "resources"]
         widgets = {"resources": TableMultiSelectWidget()}
+
+
+class DenyServiceOrderForm(forms.Form):
+    token = forms.CharField(max_length=1024)
+
+    def save(self):
+        token = self.cleaned_data["token"]
+
+        sopr: Optional[
+            ServiceOrderProcessingRequest
+        ] = ServiceOrderProcessingRequest.objects.get(code=token)
+
+        if sopr is None:
+            raise ObjectDoesNotExist()
+
+        ordering_service.deny_service_order(sopr.related_to_order)
+
+
+class ConfirmServiceOrderForm(forms.Form):
+    token = forms.CharField(max_length=1024)
+
+    def save(self):
+        token = self.cleaned_data["token"]
+
+        sopr: Optional[
+            ServiceOrderProcessingRequest
+        ] = ServiceOrderProcessingRequest.objects.get(code=token)
+
+        if sopr is None:
+            raise ObjectDoesNotExist()
+
+        ordering_service.confirm_service_order(sopr.related_to_order)
 
 
 class DeleteEmailForm(forms.Form):

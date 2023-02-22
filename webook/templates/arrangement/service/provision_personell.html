@@ -1,0 +1,58 @@
+<div id="provision_personell_dialog">
+    <form action="">
+
+        {% csrf_token %}
+
+        {{ form.token.as_hidden }}
+        {{ form.provision.as_hidden }}
+
+        <h3>Tildel ressurser</h3>
+
+        {{ form.id.as_hidden}}
+
+        <div class="row w-100">
+            <div class="col-7">
+                <div class="wb-bg-secondary p-3">
+                    <h4>{{EVENT.title}}</h4>
+                    <h5>
+                        {{ EVENT.start }} - {{ EVENT.end }}
+                    </h5>        
+                </div>
+            </div>
+            <div class="col-5">
+                <div class="wb-bg-secondary p-3">
+                    <div class="form-group">
+                        <h3>{{EVENT.arrangement.location}}</h3>
+                    </div>
+            
+                    <div class="form-group">
+                        {{ EVENT.rooms_list }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mt-3">
+            <h5><i class="fas fa-users"></i>&nbsp; Utvalgt Personell</h5>
+            {{ form.selected_personell }}
+        </div>
+
+        <div class="form-group">
+            <h5><i class="fas fa-comment"></i>&nbsp; Kommentar</h5>
+            {{ form.freetext_comment }}
+            <em class="small float-end">* Kommentaren vil være synlig for planlegger</em>
+        </div>
+
+        <div class="form-group">
+            <label class="fw-bold mt-3" for="{{ form.is_complete.id_for_label }}">Er ferdig tildelt?</label>
+            {{ form.is_complete }}
+        </div>
+
+        <div class="mt-2 clearfix">
+            <div class="float-end">
+                <button class="btn wb-btn-secondary cancel-button" type="button">Avbryt</button>
+                <button class="btn wb-btn-main" type="submit">Lagre</button>
+            </div>
+        </div>
+    </form>
+</div>

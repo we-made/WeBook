@@ -184,6 +184,7 @@ export class DialogFormInterceptorPlugin {
                 const formData = new FormData(formElement);
 
                 for (const pair of formData.entries()) { // allow using <<variable>> to populate dynamic values from formData
+                    console.log(pair)
                     action = action.replace("<<" + pair[0] + ">>", pair[1]);
                 }
 
@@ -551,7 +552,7 @@ export class DialogManager {
     _makeAware() {
         this._setTriggers();
 
-        this._dialogRepository.forEach(( value, key, map) => {
+        this._dialogRepository.forEach((value, key, map) => {
             if (value.triggerByEvent === true) {
                 let triggerName = value.dialogElementId;
                 if (value.customTriggerName !== undefined) {

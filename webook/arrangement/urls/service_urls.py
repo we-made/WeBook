@@ -3,10 +3,14 @@ from unicodedata import name
 from django.urls import path
 
 from webook.arrangement.views import (
+    confirm_service_order_form_view,
     create_service_template_view,
     create_service_view,
     delete_service_email_from_service_view,
+    deny_service_order_form_view,
+    get_events_for_resource_in_sopr_json_view,
     process_service_request_view,
+    provision_personell_form_view,
     services_add_email_view,
     services_add_person_view,
     services_dashboard_view,
@@ -62,8 +66,28 @@ service_urls = [
         name="create_service_template",
     ),
     path(
-        route="/service/process/<str:token>",
+        route="service/process/<str:token>",
         view=process_service_request_view,
         name="process_service_order",
+    ),
+    path(
+        route="service/provisioning/<str:token>/<int:provision>",
+        view=provision_personell_form_view,
+        name="provision_personell_form",
+    ),
+    path(
+        route="service/provisioning/<str:token>/resource/events/<int:person_id>",
+        view=get_events_for_resource_in_sopr_json_view,
+        name="get_events_for_sopr_resource",
+    ),
+    path(
+        route="service/provisioning/deny",
+        view=deny_service_order_form_view,
+        name="deny_service_order",
+    ),
+    path(
+        route="service/provisioning/confirm",
+        view=confirm_service_order_form_view,
+        name="confirm_service_order",
     ),
 ]

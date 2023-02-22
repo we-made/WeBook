@@ -16,3 +16,14 @@ class TableMultiSelectWidget(SelectMultiple):
 
     template_name = "widgets/table_multi_select.html"
     option_template_name = "widgets/table_multi_select_option.html"
+
+
+class TableSimpleMultiSelectWidget(SelectMultiple):
+    def __init__(self, attrs=None) -> None:
+        super().__init__(attrs)
+
+        if "class" not in self.attrs:
+            self.attrs["class"] = "table"
+
+    template_name = "widgets/simple_table_multi_select.html"
+    option_template_name = "widgets/simple_table_multi_select_option.html"

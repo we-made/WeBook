@@ -86,12 +86,7 @@ from .location_views import (
     locations_calendar_resources_list_view,
     locations_tree_json_view,
 )
-from .note_views import (
-    delete_note_view,
-    get_notes_view,
-    notes_on_entity_view,
-    post_note_view,
-)
+from .note_views import delete_note_view, get_notes_view, notes_on_entity_view, post_note_view
 from .organization_views import (
     organization_create_view,
     organization_delete_view,
@@ -193,12 +188,16 @@ from .service_views import (
     create_service_view,
     delete_service_email_from_service_view,
     process_service_request_view,
+    provision_personell_form_view,
     services_add_email_view,
     services_add_person_view,
     services_dashboard_view,
     services_json_list_view,
     toggle_service_active_json_view,
     update_service_view,
+    get_events_for_resource_in_sopr_json_view,
+    deny_service_order_form_view,
+    confirm_service_order_form_view,
 )
 from .servicetype_views import (
     search_service_types,

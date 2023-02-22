@@ -1,6 +1,12 @@
-<h1>Order placed</h1>
-
-Hello world. (Email test)
-
+<h1>Ny bestilling av {{SERVICE_NAME}} plassert</h1>
+<h4>
+    En ny bestilling på tjenesten {{ SERVICE_NAME }} har blitt plassert. Du kan behandle denne bestillingen
+    ved å følge linken supplikert i denne e-posten.
+</h4>
 
 {{URL_TO_PROCESSING}}
+
+<h3>Kommentar fra planlegger:</h3>
+<code>
+    {{ PLANNER_FREETEXT|safe }}
+</code>

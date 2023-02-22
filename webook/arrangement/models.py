@@ -1343,6 +1343,13 @@ class Event(
     )
 
     @property
+    def rooms_list(self) -> Optional[str]:
+        if not self.rooms.exists():
+            return None
+
+        return ", ".join(map(lambda r: r.name, self.rooms.all()))
+
+    @property
     def is_buffer_event(self) -> bool:
         """Returns a bool indicating if this event is a buffer event for another event or not"""
         return self.before_buffer_for.exists() or self.after_buffer_for.exists()
@@ -1951,6 +1958,10 @@ class ServiceOrder(TimeStampedModel):
     )
 
     freetext_comment = models.TextField()
+    
+    @property
+    def is_final(self):
+        return self.state in [ States.CONFIRMED, States.DENIED, States.CANCELLED, States.TEMPLATE ]
 
 
 class ServiceOrderProcessingRequest(TimeStampedModel):
@@ -1975,6 +1986,31 @@ class ServiceOrderProcessingRequest(TimeStampedModel):
                 )
             )
         )
+
+
+class ServiceOrderProvision(TimeStampedModel):
+    """Provisions are event-individual resolutions of a service order
+    A service order may contain many events. Each event can have an individual resolution.
+    """
+
+    related_to_order = models.ForeignKey(
+        to="ServiceOrder", related_name="provisions", on_delete=models.CASCADE
+    )
+    for_event = models.ForeignKey(to="Event", on_delete=models.CASCADE)
+
+    sopr_resolving_this = models.ForeignKey(
+        to="ServiceOrderProcessingRequest",
+        related_name="my_resolved_provisions",
+        on_delete=models.CASCADE,
+        null=True,
+    )
+
+    freetext_comment = models.TextField(blank=True)
+
+    is_complete = models.BooleanField(default=False)
+    selected_personell = models.ManyToManyField(
+        to="Person", related_name="interim_provisions_assigned_to"
+    )
 
 
 class ServiceRequisition(TimeStampedModel, ModelHistoricallyConfirmableMixin):

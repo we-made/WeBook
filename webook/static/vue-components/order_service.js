@@ -33,7 +33,7 @@ export default {
             </div>
         </div>`
 }
-const props = defineProps(["availableServices"])
-let selectedServices = [];
+// const props = defineProps(["availableServices"])
+// let selectedServices = [];
 
-const 
+// const 
