@@ -73,7 +73,6 @@ from .event_views import (
     delete_file_from_event_view,
     event_serie_delete_file_view,
     event_serie_manifest_view,
-    get_my_outlook_events_view,
     update_event_json_view,
     upload_files_to_event_json_form_view,
     upload_files_to_event_serie_json_form_view,

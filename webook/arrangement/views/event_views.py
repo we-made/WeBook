@@ -15,7 +15,6 @@ from django.views.generic import (
     View,
 )
 
-from webook.arrangement.facilities.outlook_events import get_outlook_events_for_person
 from webook.arrangement.facilities.service_ordering import log_provision_changed, remove_provision_from_service_order
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
 from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import (
@@ -212,32 +211,6 @@ class DeleteEventSerie(LoginRequiredMixin, PlannerAuthorizationMixin, JsonArchiv
 
 
 delete_event_serie_view = DeleteEventSerie.as_view()
-
-
-class GetMyOutlookEventsView(LoginRequiredMixin, JsonListView):
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        self.person: Person = request.user.person
-
-        if not self.person.social_provider_id:
-            raise Exception("This person does not have a social provider ID")
-
-        return super().get(request, *args, **kwargs)
-
-    def get_queryset(self):
-        start: str = self.request.GET.get("start")
-        end: str = self.request.GET.get("end")
-
-        if not all([start, end]):
-            pass  # throw some clever http exception --
-
-        # maybe try datetime.toisoformat and catch any exceptions? if there are any? fits under same baddata
-
-        return get_outlook_events_for_person(
-            self.person, datetime.fromisoformat(start), datetime.fromisoformat(end)
-        )
-
-
-get_my_outlook_events_view = GetMyOutlookEventsView.as_view()
 
 
 class CalculateEventSerieView(

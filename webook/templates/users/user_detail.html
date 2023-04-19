@@ -88,12 +88,6 @@
                                 .then(response => response.json());
                         },
                     },
-                    {
-                        events: async(times) => {
-                            return await fetch(`{% url 'arrangement:get_my_outlook_events' %}?start=${times.start.toISOString().replace(".000Z", "")}&end=${times.end.toISOString().replace(".000Z", "")}`)
-                                .then(response => response.json());
-                        }
-                    }
                 ],
                 locale: 'nb',
                 headerToolbar: {
