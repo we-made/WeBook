@@ -22,7 +22,6 @@ from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 from django.views.generic.edit import DeleteView, FormMixin
 
-from webook.arrangement.facilities.outlook_events import get_outlook_events_for_person
 from webook.arrangement.facilities.service_ordering import generate_processing_request_for_user, notify_revision
 from webook.arrangement.forms.person_forms import AssociatePersonWithUserForm
 from webook.arrangement.forms.service_forms import (
@@ -466,12 +465,6 @@ class GetEventsForPersonJsonView(ValidateTokenMixin, ListView, JSONResponseMixin
                 person.my_events.all(),
             )
         )
-        if include_outlook_events:
-            fc_events += get_outlook_events_for_person(
-                person,
-                datetime.fromisoformat(start_iso8601),
-                datetime.fromisoformat(end_iso8601),
-            )
 
         return fc_events
 
