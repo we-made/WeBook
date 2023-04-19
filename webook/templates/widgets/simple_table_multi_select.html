@@ -7,7 +7,7 @@
 
         <div class="col-12">
           <!-- Vue -->
-          <table class="table table-sm">
+          <table class="table table-sm table-borderless">
             <thead>
               <th>
                 <input type="search" name="" v-model="searchTerm" id="" class="form-control" placeholder="Søk etter personer...">
@@ -15,11 +15,22 @@
             </thead>
             <tbody>
               <tr v-for="item in itemsOnPage">
-                <td>
-                  <div class="form-check">
-                    <input type="checkbox" name="" id="" v-model="item.isSelected" :value="item.value">
-                    <label for="" class="ms-3">[[item.label]]</label>
+                <td class="hlist-item rounded-5">
+
+                  <div class="d-flex" style="justify-content:space-between;">
+                    <div class="form-check">
+                        <input type="checkbox" name="" id="" v-model="item.isSelected" :value="item.value">
+                        <label for="" class="ms-3">
+                          <span :class="{ 'fw-bold': item.isSelected }">
+                            [[item.label]]
+                          </span>
+                        </label>
+                    </div>
+                    <span class="float-end">
+                      Ledig
+                    </span>
                   </div>
+
                 </td>
               </tr>
             </tbody>
@@ -104,14 +115,10 @@
                 return this.visibleItems.slice((this.page - 1) * this.pageSize, this.page * this.pageSize );
             },
             checkedItems() {
-              console.log(this.tableData.filter(x => x.isSelected))
               return this.tableData.filter(x => x.isSelected);
             },
           },
           methods: {
-            superTest() {
-              console.log("super duper test")
-            },
           },
           mounted() {
             console.log(this.checkedItems);

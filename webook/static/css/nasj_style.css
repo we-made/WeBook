@@ -38,6 +38,40 @@
     background-color: white;
 }
 
+.webook-tabs-secondary {
+    /* display: flex;
+    justify-content: center; */
+    border-radius: 10em;
+}
+
+.webook-tabs-secondary .nav-link {
+    font-size:large;
+    color: var(--WEAK-TEXT-COLOR);
+    border-radius: 0.4em;
+    text-transform: none;
+}
+
+.webook-tabs-secondary .nav-link.active {
+    color: white;
+    background-color: var(--MAIN-COLOR);
+    border-radius: 0.4em;
+    border: none;
+}
+
+.webook-tabs-secondary > .nav-item > .nav-link.active {
+    color: white;
+    background-color: var(--MAIN-COLOR);
+    border-radius: 0.4em;
+    border: none;
+}
+
+.webook-tabs-secondary > .nav-item > .nav-link:hover {
+    color: white;
+    background-color: var(--MAIN-COLOR);
+    border-radius: 0.4em;
+    border: none;
+}
+
 .sidenav-primary .sidenav-link.active {
     color: #231f20;
     /* border: solid 0.1em #3f3a3b; */

@@ -270,22 +270,45 @@ export class EventInspector {
                         triggerElementId: undefined,
                         triggerByEvent: true,
                         htmlFabricator: async (context) => {
+                            if (!context.lastTriggererDetails.entity_type)
+                                throw Error("Please supply a valid entity type (either 'event' or 'serie')");
+
                             return this.dialogManager.loadDialogHtml({
-                                url: '/arrangement/planner/dialogs/order_service/' + context.event.pk,
+                                url: '/arrangement/planner/dialogs/order_service/' + context.lastTriggererDetails.entity_type + '/' + context.event.pk,
                                 dialogId: 'orderServiceDialog',
                                 managerName: 'eventInspector',
+                                customParameters: {
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
+                                }
                             });
                         },
                         onRenderedCallback: () => { },
                         dialogOptions: { width: "70%", dialogClass: 'no-titlebar', },
                         onUpdatedCallback: async () => {
-                            this.dialogManager.closeDialog("orderServiceDialog");
-                            await this.dialogManager.reloadDialog("inspectEventDialog");
-
-                            window.MessagesFacility.send( "inspectEventDialog", { tab: "service-orders-tab" }, "moveToTab" );
                         },
-                        onSubmit: (context, details, dialogManager, dialog) => {
-                        
+                        onSubmit: async (context, details, dialogManager, dialog) => {
+                            details.requestedServices.forEach(async (serviceOrder) => {
+                                let formData = new FormData();
+                                formData.append("parent_type", "event")
+                                formData.append("parent_id", serviceOrder.parent_id);   
+                                formData.append("service_id", serviceOrder.service_id);
+                                formData.append("freetext_comment", serviceOrder.freetext_comment);
+
+                                await fetch('/arrangement/planner/dialogs/order_service/event/' + serviceOrder.parent_id, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        "X-CSRFToken": details.csrf_token
+                                    }
+                                }).then(response => response.json())
+                                .then(async _ => { 
+                                    this.dialogManager.closeDialog("orderServiceDialog");
+                                    await this.dialogManager.reloadDialog("inspectEventDialog");
+
+                                    window.MessagesFacility.send( "inspectEventDialog", { tab: "service-orders-tab" }, "moveToTab" );
+                                 });
+                            });
+
                         }
                     })
                 ],
@@ -306,7 +329,7 @@ export class EventInspector {
                                 managerName: "eventInspector",
                             })
                         },
-                        onRenderedCallback: () => { },
+                        onRenderedCallback: () => { this.dialogManager._makeAware(); },
                         dialogOptions: { width: "70%", dialogClass: 'no-titlebar' },
                         onUpdatedCallback: async () => {
                             this.dialogManager.closeDialog("inspectServiceOrderDialog");
@@ -315,7 +338,6 @@ export class EventInspector {
                             window.MessagesFacility.send( "inspectEventDialog", { tab: "service-orders-tab" }, "moveToTab" );
                         },
                         onSubmit: (context, details, dialogManager, dialog) => {
-                        
                         }
                     })
                 ]

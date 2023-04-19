@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from django import forms
 from django.conf import settings
@@ -6,6 +7,7 @@ from django.http import JsonResponse
 from django.utils.timezone import make_aware
 from pytz import timezone
 
+from webook.arrangement.facilities.service_ordering import generate_changelog_of_serie_events_in_order
 from webook.arrangement.models import (
     Arrangement,
     ArrangementType,
@@ -15,10 +17,11 @@ from webook.arrangement.models import (
     Person,
     PlanManifest,
     Room,
+    ServiceOrder,
     StatusType,
 )
 from webook.screenshow.models import DisplayLayout
-from webook.utils.collision_analysis import analyze_collisions
+from webook.utils.collision_analysis import CollisionRecord, analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
 
 
@@ -188,7 +191,7 @@ class CreateSerieForm(SerieManifestForm):
 
         pk_of_preceding_event_serie = form.cleaned_data["predecessorSerie"]
 
-        _ = analyze_collisions(
+        _: List[CollisionRecord] = analyze_collisions(
             calculated_serie, ignore_serie_pk=pk_of_preceding_event_serie
         )
 
@@ -200,9 +203,14 @@ class CreateSerieForm(SerieManifestForm):
         serie.save()
 
         if pk_of_preceding_event_serie:
-            predecessor_event_serie = EventSerie.objects.get(
+            predecessor_event_serie: EventSerie = EventSerie.objects.get(
                 id=pk_of_preceding_event_serie
             )
+            for (
+                service_order
+            ) in predecessor_event_serie.serie_plan_manifest.orders.all():
+                service_order.associated_manifest = manifest
+                service_order.save()
             predecessor_event_serie.archive(kwargs["user"].person)
 
         room_ids = [room.id for room in manifest.rooms.all()]
@@ -291,3 +299,11 @@ class CreateSerieForm(SerieManifestForm):
         Event.rooms.through.objects.bulk_create(room_throughs)
         Event.people.through.objects.bulk_create(people_throughs)
         Event.display_layouts.through.objects.bulk_create(display_layout_throughs)
+
+        for service_order in manifest.orders.all():
+            # Update existing service orders to match the new state of the serie.
+            generate_changelog_of_serie_events_in_order(
+                service_order
+            )
+
+        return serie.pk

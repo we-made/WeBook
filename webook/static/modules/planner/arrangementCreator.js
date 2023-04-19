@@ -90,7 +90,7 @@ export class ArrangementCreator {
                         dialogOptions: { 
                             width: 900, 
                             height: 800,
-                            modal: true,
+                            // modal: true,
                             position: "center center",
                             dialogClass: 'no-titlebar',
                         }
@@ -128,6 +128,9 @@ export class ArrangementCreator {
                                 }
                                 if (context.lastTriggererDetails.preselectedMainPlanner) {
                                     window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preselectedMainPlanner, "setPlanner");
+                                }
+                                if (context.lastTriggererDetails.preorderedServices) {
+                                    window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preorderedServices, "newServiceOrder");
                                 }
 
                                 [
@@ -332,6 +335,9 @@ export class ArrangementCreator {
                                 if (context.lastTriggererDetails.preselectedMainPlanner) {
                                     window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preselectedMainPlanner, "setPlanner");
                                 }
+                                if (context.lastTriggererDetails.preorderedServices) {
+                                    window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preorderedServices, "newServiceOrder");
+                                }
 
                                 [
                                     { from: '#id_ticket_code', to: '#ticket_code' },
@@ -472,6 +478,41 @@ export class ArrangementCreator {
                         onSubmit: (context, details, dialogManager, dialog) => {
                             const eventName = dialog.data.whenEventName || "peopleSelected";
                             window.MessagesFacility.send(details.recipientDialog, details.selectedBundle, eventName);
+                        }
+                    })
+                ],
+                [
+                    "orderServiceDialog",
+                    new Dialog({
+                        dialogElementId: "orderServiceDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
+                        onRenderedCallback: () => {},
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.entity_type)
+                                throw Error("Please supply a valid event type (either 'event' or 'serie')");
+                            if (!context.lastTriggererDetails.entity_id)
+                                throw Error("Please supply a valid entity id");
+
+                            return this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/order_service/' + context.lastTriggererDetails.entity_type + '/' + context.lastTriggererDetails.entity_id,
+                                dialogId: 'orderServiceDialog',
+                                managerName: 'arrangementCreator',
+                                customParameters: {
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
+                                }
+                            });
+                        },
+                        onUpdatedCallback: async () => {
+                            this.dialogManager.closeDialog("orderServiceDialog");
+                        },
+                        onSubmit: (context, details, dialogManager, dialog) => {
+                            const eventName = dialog.data.whenEventName || "serviceOrdered";
+                            window.MessagesFacility.send(details.recipientDialog, details.requestedServices, eventName);
                         }
                     })
                 ]

@@ -165,7 +165,7 @@ export class DialogFormInterceptorPlugin {
 
     _findAllForms() {
         let formElementsWithinDialog = this.dialog._$getDialogEl()[0].querySelectorAll("form");
-        
+
         formElementsWithinDialog.forEach((formElement) => {
             let cancelButtons = formElement.querySelectorAll(".cancel-button");
             cancelButtons.forEach((cancelButton) => {
@@ -176,19 +176,16 @@ export class DialogFormInterceptorPlugin {
             });
 
             formElement.onsubmit = function (event) {
+                debugger;
                 event.preventDefault();
-
-                console.log("dialog.formUrl", this.dialog.formUrl)
 
                 let action = formElement.getAttribute("action") || this.dialog.formUrl;
                 const formData = new FormData(formElement);
 
                 for (const pair of formData.entries()) { // allow using <<variable>> to populate dynamic values from formData
-                    console.log(pair)
+                    console.log(pair);
                     action = action.replace("<<" + pair[0] + ">>", pair[1]);
                 }
-
-                console.log("ACTION::", action);
 
                 fetch(action, {
                     method: 'POST',
@@ -205,6 +202,7 @@ export class DialogFormInterceptorPlugin {
                     return response.text();
                 }).then(html => { 
                     if (this._ascertainStateFromBodyHtml(html)) {
+                        this.dialog.onSubmit();
                         this.onResponseOk();
                         this.dialog.close();
                     }
@@ -567,11 +565,8 @@ export class DialogManager {
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
 
-                    debugger;
-
                     let parent = event.detail.$parent;
                     let overrideRenderInChain = event.detail.renderInChain;
-                    let current = $(value._$getDialogEl());
 
                     if (parent && this.renderInChain || overrideRenderInChain) {
                         // $(parent).on("dialogdrag", function (event, ui) {

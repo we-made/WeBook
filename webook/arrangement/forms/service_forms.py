@@ -5,20 +5,20 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.widgets import Textarea
 
 from webook.arrangement.facilities import service_ordering as ordering_service
-from webook.arrangement.forms.widgets.table_multi_select import (
-    TableMultiSelectWidget,
-    TableSimpleMultiSelectWidget,
-)
+from webook.arrangement.forms.widgets.table_multi_select import TableMultiSelectWidget, TableSimpleMultiSelectWidget
 from webook.arrangement.models import (
     Event,
+    EventSerie,
     Person,
     Service,
     ServiceEmail,
     ServiceOrder,
+    ServiceOrderInternalChangelog,
     ServiceOrderProcessingRequest,
     ServiceOrderProvision,
     States,
 )
+from webook.users.models import User
 
 
 class AddEmailForm(forms.Form):
@@ -32,7 +32,7 @@ class AddEmailForm(forms.Form):
         service = Service.objects.get(id=service_id)
 
         if service.emails.filter(email=email).exists():
-            raise Exception("Email already exists")
+            return "Email already exists"
 
         new_service_email = ServiceEmail(email=email)
         new_service_email.save()
@@ -54,7 +54,13 @@ class ProvisionPersonellForm(forms.ModelForm):
 
     class Meta:
         model = ServiceOrderProvision
-        fields = ["id", "selected_personell", "is_complete", "freetext_comment"]
+        fields = [
+            "id",
+            "selected_personell",
+            "is_complete",
+            "freetext_comment",
+            "comment_to_personell",
+        ]
         widgets = {
             "selected_personell": TableSimpleMultiSelectWidget,
             "freetext_comment": Textarea(attrs={"class": "form-control"}),
@@ -120,31 +126,71 @@ class DeleteEmailForm(forms.Form):
             email_instance.delete()
 
 
-class OrderServiceForActivityForm(forms.Form):
-    event_id = forms.IntegerField()
-    service_id = forms.IntegerField()
-    freetext_comment = forms.CharField(max_length=5024)
+class CancelServiceOrderForm(forms.Form):
+    service_order_id = forms.IntegerField()
 
     def save(self):
+        service_order_id = self.cleaned_data["service_order_id"]
+        service_order = ServiceOrder.objects.get(id=service_order_id)
+        ordering_service.cancel_service_order(service_order)
+
+
+class OpenServiceOrderForRevisioningForm(forms.Form):
+    service_order_id = forms.IntegerField()
+
+    def save(self):
+        service_order_id = self.cleaned_data["service_order_id"]
+        service_order = ServiceOrder.objects.get(id=service_order_id)
+        ordering_service.open_service_order_for_revisioning(service_order)
+
+
+class OrderServiceForm(forms.Form):
+    parent_type = forms.ChoiceField(
+        choices=(("serie", "Serie"), ("event", "Event"), ("unknown", "Unknown"))
+    )
+    parent_id = forms.IntegerField()
+    service_id = forms.IntegerField()
+    freetext_comment = forms.CharField(max_length=5024, required=False)
+
+    service_order = forms.ModelChoiceField(
+        queryset=ServiceOrder.objects.all(), required=False
+    )
+
+    def save(self, user: User):
+        parent_id = self.cleaned_data["parent_id"]
         service_id = self.cleaned_data["service_id"]
-        event_id = self.cleaned_data["event_id"]
         freetext_comment = self.cleaned_data["freetext_comment"]
+        parent_type = self.cleaned_data["parent_type"]
+        service_order: Optional[ServiceOrder] = self.cleaned_data["service_order"]
 
         service = Service.objects.get(id=service_id)
-        event = Event.objects.get(id=event_id)
 
-        service_order = ServiceOrder()
-        service_order.service = service
-        service_order.freetext_comment = freetext_comment
-        service_order.state = States.AWAITING
+        is_new = service_order is None
+
+        if is_new:
+            service_order = ServiceOrder()
+            service_order.service = service
+            service_order.freetext_comment = freetext_comment
+            service_order.state = States.AWAITING
+            service_order.save()
+
+        if parent_type == "serie":
+            serie = EventSerie.objects.get(id=parent_id)
+            service_order.events.add(*serie.events.all())
+            serie.serie_plan_manifest.orders.add(service_order)
+        if parent_type == "event":
+            event = Event.objects.get(id=parent_id)
+            service_order.events.add(event)
+
+        if user and user.person:
+            service_order.created_by = user.person
 
         service_order.save()
 
-        service_order.events.add(event)
-
-        service_order.save()
-
-        ordering_service.initialize_service_ordering(service_order)
+        if is_new:
+            ordering_service.initialize_service_ordering(service_order)
+        else:
+            ordering_service.reinitialize_service_ordering(service_order)
 
 
 class UpdateServiceOrderForm(forms.Form):
@@ -156,3 +202,9 @@ class UpdateServiceOrderForm(forms.Form):
 class RegisterServiceTemplate(forms.ModelForm):
     def save():
         pass
+
+
+class CreateNoteView(forms.ModelForm):
+    class Meta:
+        model = ServiceOrderInternalChangelog
+        fields = ("source_sopr", "service_order", "changelog_message")

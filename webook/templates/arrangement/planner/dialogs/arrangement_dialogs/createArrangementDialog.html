@@ -121,6 +121,18 @@
                 </fieldset>
             </form>
         </div>
+        <div id="step-services">
+            <div class="clearfix">
+                <button class="wb-btn-main float-end"
+                    d-trigger="triggerNewServiceOrder">
+                Bestill tjenester
+            </button>
+            </div>
+
+            <div id="serviceOrders">
+
+            </div>
+        </div>
         <div id="step-2">
             <form id="arrangementDetailsForm">
                 <input type="submit" value="" style="display: none;">
@@ -354,7 +366,7 @@
             dialog.querySelectorAll('.form-outline').forEach((formOutline) => {
                 new mdb.Input(formOutline).init();
             });
-            
+
             [
                 {
                     element: dialog.querySelector('#{{ form.location.id_for_label }}'),
@@ -518,6 +530,14 @@
                     }
                 },
                 {
+                    element: dialog.getElementById('step-services'),
+                    title: 'Tjenestebestilling',
+                    stepIn: () => {},
+                    stepOut: () => {
+                        return true;
+                    }
+                },
+                {
                     element: dialog.getElementById('step-3'),
                     title: 'Skjermvisning',
                     stepIn: () => {},
@@ -587,6 +607,9 @@
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
             },
+            triggerNewServiceOrder(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "orderServiceDialog", { $parent:dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "newServiceOrder"}, entity_type: "unknown", entity_id: "0" })
+            },
             submit(dialog, {} = {}, triggeredByElement) {
                 if (dialog.validate() === false) {
                     return;
@@ -597,17 +620,19 @@
                 }
 
                 const save = (resolution_behaviour=0) => {
+                    console.log("The interior", dialog.interior)
                     let formData = new FormData();
-                    formData.append("name",             dialog.interior.id_name.value);
-                    formData.append("name_en",          dialog.interior.id_name_en.value);
+                    console.log("name", dialog.getElementById('id_name').value);
+                    formData.append("name",             dialog.getElementById('id_name').value);
+                    formData.append("name_en",          dialog.getElementById('id_name_en').value);
                     formData.append("audience",         dialog.data.audienceJsTreeSelect.getSelectedValue());
-                    formData.append("location",         dialog.interior.id_location.value);
+                    formData.append("location",         dialog.getElementById('id_location').value);
                     formData.append("arrangement_type", dialog.data.arrangementTypeJsTreeSelect.getSelectedValue());
-                    formData.append("responsible",      dialog.interior.id_responsible.value);
-                    formData.append("ticket_code",      dialog.interior.id_ticket_code.value);
-                    formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
-                    formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
-                    formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
+                    formData.append("responsible",      dialog.getElementById('id_responsible').value);
+                    formData.append("ticket_code",      dialog.getElementById('id_ticket_code').value);
+                    formData.append("meeting_place",    dialog.getElementById('id_meeting_place').value);
+                    formData.append("meeting_place_en", dialog.getElementById('id_meeting_place_en').value);
+                    formData.append("expected_visitors",dialog.getElementById('id_expected_visitors').value);
                     if (dialog.data.selectedPlannerIds)
                         Array.from(dialog.data.selectedPlannerIds.keys())
                             .forEach( ( id ) => formData.append("planners", id) )
@@ -615,7 +640,7 @@
                     let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
                     if (statusValue !== undefined)
                         formData.append("status", statusValue);
-                    formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
+                    formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.getElementById('id_display_text').value : '');
                     formData.append("collision_resolution_behaviour", resolution_behaviour);
     
                     let displayLayouts = [];
@@ -713,8 +738,6 @@
             },
             setSeries(dialog, { series } = {}, triggeredByElement) {
                 dialog.data.seriesMap = series;
-
-                console.log(dialog.data.seriesMap);
 
                 let tbody = dialog.$('#timeplansBody');
                 tbody.html("")
@@ -833,6 +856,11 @@
                     mapOfSelectedItemIds = dialog.data.selectedPeopleIds;
                     appropriatePresetMap = dialog.data.personPresets;
                 }
+                else if (type === "serviceOrder") {
+                    dialog.data.servicePresets.delete(itemId);
+                    triggeredByElement.parentElement.parentElement.remove();
+                    return;
+                }
                 else {
                     throw Error("Type not recognized")
                 }
@@ -844,7 +872,7 @@
                 else {
                     mapOfSelectedItemIds.delete(itemId);
                 }
-                
+
                 triggeredByElement.remove();
             },
             removeSerie(dialog, { uuid } = {}, triggeredByElement) {
@@ -863,6 +891,7 @@
                     "arrangementCreator", 
                     "newSimpleActivityDialog", 
                     { 
+                        preorderedServices: Array.from(dialog.data.servicePresets.values()),
                         preselectedMainPlanner: dialog.data.mainPlannerPayload,
                         preselectedRooms: dialog.data.roomPayload, 
                         preselectedPeople: dialog.data.peoplePayload, 
@@ -891,6 +920,7 @@
                     "arrangementCreator", 
                     "newTimePlanDialog", 
                     { 
+                        preorderedServices: Array.from(dialog.data.servicePresets.values()),
                         preselectedMainPlanner: dialog.data.mainPlannerPayload,
                         preselectedRooms: dialog.data.roomPayload, 
                         preselectedPeople: dialog.data.peoplePayload,
@@ -900,6 +930,31 @@
             },
         },
         when: [
+        { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
+            // this stuff needs to be rewritten along with the other similar methods
+            // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
+
+            dialog.data.servicePresets = new Map((payload.concat(
+                Array.from(dialog.data.servicePresets.values())
+            )).map(x => [crypto.randomUUID(), x]));
+
+            let wrapper = dialog.$('#serviceOrders');
+            wrapper.empty();
+            
+            for (const [key, value] of dialog.data.servicePresets) {
+                wrapper.append(
+                    $(`<div class='card card-body mt-2'  id="${key}">
+                        <h5>
+                            ${value.service_name}
+                            <button class='btn wb-btn-link float-end text-danger' id="${key}" select-type='serviceOrder' d-trigger="removeAssociation"><i class='fas fa-trash'></i></button>
+                        </h5>
+                        <code>
+                            ${value.freetext_comment}
+                        </code>
+                       </div>`)
+                );
+            }
+        } },
         { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
                 let wrapper = dialog.$( '#roomChips' );
                 wrapper.empty();
@@ -983,6 +1038,7 @@
             } }
         ],
         data: {
+            servicePresets: new Map(),
             roomPresets: new Map(),
             personPresets: new Map(),
             selectedRoomIds: new Map(),
@@ -990,6 +1046,7 @@
             seriesMap: new Map(),
             eventsMap: new Map(),
             stepper: null,
+            vueApp: null,
         },
         plugins: [
             {

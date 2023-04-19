@@ -35,7 +35,20 @@
 
   </head>
 
-  <body class="wb-bg-secondary ">
+  <body>
+
+    {% if request.user.is_authenticated %}
+    <div class="bg-white p-2">
+      <div class="d-flex justify-content-between align-items-middle">
+        <button class="btn wb-btn-secondary">Alle bestillinger</button>
+
+
+        <button class="btn wb-btn-main">Tilbake til planleggeren</button>
+      </div>
+    </div>
+    {% endif %}
+
+    {% block header %}
     <div class="bg-white p-2 p-5 pt-4 pb-4">
       <div class="d-flex" style="justify-content: space-between; align-items: center;">
         <div>
@@ -59,8 +72,8 @@
           <button class="btn wb-btn-main btn-lg"><i class="fas fa-backward"></i>&nbsp; Tilbake til planlegger</button>
         </div>
       </div>
-
     </div>
+    {% endblock %}
 
     <div class="container-fluid p-5">
         {% block content %}
@@ -84,9 +97,10 @@
       <script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
       <script src="{% static 'fullcalendar-scheduler/main.min.js' %}"></script>
       <script src="{% static 'fullcalendar-scheduler/locales-all.min.js' %}"></script>
-
+      <script src="{% static 'modules/planner/dialog_manager/dialog.js' %}"></script>
       <!-- place project specific Javascript in this file -->
       <script src="{% static 'js/project.js' %}"></script>
+
     {% endblock javascript %}
   </body>
 </html>

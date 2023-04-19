@@ -22,7 +22,6 @@ export default {
         }
     },
     mounted() {
-        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         console.log("table.mounted", this)
     },
     /*html*/

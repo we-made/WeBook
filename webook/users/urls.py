@@ -6,6 +6,7 @@ from webook.users.views import (
     sso_detail_dialog_view,
     toggle_user_active_state_view,
     user_admin_detail_dialog_view,
+    user_by_email_exists_json_view,
     user_detail_view,
     user_redirect_view,
     user_update_view,
@@ -15,6 +16,7 @@ from webook.users.views import (
 
 app_name = "users"
 urlpatterns = [
+    path("exists/", view=user_by_email_exists_json_view, name="exists_by_mail"),
     path("~redirect/", view=user_redirect_view, name="redirect"),
     path("~update/", view=user_update_view, name="update"),
     path("<slug:slug>/", view=user_detail_view, name="detail"),
@@ -38,7 +40,7 @@ urlpatterns = [
     path(
         "administration/batch_change_user_group_view",
         view=batch_change_user_group_view,
-        name="user_admin_batch_change_group"
+        name="user_admin_batch_change_group",
     ),
     path(
         "administration/toggle_active",

@@ -73,6 +73,7 @@ from .event_views import (
     delete_file_from_event_view,
     event_serie_delete_file_view,
     event_serie_manifest_view,
+    get_my_outlook_events_view,
     update_event_json_view,
     upload_files_to_event_json_form_view,
     upload_files_to_event_serie_json_form_view,
@@ -86,7 +87,18 @@ from .location_views import (
     locations_calendar_resources_list_view,
     locations_tree_json_view,
 )
-from .note_views import delete_note_view, get_notes_view, notes_on_entity_view, post_note_view
+from .note_views import (
+    delete_note_view,
+    get_notes_view,
+    notes_on_entity_view,
+    post_note_view,
+)
+from .notification_views import (
+    archive_notification_view,
+    marK_all_notifications_as_seen_view,
+    mark_notification_as_seen_view,
+    my_notifications_json_list_view,
+)
 from .organization_views import (
     organization_create_view,
     organization_delete_view,
@@ -184,20 +196,37 @@ from .room_views import (
     search_rooms_ajax_view,
 )
 from .service_views import (
+    archive_preconfiguration_json_view,
+    cancel_service_order_form_view,
+    confirm_service_order_form_view,
+    create_change_log_note_view,
+    create_preconfiguration_json_view,
     create_service_template_view,
     create_service_view,
     delete_service_email_from_service_view,
+    deny_service_order_form_view,
+    get_change_summary_json_view,
+    get_events_for_resource_in_sopr_json_view,
+    get_personell_json_view,
+    get_preconfigurations_for_service_json_view,
+    get_provisions_json_view,
+    get_service_overview_calendar,
+    get_service_responsibles_json_view,
+    open_service_order_for_revisioning_form_view,
     process_service_request_view,
     provision_personell_form_view,
+    redirect_to_process_service_request_view,
+    service_detail_view,
+    service_order_dashboard,
+    service_orders_for_service_json_list_view,
+    service_personnell_json_list_view,
     services_add_email_view,
     services_add_person_view,
     services_dashboard_view,
     services_json_list_view,
     toggle_service_active_json_view,
+    update_preconfiguration_json_view,
     update_service_view,
-    get_events_for_resource_in_sopr_json_view,
-    deny_service_order_form_view,
-    confirm_service_order_form_view,
 )
 from .servicetype_views import (
     search_service_types,

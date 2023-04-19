@@ -44,6 +44,9 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
     if (serie.people_payload) {
         window.MessagesFacility.send(dialogId, serie.people_payload, "peopleSelected");
     }
+    if (serie.ordered_services) {
+        window.MessagesFacility.send(dialogId, serie.ordered_services, "newServiceOrder");
+    }
 
     serie.display_layouts.split(",").forEach(element => {
         $dialogElement.find('#id_display_layouts_serie_planner_' + element).prop( "checked", true );
@@ -181,6 +184,7 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
     window.MessagesFacility.send(dialogId, manifest.audience, "setAudienceFromParent");
     window.MessagesFacility.send(dialogId, manifest.arrangement_type, "setArrangementTypeFromParent");
     window.MessagesFacility.send(dialogId, manifest.status, "setStatusFromParent");
+    window.MessagesFacility.send(dialogId, manifest.service_orders, "newServiceOrder");
 
     if (manifest.rooms) {
         manifest.rooms.allPresets = new Map([
@@ -412,4 +416,6 @@ export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
         window.MessagesFacility.send(dialogId, event.room_payload, "roomsSelected");
     if (event.planner_payload)
         window.MessagesFacility.send(dialogId, event.planner_payload, "setPlanner");
+    if (event.ordered_services)
+        window.MessagesFacility.send(dialogId, event.ordered_services, "newServiceOrder");
 }

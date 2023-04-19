@@ -220,7 +220,7 @@ planner_urls = [
         name="edit_note_dialog",
     ),
     path(
-        route="planner/dialogs/order_service/<int:eventId>",
+        route="planner/dialogs/order_service/<str:entity_type>/<int:entity_id>",
         view=order_service_dialog_view,
         name="order_service_dialog",
     ),

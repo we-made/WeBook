@@ -841,6 +841,28 @@ class Calendar(TimeStampedModel, ModelArchiveableMixin):
         return self.name
 
 
+class Notification(TimeStampedModel, ModelArchiveableMixin):
+    """Notifications are messages sent to a given user in the system. Notifications may be attached to email messages"""
+
+    title = models.CharField(max_length=248)
+    source = models.CharField(max_length=512)
+
+    icon_class = models.CharField(max_length=50, null=True)
+    icon_background_class = models.CharField(max_length=50, null=True)
+
+    url_label = models.CharField(max_length=100, null=True)
+    reference_to_url = models.URLField(
+        verbose_name="Reference URL", null=True, max_length=512
+    )
+
+    message = models.TextField(max_length=5012)
+    is_seen = models.BooleanField(default=False)
+
+    to_person = models.ForeignKey(
+        to="Person", on_delete=models.CASCADE, related_name="notifications"
+    )
+
+
 class Note(TimeStampedModel, ModelArchiveableMixin):
     """Notes are annotations that can be associated with other key models in the application. The practical purpose
     is to annotate information on these associated models.
@@ -1621,7 +1643,6 @@ class EventService(TimeStampedModel, ModelArchiveableMixin):
 
 
 class RequisitionRecord(TimeStampedModel, ModelArchiveableMixin):
-
     REQUISITION_UNDEFINED = "undefined"
     REQUISITION_PEOPLE = "people"
     REQUISITION_SERVICES = "services"
@@ -1818,7 +1839,9 @@ class EventSerie(TimeStampedModel, ModelArchiveableMixin):
     arrangement = models.ForeignKey(
         to=Arrangement, on_delete=models.RESTRICT, related_name="series"
     )
-    serie_plan_manifest = models.ForeignKey(to=PlanManifest, on_delete=models.RESTRICT)
+    serie_plan_manifest = models.ForeignKey(
+        to=PlanManifest, related_name="series", on_delete=models.RESTRICT
+    )
 
     def on_archive(self, person_archiving_this):
         for event in self.events.all():
@@ -1900,7 +1923,8 @@ class ServiceEmail(TimeStampedModel):
 
 class Service(TimeStampedModel, ModelArchiveableMixin):
     """Represents a Service that can be ordered onto events. A service can be used on multiple events.
-    A service is managed by the emails set on it -- these emails will receive requests of confirmation for orders of this specific service."""
+    A service is managed by the emails set on it -- these emails will receive requests of confirmation for orders of this specific service.
+    """
 
     name = models.CharField(max_length=512, blank=False)
     emails = models.ManyToManyField(to="ServiceEmail", related_name="services")
@@ -1910,6 +1934,19 @@ class Service(TimeStampedModel, ModelArchiveableMixin):
 
     def __str__(self) -> str:
         return self.name
+
+
+class ServiceOrderPreconfiguration(TimeStampedModel, ModelArchiveableMixin):
+    """Preconfigurations are template order 'descriptions'/freetext comment"""
+
+    service = models.ForeignKey(
+        to=Service, related_name="preconfigurations", on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=512)
+    message = models.TextField()
+    created_by = models.ForeignKey(
+        to=Person, blank=True, null=True, on_delete=models.RESTRICT
+    )
 
 
 class States(models.TextChoices):
@@ -1925,11 +1962,17 @@ class States(models.TextChoices):
     DENIED = "denied", _("Denied")
     CONFIRMED = "confirmed", _("Confirmed")
     CANCELLED = "cancelled", _("Cancelled")
+    CHANGED = "changed", _("Changed")
     TEMPLATE = "template", _("Template")
+    IN_REVISION = "in_revision", _("In Revision")
 
 
-class ServiceOrder(TimeStampedModel):
+class ServiceOrder(TimeStampedModel, ModelArchiveableMixin):
     is_template = models.BooleanField(default=False)
+
+    created_by = models.ForeignKey(
+        to="Person", on_delete=models.RESTRICT, null=True, blank=True, default=None
+    )
 
     template_for = models.ForeignKey(
         to="Service", on_delete=models.RESTRICT, null=True, blank=True, default=None
@@ -1942,11 +1985,13 @@ class ServiceOrder(TimeStampedModel):
         related_name="orders",
         on_delete=models.CASCADE,
     )
+
     state = models.CharField(
-        max_length=10,
+        max_length=15,
         choices=States.choices,
         default=States.AWAITING,
     )
+
     events = models.ManyToManyField(to="Event", related_name="orders")
 
     service = models.ForeignKey(
@@ -1958,10 +2003,142 @@ class ServiceOrder(TimeStampedModel):
     )
 
     freetext_comment = models.TextField()
-    
+
+    @property
+    def sorted_changelogs(self):
+        return self.changelogs.order_by("-created")
+
     @property
     def is_final(self):
-        return self.state in [ States.CONFIRMED, States.DENIED, States.CANCELLED, States.TEMPLATE ]
+        return self.state in [
+            States.CONFIRMED,
+            States.DENIED,
+            States.CANCELLED,
+            States.TEMPLATE,
+        ]
+
+
+class ServiceOrderChangeSummaryType(models.TextChoices):
+    SERIE = "serie", _("Serie")
+    EVENT = "event", _("Event")
+
+
+class ChangeType(models.TextChoices):
+    NEW = "new", _("New")
+    TIMES_CHANGED = "times_changed", _("Times Changed")
+    REMOVED = "removed", _("Removed")
+
+
+class ServiceOrderChangeSummary(TimeStampedModel, ModelArchiveableMixin):
+    """Service order change summaries are written when the basis of the service order has changed.
+    This in practice is when a serie/repeating event with order(s) is edited on a time-basis (dates added, removed, times changed).
+    Additionally it may also apply to a singular event that has been edited, which has a service order.
+
+    The change summary can be for two types; repeating events (serie) and a singular event.
+    The logic concerning lines is for repeating events, and is only used in this case. If a change summary is made for an service
+    order with a given event the presence of a change summary indicates that the event has had its times changed.
+
+    This should probably be rewritten to be able to handle any arbitrary amount of non-serie events as well, but it works well enough for the
+    given constraints.
+    """
+
+    service_order = models.ForeignKey(
+        to=ServiceOrder, related_name="change_summaries", on_delete=models.RESTRICT
+    )
+    original_state_of_service_order = models.CharField(
+        max_length=15, choices=States.choices, default=States.AWAITING
+    )
+    has_been_processed = models.BooleanField(default=False)
+
+    def check_self(self):
+        if len(self.lines.all()) == 0:
+            self.archive()
+
+    def add_lines(self, provisions: List[Tuple[Optional[datetime.datetime], Optional[datetime.datetime], ServiceOrderProvision]], change_type: ChangeType) -> None:
+        if len(provisions) == 0:
+            return
+
+        for (initial_start, initial_end, provision) in provisions:
+            if initial_start is None or initial_end is None:
+                initial_start = provision.for_event.start
+                initial_end = provision.for_event.end
+
+            if change_type == ChangeType.NEW:
+                if provision.id in self.removed_lines:  # line has been re-added
+                    line = self.removed_lines[provision.id]
+
+                    if line.initial_start == provision.for_event.start and line.initial_end == provision.for_event.end:
+                        line.archive()
+                        continue  # times are as they were to start with - provision is not changed anymore.
+
+                    change_type = ChangeType.TIMES_CHANGED
+            elif change_type == ChangeType.TIMES_CHANGED:
+                if provision.id in self.added_lines:
+                    continue
+            elif change_type == ChangeType.REMOVED:
+                if provision.id in self.added_lines:
+                    self.added_lines[provision.id].archive()
+                    continue
+                if provision.id in self.changed_lines:
+                    self.changed_lines[provision.id].archive()
+
+            try:
+                sodcl = self.lines.get(provision_id=provision.id)
+                sodcl.type_of_change = change_type
+            except ServiceOrderChangeLine.DoesNotExist:
+                sodcl = ServiceOrderChangeLine(
+                    summary=self, provision=provision, type_of_change=change_type, initial_start=initial_start, initial_end=initial_end
+                )
+
+            sodcl.save()
+
+    @property
+    def added_lines(self) -> List[ServiceOrderChangeLine]:
+        return { l.provision.id: l for l in self.lines.filter(type_of_change=ChangeType.NEW) }
+
+    @property
+    def removed_lines(self) -> List[ServiceOrderChangeLine]:
+        return { l.provision.id: l for l in self.lines.filter(type_of_change=ChangeType.REMOVED) }
+
+    @property
+    def changed_lines(self) -> List[ServiceOrderChangeLine]:
+        return { l.provision.id: l for l in self.lines.filter(type_of_change=ChangeType.TIMES_CHANGED) }
+
+class ServiceOrderChangeLine(TimeStampedModel, ModelArchiveableMixin):
+    summary = models.ForeignKey(
+        to=ServiceOrderChangeSummary,
+        related_name="lines",
+        on_delete=models.RESTRICT,
+    )
+
+    provision = models.ForeignKey(to="ServiceOrderProvision", null=True, on_delete=models.RESTRICT)
+
+    initial_start = models.DateTimeField()
+    initial_end = models.DateTimeField()
+
+    type_of_change = models.CharField(
+        max_length=15, choices=ChangeType.choices, default=ChangeType.NEW
+    )
+
+    def __str__(self) -> str:
+        return (
+            f"<ServiceOrderDateChangeLine, State={self.type_of_change}, Date={self.date}>"
+        )
+
+
+class ServiceOrderInternalChangelog(TimeStampedModel):
+    """Service order changelogs are logs of changes that have been made after the service order has
+    reached a final state in its pipeline. These are simple messages or logs that the revisioneer is prompted
+    to write when the editing has concluded (moved back to a final state).
+    """
+
+    source_sopr = models.ForeignKey(
+        to="ServiceOrderProcessingRequest", on_delete=models.DO_NOTHING
+    )
+    service_order = models.ForeignKey(
+        to="ServiceOrder", on_delete=models.CASCADE, related_name="changelogs"
+    )
+    changelog_message = models.TextField(max_length=5024)
 
 
 class ServiceOrderProcessingRequest(TimeStampedModel):
@@ -1977,18 +2154,12 @@ class ServiceOrderProcessingRequest(TimeStampedModel):
 
     def construct_url(self):
         """Get the absolute URL to the processing page of this service"""
-        return (
-            "https://"
-            + Site.objects.get_current().domain
-            + (
-                reverse(
-                    "arrangement:process_service_order", kwargs={"token": self.code}
-                )
-            )
+        return settings.APP_BASE_URL + (
+            reverse("arrangement:process_service_order", kwargs={"token": self.code})
         )
 
 
-class ServiceOrderProvision(TimeStampedModel):
+class ServiceOrderProvision(ModelArchiveableMixin, TimeStampedModel):
     """Provisions are event-individual resolutions of a service order
     A service order may contain many events. Each event can have an individual resolution.
     """
@@ -1996,7 +2167,9 @@ class ServiceOrderProvision(TimeStampedModel):
     related_to_order = models.ForeignKey(
         to="ServiceOrder", related_name="provisions", on_delete=models.CASCADE
     )
-    for_event = models.ForeignKey(to="Event", on_delete=models.CASCADE)
+    for_event = models.ForeignKey(
+        to="Event", related_name="provisions", on_delete=models.CASCADE
+    )
 
     sopr_resolving_this = models.ForeignKey(
         to="ServiceOrderProcessingRequest",
@@ -2006,10 +2179,14 @@ class ServiceOrderProvision(TimeStampedModel):
     )
 
     freetext_comment = models.TextField(blank=True)
+    comment_to_personell = models.TextField(blank=True)
 
     is_complete = models.BooleanField(default=False)
     selected_personell = models.ManyToManyField(
-        to="Person", related_name="interim_provisions_assigned_to"
+        to="Person",
+        related_name="interim_provisions_assigned_to",
+        blank=True,
+        null=True,
     )
 
 
