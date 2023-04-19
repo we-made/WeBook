@@ -14,9 +14,13 @@ api_client = WebookAPIClient(
 
 def get_outlook_events_for_person(person: Person, start: datetime, end: datetime):
     """Query the WeBook API for Outlook events for the given person"""
-    if person.social_provider_id is None:
+
+    if not api_client:
         return []
 
+    if person.social_provider_id is None:
+        return []
+    
     get_events_response = api_client.httpx_client.get(
         f"/v1/outlook/{person.social_provider_id}?start_datetime_iso_8601={start.isoformat()}&end_datetime_iso_8601={end.isoformat()}"
     )
