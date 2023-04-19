@@ -33,14 +33,19 @@ class Dialog {
 
         this._spawnMutationObserver();
         this._discover();
-        this._assimilateMethods();
+        this._assimilateMethods(); 
         this._refreshListens();
         this._initializePlugins();
         this._listenToEventLaneCommunication()
         
         this.oldMessages = window.MessagesFacility.addressedTo(this.dialogId)?._messages;
 
+        this._listenToGlobalBroadcasts();
+
+
         if (this.oldMessages) {
+            console.log("There are old messages")
+            debugger;
             for (let [key, value] of this.oldMessages)
             {
                 this._handleMessage(key, value);
@@ -48,12 +53,11 @@ class Dialog {
             window.MessagesFacility.addressedTo(this.dialogId)?.clear();
         }
 
-        this._listenToGlobalBroadcasts();
 
         postInit(this);
     }
 
-    _listenToGlobalBroadcasts () {
+    _listenToGlobalBroadcasts() {
         window.MessagesFacility.subscribe(
             this.dialogId,
             this._handleMessage.bind(this),
@@ -63,7 +67,10 @@ class Dialog {
     _handleMessage(messageKey, message) {
         if (this === undefined || this._whenMap === undefined)
             return null;
-
+        
+        console.log(window.MessagesFacility)
+        console.log("_handleMessage -> " + messageKey, message);
+        
         if (this._whenMap.has(messageKey))
             this._whenMap.get(messageKey)(this, message);
     }
@@ -173,6 +180,8 @@ class Dialog {
                     argsObj[this._camelCaseFix(argName)] = attr.value;
                 }
             });
+
+            console.log(this);
 
             this[nameOfMethodToTrigger]( argsObj, event.currentTarget );
         });

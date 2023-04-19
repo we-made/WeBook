@@ -17,6 +17,59 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+[v-cloak] {
+    display: none;
+  }
+  
+
+.date-reel-grid-item:hover {
+    background-color: #e9e8e8;
+    /* border-top: solid 0.2em var(--MAIN-COLOR); */
+    color:black;
+}
+
+.date-reel-grid-item.active {
+    background-color: #e9e8e8;
+    /* border-top: solid 0.2em var(--MAIN-COLOR); */
+    color:black;
+}
+
+.secondary-hover:hover{
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.mild-danger {
+    background-color: #f3cbca;
+}
+
+.mild-warning {
+    background-color: #fec;
+}
+
+.fc-custom-focused-event {
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px!important;
+}
+
+.mild-success {
+    background-color: #cee9ce;
+}
+
+.custom-fc-external-event {
+    border: dotted 3px!important;
+    border-color: inherit;
+}
+
+.hlist-item:hover {
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.wb-tooltip > .tooltip-inner {
+    /* background-color: var(--SECONDARY-COLOR)!important;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px!important;
+    color: black!important; */
+    text-align: unset;
+}
+
 html, body {
     height: 100%!important;
 }
@@ -383,9 +436,19 @@ html, body {
     background-color: var(--SECONDARY-COLOR);
 }
 
+.notificationCard:hover {
+    background-color: var(--SECONDARY-COLOR);
+}
 
 .popover_wrapper {
     position: relative;
+}
+
+.popover_wrapper#notificationsPopover .popover_content {
+    /* right: 5rem;
+    transform: translate(0px, -5.3em);
+    ; */
+    width: 30em;
 }
 
 .popover_wrapper.wb-popover-sidebar .popover_content {

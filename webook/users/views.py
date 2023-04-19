@@ -11,6 +11,7 @@ from django.http.response import HttpResponse
 from django.urls import reverse
 from django.utils import timezone as dj_timezone
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 from django.views.generic import (
     DetailView,
     FormView,
@@ -43,7 +44,9 @@ class SingleSignOnErrorView(TemplateView):
 error_sso_view = SingleSignOnErrorView.as_view()
 
 
-class UsersJsonListView(LoginRequiredMixin, ListView, JSONResponseMixin):
+class UsersJsonListView(
+    LoginRequiredMixin, ListView, UserAdminAuthorizationMixin, JSONResponseMixin
+):
     """JSON data source view for the User Administration list view
     The list (sort-of) view uses Vue and should load its requisite data from this view
     """
@@ -77,6 +80,22 @@ class UsersJsonListView(LoginRequiredMixin, ListView, JSONResponseMixin):
 
 
 users_json_list_view = UsersJsonListView.as_view()
+
+
+class UserByEmailExistsJsonView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs) -> JsonResponse:
+        email = self.request.GET.get("email")
+        if email is None:
+            return JsonResponse(data={"message": "No email supplied"}, safe=False)
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = None
+
+        return JsonResponse(data={"exists": user is not None}, safe=False)
+
+
+user_by_email_exists_json_view = UserByEmailExistsJsonView.as_view()
 
 
 # TODO: Rewrite to mixin

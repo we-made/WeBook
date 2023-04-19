@@ -1,4 +1,5 @@
-from typing import Any
+from datetime import datetime
+from typing import Any, List
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
@@ -14,6 +15,8 @@ from django.views.generic import (
     View,
 )
 
+from webook.arrangement.facilities.outlook_events import get_outlook_events_for_person
+from webook.arrangement.facilities.service_ordering import log_provision_changed, remove_provision_from_service_order
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
 from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import (
     CreateSerieForm,
@@ -30,6 +33,7 @@ from webook.arrangement.models import (
     PlanManifest,
     Room,
     RoomPreset,
+    ServiceOrderProvision,
 )
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
@@ -37,6 +41,7 @@ from webook.arrangement.views.generic_views.json_form_view import (
     JsonFormView,
     JsonModelFormMixin,
 )
+from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.upload_files_standard_form import (
     UploadFilesStandardFormView,
 )
@@ -55,8 +60,8 @@ class CreateEventSerieJsonFormView(
     form_class = CreateSerieForm
 
     def form_valid(self, form) -> JsonResponse:
-        form.save(form, user=self.request.user)
-        return super().form_valid(form)
+        pk = form.save(form, user=self.request.user)
+        return JsonResponse({"success": True, "id": pk})
 
 
 create_event_serie_json_view = CreateEventSerieJsonFormView.as_view()
@@ -85,6 +90,13 @@ class UpdateEventJsonFormView(
     form_class = UpdateEventForm
 
     def form_valid(self, form: UpdateEventForm) -> HttpResponse:
+        
+        if form.instance.id:
+            og_event = Event.objects.get(id=form.instance.id)
+            had_serie_before_save = og_event.serie is not None
+            old_start = og_event.start
+            old_end = og_event.end
+
         form.save()
 
         main_event_is_in_collision = getattr(form, "main_collision", False)
@@ -99,17 +111,28 @@ class UpdateEventJsonFormView(
             or post_buffer_event_is_in_collision
         )
 
-        if not is_in_collision:
-            return JsonResponse({"success": True})
+        if is_in_collision:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "main_event_is_in_collision": main_event_is_in_collision,
+                    "pre_buffer_event_is_in_collision": pre_buffer_event_is_in_collision,
+                    "post_buffer_event_is_in_collision": post_buffer_event_is_in_collision,
+                }
+            )
+        
+        provisions: List[ServiceOrderProvision]
+        for provision in form.instance.provisions.all():
+            log_provision_changed(
+                service_order=provision.related_to_order,
+                provision=provision,
+                old_start=old_start,
+                old_end=old_end,
+            )
 
-        return JsonResponse(
-            {
-                "success": False,
-                "main_event_is_in_collision": main_event_is_in_collision,
-                "pre_buffer_event_is_in_collision": pre_buffer_event_is_in_collision,
-                "post_buffer_event_is_in_collision": post_buffer_event_is_in_collision,
-            }
-        )
+        return JsonResponse({"success": True})
+
+
 
 
 update_event_json_view = UpdateEventJsonFormView.as_view()
@@ -119,6 +142,17 @@ class DeleteEventJsonView(
     LoginRequiredMixin, PlannerAuthorizationMixin, JsonArchiveView
 ):
     """Delete event"""
+    def delete(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        event = self.get_object()
+        provisions: List[ServiceOrderProvision]
+        if provisions := event.provisions.all():
+            for provision in provisions:
+                remove_provision_from_service_order(
+                    service_order=provision.related_to_order,
+                    provision=provision,
+                )
+        return super().delete(request, *args, **kwargs)
+
 
     model = Event
 
@@ -178,6 +212,32 @@ class DeleteEventSerie(LoginRequiredMixin, PlannerAuthorizationMixin, JsonArchiv
 
 
 delete_event_serie_view = DeleteEventSerie.as_view()
+
+
+class GetMyOutlookEventsView(LoginRequiredMixin, JsonListView):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.person: Person = request.user.person
+
+        if not self.person.social_provider_id:
+            raise Exception("This person does not have a social provider ID")
+
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        start: str = self.request.GET.get("start")
+        end: str = self.request.GET.get("end")
+
+        if not all([start, end]):
+            pass  # throw some clever http exception --
+
+        # maybe try datetime.toisoformat and catch any exceptions? if there are any? fits under same baddata
+
+        return get_outlook_events_for_person(
+            self.person, datetime.fromisoformat(start), datetime.fromisoformat(end)
+        )
+
+
+get_my_outlook_events_view = GetMyOutlookEventsView.as_view()
 
 
 class CalculateEventSerieView(
@@ -313,6 +373,20 @@ class EventSerieManifestView(
             "eventPk": "",
         }
 
+        service_orders = list(
+            map(
+                lambda order: {
+                    "parent_type": "serie",
+                    "parent_id": manifest.series.last().pk,
+                    "service_id": order.service.pk,
+                    "freetext_comment": order.freetext_comment,
+                    "service_name": order.service.name,
+                    "service_order": order.pk,
+                },
+                manifest.orders.all(),
+            )
+        )
+
         responsible_list = (
             [{"id": manifest.responsible.id, "text": manifest.responsible.full_name}]
             if manifest.responsible
@@ -378,6 +452,7 @@ class EventSerieManifestView(
             if manifest.arrangement_type
             else None,
             "responsible": responsible,
+            "service_orders": service_orders,
         }
 
 

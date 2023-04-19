@@ -223,7 +223,7 @@ sidenav-primary .sidenav-link {
   background: skyblue;
   color: white;
 }
-.ui-dialog { z-index: 100000000000 !important ;}
+.ui-dialog { z-index: 100000 !important ;}
 .datepicker-modal-container { 
   z-index: 100000000001 !important; 
   border: solid 1px var(--MAIN-COLOR);

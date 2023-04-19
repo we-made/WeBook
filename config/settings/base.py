@@ -2,6 +2,7 @@
 Base settings to build other settings files upon.
 """
 
+import mimetypes
 from pathlib import Path
 
 import environ
@@ -19,6 +20,10 @@ ENV_FILE = BASE_DIR / ".env"
 if Path(ENV_FILE).exists():
     # OS environment variables take precedence over variables from .env
     env.read_env(str(ENV_FILE))
+
+mimetypes.add_type("text/plain", ".vue", True)
+
+WHITENOISE_MIMETYPES = {".vue": "text/plain"}
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -112,6 +117,7 @@ LOCAL_APPS = [
     "webook.arrangement.apps.ArrangementConfig",
     "webook.crumbinator.apps.CrumbinatorConfig",
     "webook.screenshow.apps.ScreenshowConfig",
+    "webook.notifications.apps.NotificationsConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -355,3 +361,9 @@ USER_DEFAULT_TIMEZONE = env(
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
 DISPLAY_SSO_ERROR_REASONING = env("DISPLAY_SSO_ERROR_REASONING", default=False)
+
+APP_BASE_URL = env("APP_BASE_URL", default="http://127.0.0.1:8000")
+
+API_URL = env("API_URL", default=None)
+API_USER_NAME = env("API_USER_NAME", default=None)
+API_USER_PASSWORD = env("API_USER_PASSWORD", default=None)

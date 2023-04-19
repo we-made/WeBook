@@ -1,3 +1,5 @@
+import mimetypes
+
 from .base import *  # noqa
 from .base import env
 
@@ -16,6 +18,7 @@ ALLOWED_HOSTS = env.list(
     default=["webook.wemade.no", "localhost", "0.0.0.0", "127.0.0.1"],
 )
 
+mimetypes.add_type("application/javascript", ".vue", True)
 
 # CACHES
 # ------------------------------------------------------------------------------

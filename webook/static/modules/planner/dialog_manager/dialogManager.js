@@ -66,8 +66,6 @@
         $(this.renderer.$dialogElement).on("dialogclose", (event) => {
             this.destroy();
         });
-        
-        debugger;
 
         this.plugins.forEach((plugin) => plugin.onRender(context));
         return result;
@@ -87,7 +85,6 @@
                 html = await this.htmlFabricator(context, this);
             }
 
-            // this.destroy();
             this.render(context, html);
 
             this.onRenderedCallback(this, context);
@@ -168,7 +165,7 @@ export class DialogFormInterceptorPlugin {
 
     _findAllForms() {
         let formElementsWithinDialog = this.dialog._$getDialogEl()[0].querySelectorAll("form");
-        
+
         formElementsWithinDialog.forEach((formElement) => {
             let cancelButtons = formElement.querySelectorAll(".cancel-button");
             cancelButtons.forEach((cancelButton) => {
@@ -179,10 +176,16 @@ export class DialogFormInterceptorPlugin {
             });
 
             formElement.onsubmit = function (event) {
+                debugger;
                 event.preventDefault();
 
-                const action = formElement.getAttribute("action") || this.dialog.formUrl;
+                let action = formElement.getAttribute("action") || this.dialog.formUrl;
                 const formData = new FormData(formElement);
+
+                for (const pair of formData.entries()) { // allow using <<variable>> to populate dynamic values from formData
+                    console.log(pair);
+                    action = action.replace("<<" + pair[0] + ">>", pair[1]);
+                }
 
                 fetch(action, {
                     method: 'POST',
@@ -199,6 +202,7 @@ export class DialogFormInterceptorPlugin {
                     return response.text();
                 }).then(html => { 
                     if (this._ascertainStateFromBodyHtml(html)) {
+                        this.dialog.onSubmit();
                         this.onResponseOk();
                         this.dialog.close();
                     }
@@ -420,6 +424,10 @@ export class DialogManager {
         this._dialogRepository = new Map(dialogs);
         this.context = {};
     }
+
+    get(dialogName) {
+        return this._dialogRepository.has(dialogName) ? this._dialogRepository.get(dialogName) : undefined;
+    }
     
     async loadDialogHtml( 
             { url, managerName, dialogId, dialogTitle=undefined, customParameters=undefined } = {}) {
@@ -542,7 +550,7 @@ export class DialogManager {
     _makeAware() {
         this._setTriggers();
 
-        this._dialogRepository.forEach(( value, key, map) => {
+        this._dialogRepository.forEach((value, key, map) => {
             if (value.triggerByEvent === true) {
                 let triggerName = value.dialogElementId;
                 if (value.customTriggerName !== undefined) {
@@ -557,11 +565,8 @@ export class DialogManager {
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
 
-                    debugger;
-
                     let parent = event.detail.$parent;
                     let overrideRenderInChain = event.detail.renderInChain;
-                    let current = $(value._$getDialogEl());
 
                     if (parent && this.renderInChain || overrideRenderInChain) {
                         // $(parent).on("dialogdrag", function (event, ui) {

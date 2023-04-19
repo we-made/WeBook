@@ -156,6 +156,15 @@
           </div>
           <small class="fw-bold">Personer</small>
         </a>
+
+        <a href="{% url 'arrangement:services_dashboard' %}" class="wb-sidebar-item p-2 pt-3 pb-3 d-block
+              {% if url_name == 'services_dashboard' %} active text-dark bg-weak-primary border-dark border shadow-4 {% endif %}">
+          <div>
+            <i class="fas fa-briefcase text-primary h2 mb-0"></i>
+          </div>
+          <small class="fw-bold">Tjenester</small>
+        </a>
+
         <div>
           <a href="#" id="toggleOthersPopover"
              class="{% if url_name == 'arrangement_type_list' or url_name == 'organizationtype_list' or url_name == 'servicetype_list' %}
@@ -271,7 +280,8 @@
               <h2 class=" mb-0 ms-2 wb-text-main text-uppercase">{{APP_TITLE}}</h2>
               <ul class="navbar-nav ms-auto d-flex flex-row">
                 <!-- Search form -->
-   
+  
+
                 {% if user.is_superuser %}
                 <button class="badge badge-danger me-4"
                   data-mdb-toggle="tooltip"
@@ -286,22 +296,128 @@
                   <input autocomplete="off" type="search" class="form-control rounded" placeholder="{% blocktrans %}Search (ctrl + &quot;/&quot; to focus){% endblocktrans %}" style="min-width: 225px">
                   <span class="input-group-text border-0"><i class="fas fa-search" aria-hidden="true"></i></span>
                 </form> 
-                <!-- Notification dropdown -->
-                <!-- <li class="nav-item dropdown">
-                  <a class="nav-link me-4 me-lg-0 dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-bell" aria-hidden="true"></i>
-                    <span class="badge rounded-pill badge-notification bg-danger">1</span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-                    <li><a class="dropdown-item" href="#">Some news</a></li>
-                    <li><a class="dropdown-item" href="#">Another news</a></li>
-                    <li>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </li>
-                  </ul>
-                </li> -->
               </ul>
               {% if request.user.is_authenticated %}
+
+                <div id="notificationsApp">
+                  <a
+                    href="#" :class="[  noOfUnreadNotifications > 0  ?'bg-warning p-1 rounded-3 shadow-5 text-white' : 'text-dark', 'h4 me-2 ms-4' ]"
+                    id="toggleNotificationsPopover">
+                    <i class="fas fa-bell"></i>
+                    <span :class="[noOfUnreadNotifications === 0 ? 'bg-success' : 'bg-danger', 'badge rounded-pill badge-notification']"><h6 class="mb-0">[[noOfUnreadNotifications]]</h6></span>
+                  </a>
+                  <span class="popover_wrapper" id="notificationsPopover">
+                    <span class="popover_content">
+
+                      <h6 class="text-center">
+                        <i class="fas fa-envelope"></i>
+                      </h6>
+                      <h6 class="fw-bolder text-uppercase text-center">
+                        Notifikasjoner
+                      </h6>
+  
+                      <div class="d-flex justify-content-between mt-2">
+                        <small><i class="fas fa-exclamation-triangle">&nbsp; </i><strong>[[noOfUnreadNotifications]]</strong> uleste notifikasjoner</small>
+
+                        <a href="#" @click="markAllNotificationsAsSeen()">
+                          <i class="fas fa-mouse-pointer"></i>
+                          Marker alle som lest
+                        </a>
+                      </div>
+  
+                      <div class="clearfix float-end" @click.stop="">
+                        <a href="#" class="ms-2" @click="filtersActivated = !filtersActivated" >
+                          <span v-if="!filtersActivated"><i class="fas fa-cog"></i>&nbsp; Vis Avansert Filtrering</span>
+                          <span v-else><i class="fas fa-cog"></i>&nbsp; Skjul Avansert Filtrering</span>
+                        </a>
+                      </div>
+
+                      <hr>
+
+                      <div class="d-flex mb-2" v-if="filtersActivated" @click.stop="">
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="fas fa-search"></i></span>
+                          <input type="text" class="form-control" v-model="searchTerm" placeholder="Søk (minst 2 karakterer)...">
+                        </div>
+                      </div>
+                      <select name="" id="" class="form-control" v-model="sourceFilter" v-if="filtersActivated">
+                        <option value="all">
+                          Alle kilder
+                        </option>
+                        <option :value="source" v-for="source in distinctSources">
+                          [[source]]
+                        </option>
+                      </select>
+
+                      <div class="clearfix mt-2" v-if="filtersActivated">
+                        <div class="float-end">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" v-model="showOnlyUnread" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
+                            <label class="form-check-label" for="flexSwitchCheckDefault">Vis bare uleste</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div :class="[notification.is_seen ? 'wb-bg-secondary' : 'border-warning', 'rounded-3 mt-1 border p-1 ps-3 pe-3 notificationCard']"
+                           v-for="notification in visibleItems">
+
+                        <div class="d-flex justify-content-between align-items-center"  @click="expansionStateMap.set(notification.id, expansionStateMap.has(notification.id) ? !expansionStateMap.get(notification.id) : true); markNotificationAsSeen(notification);">
+                          <span class="fa-stack fa-1x">
+                            <i :class="[notification.icon_background_class ? notification.icon_background_class : 'text-dark', 'fas text-success fa-circle fa-stack-2x']"></i>
+                            <i :class="[notification.icon_class ? notification.icon_class : 'fa-envelope', 'fas text-white fa-stack-1x fa-inverse']"></i>
+                          </span>
+                          
+                          <div>
+                            <h6 class="fw-bold text-uppercase ms-0 mb-0">[[notification.title]]</h6>
+                            <div class="clearfix">
+                              <div class="float-end">
+                                <small>[[notification.created]]</small>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <a href="#"
+                              :id="notification.id + '-remove-button'"
+                              data-mdb-toggle="tooltip"
+                              @click.stop="archiveNotification(notification)"
+                              title="Fjern denne notifikasjonen">
+                              <i class="fas fa-times text-danger"></i>
+                            </a>
+                          </div>
+                        </div>
+  
+                        <div v-if="expansionStateMap.get(notification.id)" @click.stop="">
+                          <hr class="mt-1 mb-1">
+                          <p class="mb-0">
+                            [[notification.message]]
+                          </p>
+
+                          <div class="clearfix">
+                            <a :href="notification.reference_to_url" v-if="notification.reference_to_url">
+                              <i class="fas fa-link"></i>&nbsp;
+                              <span v-if="notification.url_label">[[notification.url_label]]</span>
+                              <span v-else>Gå til</span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+
+                      <nav aria-label="" class="d-flex justify-content-between align-items-center mt-3"
+                        v-if="totalPages > 1">
+                        <div>
+                          <em><strong>[[allViewableItems.length]]</strong> elementer</em>
+                        </div>
+                        <ul class="pagination mt-0 mb-0">
+                            <li class="page-item" :class="{ disabled: page == 1 }"><a class="page-link" href="javascript:void(0)" @click.stop="page--">Forrige</a></li>
+                            <li class="page-item" :class="{ active: thisPage == page }" v-for="thisPage in totalPages"><a class="page-link" @click.stop="page = thisPage">[[thisPage]]</a></li>
+                            <li class="page-item" :class="{ disabled: page == totalPages }"><a class="page-link" href="javascript:void(0)" @click.stop="page++">Neste</a></li>
+                        </ul>
+                      </nav>
+                    </span>
+                  </span>
+                </div>
+
                 <div class="btn-group shadow-0">
                   <button
                     type="button"
@@ -418,6 +534,99 @@
 
         $(document).ready(function () {
           window.MessagesFacility = new MessagesFacility();
+        });
+
+        const notificationsApp = Vue.createApp({
+          components: {},
+          data() {
+            return {
+              expansionStateMap: new Map(),
+              myNotifications: [],
+              sourceFilter: "all",
+              filtersActivated: false,
+              searchTerm: "",
+              showOnlyUnread: false,
+              page: 1,
+              pageSize: 7,
+              navPageCircumference: 3,
+            }
+          },
+          watch: {
+          },
+          computed: {
+            distinctSources() {
+              return this.myNotifications.map(x => x.source)
+                .filter((value, index, array) => array.indexOf(value) === index);
+            },
+            allViewableItems() {
+                let items = this.myNotifications;
+
+                if (this.showOnlyUnread)
+                  items = items.filter((item) => item.is_seen == false);
+                if (this.sourceFilter !== "all")
+                  items = items.filter((item) => item.source == this.sourceFilter);
+                if (this.searchTerm && this.searchTerm.length >= 2)
+                  items = items.filter((item) => item.title.toUpperCase().startsWith(this.searchTerm.toUpperCase()) || item.message.toUpperCase().includes(this.searchTerm.toUpperCase()));
+
+                return items;
+            },
+            visibleItems() {
+              return this.allViewableItems.slice((this.page - 1) * this.pageSize, this.page * this.pageSize );
+            },
+            totalPages() {
+              return Math.ceil(this.allViewableItems.length / this.pageSize);
+            },
+            noOfUnreadNotifications() {
+              return (this.myNotifications.filter(x => x.is_seen == false)).length;
+            }
+          },
+          methods: {
+            async refreshNotifications() {
+              this.myNotifications = await fetch("/arrangement/notifications/mine").then(response => response.json());
+            },
+            async markNotificationAsSeen(notification) {
+              if (notification.is_seen === true)
+                return;
+              
+              let formData = new FormData();
+              formData.append("notification", parseInt(notification.id));
+
+              fetch("/arrangement/notifications/mark_as_seen", {
+                method: 'POST',
+                headers: {
+                  'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+              }).then(async response => await this.refreshNotifications());
+            },
+            async markAllNotificationsAsSeen() {
+              fetch("/arrangement/notifications/mark_all_as_seen", {
+                method: 'POST',
+                headers: {
+                  'X-CSRFToken': '{{ csrf_token }}'
+                },
+              }).then(async response => await this.refreshNotifications());
+            },
+            async archiveNotification(notification) {
+              return fetch("/arrangement/notifications/archive/" + notification.id, {
+                method: 'DELETE',
+                headers: {
+                  'X-CSRFToken': '{{ csrf_token }}'
+                }
+              }).then(async response => await this.refreshNotifications());
+            }
+          },
+          async mounted() {
+            await this.refreshNotifications();
+            console.log(this.myNotifications)
+          },
+          delimiters: ["[[", "]]"]
+        });
+        notificationsApp.mount('#notificationsApp');
+
+        const notificationsPopover = new Popover({
+          triggerElement: document.getElementById('toggleNotificationsPopover'),
+          wrapperElement: document.getElementById('notificationsPopover'),
         });
 
         const othersPopover = new Popover({

@@ -27,9 +27,16 @@
                 <div class="clearfix">
                     <div class="float-start">
                         <h6 class="mb-0 d-inline fw-lighter"><i class="fas fa-star"></i> Hovedplanlegger:</h4>
-                        <h4 class="mb-0">{{ object.responsible }}</h4>
-
+                        <h4 class="mb-0">
+                            {% if object.responsible %}
+                                {{ object.responsible }}
+                            {% else %}
+                                Ingen hovedplanlegger
+                            {% endif %}
+                        </h4>
+                        {% if object.responsible.personal_email %}
                         <small class="d-block"><i class="fas fa-envelope"></i> {{ object.responsible.personal_email }}</small>
+                        {% endif %}
                             
                     </div>
                     {% if user|has_group:"planners" or user.is_superuser %}
@@ -97,6 +104,13 @@
                 role="tab"
                 data-mdb-toggle="tab">
                 Filer
+            </a>
+        </li>
+        <!-- Service Orders -->
+        <li class="nav-item" role="presentation">
+            <a href="#arrangementInfoDialog_tabs_service_orders" class="nav-link" id="arrangementInfoDialog_tabs_service_orders-link"
+                data-mdb-toggle="tab" role="tab">
+                Tjenestebestillinger
             </a>
         </li>
     </ul>
@@ -213,7 +227,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-        
+        0
                             <div class="col-lg-6 col-sm-12">
                                 <label class="form-label">Faktisk antall besøkende:</label>
                                 <input type="number"
@@ -356,7 +370,6 @@
             {% endif %}
         </div>
         
-
         <!-- Timeslots Tab -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_timeslots" role="tabpanel">
             {% if user|has_group:"planners" or user.is_superuser %}
@@ -498,15 +511,15 @@
                                                     </div>
                                                 </div>
                                                 </div>
-                                                <div class="accordion-item">
+                                            <div class="accordion-item">
                                                 <h6 class="accordion-header" id="flush-headingTwo">
                                                     <button
-                                                    class="accordion-button collapsed  wb-bg-extra"
-                                                    type="button"
-                                                    data-mdb-toggle="collapse"
-                                                    data-mdb-target="#flush-collapseTwo_{{event_serie.pk}}"
-                                                    aria-expanded="false"
-                                                    aria-controls="flush-collapseTwo_{{event_serie.pk}}">
+                                                        class="accordion-button collapsed  wb-bg-extra"
+                                                        type="button"
+                                                        data-mdb-toggle="collapse"
+                                                        data-mdb-target="#flush-collapseTwo_{{event_serie.pk}}"
+                                                        aria-expanded="false"
+                                                        aria-controls="flush-collapseTwo_{{event_serie.pk}}">
                                                         Aktiviteter
                                                     </button>
                                                 </h6>
@@ -682,7 +695,7 @@
                             d-trigger="triggerUploadFilesToArrangementDialog"
                             href="#">
                         <i class="fas fa-upload"></i>
-                        Upload file(s)
+                        last opp fil(er)
                     </a>
                 </div>
                 {% endif %}
@@ -740,7 +753,74 @@
                         {% endif %}
                     </div>
                 {% endif %}
-            </div>
+        </div>
+
+        <!-- Service Orders Tabs -->
+        <div class="tab-pane fade" id="arrangementInfoDialog_tabs_service_orders" role="tabpanel">
+            {% for service_order in ORDERS %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex">
+                                <div class="mb-0 wb-bg-secondary p-3 border">
+                                    <h5 class="mb-0">Ordre #{{service_order.id}}</h5>
+                                    <div>{{service_order.service.name}}</div>
+                                    {% if service_order.state == "awaiting" %}
+                                    <div class="badge badge-warning">
+                                        <h5 class="mb-0">
+                                            Venter behandling
+                                        </h5>
+                                    </div>
+                                    {% elif service_order.state == "cancelled" %}
+                                        <div class="badge badge-dark">
+                                            <h5 class="mb-0">
+                                                Kansellert
+                                            </h5>
+                                        </div>
+                                    {% elif service_order.state == "denied" %}
+                                        <div class="badge badge-danger">
+                                            <h5 class="mb-0">
+                                                Avvist
+                                            </h5>
+                                        </div>
+                                    {% elif service_order.state == "in_revision" %}
+                                        <div class="badge badge-warning">
+                                            Revideres
+                                        </div>
+                                    {% elif service_order.state == "changed" %}
+                                        <div class="badge badge-warning">
+                                            Endret, venter bekreftelse
+                                        </div>
+                                    {% elif service_order.state == "confirmed" %}
+                                        <div class="badge badge-success">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-check"></i>
+                                                Bekreftet
+                                            </h5>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="p-2 ms-2 me-2">
+                                    <h5>Kommentar:</h5>
+                                    <div class="bg-light">
+                                        {{ service_order.freetext_comment }}
+                                    </div>
+                                </div>
+    
+                            </div>
+
+
+
+                            <div class="clearfix">
+                                <button class="btn wb-btn-main float-end me-2" d-trigger="triggerInspectServiceOrderDialog" d-arg-order_id="{{ service_order.pk }}">
+                                    Vis ordre
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
         </div>
     </div>
 </div>
@@ -867,6 +947,9 @@
             triggerUploadFilesToArrangementDialog(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesToArrangementDialog", { $parent: dialog.dialogElement });
             },
+            triggerOrderServiceDialog(dialog, { eventPk } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "orderServiceDialog", { eventPk: eventPk });
+            },
             deleteNote(dialog, { notePk } = {}, triggeredByElement) {
                 Swal.fire({
                     title: 'Er du sikker?',
@@ -890,6 +973,9 @@
             },
             uploadFilesToEventSerie(dialog, { eventSeriePk } = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesToEventSerieDialog", { event_serie_pk: eventSeriePk, $parent: dialog.dialogElement });
+            },
+            triggerInspectServiceOrderDialog(dialog, { orderId } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(dialog.managerName, "inspectServiceOrderDialog", { "order_id": orderId });
             },
             deleteActivity(dialog, { activityPk } = {}, triggeredByElement) {
                 Swal.fire({

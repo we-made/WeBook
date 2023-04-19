@@ -982,6 +982,72 @@ export class ArrangementInspector {
                         }
                     })
                 ],
+                [
+                    "orderServiceDialog",
+                    new Dialog({
+                        dialogElementId: "orderServiceDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        dialogOptions: { 
+                            width: 500,
+                            dialogClass: 'no-titlebar',
+                        },
+                        onRenderedCallback: () => {},
+                        htmlFabricator: async (context, dialog) => {
+
+                            debugger;
+                            if (!context.lastTriggererDetails.event_type)
+                                throw Error("Please supply a valid event type (either 'event' or 'serie')");
+                            if (!context.lastTriggererDetails.entity_id)
+                                throw Error("Please supply a valid entity id");
+
+                            return this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/order_service/' + context.lastTriggererDetails.event_type + '/' + context.lastTriggererDetails.entity_id,
+                                dialogId: 'orderServiceDialog',
+                                managerName: 'arrangementInspector',
+                                customParameters: {
+                                    recipientDialogId: context.lastTriggererDetails.sendTo,
+                                }
+                            });
+                        },
+                        onUpdatedCallback: async () => {
+                            this.dialogManager.closeDialog("orderServiceDialog");
+                        },
+                        onSubmit: (context, details, dialogManager, dialog) => {
+                            const eventName = dialog.data.whenEventName || "serviceOrdered";
+                            window.MessagesFacility.send(details.recipientDialog, details.requestedServices, eventName);
+                        }
+                    })
+                ],
+                [
+                    "inspectServiceOrderDialog",
+                    new Dialog({
+                        dialogElementId: "inspectServiceOrderDialog",
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        // plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        formUrl: '/arrangement/planner/dialogs/inspect_service_order/<<id>>',
+                        htmlFabricator: async (context) => {
+                            console.log("context", context);
+
+                            return this.dialogManager.loadDialogHtml({
+                                url: '/arrangement/planner/dialogs/inspect_service_order/' + context.lastTriggererDetails.order_id,
+                                dialogId: "inspectServiceOrderDialog",
+                                managerName: "arrangementInspector",
+                            })
+                        },
+                        onRenderedCallback: () => { this.dialogManager._makeAware(); },
+                        dialogOptions: { width: "70%", dialogClass: 'no-titlebar' },
+                        onUpdatedCallback: async () => {
+                            this.dialogManager.closeDialog("inspectServiceOrderDialog");
+                            await this.dialogManager.reloadDialog("mainDialog");
+
+                            window.MessagesFacility.send( "mainDialog", { tab: "service-orders-tab" }, "moveToTab" );
+                        },
+                        onSubmit: (context, details, dialogManager, dialog) => {
+                        }
+                    })
+                ]
             ]}
         )
     }

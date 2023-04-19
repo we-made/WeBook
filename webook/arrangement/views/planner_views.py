@@ -24,6 +24,7 @@ from django.views.generic.edit import DeleteView, FormView
 
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.facilities.calendar import analysis_strategies
+from webook.arrangement.facilities.service_ordering import remove_provision_from_service_order
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
 from webook.arrangement.forms.file_forms import UploadFilesToArrangementForm, UploadFilesToEventSerieForm
 from webook.arrangement.forms.note_forms import CreateNoteForm, UpdateNoteForm
@@ -40,6 +41,7 @@ from webook.arrangement.forms.planner.planner_create_arrangement_form import Pla
 from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
 from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
 from webook.arrangement.forms.planner_forms import AddPlannersForm, RemovePlannersForm
+from webook.arrangement.forms.service_forms import OrderServiceForm, UpdateServiceOrderForm
 from webook.arrangement.models import (
     Arrangement,
     ArrangementFile,
@@ -56,6 +58,7 @@ from webook.arrangement.models import (
     RequisitionRecord,
     Room,
     RoomPreset,
+    ServiceOrder,
 )
 from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
@@ -301,7 +304,13 @@ class PlanDeleteEvents(LoginRequiredMixin, View):
             raise exceptions.BadRequest()
 
         for id in eventIds:
-            Event.objects.filter(pk=id).first().delete()
+            event = Event.objects.get(pk=id)
+            for provision in event.provisions.all():
+                remove_provision_from_service_order(
+                    service_order=provision.related_to_order,
+                    provision=provision,
+                )
+            event.archive()
 
         return JsonResponse({"affected": len(eventIds)})
 
@@ -508,23 +517,19 @@ class PlannerArrangementInformationDialogView(
         context = super().get_context_data(**kwargs)
 
         arrangement_in_focus = self.get_object()
-        sets = {}
+        service_orders = []
 
         for event in arrangement_in_focus.event_set.all():
-            if event.sequence_guid not in sets:
-                sets[event.sequence_guid] = {
-                    "events": [],
-                    "title": "",
-                    "guid": event.sequence_guid,
-                }
-            sets[event.sequence_guid]["events"].append(event)
-            sets[event.sequence_guid]["title"] = event.title
+            for provision in event.provisions.all():
+                service_orders.append(provision.related_to_order)
+        
+        context["ORDERS"] = set(service_orders)
 
         context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(
             triggers_display_layout_text=True
         )
 
-        context["sets"] = sets.values()
+        #context["sets"] = sets.values()
         context["arrangement"] = arrangement_in_focus
 
         return context
@@ -1016,3 +1021,58 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
 
 
 arrangement_create_serie_dialog_view = PlanSerieForm.as_view()
+
+
+class OrderServiceDialog(LoginRequiredMixin, DialogView, JsonFormView):
+    template_name = (
+        "arrangement/planner/dialogs/arrangement_dialogs/orderServiceDialog.html"
+    )
+    form_class = OrderServiceForm
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        entity_type = self.kwargs.get("entity_type")
+        entity_id = self.kwargs.get("entity_id")
+
+        if entity_type == "event":
+            context["EVENT"] = Event.objects.get(id=entity_id) if entity_id else None
+        if entity_type == "serie":
+            context["SERIE"] = (
+                EventSerie.objects.get(id=entity_id) if entity_id else None
+            )
+
+        context["recipientDialogId"] = self.request.GET.get("recipientDialogId", None)
+ 
+        return context
+
+    def form_valid(self, form) -> JsonResponse:
+        form.save(self.request.user)
+        return super().form_valid(form)
+
+
+order_service_dialog_view = OrderServiceDialog.as_view()
+
+
+class InspectServiceOrderDialogView(
+    LoginRequiredMixin, DialogView, UpdateView, JsonFormView
+):
+    model = ServiceOrder
+    template_name = (
+        "arrangement/planner/dialogs/arrangement_dialogs/inspectOrderProvision.html"
+    )
+    pk_url_kwarg = "pk"
+    pk_field = "pk"
+    fields = ["freetext_comment"]
+    # form_class = UpdateServiceOrderForm
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        service_order: ServiceOrder = self.get_object()
+        basis_is_serie = service_order.associated_manifest is not None
+        context["BASIS_TYPE"] = "serie" if basis_is_serie else "event"
+        context["SAMPLE_BASIS_ITEM"] = service_order.associated_manifest if basis_is_serie else service_order.provisions.first().for_event
+        return context
+
+
+inspect_service_order_dialog_view = InspectServiceOrderDialogView.as_view()

@@ -20,3 +20,4 @@ django-npm
 anytree
 python-dateutil
 django-colorfield
+httpx

@@ -1,3 +1,5 @@
+import mimetypes
+
 from .base import *  # noqa
 from .base import env
 
@@ -28,6 +30,7 @@ CACHES = {
         },
     }
 }
+mimetypes.add_type("application/javascript", ".vue", True)
 
 # SECURITY
 # ------------------------------------------------------------------------------

@@ -30,31 +30,53 @@ export class MessagesFacility {
         this._subscriptions = new Map();
     }
 
-    send(recipient, payload, key=undefined) {
+    send(recipient, payload, key = undefined) {
+        console.log(">> SEND")
+        // debugger;
         if (!this._recipients.has(recipient))
             this._recipients.set(recipient, new Recipient(recipient));
         
-        this._recipients.get(recipient).leaveMessage(key, payload);
+        // debugger;
         
+        const subscriptionsOnRecipient = this._subscriptions.get(recipient);
+        if (subscriptionsOnRecipient)
+        {
+            const subscription = subscriptionsOnRecipient[subscriptionsOnRecipient.length - 1];
+            const result = subscription(key, payload);
+            if (result !== null)
+                return;
+        }
+        this._recipients.get(recipient).leaveMessage(key, payload);
+        return;
+        
+        
+        console.log(">> send", recipient)
+
         if (this._subscriptions.get(recipient)) {
             const subscriptionsOnRecipient = this._subscriptions.get(recipient);
-            for (let i = 0; i < subscriptionsOnRecipient.length; i++) {
-                const result = subscriptionsOnRecipient[i](key, payload)
-                if (result === null)
-                {
-                    /**
-                     * If a subscription function returns null we read this as if the
-                     * subscription instance has perished, and should therefore be removed.
-                     */
-                    subscriptionsOnRecipient.splice(i, 1);
-                    this._subscriptions.set(recipient, subscriptionsOnRecipient);
-                }
-            }
-            this._subscriptions.get(recipient).forEach((subscriptionFunction) => { 
-                const result = subscriptionFunction(key, payload);
-                if (result === null)
-                    this._subscriptions.get(recipient)
-            });
+
+            const subscription = subscriptionsOnRecipient[subscriptionsOnRecipient.length - 1]
+
+            subscription(key, payload);
+
+            // for (let i = 0; i < subscriptionsOnRecipient.length; i++) {
+            //     const result = subscriptionsOnRecipient[i](key, payload)
+                
+            //     if (result === null)
+            //     {
+            //         /**
+            //          * If a subscription function returns null we read this as if the
+            //          * subscription instance has perished, and should therefore be removed.
+            //          */
+            //         subscriptionsOnRecipient.splice(i, 1);
+            //         this._subscriptions.set(recipient, subscriptionsOnRecipient);
+            //     }
+            // }
+            // this._subscriptions.get(recipient).forEach((subscriptionFunction) => { 
+            //     const result = subscriptionFunction(key, payload);
+            //     if (result === null)
+            //         this._subscriptions.get(recipient)
+            // });
         }
     }
 

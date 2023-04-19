@@ -9,6 +9,7 @@ from .confirmation_urls import confirmation_urls
 from .event_urls import event_urls
 from .location_urls import location_urls
 from .note_urls import note_urls
+from .notification_urls import notification_urls
 from .organization_urls import organization_urls
 from .organizationtype_urls import organizationtype_urls
 from .person_urls import person_urls
@@ -16,6 +17,7 @@ from .planner_urls import planner_urls
 from .requisition_urls import requisition_urls
 from .room_preset_urls import room_preset_urls
 from .room_urls import room_urls
+from .service_urls import service_urls
 from .servicetype_urls import servicetype_urls
 from .status_type_urls import status_type_urls
 
@@ -40,4 +42,6 @@ urlpatterns = [
     *analysis_urls,
     *event_urls,
     *status_type_urls,
+    *service_urls,
+    *notification_urls,
 ]

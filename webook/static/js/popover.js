@@ -5,7 +5,7 @@ export class Popover {
     } = {}) {
         this.triggerElement = triggerElement;
         this.wrapperElement = wrapperElement;
-
+        
         this.isShown = false;
 
         if (this.triggerElement) {
@@ -22,6 +22,7 @@ export class Popover {
     }
 
     _listenToOutsideClicks() {
+        console.log(">> _listenToOutsideClicks()!")
         $(document).click(function (event) {
             if (this.isShown && this.wrapperElement.contains(event.target) === false && event.target !== this.triggerElement && this.triggerElement.contains(event.target) === false) {
                 this.show();
@@ -33,6 +34,7 @@ export class Popover {
      * Show/Hide the popover (toggle)
      */
     show() {
+        console.log(">> Show!")
         this.wrapperElement.classList.toggle("active");
         this.isShown = !this.isShown;
         console.log(">>" + this.isShown)

@@ -276,6 +276,37 @@
             </div>
         </div>
 
+        <div id="step-services">
+            <div class="clearfix">
+                <button class="wb-btn-main float-end"
+                    d-trigger="triggerNewServiceOrder">
+                Bestill tjenester
+                </button>
+            </div>
+
+            <div class="form-check" style="display:none;">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                <label class="form-check-label" for="flexCheckDefault">
+                    Reset eksisterende bestillinger
+                    <strong id="resetTooltip"
+                        data-mdb-toggle="tooltip"
+                        title="Restart de eksisterende bestillingene som har blitt plassert på denne serien, slik at de må behandles på nytt. <br>Nyttig hvis forandringen som blir gjort på serien er av en natur som kan affektere tjenesteplanleggingen.">
+                        (?)
+                    </strong>
+                </label>
+            </div>
+
+            <!-- <div class="alert alert-warning">
+                Med den konfigurasjonen du har valgt her vil de eksisterende (allerede plasserte) ordre for denne serien bli refreshet.
+                Det vil bety at eksisterende tildelinger vil fjernes, og behandlere må prosessere ordren på nytt.
+                Om du ikke ønsker dette må "Reset eksisterende bestillinger" ikke være avhuket, da vil ingenting bli gjort i relasjon til de eksisterende 
+                bestillingene.
+            </div> -->
+
+            <div id="serviceOrders">
+            </div>
+        </div>
+
         <div id="step-4">
             <div class="alert alert-info small">
                 <h6><i class="fas fa-info-circle"></i>&nbsp; Opprigg og nedrigg blir opprettet som egne hendelser før og etter aktiviteten.</h6>
@@ -633,6 +664,13 @@
         managerName: '{{ managerName }}',
         discriminator: '{{ discriminator }}',
         postInit: function (dialog) {
+
+            new mdb.Tooltip(dialog.getElementById('resetTooltip'), {
+                "container": dialog.dialogElement,
+                "template": `<div class="wb-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>`,
+                "html": true,
+            });
+
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
@@ -755,6 +793,12 @@
                     {
                         element: dialog.getElementById('step-3'),
                         title: 'Rom & Personer',
+                        stepIn: () => {},
+                        stepOut: () => {}
+                    },
+                    {
+                        element: dialog.getElementById('step-services'),
+                        title: 'Tjenestebestillinger',
                         stepIn: () => {},
                         stepOut: () => {}
                     },
@@ -1121,6 +1165,7 @@
                 serie.people_payload = dialog.data.peoplePayload;
                 serie.planner_payload = dialog.data.mainPlannerPayload;
                 serie.display_layouts = display_layouts.join(",");
+                serie.ordered_services = Array.from(dialog.data.servicePresets.values());
 
                 dialog.raiseSubmitEvent({
                     serie: serie,
@@ -1195,6 +1240,9 @@
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true, multiple: false, data: { whenEventName: "setPlanner" } });
             },
+            triggerNewServiceOrder(dialog, {} = {}, triggeredByElement) {
+                    dialog.raiseTriggerEvent("{{managerName}}", "orderServiceDialog", { $parent:dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "newServiceOrder"}, event_type: "serie", entity_id: "0" })
+            },  
             removeAssociation(dialog, {} = {}, triggeredByElement) {
                 let $triggeredByElement = $(triggeredByElement);
                 const id = $triggeredByElement.attr("id");
@@ -1204,6 +1252,13 @@
                 if (selectType === 'person') {
                     appropriateIdMap = dialog.data.selectedPeopleIds;
                     appropriatePresetMap = dialog.data.personPresets;
+                }
+                else if (selectType === "serviceOrder") {
+                    debugger;
+                    dialog.data.servicePresets.delete(id);
+                    debugger;
+                    triggeredByElement.parentElement.parentElement.remove();
+                    return;
                 }
                 else {
                     appropriateIdMap = dialog.data.selectedRoomIds;
@@ -1222,6 +1277,7 @@
             },
         },
         data: {
+            servicePresets: new Map(),
             roomPresets: new Map(),
             personPresets: new Map(),
             selectedRoomIds: new Map(),
@@ -1230,6 +1286,44 @@
             stepper: null,
         },
         when: [
+            { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
+                // this stuff needs to be rewritten along with the other similar methods
+                // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
+
+                console.log(">> newServiceOrder", payload)
+
+                dialog.data.servicePresets = new Map((payload.concat(
+                    Array.from(dialog.data.servicePresets.values())
+                )).map(x => [crypto.randomUUID(), x]));
+
+                let wrapper = dialog.$('#serviceOrders');
+                wrapper.empty();
+                
+                for (const [key, value] of dialog.data.servicePresets) {
+                    console.log("value", value);
+                    let buttonHtml = value.service_order ? ``
+                                                         : `<button class='btn wb-btn-main float-end text-danger' id='${key}'' select-type='serviceOrder' d-trigger='removeAssociation'><i class='fas fa-times'></i></button>`
+
+                    let $orderCard = $(`<div class='card card-body mt-2' id="${key}">
+                        
+                        <div>
+                        ${value.service_name}
+                        ${buttonHtml}
+                        </div>
+
+
+                        <code>
+                            ${value.freetext_comment}
+                        </code>
+                    </div>`);
+                    if (value.service_order) {
+                        $orderCard.addClass("border-success border")
+                    }
+                    wrapper.append(
+                        $orderCard
+                    );
+                }
+            } },
             { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
                 let wrapper = dialog.$( '#roomChips' );
                 wrapper.empty();
