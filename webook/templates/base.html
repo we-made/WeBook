@@ -617,8 +617,16 @@
             }
           },
           async mounted() {
-            await this.refreshNotifications();
-            console.log(this.myNotifications)
+            this.$nextTick(async function () {
+              if (this.myNotifications.length === 0)
+                $( "#toggle" ).effect( "shake" );
+              window.setInterval(async () => {
+                const initialCount = this.myNotifications.length;
+                await this.refreshNotifications();
+                if (this.myNotifications.length != initialCount)
+                  $( "#notificationsApp" ).effect( "shake" );
+              },1000);
+            });
           },
           delimiters: ["[[", "]]"]
         });
