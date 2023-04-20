@@ -299,7 +299,7 @@
               </ul>
               {% if request.user.is_authenticated %}
 
-                <div id="notificationsApp">
+                <div id="notificationsApp" v-cloak>
                   <a
                     href="#" :class="[  noOfUnreadNotifications > 0  ?'bg-warning p-1 rounded-3 shadow-5 text-white' : 'text-dark', 'h4 me-2 ms-4' ]"
                     id="toggleNotificationsPopover">
