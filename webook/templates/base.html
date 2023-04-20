@@ -318,11 +318,16 @@
   
                       <div class="d-flex justify-content-between mt-2">
                         <small><i class="fas fa-exclamation-triangle">&nbsp; </i><strong>[[noOfUnreadNotifications]]</strong> uleste notifikasjoner</small>
-
-                        <a href="#" @click="markAllNotificationsAsSeen()">
-                          <i class="fas fa-mouse-pointer"></i>
-                          Marker alle som lest
-                        </a>
+                        <div>
+                          <a href="#" @click="markAllNotificationsAsSeen()">
+                            <i class="fas fa-mouse-pointer"></i>
+                            Marker alle som lest
+                          </a>
+                          <a href="#" @click="archiveAllNotifications" class="d-block">
+                            <i class="fas fa-trash"></i>
+                            Slett alle
+                          </a>
+                        </div>
                       </div>
   
                       <div class="clearfix float-end" @click.stop="">
@@ -599,13 +604,37 @@
                 body: formData
               }).then(async response => await this.refreshNotifications());
             },
+            async archiveAllNotifications() {
+              Swal.fire({
+                title: "Er du sikker?",
+                text: "Dette vil slette alle dine notifikasjoner",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Ja, slett alle",
+                cancelButtonText: "Nei, avbryt"
+              }).then(async (result) => {
+                if (result.isConfirmed) {
+                  this.myNotifications.forEach(async notification => {
+                    await this.archiveNotification(notification);
+                  });
+                  toastr.success("Alle notifikasjoner slettet");
+                }
+              });
+            },
             async markAllNotificationsAsSeen() {
               fetch("/arrangement/notifications/mark_all_as_seen", {
                 method: 'POST',
                 headers: {
                   'X-CSRFToken': '{{ csrf_token }}'
                 },
-              }).then(async response => await this.refreshNotifications());
+              }).then(async response => {
+                if (response.status === 200) {
+                  toastr.success("Alle notifikasjoner merket som sett");
+                  await this.refreshNotifications();
+                }
+                else
+                  toastr.error("Noe gikk galt");
+              });
             },
             async archiveNotification(notification) {
               return fetch("/arrangement/notifications/archive/" + notification.id, {
@@ -613,7 +642,14 @@
                 headers: {
                   'X-CSRFToken': '{{ csrf_token }}'
                 }
-              }).then(async response => await this.refreshNotifications());
+              }).then(async response => {
+                if (response.status === 200) {
+                  await this.refreshNotifications();
+                  toastr.success("Notifikasjon slettet");
+                }
+                else
+                  toastr.error("Noe gikk galt");
+              });
             }
           },
           async mounted() {
