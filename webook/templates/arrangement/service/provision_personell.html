@@ -264,7 +264,7 @@
                             }
                         },
                         eventSources: [
-                            [ { title: '{{EVENT.title}}', start: '{{EVENT.start|date:"Y-m-d H:i"}}', end: '{{EVENT.start|date:"Y-m-d H:i"}}', classNames: ['projectionEvent'] } ],
+                            [ { title: '{{EVENT.title}}', start: '{{EVENT.start|date:"Y-m-d H:i"}}', end: '{{EVENT.end|date:"Y-m-d H:i"}}', classNames: ['projectionEvent'] } ],
                         ],
                         initialDate: '{{ EVENT.start | date:"Y-m-d" }}',
                         dayHeaderContent: "",
@@ -301,7 +301,7 @@
                         idOfResourceCurrentlyInFocus: null,
                         nameOfFocusedResource: "Velg en ressurs",
                         start: "{{ EVENT.start|date:'Y-m-d' }}T00:00",
-                        end: "{{ EVENT.start|date:'Y-m-d' }}T23:59",
+                        end: "{{ EVENT.end|date:'Y-m-d' }}T23:59",
                     }
                 },
                 computed: {
