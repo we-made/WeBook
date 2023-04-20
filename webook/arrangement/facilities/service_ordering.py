@@ -385,6 +385,10 @@ def add_event_to_service_order(service_order: ServiceOrder, event: Event):
 def remove_provision_from_service_order(service_order: ServiceOrder, provision: ServiceOrderProvision):
     provision.archive()
     
+    if service_order.provisions.count() == 0:
+        cancel_service_order(service_order)
+        return
+
     if service_order.state not in [States.CONFIRMED, States.CHANGED]:
         return # Only trigger the change process if the service order is confirmed
 
