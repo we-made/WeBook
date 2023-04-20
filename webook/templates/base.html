@@ -656,6 +656,9 @@
             this.$nextTick(async function () {
               if (this.myNotifications.length === 0)
                 $( "#toggle" ).effect( "shake" );
+
+              await this.refreshNotifications();
+
               window.setInterval(async () => {
                 const initialCount = this.myNotifications.length;
                 await this.refreshNotifications();
