@@ -627,7 +627,14 @@
                 headers: {
                   'X-CSRFToken': '{{ csrf_token }}'
                 },
-              }).then(async response => await this.refreshNotifications());
+              }).then(async response => {
+                if (response.status === 200) {
+                  toastr.success("Alle notifikasjoner merket som sett");
+                  await this.refreshNotifications();
+                }
+                else
+                  toastr.error("Noe gikk galt");
+              });
             },
             async archiveNotification(notification) {
               return fetch("/arrangement/notifications/archive/" + notification.id, {
@@ -635,7 +642,14 @@
                 headers: {
                   'X-CSRFToken': '{{ csrf_token }}'
                 }
-              }).then(async response => await this.refreshNotifications());
+              }).then(async response => {
+                if (response.status === 200) {
+                  await this.refreshNotifications();
+                  toastr.success("Notifikasjon slettet");
+                }
+                else
+                  toastr.error("Noe gikk galt");
+              });
             }
           },
           async mounted() {
