@@ -2163,7 +2163,6 @@ class ServiceOrderProvision(ModelArchiveableMixin, TimeStampedModel):
     """Provisions are event-individual resolutions of a service order
     A service order may contain many events. Each event can have an individual resolution.
     """
-
     related_to_order = models.ForeignKey(
         to="ServiceOrder", related_name="provisions", on_delete=models.CASCADE
     )
