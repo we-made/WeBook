@@ -211,13 +211,12 @@ class DeleteEventSerie(LoginRequiredMixin, PlannerAuthorizationMixin, JsonArchiv
 
     def delete(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         for event in self.get_object().events.all():
-            provisions: List[ServiceOrderProvision]
-            if provisions := event.provisions.all():
-                for provision in provisions:
-                    remove_provision_from_service_order(
-                        service_order=provision.related_to_order,
-                        provision=provision,
-                    )
+            provisions: List[ServiceOrderProvision] = event.provisions.all()
+            for provision in provisions:
+                remove_provision_from_service_order(
+                    service_order=provision.related_to_order,
+                    provision=provision,
+                )
 
         return super().delete(request, *args, **kwargs)
 
