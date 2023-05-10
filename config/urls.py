@@ -1,27 +1,37 @@
 from typing import Reversible
+
+from allauth.account.views import logout
 from django.conf import settings
-from django.urls import include, path
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.views.generic import TemplateView
-from django.views import defaults as default_views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import include, path, reverse
+from django.views import defaults as default_views
+from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
-from django.urls import reverse
+
+from webook.users.views import LoginView
 
 
 class HomeView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-        if (self.request.user.is_authenticated):
-            return reverse(
-                "users:detail", kwargs={"slug": self.request.user.slug}
-            )
+        if self.request.user.is_authenticated:
+            return reverse("users:detail", kwargs={"slug": self.request.user.slug})
         else:
-            return reverse(
-                "account_login"
-            )
+            return reverse("account_login")
 
+
+auth_patterns = (
+    [
+        path("accounts/", include("allauth.urls")),
+    ]
+    if settings.ALLOW_EMAIL_LOGIN
+    else [
+        path("/accounts/login", LoginView.as_view(), name="account_login"),
+        path("accounts/logout/", logout, name="account_logout"),
+    ]
+)
 
 urlpatterns = [
     path(
@@ -37,7 +47,9 @@ urlpatterns = [
         "users/",
         include("webook.users.urls", namespace="users"),
     ),
-    path("accounts/", include("allauth.urls")),
+    path("accounts/", include("allauth.urls"))
+    if settings.ALLOW_EMAIL_LOGIN
+    else path("accounts/", include("allauth.urls")),
     path(
         "arrangement/",
         include("webook.arrangement.urls", namespace="arrangement"),
@@ -72,6 +84,4 @@ if settings.DEBUG:
     if "debug_toolbar" in settings.INSTALLED_APPS:
         import debug_toolbar
 
-        urlpatterns = [
-            path("__debug__/", include(debug_toolbar.urls))
-        ] + urlpatterns
+        urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns

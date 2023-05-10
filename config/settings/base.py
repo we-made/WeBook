@@ -333,6 +333,8 @@ SOCIALACCOUNT_PROVIDERS["microsoft"] = {
     },
 }
 
+ALLOW_EMAIL_LOGIN = env("ALLOW_EMAIL_LOGIN", default=True)
+
 # Your stuff...
 # ------------------------------------------------------------------------------
 APP_LOGO = env("APP_LOGO", default="static/images/wemade_logo.jpg")
