@@ -24,13 +24,6 @@
                     <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="input-group input-group-lg border">
-                        <span :class="['input-group-text fw-bold', highlightClass]">
-                            E-Post
-                        </span>
-                        <input type="email" name="" :class="['form-control', highlightClass]"  id="" v-model="emailInput">
-                    </div>
-
                     <span class="text-danger ms-1" v-if="showAlreadyRegisteredErrorText">
                         <i class="fas fa-exclamation-triangle"></i>&nbsp; Denne e-posten er allerede registrert som en ansvarlig på denne tjenesten.
                     </span>
@@ -38,7 +31,7 @@
                     <span v-if="emailIsValid">
                         <div class="alert d-flex  align-items-center mt-3 alert-success" v-if="emailIsAssociatedWithUser">
                             <h3 class="mb-0">
-                                <i class="fas fa-check"></i>
+                                <i class="fas fa-user-check"></i>
                             </h3>
 
                             <span class="ms-4">
@@ -55,6 +48,13 @@
                             </span>
                         </div>
                     </span>
+
+                    <div class="input-group input-group-lg border">
+                        <span :class="['input-group-text fw-bold', highlightClass]">
+                            E-Post
+                        </span>
+                        <input type="email" name="" :class="['form-control', highlightClass]"  id="" v-model="emailInput">
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn wb-btn-secondary" data-mdb-dismiss="modal">Avbryt</button>
