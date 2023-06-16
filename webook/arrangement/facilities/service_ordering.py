@@ -299,8 +299,7 @@ def deny_service_order(service_order_or_token: Union[ServiceOrder, str]) -> None
     service_order.save()
 
     recipients: List[str] = []
-    arrangement: Arrangement = service_order.events.first()
-
+    arrangement: Arrangement = service_order.arrangement
     if arrangement.responsible.user_set.exists():
         recipients.append(arrangement.responsible.user_set.first().email)
 
@@ -330,7 +329,7 @@ def deny_service_order(service_order_or_token: Union[ServiceOrder, str]) -> None
         context={
             "SERVICE_NAME": service_order.service.name,
             "ORDER_ID": service_order.pk,
-            "ARRANGEMENT_NAME": service_order.events.first().arrangement.name,
+            "ARRANGEMENT_NAME": arrangement.name
         },
         is_html=True,
     )

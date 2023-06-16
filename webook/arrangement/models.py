@@ -2005,6 +2005,13 @@ class ServiceOrder(TimeStampedModel, ModelArchiveableMixin):
     freetext_comment = models.TextField()
 
     @property
+    def arrangement(self) -> Optional[Arrangement]:
+        if self.events.exists():
+            return self.events.first().arrangement
+        if self.associated_manifest and self.associated_manifest.series.exists():
+            return self.associated_manifest.series.first().arrangement
+
+    @property
     def sorted_changelogs(self):
         return self.changelogs.order_by("-created")
 
