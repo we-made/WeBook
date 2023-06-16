@@ -113,7 +113,7 @@
             let data = this.tableData;
             
             if (this.searchTerm.length > 2)
-              data = data.filter(x => x.label.includes(this.searchTerm));
+              data = data.filter(x => x.label.toLowerCase().includes(this.searchTerm.toLowerCase()));
 
             return data;
           },
