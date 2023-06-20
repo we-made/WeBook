@@ -24,7 +24,6 @@ _ALWAYS_FIELDS = (
     "color",
     "sequence_guid",
     "display_layouts",
-    "people",
     "rooms",
     "before_buffer_title",
     "before_buffer_date",
@@ -246,7 +245,6 @@ class BaseEventForm(forms.ModelForm):
         self.instance.save()
         self.instance.display_layouts.set(self.cleaned_data["display_layouts"])
         self.instance.rooms.set(self.cleaned_data["rooms"])
-        self.instance.people.set(self.cleaned_data["people"])
 
     class Meta:
         model = Event

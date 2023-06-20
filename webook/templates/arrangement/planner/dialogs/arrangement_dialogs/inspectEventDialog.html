@@ -76,7 +76,7 @@
         </li>
         <li class="nav-item" role="presentation">
             <a href="#tab-resources" role="tab" data-mdb-toggle="tab" class="nav-link" id="tab-resource">
-                Rom & Personer
+                Rom
             </a>
         </li>
         <li class="nav-item" role="presentation">
@@ -394,7 +394,7 @@
 
         <div class="tab-pane fade" id="tab-resources" role="tabpanel">
             <div class="row">
-                <div class="col-lg-6 col-sm-12">
+                <div class="col-lg-12 col-sm-12">
                     <div class=" mb-2 mt-4">
                         <label class="form-label">Rom</label>
                         {% if user|has_group:"planners" or user.is_superuser %}
@@ -425,43 +425,6 @@
                                     {% endif %}
                                 </tr>
                             {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-sm-12">
-                    <div class="cmb-2 mt-4">
-                        <label class="form-label">Personer</label>
-                        {% if user|has_group:"planners" or user.is_superuser %}
-                        <a class="btn btn-sm wb-btn-secondary wb-bg-secondary float-end"
-                            d-trigger="triggerAddPeople"
-                            type="button">
-                            Legg til nye personer
-                        </a>
-                        {% endif %}
-                    </div>
-        
-                    <hr>
-
-
-                    <div class="table-responsive">
-                        <table class="table table-sm table-borderless">
-                            <tbody id="peopleTableBody">
-                                {% for person in object.people.all %}
-                                    <tr rowid="{{person.pk}}">
-                                        <td>{{person}}</td>
-                                        {% if user|has_group:"planners" or user.is_superuser %}
-                                        <td>
-                                            <a href="#" class="text-danger"
-                                                data-mdb-toggle="tooltip"
-                                                d-trigger="removeAssociation"
-                                                title="{% trans 'Remove this person from the activity' %}">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </td>
-                                        {% endif %}
-                                    </tr>
-                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -906,11 +869,6 @@
                 dialog.data.roomsMap = e.detail.context.room_name_map;
                 dialog.setRooms(e.detail.context.rooms);
             });
-
-            document.addEventListener("eventInspector.peopleUpdated", (e) => {
-                dialog.data.peopleMap = e.detail.context.people_name_map;
-                dialog.setPeople(e.detail.context.people);
-            });
         },
         methods: {
             close: function (dialog, {} = {}, triggeredByElement) {
@@ -1006,27 +964,6 @@
                         </tr>`));
                 });
             },
-            /* Set people */
-            setPeople: (dialog, people) => {
-                let tbody = dialog.$('#peopleTableBody');
-                tbody.empty();
-
-                people.split(",").forEach(id => {
-                    tbody.append(
-                        $(`<tr rowid='${id}'>
-                            <td>${dialog.data.peopleMap.get(id)}</td>
-                            {% if user|has_group:"planners" or user.is_superuser %}
-                            <td>
-                                <a href="#" class="text-danger"
-                                            data-mdb-toggle="tooltip"
-                                            d-trigger="removeAssociation"
-                                            title="{% trans 'Remove this person from the activity' %}">
-                                            <i class="fas fa-trash"></i>
-                            </td>
-                            {% endif %}
-                        </tr>`) );
-                });
-            },
             /* Remove association from DOM */
             removeAssociation: (dialog, {}, triggeredByElement) => {
                 let row = $(triggeredByElement).closest("tr");
@@ -1036,11 +973,6 @@
             getSelectedRoomIds: (dialog) => {
                 return Array.from(dialog.$("#roomsTableBody")[0].children)
                                     .map(row => row.getAttribute("rowid"))
-            },
-            /* Gets and returns an array containing the IDs of all selected people */
-            getSelectedPeopleIds: (dialog) => {
-                return Array.from(dialog.$("#peopleTableBody")[0].children)
-                                    .map(row => row.getAttribute("rowid"));
             },
             /* Open dialog for inspecting an arrangement */
             openInspectArrangementDialog: (dialog, { slug, eventPk } = {}) => {
@@ -1107,7 +1039,6 @@
                     expected_visitors:  dialog.interior.id_expected_visitors.value,
                     actual_visitors:    dialog.interior.id_actual_visitors.value,
                     arrangement:        '{{object.arrangement.pk}}',
-                    people:             dialog.getSelectedPeopleIds(),
                     rooms:              dialog.getSelectedRoomIds(),    
                     status:             dialog.data.statusTypeJsTreeSelect.getSelectedValue(),
                     display_layouts:    [...dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked")]
@@ -1140,15 +1071,11 @@
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent(dialog.managerName, "orderRoomDialog", { $parent: dialog.dialogElement, sendTo: '{{ dialogId }}' });
             },
-            triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{ dialogId }}', multiple: true, data: { whenEventName: "peopleSelected" } });
-            },
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
             },
         },
         data: {
-            peopleMap: new Map(),
             roomsMap: new Map(),
         },
         when: [
@@ -1166,12 +1093,6 @@
                     payload.allSelectedEntityIds.map(x => [x.id, x.text])
                 );
                 dialog.setRooms(payload.allSelectedEntityIds.map(x => x.id).join(","));
-            } },
-            { eventKnownAs: "peopleSelected", do: (dialog, payload) => {
-                dialog.data.peopleMap = new Map(
-                    payload.allSelectedEntityIds.map(x => [x.id, x.text])
-                );
-                dialog.setPeople(payload.allSelectedEntityIds.map(x => x.id).join(","));
             } },
         ],
         plugins: [
@@ -1196,38 +1117,21 @@
     })
 
     $(document).ready(function () {
-        const personAsyncFilter = async (query) => {
-        const url = `{% url "arrangement:search_people_ajax_view" %}?term=${encodeURI(query)}`;
-        const response = await fetch(url);
-        const data = JSON.parse(await response.json());
+        const roomAsyncFilter = async (query) => {
+            const url = `{% url "arrangement:search_room_ajax_view" %}?term=${encodeURI(query)}`;
+            const response = await fetch(url);
+            const data = JSON.parse(await response.json());
 
-        let people = []
-        for (let i = 0; i < data.length; i++) {
-          let entry = data[i]
-          entry.fields.id = entry.pk;
-          if (!peopleMap.has(entry.fields.id)) {
-            people.push(entry.fields)
-          }
-        }
+            let rooms = [];
+            for (let i = 0; i < data.length; i++) {
+                let entry = data[i]
+                entry.fields.id = entry.pk;
+                if (roomsMap.has(entry.fields.id) !== true) {
+                    rooms.push(entry.fields);
+                }
+            }
 
-        return people;
-      };
-
-      const roomAsyncFilter = async (query) => {
-        const url = `{% url "arrangement:search_room_ajax_view" %}?term=${encodeURI(query)}`;
-        const response = await fetch(url);
-        const data = JSON.parse(await response.json());
-
-        let rooms = [];
-        for (let i = 0; i < data.length; i++) {
-          let entry = data[i]
-          entry.fields.id = entry.pk;
-          if (roomsMap.has(entry.fields.id) !== true) {
-            rooms.push(entry.fields);
-          }
-        }
-
-        return rooms;
-      };
+            return rooms;
+        };
     })
 </script>
