@@ -462,7 +462,7 @@ class GetEventsForPersonJsonView(ValidateTokenMixin, ListView, JSONResponseMixin
                     "extendedProps": {"originatingSource": "bookings"},
                     **map_event_to_fc_activity(event).__dict__,
                 },
-                person.my_events.all(),
+                person.my_events,
             )
         )
 

@@ -120,9 +120,6 @@ export class ArrangementCreator {
                                 const $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
                                 const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
 
-                                if (context.lastTriggererDetails.preselectedPeople) {
-                                    window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preselectedPeople, "peopleSelected");
-                                }
                                 if (context.lastTriggererDetails.preselectedRooms) {
                                     window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preselectedRooms, "roomsSelected");
                                 }
@@ -180,6 +177,8 @@ export class ArrangementCreator {
                             this.dialogManager.closeDialog("newTimePlanDialog");
                         },
                         onSubmit: async (context, details) => {
+                            debugger;
+
                             details.serie.friendlyDesc = SerieMetaTranslator.generate(details.serie);
 
                             if (context.series === undefined) {

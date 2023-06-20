@@ -15,7 +15,7 @@ from colorfield.fields import ColorField
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db import models
-from django.db.models import FileField
+from django.db.models import Count, FileField
 from django.db.models.deletion import RESTRICT
 from django.urls import reverse
 from django.utils import timezone as dj_timezone
@@ -494,7 +494,7 @@ class Arrangement(
         verbose_name=_("Screen Display Text"), max_length=255, blank=True, null=True
     )
     display_text_en = models.CharField(
-        verbose_name=_("Screen Display Text(English)"),
+        verbose_name=_("Screen Display Text (English)"),
         max_length=255,
         blank=True,
         null=True,
@@ -1038,6 +1038,10 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
     entity_name_plural = _("People")
 
     @property
+    def my_events(self) -> List[Event]:
+        return list(map(lambda p: p.for_event, self.interim_provisions_assigned_to.all()))
+
+    @property
     def is_sso_capable(self):
         return (
             self.social_provider_id is not None
@@ -1305,9 +1309,29 @@ class Event(
     arrangement = models.ForeignKey(
         to=Arrangement, on_delete=models.CASCADE, verbose_name=_("Arrangement")
     )
+
     people = models.ManyToManyField(
         to=Person, verbose_name=_("People"), related_name="my_events", blank=True
     )
+
+    @property
+    def people(self):
+        
+        assigned_people = set()
+        
+        for provision in self.provisions.all():
+            if provision.related_to_order.state == States.CONFIRMED:
+                for person in provision.selected_personell.all():
+                    assigned_people.add(person)
+                    
+        return assigned_people
+        
+        # self.provisions.annotate(people_count=Count("selected_personell")).filter(
+        #     people_count__gte=0
+        # )
+        # Event.objects.annotate(provisions_count=Count("provisions")).filter(provisions_count__gte=0)
+        # provisions = self.provisions.get()
+
     rooms = models.ManyToManyField(to=Room, verbose_name=_("Rooms"), blank=True)
     loose_requisitions = models.ManyToManyField(
         to="LooseServiceRequisition",
@@ -2061,11 +2085,21 @@ class ServiceOrderChangeSummary(TimeStampedModel, ModelArchiveableMixin):
         if len(self.lines.all()) == 0:
             self.archive()
 
-    def add_lines(self, provisions: List[Tuple[Optional[datetime.datetime], Optional[datetime.datetime], ServiceOrderProvision]], change_type: ChangeType) -> None:
+    def add_lines(
+        self,
+        provisions: List[
+            Tuple[
+                Optional[datetime.datetime],
+                Optional[datetime.datetime],
+                ServiceOrderProvision,
+            ]
+        ],
+        change_type: ChangeType,
+    ) -> None:
         if len(provisions) == 0:
             return
 
-        for (initial_start, initial_end, provision) in provisions:
+        for initial_start, initial_end, provision in provisions:
             if initial_start is None or initial_end is None:
                 initial_start = provision.for_event.start
                 initial_end = provision.for_event.end
@@ -2074,7 +2108,10 @@ class ServiceOrderChangeSummary(TimeStampedModel, ModelArchiveableMixin):
                 if provision.id in self.removed_lines:  # line has been re-added
                     line = self.removed_lines[provision.id]
 
-                    if line.initial_start == provision.for_event.start and line.initial_end == provision.for_event.end:
+                    if (
+                        line.initial_start == provision.for_event.start
+                        and line.initial_end == provision.for_event.end
+                    ):
                         line.archive()
                         continue  # times are as they were to start with - provision is not changed anymore.
 
@@ -2094,22 +2131,35 @@ class ServiceOrderChangeSummary(TimeStampedModel, ModelArchiveableMixin):
                 sodcl.type_of_change = change_type
             except ServiceOrderChangeLine.DoesNotExist:
                 sodcl = ServiceOrderChangeLine(
-                    summary=self, provision=provision, type_of_change=change_type, initial_start=initial_start, initial_end=initial_end
+                    summary=self,
+                    provision=provision,
+                    type_of_change=change_type,
+                    initial_start=initial_start,
+                    initial_end=initial_end,
                 )
 
             sodcl.save()
 
     @property
     def added_lines(self) -> List[ServiceOrderChangeLine]:
-        return { l.provision.id: l for l in self.lines.filter(type_of_change=ChangeType.NEW) }
+        return {
+            l.provision.id: l for l in self.lines.filter(type_of_change=ChangeType.NEW)
+        }
 
     @property
     def removed_lines(self) -> List[ServiceOrderChangeLine]:
-        return { l.provision.id: l for l in self.lines.filter(type_of_change=ChangeType.REMOVED) }
+        return {
+            l.provision.id: l
+            for l in self.lines.filter(type_of_change=ChangeType.REMOVED)
+        }
 
     @property
     def changed_lines(self) -> List[ServiceOrderChangeLine]:
-        return { l.provision.id: l for l in self.lines.filter(type_of_change=ChangeType.TIMES_CHANGED) }
+        return {
+            l.provision.id: l
+            for l in self.lines.filter(type_of_change=ChangeType.TIMES_CHANGED)
+        }
+
 
 class ServiceOrderChangeLine(TimeStampedModel, ModelArchiveableMixin):
     summary = models.ForeignKey(
@@ -2118,7 +2168,9 @@ class ServiceOrderChangeLine(TimeStampedModel, ModelArchiveableMixin):
         on_delete=models.RESTRICT,
     )
 
-    provision = models.ForeignKey(to="ServiceOrderProvision", null=True, on_delete=models.RESTRICT)
+    provision = models.ForeignKey(
+        to="ServiceOrderProvision", null=True, on_delete=models.RESTRICT
+    )
 
     initial_start = models.DateTimeField()
     initial_end = models.DateTimeField()
@@ -2128,9 +2180,7 @@ class ServiceOrderChangeLine(TimeStampedModel, ModelArchiveableMixin):
     )
 
     def __str__(self) -> str:
-        return (
-            f"<ServiceOrderDateChangeLine, State={self.type_of_change}, Date={self.date}>"
-        )
+        return f"<ServiceOrderDateChangeLine, State={self.type_of_change}, Date={self.date}>"
 
 
 class ServiceOrderInternalChangelog(TimeStampedModel):
@@ -2170,6 +2220,7 @@ class ServiceOrderProvision(ModelArchiveableMixin, TimeStampedModel):
     """Provisions are event-individual resolutions of a service order
     A service order may contain many events. Each event can have an individual resolution.
     """
+
     related_to_order = models.ForeignKey(
         to="ServiceOrder", related_name="provisions", on_delete=models.CASCADE
     )

@@ -135,12 +135,13 @@ def _get_planner_recipients(service_order: ServiceOrder) -> List[Person]:
     """Given a ServiceOrder, attempt to find the email ofplanners who are to be notified of certain changes
     when things happen to the respective service order."""
     recipients: List[str] = []
-    arrangement: Arrangement = service_order.events.first()
+    arrangement: Arrangement = service_order.arrangement
 
     if arrangement.responsible.user_set.exists():
         recipients.append(arrangement.responsible.user_set.first().person)
 
     return list(set(recipients))
+
 
 def confirm_service_order(service_order_or_token: Union[ServiceOrder, str]) -> None:
     """Confirm a given service order, moving it into the final CONFIRMED state"""
@@ -157,7 +158,9 @@ def confirm_service_order(service_order_or_token: Union[ServiceOrder, str]) -> N
         for planner in planners_to_notify:
             notification = Notification()
             notification.to_person = planner
-            notification.title = f"Endringer på bestilling #{service_order.id} er bekreftet"
+            notification.title = (
+                f"Endringer på bestilling #{service_order.id} er bekreftet"
+            )
             notification.message = "Koordinator har evaluert endringene gjort på tider aktuelle for bestillingen og bekreftet disse."
             notification.source = "Tjenestebestilling"
             notification.icon_background_class = "text-success"
@@ -329,7 +332,7 @@ def deny_service_order(service_order_or_token: Union[ServiceOrder, str]) -> None
         context={
             "SERVICE_NAME": service_order.service.name,
             "ORDER_ID": service_order.pk,
-            "ARRANGEMENT_NAME": arrangement.name
+            "ARRANGEMENT_NAME": arrangement.name,
         },
         is_html=True,
     )
@@ -344,9 +347,12 @@ def _initialize_provisions(service_order: ServiceOrder) -> None:
         )
         provision.save()
 
-def _get_change_summary(service_order: ServiceOrder) -> Tuple[ServiceOrderChangeSummary, bool]:
+
+def _get_change_summary(
+    service_order: ServiceOrder,
+) -> Tuple[ServiceOrderChangeSummary, bool]:
     created_now = False
-    
+
     try:
         change_summary = ServiceOrderChangeSummary.objects.get(
             service_order=service_order, has_been_processed=False
@@ -360,73 +366,86 @@ def _get_change_summary(service_order: ServiceOrder) -> Tuple[ServiceOrderChange
 
     return change_summary, created_now
 
+
 def _move_order_to_changed_state(service_order: ServiceOrder):
     service_order.state = States.CHANGED
     service_order.save()
 
+
 def add_event_to_service_order(service_order: ServiceOrder, event: Event):
     sop = ServiceOrderProvision(
-        related_to_order=service_order,
-        for_event=event,
-        sopr_resolving_this=None
+        related_to_order=service_order, for_event=event, sopr_resolving_this=None
     )
     sop.save()
 
     if service_order.state not in [States.CONFIRMED, States.CHANGED]:
-        return # Only trigger the change process if the service order is confirmed
-    
+        return  # Only trigger the change process if the service order is confirmed
+
     change_summary, created_now = _get_change_summary(service_order)
-    change_summary.add_lines({ "provision_id": sop.id }, change_type=ChangeType.NEW)
+    change_summary.add_lines({"provision_id": sop.id}, change_type=ChangeType.NEW)
 
     _move_order_to_changed_state(service_order)
     _notify_coordinators_of_times_changed(service_order)
 
-def remove_provision_from_service_order(service_order: ServiceOrder, provision: ServiceOrderProvision):
+
+def remove_provision_from_service_order(
+    service_order: ServiceOrder, provision: ServiceOrderProvision
+):
     provision.archive()
-    
+
     if service_order.provisions.count() == 0:
         cancel_service_order(service_order)
         return
 
     if service_order.state not in [States.CONFIRMED, States.CHANGED]:
-        return # Only trigger the change process if the service order is confirmed
+        return  # Only trigger the change process if the service order is confirmed
 
     change_summary, created_now = _get_change_summary(service_order)
-    change_summary.add_lines([(None, None, provision) ], change_type=ChangeType.REMOVED)
+    change_summary.add_lines([(None, None, provision)], change_type=ChangeType.REMOVED)
 
     _move_order_to_changed_state(service_order)
     _notify_coordinators_of_times_changed(service_order)
 
     change_summary.check_self()
 
-def log_provision_changed(service_order: ServiceOrder, provision: ServiceOrderProvision, old_start: datetime, old_end: datetime):
+
+def log_provision_changed(
+    service_order: ServiceOrder,
+    provision: ServiceOrderProvision,
+    old_start: datetime,
+    old_end: datetime,
+):
     if service_order.state not in [States.CONFIRMED, States.CHANGED]:
         return
 
     change_summary, created_now = _get_change_summary(service_order)
 
-    if (provision.for_event.start != old_start or provision.for_event.end != old_end):
+    if provision.for_event.start != old_start or provision.for_event.end != old_end:
         change_summary.add_lines(
             [(old_start, old_end, provision)], ChangeType.TIMES_CHANGED
         )
 
         _move_order_to_changed_state(service_order)
         _notify_coordinators_of_times_changed(service_order)
-    
+
     change_summary.check_self()
-    
+
 
 def _notify_coordinators_of_times_changed(service_order: ServiceOrder):
     # Notify coordinators of service order that has been changed and needs to be evaluated
     for email in service_order.service.emails.all():
         if person := resolve_email(email):
-            sopr: ServiceOrderProcessingRequest = service_order.requests.filter(recipient=email).last()
+            sopr: ServiceOrderProcessingRequest = service_order.requests.filter(
+                recipient=email
+            ).last()
             if sopr is None:
                 sopr = generate_processing_request_for_user(service_order, person.user)
 
             notification = Notification()
             notification.to_person = person
-            notification.title = f"Tider i bestilling #{service_order.id} har blitt endret"
+            notification.title = (
+                f"Tider i bestilling #{service_order.id} har blitt endret"
+            )
             notification.icon_class = "fa-exclamation-triangle"
             notification.icon_background_class = "text-warning"
             notification.message = f"Tider i bestilling #{service_order.id} har blitt endret. Bestillingen må evalueres, og eventuelt godkjennes på nytt."
@@ -492,26 +511,32 @@ def generate_changelog_of_serie_events_in_order(service_order: ServiceOrder):
                 or new_event.end != provision.for_event.end
             ):
                 surviving_dates_with_changed_times.append(date_of_provision)
-                changed_provisions.append( (provision.for_event.start, provision.for_event.end, provision) )
+                changed_provisions.append(
+                    (provision.for_event.start, provision.for_event.end, provision)
+                )
 
             provision.for_event = new_event
             provision.save()
             continue
         else:
             provision.archive()
-            removed_provisions.append((provision.for_event.start, provision.for_event.end, provision))
+            removed_provisions.append(
+                (provision.for_event.start, provision.for_event.end, provision)
+            )
 
     new_provisions = []
     for date in new_dates:
         event = updated_dates[date]
 
         provision = ServiceOrderProvision.all_objects.filter(
-            Q(related_to_order=service_order, for_event__start__date = date)
+            Q(related_to_order=service_order, for_event__start__date=date)
         ).last()
 
         if provision is None:
             provision = ServiceOrderProvision(
-                related_to_order=service_order, for_event=event, sopr_resolving_this=None
+                related_to_order=service_order,
+                for_event=event,
+                sopr_resolving_this=None,
             )
         else:
             provision.for_event = event
@@ -520,17 +545,13 @@ def generate_changelog_of_serie_events_in_order(service_order: ServiceOrder):
             provision.archived_when = None
 
         provision.save()
-        new_provisions.append((provision.for_event.start, provision.for_event.end, provision))
+        new_provisions.append(
+            (provision.for_event.start, provision.for_event.end, provision)
+        )
 
-    change_summary.add_lines(
-        new_provisions, change_type=ChangeType.NEW
-    )
-    change_summary.add_lines(
-        changed_provisions, change_type=ChangeType.TIMES_CHANGED
-    )
-    change_summary.add_lines(
-        removed_provisions, change_type=ChangeType.REMOVED
-    )
+    change_summary.add_lines(new_provisions, change_type=ChangeType.NEW)
+    change_summary.add_lines(changed_provisions, change_type=ChangeType.TIMES_CHANGED)
+    change_summary.add_lines(removed_provisions, change_type=ChangeType.REMOVED)
 
     change_summary.save()
 
@@ -548,6 +569,7 @@ def generate_changelog_of_serie_events_in_order(service_order: ServiceOrder):
     service_order.save()
 
     _notify_coordinators_of_times_changed(service_order)
+
 
 def reinitialize_service_ordering(service_order: ServiceOrder) -> ServiceOrder:
     """Re-initialize an existing and already placed service order, setting it and its provisions back to square one."""

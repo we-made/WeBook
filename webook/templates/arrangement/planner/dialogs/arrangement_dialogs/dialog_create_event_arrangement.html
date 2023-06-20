@@ -148,21 +148,6 @@
                 </label>
                 {{ form.responsible }}
             </div> {% endcomment %}
-
-            <div class="border rounded box-shadow-2 wb-bg-secondary p-4">
-                <label for="{{form.responsible.id_for_label}}" class="form-label">
-                    <i class="fas fa-users"></i>&nbsp;
-                    Personer
-                </label>
-                <div>
-                    <button class="wb-btn-main"
-                            type="button"
-                            d-trigger="triggerAddPeople">
-                        Velg personer
-                    </button>
-                </div>  
-                <div id="selectedPeopleWrapper" class="chipsList"></div>
-            </div>
             
             <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
                 <label for="" class="form-label">
@@ -292,9 +277,9 @@
                             </div>
                         </td>
                         <td style="padding-top:0;">
-                            <lable for="buffer_after_end" class="form-label">
+                            <label for="buffer_after_end" class="form-label">
                                 Til
-                            </lable>
+                            </label>
                             <div class="form-outline">
                                 <input type="time" id="buffer_after_end" name="buffer_after_end" class="form-control form-control-lg" />
                             </div>
@@ -463,12 +448,6 @@
                 dialog.$("#buffer_after_start").val(event.target.value);
             });
 
-            document.addEventListener("{{managerName}}.d1_peopleSelected", (e) => {
-                dialog.data.peopleNameMap = e.detail.context.people_name_map;
-                dialog.setPeople({ people: e.detail.context.people });
-
-                dialog.$("#peopleCounter").text(dialog.$("#selectedPeopleWrapper").children().length);
-            });
             document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
                 dialog.data.roomsNameMap = e.detail.context.room_name_map;
                 dialog.setRooms({ rooms: e.detail.context.rooms });
@@ -602,8 +581,6 @@
                     end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
                     arrangement:                0,
                     rooms:                      Array.from(dialog.data.selectedRoomIds.keys()),
-                    people:                     Array.from(dialog.data.selectedPeopleIds.keys()),
-                    people_name_map:            dialog.data.peopleNameMap,      // Kept due to edit - not pertinent for save
                     room_name_map:              dialog.data.roomsNameMap,       // Kept due to edit - not pertinent for save
                     before_buffer_title:        dialog.interior.buffer_before_title.value ?? "",
                     before_buffer_date:         dialog.interior.buffer_before_date.value,
@@ -618,7 +595,6 @@
                     responsible:                dialog.interior.id_responsible.value,
                     display_text:               dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
                     room_payload:               dialog.data.roomPayload,
-                    people_payload:             dialog.data.peoplePayload,
                     planner_payload:            dialog.data.mainPlannerPayload,
                     ordered_services:           Array.from(dialog.data.servicePresets.values()),
                     serie_uuid:                 dialog.interior._serie_reference.value,
@@ -673,10 +649,6 @@
                     mapOfSelectedItemIds = dialog.data.selectedRoomIds;
                     appropriatePresetMap = dialog.data.roomPresets;
                 }
-                else if (type === "person") {
-                    mapOfSelectedItemIds = dialog.data.selectedPeopleIds;
-                    appropriatePresetMap = dialog.data.personPresets;
-                }
                 else if (type === "serviceOrder") {
                     dialog.data.servicePresets.delete(itemId);
                     triggeredByElement.parentElement.parentElement.remove();
@@ -699,9 +671,6 @@
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true,  });
             },
-            triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, renderInChain: true, data: { whenEventName: "peopleSelected" } });
-            },
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, renderInChain: true, data: { whenEventName: "setPlanner" } })
             },
@@ -711,9 +680,7 @@
         },
         data: {
             servicePresets: new Map(),
-            selectedPeopleIds: new Map(),
             selectedRoomIds: new Map(),
-            peopleNameMap: new Map(),
             roomsNameMap: new Map(),
             stepper: null,
         },
@@ -765,27 +732,6 @@
                 payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
 
                 dialog.data.roomPayload = payload;
-            } },
-            { eventKnownAs: "peopleSelected", do: (dialog, payload) => {
-                let wrapper = dialog.$('#selectedPeopleWrapper');
-                wrapper.empty();
-
-                payload.viewables.forEach((person) => {
-                    wrapper.append(
-                        $(`<selected-pill name='${person.text}'
-                                          id='${person.id}'
-                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)    
-                    );
-                });
-
-                dialog.data.selectedPeopleIds = new Map();
-                dialog.data.personPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
-                payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
-
-                dialog.data.peoplePayload = payload;
             } },
             { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                 if (payload.allSelectedEntityIds.length == 0)
