@@ -405,7 +405,7 @@ class RedirectToProcessServiceRequestView(LoginRequiredMixin, RedirectView):
         )
 
         if sopr is None:
-            return HttpResponseNotAllowed()
+            raise PermissionDenied()
 
         return reverse(
             viewname="arrangement:process_service_order", kwargs={"token": sopr.code}

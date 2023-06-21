@@ -116,7 +116,7 @@
           <small class="fw-bold">Planlegging</small>
         </a>
         
-        {% if user.is_service_coordinator %}
+        {% if user.is_service_coordinator or user|has_group:"planners" %}
         <a href="{% url 'arrangement:services_dashboard' %}" class="wb-sidebar-item p-2 pt-3 pb-3 d-block
         {% if url_name == 'services_dashboard' %} active text-dark bg-weak-primary border-dark border shadow-4 {% endif %}">
           <div>

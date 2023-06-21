@@ -621,7 +621,8 @@ def generate_processing_request_for_user(
     This will generate a SOPR token that may be used by that user for processing the order
     This does not trigger any notifications."""
     service: Service = service_order.service
-    if not user.is_superuser and user.email not in service.emails.all():
+    emails = list(map(lambda x: x["email"], service.emails.all().values("email")))
+    if not user.is_superuser and user.email not in emails:
         return None  # User is not a valid processor/responsible for this service, and as such does not have access.
 
     processing_request = ServiceOrderProcessingRequest()
