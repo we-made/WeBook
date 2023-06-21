@@ -1039,7 +1039,9 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
 
     @property
     def my_events(self) -> List[Event]:
-        return list(map(lambda p: p.for_event, self.interim_provisions_assigned_to.all()))
+        return list(
+            map(lambda p: p.for_event, self.interim_provisions_assigned_to.all())
+        )
 
     @property
     def is_sso_capable(self):
@@ -1316,16 +1318,15 @@ class Event(
 
     @property
     def people(self):
-        
         assigned_people = set()
-        
+
         for provision in self.provisions.all():
             if provision.related_to_order.state == States.CONFIRMED:
                 for person in provision.selected_personell.all():
                     assigned_people.add(person)
-                    
+
         return assigned_people
-        
+
         # self.provisions.annotate(people_count=Count("selected_personell")).filter(
         #     people_count__gte=0
         # )
@@ -1954,7 +1955,9 @@ class Service(TimeStampedModel, ModelArchiveableMixin):
     emails = models.ManyToManyField(to="ServiceEmail", related_name="services")
     events = models.ManyToManyField(to="Event")
 
-    resources = models.ManyToManyField(to="Person")
+    resources = models.ManyToManyField(
+        to="Person", related_name="responsible_for_services"
+    )
 
     def __str__(self) -> str:
         return self.name

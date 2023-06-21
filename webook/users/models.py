@@ -71,9 +71,17 @@ class User(AbstractUser):
         blank=True,
         null=True,
     )
-
+    
+    
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"slug": self.slug})
+
+    @property
+    def is_service_coordinator(self) -> bool:
+        if self.person is None:
+            return False
+        
+        return self.person.responsible_for_services.all().exists()
 
     @property
     def get_representative_name(self) -> str:

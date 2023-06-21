@@ -116,6 +116,16 @@
           <small class="fw-bold">Planlegging</small>
         </a>
         
+        {% if user.is_service_coordinator %}
+        <a href="{% url 'arrangement:services_dashboard' %}" class="wb-sidebar-item p-2 pt-3 pb-3 d-block
+        {% if url_name == 'services_dashboard' %} active text-dark bg-weak-primary border-dark border shadow-4 {% endif %}">
+          <div>
+            <i class="fas fa-briefcase text-primary h2 mb-0"></i>
+          </div>
+          <small class="fw-bold">Tjenester</small>
+        </a>
+        {% endif %}
+
         {% if user|has_group:"planners" %}
         <a href="{% url 'arrangement:location_list' %}" class="wb-sidebar-item p-2 pt-3 pb-3 d-block
               {% if url_name == 'location_list' %} active text-dark bg-weak-secondary border-dark border shadow-4 {% endif %}">
@@ -147,14 +157,6 @@
             <i class="fas fa-users text-primary h2 mb-0"></i>
           </div>
           <small class="fw-bold">Personer</small>
-        </a>
-
-        <a href="{% url 'arrangement:services_dashboard' %}" class="wb-sidebar-item p-2 pt-3 pb-3 d-block
-              {% if url_name == 'services_dashboard' %} active text-dark bg-weak-primary border-dark border shadow-4 {% endif %}">
-          <div>
-            <i class="fas fa-briefcase text-primary h2 mb-0"></i>
-          </div>
-          <small class="fw-bold">Tjenester</small>
         </a>
 
         <div>
@@ -501,6 +503,8 @@
 
       <!-- Your stuff: Third-party javascript libraries go here -->
       <script src="{{ ASSET_SERVER_URL }}mdb/js/mdb.min.js"></script>
+      <script src="{{ ASSET_SERVER_URL }}mdb/js/modules/stepper.min.js"></script>
+
       
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/color-picker.min.js"></script>
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/transfer.min.js"></script>
