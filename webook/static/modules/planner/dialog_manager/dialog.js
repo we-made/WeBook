@@ -43,7 +43,7 @@ class Dialog {
         this._listenToGlobalBroadcasts();
 
 
-        if (this.oldMessages) {
+        if (this.oldMessages && this.oldMessages.size > 0) {
             console.log("There are old messages")
             debugger;
             for (let [key, value] of this.oldMessages)
@@ -65,7 +65,7 @@ class Dialog {
     }
 
     _handleMessage(messageKey, message) {
-        if (this === undefined || this._whenMap === undefined)
+        if (this === undefined || this._whenMap === undefined || this._getDialogElement().length == 0)
             return null;
         
         console.log(window.MessagesFacility)
