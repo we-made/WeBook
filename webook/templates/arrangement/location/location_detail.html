@@ -51,8 +51,6 @@
     </div>
 </div>
 
-
-
 <script>
     $(document).ready(function() {
         $('#roomsTableLoaderWrapper').load('{% url "arrangement:locationroomlist" object.id %}?location={{object.id }}')
