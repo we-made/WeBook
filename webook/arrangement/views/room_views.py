@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, Dict
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
@@ -8,11 +8,20 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    UpdateView,
+)
 from django.views.generic.edit import DeleteView
 
 from webook.arrangement.models import BusinessHour, Location, Room
-from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.generic_views.archive_view import (
+    ArchiveView,
+    JsonArchiveView,
+)
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
@@ -103,16 +112,11 @@ room_create_view = RoomCreateView.as_view()
 
 
 class RoomDeleteView(
-    LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, ArchiveView
+    LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, JsonArchiveView
 ):
     model = Room
     slug_field = "slug"
     slug_url_kwarg = "slug"
-    template_name = "common/delete_view.html"
-    view_meta = ViewMeta.Preset.delete(Room)
-
-    def get_success_url(self) -> str:
-        return reverse("arrangement:room_list")
 
 
 room_delete_view = RoomDeleteView.as_view()
@@ -141,6 +145,14 @@ class LocationRoomListView(LoginRequiredMixin, ListView):
     slug_field = "slug"
     slug_url_kwarg = "slug"
     template_name = "arrangement/room/partials/_location_room_list.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        location_id = self.kwargs.get("location")
+        context["LOCATION"] = Location.objects.get(id=location_id)
+
+        return context
 
     def get_queryset(self):
         return (

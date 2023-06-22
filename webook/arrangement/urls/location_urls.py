@@ -5,6 +5,7 @@ from webook.arrangement.views import (
     location_delete_view,
     location_detail_view,
     location_list_view,
+    location_rooms_json_list_view,
     location_update_view,
     locations_calendar_resources_list_view,
     locations_tree_json_view,
@@ -39,11 +40,16 @@ location_urls = [
     path(
         route="location/delete/<slug:slug>/",
         view=location_delete_view,
-        name="location_delete"
+        name="location_delete",
     ),
     path(
         route="location/calendar_resources",
         view=locations_calendar_resources_list_view,
         name="location_calendar_resources",
-    )
+    ),
+    path(
+        route="location/location_rooms_json/<slug:slug>",
+        view=location_rooms_json_list_view,
+        name="location_rooms_json",
+    ),
 ]

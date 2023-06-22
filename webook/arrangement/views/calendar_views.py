@@ -130,7 +130,7 @@ class EventSourceViewMixin(ListView):
             "start": event.start,
             "end": event.end,
             "resourceIds": [room.slug for room in event.rooms.all()]
-            + [person.slug for person in event.people.all()],
+            + [person.slug for person in event.people],
         }
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
