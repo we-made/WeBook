@@ -292,7 +292,14 @@ html, body {
     padding: .5rem 1rem!important;
     border-radius: .3rem!important;
     font-size: large;
+}
 
+.wb-btn-main-outline {
+    background-color: auto;
+}
+.wb-btn-main-outline:hover {
+    background-color: var(--MAIN-COLOR);
+    color: white;
 }
 
 .wb-btn-blank {

@@ -123,10 +123,23 @@
         </div>
         <div id="step-services">
             <div class="clearfix">
-                <button class="wb-btn-main float-end"
+                <!-- <button class="btn btn-block wb-btn-main"
                     d-trigger="triggerNewServiceOrder">
                 Bestill tjenester
-            </button>
+                </button> -->
+
+                <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
+                    style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                    d-trigger="triggerNewServiceOrder">
+                    <i class="fas fa-calendar-plus"></i>&nbsp;
+                    Bestill tjenester
+                </a>
+            </div>
+
+            <div class="alert alert-info mt-2">
+                Du kan bestille forskjellige tjenester for dette arrangementet. Om du bestiller for arrangementet
+                vil bestillingen gjelde alle tidspunkter for arrangementet. Du kan velge å også bare bestille for en
+                gitt tidspunkt eller serie av tidspunkt.
             </div>
 
             <div id="serviceOrders">
@@ -919,10 +932,10 @@
             
             for (const [key, value] of dialog.data.servicePresets) {
                 wrapper.append(
-                    $(`<div class='card card-body mt-2'  id="${key}">
+                    $(`<div class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2'  id="${key}">
                         <h5>
                             ${value.service_name}
-                            <button class='btn wb-btn-link float-end text-danger' id="${key}" select-type='serviceOrder' d-trigger="removeAssociation"><i class='fas fa-trash'></i></button>
+                            <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' id="${key}" select-type='serviceOrder' d-trigger="removeAssociation"><i class='fas fa-times'></i></button>
                         </h5>
                         <code>
                             ${value.freetext_comment}
