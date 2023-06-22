@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (
@@ -217,3 +218,30 @@ class LocationsCalendarResourcesListView(LoginRequiredMixin, ListView):
 
 
 locations_calendar_resources_list_view = LocationsCalendarResourcesListView.as_view()
+
+
+class LocationRoomsJsonListView(LoginRequiredMixin, JsonListView):
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+
+    def get_queryset(self):
+        location = get_object_or_404(Location, slug=self.kwargs["slug"])
+
+        converted_rooms = []
+
+        for room in location.rooms.all():
+            converted_rooms.append(
+                {
+                    "slug": room.slug,
+                    "id": room.id,
+                    "title": room.name,
+                    "max_capacity": room.max_capacity,
+                    "is_exclusive": room.is_exclusive,
+                    "has_screen": room.has_screen,
+                }
+            )
+
+        return converted_rooms
+
+
+location_rooms_json_list_view = LocationRoomsJsonListView.as_view()

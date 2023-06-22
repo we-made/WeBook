@@ -8,11 +8,11 @@
 {% block beneath_breadcrumbs_block %}
     <a class="btn wb-btn-main"
         href="{% url 'arrangement:location_delete' object.slug %}">
-        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
+        <i class="fa fa-trash"></i>&nbsp; Slett
     </a>
     <a class="btn wb-btn-main"
         href="{% url 'arrangement:location_edit' object.slug %}">
-        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
+        <i class="fa fa-edit"></i>&nbsp; Rediger
     </a>
 {% endblock %}
 
@@ -46,94 +46,28 @@
         <div id="location_calendar" class="mb-4"></div>
     </div>
     <div class="tab-pane fade" id="tab-rooms" role="tabpanel">
-        <div class="clearfix">
-            <button class="btn btn-lg btn-webook float-end"
-            data-mdb-toggle="modal"
-            data-mdb-target="#createRoomModal">
-                <i class="fa fa-plus"></i>&nbsp; {% trans "New Room" %}
-            </button>
-        </div>
-        
         <span id="roomsTableLoaderWrapper">
         </span>
     </div>
 </div>
 
 
-<div
-  class="modal fade"
-  id="createRoomModal"
-  tabindex="-1"
-  aria-labelledby="exampleModalLabel"
-  aria-hidden="true"
-    >
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">
-            <span class="badge badge-success">
-                <i class="fas fa-plus"></i>
-            </span>
-            {% trans "New room" %}
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-mdb-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form id="createNewRoomDialogForm">
-            <input type="hidden" name="location" value="{{ object.id }}" />
-            <div class="form-group">
-                <label>{% trans "Location" %}</label>
-                <input type="text" class="form-control" value="{{ object.name }}" disabled/>
-            </div>
-
-            <div class="form-group mt-3">
-                <label>{% trans "Maximum Occupancy" %}</label>
-                <input type="number" name="max_capacity" class="form-control" value="0" />
-            </div>
-
-            <div class="form-group mt-3">
-                <label>{% trans "Room Name" %}</label>
-                <input type="text" class="form-control" name="name" id="roomNameInput"/>
-            </div>
-
-            <div class="form-group mt-3">
-                <label>{% trans "Room Name (English)" %}</label>
-                <input type="text" class="form-control" name="name_en" id="roomNameEnInput">
-            </div>
-
-            <div class="form-group mt-3">
-                <div class="form-check form-switch">
-                    <label>Is Exclusive?</label>
-                    <input class="form-check-input" name="is_exclusive" type="checkbox" role="switch" id="roomIsExclusive" />
-                </div>
-            </div>
-            <div class="form-group mt-3">
-                <div class="form-check form-switch">
-                    <label>Has Screen?</label>
-                    <input class="form-check-input" name="has_screen" type="checkbox" role="switch" id="roomHasScreen" />
-                </div>
-            </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn wb-btn-secondary" data-mdb-dismiss="modal">
-            <i class="fas fa-times"></i>&nbsp; 
-            {% trans "Cancel" %}
-        </button>
-        <button type="button" class="btn wb-btn-main" onclick="createNewRoom()"><i class="fas fa-check"></i>&nbsp; {% trans "Create room" %}</button>
-        <button type="button" class="btn wb-btn-main" onclick="createNewRoom(false /* dont close after save*/)">{% trans "Create and new" %}</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    $(document).ready(function() {
+        $('#roomsTableLoaderWrapper').load('{% url "arrangement:locationroomlist" object.id %}?location={{object.id }}')
+        renderLocationCalendar();
+    });
+
+    const tabEl = document.querySelector('a[href="#tab-calendar"]');
+    tabEl.addEventListener('shown.mdb.tab', (event) => {
+        // Render calendar when tab is shown, due to possible issues that may occur after pagination on rooms table
+        // Causes rendering issues - not sure why, but it is a recurrent issue with fullcalendar and tabs
+        console.log('Tab shown')
+        renderLocationCalendar(); 
+    })
+
+    function renderLocationCalendar() {
         var calendarEl = document.getElementById('location_calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
             schedulerLicenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
@@ -153,43 +87,7 @@
             }
         });
         calendar.render();
-        loadRoomsTableForLocation()
-    });
-
-    function loadRoomsTableForLocation () {
-        $('#roomsTableLoaderWrapper').load('{% url "arrangement:locationroomlist" object.id %}?location={{object.id }}')
     }
 
-    async function createNewRoom (closeModalOnDone=true) {
-        let dataForm = new FormData(document.getElementById("createNewRoomDialogForm"))
-        let url = "{% url 'arrangement:room_create' %}"
-
-        dataForm.append("csrfmiddlewaretoken", "{{ csrf_token }}");
-
-        fetch(url, {
-            method: 'POST',
-            body: dataForm,
-            headers: {
-                'X-CSRFToken': '{% csrf_token %}'
-            }
-        }).then(function(response) {
-            if (response.ok) {
-                loadRoomsTableForLocation() // refresh rooms table to include our newly created room
-            }
-            else {
-                throw "Response not OK."
-            }
-        }).catch(function(err) {
-            console.log(err)
-        }).then(function(response) {
-            if (closeModalOnDone) {
-                $('#createRoomModal').modal('hide');
-            }
-            else {
-                // if we don't want to close the modal, we know we want to empty the form
-                $('#createNewRoomDialogForm').trigger("reset");
-            }
-        })
-    }
 </script>
 {% endblock %}

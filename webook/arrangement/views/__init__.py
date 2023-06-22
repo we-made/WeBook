@@ -82,6 +82,7 @@ from .location_views import (
     location_delete_view,
     location_detail_view,
     location_list_view,
+    location_rooms_json_list_view,
     location_update_view,
     locations_calendar_resources_list_view,
     locations_tree_json_view,

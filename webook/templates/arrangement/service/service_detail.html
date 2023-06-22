@@ -246,7 +246,7 @@ contaner-fluid ps-5 pe-5
 
 <template id="vuec_service_order_popover_template">
     <fancy-popover :x="x" :y="y" :title="`Tjenestebestilling ${serviceOrder.id}`">
-        Hello there pardner
+        Fancy popover - not in use
     </fancy-popover>
 </template>
 
@@ -463,10 +463,8 @@ contaner-fluid ps-5 pe-5
                             },
                             onUpdatedCallback: async (dialogManager, context) => {
                                 await this.getPersonnell();
-
                             },
                             onSubmit: async (context, details) => {
-                                console.log("onsubmit has been triggerered")
                                 await this.getPersonnell();
                             }
                         })
