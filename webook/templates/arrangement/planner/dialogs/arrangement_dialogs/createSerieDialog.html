@@ -1231,7 +1231,7 @@
                 dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true, multiple: false, data: { whenEventName: "setPlanner" } });
             },
             triggerNewServiceOrder(dialog, {} = {}, triggeredByElement) {
-                    dialog.raiseTriggerEvent("{{managerName}}", "orderServiceDialog", { $parent:dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "newServiceOrder"}, event_type: "serie", entity_id: "0" })
+                    dialog.raiseTriggerEvent("{{managerName}}", "orderServiceDialog", { $parent:dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "newServiceOrder"}, entity_type: "serie", entity_id: "0" })
             },  
             removeAssociation(dialog, {} = {}, triggeredByElement) {
                 let $triggeredByElement = $(triggeredByElement);
