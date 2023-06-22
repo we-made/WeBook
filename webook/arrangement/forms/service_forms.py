@@ -5,7 +5,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.widgets import Textarea
 
 from webook.arrangement.facilities import service_ordering as ordering_service
-from webook.arrangement.forms.widgets.table_multi_select import TableMultiSelectWidget, TableSimpleMultiSelectWidget
+from webook.arrangement.forms.widgets.table_multi_select import (
+    TableMultiSelectWidget,
+    TableSimpleMultiSelectWidget,
+)
 from webook.arrangement.models import (
     Event,
     EventSerie,
@@ -14,6 +17,7 @@ from webook.arrangement.models import (
     ServiceEmail,
     ServiceOrder,
     ServiceOrderInternalChangelog,
+    ServiceOrderPreconfiguration,
     ServiceOrderProcessingRequest,
     ServiceOrderProvision,
     States,
@@ -150,6 +154,9 @@ class OrderServiceForm(forms.Form):
     )
     parent_id = forms.IntegerField()
     service_id = forms.IntegerField()
+    applied_preconfiguration = forms.ModelChoiceField(
+        queryset=ServiceOrderPreconfiguration.objects.all(), required=False
+    )
     freetext_comment = forms.CharField(max_length=5024, required=False)
 
     service_order = forms.ModelChoiceField(
@@ -162,14 +169,21 @@ class OrderServiceForm(forms.Form):
         freetext_comment = self.cleaned_data["freetext_comment"]
         parent_type = self.cleaned_data["parent_type"]
         service_order: Optional[ServiceOrder] = self.cleaned_data["service_order"]
+        applied_preconfiguration = self.cleaned_data["applied_preconfiguration"]
 
-        service = Service.objects.get(id=service_id)
+        service = Service.objects.get(
+            id=service_id
+        )  # We should rewrite to use ModelChoiceField instead of id - this is stupid, I've likely done this before all over the place
+
+        if applied_preconfiguration and applied_preconfiguration.service != service:
+            raise ValueError("Preconfiguration does not match service")
 
         is_new = service_order is None
 
         if is_new:
             service_order = ServiceOrder()
             service_order.service = service
+            service_order.applied_preconfiguration = applied_preconfiguration
             service_order.freetext_comment = freetext_comment
             service_order.state = States.AWAITING
             service_order.save()

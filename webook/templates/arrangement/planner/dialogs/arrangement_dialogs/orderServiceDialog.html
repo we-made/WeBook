@@ -167,6 +167,7 @@
                     async getPreconfigurations(serviceId) {
                         let preconfigurations = await fetch("/arrangement/service/" + serviceId + "/preconfigurations")
                                 .then(response => response.json());
+
                         let obj = {};
                         preconfigurations.forEach((pc) => obj[pc.id] = pc);
                         return obj;
@@ -198,6 +199,7 @@
                                 "parent_type": "{% if EVENT %}event{%elif SERIE %}serie{% endif %}",
                                 "parent_id": "{% if EVENT %}{{EVENT.pk}}{% elif SERIE %}{{SERIE.pk}}{% endif %}",
                                 "service_id": service.id,
+                                "applied_preconfiguration": service.appliedPreconfiguration ? service.appliedPreconfiguration.id : null,
                                 "freetext_comment": service.freetext || "",
                                 "service_name": service.name,
                                 "service_order": null

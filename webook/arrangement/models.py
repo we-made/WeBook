@@ -2029,6 +2029,13 @@ class ServiceOrder(TimeStampedModel, ModelArchiveableMixin):
         to="Person", related_name="services_assigned_to"
     )
 
+    applied_preconfiguration = models.ForeignKey(
+        to="ServiceOrderPreconfiguration",
+        on_delete=models.RESTRICT,
+        null=True,
+        related_name="applied_to",
+    )
+
     freetext_comment = models.TextField()
 
     @property

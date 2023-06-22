@@ -263,10 +263,18 @@
 
         <div id="step-services">
             <div class="clearfix">
-                <button class="wb-btn-main float-end"
+                <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
+                    style="text-transform: none; font-size: larger; border-width: 0.7px;"
                     d-trigger="triggerNewServiceOrder">
-                Bestill tjenester
-                </button>
+                    <i class="fas fa-calendar-plus"></i>&nbsp;
+                    Bestill tjenester
+                </a>
+            </div>
+
+            <div class="alert alert-info mt-2">
+                Her kan du bestille tjenester for denne tidsplanen. <br>
+                Du kan også fjerne tidsplanen fra bestillinger plassert på arrangementsnivået. Fjerner du bestillinger her vil 
+                denne tidsplanen ikke være delaktige i den respektive bestillingen, men de vil fortsatt være aktuelle for andre tidsplaner/aktiviteter <br>
             </div>
 
             <div class="form-check" style="display:none;">
@@ -1279,20 +1287,19 @@
                 for (const [key, value] of dialog.data.servicePresets) {
                     console.log("value", value);
                     let buttonHtml = value.service_order ? ``
-                                                         : `<button class='btn wb-btn-main float-end text-danger' id='${key}'' select-type='serviceOrder' d-trigger='removeAssociation'><i class='fas fa-times'></i></button>`
+                                                         : `<button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' id='${key}'' select-type='serviceOrder' d-trigger='removeAssociation'><i class='fas fa-times'></i></button>`
 
-                    let $orderCard = $(`<div class='card card-body mt-2' id="${key}">
-                        
-                        <div>
-                        ${value.service_name}
-                        ${buttonHtml}
-                        </div>
+                    let $orderCard = $(`
+                        <div class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' id="${key}">                        
+                            <div>
+                                ${value.service_name}
+                                ${buttonHtml}
+                            </div>
 
-
-                        <code>
-                            ${value.freetext_comment}
-                        </code>
-                    </div>`);
+                            <code>
+                                ${value.freetext_comment}
+                            </code>
+                        </div>`);
                     if (value.service_order) {
                         $orderCard.addClass("border-success border")
                     }
