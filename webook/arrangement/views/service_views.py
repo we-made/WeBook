@@ -18,26 +18,12 @@ from django.http.request import HttpRequest
 from django.http.response import Http404, HttpResponse, HttpResponseNotAllowed
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    FormView,
-    ListView,
-    RedirectView,
-    TemplateView,
-    UpdateView,
-)
+from django.views.generic import CreateView, DetailView, FormView, ListView, RedirectView, TemplateView, UpdateView
 from django.views.generic.base import View
-from django.views.generic.detail import (
-    SingleObjectMixin,
-    SingleObjectTemplateResponseMixin,
-)
+from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 from django.views.generic.edit import DeleteView, FormMixin
 
-from webook.arrangement.facilities.service_ordering import (
-    generate_processing_request_for_user,
-    notify_revision,
-)
+from webook.arrangement.facilities.service_ordering import generate_processing_request_for_user, notify_revision
 from webook.arrangement.forms.person_forms import AssociatePersonWithUserForm
 from webook.arrangement.forms.service_forms import (
     AddEmailForm,
@@ -65,24 +51,15 @@ from webook.arrangement.models import (
     ServiceOrderProvision,
     States,
 )
-from webook.arrangement.views.generic_views.archive_view import (
-    ArchiveView,
-    JsonArchiveView,
-    JsonToggleArchiveView,
-)
+from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView, JsonToggleArchiveView
 from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
 from webook.arrangement.views.generic_views.dialog_views import DialogView
-from webook.arrangement.views.generic_views.json_form_view import (
-    JsonFormView,
-    JsonModelFormMixin,
-)
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
 from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from webook.arrangement.views.mixins.queryset_transformer import (
-    QuerysetTransformerMixin,
-)
+from webook.arrangement.views.mixins.queryset_transformer import QuerysetTransformerMixin
 from webook.arrangement.views.organization_views import OrganizationSectionManifestMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.users.models import User
@@ -133,9 +110,9 @@ class ServiceAuthorizationMixin(UserPassesTestMixin):
             raise PermissionDenied("User does not have a person")
 
         service: Service = self.get_service()
-        authorized_people = list(service.resources.all())
+        authorized_emails = map(lambda service_email: service_email.email, list(service.emails.all()))
 
-        return self.request.user.person in authorized_people
+        return self.request.user.email in authorized_emails
 
 
 class AnyServiceAuthorizationMixin(UserPassesTestMixin):
@@ -324,6 +301,12 @@ class CreateServiceView(LoginRequiredMixin, CreateView, JsonFormView):
 
     def form_valid(self, form):
         self.object = form.save()
+
+        # Add the creator as a responsible for this service
+        # Necessary for the creator to be able to edit the service - authorization when working on a service
+        # works so that it is only the responsibles (and of course super admins) that can work on a service
+        self.object.add_email(self.request.user.email)
+
         return super().form_valid(form)
 
 
@@ -937,9 +920,7 @@ class GetPersonellJsonView(ValidateTokenMixin, View):
 get_personell_json_view = GetPersonellJsonView.as_view()
 
 
-class ServiceTreeJsonView(
-    LoginRequiredMixin, JsonListView
-):
+class ServiceTreeJsonView(LoginRequiredMixin, JsonListView):
     def get_queryset(self):
         return [item.as_node() for item in Service.objects.all()]
 

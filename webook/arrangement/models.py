@@ -1959,6 +1959,10 @@ class Service(TimeStampedModel, ModelArchiveableMixin):
         to="Person", related_name="responsible_for_services"
     )
 
+    def add_email(self, email):
+        self.emails.add(ServiceEmail.objects.create(email=email))
+        self.save()
+
     def as_node(self):
         return {
             "id": "S-" + str(self.pk),
