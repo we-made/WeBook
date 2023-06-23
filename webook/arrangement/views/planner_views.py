@@ -1024,7 +1024,7 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
 arrangement_create_serie_dialog_view = PlanSerieForm.as_view()
 
 
-class OrderServiceDialog(LoginRequiredMixin, DialogView, JsonFormView):
+class OrderServiceDialog(LoginRequiredMixin, PlannerAuthorizationMixin, DialogView, JsonFormView):
     template_name = (
         "arrangement/planner/dialogs/arrangement_dialogs/orderServiceDialog.html"
     )
