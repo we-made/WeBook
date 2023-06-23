@@ -1959,6 +1959,16 @@ class Service(TimeStampedModel, ModelArchiveableMixin):
         to="Person", related_name="responsible_for_services"
     )
 
+    def as_node(self):
+        return {
+            "id": "S-" + str(self.pk),
+            "text": self.name,
+            "children": list(
+                map(lambda preconf: preconf.as_node(), self.preconfigurations.all())
+            ),
+            "data": {"slug": "S-" + str(self.pk)},
+        }
+
     def __str__(self) -> str:
         return self.name
 
@@ -1974,6 +1984,13 @@ class ServiceOrderPreconfiguration(TimeStampedModel, ModelArchiveableMixin):
     created_by = models.ForeignKey(
         to=Person, blank=True, null=True, on_delete=models.RESTRICT
     )
+
+    def as_node(self):
+        return {
+            "id": "P-" + str(self.pk),
+            "text": self.title,
+            "data": {"slug": "P-" + str(self.pk)},
+        }
 
 
 class States(models.TextChoices):

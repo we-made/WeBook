@@ -27,6 +27,7 @@ from webook.arrangement.views import (
     service_order_dashboard,
     service_orders_for_service_json_list_view,
     service_personnell_json_list_view,
+    service_tree_json_view,
     services_add_email_view,
     services_add_person_view,
     services_dashboard_view,
@@ -184,5 +185,10 @@ service_urls = [
         route="service/personell/<str:token>/<int:provision_id>",
         view=get_personell_json_view,
         name="get_personell_json_view",
+    ),
+    path(
+        route="service/tree",
+        view=service_tree_json_view,
+        name="service_tree_json_view",
     ),
 ]
