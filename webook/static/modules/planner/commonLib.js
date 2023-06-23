@@ -212,7 +212,7 @@ export class ArrangementStore extends BaseStore {
         const slugClass = writeSlugClass(arrangement.slug);
         const pkClass = "pk:" + arrangement.event_pk;
 
-        return new FullCalendarEvent({
+        let ev = new FullCalendarEvent({
             title: arrangement.name,
             start: arrangement.starts,
             resourceIds: arrangement.slug_list,
@@ -220,6 +220,8 @@ export class ArrangementStore extends BaseStore {
             color: this.colorProvider.getColor(arrangement),
             classNames: [ slugClass, pkClass ],
             extendedProps: {
+                services_pks: arrangement.services,
+                preconfiguration_pks: arrangement.preconfigurations,
                 location_name: arrangement.location,
                 location_slug: arrangement.location_slug,
                 icon: arrangement.audience_icon, 
@@ -230,6 +232,10 @@ export class ArrangementStore extends BaseStore {
                 isRigging: arrangement.is_rigging,
             },
         });
+
+        console.log(ev);
+
+        return ev;
     }
 
     /**
@@ -257,7 +263,14 @@ export class ArrangementStore extends BaseStore {
      * @param {*} param0 
      * @returns An array of arrangements, whose form depends on get_as param.
      */
-    get_all({ get_as, locations=undefined, arrangement_types=undefined, statuses=undefined, audience_types=undefined, filterSet=undefined } = {}) {
+    get_all({ get_as,
+        locations = undefined,
+        arrangement_types = undefined,
+        statuses = undefined,
+        audience_types = undefined,
+        filterSet = undefined,
+        services = undefined,
+        preconfigurations = undefined } = {}) {
         let arrangements = this._getStoreAsArray();
         let filteredArrangements = [];
 
@@ -267,13 +280,38 @@ export class ArrangementStore extends BaseStore {
 
         let arrangementTypesMap =   mapTypeFilter(arrangement_types);
         let audienceTypesMap =      mapTypeFilter(audience_types);
-        let statusTypesMap =        mapTypeFilter(statuses);
+        let statusTypesMap = mapTypeFilter(statuses);
+        let serviceMap = mapTypeFilter(services);
+        let preconfigurationMap = mapTypeFilter(preconfigurations);
+
+        for (let i = 0; i < arrangements.length; i++) {
+        
+        }
 
         arrangements.forEach ( (arrangement) => {
+            
             let isWithinFilter =
                 (arrangementTypesMap === undefined  || arrangementTypesMap.has(arrangement.arrangement_type_slug) === true) &&
                 (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true) &&
-                (statusTypesMap === undefined       || statusTypesMap.has(arrangement.status_slug) === true)
+                (statusTypesMap === undefined || statusTypesMap.has(arrangement.status_slug) === true)
+            
+            if (preconfigurationMap !== undefined) {
+                for (let i = 0; i < arrangement.preconfigurations.length; i++) {
+                    const preconfiguration = arrangement.preconfigurations[i];
+                    if (preconfigurationMap.has(preconfiguration))
+                        continue;
+                    isWithinFilter = false;
+                }
+            }
+
+            if (serviceMap !== undefined) {
+                for (let i = 0; i < arrangement.services.length; i++) {
+                    const service = arrangement.services[i];
+                    if (serviceMap.has(service))
+                        continue;
+                    isWithinFilter = false;
+                }
+            }
 
             if (filterSet.showOnlyEventsWithNoRooms === true && arrangement.room_names.length > 0 && arrangement.room_names[0] !== null) {
                 isWithinFilter = false;
@@ -334,9 +372,23 @@ export class CalendarFilter {
         this.locations = [];
         this.rooms = [];
         this.audiences = [];
+        this.services = [];
+        this.preconfigurations = [];
         this.arrangementTypes = [];
         
         this.showOnlyEventsWithNoRooms = false;
+    }
+
+    filterServices(servicePks, runOnFilterUpdate = true) {
+        this.services = servicePks;
+        if (runOnFilterUpdate)
+            this.onFilterUpdated(this);
+    }
+
+    filterPreconfigurations(preconfigurationPks, runOnFilterUpdate = true) {
+        this.preconfigurations = preconfigurationPks;
+        if (runOnFilterUpdate)
+            this.onFilterUpdated(this);   
     }
 
     filterLocations (locationSlugs, runOnFilterUpdate=true) {

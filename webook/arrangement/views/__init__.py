@@ -220,6 +220,7 @@ from .service_views import (
     service_order_dashboard,
     service_orders_for_service_json_list_view,
     service_personnell_json_list_view,
+    service_tree_json_view,
     services_add_email_view,
     services_add_person_view,
     services_dashboard_view,

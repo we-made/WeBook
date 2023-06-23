@@ -168,6 +168,15 @@ container-fluid
                     <span id="status-type-popover-filter-content">
                     </span>
                 </div>
+                <div id="services-popover-filter" class="mb-2  d-inline">
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" id="services-popover-filter-trigger">
+                        <i class="fas fa-briefcase text-dark"></i>&nbsp;
+                        Tjenester
+                        <i class="fas fa-angle-down"></i>
+                    </button>
+                    <span id="services-popover-filter-content">
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -283,6 +292,29 @@ container-fluid
         cascadeBehaviour: PARENT_INDEPENDENT_CASCADE_BEHAVIOUR,
         isSearchable: false,
     });
+
+    const servicesFilter = new AdvancedTreeFilter({
+        title: 'Tjenester & Prekonfigurasjoner',
+        triggerElement: document.getElementById('services-popover-filter-trigger'),
+        wrapperElement: document.getElementById('services-popover-filter-content'),
+        onSubmit: function (filter, selectedNodes) {
+            
+            const serviceSlugs = selectedNodes
+                .filter( (node) => node.data.slug.startsWith("S-") )
+                .map( (node) => parseInt(node.data.slug.replace("S-", "")) );
+            const preconfigurationSlugs = selectedNodes
+                .filter( (node) => node.data.slug.startsWith("P-") )
+                .map( (node) => parseInt(node.data.slug.replace("P-", "")) );
+            
+            calendarFilter.filterServices(serviceSlugs);
+            calendarFilter.filterPreconfigurations(preconfigurationSlugs);
+
+            reflectFilterStateOnTriggerElement(filter, serviceSlugs.length + preconfigurationSlugs.length);
+        },
+        treeSrcUrl: "{% url 'arrangement:service_tree_json_view' %}",
+        cascadeBehaviour: NORMAL_CASCADE_BEHAVIOUR,
+        isSearchable: true,
+    })
 
     const arrangementTypeTreeFilter = new AdvancedTreeFilter({
         title: 'Arrangementstyper',
