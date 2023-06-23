@@ -217,7 +217,6 @@ from .service_views import (
     provision_personell_form_view,
     redirect_to_process_service_request_view,
     service_detail_view,
-    service_order_dashboard,
     service_orders_for_service_json_list_view,
     service_personnell_json_list_view,
     services_add_email_view,
