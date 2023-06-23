@@ -37,18 +37,10 @@ export class PlannerCalendar extends FullCalendarBased {
             [1, {
                 "key": 1,
                 "title": "Dag",
-                "isParent": true,
+                "isParent": false,
                 "view": "timeGridDay",
                 "parent": undefined,
                 "weight": 100,
-            }],
-            [10, {
-                "key": 10,
-                "title": "Liste",
-                "isParent": false,
-                "view": "listDay",
-                "parent": 1,
-                "weight": undefined,
             }],
             [2, {
                 "key": 2,
@@ -614,6 +606,8 @@ export class PlannerCalendar extends FullCalendarBased {
                                         arrangement_types: this.filter.arrangementTypes,
                                         statuses: this.filter.statuses,
                                         audience_types: this.filter.audiences,
+                                        services: this.filter.services,
+                                        preconfigurations: this.filter.preconfigurations,
                                         filterSet: this.filter.rooms,
                                     }
                                 ));

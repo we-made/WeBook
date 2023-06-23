@@ -76,6 +76,7 @@ from webook.arrangement.views.generic_views.json_form_view import (
     JsonFormView,
     JsonModelFormMixin,
 )
+from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
@@ -125,8 +126,8 @@ class ServiceAuthorizationMixin(UserPassesTestMixin):
         raise Exception("Get service not implemented")
 
     def test_func(self) -> bool:
-        # if self.request.user.is_superuser:
-        #     return True
+        if self.request.user.is_superuser:
+            return True
 
         if not self.request.user.person:
             raise PermissionDenied("User does not have a person")
@@ -934,3 +935,13 @@ class GetPersonellJsonView(ValidateTokenMixin, View):
 
 
 get_personell_json_view = GetPersonellJsonView.as_view()
+
+
+class ServiceTreeJsonView(
+    LoginRequiredMixin, JsonListView
+):
+    def get_queryset(self):
+        return [item.as_node() for item in Service.objects.all()]
+
+
+service_tree_json_view = ServiceTreeJsonView.as_view()
