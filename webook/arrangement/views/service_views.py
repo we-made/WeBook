@@ -110,9 +110,9 @@ class ServiceAuthorizationMixin(UserPassesTestMixin):
             raise PermissionDenied("User does not have a person")
 
         service: Service = self.get_service()
-        authorized_people = list(service.resources.all())
+        authorized_emails = map(lambda service_email: service_email.email, list(service.emails.all()))
 
-        return self.request.user.person in authorized_people
+        return self.request.user.email in authorized_emails
 
 
 class AnyServiceAuthorizationMixin(UserPassesTestMixin):
