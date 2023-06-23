@@ -661,11 +661,13 @@
         </div>
         
         <div class="tab-pane fade" id="service-orders-tab" role="tabpanel" aria-labelledby="service-orders-tab">
+            {% if user|has_group:"planners" or user.is_superuser %}
             <div class="clearfix mb-2">
                 <button class="btn wb-btn-main float-end" d-trigger="triggerOrderServiceDialog">
                     Bestill tjeneste(r)
                 </button>
             </div>
+            {% endif %}
 
             {% for provision in event.provisions.all %}
                 <div class="card mb-2">

@@ -1,10 +1,10 @@
 {% load static i18n %}
-
+{% load custom_tags %}
 
 <div id="{{dialogId}}" class="{{discriminator}}">
     <h3>Bestilling av tjeneste {{object.service}}</h3>
     
-    {% if object.state != "cancelled" and object.state != "denied" %}
+    {% if user|has_group:"planners" or user.is_superuser and object.state != "cancelled" and object.state != "denied" %}
     <div class="clearfix mb-2">
         <div class="float-start">
             <button class="btn wb-btn-main" d-trigger="cancelOrder" type="button">

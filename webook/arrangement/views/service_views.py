@@ -3,7 +3,8 @@ from datetime import date, datetime, time, timedelta
 from re import search
 from typing import Any, Dict, List, Optional, Union
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django import http
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
@@ -17,12 +18,26 @@ from django.http.request import HttpRequest
 from django.http.response import Http404, HttpResponse, HttpResponseNotAllowed
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DetailView, FormView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    FormView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 from django.views.generic.base import View
-from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
+from django.views.generic.detail import (
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+)
 from django.views.generic.edit import DeleteView, FormMixin
 
-from webook.arrangement.facilities.service_ordering import generate_processing_request_for_user, notify_revision
+from webook.arrangement.facilities.service_ordering import (
+    generate_processing_request_for_user,
+    notify_revision,
+)
 from webook.arrangement.forms.person_forms import AssociatePersonWithUserForm
 from webook.arrangement.forms.service_forms import (
     AddEmailForm,
@@ -50,15 +65,24 @@ from webook.arrangement.models import (
     ServiceOrderProvision,
     States,
 )
-from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView, JsonToggleArchiveView
+from webook.arrangement.views.generic_views.archive_view import (
+    ArchiveView,
+    JsonArchiveView,
+    JsonToggleArchiveView,
+)
 from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
 from webook.arrangement.views.generic_views.dialog_views import DialogView
-from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.generic_views.json_form_view import (
+    JsonFormView,
+    JsonModelFormMixin,
+)
 from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from webook.arrangement.views.mixins.queryset_transformer import QuerysetTransformerMixin
+from webook.arrangement.views.mixins.queryset_transformer import (
+    QuerysetTransformerMixin,
+)
 from webook.arrangement.views.organization_views import OrganizationSectionManifestMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.users.models import User
@@ -93,8 +117,36 @@ from webook.utils.utc_to_current import utc_to_current
 #         self.section = get_section_manifest()
 
 
+class ServiceAuthorizationMixin(UserPassesTestMixin):
+    """
+    Mixin for checking if the user is authorized to manage the service.
+    """
+
+    def get_service(self) -> Service:
+        raise Exception("Get service not implemented")
+
+    def test_func(self) -> bool:
+        if self.request.user.is_superuser:
+            return True
+
+        if not self.request.user.person:
+            raise PermissionDenied("User does not have a person")
+
+        service: Service = self.get_service()
+        authorized_people = list(service.resources.all())
+
+        return self.request.user.person in authorized_people
+
+
+class AnyServiceAuthorizationMixin(UserPassesTestMixin):
+    def test_func(self) -> bool:
+        return (
+            self.request.user.is_superuser or self.request.user.is_service_coordinator
+        )
+
+
 class ServicesDashboardView(
-    LoginRequiredMixin, TemplateView, PlannerAuthorizationMixin
+    LoginRequiredMixin, AnyServiceAuthorizationMixin, TemplateView
 ):
     template_name = "arrangement/service/list.html"
 
@@ -103,13 +155,19 @@ services_dashboard_view = ServicesDashboardView.as_view()
 
 
 class ServicePersonnellJsonListView(
-    LoginRequiredMixin, ListView, QuerysetTransformerMixin, JSONResponseMixin
+    LoginRequiredMixin,
+    ServiceAuthorizationMixin,
+    ListView,
+    QuerysetTransformerMixin,
+    JSONResponseMixin,
 ):
     model = Person
 
+    def get_service(self) -> Service:
+        return Service.objects.get(id=self.kwargs.pop("service"))
+
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
-        service_id = self.kwargs.pop("service")
-        service = Service.objects.get(id=service_id)
+        service = self.get_service()
         resources_qs = service.resources.all()
 
         return self.render_to_json_response(
@@ -121,13 +179,19 @@ service_personnell_json_list_view = ServicePersonnellJsonListView.as_view()
 
 
 class ServiceOrdersForServiceJsonListView(
-    LoginRequiredMixin, ListView, QuerysetTransformerMixin, JSONResponseMixin
+    LoginRequiredMixin,
+    ServiceAuthorizationMixin,
+    ListView,
+    QuerysetTransformerMixin,
+    JSONResponseMixin,
 ):
     model = ServiceOrder
 
+    def get_service(self) -> Service:
+        return Service.objects.get(id=self.kwargs.pop("service"))
+
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
-        service_id = self.kwargs.pop("service")
-        service = Service.objects.get(id=service_id)
+        service = self.get_service()
         orders_qs = service.associated_lines.all()
 
         for order in orders_qs:
@@ -182,26 +246,18 @@ class ServicesJsonListView(LoginRequiredMixin, ListView, JSONResponseMixin):
 services_json_list_view = ServicesJsonListView.as_view()
 
 
-class ServiceOrderDashboard(LoginRequiredMixin, ListView):
-    model = ServiceOrderProcessingRequest
-    template_name = "arrangement/service/services_dashboard.html"
-
-    def get_queryset(self) -> QuerySet[Any]:
-        return ServiceOrderProvision.objects.filter(recipient=self.request.user.email)
-
-
-service_order_dashboard = ServiceOrderDashboard.as_view()
-
-
-class ServiceDetailView(LoginRequiredMixin, DetailView):
+class ServiceDetailView(LoginRequiredMixin, ServiceAuthorizationMixin, DetailView):
     model = Service
     template_name = "arrangement/service/service_detail.html"
     pk_url_kwarg = "id"
 
+    def get_service(self) -> Service:
+        return self.get_object()
+
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        service: Service = self.get_object()
+        service: Service = self.get_service()
 
         context["STATISTICS_AWAITING_COUNT"] = len(
             service.associated_lines.filter(state=States.AWAITING)
@@ -214,9 +270,12 @@ class ServiceDetailView(LoginRequiredMixin, DetailView):
 service_detail_view = ServiceDetailView.as_view()
 
 
-class ServiceAddEmailView(LoginRequiredMixin, JsonFormView):
+class ServiceAddEmailView(LoginRequiredMixin, ServiceAuthorizationMixin, JsonFormView):
     form_class = AddEmailForm
     template_name = "arrangement/service/add_email.html"
+
+    def get_service(self) -> Service:
+        return Service.objects.get(id=self.kwargs.get("pk"))
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -233,12 +292,17 @@ class ServiceAddEmailView(LoginRequiredMixin, JsonFormView):
 services_add_email_view = ServiceAddEmailView.as_view()
 
 
-class ServiceAddPersonDialog(LoginRequiredMixin, UpdateView, JsonFormView):
+class ServiceAddPersonDialog(
+    LoginRequiredMixin, ServiceAuthorizationMixin, UpdateView, JsonFormView
+):
     model = Service
     form_class = AddPersonForm
     slug_field = "id"
     slug_url_kwarg = "id"
     template_name = "arrangement/service/add_person.html"
+
+    def get_service(self) -> Service:
+        return Service.objects.get(id=self.kwargs.get("pk"))
 
     def form_valid(self, form):
         self.object = form.save()
@@ -266,12 +330,17 @@ class CreateServiceView(LoginRequiredMixin, CreateView, JsonFormView):
 create_service_view = CreateServiceView.as_view()
 
 
-class UpdateServiceView(LoginRequiredMixin, UpdateView, JsonFormView):
+class UpdateServiceView(
+    LoginRequiredMixin, ServiceAuthorizationMixin, UpdateView, JsonFormView
+):
     model = Service
     fields = ["name"]
     slug_field = "id"
     slug_url_kwarg = "id"
     template_name = "arrangement/service/form.html"
+
+    def get_service(self) -> Service:
+        return self.get_object()
 
     def form_valid(self, form):
         self.object = form.save()
@@ -281,16 +350,26 @@ class UpdateServiceView(LoginRequiredMixin, UpdateView, JsonFormView):
 update_service_view = UpdateServiceView.as_view()
 
 
-class ToggleServiceActiveStateJSONView(LoginRequiredMixin, JsonToggleArchiveView):
+class ToggleServiceActiveStateJSONView(
+    LoginRequiredMixin, ServiceAuthorizationMixin, JsonToggleArchiveView
+):
     model = Service
     pk_url_kwarg = "id"
+
+    def get_service(self) -> Service:
+        return self.get_object()
 
 
 toggle_service_active_json_view = ToggleServiceActiveStateJSONView.as_view()
 
 
-class DeleteServiceEmailFromServiceView(LoginRequiredMixin, JsonFormView):
+class DeleteServiceEmailFromServiceView(
+    LoginRequiredMixin, ServiceAuthorizationMixin, JsonFormView
+):
     form_class = DeleteEmailForm
+
+    def get_service(self) -> Service:
+        return Service.objects.get(id=self.request.POST.get("service_id"))
 
     def form_valid(self, form):
         form.save()
@@ -300,10 +379,16 @@ class DeleteServiceEmailFromServiceView(LoginRequiredMixin, JsonFormView):
 delete_service_email_from_service_view = DeleteServiceEmailFromServiceView.as_view()
 
 
-class CreateServiceTemplateView(LoginRequiredMixin, CreateView):
+# TODO: Check if this is used
+class CreateServiceTemplateView(
+    LoginRequiredMixin, ServiceAuthorizationMixin, CreateView
+):
     model = ServiceOrder
     template_name = "arrangement/service/new_template.html"
     fields = ["line_title", "sassigned_personell", "freetext_cmment"]
+
+    def get_service(self) -> Service:
+        return super().get_service()
 
 
 create_service_template_view = CreateServiceTemplateView.as_view()
@@ -317,16 +402,6 @@ class ProcessServiceRequestView(DetailView):
     def get_template_names(self) -> List[str]:
         template_name = "arrangement/service/process_request.html"
         return template_name
-
-        sproc: ServiceOrderProcessingRequest = self.get_object()
-        if sproc.related_to_order.state in [
-            States.CONFIRMED,
-            States.CANCELLED,
-            States.DENIED,
-        ]:
-            template_name = "arrangement/service/request_processed.html"
-
-        return [template_name]
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -547,10 +622,15 @@ class CreateChangeLogNoteView(ValidateTokenMixin, CreateView, JsonModelFormMixin
 create_change_log_note_view = CreateChangeLogNoteView.as_view()
 
 
-class GetServiceOverviewCalendar(LoginRequiredMixin, DetailView):
+class GetServiceOverviewCalendar(
+    LoginRequiredMixin, ServiceAuthorizationMixin, DetailView
+):
     model = Service
 
     pk_url_kwarg = "id"
+
+    def get_service(self) -> Service:
+        return self.get_object()
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         service = self.get_object()
@@ -602,7 +682,9 @@ open_service_order_for_revisioning_form_view = (
 )
 
 
-class CancelServiceOrderFormView(LoginRequiredMixin, JsonFormView):
+class CancelServiceOrderFormView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, JsonFormView
+):
     form_class = CancelServiceOrderForm
 
     def form_valid(self, form):
@@ -743,10 +825,13 @@ get_preconfigurations_for_service_json_view = (
 
 
 class CreatePreconfigurationJsonView(
-    LoginRequiredMixin, CreateView, JsonModelFormMixin
+    LoginRequiredMixin, ServiceAuthorizationMixin, CreateView, JsonModelFormMixin
 ):
     model = ServiceOrderPreconfiguration
     fields = ["service", "title", "message"]
+
+    def get_service(self) -> Service:
+        return Service.objects.get(id=self.request.POST.get("service"))
 
     def form_valid(self, form) -> JsonResponse:
         response: JsonResponse = super().form_valid(form)
@@ -759,19 +844,27 @@ create_preconfiguration_json_view = CreatePreconfigurationJsonView.as_view()
 
 
 class UpdatePreconfigurationJsonView(
-    LoginRequiredMixin, UpdateView, JsonModelFormMixin
+    LoginRequiredMixin, ServiceAuthorizationMixin, UpdateView, JsonModelFormMixin
 ):
     model = ServiceOrderPreconfiguration
     fields = ["service", "title", "message"]
     pk_url_kwarg = "id"
 
+    def get_service(self) -> Service:
+        return Service.objects.get(id=self.request.POST.get("service"))
+
 
 update_preconfiguration_json_view = UpdatePreconfigurationJsonView.as_view()
 
 
-class ArchivePreconfigurationJsonView(LoginRequiredMixin, JsonToggleArchiveView):
+class ArchivePreconfigurationJsonView(
+    LoginRequiredMixin, ServiceAuthorizationMixin, JsonToggleArchiveView
+):
     model = ServiceOrderPreconfiguration
     pk_url_kwarg = "id"
+
+    def get_service(self) -> Service:
+        return self.get_object().service
 
 
 archive_preconfiguration_json_view = ArchivePreconfigurationJsonView.as_view()
@@ -794,64 +887,22 @@ class GetChangeSummaryJsonView(ValidateTokenMixin, View):
             raise Exception("")  # HTTP 404 here
 
         lines = list(change_summary.lines.all())
-        
-        return JsonResponse({
-            "changelogs": [
-                { 
-                 "provision": line.provision.id, 
-                 "change_type": line.type_of_change,
-                 "initial_time": get_friendly_display_of_time_range(
-                    utc_to_current(line.initial_start), utc_to_current(line.initial_end)
-                 ) 
-                } for line in lines
-            ]
-        })
 
-        # if change_summary.type == ServiceOrderChangeSummaryType.SERIE:
-        #     return JsonResponse(
-        #         data={
-        #             "type": "serie",
-        #             "changelogs": [
-        #                 {"date": x.date, "change_type": x.type_of_change}
-        #                 for x in change_summary.lines.all()
-        #             ],
-        #             "initial_times": [
-        #                 {
-        #                     "date": x.date,
-        #                     "start": (utc_to_current(
-        #                         datetime.combine(date(2000, 1, 1), x.start)
-        #                     ) + timedelta(hours=1)).time(),
-        #                     "end": (utc_to_current(
-        #                         datetime.combine(date(2000, 1, 1), x.end)
-        #                     ) + timedelta(hours=1)).time(),
-        #                 }
-        #                 for x in change_summary.initial_times.all()
-        #             ],
-        #         },
-        #         safe=False,
-        #     )
-        # else:
-        #     c_start = utc_to_current(change_summary.initial_event_start)
-        #     c_end = utc_to_current(change_summary.initial_event_end)
-        #     return JsonResponse(
-        #         data={
-        #             "type": "event",
-        #             "changelogs": [
-        #                 { "provision": change_summary.event_provision.id, "change_type": "times_changed" }
-        #             ],
-        #             "initial_times": [
-        #                 {
-        #                     "provision": change_summary.event_provision.id,
-        #                     "start": c_start,
-        #                     "end": c_end,
-        #                     "time_display": get_friendly_display_of_time_range(
-        #                         c_start, c_end
-        #                     ),
-        #                 }
-        #             ],
-        #         },
-        #         safe=False
-        #     )
+        return JsonResponse(
+            {
+                "changelogs": [
+                    {
+                        "provision": line.provision.id,
+                        "change_type": line.type_of_change,
+                        "initial_time": get_friendly_display_of_time_range(
+                            utc_to_current(line.initial_start),
+                            utc_to_current(line.initial_end),
+                        ),
+                    }
+                    for line in lines
+                ]
+            }
+        )
 
 
 get_change_summary_json_view = GetChangeSummaryJsonView.as_view()
