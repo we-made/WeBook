@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 import webook.users.media_pathing as media_path
-from webook.arrangement.models import Person
+from webook.arrangement.models import Person, ServiceEmail
 
 
 class CustomUserManager(BaseUserManager):
@@ -60,7 +60,9 @@ class User(AbstractUser):
     TIMEZONE_CHOICES = zip(pytz.all_timezones, pytz.all_timezones)
     timezone = models.CharField(max_length=255, default=settings.USER_DEFAULT_TIMEZONE)
 
-    is_user_admin = models.BooleanField(verbose_name="User Administrator", default=False)
+    is_user_admin = models.BooleanField(
+        verbose_name="User Administrator", default=False
+    )
 
     objects = CustomUserManager()
 
@@ -74,6 +76,13 @@ class User(AbstractUser):
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"slug": self.slug})
+
+    @property
+    def is_service_coordinator(self) -> bool:
+        if self.person is None:
+            return False
+
+        return ServiceEmail.objects.filter(email=self.email).exists()
 
     @property
     def get_representative_name(self) -> str:
