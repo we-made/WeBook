@@ -611,7 +611,7 @@
               }).then(async (result) => {
                 if (result.isConfirmed) {
                   this.myNotifications.forEach(async notification => {
-                    await this.archiveNotification(notification);
+                    await this.archiveNotification(notification, false);
                   });
                   toastr.success("Alle notifikasjoner slettet");
                 }
@@ -632,7 +632,7 @@
                   toastr.error("Noe gikk galt");
               });
             },
-            async archiveNotification(notification) {
+            async archiveNotification(notification, showToast=true) {
               return fetch("/arrangement/notifications/archive/" + notification.id, {
                 method: 'DELETE',
                 headers: {
@@ -641,7 +641,8 @@
               }).then(async response => {
                 if (response.status === 200) {
                   await this.refreshNotifications();
-                  toastr.success("Notifikasjon slettet");
+                  if(showToast)
+                    toastr.success("Notifikasjon slettet");
                 }
                 else
                   toastr.error("Noe gikk galt");
