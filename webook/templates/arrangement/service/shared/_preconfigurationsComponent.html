@@ -1,3 +1,6 @@
+{% load static %}
+
+
 <template id="vuec-preconfigurations-component">
 
     <div class="clearfix">
@@ -11,7 +14,8 @@
         :can-search="true"
         @row-clicked="whenRowIsClicked"
         @delete-preconfiguration="deletePreconfiguration"
-        @edit-preconfiguration="onEditPreconfigurationAction">
+        @edit-preconfiguration="onEditPreconfigurationAction"
+        @administrate-personell="openAdministratePersonell">
     </table-component>
 
     <div class="modal fade" id="vuec-preconfigurations-component-update-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -65,6 +69,15 @@
             console.log("Preconfigurations table component created")
         },
         methods: {
+            openAdministratePersonell(row) {
+                console.log("openAdministratePersonell", row)
+            },
+            openAddPersonDialog(preconfigurationId) {
+                document.dispatchEvent(new CustomEvent(
+                    "preconfigurationsComponentDialogManager.add_person_dialog.trigger",
+                    { detail: { id: preconfigurationId } }
+                ))
+            },
             async rerenderTable() {
                 this.renderTable = false;
                 await this.$nextTick();
@@ -90,15 +103,16 @@
                     },
                     actions: {
                         "editPreconfiguration": { type: 'main', content: "<i class='fas fa-edit'></i>&nbsp; Rediger", isContentHtml: true },
-                        "deletePreconfiguration": { type: 'main', content: "<i class='fas fa-trash'></i>&nbsp; Slett", isContentHtml: true }
+                        "administratePersonell": { type: 'main', content: "<i class='fas fa-users'></i>&nbsp; Administrer Personell", isContentHtml: true },
+                        "deletePreconfiguration": { type: 'main', content: "<i class='fas fa-trash'></i>&nbsp; Slett", isContentHtml: true },
                     },
                     data: data
                 }
             },
             whenRowIsClicked(event, row) {
-                this.focusedPreconfiguration = row;
-                console.log(this.focusedPreconfiguration)
-                this.openEditPreconfigurationModal();
+                //this.focusedPreconfiguration = row;
+                //console.log(this.focusedPreconfiguration)
+                //this.openEditPreconfigurationModal();
             },
             openEditPreconfigurationModal() {
                 if (!this.editPreconfigurationModal)
@@ -174,6 +188,8 @@
                     }
                 })
             },
+        },
+        mounted() {
         },
         template: "#vuec-preconfigurations-component",
         delimiters: [ "[[", "]]"]

@@ -285,14 +285,26 @@ class ServiceAddPersonDialog(
         self.object = form.save()
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["SERVICE_ID"] = kwargs.get("pk")
-        return context
-
-
 services_add_person_view = ServiceAddPersonDialog.as_view()
 
+
+class ServicePreconfigurationAddPersonDialog(
+    LoginRequiredMixin, ServiceAuthorizationMixin, UpdateView, JsonFormView
+):
+    model = ServiceOrderPreconfiguration
+    form_class = AddPersonForm
+    slug_field = "id"
+    slug_url_kwarg = "id"
+    template_name = "arrangement/service/add_person.html"
+    
+    def get_service(self) -> Service:
+        return self.get_object().service
+    
+    def form_valid(self, form):
+        self.object = form.save()
+        return super().form_valid(form)
+
+service_preconfiguration_add_person_view = ServicePreconfigurationAddPersonDialog.as_view()
 
 class CreateServiceView(LoginRequiredMixin, CreateView, JsonFormView):
     model = Service

@@ -26,6 +26,7 @@ from webook.arrangement.views import (
     service_detail_view,
     service_orders_for_service_json_list_view,
     service_personnell_json_list_view,
+    service_preconfiguration_add_person_view,
     service_tree_json_view,
     services_add_email_view,
     services_add_person_view,
@@ -56,6 +57,11 @@ service_urls = [
         route="service/add_person/<int:pk>",
         view=services_add_person_view,
         name="services_add_person",
+    ),
+    path(
+        route="service/preconfiguration/<int:pk>/add_person",
+        view=service_preconfiguration_add_person_view,
+        name="service_preconfiguration_add_person",
     ),
     path(
         route="service/<int:id>/toggle",

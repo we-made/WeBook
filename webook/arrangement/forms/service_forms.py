@@ -5,7 +5,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.widgets import Textarea
 
 from webook.arrangement.facilities import service_ordering as ordering_service
-from webook.arrangement.forms.widgets.table_multi_select import TableMultiSelectWidget, TableSimpleMultiSelectWidget
+from webook.arrangement.forms.widgets.table_multi_select import (
+    TableMultiSelectWidget,
+    TableSimpleMultiSelectWidget,
+)
 from webook.arrangement.models import (
     Event,
     EventSerie,
@@ -64,6 +67,13 @@ class ProvisionPersonellForm(forms.ModelForm):
             "selected_personell": TableSimpleMultiSelectWidget,
             "freetext_comment": Textarea(attrs={"class": "form-control"}),
         }
+
+
+class AddPersonToPreconfigurationForm(forms.ModelForm):
+    class Meta:
+        model = ServiceOrderPreconfiguration
+        fields = ["id", "assigned_personell"]
+        widgets = {"personell": TableMultiSelectWidget()}
 
 
 class AddPersonForm(forms.ModelForm):

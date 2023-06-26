@@ -73,24 +73,23 @@
 
                 <td v-if="actions" style="min-width: 15rem">
                     <span v-if="Object.keys(actions).length > 2">
-                        <div class="dropdown">
-                            <button
-                              class="btn wb-btn-main wb-sm"
+                        <div class="dropdown" id="actionDropdown">
+                            <button&
+                              class="btn wb-btn-main-outline shadow-0 border border-dark wb-sm"
                               type="button"
                               id="actionsDropdownMenuButton"
                               data-mdb-toggle="dropdown"
                               aria-expanded="false"
-                              @click.stop=""
                             >
                                 <i class="fas fa-chevron-down"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="actionsDropdownMenu">
                                 <span v-for="(actionData, actionName, index) in actions">
                                     <li v-if="'_actions' in row == false || '-' + actionName in row._actions == false">
-                                        <a class="dropdown-item" href="#" @cliok="emitActionClickedEvent(actionName, row)">
+                                        <button class="dropdown-item" @cliok.stop="console.log('something something');">
                                             <span v-if="actionData.isContentHtml" v-html="actionData.content"></span>
                                             <span v-else>[[actionData.content]]</span>
-                                        </a>
+                                        </button>
                                       </li>
                                 </span>
                               
@@ -98,10 +97,10 @@
                                 <li><hr class="dropdown-divider" /></li>
                                 <span v-for="(action, actionName) in row._actions">
                                     <li v-if="actionName[0] !== '-'">
-                                        <a href="#" class="dropdown-item" @click="emitActionClickedEvent(actionName, row)">
+                                        <button class="dropdown-item" @click="emitActionClickedEvent(actionName, row)">
                                             <span v-if="action.isContentHtml" v-html="action.content"></span>
                                             <span v-else>[[action.content]]</span>
-                                        </a>
+                                        </button>
                                     </li>
                                 </span>
                               </span>
@@ -270,20 +269,28 @@
                 this.refresh();
             }
         },
-        created() {
+        async created() {
             if (this.hiddenColumns) {
                 this.hiddenColumns.forEach(function (columnName) {
                     this.hiddenColumnsMap.set(columnName, true);
                 });
             }
 
-            this.refresh();
+            await this.refresh();
+        },
+        mounted() {
+            console.log("Setting up listener")
+            const dropdownElement = document.getElementById("actionDropdown");
+            dropdownElement.addEventListener("show.mdb.dropdown", () => {
+                console.log("Clickity click")
+            })
         },
         methods: {
             onRowClicked(event, item) {
                 this.$emit("rowClicked", event, item);
             },
             emitActionClickedEvent(actionName, item) {
+                console.log("Emitting action event", actionName);
                 console.log("Item at start", item)
                 this.$emit(actionName, item);
             },
