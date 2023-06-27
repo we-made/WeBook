@@ -975,7 +975,7 @@
                                 formData.append("location",         dialog.getElementById('id_location').value);
                                 formData.append("arrangement_type", dialog.data.arrangementTypeJsTreeSelect.getSelectedValue());
                                 formData.append("responsible",      dialog.getElementById('id_responsible').value);
-                                formData.append("ticket_code",      dialog.getElementById('id_ticket_code').value);
+                                formData.append("ticket_code",      dialog.getElementById('id_ticket_code').value || '');
                                 formData.append("meeting_place",    dialog.getElementById('id_meeting_place').value);
                                 formData.append("meeting_place_en", dialog.getElementById('id_meeting_place_en').value);
                                 formData.append("expected_visitors",dialog.getElementById('id_expected_visitors').value);
