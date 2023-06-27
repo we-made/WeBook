@@ -1,8 +1,10 @@
 import json
 from enum import Enum
+from typing import List, Union
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
+from django.db.models.query import QuerySet
 from django.http import JsonResponse
 from django.urls import reverse
 from django.views.generic import (
@@ -12,6 +14,8 @@ from django.views.generic import (
     RedirectView,
     UpdateView,
 )
+
+from webook.utils import json_serial
 
 
 class SearchView(ListView):
@@ -39,7 +43,16 @@ class SearchView(ListView):
 
     def get(self, request):
         search_term = request.GET.get("term", "")
-        response = serializers.serialize("json", self.search(search_term))
+
+        results: Union[QuerySet, List[dict]] = self.search(search_term)
+
+        if isinstance(results, QuerySet) and hasattr(results, "_meta"):
+            response = serializers.serialize("json", results)
+        else:
+            if isinstance(results, QuerySet):  # values has no _meta
+                results = list(results)
+            response = json.dumps(results, default=json_serial)
+
         return JsonResponse(response, safe=False)
 
     def pk_search(self, pks):
