@@ -8,9 +8,12 @@ class Dialog {
         data={},
         binds={},
         plugins={},
-        when={},
+        when = {},
+        vueApp=undefined
     } = {}) {
         this._methods = methods;
+
+        this.vueApp = vueApp;
 
         this.managerName = managerName;
         this.dialogId = dialogId;

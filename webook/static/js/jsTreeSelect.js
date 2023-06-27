@@ -103,6 +103,13 @@ export class JSTreeSelect {
         return this.selected.id;
     }
 
+    getSelectedText() {
+        if (!this._hasSelectedValue())
+            return undefined;
+
+        return this.selected.text;
+    }
+
     setSelected(id) {
         const jsTree = $(this._jsTreeElement).jstree(true);
         if (jsTree === false) { // if jsTree is false, then jsTree is not initialized yet, so we stage the set value.
