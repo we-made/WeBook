@@ -209,7 +209,7 @@ class SearchPeopleAjax(LoginRequiredMixin, PlannerAuthorizationMixin, SearchView
         else:
             people = Person.objects.annotate(
                 afull_name=Concat("first_name", "middle_name", "last_name")
-            ).filter(afull_name__contains=search_term)
+            ).filter(afull_name__icontains=search_term)
 
         return people
 
