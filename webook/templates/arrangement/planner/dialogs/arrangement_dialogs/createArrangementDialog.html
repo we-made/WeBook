@@ -215,7 +215,7 @@
                                             <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
                                                 <td>
                                                     <a>
-                                                        [[ [result.first_name, result.middle_name, result.last_name].join(" ") ]]
+                                                        [[ result.full_name ]]
                                                     </a>
                                                 </td>
                                             </tr>
@@ -666,13 +666,12 @@
 
                 setMainPlanner(planner) {
                     console.log("setMainPlanner", planner)
-                    const fullName = [ planner.first_name, planner.middle_name, planner.last_name ].join(" ");
 
-                    this.mainPlanner = { id: planner.id, text: fullName };
+                    this.mainPlanner = { id: planner.id, text: planner.full_name };
 
                     this.dialog.data.mainPlannerPayload = {
                         allPresets: new Map(),
-                        allSelectedEntityIds: [ { id: planner.id, text: fullName } ],
+                        allSelectedEntityIds: [ { id: planner.id, text: planner.full_name } ],
                         selectedPresets: [],
                         viewables: [ { id: planner.id, text: fullName } ]
                     }
@@ -692,6 +691,10 @@
                             if (response.ok) {
                                 response.json().then((data) => {
                                     this.mainPlannerSearchResults = JSON.parse(data);
+
+                                    this.mainPlannerSearchResults.forEach((planner) => {
+                                        planner.full_name = [ planner.first_name, planner.middle_name, planner.last_name ].join(" ");
+                                    });
                                 });
                             }
                             else {
