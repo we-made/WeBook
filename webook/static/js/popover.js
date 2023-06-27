@@ -13,7 +13,7 @@ export class Popover {
         }
 
         this._listenToOutsideClicks();
-    }
+    }   
 
     _listenToTriggerElementClick() {
         this.triggerElement.addEventListener("click", function () {
@@ -39,5 +39,12 @@ export class Popover {
     show() {
         this.wrapperElement.classList.toggle("active");
         this.isShown = !this.isShown;
+    }
+
+    fadeAndHide() {
+        $(this.wrapperElement).hide("fade", {}, 400, () => {
+            this.isShown = false;
+            this.wrapperElement.classList.remove("active");
+        });
     }
 }
