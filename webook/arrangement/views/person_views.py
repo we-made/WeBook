@@ -13,14 +13,7 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    FormView,
-    ListView,
-    RedirectView,
-    UpdateView,
-)
+from django.views.generic import CreateView, DetailView, FormView, ListView, RedirectView, UpdateView
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView, FormMixin
 
