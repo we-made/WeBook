@@ -49,30 +49,33 @@
                         <div id="select-main-planner-popover" class="popover_wrapper dialog-popover-left-fix" style="display: none;">
                             <div class="popover_content" style="width: 50em!important;">
                                 <h5>Velg hovedplanlegger</h5>
-                                <input type="search" name="" id="" class="form-control"
+                                
+                                
+                                <input type="search" name="" id="" class="form-control form-control-lg"
                                     v-model="mainPlannerSearchTerm"
                                     placeholder="Søk etter planlegger... (minst 3 tegn)">       
 
                                 <div class="mt-3">
                                     <div v-if="mainPlannerSearchResults.length">
-                                        <table class="table table-bordered table-sm" v-if="mainPlannerSearchResults.length">
-                                            <thead>
-                                                <tr>
-                                                    <th class="d-flex wb-bg-secondary justify-content-between align-items-center">
-                                                        <h5 class="fw-bolder mb-0">
-                                                            Resultater
-                                                        </h5>
-                                                        <span class="badge badge-light fw-bold">
-                                                            [[ mainPlannerSearchResults.length ]] resultater
-                                                        </span>
-                                                    </th>
-                                                </tr>
-                                            </thead>
+                                        <div v-if="mainPlannerSearchTerm.length == 0"
+                                            class="alert alert-info">
+                                            <div class="d-flex align-items-center">
+                                                <h2 class="mb-0"><i class="fas fa-info"></i></h2>
+                                                
+                                                <div class="ms-3">
+                                                    Uten søkeord vises alle personer med gruppe planlegger
+                                                    <br>
+                                                    Du kan fortsatt søke etter og velge personer uten gruppe planlegger ved å skrive inn minst 3 tegn i søkefeltet.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <table class="table table-highlight table-bordered table-sm" v-if="mainPlannerSearchResults.length">
                                             <tbody>
-                                                <tr>
-                                                    <td v-for="result in mainPlannerSearchResults">
+                                                <tr v-for="result in mainPlannerSearchResults" class="secondary-hover">
+                                                    <td>
                                                         <a @click="setMainPlanner(result)">
-                                                            [[ result.name ]]
+                                                            [[ [result.first_name, result.middle_name, result.last_name].join(" ") ]]
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -80,9 +83,9 @@
                                         </table>
                                         
                                         <div class="clearfix">
-                                            <small class="text-muted float-end">
+                                            <small class="text-muted float-end fw-bold">
                                                 <i class="fas fa-info"></i>&nbsp;
-                                                Trykk på navnet til planleggeren du ønsker å velge
+                                                Trykk på navnet til personen du ønsker å velge som hovedplanlegger for arrangementet
                                             </small>
                                         </div>
                                     </div>
@@ -596,8 +599,8 @@
                     rooms: [],
                     planners: [],
                     mainPlanner: { id: null, name: null },
-                    mainPlannerSearchTerm: "",
-                    mainPlannerSearchResults: [ { "id": 1, "name": "A Sample Planner" } ],
+                    mainPlannerSearchTerm: null,
+                    mainPlannerSearchResults: [],
                 }
             },
             computed: {},
@@ -659,10 +662,33 @@
                         preselectedMainPlanner: this.dialog.data.mainPlannerPayload,
                         preselectedRooms: this.dialog.data.roomPayload,
                     });
+                },
+            },
+            watch: {
+                mainPlannerSearchTerm: async function (val) {
+                    if (val.length > 2 || val.length == 0) {
+                        await fetch("{% url 'arrangement:person_search_planners_ajax_view' %}?term=" + val, {
+                            method: "GET",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                            },
+                        }).then((response) => {
+                            if (response.ok) {
+                                response.json().then((data) => {
+                                    this.mainPlannerSearchResults = JSON.parse(data);
+                                });
+                            }
+                            else {
+                                console.log("HTTP-Error: " + response.status);
+                            }
+                        })
+                    }
                 }
             },
             delimiters: ['[[', ']]'],
             mounted() {
+                this.mainPlannerSearchTerm = "";
+
                 this.dialog = new Dialog({
                     vueApp: this,
                     managerName: '{{managerName}}',
