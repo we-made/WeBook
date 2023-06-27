@@ -123,14 +123,9 @@
         </div>
         <div id="step-services">
             <div class="clearfix">
-                <!-- <button class="btn btn-block wb-btn-main"
-                    d-trigger="triggerNewServiceOrder">
-                Bestill tjenester
-                </button> -->
-
                 <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
                     style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                    d-trigger="triggerNewServiceOrder">
+                    @click="openAddServiceOrderDialog()">
                     <i class="fas fa-calendar-plus"></i>&nbsp;
                     Bestill tjenester
                 </a>
@@ -143,7 +138,25 @@
             </div>
 
             <div id="serviceOrders">
-
+                <div
+                    class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
+                    v-for="order in serviceOrders">
+                    
+                    <h5>
+                        [[order.service_name]]
+                        <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' 
+                            :id="order.key" 
+                            @click="serviceOrders.splice(serviceOrders.indexOf(order), 1)"
+                            select-type='serviceOrder' 
+                            d-trigger="removeAssociation">
+                            
+                            <i class='fas fa-times'></i>
+                        </button>
+                    </h5>
+                    <code>
+                        [[order.freetext_comment]]
+                    </code>
+                </div>
             </div>
         </div>
         <div id="step-2">
@@ -151,7 +164,10 @@
                 <input type="submit" value="" style="display: none;">
 
                 <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
-                    <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
+                    <input type="hidden" 
+                        name="{{ form.responsible.name }}" 
+                        id="{{ form.responsible.id_for_label }}"
+                        v-model="mainPlanner.id">
 
                     <label for="" class="d-block form-label">
                         <i class="fas fa-star"></i>
@@ -163,11 +179,11 @@
                         Vennligst velg en hovedplanlegger
                     </div>
 
-                    <h5 class="mb-2" id="mainPlannerName"></h5>
+                    <h5 class="mb-2">[[ mainPlanner.text ]]</h5>
                     <button class="wb-btn-main"
                         id="setMainPlannerButton"
                         type="button"
-                        d-trigger="triggerSetPlanner">
+                        @click="openSetMainPlannerDialog()">
                         Velg hovedplanlegger
                     </button>
                 </div>
@@ -180,11 +196,27 @@
                     <div>
                         <button class="wb-btn-main"
                             type="button"
-                            d-trigger="triggerAddRooms">
+                            @click="openAddRoomsDialog()">
                             Velg rom
                         </button>
                     </div>
-                    <div id="roomChips" class="chipsList"></div>
+                    <div id="roomChips" class="chipsList">
+                        <span v-for="room in rooms">
+                            <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
+                                [[room.text]]
+                                
+                                <a href="#">
+                                    <i class="fa fa-times text-danger"
+                                        :id="room.id"
+                                        select-type="room"
+                                        @click="rooms.splice(rooms.indexOf(room), 1)"
+                                        d-trigger="removeAssociation">
+
+                                    </i>
+                                </a>
+                            </div>
+                        </span>
+                    </div>
                 </div>
 
                 <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
@@ -195,11 +227,27 @@
                     <div>
                         <button class="wb-btn-main"
                             type="button"
-                            d-trigger="triggerAddPlanners">
+                            @click="openAddPlannersDialog()">
                             Velg planleggere
                         </button>
                     </div>
-                    <div id="plannerChips" class="chipsList"></div>
+                    <div id="plannerChips" class="chipsList">
+                        <span v-for="planner in planners">
+                            <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
+                                [[planner.text]]
+                                
+                                <a href="#">
+                                    <i class="fa fa-times text-danger"
+                                        :id="planner.id"
+                                        select-type="person"
+                                        @click="planners.splice(planners.indexOf(room), 1)"
+                                        d-trigger="removeAssociation">
+
+                                    </i>
+                                </a>
+                            </div>
+                        </span>
+                    </div>
                 </div>
 
                 <div class="mb-2 mt-4 form-group">
@@ -313,7 +361,7 @@
                 <div class="col-6">
                     <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
                         style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                        d-trigger="createSerie">
+                        @click="openPlanSerieDialog()">
                         <i class="fas fa-calendar-plus"></i>&nbsp;
                         Ny gjentagende aktivitet
                     </a>
@@ -321,7 +369,7 @@
                 <div class="col-6">
                     <a class="btn btn-lg btn-outline-dark shadow-0 btn-block mb-2 p-2"
                         style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                        d-trigger="createSimpleActivity">
+                        @click="openPlanActivityDialog()">
                         <i class="fas fa-calendar-plus"></i>&nbsp;
                         Ny enkel aktivitet
                     </a>
@@ -330,8 +378,138 @@
 
             <hr class="mt-0">
 
-            <div id="eventsBody"></div>
-            <div id="timeplansBody"></div>
+            <div id="eventsBody">
+                <div class="border border-2 rounded-2 p-3" id='[[element._uuid]]' style="background-color: #f6f6f0;"
+                    v-for="event in events">
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3>
+                            <i class="fas fa-calendar"></i>&nbsp;
+                            [[event.title]]
+                        </h3>
+    
+                        <h5>
+                            [[event.start.toLocaleString()]] - [[event.end.toLocaleString()]]
+                        </h5>    
+                    </div>
+                    
+                    <div>
+                        <span class="fw-bolder">Målgruppe:</span> [[event.audienceName]]
+                    </div>
+                    <div>
+                        <span class="fw-bolder">Arrangement Type:</span> [[event.arrangementTypeName]]
+                    </div>
+
+                    <div class="mt-2">
+                        <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 "
+                            data-toggle='tooltip' title='{% trans "Edit this activity" %}'
+                            @click="openDialog('newSimpleActivityDialog', { event_uuid: event._uuid})">
+                            <i class="fas fa-edit"></i>&nbsp;
+                            Rediger
+                        </a>
+                        <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 ms-2"
+                            data-toggle='tooltip' title='{% trans "Remove this activity from the arrangement" %}'
+                            @click="events.splice(events.indexOf(event), 1); dialog.data.eventsMap.delete(event._uuid);">
+                            <i class="fas fa-trash"></i>&nbsp;
+                            Slett
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            <div id="timeplansBody">
+
+                <div class="rounded-2 border border-2 p-3 ps-4 pe-4" 
+                    :id='serie._uuid' 
+                    style="background-color: #f6f6f0;"
+                    v-for="serie in series">
+                    <h3 class="mb-0">
+                        <i class="fas fa-sync"></i>&nbsp;
+                        [[serie.time.title]]
+                    </h5>
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> [[serie.time.start]] - [[serie.time.end]] </h6>
+                    <h6>[[serie.friendlyDesc]] </h6>
+
+                    <div class="mb-2">
+                        <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0"
+                            data-toggle='tooltip' title='{% trans "Edit this recurring activity" %}'
+                            @click="openDialog('newTimePlanDialog', { serie_uuid: serie._uuid })">
+                            <i class="fas fa-edit"></i>&nbsp;
+                            Rediger tidsplan
+                        </a>
+
+                        <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 ms-2"
+                            data-toggle='tooltip' title='{% trans "Remove this recurring activity from the arrangement to be" %}'
+                            @click="series.splice(series.indexOf(serie), 1); dialog.data.seriesMap.delete(serie._uuid);">
+                            <i class="fas fa-trash"></i>&nbsp;
+                            Slett
+                        </a>
+                    </div>
+
+                    <div class="accordion" id="accordion_series_[[serie._uuid]]" v-if="serie.collisions.length">
+                        <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <a
+                            class="accordion-button text-muted collapsed"
+                            type="button"
+                            data-mdb-toggle="collapse"
+                            data-mdb-target="#collisionsCollapse_[[serie._uuid]]"
+                            aria-expanded="true"
+                            aria-controls="collisionsCollapse_[[serie._uuid]]"
+                            >
+                            <span class="bg-danger rounded-pill text-white p-1 collisions-counter" id='[[serie._uuid]]_collisionCounter'>[[serie.collisions.length]]</span>
+                            <i class="fas fa-exclamation-triangle ms-2"></i>&nbsp; Kollisjoner
+                        </a>
+                        </h2>
+                        <div id="collisionsCollapse_[[serie._uuid]]" class="accordion-collapse collapse" aria-labelledby="headingOne" data-mdb-parent="#accordion_series_[[serie._uuid]]">
+                            <div class="accordion-body" style="max-height: 35em; overflow: scroll;">
+                                <div class="alert alert-danger small">
+                                    <strong>OBS: </strong> kollisjoner som ikke blir <abbr title="Bryt ut kollisjoner til enkle aktiviteter og løs kollisjonen">brutt ut</abbr> og løst vil ikke bli opprettet
+                                    når arrangementet opprettes.
+                                </div>
+                                
+                                <div
+                                    v-for="collisionRecord in serie.collisions">
+
+                                        <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}"
+                                            style='background-color: #f6f6f0'>
+                                            <h5><i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikt på [[collisionRecord.contested_resource_name]]</h5>
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <div>
+                                                        <div class="fw-bolder">[[collisionRecord.event_a_title]]</div>
+                                                        <h6>[[collisionRecord.event_a_start]] - [[collisionRecord.event_a_end]]</h6>
+                                                    </div>
+                                                </div>
+                                                <div class="col-2">
+                                                    <h3 class=" text-center"><i class="fas fa-arrow-right"></i></h3>
+                                                </div>
+                                                <div class="col-5">
+                                                    <div>
+                                                        <div class="fw-bolder">[[collisionRecord.event_b_title]]</div>
+                                                        <h6>[[collisionRecord.event_b_start]] - [[collisionRecord.event_b_end]]</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="clearfix">
+                                                <a href="#" class="btn wb-btn-secondary shadow-0"
+                                                    d-trigger="breakOutEvent" d-arg-serie_uuid="[[serie._uuid]]" d-arg-collision_index="[[serie.collisions.length]]"><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
+                                                </a>
+                                            </div>
+                                            <div v-if="collisionRecord.is_rigging">
+                                                <br>
+
+                                                <i class="fas fa-hammer"></i>&nbsp;Rigghendelse
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
@@ -360,15 +538,83 @@
         let createArrangementDialogApp = Vue.createApp({
             components: {},
             data() {
-                return {}
+                return {
+                    dialog: null,
+                    events: [],
+                    series: [],
+                    serviceOrders: [],
+                    rooms: [],
+                    planners: [],
+                    mainPlanner: { id: null, name: null },
+                }
             },
             computed: {},
             methods: {
+                /**
+                 * @summary Open a dialog, with the option to send data to the dialog 
+                 * @param {string} dialogName
+                 * @param {object} data
+                 */
+                openDialog(dialogName, data = {}) {
+                    let payload = {
+                        $parent: this.dialog.dialogElement,
+                        sendTo: '{{dialogId}}',
+                        ...data
+                    }
 
+                    this.dialog.raiseTriggerEvent("{{managerName}}", dialogName, payload);
+                },
+                /**
+                 * @summary Open dialog for planning a new activity
+                 */
+                openPlanActivityDialog() {
+                    this.openDialog("newSimpleActivityDialog", {
+                        preorderedServices: Array.from(this.dialog.data.servicePresets.values()),
+                        preselectedMainPlanner: this.dialog.data.mainPlannerPayload,
+                        preselectedRooms: this.dialog.data.roomPayload, 
+                    });
+                },
+                /**
+                * @summary Open dialog for adding new rooms to the arrangement
+                */
+                openAddRoomsDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("{{orderRoomDialog}}");
+                },
+                /**
+                * @summary Open dialog for adding new planners to the arrangement
+                */
+                openAddPlannersDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("{{orderPersonDialog}}", { multiple: true, data: { whenEventName: "plannersSelected" } });
+                },
+                /**
+                * @summary Open dialog for setting the main planner
+                */
+                openSetMainPlannerDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("{{orderPersonDialog}}", { multiple: false, data: { whenEventName: "setPlanner" } });
+                },
+                /**
+                * @summary Open dialog for ordering new services to the arrangement
+                */
+                openAddServiceOrderDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("orderServiceDialog", { multiple: false, data: { whenEventName: "newServiceOrder" }, entity_type: "unknown", entity_id: "0" });
+                },
+                /**
+                * @summary Open dialog for planning a new timeplan / serie in the arrangement
+                */
+                openPlanSerieDialog() {
+                    this.openDialog("newTimePlanDialog", {
+                        preorderedServices: Array.from(this.dialog.data.servicePresets.values()),
+                        preselectedMainPlanner: this.dialog.data.mainPlannerPayload,
+                        preselectedRooms: this.dialog.data.roomPayload,
+                    });
+                }
             },
             delimiters: ['[[', ']]'],
             mounted() {
-                new Dialog({
+                console.log("Mounted", this)
+
+                this.dialog = new Dialog({
+                    vueApp: this,
                     managerName: '{{managerName}}',
                     dialogId: '{{dialogId}}',
                     discriminator: '{{discriminator}}',
@@ -376,7 +622,7 @@
                         dialog.querySelectorAll('.form-outline').forEach((formOutline) => {
                             new mdb.Input(formOutline).init();
                         });
-            
+
                         [
                             {
                                 element: dialog.querySelector('#{{ form.location.id_for_label }}'),
@@ -471,10 +717,14 @@
             
                         document.addEventListener("{{managerName}}.contextUpdated", (e) => {
                             if (e.detail.context.series !== undefined) {
-                                dialog.setSeries( { series: e.detail.context.series });
+                                const series = e.detail.context.series;
+                                dialog.vueApp.series = Array.from(series.values());
+                                dialog.data.seriesMap = series;
                             }
                             if (e.detail.context.events !== undefined) {
-                                dialog.setEvents( {events: e.detail.context.events });
+                                const events = e.detail.context.events;
+                                dialog.vueApp.events = Array.from(events.values());
+                                dialog.data.eventsMap = events;
                             }
                         });
             
@@ -605,18 +855,6 @@
                                 }
                             }
                         },
-                        triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                            dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}' });
-                        },
-                        triggerAddPlanners(dialog, {} = {}, triggeredByElement) {
-                            dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "plannersSelected" } });
-                        },
-                        triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
-                            dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
-                        },
-                        triggerNewServiceOrder(dialog, {} = {}, triggeredByElement) {
-                            dialog.raiseTriggerEvent("{{managerName}}", "orderServiceDialog", { $parent:dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "newServiceOrder"}, entity_type: "unknown", entity_id: "0" })
-                        },
                         submit(dialog, {} = {}, triggeredByElement) {
                             if (dialog.validate() === false) {
                                 return;
@@ -707,147 +945,6 @@
                                 save();
                             }
                         },
-                        setEvents(dialog, { events } = {}, triggeredByElement) {
-                            dialog.data.eventsMap = events;
-                            let tbody = dialog.$('#eventsBody');
-                            tbody.html("");
-            
-                            events.forEach(element => {
-                                tbody.append(
-                                    $(`
-                                    <div class="border border-2 rounded-2 p-3" id='${element._uuid}'  style="background-color: #f6f6f0;">
-                                        <h3>
-                                            ${element.title}
-                                        </h3>
-            
-                                        <h5>
-                                            Fra <span class='fw-bold'>${element.start.toLocaleString()}</span> til <span class='fw-bold'>${element.end.toLocaleString()}</span>
-                                        </h5>
-            
-                                        <div class="">
-                                            <a href="#" class="btn wb-btn-blank"
-                                                data-toggle='tooltip' title='{% trans "Edit this serie" %}'
-                                                d-trigger='editSimpleActivity'
-                                                d-arg-uuid='${element._uuid}'>
-                                                Rediger
-                                            </a>
-                                            <a href="#" class="btn wb-btn-secondary ms-2"
-                                                data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}'
-                                                d-trigger='removeSimpleActivity'
-                                                d-arg-uuid='${element._uuid}'>
-                                                Slett
-                                            </a>
-                                        </div>
-                                    </div>
-                                    `)
-                                )
-                            })
-                        },
-                        setSeries(dialog, { series } = {}, triggeredByElement) {
-                            dialog.data.seriesMap = series;
-            
-                            let tbody = dialog.$('#timeplansBody');
-                            tbody.html("")
-            
-                            series.forEach(element => {
-                                let collisions_html = "";
-                                console.log("collisions", element.collisions);
-                                if (element.collisions !== undefined && element.collisions.length > 0) {
-                                    let collisionsCounter = 0;
-                                    element.collisions.forEach(collisionRecord => {
-                                        let riggingHtml = "";
-                                        if (collisionRecord.is_rigging === true) {
-                                            riggingHtml = "<i class='fas fa-hammer'></i>&nbsp;Riggehendelse";
-                                        }
-            
-                                        collisions_html += `
-                                        <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}"
-                                            style='background-color: #f6f6f0'>
-                                            <h5><i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikt på ${collisionRecord.contested_resource_name}</h5>
-                                            <div class="row">
-                                                <div class="col-5">
-                                                    <div class="">
-                                                        <div class="fw-bolder">${collisionRecord.event_a_title}</div>
-                                                        <h6>${collisionRecord.event_a_start} - ${collisionRecord.event_a_end}</h6>
-                                                    </div>
-                                                </div>
-                                                <div class="col-2">
-                                                    <h3 class=" text-center"><i class="fas fa-arrow-right"></i></h3>
-                                                </div>
-                                                <div class="col-5">
-                                                    <div class="">
-                                                        <div class="fw-bolder">${collisionRecord.event_b_title}</div>
-                                                        <h6>${collisionRecord.event_b_start} - ${collisionRecord.event_b_end}</h6>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="clearfix">
-                                                <a href="#" class="btn wb-btn-secondary shadow-0"
-                                                    d-trigger="breakOutEvent" d-arg-serie_uuid="${element._uuid}" d-arg-collision_index="${collisionsCounter}"><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
-                                                </a>
-                                            </div>
-                                            <br>
-                                            ${riggingHtml}
-                                        </div>
-                                        `;
-                                        collisionsCounter++;
-                                    })
-                                }
-            
-                                tbody.append(
-                                    $(`
-                                            <div class="rounded-2 border border-2 p-3 ps-4 pe-4" id='${element._uuid}' style="background-color: #f6f6f0;">
-                                                <h5 class="mb-0 text-muted">${element.time.title}</h5>
-                                                <h6 class="mb-0"><i class="fas fa-clock"></i> ${element.time.start} - ${element.time.end} </h6>
-                                                <h6><i class="fas fa-sync"></i> ${element.friendlyDesc}</h6>
-            
-                                                <div class="mb-2">
-                                                    <a href="#" class="btn wb-btn-secondary"
-                                                        data-toggle='tooltip' title='{% trans "Edit this recurring activity" %}'
-                                                        d-trigger='editSerie'
-                                                        d-arg-uuid='${element._uuid}'>
-                                                        Rediger tidsplan
-                                                    </a>
-            
-                                                    <a href="#" class="btn wb-btn-blank"
-                                                        data-toggle='tooltip' title='{% trans "Remove this recurring activity from the arrangement to be" %}'
-                                                        d-trigger='removeSerie'
-                                                        d-arg-uuid='${element._uuid}'>
-                                                        Slett
-                                                    </a>
-                                                </div>
-            
-                                                <div class="accordion" id="accordion_series_${element._uuid}">
-                                                    <div class="accordion-item">
-                                                    <h2 class="accordion-header" id="headingOne">
-                                                        <a
-                                                        class="accordion-button text-muted collapsed"
-                                                        type="button"
-                                                        data-mdb-toggle="collapse"
-                                                        data-mdb-target="#collisionsCollapse_${element._uuid}"
-                                                        aria-expanded="true"
-                                                        aria-controls="collisionsCollapse_${element._uuid}"
-                                                        >
-                                                        <span class="bg-danger rounded-pill text-white p-1 collisions-counter" id='${element._uuid}_collisionCounter'>${element.collisions.length}</span>
-                                                        <i class="fas fa-exclamation-triangle ms-2"></i>&nbsp; Kollisjoner
-                                                    </a>
-                                                    </h2>
-                                                    <div id="collisionsCollapse_${element._uuid}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-mdb-parent="#accordion_series_${element._uuid}">
-                                                        <div class="accordion-body" style="max-height: 35em; overflow: scroll;">
-                                                            <div class="alert alert-danger small">
-                                                                <strong>OBS: </strong> kollisjoner som ikke blir <abbr title="Bryt ut kollisjoner til enkle aktiviteter og løs kollisjonen">brutt ut</abbr> og løst vil ikke bli opprettet
-                                                                når arrangementet opprettes.
-                                                            </div>
-                                                            ${collisions_html}
-                                                        </div>
-                                                    </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                    `)
-                                )
-                            });
-                        },
                         removeAssociation(dialog, {} = {}, triggeredByElement) {
                             const itemId = triggeredByElement.id;
                             const type = triggeredByElement.getAttribute("select-type");
@@ -878,56 +975,11 @@
             
                             triggeredByElement.remove();
                         },
-                        removeSerie(dialog, { uuid } = {}, triggeredByElement) {
-                            dialog.$(`#${uuid}`).remove();
-                            dialog.data.seriesMap.delete(uuid);
-                        },
-                        removeSimpleActivity(dialog, { uuid } = {}, triggeredByElement) {
-                            dialog.$(`#${uuid}`).remove();
-                            dialog.data.eventsMap.delete(uuid);
-                        },
-                        editSimpleActivity(dialog, { uuid } = {}, triggeredByElement) {
-                            dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { event_uuid: uuid, $parent: dialog.dialogElement });
-                        },
-                        createSimpleActivity(dialog, {} = {}, triggeredByElement) {
-                            dialog.raiseTriggerEvent(
-                                "arrangementCreator", 
-                                "newSimpleActivityDialog", 
-                                { 
-                                    preorderedServices: Array.from(dialog.data.servicePresets.values()),
-                                    preselectedMainPlanner: dialog.data.mainPlannerPayload,
-                                    preselectedRooms: dialog.data.roomPayload, 
-                                    $parent: dialog.dialogElement,
-                                }
-                            )
-                        },
                         breakOutEvent(dialog, { serieUuid, collisionIndex } = {}, triggeredByElement) {
                             dialog.raiseTriggerEvent("arrangementCreator", "breakOutActivityDialog", {
                                 serie: dialog.data.seriesMap.get(serieUuid),
                                 collision_index: collisionIndex,
                             });
-                        },
-                        editSerie(dialog, { uuid } = {}, triggeredByElement) {
-                            dialog.raiseTriggerEvent(
-                                "arrangementCreator", 
-                                "newTimePlanDialog", 
-                                { 
-                                    serie_uuid: uuid, 
-                                    $parent: dialog.dialogElement 
-                                }
-                            );
-                        },
-                        createSerie(dialog, {}={}, triggeredByElement) {
-                            dialog.raiseTriggerEvent(
-                                "arrangementCreator", 
-                                "newTimePlanDialog", 
-                                { 
-                                    preorderedServices: Array.from(dialog.data.servicePresets.values()),
-                                    preselectedMainPlanner: dialog.data.mainPlannerPayload,
-                                    preselectedRooms: dialog.data.roomPayload, 
-                                    $parent: dialog.dialogElement 
-                                }
-                            );
                         },
                     },
                     when: [
@@ -938,67 +990,31 @@
                         dialog.data.servicePresets = new Map((payload.concat(
                             Array.from(dialog.data.servicePresets.values())
                         )).map(x => [crypto.randomUUID(), x]));
-            
-                        let wrapper = dialog.$('#serviceOrders');
-                        wrapper.empty();
-                        
-                        for (const [key, value] of dialog.data.servicePresets) {
-                            wrapper.append(
-                                $(`<div class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2'  id="${key}">
-                                    <h5>
-                                        ${value.service_name}
-                                        <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' id="${key}" select-type='serviceOrder' d-trigger="removeAssociation"><i class='fas fa-times'></i></button>
-                                    </h5>
-                                    <code>
-                                        ${value.freetext_comment}
-                                    </code>
-                                   </div>`)
-                            );
-                        }
+
+                        dialog.vueApp.serviceOrders = 
+                            Array.from(dialog.data.servicePresets.entries())
+                            .map(x => { return { key: x[0], ...x[1] } });
+
                     } },
                     { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                            let wrapper = dialog.$( '#roomChips' );
-                            wrapper.empty();
-                            
-                            payload.viewables.forEach((room) => {
-                                wrapper.append(
-                                    $(`<selected-pill name='${room.text}'
-                                                      id='${room.id}'
-                                                      select-type='room'
-                                                      class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
-                                                      d-trigger='removeAssociation'>
-                                       </selected-pill>`)  
-                                )
-                            });
-            
                             dialog.data.selectedRoomIds = new Map();
                             dialog.data.roomPresets = new Map();
                             payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
                             payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
             
                             dialog.data.roomPayload = payload;
+
+                            dialog.vueApp.rooms = payload.viewables;
                         } },
                         { eventKnownAs: "plannersSelected", do: (dialog, payload) => {
-                            let wrapper = dialog.$( '#plannerChips' );
-                            wrapper.empty();
-                            
-                            payload.viewables.forEach((person) => {
-                                wrapper.append(
-                                    $(`<selected-pill name='${person.text}'
-                                                      id='${person.id}'
-                                                      select-type='person'
-                                                      class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
-                                                      d-trigger='removeAssociation'>
-                                       </selected-pill>`)
-                                )
-                            });
-            
                             dialog.data.selectedPlannerIds = new Map();
                             dialog.data.plannerPresets = new Map();
                             payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPlannerIds.set(x.id, true) );
                             payload.selectedPresets.forEach( (presetId) => dialog.data.plannerPresets.set(presetId, payload.allPresets.get(presetId)));
             
                             dialog.data.plannerPayload = payload;
+
+                            dialog.vueApp.planners = payload.viewables;
                         } },
                         { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                             if (payload.allSelectedEntityIds.length == 0)
@@ -1011,8 +1027,9 @@
             
                             const person = payload.viewables[0];
                             
+                            dialog.vueApp.mainPlanner = { id: person.id, text: person.text }
+
                             dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
-                            dialog.getElementById('mainPlannerName').innerText = person.text;
                             dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
                         } }
                     ],
@@ -1044,5 +1061,11 @@
                 });
             }
         });
+
+        console.log(document.getElementsByClassName(".{{discriminator}}")[0])
+
+        createArrangementDialogApp.mount(   
+            document.getElementsByClassName("{{discriminator}}")[0]
+        )
     })
 </script>
