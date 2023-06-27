@@ -286,5 +286,7 @@ class PersonSearchPlannersView(SearchPeopleAjax):
         if show_only_planners:
             qs = qs.filter(user__groups__name="planner")
 
+        return qs
+
 
 person_search_planners_ajax_view = PersonSearchPlannersView.as_view()
