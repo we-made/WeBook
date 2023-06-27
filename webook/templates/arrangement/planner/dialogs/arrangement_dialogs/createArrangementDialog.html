@@ -25,6 +25,7 @@
                     <div class="form-group mb-2">
                         <label>
                             Tittel <i>(Norsk)</i>
+                            <span class="fw-bold">&nbsp;*</span>
                         </label>
                         <input type="text"
                             class="form-control form-control-lg mb-2"
@@ -62,6 +63,7 @@
                         <label>
                             <i class="fas fa-users"></i>&nbsp;
                             Målgruppe
+                            <span class="fw-bold">&nbsp;*</span>
                         </label>
                         <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
 
@@ -76,6 +78,7 @@
                         <label>
                             <i class="fas fa-cog"></i>&nbsp;
                             Arrangementstype
+                            <span class="fw-bold">&nbsp;*</span>
                         </label>
                         <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
                         {% if form.arrangement_type.errors|length > 0 %}
@@ -110,6 +113,7 @@
                         <label>
                             <i class="fas fa-map-marker-alt"></i>&nbsp;
                             Lokasjon
+                            <span class="fw-bold">&nbsp;*</span>
                         </label>
                         {{ form.location }}
                     </div>
