@@ -195,7 +195,6 @@ organization_person_member_list_view = OrganizationPersonMemberListView.as_view(
 
 
 class SearchPeopleAjax(LoginRequiredMixin, PlannerAuthorizationMixin, SearchView):
-
     model = Person
 
     def search(self, search_term):
@@ -270,3 +269,22 @@ class PeopleCalendarResourcesListView(LoginRequiredMixin, ListView):
 
 
 people_calendar_resources_list_view = PeopleCalendarResourcesListView.as_view()
+
+
+class PersonSearchPlannersView(SearchPeopleAjax):
+    def search(self, search_term):
+        show_only_planners: bool = self.request.GET.get("only_planners", True)
+
+        if search_term == "":
+            # If no search term is specified, we want to show all planners
+            # We also allow searching through (and selecting) persons that are not formally planners (by group), so this
+            # acts as a sane default that is shown when the user opens the search dialog/popover
+            return Person.objects.all().filter(user__groups__name="planner")
+
+        qs = super().search(search_term)
+
+        if show_only_planners:
+            qs = qs.filter(user__groups__name="planner")
+
+
+person_search_planners_ajax_view = PersonSearchPlannersView.as_view()
