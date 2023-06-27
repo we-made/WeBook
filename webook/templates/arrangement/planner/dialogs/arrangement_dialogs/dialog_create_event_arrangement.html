@@ -36,7 +36,10 @@
                 <input type="hidden" name="uuid" id="event_uuid" />
                 
                 <div class="form-group mb-2">
-                    <label class="form-label" for="title">Tittel <i>(Norsk)</i></label>
+                    <label class="form-label" for="title">
+                        Tittel <i>(Norsk)</i>
+                        <span class="fw-bold">&nbsp;*</span>
+                    </label>
                     <input type="text" id="title" name="title" class="form-control form-control-lg" required />
                 </div>
 
@@ -49,6 +52,7 @@
                     <label>
                         <i class="fas fa-users"></i>&nbsp;
                         Målgruppe
+                        <span class="fw-bold">&nbsp;*</span>
                     </label>
                     <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
                     
@@ -63,6 +67,7 @@
                     <label>
                         <i class="fas fa-cog"></i>&nbsp;
                         Arrangementstype
+                        <span class="fw-bold">&nbsp;*</span>
                     </label>
                     <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
                     {% if form.arrangement_type.errors|length > 0 %}
@@ -86,7 +91,10 @@
                 </div>
     
                 <div class="form-group mt-2">
-                    <label for="" class="form-label">Fra</label>
+                    <label for="" class="form-label">
+                        Fra
+                        <span class="fw-bold">&nbsp;*</span>
+                    </label>
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
@@ -102,7 +110,10 @@
                 </div>
     
                 <div class="form-group mt-2">
-                    <label for="" class="form-label">Til</label>
+                    <label for="" class="form-label">
+                        Til
+                        <span class="fw-bold">&nbsp;*</span>
+                    </label>
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
