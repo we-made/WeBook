@@ -22,6 +22,37 @@
                 <input type="submit" style="display:none;" />
 
                 <fieldset>
+
+                    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+                        <input type="hidden" 
+                            name="{{ form.responsible.name }}" 
+                            id="{{ form.responsible.id_for_label }}"
+                            v-model="mainPlanner.id">
+    
+                        <label for="" class="d-block form-label">
+                            <i class="fas fa-star"></i>
+                            Hovedplanlegger
+                        </label>
+    
+                        <div class="text-danger" style="display: none;"
+                            id="mainPlanner_validationText">
+                            Vennligst velg en hovedplanlegger
+                        </div>
+    
+                        <h5 class="mb-2">[[ mainPlanner.text ]]</h5>
+                        <button class="wb-btn-main"
+                            id="setMainPlannerButton"
+                            type="button">
+                            Velg hovedplanlegger
+                        </button>
+    
+                        <div id="select-main-planner-popover" class="popover_wrapper dialog-popover-left-fix" style="display: none">
+                            <div class="popover_content">
+                                This is popover content                                
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group mb-2">
                         <label>
                             Tittel <i>(Norsk)</i>
@@ -162,31 +193,6 @@
         <div id="step-2">
             <form id="arrangementDetailsForm">
                 <input type="submit" value="" style="display: none;">
-
-                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
-                    <input type="hidden" 
-                        name="{{ form.responsible.name }}" 
-                        id="{{ form.responsible.id_for_label }}"
-                        v-model="mainPlanner.id">
-
-                    <label for="" class="d-block form-label">
-                        <i class="fas fa-star"></i>
-                        Hovedplanlegger
-                    </label>
-
-                    <div class="text-danger" style="display: none;"
-                        id="mainPlanner_validationText">
-                        Vennligst velg en hovedplanlegger
-                    </div>
-
-                    <h5 class="mb-2">[[ mainPlanner.text ]]</h5>
-                    <button class="wb-btn-main"
-                        id="setMainPlannerButton"
-                        type="button"
-                        @click="openSetMainPlannerDialog()">
-                        Velg hovedplanlegger
-                    </button>
-                </div>
 
                 <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
                     <label for="" class="form-label">
@@ -533,6 +539,7 @@
 
 <script type="module">
     import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
+    import { Popover } from "{% static 'js/popover.js' %}"
 
     $(document).ready(function () {
         let createArrangementDialogApp = Vue.createApp({
@@ -611,8 +618,6 @@
             },
             delimiters: ['[[', ']]'],
             mounted() {
-                console.log("Mounted", this)
-
                 this.dialog = new Dialog({
                     vueApp: this,
                     managerName: '{{managerName}}',
@@ -622,6 +627,11 @@
                         dialog.querySelectorAll('.form-outline').forEach((formOutline) => {
                             new mdb.Input(formOutline).init();
                         });
+                        const mainPlannerPopover = new Popover({
+                            triggerElement: dialog.dialogElement.querySelector('#setMainPlannerButton'),
+                            wrapperElement: dialog.dialogElement.querySelector('#select-main-planner-popover'),
+                        });
+        
 
                         [
                             {

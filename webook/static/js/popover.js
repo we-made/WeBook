@@ -13,7 +13,7 @@ export class Popover {
         }
 
         this._listenToOutsideClicks();
-    }
+    }   
 
     _listenToTriggerElementClick() {
         this.triggerElement.addEventListener("click", function () {
