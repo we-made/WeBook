@@ -996,13 +996,13 @@ export class ArrangementInspector {
                         htmlFabricator: async (context, dialog) => {
 
                             debugger;
-                            if (!context.lastTriggererDetails.event_type)
-                                throw Error("Please supply a valid event type (either 'event' or 'serie')");
+                            if (!context.lastTriggererDetails.entity_type)
+                                throw Error("Please supply a valid entity type (either 'event' or 'serie')");
                             if (!context.lastTriggererDetails.entity_id)
                                 throw Error("Please supply a valid entity id");
 
                             return this.dialogManager.loadDialogHtml({
-                                url: '/arrangement/planner/dialogs/order_service/' + context.lastTriggererDetails.event_type + '/' + context.lastTriggererDetails.entity_id,
+                                url: '/arrangement/planner/dialogs/order_service/' + context.lastTriggererDetails.entity_type + '/' + context.lastTriggererDetails.entity_id,
                                 dialogId: 'orderServiceDialog',
                                 managerName: 'arrangementInspector',
                                 customParameters: {
