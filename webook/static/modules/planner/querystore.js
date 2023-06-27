@@ -39,7 +39,8 @@ export class QueryStore {
             // existing orders on predecessor serie will be handled on the creation of the serie
             serie.ordered_services.filter(x => x.service_order === null).forEach(async (serviceOrder) => {
                 let formData = new FormData();
-                formData.append("applied_preconfiguration", serviceOrder.applied_preconfiguration);
+                if (serviceOrder.applied_preconfiguration)
+                    formData.append("applied_preconfiguration", serviceOrder.applied_preconfiguration);
                 formData.append("parent_type", "serie");
                 formData.append("parent_id", responseData.id);
                 formData.append("service_id", serviceOrder.service_id);
@@ -86,7 +87,8 @@ export class QueryStore {
             {
                 event.ordered_services.forEach(async (serviceOrder) => {
                     let formData = new FormData();
-                    formData.append("applied_preconfiguration", serviceOrder.applied_preconfiguration);
+                    if (serviceOrder.applied_preconfiguration)
+                        formData.append("applied_preconfiguration", serviceOrder.applied_preconfiguration);
                     formData.append("parent_type", "event");
                     formData.append("parent_id", response.id);
                     formData.append("service_id", serviceOrder.service_id);
