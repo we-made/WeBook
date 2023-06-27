@@ -49,7 +49,9 @@ class SearchView(ListView):
         if isinstance(results, QuerySet) and hasattr(results, "_meta"):
             response = serializers.serialize("json", results)
         else:
-            if isinstance(results, QuerySet):  # values has no _meta
+            # TODO: Look into why this is necessary. When we use qs.values() we get a queryset without _meta 
+            # -- likely because it's not a model queryset. Can Django serializer handle this with some configuration?
+            if isinstance(results, QuerySet):
                 results = list(results)
             response = json.dumps(results, default=json_serial)
 
