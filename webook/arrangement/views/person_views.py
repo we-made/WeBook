@@ -13,7 +13,14 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DetailView, FormView, ListView, RedirectView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    FormView,
+    ListView,
+    RedirectView,
+    UpdateView,
+)
 from django.views.generic.base import View
 from django.views.generic.edit import DeleteView, FormMixin
 
@@ -266,7 +273,7 @@ people_calendar_resources_list_view = PeopleCalendarResourcesListView.as_view()
 
 class PersonSearchPlannersView(SearchPeopleAjax):
     def search(self, search_term):
-        show_only_planners: bool = self.request.GET.get("only_planners", True)
+        show_only_planners: bool = self.request.GET.get("only_planners", False)
 
         if search_term == "":
             # If no search term is specified, we want to show all planners
