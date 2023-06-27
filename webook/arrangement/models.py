@@ -1044,6 +1044,8 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         )
 
     @property
+
+    @property
     def is_sso_capable(self):
         return (
             self.social_provider_id is not None

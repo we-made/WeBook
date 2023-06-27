@@ -72,9 +72,9 @@
 
                                         <table class="table table-highlight table-bordered table-sm" v-if="mainPlannerSearchResults.length">
                                             <tbody>
-                                                <tr v-for="result in mainPlannerSearchResults" class="secondary-hover">
+                                                <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
                                                     <td>
-                                                        <a @click="setMainPlanner(result)">
+                                                        <a>
                                                             [[ [result.first_name, result.middle_name, result.last_name].join(" ") ]]
                                                         </a>
                                                     </td>
@@ -598,9 +598,10 @@
                     serviceOrders: [],
                     rooms: [],
                     planners: [],
-                    mainPlanner: { id: null, name: null },
+                    mainPlanner: { id: null, text: null },
                     mainPlannerSearchTerm: null,
                     mainPlannerSearchResults: [],
+                    mainPlannerPopover: null
                 }
             },
             computed: {},
@@ -663,6 +664,22 @@
                         preselectedRooms: this.dialog.data.roomPayload,
                     });
                 },
+
+                setMainPlanner(planner) {
+                    console.log("setMainPlanner", planner)
+                    const fullName = [ planner.first_name, planner.middle_name, planner.last_name ].join(" ");
+
+                    this.mainPlanner = { id: planner.id, text: fullName };
+
+                    this.dialog.data.mainPlannerPayload = {
+                        allPresets: new Map(),
+                        allSelectedEntityIds: [ { id: planner.id, text: fullName } ],
+                        selectedPresets: [],
+                        viewables: [ { id: planner.id, text: fullName } ]
+                    }
+
+                    this.mainPlannerPopover.hide();
+                }
             },
             watch: {
                 mainPlannerSearchTerm: async function (val) {
@@ -702,6 +719,7 @@
                             triggerElement: dialog.dialogElement.querySelector('#setMainPlannerButton'),
                             wrapperElement: dialog.dialogElement.querySelector('#select-main-planner-popover'),
                         });
+                        dialog.vueApp.mainPlannerPopover = mainPlannerPopover;
         
 
                         [
@@ -1094,6 +1112,7 @@
                             payload.selectedPresets.forEach( (presetId) => dialog.data.plannerPresets.set(presetId, payload.allPresets.get(presetId)));
             
                             dialog.data.plannerPayload = payload;
+                            console.log(dialog.data.plannerPayload);
 
                             dialog.vueApp.planners = payload.viewables;
                         } },
