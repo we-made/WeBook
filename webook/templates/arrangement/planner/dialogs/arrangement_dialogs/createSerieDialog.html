@@ -34,7 +34,10 @@
                 <input type="submit" style="display:none;" />
                 <div class="mb-2">
                     <div class="form-group">
-                        <label class="form-label" for="serie_title">Tittel på norsk</label>
+                        <label class="form-label" for="serie_title">
+                            Tittel på norsk
+                            <span class="fw-bold">&nbsp;*</span>
+                        </label>
                         <input type="text" id="serie_title" class="form-control form-control-lg" 
                             required/>
                     </div>    
@@ -46,11 +49,17 @@
     
                 <div class="row mb-2">
                     <div class="col-6">
-                        <label class="form-label" for="serie_start">Start </label>
+                        <label class="form-label" for="serie_start">
+                            Start
+                            <span class="fw-bold">&nbsp;*</span>
+                        </label>
                         <input type="time" class="form-control form-control-lg" id="serie_start" required />
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="serie_end">Slutt</label>
+                        <label class="form-label" for="serie_end">
+                            Slutt
+                            <span class="fw-bold">&nbsp;*</span>
+                        </label>
                         <input type="time" class="form-control form-control-lg" id="serie_end" required />
                     </div>
                 </div>
@@ -87,6 +96,7 @@
                     <label>
                         <i class="fas fa-cog"></i>&nbsp;
                         Arrangementstype
+                        <span class="fw-bold">&nbsp;*</span>
                     </label>
                     <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
                     {% if form.arrangement_type.errors|length > 0 %}
@@ -113,7 +123,10 @@
 
         <div id="step-2">
             <fieldset>
-                <h5>Mønster</h5>
+                <h5>
+                    Mønster
+                    <span class="fw-bold">&nbsp;*</span>
+                </h5>
                 <div class="row">
                     <div class="col-3 border-end border-1">
                         <form id="patternMockForm">
@@ -199,7 +212,10 @@
                 </div>
             </fieldset>
             <fieldset class="mt-2">
-                <h5>Område</h5>
+                <h5>
+                    Område
+                    <span class="fw-bold">&nbsp;*</span>
+                </h5>
                 <div class="row">
                     <div class="col-3">
                         <label>Startdato</label>

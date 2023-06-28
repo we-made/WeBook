@@ -125,6 +125,7 @@ from .person_views import (
     person_list_view,
     person_update_view,
     search_people_ajax_view,
+    person_search_planners_ajax_view
 )
 from .planner_views import (
     arrangement_add_planner_dialog_view,

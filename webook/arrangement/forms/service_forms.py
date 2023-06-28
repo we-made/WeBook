@@ -134,6 +134,12 @@ class DeleteEmailForm(forms.Form):
         if email_instance:
             email_instance.delete()
 
+        # Get all SOPR related to this email
+        issued_soprs = ServiceOrderProcessingRequest.objects.filter(recipient=email)
+
+        for sopr in issued_soprs:
+            sopr.delete()
+
 
 class CancelServiceOrderForm(forms.Form):
     service_order_id = forms.IntegerField()

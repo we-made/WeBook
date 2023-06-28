@@ -195,7 +195,6 @@ organization_person_member_list_view = OrganizationPersonMemberListView.as_view(
 
 
 class SearchPeopleAjax(LoginRequiredMixin, PlannerAuthorizationMixin, SearchView):
-
     model = Person
 
     def search(self, search_term):
@@ -210,7 +209,7 @@ class SearchPeopleAjax(LoginRequiredMixin, PlannerAuthorizationMixin, SearchView
         else:
             people = Person.objects.annotate(
                 afull_name=Concat("first_name", "middle_name", "last_name")
-            ).filter(afull_name__contains=search_term)
+            ).filter(afull_name__icontains=search_term)
 
         return people
 
@@ -270,3 +269,19 @@ class PeopleCalendarResourcesListView(LoginRequiredMixin, ListView):
 
 
 people_calendar_resources_list_view = PeopleCalendarResourcesListView.as_view()
+
+
+class PersonSearchPlannersView(SearchPeopleAjax):
+    def search(self, search_term):
+        if search_term == "":
+            # If no search term is specified, we want to show all planners
+            # We also allow searching through (and selecting) persons that are not formally planners (by group), so this
+            # acts as a sane default that is shown when the user opens the search dialog/popover
+            qs = Person.objects.all().filter(user__groups__name="planners")
+        else:
+            qs = super().search(search_term)
+
+        return qs.values("id", "first_name", "middle_name", "last_name")
+
+
+person_search_planners_ajax_view = PersonSearchPlannersView.as_view()

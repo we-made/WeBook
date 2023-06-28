@@ -233,8 +233,6 @@ export class ArrangementStore extends BaseStore {
             },
         });
 
-        console.log(ev);
-
         return ev;
     }
 

@@ -1042,6 +1042,9 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         return list(
             map(lambda p: p.for_event, self.interim_provisions_assigned_to.all())
         )
+        
+    def my_events_qs(self):
+        return self.interim_provisions_assigned_to.all()
 
     @property
     def is_sso_capable(self):
@@ -1480,7 +1483,7 @@ class Event(
 
             # We can not set rooms or people before the event has been saved -- unfortunately.
             rigging_event._rooms = root_event_rooms.values_list("id", flat=True)
-            rigging_event._people = root_event_people.values_list("id", flat=True)
+            # rigging_event._people = root_event_people.values_list("id", flat=True)
 
             rigging_events[position_key] = rigging_event
 
@@ -1512,13 +1515,13 @@ class Event(
             self.buffer_before_event = before_activity_buffer
             self.buffer_before_event.save()
             self.buffer_before_event.rooms.set(self.buffer_before_event._rooms)
-            self.buffer_before_event.people.set(self.buffer_before_event._people)
+            # self.buffer_before_event.people.set(self.buffer_before_event._people)
             self.save()
         if after_activity_buffer is not None:
             self.buffer_after_event = after_activity_buffer
             self.buffer_after_event.save()
             self.buffer_after_event.rooms.set(self.buffer_after_event._rooms)
-            self.buffer_after_event.people.set(self.buffer_after_event._people)
+            # self.buffer_after_event.people.set(self.buffer_after_event._people)
             self.save()
 
         return (before_activity_buffer, after_activity_buffer)

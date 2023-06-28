@@ -103,6 +103,13 @@ export class JSTreeSelect {
         return this.selected.id;
     }
 
+    getSelectedText() {
+        if (!this._hasSelectedValue())
+            return undefined;
+
+        return this.selected.text;
+    }
+
     setSelected(id) {
         const jsTree = $(this._jsTreeElement).jstree(true);
         if (jsTree === false) { // if jsTree is false, then jsTree is not initialized yet, so we stage the set value.
@@ -214,18 +221,6 @@ export class JSTreeSelect {
 
         let treeElement = document.createElement("div");
         popoverContent.appendChild(treeElement);
-
-        let submitButtonInsidePopoverElement = document.createElement("button");
-        submitButtonInsidePopoverElement.setAttribute("type", "button");
-        submitButtonInsidePopoverElement.innerText = this.popoverSaveChoicesButtonText;
-        submitButtonInsidePopoverElement.classList.add("btn", "wb-btn-main", "float-end", "mt-2");
-        submitButtonInsidePopoverElement.onclick = () => { 
-            const selected = $(this._jsTreeElement).jstree("get_selected", true)[0];
-            this._setSelectedValue(selected.id, selected.text, selected.parent);
-
-            this._popover.show(); //hide --toggle
-        };
-        popoverContent.appendChild(submitButtonInsidePopoverElement);
         
         this._jsTreeElement = treeElement;
 
@@ -251,6 +246,13 @@ export class JSTreeSelect {
                 $(treeElement).on('changed.jstree', (e, data) => {
                     if (typeof this.onValueSet === "function")
                         this.onValueSet(data);
+                    
+                    const selected = $(this._jsTreeElement).jstree("get_selected", true)[0];
+                    this._setSelectedValue(selected.id, selected.text, selected.parent);
+                    $(this._popover.wrapperElement).hide("fade", {}, 400, () => {
+                        this._popover.show(); //hide --toggle
+                    });
+
                 });
             });
 

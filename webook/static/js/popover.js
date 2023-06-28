@@ -13,10 +13,13 @@ export class Popover {
         }
 
         this._listenToOutsideClicks();
-    }
+    }   
 
     _listenToTriggerElementClick() {
         this.triggerElement.addEventListener("click", function () {
+            if (this.wrapperElement.style.display === "none") {
+                this.wrapperElement.style.display = "block";
+            }
             this.show();
         }.bind(this));
     }
@@ -25,8 +28,6 @@ export class Popover {
         console.log(">> _listenToOutsideClicks()!")
         $(document).click(function (event) {
             if (this.isShown && this.wrapperElement.contains(event.target) === false && event.target !== this.triggerElement && this.triggerElement.contains(event.target) === false) {
-                // console.log(event.target, this.wrapperElement);
-                console.log("Does wrapperElement contain event.target? " + this.wrapperElement.contains(event.target))
                 this.show();
             }
         }.bind(this))
@@ -36,9 +37,14 @@ export class Popover {
      * Show/Hide the popover (toggle)
      */
     show() {
-        console.log(">> Show!")
         this.wrapperElement.classList.toggle("active");
         this.isShown = !this.isShown;
-        console.log(">>" + this.isShown)
+    }
+
+    fadeAndHide() {
+        $(this.wrapperElement).hide("fade", {}, 400, () => {
+            this.isShown = false;
+            this.wrapperElement.classList.remove("active");
+        });
     }
 }

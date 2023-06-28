@@ -8,14 +8,7 @@ from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    ListView,
-    RedirectView,
-    TemplateView,
-    UpdateView,
-)
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
 
 from webook.arrangement.exceptions import UserHasNoPersonException
 from webook.arrangement.models import Event, Location, Person, Room
@@ -167,7 +160,7 @@ class MyCalendarEventsSourceView(EventSourceViewMixin):
                 "Can not get events for a user that has no person associated with it!"
             )
 
-        return user.person.my_events
+        return user.person.my_events_qs
 
 
 my_calendar_events_source_view = MyCalendarEventsSourceView.as_view()
