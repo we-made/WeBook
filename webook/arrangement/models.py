@@ -1042,6 +1042,9 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         return list(
             map(lambda p: p.for_event, self.interim_provisions_assigned_to.all())
         )
+        
+    def my_events_qs(self):
+        return self.interim_provisions_assigned_to.all()
 
     @property
     def is_sso_capable(self):
