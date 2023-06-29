@@ -18,12 +18,26 @@ from django.http.request import HttpRequest
 from django.http.response import Http404, HttpResponse, HttpResponseNotAllowed
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DetailView, FormView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    FormView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 from django.views.generic.base import View
-from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
+from django.views.generic.detail import (
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+)
 from django.views.generic.edit import DeleteView, FormMixin
 
-from webook.arrangement.facilities.service_ordering import generate_processing_request_for_user, notify_revision
+from webook.arrangement.facilities.service_ordering import (
+    generate_processing_request_for_user,
+    notify_revision,
+)
 from webook.arrangement.forms.person_forms import AssociatePersonWithUserForm
 from webook.arrangement.forms.service_forms import (
     AddEmailForm,
@@ -51,15 +65,24 @@ from webook.arrangement.models import (
     ServiceOrderProvision,
     States,
 )
-from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView, JsonToggleArchiveView
+from webook.arrangement.views.generic_views.archive_view import (
+    ArchiveView,
+    JsonArchiveView,
+    JsonToggleArchiveView,
+)
 from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
 from webook.arrangement.views.generic_views.dialog_views import DialogView
-from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.generic_views.json_form_view import (
+    JsonFormView,
+    JsonModelFormMixin,
+)
 from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from webook.arrangement.views.mixins.queryset_transformer import QuerysetTransformerMixin
+from webook.arrangement.views.mixins.queryset_transformer import (
+    QuerysetTransformerMixin,
+)
 from webook.arrangement.views.organization_views import OrganizationSectionManifestMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.users.models import User
@@ -110,7 +133,9 @@ class ServiceAuthorizationMixin(UserPassesTestMixin):
             raise PermissionDenied("User does not have a person")
 
         service: Service = self.get_service()
-        authorized_emails = map(lambda service_email: service_email.email, list(service.emails.all()))
+        authorized_emails = map(
+            lambda service_email: service_email.email, list(service.emails.all())
+        )
 
         return self.request.user.email in authorized_emails
 
@@ -285,6 +310,7 @@ class ServiceAddPersonDialog(
         self.object = form.save()
         return super().form_valid(form)
 
+
 services_add_person_view = ServiceAddPersonDialog.as_view()
 
 
@@ -296,15 +322,19 @@ class ServicePreconfigurationAddPersonDialog(
     slug_field = "id"
     slug_url_kwarg = "id"
     template_name = "arrangement/service/add_person.html"
-    
+
     def get_service(self) -> Service:
         return self.get_object().service
-    
+
     def form_valid(self, form):
         self.object = form.save()
         return super().form_valid(form)
 
-service_preconfiguration_add_person_view = ServicePreconfigurationAddPersonDialog.as_view()
+
+service_preconfiguration_add_person_view = (
+    ServicePreconfigurationAddPersonDialog.as_view()
+)
+
 
 class CreateServiceView(LoginRequiredMixin, CreateView, JsonFormView):
     model = Service
@@ -903,7 +933,7 @@ class GetChangeSummaryJsonView(ValidateTokenMixin, View):
 get_change_summary_json_view = GetChangeSummaryJsonView.as_view()
 
 
-class GetPersonellAvailableForOrderJsonView(View):
+class GetPersonellAvailableForOrderJsonView(ValidateTokenMixin, View):
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         provision_id = self.kwargs.get("provision_id")
         if provision_id is None:
@@ -928,7 +958,10 @@ class GetPersonellAvailableForOrderJsonView(View):
 
         return JsonResponse(data=resources, safe=False)
 
-get_personell_available_for_order_json_view = GetPersonellAvailableForOrderJsonView.as_view()
+
+get_personell_available_for_order_json_view = (
+    GetPersonellAvailableForOrderJsonView.as_view()
+)
 
 
 class ServiceTreeJsonView(LoginRequiredMixin, JsonListView):
