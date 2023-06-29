@@ -66,20 +66,6 @@ contaner-fluid ps-5 pe-5
     
     <div class="p-0 mb-3  rounded-5 ">
         <ul class="nav nav-tabs webook-tabs" id="ex1" role="tablist">
-            <!-- <li class="nav-item rounded-5" role="presentation">
-              <a
-                class="nav-link active"
-                id="ex1-tab-1"
-                data-mdb-toggle="tab"
-                href="#general-tab"
-                role="tab"
-                aria-controls="ex1-tabs-1"
-                aria-selected="true">
-                
-                <i class="fas fa-tachometer-alt"></i>&nbsp;
-                Oversikt
-                </a>
-            </li> -->
             <li class="nav-item" role="presentation">
                 <a
                     class="nav-link active"
@@ -108,62 +94,8 @@ contaner-fluid ps-5 pe-5
         </ul>
     </div>
     
+    
     <div class="tab-content" id="tabs-content">
-        <!-- <div
-            class="tab-pane fade show active"
-            id="general-tab"
-            role="tabpanel"
-            aria-labelledby="general-tab">
-            
-            <div class="row">
-                <div class="col-12">
-                    <ul class="nav nav-tabs webook-tabs-secondary" id="innerTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                          <a
-                            class="nav-link active"
-                            id="innerTab-ex1-tab-1"
-                            data-mdb-toggle="tab"
-                            href="#personnel-tab"
-                            role="tab"
-                            aria-controls="personnel-tab"
-                            aria-selected="true">
-                            
-                            <i class="fas fa-table"></i>&nbsp;
-                            Personellkalender
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                        <a
-                            class="nav-link"
-                            id="innerTab-ex1-tab-2"
-                            data-mdb-toggle="tab"
-                            href="#service-calendar-tab"
-                            role="tab"
-                            aria-controls="ex1-tabs-2"
-                            aria-selected="false">
-                            
-                            <i class="fas fa-calendar"></i>&nbsp; Bestillingskalender
-                        </a>
-                        </li>
-                    </ul>
-
-                    {% include "arrangement/service/shared/_serviceOverviewOrdersCalendar.html" %}
-
-                    
-                    <div class="tab-content" id="internal-tabs-content">
-                        <div class="tab-pane fade show active"
-                             id="personnel-tab">
-    
-                             {% include "arrangement/service/shared/_serviceOverviewPersonellCalendar.html" %}
-                        </div>
-    
-                        <div class="tab-pane fade" id="service-calendar-tab">
-                        </div>
-                    </div>
-                </div>
-            </div>
-    
-        </div> -->
         <div class="tab-pane fade  show active" id="orders-tab" role="tabpanel" aria-labelledby="orders-tab">
             <div>
                 <span id="fancyPopoverHolder"></span>
@@ -200,43 +132,6 @@ contaner-fluid ps-5 pe-5
                         :service-id="{{object.id}}">
                     </service-responsibles-component >
                 </div>
-                <!-- <div class="col-6">
-                    <div class="p-3">
-                        <div class="text-center">
-                            <h4><i class="fas fa-cogs"></i></h4>
-                            <h5>Innstillinger</h5>
-            
-            
-                            <small class="text-muted">
-                                Konfigurer systemets oppførsel for denne tjenesten
-                            </small>
-                        </div>
-            
-                        <hr>
-            
-                        <div class="mt-2">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
-                                <label class="form-check-label" for="flexSwitchCheckDefault">Send E-Post til tildelte</label>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
-                                <label class="form-check-label" for="flexSwitchCheckDefault">Synkroniser hendelser til Outlook etter tjenestebehandling</label>
-                            </div>
-            
-                            <div class="clearfix mt-2">
-                                <div class="float-end">
-                                    <button class="btn wb-btn-secondary wb-sm float-end">
-                                        <i class="fas fa-save"></i>&nbsp;
-                                        Oppdater innstillinger
-                                    </button>
-                                </div>
-                            </div>
-            
-                        </div>
-            
-                    </div>
-                </div> -->
             </div>
         </div>
     </div>
@@ -265,7 +160,7 @@ contaner-fluid ps-5 pe-5
 
     const ServiceOrderPopover = {
         components: {
-            FancyPopover
+            FancyPopover,
         },
         props: {
             x: Number, y: Number,
@@ -284,7 +179,7 @@ contaner-fluid ps-5 pe-5
             },
             data() {
                 return {
-                    message: 'hi'
+                    message: 'hi',
                 };
             },
             computed: {},
@@ -475,6 +370,7 @@ contaner-fluid ps-5 pe-5
             },
             delimiters: [ '[[', ']]']
         });
+
         serviceDetailVueApp.mount("#service_detail_app")
     })
 </script>
