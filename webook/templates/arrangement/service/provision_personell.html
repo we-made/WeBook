@@ -130,14 +130,9 @@
                                             </div>
                                             <ul class="pagination">
                                                 <li class="page-item" :class="{ disabled: page == 1 }"><a class="page-link" href="javascript:void(0)" @click.stop="page--">Forrige</a></li>
-                                                <!-- TODO: Refactor -->
-                                                <!-- <li class="page-item" :class="{ active: thisPage == page - 2 }" v-if="(page - 2) > 0"><a class="page-link" href="#">[[ page - 2 ]]</a></li> -->
                                                 <li class="page-item" :class="{ active: thisPage == page - 1 }" v-if="(page - 1) > 0"><a class="page-link" href="#">[[ page - 1 ]]</a></li>
                                                 <li class="page-item" class="active"><a href="#" class="page-link" id="">[[page]]</a></li>
-                                                <!-- <li class="page-item" :class="{ active: thisPage == page }" v-for="thisPage in totalPages"><a class="page-link" href="#">[[thisPage]]</a></li> -->
                                                 <li class="page-item" :class="{ active: thisPage == page + 1 }" v-if="(page + 1) < totalPages"><a class="page-link" href="#">[[ page + 1 ]]</a></li>
-                                                <!-- <li class="page-item" :class="{ active: thisPage == page + 2 }" v-if="(page + 2) < totalPages"><a class="page-link" href="#">[[ page + 2 ]]</a></li> -->
-                                    
                                                 <li class="page-item" :class="{ disabled: page == totalPages }"><a class="page-link" href="javascript:void(0)" @click.stop="page++">Neste</a></li>
                                             </ul>
                                         </nav>
