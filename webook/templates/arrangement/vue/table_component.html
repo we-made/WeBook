@@ -55,7 +55,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="row in itemsOnPage" class="secondary-hover" @click="onRowClicked($event, row)">
+            <tr v-for="(row, index) in itemsOnPage" class="secondary-hover" @click="onRowClicked($event, row)">
                 <td v-for="( options, columnKey ) in columns">
                     <span v-if="options.isComponent">
                         <status-indicator-component 
@@ -74,7 +74,7 @@
                 <td v-if="actions" style="min-width: 15rem">
                     <span v-if="Object.keys(actions).length > 2">
                         <div class="dropdown" id="actionDropdown">
-                            <button&
+                            <button
                               class="btn wb-btn-main-outline shadow-0 border border-dark wb-sm"
                               type="button"
                               id="actionsDropdownMenuButton"
@@ -86,7 +86,7 @@
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="actionsDropdownMenu">
                                 <span v-for="(actionData, actionName, index) in actions">
                                     <li v-if="'_actions' in row == false || '-' + actionName in row._actions == false">
-                                        <button class="dropdown-item" @cliok.stop="console.log('something something');">
+                                        <button class="dropdown-item" @click.native="emitActionClickedEvent(actionName, row)">
                                             <span v-if="actionData.isContentHtml" v-html="actionData.content"></span>
                                             <span v-else>[[actionData.content]]</span>
                                         </button>
@@ -97,7 +97,7 @@
                                 <li><hr class="dropdown-divider" /></li>
                                 <span v-for="(action, actionName) in row._actions">
                                     <li v-if="actionName[0] !== '-'">
-                                        <button class="dropdown-item" @click="emitActionClickedEvent(actionName, row)">
+                                        <button class="dropdown-item" @click.native="emitActionClickedEvent(actionName, row)">
                                             <span v-if="action.isContentHtml" v-html="action.content"></span>
                                             <span v-else>[[action.content]]</span>
                                         </button>
@@ -111,6 +111,7 @@
                         <button v-for="(actionData, actionName, index) in actions"
                             :class="[ actionData.type == 'main' ? 'wb-btn-main' : 'wb-btn-secondary', 'btn wb-sm', { 'ms-2': index > 0 } ]"
                             @click.stop="emitActionClickedEvent(actionName, row)">
+
                             <span v-if="actionData.isContentHtml" v-html="actionData.content"></span>
                             <span v-else>[[actionData.content]]</span>
                         </button>
@@ -185,7 +186,7 @@
 
     const TableComponent = {
         components: {
-            StatusIndicatorComponent
+            StatusIndicatorComponent,
         },
         props: {
             dataSource: Function,
@@ -279,13 +280,24 @@
             await this.refresh();
         },
         mounted() {
-            console.log("Setting up listener")
-            const dropdownElement = document.getElementById("actionDropdown");
-            dropdownElement.addEventListener("show.mdb.dropdown", () => {
-                console.log("Clickity click")
-            })
         },
         methods: {
+            dropdownlistenTo(selector, type) {
+                console.log(selector, type);
+
+                const dropdownElement = document.getElementById(selector);
+
+                console.log(dropdownElement);
+
+                debugger;
+
+                dropdownElement.addEventListener(type, () => {
+                    console.log("ohoi")
+                })
+                dropdownElement.addEventListener("hidden.mdb.dropdown", () => {
+                    console.log("ohoi")
+                })
+            },
             onRowClicked(event, item) {
                 this.$emit("rowClicked", event, item);
             },
