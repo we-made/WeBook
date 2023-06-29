@@ -903,7 +903,7 @@ class GetChangeSummaryJsonView(ValidateTokenMixin, View):
 get_change_summary_json_view = GetChangeSummaryJsonView.as_view()
 
 
-class GetPersonellJsonView(ValidateTokenMixin, View):
+class GetPersonellAvailableForOrderJsonView(View):
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         provision_id = self.kwargs.get("provision_id")
         if provision_id is None:
@@ -928,8 +928,7 @@ class GetPersonellJsonView(ValidateTokenMixin, View):
 
         return JsonResponse(data=resources, safe=False)
 
-
-get_personell_json_view = GetPersonellJsonView.as_view()
+get_personell_available_for_order_json_view = GetPersonellAvailableForOrderJsonView.as_view()
 
 
 class ServiceTreeJsonView(LoginRequiredMixin, JsonListView):
