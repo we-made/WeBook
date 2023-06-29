@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import connection
+from django.db import connection, models
 from django.db.models import F, Q
 from django.db.models.functions import Concat
 from django.db.models.query import QuerySet
@@ -964,9 +964,34 @@ get_personell_available_for_order_json_view = (
 )
 
 
+class GetServicePersonellJsonView(Service, DetailView):
+    """Returns a list of all personell for a given service."""
+
+    model = Service
+    pk_url_kwarg = "id"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
+        service = self.get_object()
+
+        return JsonResponse(
+            data=[
+                {
+                    "id": r.id,
+                    "name": r.full_name,
+                }
+                for r in service.resources.all()
+            ],
+            safe=False,
+        )
+
+
+get_service_personell_json_view = GetServicePersonellJsonView.as_view()
+
+
 class ServiceTreeJsonView(LoginRequiredMixin, JsonListView):
     def get_queryset(self):
         return [item.as_node() for item in Service.objects.all()]
 
 
+service_tree_json_view = ServiceTreeJsonView.as_view()
 service_tree_json_view = ServiceTreeJsonView.as_view()
