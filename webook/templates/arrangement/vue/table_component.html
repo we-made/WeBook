@@ -49,8 +49,8 @@
                 </span>
 
                </th> 
-               <th>
-                <i class="fas fa-ellipsis-v"></i>
+               <th v-if="actions">
+                    <i class="fas fa-ellipsis-v"></i>
                </th>
             </tr>
         </thead>
@@ -64,6 +64,10 @@
                             :icon-class="row[columnKey].iconClass"
                             :tooltip="row[columnKey].tooltip">
                         </status-indicator-component>
+                        <div class="form-group" v-if="options.componentName == 'checkbox'">
+                            <input type="checkbox" @click="emitCheckboxClicked(row, columnKey)"
+                                v-model="row[columnKey]">
+                        </div>
                     </span>
                     <span v-else>
                         <span v-if="!options.isHtml">[[ row[columnKey] ]]</span>
@@ -288,11 +292,24 @@
         methods: {
             onRowClicked(event, item) {
                 this.$emit("rowClicked", event, item);
+
+                const checkboxColumns = Object.entries(this.visibleColumns)
+                                            .filter(x => x[1].componentName == "checkbox");
+
+                if (checkboxColumns.length != 1)
+                    return
+
+                const [ columnKey, columnData ] = checkboxColumns[0];
+
+                item[columnKey] = !item[columnKey];
             },
             emitActionClickedEvent(actionName, item) {
                 console.log("Emitting action event", actionName);
                 console.log("Item at start", item)
                 this.$emit(actionName, item);
+            },
+            emitCheckboxClickedEvent(row, columnKey) {
+                this.$emit("checkboxClicked", { row, columnKey });
             },
             sortBy(columnKey) {
                 const column = this.columns[columnKey];
