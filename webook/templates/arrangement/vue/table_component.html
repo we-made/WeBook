@@ -37,7 +37,7 @@
     <table :class="tableClasses ? tableClasses : 'table  align-middle table-sm mt-3 text-center'">
         <thead>
             <tr>
-               <th v-for="( options, columnKey ) in columns"
+               <th v-for="( options, columnKey ) in visibleColumns"
                     @click="sortBy(columnKey)">
                 <strong>[[ options.friendlyName ]]</strong>
 
@@ -56,7 +56,7 @@
         </thead>
         <tbody>
             <tr v-for="(row, index) in itemsOnPage" class="secondary-hover" @click="onRowClicked($event, row)">
-                <td v-for="( options, columnKey ) in columns">
+                <td v-for="( options, columnKey ) in visibleColumns">
                     <span v-if="options.isComponent">
                         <status-indicator-component 
                             v-if="options.componentName == 'statusIndicator'"
@@ -194,7 +194,6 @@
             canSearch: Boolean,
             sort: Boolean,
             tableClasses: String,
-            hiddenColumns: Array,
             columnNames: Object,
             rerenderToggle: Boolean
         },
@@ -206,7 +205,6 @@
                 itemsPerPage: 10,
                 columns: [],
                 actions: [],
-                hiddenColumnsMap: new Map(),
                 sortedBy: null,
                 sortDirection: null,
                 searchTerm: "",
@@ -254,6 +252,18 @@
             },
             itemsOnPage() {
                 return this.visibleItems.slice((this.page - 1) * this.itemsPerPage, this.page * this.itemsPerPage );
+            },
+            visibleColumns() {
+                let columns = {};
+
+                for (const column in this.columns) {
+                    if ("isHidden" in this.columns[column] && this.columns[column].isHidden === true)
+                        continue;
+
+                    columns[column] = this.columns[column];
+                }
+
+                return columns;
             }
         },
         watch: {
@@ -271,33 +281,11 @@
             }
         },
         async created() {
-            if (this.hiddenColumns) {
-                this.hiddenColumns.forEach(function (columnName) {
-                    this.hiddenColumnsMap.set(columnName, true);
-                });
-            }
-
+        },
+        async mounted() {
             await this.refresh();
         },
-        mounted() {
-        },
         methods: {
-            dropdownlistenTo(selector, type) {
-                console.log(selector, type);
-
-                const dropdownElement = document.getElementById(selector);
-
-                console.log(dropdownElement);
-
-                debugger;
-
-                dropdownElement.addEventListener(type, () => {
-                    console.log("ohoi")
-                })
-                dropdownElement.addEventListener("hidden.mdb.dropdown", () => {
-                    console.log("ohoi")
-                })
-            },
             onRowClicked(event, item) {
                 this.$emit("rowClicked", event, item);
             },
@@ -319,8 +307,6 @@
                     this.sortedBy = columnKey;
                     this.sortDirection = "desc";
                 }
-
-                console.log("SortDirection ", this.sortDirection)
 
                 let sortPropKey = columnKey + "_sort" in this.data[0] ? columnKey + "_sort" : columnKey;
 
