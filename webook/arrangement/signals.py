@@ -58,19 +58,18 @@ def on_service_resource_change(sender, instance, action, **kwargs):
         if removed_person_ids:
             for person_id in removed_person_ids:
                 person = Person.objects.get(id=person_id)
-                provisions_assigned_to = list(
-                    person.interim_provisions_assigned_to.filter(
-                        related_to_order__service=instance
-                    )
-                )
-                assigned_to_preconfigurations = list(
-                    person.associated_with_preconfigurations.filter(service=instance)
-                )
 
-                for provision in provisions_assigned_to:
-                    provision.delete()
-                for preconfiguration in assigned_to_preconfigurations:
-                    preconfiguration.delete() 
+                interim_provisions = person.interim_provisions_assigned_to.filter(
+                    related_to_order__service=instance
+                )
+                for provision in interim_provisions:
+                    person.interim_provisions_assigned_to.remove(provision)
+
+                preconfigurations = person.associated_with_preconfigurations.filter(
+                    service=instance
+                )
+                for preconfiguration in preconfigurations:
+                    person.associated_with_preconfigurations.remove(preconfiguration)
 
 
 def _generate_name(name):
