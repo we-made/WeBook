@@ -1993,7 +1993,7 @@ class ServiceOrderPreconfiguration(TimeStampedModel, ModelArchiveableMixin):
     )
 
     assigned_personell = models.ManyToManyField(
-        to="Person", related_name="associated_with_preconfigurations"
+        to="Person", related_name="associated_with_preconfigurations", blank=True
     )
 
     def as_node(self):
