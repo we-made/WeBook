@@ -109,7 +109,7 @@ contaner-fluid ps-5 pe-5
             </div>
         </div>
         <div class="tab-pane fade" id="preconfigurations-tab" role="tabpanel">
-            <preconfigurations-table-component :service-id="{{object.id}}">
+            <preconfigurations-table-component :service-id="{{object.id}}" :key="preconfigTableKey">
             </preconfigurations-table-component>
         </div>
         <div class="tab-pane fade" id="administration-tab" role="tabpanel">
@@ -179,11 +179,14 @@ contaner-fluid ps-5 pe-5
             },
             data() {
                 return {
-                    message: 'hi',
+                    preconfigTableKey: 0
                 };
             },
             computed: {},
             methods: {
+                refreshPreconfigurationsTable() {
+                    this.preconfigTableKey += 1;
+                },
                 openAddPersonDialog(serviceId) {
                     document.dispatchEvent(new CustomEvent(
                         "personellTableDialogsManager.add_person_dialog.trigger",
@@ -360,7 +363,7 @@ contaner-fluid ps-5 pe-5
                                 await this.getPersonnell();
                             },
                             onSubmit: async (context, details) => {
-                                await this.getPersonnell();
+                                await this.refreshPreconfigurationsTable();
                             }
                         })
                     ]
