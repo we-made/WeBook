@@ -18,26 +18,12 @@ from django.http.request import HttpRequest
 from django.http.response import Http404, HttpResponse, HttpResponseNotAllowed
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    FormView,
-    ListView,
-    RedirectView,
-    TemplateView,
-    UpdateView,
-)
+from django.views.generic import CreateView, DetailView, FormView, ListView, RedirectView, TemplateView, UpdateView
 from django.views.generic.base import View
-from django.views.generic.detail import (
-    SingleObjectMixin,
-    SingleObjectTemplateResponseMixin,
-)
+from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 from django.views.generic.edit import DeleteView, FormMixin
 
-from webook.arrangement.facilities.service_ordering import (
-    generate_processing_request_for_user,
-    notify_revision,
-)
+from webook.arrangement.facilities.service_ordering import generate_processing_request_for_user, notify_revision
 from webook.arrangement.forms.person_forms import AssociatePersonWithUserForm
 from webook.arrangement.forms.service_forms import (
     AddEmailForm,
@@ -65,24 +51,15 @@ from webook.arrangement.models import (
     ServiceOrderProvision,
     States,
 )
-from webook.arrangement.views.generic_views.archive_view import (
-    ArchiveView,
-    JsonArchiveView,
-    JsonToggleArchiveView,
-)
+from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView, JsonToggleArchiveView
 from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
 from webook.arrangement.views.generic_views.dialog_views import DialogView
-from webook.arrangement.views.generic_views.json_form_view import (
-    JsonFormView,
-    JsonModelFormMixin,
-)
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
 from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
-from webook.arrangement.views.mixins.queryset_transformer import (
-    QuerysetTransformerMixin,
-)
+from webook.arrangement.views.mixins.queryset_transformer import QuerysetTransformerMixin
 from webook.arrangement.views.organization_views import OrganizationSectionManifestMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.users.models import User
@@ -836,7 +813,7 @@ class GetPreconfigurationsForServiceJsonView(
         return JsonResponse(
             data=list(
                 map(
-                    lambda x: {"id": x.id, "title": x.title, "message": x.message},
+                    lambda x: {"id": x.id, "title": x.title, "message": x.message, "personell": list(map(lambda x: x.id, x.assigned_personell.all()))},
                     preconfigurations,
                 )
             ),
@@ -872,7 +849,7 @@ class UpdatePreconfigurationJsonView(
     LoginRequiredMixin, ServiceAuthorizationMixin, UpdateView, JsonModelFormMixin
 ):
     model = ServiceOrderPreconfiguration
-    fields = ["service", "title", "message"]
+    fields = ["service", "title", "message", "assigned_personell"]
     pk_url_kwarg = "id"
 
     def get_service(self) -> Service:
