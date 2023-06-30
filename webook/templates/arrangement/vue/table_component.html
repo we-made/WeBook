@@ -37,7 +37,7 @@
     <table :class="tableClasses ? tableClasses : 'table  align-middle table-sm mt-3 text-center'">
         <thead>
             <tr>
-               <th v-for="( options, columnKey ) in columns"
+               <th v-for="( options, columnKey ) in visibleColumns"
                     @click="sortBy(columnKey)">
                 <strong>[[ options.friendlyName ]]</strong>
 
@@ -49,14 +49,14 @@
                 </span>
 
                </th> 
-               <th>
-                <i class="fas fa-ellipsis-v"></i>
+               <th v-if="actions">
+                    <i class="fas fa-ellipsis-v"></i>
                </th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="row in itemsOnPage" class="secondary-hover" @click="onRowClicked($event, row)">
-                <td v-for="( options, columnKey ) in columns">
+            <tr v-for="(row, index) in itemsOnPage" class="secondary-hover" @click="onRowClicked($event, row)">
+                <td v-for="( options, columnKey ) in visibleColumns">
                     <span v-if="options.isComponent">
                         <status-indicator-component 
                             v-if="options.componentName == 'statusIndicator'"
@@ -64,6 +64,10 @@
                             :icon-class="row[columnKey].iconClass"
                             :tooltip="row[columnKey].tooltip">
                         </status-indicator-component>
+                        <div class="form-group" v-if="options.componentName == 'checkbox'">
+                            <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
+                                v-model="row[columnKey]">
+                        </div>
                     </span>
                     <span v-else>
                         <span v-if="!options.isHtml">[[ row[columnKey] ]]</span>
@@ -73,24 +77,23 @@
 
                 <td v-if="actions" style="min-width: 15rem">
                     <span v-if="Object.keys(actions).length > 2">
-                        <div class="dropdown">
+                        <div class="dropdown" id="actionDropdown">
                             <button
-                              class="btn wb-btn-main wb-sm"
+                              class="btn wb-btn-main-outline shadow-0 border border-dark wb-sm"
                               type="button"
                               id="actionsDropdownMenuButton"
                               data-mdb-toggle="dropdown"
                               aria-expanded="false"
-                              @click.stop=""
                             >
                                 <i class="fas fa-chevron-down"></i>
-                            </button>
+                            </button> 
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="actionsDropdownMenu">
                                 <span v-for="(actionData, actionName, index) in actions">
                                     <li v-if="'_actions' in row == false || '-' + actionName in row._actions == false">
-                                        <a class="dropdown-item" href="#" @cliok="emitActionClickedEvent(actionName, row)">
+                                        <button class="dropdown-item" @click.native="emitActionClickedEvent(actionName, row)">
                                             <span v-if="actionData.isContentHtml" v-html="actionData.content"></span>
                                             <span v-else>[[actionData.content]]</span>
-                                        </a>
+                                        </button>
                                       </li>
                                 </span>
                               
@@ -98,10 +101,10 @@
                                 <li><hr class="dropdown-divider" /></li>
                                 <span v-for="(action, actionName) in row._actions">
                                     <li v-if="actionName[0] !== '-'">
-                                        <a href="#" class="dropdown-item" @click="emitActionClickedEvent(actionName, row)">
+                                        <button class="dropdown-item" @click.native="emitActionClickedEvent(actionName, row)">
                                             <span v-if="action.isContentHtml" v-html="action.content"></span>
                                             <span v-else>[[action.content]]</span>
-                                        </a>
+                                        </button>
                                     </li>
                                 </span>
                               </span>
@@ -112,6 +115,7 @@
                         <button v-for="(actionData, actionName, index) in actions"
                             :class="[ actionData.type == 'main' ? 'wb-btn-main' : 'wb-btn-secondary', 'btn wb-sm', { 'ms-2': index > 0 } ]"
                             @click.stop="emitActionClickedEvent(actionName, row)">
+
                             <span v-if="actionData.isContentHtml" v-html="actionData.content"></span>
                             <span v-else>[[actionData.content]]</span>
                         </button>
@@ -186,7 +190,7 @@
 
     const TableComponent = {
         components: {
-            StatusIndicatorComponent
+            StatusIndicatorComponent,
         },
         props: {
             dataSource: Function,
@@ -194,7 +198,6 @@
             canSearch: Boolean,
             sort: Boolean,
             tableClasses: String,
-            hiddenColumns: Array,
             columnNames: Object,
             rerenderToggle: Boolean
         },
@@ -206,7 +209,6 @@
                 itemsPerPage: 10,
                 columns: [],
                 actions: [],
-                hiddenColumnsMap: new Map(),
                 sortedBy: null,
                 sortDirection: null,
                 searchTerm: "",
@@ -254,6 +256,18 @@
             },
             itemsOnPage() {
                 return this.visibleItems.slice((this.page - 1) * this.itemsPerPage, this.page * this.itemsPerPage );
+            },
+            visibleColumns() {
+                let columns = {};
+
+                for (const column in this.columns) {
+                    if ("isHidden" in this.columns[column] && this.columns[column].isHidden === true)
+                        continue;
+
+                    columns[column] = this.columns[column];
+                }
+
+                return columns;
             }
         },
         watch: {
@@ -268,24 +282,36 @@
             rerenderToggle() {
                 console.log("Rerendering table")
                 this.refresh();
+            },
+            async dataSource() {
+                await this.refresh();
             }
         },
-        created() {
-            if (this.hiddenColumns) {
-                this.hiddenColumns.forEach(function (columnName) {
-                    this.hiddenColumnsMap.set(columnName, true);
-                });
-            }
-
-            this.refresh();
+        async created() {
+        },
+        async mounted() {
+            await this.refresh();
         },
         methods: {
             onRowClicked(event, item) {
                 this.$emit("rowClicked", event, item);
+
+                const checkboxColumns = Object.entries(this.visibleColumns)
+                                            .filter(x => x[1].componentName == "checkbox");
+
+                if (checkboxColumns.length != 1)
+                    return
+
+                const [ columnKey, columnData ] = checkboxColumns[0];
+
+                item[columnKey] = !item[columnKey];
+                this.emitCheckboxClickedEvent(item, columnKey);
             },
             emitActionClickedEvent(actionName, item) {
-                console.log("Item at start", item)
                 this.$emit(actionName, item);
+            },
+            emitCheckboxClickedEvent(row, columnKey) {
+                this.$emit("checkboxClicked", { row, columnKey });
             },
             sortBy(columnKey) {
                 const column = this.columns[columnKey];
@@ -300,8 +326,6 @@
                     this.sortedBy = columnKey;
                     this.sortDirection = "desc";
                 }
-
-                console.log("SortDirection ", this.sortDirection)
 
                 let sortPropKey = columnKey + "_sort" in this.data[0] ? columnKey + "_sort" : columnKey;
 

@@ -23,25 +23,6 @@ container-fluid
 {% include "arrangement/service/shared/_processChangelogComponent.html" %}
 
 <div id="app" v-cloak>
-    <!-- {% if request.user.is_authenticated %}
-
-    <div class="wb-bg-secondary p-3 rounded-3 d-flex justify-content-between align-items-center">
-
-        <div>
-            <a href="#">{{ object.related_to_order.service.name }}</a>
-            /
-            <a href="#"># {{ object.related_to_order.id }}</a>
-        </div>
-
-        <button class="wb-btn-main">
-            <i class="fas fa-arrow-right"></i>
-            Til dashboard for {{ object.related_to_order.service.name }}
-        </button>
-    </div>
-
-    {% endif %} -->
-
-
     <div class="row">
         <div class="col-lg-3">
             <div class="p-3  text-center rounded-3 w-auto">
@@ -482,8 +463,6 @@ container-fluid
                     }).then(async response => {
                       if (response.status == 200)
                           return await response.json();
-                      
-                      console.log(await response.text());
 
                       throw Error("Denying service order failed", response);
                     }).then((responseObj) => location.reload())
@@ -614,13 +593,10 @@ container-fluid
             },
             async mounted() {
                 window.refreshTable = async () => {
-                    console.log(">> Refreshing Vue Table")
                     this.allProvisions = await this.getProvisions();
                 }
 
                 window.refreshTable();
-
-                console.log(this.allProvisions);
             },
             delimiters: ["[[", "]]"]
         });
@@ -663,7 +639,6 @@ container-fluid
 
                         plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
                         htmlFabricator: async (context, dialog) => {
-                            console.log(">> htmlFabricator")
                             dialog.formUrl = "/arrangement/service/provisioning/{{SOPR_TOKEN}}/" + context.lastTriggererDetails.provisionId
                             return dialogManager.loadDialogHtml({
                                 url: "/arrangement/service/provisioning/{{SOPR_TOKEN}}/" + context.lastTriggererDetails.provisionId,

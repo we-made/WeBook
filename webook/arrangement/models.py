@@ -1992,6 +1992,10 @@ class ServiceOrderPreconfiguration(TimeStampedModel, ModelArchiveableMixin):
         to=Person, blank=True, null=True, on_delete=models.RESTRICT
     )
 
+    assigned_personell = models.ManyToManyField(
+        to="Person", related_name="associated_with_preconfigurations", blank=True
+    )
+
     def as_node(self):
         return {
             "id": "P-" + str(self.pk),

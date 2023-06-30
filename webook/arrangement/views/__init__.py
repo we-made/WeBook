@@ -123,9 +123,9 @@ from .person_views import (
     person_delete_view,
     person_detail_view,
     person_list_view,
+    person_search_planners_ajax_view,
     person_update_view,
     search_people_ajax_view,
-    person_search_planners_ajax_view
 )
 from .planner_views import (
     arrangement_add_planner_dialog_view,
@@ -208,7 +208,7 @@ from .service_views import (
     deny_service_order_form_view,
     get_change_summary_json_view,
     get_events_for_resource_in_sopr_json_view,
-    get_personell_json_view,
+    get_personell_available_for_order_json_view,
     get_preconfigurations_for_service_json_view,
     get_provisions_json_view,
     get_service_overview_calendar,
@@ -220,6 +220,8 @@ from .service_views import (
     service_detail_view,
     service_orders_for_service_json_list_view,
     service_personnell_json_list_view,
+    get_service_personell_json_view,
+    service_preconfiguration_add_person_view,
     service_tree_json_view,
     services_add_email_view,
     services_add_person_view,

@@ -14,10 +14,11 @@ from webook.arrangement.views import (
     deny_service_order_form_view,
     get_change_summary_json_view,
     get_events_for_resource_in_sopr_json_view,
-    get_personell_json_view,
+    get_personell_available_for_order_json_view,
     get_preconfigurations_for_service_json_view,
     get_provisions_json_view,
     get_service_overview_calendar,
+    get_service_personell_json_view,
     get_service_responsibles_json_view,
     open_service_order_for_revisioning_form_view,
     process_service_request_view,
@@ -26,6 +27,7 @@ from webook.arrangement.views import (
     service_detail_view,
     service_orders_for_service_json_list_view,
     service_personnell_json_list_view,
+    service_preconfiguration_add_person_view,
     service_tree_json_view,
     services_add_email_view,
     services_add_person_view,
@@ -56,6 +58,11 @@ service_urls = [
         route="service/add_person/<int:pk>",
         view=services_add_person_view,
         name="services_add_person",
+    ),
+    path(
+        route="service/preconfiguration/<int:pk>/add_person",
+        view=service_preconfiguration_add_person_view,
+        name="service_preconfiguration_add_person",
     ),
     path(
         route="service/<int:id>/toggle",
@@ -182,8 +189,13 @@ service_urls = [
     ),
     path(
         route="service/personell/<str:token>/<int:provision_id>",
-        view=get_personell_json_view,
-        name="get_personell_json_view",
+        view=get_personell_available_for_order_json_view,
+        name="get_personell_available_for_order_json_view",
+    ),
+    path(
+        route="service/<int:id>/personell",
+        view=get_service_personell_json_view,
+        name="get_service_personell_json_view",
     ),
     path(
         route="service/tree",

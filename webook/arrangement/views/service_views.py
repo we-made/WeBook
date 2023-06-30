@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import connection
+from django.db import connection, models
 from django.db.models import F, Q
 from django.db.models.functions import Concat
 from django.db.models.query import QuerySet
@@ -110,7 +110,9 @@ class ServiceAuthorizationMixin(UserPassesTestMixin):
             raise PermissionDenied("User does not have a person")
 
         service: Service = self.get_service()
-        authorized_emails = map(lambda service_email: service_email.email, list(service.emails.all()))
+        authorized_emails = map(
+            lambda service_email: service_email.email, list(service.emails.all())
+        )
 
         return self.request.user.email in authorized_emails
 
@@ -285,13 +287,30 @@ class ServiceAddPersonDialog(
         self.object = form.save()
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["SERVICE_ID"] = kwargs.get("pk")
-        return context
-
 
 services_add_person_view = ServiceAddPersonDialog.as_view()
+
+
+class ServicePreconfigurationAddPersonDialog(
+    LoginRequiredMixin, ServiceAuthorizationMixin, UpdateView, JsonFormView
+):
+    model = ServiceOrderPreconfiguration
+    form_class = AddPersonForm
+    slug_field = "id"
+    slug_url_kwarg = "id"
+    template_name = "arrangement/service/add_person.html"
+
+    def get_service(self) -> Service:
+        return self.get_object().service
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return super().form_valid(form)
+
+
+service_preconfiguration_add_person_view = (
+    ServicePreconfigurationAddPersonDialog.as_view()
+)
 
 
 class CreateServiceView(LoginRequiredMixin, CreateView, JsonFormView):
@@ -794,7 +813,7 @@ class GetPreconfigurationsForServiceJsonView(
         return JsonResponse(
             data=list(
                 map(
-                    lambda x: {"id": x.id, "title": x.title, "message": x.message},
+                    lambda x: {"id": x.id, "title": x.title, "message": x.message, "personell": list(map(lambda x: x.id, x.assigned_personell.all()))},
                     preconfigurations,
                 )
             ),
@@ -811,7 +830,7 @@ class CreatePreconfigurationJsonView(
     LoginRequiredMixin, ServiceAuthorizationMixin, CreateView, JsonModelFormMixin
 ):
     model = ServiceOrderPreconfiguration
-    fields = ["service", "title", "message"]
+    fields = ["service", "title", "message", "assigned_personell"]
 
     def get_service(self) -> Service:
         return Service.objects.get(id=self.request.POST.get("service"))
@@ -830,7 +849,7 @@ class UpdatePreconfigurationJsonView(
     LoginRequiredMixin, ServiceAuthorizationMixin, UpdateView, JsonModelFormMixin
 ):
     model = ServiceOrderPreconfiguration
-    fields = ["service", "title", "message"]
+    fields = ["service", "title", "message", "assigned_personell"]
     pk_url_kwarg = "id"
 
     def get_service(self) -> Service:
@@ -891,7 +910,7 @@ class GetChangeSummaryJsonView(ValidateTokenMixin, View):
 get_change_summary_json_view = GetChangeSummaryJsonView.as_view()
 
 
-class GetPersonellJsonView(ValidateTokenMixin, View):
+class GetPersonellAvailableForOrderJsonView(ValidateTokenMixin, View):
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         provision_id = self.kwargs.get("provision_id")
         if provision_id is None:
@@ -917,7 +936,33 @@ class GetPersonellJsonView(ValidateTokenMixin, View):
         return JsonResponse(data=resources, safe=False)
 
 
-get_personell_json_view = GetPersonellJsonView.as_view()
+get_personell_available_for_order_json_view = (
+    GetPersonellAvailableForOrderJsonView.as_view()
+)
+
+
+class GetServicePersonellJsonView(Service, DetailView):
+    """Returns a list of all personell for a given service."""
+
+    model = Service
+    pk_url_kwarg = "id"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
+        service = self.get_object()
+
+        return JsonResponse(
+            data=[
+                {
+                    "id": r.id,
+                    "name": r.full_name,
+                }
+                for r in service.resources.all()
+            ],
+            safe=False,
+        )
+
+
+get_service_personell_json_view = GetServicePersonellJsonView.as_view()
 
 
 class ServiceTreeJsonView(LoginRequiredMixin, JsonListView):
@@ -925,4 +970,5 @@ class ServiceTreeJsonView(LoginRequiredMixin, JsonListView):
         return [item.as_node() for item in Service.objects.all()]
 
 
+service_tree_json_view = ServiceTreeJsonView.as_view()
 service_tree_json_view = ServiceTreeJsonView.as_view()

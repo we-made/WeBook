@@ -69,6 +69,13 @@ class ProvisionPersonellForm(forms.ModelForm):
         }
 
 
+class AddPersonToPreconfigurationForm(forms.ModelForm):
+    class Meta:
+        model = ServiceOrderPreconfiguration
+        fields = ["id", "assigned_personell"]
+        widgets = {"personell": TableMultiSelectWidget()}
+
+
 class AddPersonForm(forms.ModelForm):
     # resources = forms.ModelMultipleChoiceField(
     #     queryset=Person.objects, widget=TableMultiSelectWidget
