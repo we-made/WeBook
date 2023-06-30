@@ -830,7 +830,7 @@ class CreatePreconfigurationJsonView(
     LoginRequiredMixin, ServiceAuthorizationMixin, CreateView, JsonModelFormMixin
 ):
     model = ServiceOrderPreconfiguration
-    fields = ["service", "title", "message"]
+    fields = ["service", "title", "message", "assigned_personell"]
 
     def get_service(self) -> Service:
         return Service.objects.get(id=self.request.POST.get("service"))
