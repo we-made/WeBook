@@ -65,7 +65,7 @@
                             :tooltip="row[columnKey].tooltip">
                         </status-indicator-component>
                         <div class="form-group" v-if="options.componentName == 'checkbox'">
-                            <input type="checkbox" @click="emitCheckboxClicked(row, columnKey)"
+                            <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
                                 v-model="row[columnKey]">
                         </div>
                     </span>
@@ -86,7 +86,7 @@
                               aria-expanded="false"
                             >
                                 <i class="fas fa-chevron-down"></i>
-                            </button>
+                            </button> 
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="actionsDropdownMenu">
                                 <span v-for="(actionData, actionName, index) in actions">
                                     <li v-if="'_actions' in row == false || '-' + actionName in row._actions == false">
@@ -282,6 +282,9 @@
             rerenderToggle() {
                 console.log("Rerendering table")
                 this.refresh();
+            },
+            async dataSource() {
+                await this.refresh();
             }
         },
         async created() {
@@ -302,10 +305,9 @@
                 const [ columnKey, columnData ] = checkboxColumns[0];
 
                 item[columnKey] = !item[columnKey];
+                this.emitCheckboxClickedEvent(item, columnKey);
             },
             emitActionClickedEvent(actionName, item) {
-                console.log("Emitting action event", actionName);
-                console.log("Item at start", item)
                 this.$emit(actionName, item);
             },
             emitCheckboxClickedEvent(row, columnKey) {
