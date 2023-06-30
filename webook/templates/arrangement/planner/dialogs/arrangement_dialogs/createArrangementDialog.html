@@ -669,15 +669,13 @@
                 },
 
                 setMainPlanner(planner) {
-                    console.log("setMainPlanner", planner)
-
                     this.mainPlanner = { id: planner.id, text: planner.full_name };
 
                     this.dialog.data.mainPlannerPayload = {
                         allPresets: new Map(),
                         allSelectedEntityIds: [ { id: planner.id, text: planner.full_name } ],
                         selectedPresets: [],
-                        viewables: [ { id: planner.id, text: planner.fullName } ]
+                        viewables: [ { id: planner.id, text: planner.full_name } ]
                     }
 
                     this.mainPlannerPopover.fadeAndHide();
@@ -1130,6 +1128,8 @@
             
                             // save the payload so that it can be re-used / re-applied to child activities / series
                             dialog.data.mainPlannerPayload = payload;
+
+                            console.log("SET PLANNER", payload)
             
                             const person = payload.viewables[0];
                             
