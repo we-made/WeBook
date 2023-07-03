@@ -137,17 +137,20 @@
         </div>
         <div id="step-2">
             <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
-                <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
+                <input type="hidden" 
+                    name="{{ form.responsible.name }}" 
+                    id="{{ form.responsible.id_for_label }}"
+                    v-model="mainPlanner.id">
 
                 <label for="" class="d-block form-label">
                     <i class="fas fa-star"></i>
                     Hovedplanlegger
                 </label>
-                <h5 class="mb-2" id="mainPlannerName"></h5>
+                <h5 class="mb-2">[[ mainPlanner.text ]]</h5>
                 <button class="wb-btn-main"
                     id="setMainPlannerButton"
                     type="button"
-                    d-trigger="triggerSetPlanner">
+                    @click="openSetMainPlannerDialog()">
                     Velg hovedplanlegger
                 </button>
             </div>
@@ -857,7 +860,6 @@
                             dialog.vueApp.mainPlanner = { id: person.id, text: person.text }
 
                             dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
-                            dialog.getElementById('mainPlannerName').innerText = person.text;
                             dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
                         } },
                         { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
