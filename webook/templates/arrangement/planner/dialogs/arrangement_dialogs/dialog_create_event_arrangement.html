@@ -172,7 +172,23 @@
                         Velg rom
                     </button>
                 </div>
-                <div id="selectedRoomsWrapper" class="chipsList"></div>
+                <div id="selectedRoomsWrapper" class="chipsList">
+                    <span v-for="room in rooms">
+                        <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
+                            [[room.text]]
+                            
+                            <a href="#">
+                                <i class="fa fa-times text-danger"
+                                    :id="room.id"
+                                    select-type="room"
+                                    @click="rooms.splice(rooms.indexOf(room), 1)"
+                                    d-trigger="removeAssociation">
+
+                                </i>
+                            </a>
+                        </div>
+                    </span>
+                </div>
             </div>
 
             <div class="form-group mb-2">
@@ -822,19 +838,6 @@
                             }
                         } },
                         { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                            let wrapper = dialog.$('#selectedRoomsWrapper');
-                            wrapper.empty();
-            
-                            payload.viewables.forEach((room) => {
-                                wrapper.append(
-                                    $(`<selected-pill name='${room.text}'
-                                                      id='${room.id}'
-                                                      class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
-                                                      d-trigger='removeAssociation'>
-                                       </selected-pill>`)    
-                                );
-                            });
-            
                             dialog.data.selectedRoomIds = new Map();
                             dialog.data.roomPresets = new Map();
                             payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
