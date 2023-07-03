@@ -125,22 +125,52 @@
         </tbody>
     </table>
 
-    <nav aria-label="" class="d-flex" style="justify-content: space-between; align-items: center;">
+    <nav aria-label="" class="d-flex" style="justify-content: space-between; align-items: center;" v-if="totalPages > 1">
         <div>
           <em>[[entitiesCount]] resultater</em>
         </div>
         <ul class="pagination">
+            <li class="page-item" v-if="totalPages > (pageCircumference * 2)">
+                <a href="javascript:void(0)" class="page-link" @click.stop="page = 1">
+                    Første                    
+                </a>
+            </li>
             <li class="page-item" :class="{ disabled: page == 1 }"><a class="page-link" href="javascript:void(0)" @click.stop="page--">Forrige</a></li>
             
-            <span v-for="aPage in totalPages">
-                <li :class="[{ active: aPage == page }, 'page-item']">
-                    <a href="#" class="page-link" @click="page = aPage">
-                        [[ aPage ]]
+            <span
+                v-for="aPage in pageCircumference">
+                <li class="page-item"  v-if="(page - (pageCircumference - aPage) - 1) > 0">
+                    <a href="#" class="page-link" @click="page = page - (pageCircumference - aPage) - 1">
+                        [[ page - (pageCircumference - aPage) - 1 ]]
+                    </a>
+                </li>
+            </span>
+
+            <span>
+                <li class="active page-item">
+                    <a href="#" class="page-link" @click="page = page">
+                        [[ page ]]
+                    </a>
+                </li>
+            </span>
+
+
+            <span
+                v-for="aPage in pageCircumference">
+                <li class="page-item"  v-if="(aPage + page) <= totalPages ">
+                    <a href="#" class="page-link" @click="page = aPage + page">
+                        [[ aPage + page ]]
                     </a>
                 </li>
             </span>
 
             <li class="page-item" :class="{ disabled: page == totalPages }"><a class="page-link" href="javascript:void(0)" @click.stop="page++">Neste</a></li> 
+
+            <li class="page-item" v-if="totalPages > (pageCircumference * 2)">
+                <a href="javascript:void(0)" class="page-link" @click.stop="page = totalPages">
+                    Siste
+                </a>
+            </li>
         </ul>
     </nav>
 
