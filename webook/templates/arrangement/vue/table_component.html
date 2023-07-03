@@ -303,11 +303,11 @@
         watch: {
             itemsPerPage() {
                 if (this.page > this.totalPages)
-                    this.page = this.totalPages;
+                    this.page = this.totalPages || 1;
             },
             totalPages() {
                 if (this.page > this.totalPages)
-                    this.page = this.totalPages;
+                    this.page = this.totalPages || 1;
             },
             rerenderToggle() {
                 console.log("Rerendering table")
