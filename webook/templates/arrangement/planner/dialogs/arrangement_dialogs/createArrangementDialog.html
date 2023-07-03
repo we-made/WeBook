@@ -1,6 +1,9 @@
 {% load static i18n %}
 {% load crispy_forms_tags %}
 
+<!-- {% include "arrangement/vue/popover_component.html" %} -->
+{% include "arrangement/vue/js_tree_select_component.html" %}
+
 
 <div id="{{dialogId}}" class="{{discriminator}}" style="overflow-x: visible;">
     <input type="hidden" name="" id="_audienceId">
@@ -20,7 +23,7 @@
         <div id="step-1">
             <form id="arrangementInfoForm">
                 <input type="submit" style="display:none;" />
-
+                
                 <fieldset>
                     <div class="form-group mb-2">
                         <label>
@@ -61,55 +64,36 @@
                         </div>
                     {% endif %}
 
-                    <div class="mb-2">
-                        <label>
-                            <i class="fas fa-users"></i>&nbsp;
-                            Målgruppe
-                            <span class="fw-bold">&nbsp;*</span>
-                        </label>
-                        <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
 
-                        {% if form.audience.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.audience.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
+                    <tree-select-component
+                        class="mb-2"
+                        label="Målgruppe *"
+                        json-url="/arrangement/audience/tree"
+                        icon="fas fa-users"
+                        button-label="Velg målgruppe"
+                        :selected="arrangement.audience"
+                        @input="(id) => arrangement.audience = id">
+                    </tree-select-component>
 
-                    <div class="mb-2">
-                        <label>
-                            <i class="fas fa-cog"></i>&nbsp;
-                            Arrangementstype
-                            <span class="fw-bold">&nbsp;*</span>
-                        </label>
-                        <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
-                        {% if form.arrangement_type.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.arrangement_type.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
+                    <tree-select-component
+                        class="mb-2"
+                        label="Arrangementstype *"
+                        json-url="/arrangement/arrangementtype/treelist"
+                        icon="fas fa-users"
+                        button-label="Velg arrangementstype"
+                        :selected="arrangement.arrangement_type"
+                        @input="(id) => arrangement.arrangement_type = id">
+                    </tree-select-component>
 
-                    <div class="mb-2">
-                        <label>
-                            Status
-                        </label>
-
-                        <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
-                        {% if form.status_type.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.status_type.errors }}
-                        </div>
-                        {% endif %}
-
-                        {% comment %} {{ form.status }}
-
-                        {% if form.status.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.status.errors }}
-                        </div>
-                        {% endif %} {% endcomment %}
-                    </div>
+                    <tree-select-component
+                        class="mb-2"
+                        label="Status"
+                        json-url="/arrangement/statustype/tree"
+                        icon="fas fa-cog"
+                        button-label="Velg status"
+                        :selected="arrangement.status"
+                        @input="(id) => arrangement.status = id">
+                    </tree-select-component>
 
                     <div class="mb-2">
                         <label>
@@ -173,7 +157,7 @@
                     <input type="hidden" 
                         name="{{ form.responsible.name }}" 
                         id="{{ form.responsible.id_for_label }}"
-                        v-model="mainPlanner.id">
+                        >
 
                     <label for="" class="d-block form-label">
                         <i class="fas fa-star"></i>
@@ -185,7 +169,7 @@
                         Vennligst velg en hovedplanlegger
                     </div>
 
-                    <h5 class="mb-2">[[ mainPlanner.text ]]</h5>
+                    <!-- <h5 class="mb-2">[[ mainPlanner.text ]]</h5> -->
                     <button class="wb-btn-main"
                         id="setMainPlannerButton"
                         type="button">
@@ -594,7 +578,7 @@
 
     $(document).ready(function () {
         let createArrangementDialogApp = Vue.createApp({
-            components: {},
+            components: { TreeSelectComponent },
             data() {
                 return {
                     dialog: null,
@@ -618,6 +602,11 @@
             },
             computed: {},
             methods: {
+
+                updateArrangementType(payload) {
+                    this.arrangement.arrangement_type = payload.id;
+                },
+
                 /**
                  * @summary Open a dialog, with the option to send data to the dialog 
                  * @param {string} dialogName
@@ -760,70 +749,6 @@
                             select.element.addEventListener("change", (event) => {
                                 $(mdbSelect._wrapper).find(".invalid-feedback").hide();
                             });
-                        });
-            
-                        dialog.data.audienceJsTreeSelect = new JSTreeSelect({
-                            element: dialog.querySelector('#audience_jstree_select'),
-                            treeJsonSrcUrl: "/arrangement/audience/tree",
-                            onValueSet: ( data ) => {
-                                dialog.getElementById('_audienceId').value = data.selected[0];
-                            },
-                            valueSelectedLabelText: ( selected) => {
-                                let labelText = '';
-            
-                                if (selected.parent && selected.parent.text)
-                                    labelText += (selected.parent.text + " | ");
-            
-                                labelText += selected.text;
-            
-                                return labelText;
-                            },
-                            noneSelectedLabelText: "Ingen målgruppe valgt ennå",
-                            selectFirstTimeButtonText: 'Velg målgruppe',
-                            changeSelectedValueButtonText: 'Endre målgruppe',
-                            popoverSaveChoicesButtonText: 'Lagre valg',
-                        });
-                        dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
-                            element: dialog.querySelector('#arrangement_type_jstree_select'),
-                            treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
-                            onValueSet: ( data ) => {
-                                dialog.getElementById('_arrangementTypeId').value = data.selected[0];
-                            },
-                            valueSelectedLabelText: ( selected ) => {
-                                let labelText = '';
-            
-                                if (selected.parent && selected.parent.text)
-                                    labelText += (selected.parent.text + " | ");
-            
-                                labelText += selected.text;
-            
-                                return labelText;
-                            },
-                            noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
-                            selectFirstTimeButtonText: 'Velg arrangementstype',
-                            changeSelectedValueButtonText: 'Endre arrangementstype',
-                            popoverSaveChoicesButtonText: 'Lagre valg',
-                        });
-                        dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
-                            element: dialog.querySelector('#status_type_jstree_select'),
-                            treeJsonSrcUrl: "/arrangement/statustype/tree",
-                            onValueSet: ( data ) => {
-                                dialog.getElementById('_statusTypeId').value = data.selected[0];
-                            },
-                            valueSelectedLabelText: ( selected ) => {
-                                let labelText = '';
-            
-                                if (selected.parent && selected.parent.text)
-                                    labelText += (selected.parent.text + " | ");
-            
-                                labelText += selected.text;
-                                
-                                return labelText;
-                            },
-                            noneSelectedLabelText: "Ingen status valgt ennå",
-                            selectFirstTimeButtonText: 'Velg status',
-                            changeSelectedValueButtonText: 'Endre status',
-                            popoverSaveChoicesButtonText: 'Lagre valg',
                         });
             
                         document.addEventListener("{{managerName}}.contextUpdated", (e) => {
