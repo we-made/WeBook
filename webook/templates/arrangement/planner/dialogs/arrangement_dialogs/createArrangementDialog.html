@@ -79,7 +79,7 @@
                         class="mb-2"
                         label="Arrangementstype *"
                         json-url="/arrangement/arrangementtype/treelist"
-                        icon="fas fa-users"
+                        icon="fas fa-cog"
                         button-label="Velg arrangementstype"
                         :selected="arrangement.arrangement_type"
                         @input="(id) => arrangement.arrangement_type = id">
@@ -788,11 +788,11 @@
                                         }
                                     }
             
-                                    if (!dialog.data.audienceJsTreeSelect.isValid()) {
-                                        dialog.data.audienceJsTreeSelect.showInvalidFeedback();
+                                    if (dialog.vueApp.arrangement.audience === null) {
+                                        toastr.error("Vennligst velg en målgruppe");
                                         return false;
                                     }
-                                    if (!dialog.data.arrangementTypeJsTreeSelect.isValid()) {
+                                    if (!dialog.vueApp.arrangement.arrangement_type) {
                                         dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
                                         return false;
                                     }
