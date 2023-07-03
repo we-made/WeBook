@@ -1,0 +1,64 @@
+<template id="vuec-popover-component">
+    <div :class="[ { active : internalIsVisible }, 'popover_wrapper', 'dialog-popover-left-fix' ]" ref="popover">
+        <div class="popover_content">
+            <slot></slot>
+        </div>
+    </div>
+</template>
+
+<script>
+    let PopoverComponent = {
+        props: {
+            isVisible: Boolean,
+            excludes: Array,
+        },
+        data() {
+            return {
+                internalIsVisible: false,
+            }
+        },
+        methods: {
+            initJsTree() {
+                      
+            },
+            toggleVisibility() {
+                this.internalIsVisible = !this.internalIsVisible;
+            }
+        },
+        watch: {
+            isVisible(newState, oldState) {
+                if (newState == false) {
+                    $(this.$refs.popover).hide("fade", {}, 400, () => {
+                        this.internalIsVisible = false;
+                    });
+                }
+                else {
+                    this.internalIsVisible = newState;
+                    $(this.$refs.popover).show("fade", {}, 400);
+                }
+            }
+        },
+        mounted() {
+            this.internalIsVisible = this.isVisible;
+
+            this.clickOutsideEvent = (e) => {
+                if (this.$el !== event.target && !this.$el.contains(event.target) && !event.target in this.excludes) {
+                    this.internalIsVisible = false;
+                }
+            };
+
+            document.addEventListener('click', this.clickOutsideEvent);
+            document.addEventListener('touchstart', this.clickOutsideEvent);
+
+            this.$nextTick(() => {
+                this.initJsTree();
+            });
+        },
+        unmounted() {
+            document.removeEventListener('click', this.clickOutsideEvent);
+            document.removeEventListener('touchstart', this.clickOutsideEvent);
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec-popover-component"
+    }
+</script>
