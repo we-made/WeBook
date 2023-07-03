@@ -1128,9 +1128,6 @@
             
                             // save the payload so that it can be re-used / re-applied to child activities / series
                             dialog.data.mainPlannerPayload = payload;
-
-                            console.log("SET PLANNER", payload)
-            
                             const person = payload.viewables[0];
                             
                             dialog.vueApp.mainPlanner = { id: person.id, text: person.text }

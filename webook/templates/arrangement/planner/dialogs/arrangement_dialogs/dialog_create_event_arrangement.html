@@ -168,7 +168,7 @@
                 <div>
                     <button class="wb-btn-main"
                         type="button"
-                        d-trigger="triggerAddRooms">
+                        @click="openAddRoomsDialog()">
                         Velg rom
                     </button>
                 </div>
@@ -195,7 +195,7 @@
             <div class="clearfix">
                 <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
                     style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                    d-trigger="triggerNewServiceOrder">
+                    @click="openAddServiceOrderDialog()">
                     <i class="fas fa-calendar-plus"></i>&nbsp;
                     Bestill tjenester
                 </a>
@@ -382,423 +382,518 @@
     import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
     import { DateExtensions } from "{% static 'modules/planner/seriesutil.js' %}";
 
-    new Dialog({
-        dialogId: '{{ dialogId }}',
-        managerName: '{{ managerName }}',
-        discriminator: '{{ discriminator }}',
-        postInit: function (dialog) {
-            document.querySelectorAll('.form-outline').forEach((formOutline) => {
-                new mdb.Input(formOutline).init();
-            });
-
-            dialog.$('#fromDate').on('change', (e) => {
-                dialog.interior.buffer_before_date.value = e.target.value;
-            });
-            dialog.$('#toDate').on('change', (e) => {
-                dialog.interior.buffer_after_date.value = e.target.value;
-            });
-
-            dialog.data.audienceJsTreeSelect = new JSTreeSelect({
-                element: dialog.querySelector('#audience_jstree_select'),
-                treeJsonSrcUrl: "/arrangement/audience/tree",
-                initialSelected: dialog.getElementById('_backingAudienceId').value ? { id: dialog.getElementById('_backingAudienceId').value } : undefined,
-                valueSelectedLabelText: ( selected ) => {
-                    let labelText = '';
-
-                    if (selected.parent && selected.parent.text)
-                        labelText += (selected.parent.text + " | ");
-                    
-                    labelText += selected.text;
-
-                    return labelText;
-                },
-                noneSelectedLabelText: "Ingen målgruppe valgt ennå",
-                selectFirstTimeButtonText: 'Velg målgruppe',
-                changeSelectedValueButtonText: 'Endre målgruppe',
-                popoverSaveChoicesButtonText: 'Lagre valg',
-            });
-
-            dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
-                element: dialog.querySelector('#arrangement_type_jstree_select'),
-                treeJsonSrcUrl: '/arrangement/arrangementtype/treelist',
-                initialSelected: dialog.getElementById('_backingArrangementTypeId').value ? { id: dialog.getElementById('_backingArrangementTypeId').value } : undefined,
-                valueSelectedLabelText: ( selected ) => {
-                    let labelText = '';
-
-                    if (selected.parent && selected.parent.text)
-                        labelText += (selected.parent.text + " | ");
-                    
-                    labelText += selected.text;
-
-                    return labelText;
-                },
-                noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
-                selectFirstTimeButtonText: 'Velg arrangementstype',
-                changeSelectedValueButtonText: 'Endre arrangementstype',
-                popoverSaveChoicesButtonText: 'Lagre valg',
-            });
-            dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
-                element: dialog.querySelector('#status_type_jstree_select'),
-                treeJsonSrcUrl: "/arrangement/statustype/tree",
-                initialSelected: dialog.getElementById('_statusTypeId').value ? { id: dialog.getElementById('_statusTypeId').value } : undefined,
-                onValueSet: ( data ) => {
-                    dialog.getElementById('_statusTypeId').value = data.selected[0];
-                },
-                valueSelectedLabelText: ( selected ) => {
-                    let labelText = '';
-
-                    if (selected.parent && selected.parent.text)
-                        labelText += (selected.parent.text + " | ");
-
-                    labelText += selected.text;
-                    
-                    return labelText;
-                },
-                noneSelectedLabelText: "Ingen status valgt ennå",
-                selectFirstTimeButtonText: 'Velg status',
-                changeSelectedValueButtonText: 'Endre status',
-                popoverSaveChoicesButtonText: 'Lagre valg',
-            });
-
-            dialog.$("#fromTime").on("change", (event) => {
-                dialog.$("#buffer_before_end").val(event.target.value);
-            });
-            dialog.$("#toTime").on("change", (event) => {
-                dialog.$("#buffer_after_start").val(event.target.value);
-            });
-
-            document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
-                dialog.data.roomsNameMap = e.detail.context.room_name_map;
-                dialog.setRooms({ rooms: e.detail.context.rooms });
-
-                dialog.$("#roomsCounter").text(dialog.$("#selectedRoomsWrapper").children().length);
-            });
-
-            dialog.data.stepper = new DialogStepper({
-                allowRailBasedNavigation: true,
-                railWrapperElement: dialog.getElementById('stepper'),
-                steps: [
-                    {
-                        element: dialog.getElementById('step-1'),
-                        title: 'Detaljer',
-                        stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { 
-                            /** PS!
-                             * Be aware that this will cause issues the moment you have inputs or selects
-                             * that are not in step-1. As of the writing of this comment all the fields we care
-                             * about validating are in step-1, so we can blanket-validate it like this.
-                             * This is not the case if you add input or selects to any other steps - and this will
-                             * prevent progression to further steps, until the inputs in those future steps are considered
-                             * valid, which is of course impossible, since one can not reach them due to this blanket-validation.
-                             * */                            
-                            if (dialog.validate() === false)
-                                return false;
-
-                            const fromDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
-                                dialog.interior.fromDate.value,
-                                dialog.interior.fromTime.value,
-                            )
-                            const toDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
-                                dialog.interior.toDate.value,
-                                dialog.interior.toTime.value,
-                            )
-
-                            if (fromDateTime >= toDateTime){
-                                $('#eventTimesInvalidFeedback').show();
-
-                                return false;
-                            }
-
-                            $('#eventTimesInvalidFeedback').hide();
-
-                            return true;
-                        }
-                    },
-                    {
-                        element: dialog.getElementById('step-2'),
-                        title: 'Rom & Personer',
-                        stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { console.log("2. Step Out"); }
-                    },
-                    {
-                        element: dialog.getElementById('step-services'),
-                        title: 'Tjenestebestillinger',
-                        stepIn: () => { },
-                        stepout: () => { },
-                    },
-                    {
-                        element: dialog.getElementById('step-3'),
-                        title: 'Opp og ned-rigg',
-                        visible: {% if HIDE_RIGGING %}false{% else %}true{% endif %},
-                        stepIn: () => {},
-                        stepOut: (isSteppingForwards) => {
-                            let isValid = true;
-                            if (dialog.interior.buffer_before_start.value &&
-                                dialog.interior.buffer_before_end.value)
-                                if (dialog.interior.buffer_before_start.value > dialog.interior.buffer_before_end.value) {
-                                    dialog.$('#beforeRiggingTimesInvalidFeedback').show();
-                                    isValid = false;
-                                }
-                                else {
-                                    dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
-                                }
-                            if (dialog.interior.buffer_after_start.value &&
-                                dialog.interior.buffer_after_end.value)
-                                if (dialog.interior.buffer_after_start.value > dialog.interior.buffer_after_end.value) {
-                                    dialog.$('#afterRiggingTimesInvalidFeedback').show();
-                                    isValid = false;
-                                }
-                                else {
-                                    dialog.$('#afterRiggingTimesInvalidFeedback').hide();
-                                }
-                            
-                            if (isValid === true) {
-                                dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
-                                dialog.$('#afterRiggingTimesInvalidFeedback').hide();
-                            }
-
-                            return isValid;
-                        },
-                    },
-                    {
-                        element: dialog.getElementById('step-4'),
-                        title: 'Skjermer',
-                        stepIn: () => { 
-                            dialog.getElementById('next').style.display = "none";
-                            dialog.getElementById('finish').style.display = "inline-block";
-                        },
-                        stepOut: () => {
-                            dialog.getElementById('finish').style.display = "none";
-                            dialog.getElementById('next').style.display = "inline-block";
-                        },
-                    },
-                ]
-            });
-            dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
-            dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
-        },
-        methods: {
-            close(dialog, {} = {}, triggeredByElement) {
-                dialog.closeMe();
-            },
-            submit(dialog, {} = {}, triggeredByElement) {
-                if (dialog.validate() === false) {
-                    console.warn("Validation failed.")
-                    return;
+    $(document).ready(function() {
+        let createActivityDialog = Vue.createApp({
+            components: {},
+            data() {
+                return {
+                    dialog: null,
+                    events: [],
+                    series: [],
+                    serviceOrders: [],
+                    rooms: [],
+                    planners: [],
+                    mainPlanner: { id: null, text: null },
+                    mainPlannerSearchTerm: null,
+                    mainPlannerSearchResults: [],
+                    mainPlannerPopover: null
                 }
-
-
-                let qualifiedEvent = {
-                    _uuid:                      dialog.interior.event_uuid.value,
-                    title:                      dialog.interior.title.value,
-                    title_en:                   dialog.interior.title_en.value,
-                    ticket_code:                dialog.interior.ticket_code.value,
-                    expected_visitors:          dialog.interior.expected_visitors.value,
-                    audience:                   dialog.data.audienceJsTreeSelect.getSelectedValue(),
-                    audienceName:               dialog.data.audienceJsTreeSelect.getSelectedText(),
-                    arrangement_type:           dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
-                    arrangementTypeName:        dialog.data.arrangementTypeJsTreeSelect.getSelectedText(),     
-                    start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
-                    end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
-                    arrangement:                0,
-                    rooms:                      Array.from(dialog.data.selectedRoomIds.keys()),
-                    room_name_map:              dialog.data.roomsNameMap,       // Kept due to edit - not pertinent for save
-                    before_buffer_title:        dialog.interior.buffer_before_title.value ?? "",
-                    before_buffer_date:         dialog.interior.buffer_before_date.value,
-                    before_buffer_start:        dialog.interior.buffer_before_start.value ?? "",
-                    before_buffer_end:          dialog.interior.buffer_before_end.value ?? "",
-                    after_buffer_title:         dialog.interior.buffer_after_title.value ?? "",
-                    after_buffer_date:          dialog.interior.buffer_after_date.value,
-                    after_buffer_start:         dialog.interior.buffer_after_start.value ?? "",
-                    after_buffer_end:           dialog.interior.buffer_after_end.value ?? "",
-                    meeting_place:              dialog.interior.id_meeting_place.value,
-                    meeting_place_en:           dialog.interior.id_meeting_place_en.value,
-                    responsible:                dialog.interior.id_responsible.value,
-                    display_text:               dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
-                    room_payload:               dialog.data.roomPayload,
-                    planner_payload:            dialog.data.mainPlannerPayload,
-                    ordered_services:           Array.from(dialog.data.servicePresets.values()),
-                    serie_uuid:                 dialog.interior._serie_reference.value,
-                    serie_position_hash:        dialog.interior._serie_position_hash.value,
-                    parent_serie_position_hash: dialog.interior._parent_serie_position_hash.value,
-                    start_before_collision_resolution: dialog.interior.start_before_collision_resolution.value,
-                    end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
-                    title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
-                };
-
-                let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
-                if (statusValue !== undefined)
-                    qualifiedEvent.status = statusValue;
-
-                console.log("qualifiedEvent", qualifiedEvent);
-
-                qualifiedEvent.display_layouts = 
-                    [...dialog.querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
-                        .map(element => element.value);
-
-                dialog.raiseSubmitEvent({
-                    event: qualifiedEvent,
-                    csrf_token: '{{csrf_token}}',
-                });
             },
-            validate(dialog, {} = {}, triggeredByElement) {
-                let field_elements = dialog.$('#newSimpleActivityForm').find("input, select");
-                let isInvalid = false;
+            methods: {
+                /**
+                 * @summary Open a dialog, with the option to send data to the dialog 
+                 * @param {string} dialogName
+                 * @param {object} data
+                 */
+                 openDialog(dialogName, data = {}) {
+                    let payload = {
+                        $parent: this.dialog.dialogElement,
+                        sendTo: '{{dialogId}}',
+                        ...data
+                    }
 
-                for (let i = 0; i < field_elements.length; i++) {
-                    if (field_elements[i].checkValidity() === false) {
-                        isInvalid = true;
-                        break;
+                    this.dialog.raiseTriggerEvent("{{managerName}}", dialogName, payload);
+                },
+                                /**
+                * @summary Open dialog for adding new rooms to the arrangement
+                */
+                openAddRoomsDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("{{orderRoomDialog}}");
+                },
+                /**
+                * @summary Open dialog for adding new planners to the arrangement
+                */
+                openAddPlannersDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("{{orderPersonDialog}}", { multiple: true, data: { whenEventName: "plannersSelected" } });
+                },
+                /**
+                * @summary Open dialog for setting the main planner
+                */
+                openSetMainPlannerDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("{{orderPersonDialog}}", { multiple: false, data: { whenEventName: "setPlanner" } });
+                },
+                /**
+                * @summary Open dialog for ordering new services to the arrangement
+                */
+                openAddServiceOrderDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("orderServiceDialog", { multiple: false, data: { whenEventName: "newServiceOrder" }, entity_type: "unknown", entity_id: "0" });
+                },
+                setMainPlanner(planner) {
+                    this.mainPlanner = { id: planner.id, text: planner.full_name };
+
+                    this.dialog.data.mainPlannerPayload = {
+                        allPresets: new Map(),
+                        allSelectedEntityIds: [ { id: planner.id, text: planner.full_name } ],
+                        selectedPresets: [],
+                        viewables: [ { id: planner.id, text: planner.full_name } ]
+                    }
+
+                    this.mainPlannerPopover.fadeAndHide();
+                }
+            },
+            watch: {
+                mainPlannerSearchTerm: async function (val) {
+                    if (val.length > 2 || val.length == 0) {
+                        await fetch("{% url 'arrangement:person_search_planners_ajax_view' %}?term=" + val, {
+                            method: "GET",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                            },
+                        }).then((response) => {
+                            if (response.ok) {
+                                response.json().then((data) => {
+                                    this.mainPlannerSearchResults = JSON.parse(data);
+
+                                    this.mainPlannerSearchResults.forEach((planner) => {
+                                        planner.full_name = [ planner.first_name, planner.middle_name, planner.last_name ].join(" ");
+                                    });
+                                });
+                            }
+                            else {
+                                console.log("HTTP-Error: " + response.status);
+                            }
+                        })
                     }
                 }
-
-                if (isInvalid) {
-                    dialog.$('#newSimpleActivityForm').find(':submit').click();
-                    return false;
-                }
-
-                return true;
             },
-            removeAssociation(dialog, {} = {}, triggeredByElement) {
-                const itemId = triggeredByElement.id;
-                const type = triggeredByElement.getAttribute("select-type");
+            delimiters: ['[[', ']]'],
+            mounted() {
+                this.mainPlannerSearchTerm = "";
 
-                let mapOfSelectedItemIds = null;
-                let appropriatePresetMap = null;
+                this.dialog = new Dialog({
+                    vueApp: this,
+                    dialogId: '{{ dialogId }}',
+                    managerName: '{{ managerName }}',
+                    discriminator: '{{ discriminator }}',
+                    postInit: function (dialog) {
+                        document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                            new mdb.Input(formOutline).init();
+                        });
+            
+                        dialog.$('#fromDate').on('change', (e) => {
+                            dialog.interior.buffer_before_date.value = e.target.value;
+                        });
+                        dialog.$('#toDate').on('change', (e) => {
+                            dialog.interior.buffer_after_date.value = e.target.value;
+                        });
+            
+                        dialog.data.audienceJsTreeSelect = new JSTreeSelect({
+                            element: dialog.querySelector('#audience_jstree_select'),
+                            treeJsonSrcUrl: "/arrangement/audience/tree",
+                            initialSelected: dialog.getElementById('_backingAudienceId').value ? { id: dialog.getElementById('_backingAudienceId').value } : undefined,
+                            valueSelectedLabelText: ( selected ) => {
+                                let labelText = '';
+            
+                                if (selected.parent && selected.parent.text)
+                                    labelText += (selected.parent.text + " | ");
+                                
+                                labelText += selected.text;
+            
+                                return labelText;
+                            },
+                            noneSelectedLabelText: "Ingen målgruppe valgt ennå",
+                            selectFirstTimeButtonText: 'Velg målgruppe',
+                            changeSelectedValueButtonText: 'Endre målgruppe',
+                            popoverSaveChoicesButtonText: 'Lagre valg',
+                        });
+            
+                        dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
+                            element: dialog.querySelector('#arrangement_type_jstree_select'),
+                            treeJsonSrcUrl: '/arrangement/arrangementtype/treelist',
+                            initialSelected: dialog.getElementById('_backingArrangementTypeId').value ? { id: dialog.getElementById('_backingArrangementTypeId').value } : undefined,
+                            valueSelectedLabelText: ( selected ) => {
+                                let labelText = '';
+            
+                                if (selected.parent && selected.parent.text)
+                                    labelText += (selected.parent.text + " | ");
+                                
+                                labelText += selected.text;
+            
+                                return labelText;
+                            },
+                            noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
+                            selectFirstTimeButtonText: 'Velg arrangementstype',
+                            changeSelectedValueButtonText: 'Endre arrangementstype',
+                            popoverSaveChoicesButtonText: 'Lagre valg',
+                        });
+                        dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
+                            element: dialog.querySelector('#status_type_jstree_select'),
+                            treeJsonSrcUrl: "/arrangement/statustype/tree",
+                            initialSelected: dialog.getElementById('_statusTypeId').value ? { id: dialog.getElementById('_statusTypeId').value } : undefined,
+                            onValueSet: ( data ) => {
+                                dialog.getElementById('_statusTypeId').value = data.selected[0];
+                            },
+                            valueSelectedLabelText: ( selected ) => {
+                                let labelText = '';
+            
+                                if (selected.parent && selected.parent.text)
+                                    labelText += (selected.parent.text + " | ");
+            
+                                labelText += selected.text;
+                                
+                                return labelText;
+                            },
+                            noneSelectedLabelText: "Ingen status valgt ennå",
+                            selectFirstTimeButtonText: 'Velg status',
+                            changeSelectedValueButtonText: 'Endre status',
+                            popoverSaveChoicesButtonText: 'Lagre valg',
+                        });
+            
+                        dialog.$("#fromTime").on("change", (event) => {
+                            dialog.$("#buffer_before_end").val(event.target.value);
+                        });
+                        dialog.$("#toTime").on("change", (event) => {
+                            dialog.$("#buffer_after_start").val(event.target.value);
+                        });
+            
+                        document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
+                            dialog.data.roomsNameMap = e.detail.context.room_name_map;
+                            dialog.setRooms({ rooms: e.detail.context.rooms });
+            
+                            dialog.$("#roomsCounter").text(dialog.$("#selectedRoomsWrapper").children().length);
+                        });
+            
+                        dialog.data.stepper = new DialogStepper({
+                            allowRailBasedNavigation: true,
+                            railWrapperElement: dialog.getElementById('stepper'),
+                            steps: [
+                                {
+                                    element: dialog.getElementById('step-1'),
+                                    title: 'Detaljer',
+                                    stepIn: () => { console.log("1. Step In") },
+                                    stepOut: () => { 
+                                        /** PS!
+                                         * Be aware that this will cause issues the moment you have inputs or selects
+                                         * that are not in step-1. As of the writing of this comment all the fields we care
+                                         * about validating are in step-1, so we can blanket-validate it like this.
+                                         * This is not the case if you add input or selects to any other steps - and this will
+                                         * prevent progression to further steps, until the inputs in those future steps are considered
+                                         * valid, which is of course impossible, since one can not reach them due to this blanket-validation.
+                                         * */                            
+                                        if (dialog.validate() === false)
+                                            return false;
+            
+                                        const fromDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
+                                            dialog.interior.fromDate.value,
+                                            dialog.interior.fromTime.value,
+                                        )
+                                        const toDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
+                                            dialog.interior.toDate.value,
+                                            dialog.interior.toTime.value,
+                                        )
+            
+                                        if (fromDateTime >= toDateTime){
+                                            $('#eventTimesInvalidFeedback').show();
+            
+                                            return false;
+                                        }
+            
+                                        $('#eventTimesInvalidFeedback').hide();
+            
+                                        return true;
+                                    }
+                                },
+                                {
+                                    element: dialog.getElementById('step-2'),
+                                    title: 'Rom & Personer',
+                                    stepIn: () => { console.log("1. Step In") },
+                                    stepOut: () => { console.log("2. Step Out"); }
+                                },
+                                {
+                                    element: dialog.getElementById('step-services'),
+                                    title: 'Tjenestebestillinger',
+                                    stepIn: () => { },
+                                    stepout: () => { },
+                                },
+                                {
+                                    element: dialog.getElementById('step-3'),
+                                    title: 'Opp og ned-rigg',
+                                    visible: {% if HIDE_RIGGING %}false{% else %}true{% endif %},
+                                    stepIn: () => {},
+                                    stepOut: (isSteppingForwards) => {
+                                        let isValid = true;
+                                        if (dialog.interior.buffer_before_start.value &&
+                                            dialog.interior.buffer_before_end.value)
+                                            if (dialog.interior.buffer_before_start.value > dialog.interior.buffer_before_end.value) {
+                                                dialog.$('#beforeRiggingTimesInvalidFeedback').show();
+                                                isValid = false;
+                                            }
+                                            else {
+                                                dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
+                                            }
+                                        if (dialog.interior.buffer_after_start.value &&
+                                            dialog.interior.buffer_after_end.value)
+                                            if (dialog.interior.buffer_after_start.value > dialog.interior.buffer_after_end.value) {
+                                                dialog.$('#afterRiggingTimesInvalidFeedback').show();
+                                                isValid = false;
+                                            }
+                                            else {
+                                                dialog.$('#afterRiggingTimesInvalidFeedback').hide();
+                                            }
+                                        
+                                        if (isValid === true) {
+                                            dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
+                                            dialog.$('#afterRiggingTimesInvalidFeedback').hide();
+                                        }
+            
+                                        return isValid;
+                                    },
+                                },
+                                {
+                                    element: dialog.getElementById('step-4'),
+                                    title: 'Skjermer',
+                                    stepIn: () => { 
+                                        dialog.getElementById('next').style.display = "none";
+                                        dialog.getElementById('finish').style.display = "inline-block";
+                                    },
+                                    stepOut: () => {
+                                        dialog.getElementById('finish').style.display = "none";
+                                        dialog.getElementById('next').style.display = "inline-block";
+                                    },
+                                },
+                            ]
+                        });
+                        dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
+                        dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
+                    },
+                    methods: {
+                        close(dialog, {} = {}, triggeredByElement) {
+                            dialog.closeMe();
+                        },
+                        submit(dialog, {} = {}, triggeredByElement) {
+                            if (dialog.validate() === false) {
+                                console.warn("Validation failed.")
+                                return;
+                            }
+            
+            
+                            let qualifiedEvent = {
+                                _uuid:                      dialog.interior.event_uuid.value,
+                                title:                      dialog.interior.title.value,
+                                title_en:                   dialog.interior.title_en.value,
+                                ticket_code:                dialog.interior.ticket_code.value,
+                                expected_visitors:          dialog.interior.expected_visitors.value,
+                                audience:                   dialog.data.audienceJsTreeSelect.getSelectedValue(),
+                                audienceName:               dialog.data.audienceJsTreeSelect.getSelectedText(),
+                                arrangement_type:           dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
+                                arrangementTypeName:        dialog.data.arrangementTypeJsTreeSelect.getSelectedText(),     
+                                start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
+                                end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
+                                arrangement:                0,
+                                rooms:                      Array.from(dialog.data.selectedRoomIds.keys()),
+                                room_name_map:              dialog.data.roomsNameMap,       // Kept due to edit - not pertinent for save
+                                before_buffer_title:        dialog.interior.buffer_before_title.value ?? "",
+                                before_buffer_date:         dialog.interior.buffer_before_date.value,
+                                before_buffer_start:        dialog.interior.buffer_before_start.value ?? "",
+                                before_buffer_end:          dialog.interior.buffer_before_end.value ?? "",
+                                after_buffer_title:         dialog.interior.buffer_after_title.value ?? "",
+                                after_buffer_date:          dialog.interior.buffer_after_date.value,
+                                after_buffer_start:         dialog.interior.buffer_after_start.value ?? "",
+                                after_buffer_end:           dialog.interior.buffer_after_end.value ?? "",
+                                meeting_place:              dialog.interior.id_meeting_place.value,
+                                meeting_place_en:           dialog.interior.id_meeting_place_en.value,
+                                responsible:                dialog.interior.id_responsible.value,
+                                display_text:               dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
+                                room_payload:               dialog.data.roomPayload,
+                                planner_payload:            dialog.data.mainPlannerPayload,
+                                ordered_services:           Array.from(dialog.data.servicePresets.values()),
+                                serie_uuid:                 dialog.interior._serie_reference.value,
+                                serie_position_hash:        dialog.interior._serie_position_hash.value,
+                                parent_serie_position_hash: dialog.interior._parent_serie_position_hash.value,
+                                start_before_collision_resolution: dialog.interior.start_before_collision_resolution.value,
+                                end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
+                                title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
+                            };
+            
+                            let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
+                            if (statusValue !== undefined)
+                                qualifiedEvent.status = statusValue;
+            
+                            console.log("qualifiedEvent", qualifiedEvent);
+            
+                            qualifiedEvent.display_layouts = 
+                                [...dialog.querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
+                                    .map(element => element.value);
+            
+                            dialog.raiseSubmitEvent({
+                                event: qualifiedEvent,
+                                csrf_token: '{{csrf_token}}',
+                            });
+                        },
+                        validate(dialog, {} = {}, triggeredByElement) {
+                            let field_elements = dialog.$('#newSimpleActivityForm').find("input, select");
+                            let isInvalid = false;
+            
+                            for (let i = 0; i < field_elements.length; i++) {
+                                if (field_elements[i].checkValidity() === false) {
+                                    isInvalid = true;
+                                    break;
+                                }
+                            }
+            
+                            if (isInvalid) {
+                                dialog.$('#newSimpleActivityForm').find(':submit').click();
+                                return false;
+                            }
+            
+                            return true;
+                        },
+                        removeAssociation(dialog, {} = {}, triggeredByElement) {
+                            const itemId = triggeredByElement.id;
+                            const type = triggeredByElement.getAttribute("select-type");
+            
+                            let mapOfSelectedItemIds = null;
+                            let appropriatePresetMap = null;
+            
+                            if (type === "room") {
+                                mapOfSelectedItemIds = dialog.data.selectedRoomIds;
+                                appropriatePresetMap = dialog.data.roomPresets;
+                            }
+                            else if (type === "serviceOrder") {
+                                dialog.data.servicePresets.delete(itemId);
+                                triggeredByElement.parentElement.parentElement.remove();
+                                return;
+                            }
+                            else {
+                                throw Error("Type not recognized")
+                            }
+            
+                            if (itemId.startsWith("preset_")) {
+                                const preset = appropriatePresetMap.get(id.split("_")[1]);
+                                preset.ids.forEach((id) => mapOfSelectedItemIds.delete(id));
+                            }
+                            else {
+                                mapOfSelectedItemIds.delete(itemId);
+                            }
+            
+                            triggeredByElement.remove();
+                        },
+                    },
+                    data: {
+                        servicePresets: new Map(),
+                        selectedRoomIds: new Map(),
+                        roomsNameMap: new Map(),
+                        stepper: null,
+                    },
+                    when: [
+                        { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
+                            // this stuff needs to be rewritten along with the other similar methods
+                            // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
 
-                if (type === "room") {
-                    mapOfSelectedItemIds = dialog.data.selectedRoomIds;
-                    appropriatePresetMap = dialog.data.roomPresets;
-                }
-                else if (type === "serviceOrder") {
-                    dialog.data.servicePresets.delete(itemId);
-                    triggeredByElement.parentElement.parentElement.remove();
-                    return;
-                }
-                else {
-                    throw Error("Type not recognized")
-                }
-
-                if (itemId.startsWith("preset_")) {
-                    const preset = appropriatePresetMap.get(id.split("_")[1]);
-                    preset.ids.forEach((id) => mapOfSelectedItemIds.delete(id));
-                }
-                else {
-                    mapOfSelectedItemIds.delete(itemId);
-                }
-
-                triggeredByElement.remove();
-            },
-            triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true,  });
-            },
-            triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, renderInChain: true, data: { whenEventName: "setPlanner" } })
-            },
-            triggerNewServiceOrder(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "orderServiceDialog", { $parent:dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "newServiceOrder"}, entity_type:"event", entity_id:"0" })
-            },
-        },
-        data: {
-            servicePresets: new Map(),
-            selectedRoomIds: new Map(),
-            roomsNameMap: new Map(),
-            stepper: null,
-        },
-        when: [
-            { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
-                // this stuff needs to be rewritten along with the other similar methods
-                // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
-
-                console.log("payload!", payload);
-
-                dialog.data.servicePresets = new Map((payload.concat(
-                    Array.from(dialog.data.servicePresets.values())
-                )).map(x => [crypto.randomUUID(), x]));
-
-                let wrapper = dialog.$('#serviceOrders');
-                wrapper.empty();
-                
-                for (const [key, value] of dialog.data.servicePresets) {
-                    wrapper.append(
-                        $(`<div class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' id="${key}">
-                            <h5>
-                                ${value.service_name}
-                                <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end'  id="${key}" select-type='serviceOrder' d-trigger="removeAssociation"><i class='fas fa-times'></i></button>
-                            </h5>
-                            <code>
-                                ${value.freetext_comment}
-                            </code>
-                        </div>`)
-                    );
-                }
-            } },
-            { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                let wrapper = dialog.$('#selectedRoomsWrapper');
-                wrapper.empty();
-
-                payload.viewables.forEach((room) => {
-                    wrapper.append(
-                        $(`<selected-pill name='${room.text}'
-                                          id='${room.id}'
-                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)    
-                    );
+                            dialog.data.servicePresets = new Map((payload.concat(
+                                Array.from(dialog.data.servicePresets.values())
+                            )).map(x => [crypto.randomUUID(), x]));
+            
+                            let wrapper = dialog.$('#serviceOrders');
+                            wrapper.empty();
+                            
+                            for (const [key, value] of dialog.data.servicePresets) {
+                                wrapper.append(
+                                    $(`<div class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' id="${key}">
+                                        <h5>
+                                            ${value.service_name}
+                                            <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end'  id="${key}" select-type='serviceOrder' d-trigger="removeAssociation"><i class='fas fa-times'></i></button>
+                                        </h5>
+                                        <code>
+                                            ${value.freetext_comment}
+                                        </code>
+                                    </div>`)
+                                );
+                            }
+                        } },
+                        { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                            let wrapper = dialog.$('#selectedRoomsWrapper');
+                            wrapper.empty();
+            
+                            payload.viewables.forEach((room) => {
+                                wrapper.append(
+                                    $(`<selected-pill name='${room.text}'
+                                                      id='${room.id}'
+                                                      class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
+                                                      d-trigger='removeAssociation'>
+                                       </selected-pill>`)    
+                                );
+                            });
+            
+                            dialog.data.selectedRoomIds = new Map();
+                            dialog.data.roomPresets = new Map();
+                            payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                            payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+            
+                            dialog.data.roomPayload = payload;
+                        } },
+                        { eventKnownAs: "setPlanner", do: (dialog, payload) => {
+                            if (payload.allSelectedEntityIds.length == 0)
+                                return;
+            
+                            const person = payload.viewables[0];
+            
+                            dialog.data.mainPlannerPayload = payload;
+                            
+                            dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
+                            dialog.getElementById('mainPlannerName').innerText = person.text;
+                            dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
+                        } },
+                        { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
+                            if (dialog.data.audienceJsTreeSelect)
+                                dialog.data.audienceJsTreeSelect.setSelected(payload);
+                            else
+                                dialog.$('#_backingAudienceId').val(payload);
+                        } },
+                        { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
+                            if (dialog.data.arrangementTypeJsTreeSelect)
+                                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
+                            else
+                                dialog.$('#_backingArrangementTypeId').val(payload);
+                        } },
+                        { eventKnownAs: "setStatusFromParent", do: (dialog, payload) => {
+                            if (dialog.data.statusTypeJsTreeSelect)
+                                dialog.data.statusTypeJsTreeSelect.setSelected(payload);
+                            else
+                                dialog.$('#_statusTypeId').val(payload);
+                        } },
+                    ],
+                    plugins: [
+                        {
+                            name: 'showIfSelected',
+                            pluginClass: DialogShowIfSelectedPlugin,
+                            args: {
+                                checkboxesSelector: "[name='display_layouts_create_event']",
+                                elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
+                                showIfAnyOfTheseValuesMap: new Map([
+                                    {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
+                                        [ "{{ display_layout.id }}", true],
+                                    {% endfor %}
+                                ]),
+                            },
+                        }
+                    ],
                 });
-
-                dialog.data.selectedRoomIds = new Map();
-                dialog.data.roomPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
-                payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
-
-                dialog.data.roomPayload = payload;
-            } },
-            { eventKnownAs: "setPlanner", do: (dialog, payload) => {
-                if (payload.allSelectedEntityIds.length == 0)
-                    return;
-
-                const person = payload.viewables[0];
-
-                dialog.data.mainPlannerPayload = payload;
-                
-                dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
-                dialog.getElementById('mainPlannerName').innerText = person.text;
-                dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
-            } },
-            { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
-                if (dialog.data.audienceJsTreeSelect)
-                    dialog.data.audienceJsTreeSelect.setSelected(payload);
-                else
-                    dialog.$('#_backingAudienceId').val(payload);
-            } },
-            { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
-                if (dialog.data.arrangementTypeJsTreeSelect)
-                    dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
-                else
-                    dialog.$('#_backingArrangementTypeId').val(payload);
-            } },
-            { eventKnownAs: "setStatusFromParent", do: (dialog, payload) => {
-                if (dialog.data.statusTypeJsTreeSelect)
-                    dialog.data.statusTypeJsTreeSelect.setSelected(payload);
-                else
-                    dialog.$('#_statusTypeId').val(payload);
-            } },
-        ],
-        plugins: [
-            {
-                name: 'showIfSelected',
-                pluginClass: DialogShowIfSelectedPlugin,
-                args: {
-                    checkboxesSelector: "[name='display_layouts_create_event']",
-                    elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
-                    showIfAnyOfTheseValuesMap: new Map([
-                        {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
-                            [ "{{ display_layout.id }}", true],
-                        {% endfor %}
-                    ]),
-                },
             }
-        ],
-    });
+        });
+
+        createActivityDialog.mount(
+            document.getElementsByClassName('{{discriminator}}')[0]
+        );
+    })
 </script>
