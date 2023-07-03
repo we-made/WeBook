@@ -257,6 +257,7 @@ class BaseEventForm(forms.ModelForm):
                 attrs={
                     "id": "display_layouts_create_event",
                     "name": "display_layouts_create_event",
+                    "v-model": "activity.display_layouts",
                 }
             ),
         }
@@ -281,6 +282,7 @@ class UpdateEventForm(BaseEventForm):
                 attrs={
                     "id": "display_layouts_create_event",
                     "name": "display_layouts_create_event",
+                    "v-model": "activity.display_layouts",
                 }
             ),
             "status": forms.Select(attrs={"class": "form-control form-control-lg"}),

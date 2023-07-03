@@ -622,13 +622,10 @@
                         {% endfor %}
                     ]);
 
-                    console.log("displayLayoutsWithRequisiteText", displayLayoutsWithRequisiteText)
-
                     let showDisplayText = false;
 
                     this.arrangement.display_layouts.forEach((displayLayout) => {
                         if (displayLayoutsWithRequisiteText.has(displayLayout)) {
-                            console.log("is trueeeee")
                             showDisplayText = true;
                         }
                     });

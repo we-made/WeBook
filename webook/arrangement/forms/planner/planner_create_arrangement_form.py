@@ -5,7 +5,6 @@ from webook.arrangement.models import Arrangement, Person, RoomPreset
 
 
 class PlannerCreateArrangementModelForm(forms.ModelForm):
-
     display_text = forms.CharField(required=False)
     display_text_en = forms.CharField(required=False)
     responsible = forms.ModelChoiceField(queryset=Person.objects.all(), required=False)
@@ -29,11 +28,17 @@ class PlannerCreateArrangementModelForm(forms.ModelForm):
             "planners",
         )
         widgets = {
-            "display_layouts": CheckboxSelectMultiple(),
+            "display_layouts": CheckboxSelectMultiple(
+                attrs={"v-model": "arrangement.display_layouts"}
+            ),
+            "display_text": forms.TextInput(
+                attrs={"v-model": "arrangement.display_text"}
+            ),
             "location": forms.Select(
                 attrs={
                     "class": "form-control form-control-md",
                     "data-mdb-validation": "true",
+                    "v-model": "arrangement.location",
                 }
             ),
             "audience": forms.Select(

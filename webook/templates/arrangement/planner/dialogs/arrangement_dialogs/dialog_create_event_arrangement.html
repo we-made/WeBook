@@ -43,12 +43,12 @@
                         Tittel <i>(Norsk)</i>
                         <span class="fw-bold">&nbsp;*</span>
                     </label>
-                    <input type="text" id="title" name="title" class="form-control form-control-lg" required />
+                    <input type="text" id="title" name="title" v-model="activity.title" class="form-control form-control-lg" required />
                 </div>
 
                 <div class="form-group mb-2">
                     <label class="form-label" for="title_en">Tittel <i>(Engelsk)</i></label>
-                    <input type="text" id="title_en" name="title_en" class="form-control form-control-lg" />
+                    <input type="text" id="title_en" name="title_en" v-model="activity.title_en" class="form-control form-control-lg" />
                 </div>
 
                 <tree-select-component
@@ -89,12 +89,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" required />
+                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" v-model="activity.from_date" required />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" required />
+                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" v-model="activity.from_time" required />
                             </div>
                         </div>
                     </div>
@@ -108,12 +108,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" required />
+                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" v-model="activity.to_date" required />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" required />
+                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" v-model="activity.to_time" required />
                             </div>
                         </div>
                     </div>
@@ -131,14 +131,14 @@
                 <input type="hidden" 
                     name="{{ form.responsible.name }}" 
                     id="{{ form.responsible.id_for_label }}"
-                    v-model="mainPlanner.id">
+                    v-model="activity.main_planner.id">
 
                 <label for="" class="d-block form-label">
                     <i class="fas fa-star"></i>
                     Hovedplanlegger
                 </label>
 
-                <h5 class="mb-2">[[ mainPlanner.text ]]</h5>
+                <h5 class="mb-2">[[ activity.main_planner.text ]]</h5>
                 <button class="wb-btn-main"
                     id="setMainPlannerButton"
                     type="button">
@@ -211,7 +211,7 @@
                     </button>
                 </div>
                 <div id="selectedRoomsWrapper" class="chipsList">
-                    <span v-for="room in rooms">
+                    <span v-for="room in activity.rooms">
                         <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
                             [[room.text]]
                             
@@ -234,7 +234,7 @@
                     <i class="fas fa-receipt"></i>&nbsp;
                     Billettkode
                 </label>
-                <input type="text" id="ticket_code" name="ticket_code" class="form-control form-control-lg" />
+                <input type="text" id="ticket_code" name="ticket_code" v-model="activity.ticket_code" class="form-control form-control-lg" />
             </div>
 
             <div class="form-group mb-2">
@@ -242,7 +242,7 @@
                     <i class="fas fa-users"></i>
                     Forventet besøkende
                 </label>
-                <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" required />
+                <input type="text" id="expected_visitors" name="expected_visitors" v-model="activity.expected_visitors" class="form-control form-control-lg" required />
             </div>
         </div>
         <div id="step-services">
@@ -264,7 +264,7 @@
             <div id="serviceOrders" class="mb-2">
                 <div
                     class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
-                    v-for="order in serviceOrders">
+                    v-for="order in activity.serviceOrders">
                     
                     <h5>
                         [[order.service_name]]
@@ -296,21 +296,21 @@
                         <th colspan="3" class="h4">Opprigg før aktiviteten:</th>
                     </tr>
                     <tr style="border-bottom:none;">
-                       <td colspan="2" style="border: none;">
+                        <td colspan="2" style="border: none;">
                         <div>
                             <label for="buffer_before_title" class="form-label">
                                 Tittel
                             </label>
-                            <input type="text" class="form-control form-control-lg" id="buffer_before_title" placeholder="Tittel... (valgfritt)">
+                            <input type="text" v-model="activity.buffer_before_title" class="form-control form-control-lg" id="buffer_before_title" placeholder="Tittel... (valgfritt)">
                         </div>
 
                         <div class="mt-2">
                             <label for="buffer_before_date" class="form-label">
                                 Dato
                             </label>
-                            <input type="date" id="buffer_before_date" class="form-control form-control-lg">
+                            <input type="date" v-model="activity.buffer_before_date" id="buffer_before_date" class="form-control form-control-lg">
                         </div>
-                       </td> 
+                        </td> 
                     </tr>
                     <tr>
                         <td style="padding-top: 0;">
@@ -318,7 +318,7 @@
                                 Fra
                             </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_before_start" name="buffer_before_start" class="form-control form-control-lg" />
+                                <input type="time" id="buffer_before_start" v-model="activity.buffer_before_start" name="buffer_before_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td style="padding-top: 0;">
@@ -326,7 +326,7 @@
                                 Til
                             </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_before_end" name="buffer_before_end" class="form-control form-control-lg" />
+                                <input type="time" id="buffer_before_end" v-model="activity.buffer_before_end" name="buffer_before_end" class="form-control form-control-lg" />
                             </div>  
                         </td>
                     </tr>
@@ -343,28 +343,28 @@
                     </tr>
                     <tr style="border-bottom:none;">
                         <td colspan="2" style="border: none;">
-                         <div>
+                            <div>
                             <label for="after_buffer_title" class="form-label">
                                 Tittel
                             </label>
-                             <input type="text" class="form-control form-control-lg" id="buffer_after_title" placeholder="Tittel... (valgfritt)">
-                         </div>
- 
-                         <div class="mt-2">
+                                <input type="text" v-model="activity.buffer_after_title" class="form-control form-control-lg" id="buffer_after_title" placeholder="Tittel... (valgfritt)">
+                            </div>
+    
+                            <div class="mt-2">
                             <label for="" class="form-label">
                                 Dato
                             </label>
-                            <input type="date" name="" class="form-control form-control-lg" id="buffer_after_date">
-                         </div>
+                            <input type="date" v-model="activity.buffer_after_date" class="form-control form-control-lg" id="buffer_after_date">
+                            </div>
                         </td> 
-                     </tr>
+                        </tr>
                     <tr>
                         <td style="padding-top: 0;">
                             <label for="buffer_after_start" class="form-label">
                                 Fra
                             </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_after_start" name="buffer_after_start" class="form-control form-control-lg" />
+                                <input type="time" id="buffer_after_start" v-model="activity.buffer_after_start" name="buffer_after_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td style="padding-top:0;">
@@ -372,7 +372,7 @@
                                 Til
                             </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_after_end" name="buffer_after_end" class="form-control form-control-lg" />
+                                <input type="time" id="buffer_after_end" v-model="activity.buffer_after_end" name="buffer_after_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
@@ -395,7 +395,8 @@
                         <label class="d-block form-label"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Vises på:" %}</label>
                         <ul>
                             {% for choice_id, choice_label in form.display_layouts.field.choices %}
-                                <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
+                                <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck"
+                                    v-model="activity.display_layouts" />
                                 <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
                             {% endfor %}
                         </ul>
@@ -403,20 +404,34 @@
                     {% endif %}
                 </div>
                 <div class="col-lg-8 col-sm-12 mt-sm-2">
-                    <div class="form-group" id="display-layout-text-group" style="display: none;">
-                        <div>
-                            {{ form.display_text|as_crispy_field }}
+                    <div class="form-group" id="display-layout-text-group">
+                        <div v-show="showDisplayText">
+                            <input type="text" name="{{form.display_text.name}}"
+                                class="form-control form-control-lg"
+                                id="{{form.display_text.id_for_label}}"
+                                v-model="activity.display_text"
+                                placeholder="Skjermtekst...">
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="form-group mt-2">
-                {{ form.meeting_place | as_crispy_field }}
+                <label for="{{form.meeting_place.id_for_label}}">{{form.meeting_place.label}}</label>
+                <input type="text" 
+                    name="{{form.meeting_place.name}}" 
+                    id="{{form.meeting_place.id_for_label}}" 
+                    class="form-control"
+                    v-model="activity.meeting_place">
             </div>
 
             <div class="form-group mt-2 mb-2">
-                {{ form.meeting_place_en | as_crispy_field }}
+                <label for="{{form.meeting_place_en.id_for_label}}">{{form.meeting_place_en.label}}</label>
+                <input type="text" 
+                    name="{{form.meeting_place_en.name}}" 
+                    id="{{form.meeting_place_en.id_for_label}}" 
+                    class="form-control"
+                    v-model="activity.meeting_place_en">
             </div>
         </div>
     </div>
@@ -461,7 +476,6 @@
             data() {
                 return {
                     dialog: null,
-                    mainPlanner: { id: null, text: null },
                     mainPlannerSearchTerm: null,
                     mainPlannerSearchResults: [],
                     mainPlannerPopover: null,
@@ -470,12 +484,8 @@
                         id: null,
                         title: null,
                         title_en: null,
-                        start: null,
-                        end: null,
                         ticket_code: null,
                         participants: null,
-                        buffer_before: null,
-                        buffer_after: null,
                         buffer_before_title: null,
                         buffer_after_title: null,
                         buffer_before_date: null,
@@ -494,9 +504,28 @@
                         serviceOrders: [],
                         rooms: [],
                         planners: [],
-                        main_planner: null,
+                        main_planner: { id: null, text: null },
                     },
                 }
+            },
+            computed: {
+                showDisplayText() {
+                    let displayLayoutsWithRequisiteText = new Map([
+                        {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
+                            [ "{{ display_layout.id }}", true],
+                        {% endfor %}
+                    ]);
+
+                    let showDisplayText = false;
+
+                    this.activity.display_layouts.forEach((displayLayout) => {
+                        if (displayLayoutsWithRequisiteText.has(displayLayout)) {
+                            showDisplayText = true;
+                        }
+                    });
+
+                    return showDisplayText;
+                },
             },
             methods: {
                 /**
@@ -538,7 +567,7 @@
                     this.openDialog("orderServiceDialog", { multiple: false, data: { whenEventName: "newServiceOrder" }, entity_type: "unknown", entity_id: "0" });
                 },
                 setMainPlanner(planner) {
-                    this.mainPlanner = { id: planner.id, text: planner.full_name };
+                    this.activity.main_planner = { id: planner.id, text: planner.full_name };
 
                     this.dialog.data.mainPlannerPayload = {
                         allPresets: new Map(),
@@ -849,23 +878,10 @@
                             dialog.data.servicePresets = new Map((payload.concat(
                                 Array.from(dialog.data.servicePresets.values())
                             )).map(x => [crypto.randomUUID(), x]));
-            
-                            let wrapper = dialog.$('#serviceOrders');
-                            wrapper.empty();
                             
-                            for (const [key, value] of dialog.data.servicePresets) {
-                                wrapper.append(
-                                    $(`<div class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' id="${key}">
-                                        <h5>
-                                            ${value.service_name}
-                                            <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end'  id="${key}" select-type='serviceOrder' d-trigger="removeAssociation"><i class='fas fa-times'></i></button>
-                                        </h5>
-                                        <code>
-                                            ${value.freetext_comment}
-                                        </code>
-                                    </div>`)
-                                );
-                            }
+                            dialog.vueApp.activity.serviceOrders = 
+                                Array.from(dialog.data.servicePresets.entries())
+                                .map(x => { return { key: x[0], ...x[1] } });
                         } },
                         { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
                             dialog.data.selectedRoomIds = new Map();
@@ -875,7 +891,7 @@
             
                             dialog.data.roomPayload = payload;
 
-                            dialog.vueApp.rooms = payload.viewables;
+                            dialog.vueApp.activity.rooms = payload.viewables;
                         } },
                         { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                             if (payload.allSelectedEntityIds.length == 0)
@@ -884,7 +900,7 @@
                             const person = payload.viewables[0];
             
                             dialog.data.mainPlannerPayload = payload;
-                            dialog.vueApp.mainPlanner = { id: person.id, text: person.text }
+                            dialog.vueApp.activity.main_planner = { id: person.id, text: person.text }
 
                             dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                             dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
@@ -907,21 +923,6 @@
                             else
                                 dialog.$('#_statusTypeId').val(payload);
                         } },
-                    ],
-                    plugins: [
-                        {
-                            name: 'showIfSelected',
-                            pluginClass: DialogShowIfSelectedPlugin,
-                            args: {
-                                checkboxesSelector: "[name='display_layouts_create_event']",
-                                elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
-                                showIfAnyOfTheseValuesMap: new Map([
-                                    {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
-                                        [ "{{ display_layout.id }}", true],
-                                    {% endfor %}
-                                ]),
-                            },
-                        }
                     ],
                 });
             }
