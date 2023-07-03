@@ -841,6 +841,8 @@
                             payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
             
                             dialog.data.roomPayload = payload;
+
+                            dialog.vueApp.rooms = payload.viewables;
                         } },
                         { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                             if (payload.allSelectedEntityIds.length == 0)
@@ -849,7 +851,8 @@
                             const person = payload.viewables[0];
             
                             dialog.data.mainPlannerPayload = payload;
-                            
+                            dialog.vueApp.mainPlanner = { id: person.id, text: person.text }
+
                             dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                             dialog.getElementById('mainPlannerName').innerText = person.text;
                             dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
