@@ -338,20 +338,21 @@ export class ArrangementCreator {
                                     window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preorderedServices, "newServiceOrder");
                                 }
 
-                                [
-                                    { from: '#id_ticket_code', to: '#ticket_code' },
-                                    { from: '#id_name', to: '#title' },
-                                    { from: '#id_name_en', to: '#title_en' },
-                                    { from: '#id_expected_visitors', to: '#expected_visitors'},
-                                    { from: '#id_meeting_place', to: '#id_meeting_place' },
-                                    { from: '#id_meeting_place_en', to: '#id_meeting_place_en' },
-                                    { from: '#id_display_text', to: '#id_display_text' },
-                                    { from: '#_audienceId', to: '#_backingAudienceId' },
-                                    { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId'},
-                                    { from: '#_statusTypeId', to: '#_statusTypeId' },
-                                ].forEach( (mapping) => { 
-                                    $simpleActivityDialog.find( mapping.to ).val( $mainDialog.find( mapping.from )[0].value );
-                                });
+                                window.MessagesFacility.send(
+                                    "newSimpleActivityDialog",
+                                    {
+                                        title: $mainDialog.find('#title').val(),
+                                        title_en: $mainDialog.find('#title_en').val(),
+                                        expected_visitors: $mainDialog.find('#expected_visitors').val(),
+                                        meeting_place: $mainDialog.find('#id_meeting_place').val(),
+                                        meeting_place_en: $mainDialog.find('#id_meeting_place_en').val(),
+                                        display_text: $mainDialog.find('#id_display_text').val(),
+                                        audienceId: $mainDialog.find('#_backingAudienceId').val(),
+                                        arrangementTypeId: $mainDialog.find('#_backingArrangementTypeId').val(),
+                                        statusTypeId: $mainDialog.find('#_statusTypeId').val(),
+                                    },
+                                    "populateDialogWithEvent"
+                                )
 
                                 $simpleActivityDialog.find('#event_uuid').val(crypto.randomUUID());
                                 $mainDialog[0].querySelectorAll("input[name='display_layouts']:checked")

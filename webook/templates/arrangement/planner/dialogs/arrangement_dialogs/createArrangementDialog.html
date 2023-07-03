@@ -33,6 +33,7 @@
                             value="{{ form.name.value|default:'' }}"
                             name="{{ form.name.name }}"
                             autocomplete="off"
+                            v-model="arrangement.title"
                             required />
                     </div>
                     {% if form.name.errors|length > 0 %}
@@ -50,6 +51,7 @@
                             id="{{ form.name_en.id_for_label }}"
                             value="{{ form.name_en.value|default:'' }}"
                             name="{{ form.name_en.name }}"
+                            v-model="arrangement.title_english"
                             autocomplete="off"
                             />
                     </div>
@@ -596,15 +598,22 @@
             data() {
                 return {
                     dialog: null,
-                    events: [],
-                    series: [],
-                    serviceOrders: [],
-                    rooms: [],
-                    planners: [],
-                    mainPlanner: { id: null, text: null },
                     mainPlannerSearchTerm: null,
                     mainPlannerSearchResults: [],
-                    mainPlannerPopover: null
+                    mainPlannerPopover: null,
+                    arrangement: {
+                        title: null,
+                        title_english: null,
+                        audience: null,         // TODO: implement component
+                        arrangement_type: null, // TODO: implement component
+                        status: null,           // TODO: implement component
+                        events: [],                
+                        series: [],
+                        rooms: [],
+                        serviceOrders: [],
+                        planners: [],
+                        mainPlanner: { id: null, text: null },
+                    },
                 }
             },
             computed: {},
@@ -723,8 +732,7 @@
                             triggerElement: dialog.dialogElement.querySelector('#setMainPlannerButton'),
                             wrapperElement: dialog.dialogElement.querySelector('#select-main-planner-popover'),
                         });
-                        dialog.vueApp.mainPlannerPopover = mainPlannerPopover;
-        
+                        dialog.vueApp.mainPlannerPopover = mainPlannerPopover;        
 
                         [
                             {
@@ -821,12 +829,12 @@
                         document.addEventListener("{{managerName}}.contextUpdated", (e) => {
                             if (e.detail.context.series !== undefined) {
                                 const series = e.detail.context.series;
-                                dialog.vueApp.series = Array.from(series.values());
+                                dialog.vueApp.arrangement.series = Array.from(series.values());
                                 dialog.data.seriesMap = series;
                             }
                             if (e.detail.context.events !== undefined) {
                                 const events = e.detail.context.events;
-                                dialog.vueApp.events = Array.from(events.values());
+                                dialog.vueApp.arrangement.events = Array.from(events.values());
                                 dialog.data.eventsMap = events;
                             }
                         });
@@ -839,8 +847,6 @@
                                 title: 'Generelt',
                                 stepIn: () => {},
                                 stepOut: () => {
-                                    debugger;
-            
                                     let field_elements = dialog.$('#step-1').find("input, select");
                                     [
                                         mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
@@ -1033,7 +1039,6 @@
                                     denyButtonText: "Opprett kollisjoner uten rom",
                                     confirmButtonText: 'Ignorer kolliderende aktiviteter'
                                 }).then((result) => {
-                                    console.log("SWAL RESULT", result)
                                     if (result.isConfirmed === true) {
                                         save(0); // 0 designates behaviour ignore colliding activities (dont create them)
                                     }
@@ -1086,28 +1091,28 @@
                         },
                     },
                     when: [
-                    { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
-                        // this stuff needs to be rewritten along with the other similar methods
-                        // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
-            
-                        dialog.data.servicePresets = new Map((payload.concat(
-                            Array.from(dialog.data.servicePresets.values())
-                        )).map(x => [crypto.randomUUID(), x]));
+                        { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
+                            // this stuff needs to be rewritten along with the other similar methods
+                            // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
+                
+                            dialog.data.servicePresets = new Map((payload.concat(
+                                Array.from(dialog.data.servicePresets.values())
+                            )).map(x => [crypto.randomUUID(), x]));
 
-                        dialog.vueApp.serviceOrders = 
-                            Array.from(dialog.data.servicePresets.entries())
-                            .map(x => { return { key: x[0], ...x[1] } });
+                            dialog.vueApp.arrangement.serviceOrders = 
+                                Array.from(dialog.data.servicePresets.entries())
+                                .map(x => { return { key: x[0], ...x[1] } });
 
-                    } },
-                    { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                            dialog.data.selectedRoomIds = new Map();
-                            dialog.data.roomPresets = new Map();
-                            payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
-                            payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
-            
-                            dialog.data.roomPayload = payload;
+                        } },
+                        { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                                dialog.data.selectedRoomIds = new Map();
+                                dialog.data.roomPresets = new Map();
+                                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                                payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+                
+                                dialog.data.roomPayload = payload;
 
-                            dialog.vueApp.rooms = payload.viewables;
+                                dialog.vueApp.arrangement.rooms = payload.viewables;
                         } },
                         { eventKnownAs: "plannersSelected", do: (dialog, payload) => {
                             dialog.data.selectedPlannerIds = new Map();
@@ -1116,9 +1121,8 @@
                             payload.selectedPresets.forEach( (presetId) => dialog.data.plannerPresets.set(presetId, payload.allPresets.get(presetId)));
             
                             dialog.data.plannerPayload = payload;
-                            console.log(dialog.data.plannerPayload);
 
-                            dialog.vueApp.planners = payload.viewables;
+                            dialog.vueApp.arrangement.planners = payload.viewables;
                         } },
                         { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                             if (payload.allSelectedEntityIds.length == 0)
@@ -1130,7 +1134,7 @@
                             dialog.data.mainPlannerPayload = payload;
                             const person = payload.viewables[0];
                             
-                            dialog.vueApp.mainPlanner = { id: person.id, text: person.text }
+                            dialog.vueApp.arrangement.mainPlanner = { id: person.id, text: person.text }
 
                             dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                             dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";

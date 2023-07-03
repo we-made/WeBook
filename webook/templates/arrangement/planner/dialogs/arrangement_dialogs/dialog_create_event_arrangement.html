@@ -271,7 +271,25 @@
             </div>
 
             <div id="serviceOrders" class="mb-2">
-
+                <div
+                    class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
+                    v-for="order in serviceOrders">
+                    
+                    <h5>
+                        [[order.service_name]]
+                        <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' 
+                            :id="order.key" 
+                            @click="serviceOrders.splice(serviceOrders.indexOf(order), 1)"
+                            select-type='serviceOrder' 
+                            d-trigger="removeAssociation">
+                            
+                            <i class='fas fa-times'></i>
+                        </button>
+                    </h5>
+                    <code>
+                        [[order.freetext_comment]]
+                    </code>
+                </div>
             </div>
         </div>
         <div id="step-3">
@@ -866,6 +884,9 @@
                         stepper: null,
                     },
                     when: [
+                        { eventKnownAs: "populateDialogWithEvent", do: (dialog, payload) => {
+                            console.log("populateDialogWithEvent", payload);
+                        } },
                         { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
                             // this stuff needs to be rewritten along with the other similar methods
                             // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
