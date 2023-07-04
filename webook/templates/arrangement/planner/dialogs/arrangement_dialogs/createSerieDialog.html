@@ -8,439 +8,473 @@
     <input type="hidden" id="_backingArrangementTypeId" />
     <input type="hidden" id="_statusTypeId">
 
-    <div class="clearfix">
-        <div class="float-start">
-            <h6 id="title">
-                {{object}}
-                {% if object.pk %}
-                    Rediger {{object.title}}
-                {% else %}
-                    Definer tidsplan
-                {% endif %}
-            </h6>
-            <h5 class="fw-bold">
-                <i class="fas fa-calendar-plus"></i>&nbsp; Tidsplan
-            </h5>
-        </div>
-        <div id="stepper" class="float-end stepper-rail"></div>
-    </div>
 
-    <hr>
-
-    <div>
-        <div id="step-1">
-            <input type="hidden" name="uuid" id="serie_uuid">
-            <form id="headMockForm">
-                <input type="submit" style="display:none;" />
-                <div class="mb-2">
-                    <div class="form-group">
-                        <label class="form-label" for="serie_title">
-                            Tittel på norsk
-                            <span class="fw-bold">&nbsp;*</span>
-                        </label>
-                        <input type="text" id="serie_title" class="form-control form-control-lg" 
-                            required/>
-                    </div>    
-                    <div class="form-group">
-                        <label class="form-label" for="serie_title_en">Tittel på engelsk</label>
-                        <input type="text" id="serie_title_en" class="form-control form-control-lg" />
-                    </div>
-                </div>
-    
-                <div class="row mb-2">
-                    <div class="col-6">
-                        <label class="form-label" for="serie_start">
-                            Start
-                            <span class="fw-bold">&nbsp;*</span>
-                        </label>
-                        <input type="time" class="form-control form-control-lg" id="serie_start" required />
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label" for="serie_end">
-                            Slutt
-                            <span class="fw-bold">&nbsp;*</span>
-                        </label>
-                        <input type="time" class="form-control form-control-lg" id="serie_end" required />
-                    </div>
-                </div>
-
-                <div class="alert alert-danger mt-3" id="invalidTimesStep1Feedback"
-                    style="display: none;">
-                    Ugyldige tider
-                </div>
-
-                <div class="form-group mb-2">
-                    <label class="form-label" for="serie_ticket_code">Billettkode</label>
-                    <input type="text" id="serie_ticket_code" class="form-control form-control-lg" />
-                </div>        
-                <div class="form-group mb-2">
-                    <label class="form-label" for="serie_expected_visitors">Forventet besøkende</label>
-                    <input type="text" id="serie_expected_visitors" class="form-control form-control-lg" min="0" required/>
-                </div>
-
-                <div class="form-group mb-2">
-                    <label>
-                        <i class="fas fa-users"></i>&nbsp;
-                        Målgruppe
-                    </label>
-                    <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
-                    
-                    {% if raudience.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.audience.errors }}
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group mb-2">
-                    <label>
-                        <i class="fas fa-cog"></i>&nbsp;
-                        Arrangementstype
-                        <span class="fw-bold">&nbsp;*</span>
-                    </label>
-                    <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
-                    {% if form.arrangement_type.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.arrangement_type.errors }}
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group mb-2">
-                    <label>
-                        <i class="fas fa-cog"></i>&nbsp;
-                        Status
-                    </label>
-                    <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
-                    {% if form.status_type.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.status_type.errors }}
-                    </div>
-                    {% endif %}
-                </div>
-            </form>
-        </div>
-
-        <div id="step-2">
-            <fieldset>
-                <h5>
-                    Mønster
-                    <span class="fw-bold">&nbsp;*</span>
-                </h5>
-                <div class="row">
-                    <div class="col-3 border-end border-1">
-                        <form id="patternMockForm">
-                            <input type="submit" style="display:none;" />
-                            <div>
-                                <input type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daglig</label>
-                            </div>
-                            <div>
-                                <input type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Ukentlig</label>
-                            </div>
-                            <div>
-                                <input type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Månedlig</label>
-                            </div>
-                            <div>
-                                <input type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Årlig</label>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="col-9">
-                        <div id="patternRoute_daily">
-                            <div>
-                                <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
-                                <label>Hver <input type="number" min="1"  id="every_x_day__interval" required /> dag</label>
-                            </div>
-                            
-                            <div>
-                                <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
-                                <label>Hver ukedag</label>
-                            </div>
-                        </div>
-    
-                        <div id="patternRoute_weekly" style="display: none;">
-                            <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> uke på:</label></div>
-                            <span id="day_checkbox_wrapper">
-                                <input type="checkbox" id="monday"> <label>Mandag</label>
-                                <input type="checkbox" id="tuesday"> <label>Tirsdag</label>
-                                <input type="checkbox" id="wednesday"> <label>Onsdag</label>
-                                <input type="checkbox" id="thursday"> <label>Torsdag</label>
-                                <input type="checkbox" id="friday"> <label>Fredag</label>
-                                <input type="checkbox" id="saturday"> <label>Lørdag</label>
-                                <input type="checkbox" id="sunday"> <label>Søndag</label>
-                            </span>
-                        </div>
-    
-                        <div id="patternRoute_monthly" style="display: none;">
-                            <div>
-                                <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
-                                Dag <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> hver <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> måned
-                            </div>
-                            <div>
-                                <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> Den
-                                <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
-                                </select>
-                                <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
-                                </select>
-                                hver <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> måned
-                            </div>
-                        </div>
-    
-                        <div id="patternRoute_yearly" style="display: none;">
-                            <div>
-                                Skjer hvert <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> år
-                            </div>
-                            <div>
-                                <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
-                                <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
-                                <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
-                                </select>
-                            </div>
-    
-                            <div>
-                                <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Hver:
-                                <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
-                                </select>
-                                <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
-                                </select>
-                                i
-                                <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
-            <fieldset class="mt-2">
-                <h5>
-                    Område
-                    <span class="fw-bold">&nbsp;*</span>
-                </h5>
-                <div class="row">
-                    <div class="col-3">
-                        <label>Startdato</label>
-                        <input type="date" id="area_start_date" required>
-                    </div>
-                    <div class="col-9" id="area_methods_wrapper">
-                        <div>
-                            <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
-                            Stopp innen: <input type="date" id="area_stopWithin" required>
-                        </div>
-    
-                        <div>
-                            <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
-                            <fieldset>
-                                Stopp etter: <input type="number" min="1" id="area_stopAfterXInstances" required /> instanser
-                            </fieldset>
-                        </div>
-    
-                        <div>
-                            <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
-                            Ingen sluttdato
-                            | Projiser <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> måneder inn i fremtiden
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-
-        <div id="step-3">
-            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
-                <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
-
-                <label for="" class="d-block form-label">
-                    <i class="fas fa-star"></i>
-                    Hovedplanlegger
-                </label>
-                <h5 class="mb-2" id="mainPlannerName"></h5>
-                <button class="wb-btn-main"
-                    id="setMainPlannerButton"
-                    type="button"
-                    d-trigger="triggerSetPlanner">
-                    Velg hovedplanlegger
-                </button>
-            </div>
-
-            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
-                <label for="" class="form-label">
-                    <i class="fas fa-building"></i>&nbsp;
-                    Rom
-                </label>
-                <div>
-                    <button class="wb-btn-main"
-                        type="button"
-                        d-trigger="triggerAddRooms">
-                        Velg rom
-                    </button>
-                </div>
-                <div id="roomChips" class="chipsList"></div>
-            </div>
-        </div>
-
-        <div id="step-services">
+    <div class="row">
+        <div class="col-9">
             <div class="clearfix">
-                <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
-                    style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                    d-trigger="triggerNewServiceOrder">
-                    <i class="fas fa-calendar-plus"></i>&nbsp;
-                    Bestill tjenester
-                </a>
-            </div>
-
-            <div class="alert alert-info mt-2">
-                Her kan du bestille tjenester for denne tidsplanen. <br>
-                Du kan også fjerne tidsplanen fra bestillinger plassert på arrangementsnivået. Fjerner du bestillinger her vil 
-                denne tidsplanen ikke være delaktige i den respektive bestillingen, men de vil fortsatt være aktuelle for andre tidsplaner/aktiviteter <br>
-            </div>
-
-            <div class="form-check" style="display:none;">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-                <label class="form-check-label" for="flexCheckDefault">
-                    Reset eksisterende bestillinger
-                    <strong id="resetTooltip"
-                        data-mdb-toggle="tooltip"
-                        title="Restart de eksisterende bestillingene som har blitt plassert på denne serien, slik at de må behandles på nytt. <br>Nyttig hvis forandringen som blir gjort på serien er av en natur som kan affektere tjenesteplanleggingen.">
-                        (?)
-                    </strong>
-                </label>
-            </div>
-
-            <div id="serviceOrders">
-            </div>
-        </div>
-
-        <div id="step-4">
-            <div class="alert alert-info small">
-                <h6><i class="fas fa-info-circle"></i>&nbsp; Opprigg og nedrigg blir opprettet som egne hendelser før og etter aktiviteten.</h6>
-                Du trenger ikke å definere tider om du ikke ønsker å opprigg eller nedrigg aktiviteter. Du kan velge å bare definere tider for den ene eller andre, eller begge to.
-                Det vil bare opprettes aktiviteter der hvor tider for rigging er definert. Så om du f.eks taster inn verdier for Fra-Til for opprigg, men lar nedrigg være blankt, så vil opprigg aktivitet opprettes med alle 
-                hendelser som resulteres av denne tidsplanen men ikke nedrigg aktiviteter.
-            </div>
-
-            <table class="table table-sm">
-                <thead></thead>
-                <tbody>
-                    <tr>
-                        <th colspan="3" class="fw-bold">Opprigg:</th>
-                    </tr>
-                    
-                    <tr style="border-bottom: none;">
-                        <td colspan="2" style="border:none;">
-                            <div>
-                                <label for="buffer_before_title" class="form-label">
-                                    Tittel
-                                </label>
-                                <input type="text" name="" id="buffer_before_title" class="form-control form-control-lg">
-                            </div>
-
-                            <div class="mt-2">
-                                <label for="buffer_before_date_offset" class="form-label">
-                                    Hvor mange dager før? ( 0 for samme dag )
-                                </label>
-                                <input type="number" name="" id="buffer_before_date_offset" class="form-control form-control-lg" min="0">
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td style="padding-top: 0;">
-                            Fra
-                            <div>
-                                <input type="time" id="buffer_before_start" class="form-control form-control-lg" />
-                            </div>
-                        </td>
-                        <td style="padding-top: 0;">
-                            Til
-                            <div>
-                                <input type="time" id="buffer_before_end" class="form-control form-control-lg" />
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr id="beforeRiggingTimesInvalidFeedback"
-                        style="display:none;">
-                        <td colspan="2">
-                            <div class="alert alert-danger">
-                                Ugyldige tider
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th colspan="3" class="fw-bold">Nedrigg:</th>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <div>
-                                <label for="buffer_after_title" class="form-label">
-                                    Tittel
-                                </label>
-                                <input type="text" name="" id="buffer_after_title" class="form-control form-control-lg">
-                            </div>
-                            <div class="mt-2">
-                                <label for="buffer_after_date_offset" class="form-label">
-                                    Hvor mange dager etter? ( 0 for samme dag )
-                                </label>
-                                <input type="number" name="" id="buffer_after_date_offset" class="form-control form-control-lg" min="0">
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding-top: 0;">
-                            <label for="buffer_after_start" class="form-label">
-                                Fra
-                            </label>
-                            <div>
-                                <input type="time" id="buffer_after_start" class="form-control form-control-lg" />
-                            </div>
-                        </td>
-                        <td style="padding-top: 0;">
-                            <label for="buffer_after_end" class="buffer_after_end">
-                                Til
-                            </label>
-                            <div>
-                                <input type="time" id="buffer_after_end" class="form-control form-control-lg" />
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="afterRiggingTimesInvalidFeedback"
-                        style="display:none;">
-                        <td colspan="2">
-                            <div class="alert alert-danger">
-                                Ugyldige tider
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table> 
-        </div>
-        <div id="step-5">
-            <div class="row">
-                <div class="col-lg-4 col-sm-12">
-                    <i class="fas fa-tv"></i>&nbsp; Vises på
-                    {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
-                        <li> 
-                            <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
-                            <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label>
-                        </li>
-                    {% endfor %}
+                <div class="float-start">
+                    <h6 id="title">
+                        {{object}}
+                        {% if object.pk %}
+                            Rediger {{object.title}}
+                        {% else %}
+                            Definer tidsplan
+                        {% endif %}
+                    </h6>
+                    <h5 class="fw-bold">
+                        <i class="fas fa-calendar-plus"></i>&nbsp; Tidsplan
+                    </h5>
                 </div>
-
-                <div class="col-lg-8 col-sm-12 mt-sm-2">
-                    <div class="form-group" id="display-layout-text-group" style="display: none;">
-                        <div>
-                            {{ form.display_text|as_crispy_field }}
+                <div id="stepper" class="float-end stepper-rail"></div>
+            </div>
+        
+            <hr>
+        
+            <div>
+                <div id="step-1">
+                    <input type="hidden" name="uuid" id="serie_uuid">
+                    <form id="headMockForm">
+                        <input type="submit" style="display:none;" />
+                        <div class="mb-2">
+                            <div class="form-group">
+                                <label class="form-label" for="serie_title">
+                                    Tittel på norsk
+                                    <span class="fw-bold">&nbsp;*</span>
+                                </label>
+                                <input type="text" v-model="serie.title" id="serie_title" class="form-control form-control-lg" 
+                                    required/>
+                            </div>    
+                            <div class="form-group">
+                                <label class="form-label" for="serie_title_en">Tittel på engelsk</label>
+                                <input type="text" v-model="serie.title_en" id="serie_title_en" class="form-control form-control-lg" />
+                            </div>
                         </div>
+            
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <label class="form-label" for="serie_start">
+                                    Start
+                                    <span class="fw-bold">&nbsp;*</span>
+                                </label>
+                                <input 
+                                    type="time" 
+                                    class="form-control form-control-lg" 
+                                    v-model="serie.start_time"
+                                    id="serie_start" required />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" for="serie_end">
+                                    Slutt
+                                    <span class="fw-bold">&nbsp;*</span>
+                                </label>
+                                <input 
+                                    type="time" 
+                                    class="form-control form-control-lg" 
+                                    v-model="serie.end_time"
+                                    id="serie_end" required />
+                            </div>
+                        </div>
+        
+                        <div class="alert alert-danger mt-3" id="invalidTimesStep1Feedback"
+                            style="display: none;">
+                            Ugyldige tider
+                        </div>
+        
+                        <div class="form-group mb-2">
+                            <label class="form-label" for="serie_ticket_code">Billettkode</label>
+                            <input 
+                                type="text" 
+                                id="serie_ticket_code" 
+                                v-model="serie.ticket_code"
+                                class="form-control form-control-lg" />
+                        </div>        
+                        <div class="form-group mb-2">
+                            <label class="form-label" for="serie_expected_visitors">Forventet besøkende</label>
+                            <input 
+                                type="text" 
+                                id="serie_expected_visitors" 
+                                class="form-control form-control-lg" 
+                                v-model="serie.expected_visitors"
+                                min="0" required/>
+                        </div>
+        
+                        <div class="form-group mb-2">
+                            <label>
+                                <i class="fas fa-users"></i>&nbsp;
+                                Målgruppe
+                            </label>
+                            <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
+                            
+                            {% if raudience.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.audience.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+        
+                        <div class="form-group mb-2">
+                            <label>
+                                <i class="fas fa-cog"></i>&nbsp;
+                                Arrangementstype
+                                <span class="fw-bold">&nbsp;*</span>
+                            </label>
+                            <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
+                            {% if form.arrangement_type.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.arrangement_type.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+        
+                        <div class="form-group mb-2">
+                            <label>
+                                <i class="fas fa-cog"></i>&nbsp;
+                                Status
+                            </label>
+                            <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
+                            {% if form.status_type.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.status_type.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+        
+                <div id="step-2">
+                    <fieldset>
+                        <h5>
+                            Mønster
+                            <span class="fw-bold">&nbsp;*</span>
+                        </h5>
+                        <div class="row">
+                            <div class="col-3 border-end border-1">
+                                <form id="patternMockForm">
+                                    <input type="submit" style="display:none;" />
+                                    <div>
+                                        <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daglig</label>
+                                    </div>
+                                    <div>
+                                        <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Ukentlig</label>
+                                    </div>
+                                    <div>
+                                        <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Månedlig</label>
+                                    </div>
+                                    <div>
+                                        <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Årlig</label>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-9">
+                                <div id="patternRoute_daily">
+                                    <div>
+                                        <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
+                                        <label>Hver <input type="number" min="1"  id="every_x_day__interval" required /> dag</label>
+                                    </div>
+                                    
+                                    <div>
+                                        <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
+                                        <label>Hver ukedag</label>
+                                    </div>
+                                </div>
+            
+                                <div id="patternRoute_weekly" style="display: none;">
+                                    <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> uke på:</label></div>
+                                    <span id="day_checkbox_wrapper">
+                                        <input type="checkbox" id="monday"> <label>Mandag</label>
+                                        <input type="checkbox" id="tuesday"> <label>Tirsdag</label>
+                                        <input type="checkbox" id="wednesday"> <label>Onsdag</label>
+                                        <input type="checkbox" id="thursday"> <label>Torsdag</label>
+                                        <input type="checkbox" id="friday"> <label>Fredag</label>
+                                        <input type="checkbox" id="saturday"> <label>Lørdag</label>
+                                        <input type="checkbox" id="sunday"> <label>Søndag</label>
+                                    </span>
+                                </div>
+            
+                                <div id="patternRoute_monthly" style="display: none;">
+                                    <div>
+                                        <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
+                                        Dag <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> hver <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> måned
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> Den
+                                        <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
+                                        </select>
+                                        <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
+                                        </select>
+                                        hver <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> måned
+                                    </div>
+                                </div>
+            
+                                <div id="patternRoute_yearly" style="display: none;">
+                                    <div>
+                                        Skjer hvert <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> år
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
+                                        <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
+                                        <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
+                                        </select>
+                                    </div>
+            
+                                    <div>
+                                        <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Hver:
+                                        <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
+                                        </select>
+                                        <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
+                                        </select>
+                                        i
+                                        <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="mt-2">
+                        <h5>
+                            Område
+                            <span class="fw-bold">&nbsp;*</span>
+                        </h5>
+                        <div class="row">
+                            <div class="col-3">
+                                <label>Startdato</label>
+                                <input type="date" id="area_start_date" required>
+                            </div>
+                            <div class="col-9" id="area_methods_wrapper">
+                                <div>
+                                    <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
+                                    Stopp innen: <input type="date" id="area_stopWithin" required>
+                                </div>
+            
+                                <div>
+                                    <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
+                                    <fieldset>
+                                        Stopp etter: <input type="number" min="1" id="area_stopAfterXInstances" required /> instanser
+                                    </fieldset>
+                                </div>
+            
+                                <div>
+                                    <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
+                                    Ingen sluttdato
+                                    | Projiser <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> måneder inn i fremtiden
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+        
+                <div id="step-3">
+                    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+                        <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
+        
+                        <label for="" class="d-block form-label">
+                            <i class="fas fa-star"></i>
+                            Hovedplanlegger
+                        </label>
+                        <h5 class="mb-2" id="mainPlannerName"></h5>
+                        <button class="wb-btn-main"
+                            id="setMainPlannerButton"
+                            type="button"
+                            d-trigger="triggerSetPlanner">
+                            Velg hovedplanlegger
+                        </button>
+                    </div>
+        
+                    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
+                        <label for="" class="form-label">
+                            <i class="fas fa-building"></i>&nbsp;
+                            Rom
+                        </label>
+                        <div>
+                            <button class="wb-btn-main"
+                                type="button"
+                                d-trigger="triggerAddRooms">
+                                Velg rom
+                            </button>
+                        </div>
+                        <div id="roomChips" class="chipsList"></div>
+                    </div>
+                </div>
+        
+                <div id="step-services">
+                    <div class="clearfix">
+                        <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
+                            style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                            d-trigger="triggerNewServiceOrder">
+                            <i class="fas fa-calendar-plus"></i>&nbsp;
+                            Bestill tjenester
+                        </a>
+                    </div>
+        
+                    <div class="alert alert-info mt-2">
+                        Her kan du bestille tjenester for denne tidsplanen. <br>
+                        Du kan også fjerne tidsplanen fra bestillinger plassert på arrangementsnivået. Fjerner du bestillinger her vil 
+                        denne tidsplanen ikke være delaktige i den respektive bestillingen, men de vil fortsatt være aktuelle for andre tidsplaner/aktiviteter <br>
+                    </div>
+        
+                    <div class="form-check" style="display:none;">
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Reset eksisterende bestillinger
+                            <strong id="resetTooltip"
+                                data-mdb-toggle="tooltip"
+                                title="Restart de eksisterende bestillingene som har blitt plassert på denne serien, slik at de må behandles på nytt. <br>Nyttig hvis forandringen som blir gjort på serien er av en natur som kan affektere tjenesteplanleggingen.">
+                                (?)
+                            </strong>
+                        </label>
+                    </div>
+        
+                    <div id="serviceOrders">
+                    </div>
+                </div>
+        
+                <div id="step-4">
+                    <div class="alert alert-info small">
+                        <h6><i class="fas fa-info-circle"></i>&nbsp; Opprigg og nedrigg blir opprettet som egne hendelser før og etter aktiviteten.</h6>
+                        Du trenger ikke å definere tider om du ikke ønsker å opprigg eller nedrigg aktiviteter. Du kan velge å bare definere tider for den ene eller andre, eller begge to.
+                        Det vil bare opprettes aktiviteter der hvor tider for rigging er definert. Så om du f.eks taster inn verdier for Fra-Til for opprigg, men lar nedrigg være blankt, så vil opprigg aktivitet opprettes med alle 
+                        hendelser som resulteres av denne tidsplanen men ikke nedrigg aktiviteter.
+                    </div>
+        
+                    <table class="table table-sm">
+                        <thead></thead>
+                        <tbody>
+                            <tr>
+                                <th colspan="3" class="fw-bold">Opprigg:</th>
+                            </tr>
+                            
+                            <tr style="border-bottom: none;">
+                                <td colspan="2" style="border:none;">
+                                    <div>
+                                        <label for="buffer_before_title" class="form-label">
+                                            Tittel
+                                        </label>
+                                        <input type="text" name="" id="buffer_before_title" class="form-control form-control-lg">
+                                    </div>
+        
+                                    <div class="mt-2">
+                                        <label for="buffer_before_date_offset" class="form-label">
+                                            Hvor mange dager før? ( 0 for samme dag )
+                                        </label>
+                                        <input type="number" name="" id="buffer_before_date_offset" class="form-control form-control-lg" min="0">
+                                    </div>
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <td style="padding-top: 0;">
+                                    Fra
+                                    <div>
+                                        <input type="time" id="buffer_before_start" class="form-control form-control-lg" />
+                                    </div>
+                                </td>
+                                <td style="padding-top: 0;">
+                                    Til
+                                    <div>
+                                        <input type="time" id="buffer_before_end" class="form-control form-control-lg" />
+                                    </div>
+                                </td>
+                            </tr>
+        
+                            <tr id="beforeRiggingTimesInvalidFeedback"
+                                style="display:none;">
+                                <td colspan="2">
+                                    <div class="alert alert-danger">
+                                        Ugyldige tider
+                                    </div>
+                                </td>
+                            </tr>
+        
+                            <tr>
+                                <th colspan="3" class="fw-bold">Nedrigg:</th>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div>
+                                        <label for="buffer_after_title" class="form-label">
+                                            Tittel
+                                        </label>
+                                        <input type="text" name="" id="buffer_after_title" class="form-control form-control-lg">
+                                    </div>
+                                    <div class="mt-2">
+                                        <label for="buffer_after_date_offset" class="form-label">
+                                            Hvor mange dager etter? ( 0 for samme dag )
+                                        </label>
+                                        <input type="number" name="" id="buffer_after_date_offset" class="form-control form-control-lg" min="0">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top: 0;">
+                                    <label for="buffer_after_start" class="form-label">
+                                        Fra
+                                    </label>
+                                    <div>
+                                        <input type="time" id="buffer_after_start" class="form-control form-control-lg" />
+                                    </div>
+                                </td>
+                                <td style="padding-top: 0;">
+                                    <label for="buffer_after_end" class="buffer_after_end">
+                                        Til
+                                    </label>
+                                    <div>
+                                        <input type="time" id="buffer_after_end" class="form-control form-control-lg" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="afterRiggingTimesInvalidFeedback"
+                                style="display:none;">
+                                <td colspan="2">
+                                    <div class="alert alert-danger">
+                                        Ugyldige tider
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table> 
+                </div>
+                <div id="step-5">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-12">
+                            <i class="fas fa-tv"></i>&nbsp; Vises på
+                            {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
+                                <li> 
+                                    <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
+                                    <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label>
+                                </li>
+                            {% endfor %}
+                        </div>
+        
+                        <div class="col-lg-8 col-sm-12 mt-sm-2">
+                            <div class="form-group" id="display-layout-text-group" style="display: none;">
+                                <div>
+                                    {{ form.display_text|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="form-group mt-2">
+                        {{ form.meeting_place | as_crispy_field }}
+                    </div>
+        
+                    <div class="form-group mt-2 mb-2">
+                        {{ form.meeting_place_en | as_crispy_field }}
                     </div>
                 </div>
             </div>
-
-            <div class="form-group mt-2">
-                {{ form.meeting_place | as_crispy_field }}
-            </div>
-
-            <div class="form-group mt-2 mb-2">
-                {{ form.meeting_place_en | as_crispy_field }}
+        </div>
+        <div class="col-3">
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr v-for="prop in Object.entries(serie)">
+                            <th>[[prop]]</th>
+                            <td>[[ serie[prop] ]]</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -485,7 +519,23 @@
             components: { TreeSelectComponent },
             data() {
                 return {
-                    dialog: null
+                    dialog: null,
+                    serie: {
+                        title: null,
+                        title_en: null,
+                        start_time: null,
+                        end_time: null,
+                        ticket_code: null,
+                        expected_visitors: null,
+                        audience: null,
+                        audience_name: null,
+                        arrangement_type: null,
+                        arrangement_type_name: null,
+                        status: null,
+                        status_name: null,
+                        pattern: null,
+                        display_layouts: null,
+                    }
                 }
             },
             computed: {},
@@ -880,7 +930,6 @@
                             };
             
                             let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
-                            console.log(">> statusValue", statusValue)
                             if (statusValue !== undefined)
                                 time.status = statusValue;
             
