@@ -1268,6 +1268,19 @@
                         stepper: null,
                     },
                     when: [
+                        { eventKnownAs: "populateDialog", do: (dialog, payload) => {
+                            dialog.vueApp.serie.title = payload.title;
+                            dialog.vueApp.serie.title_en = payload.title_english;
+                            dialog.vueApp.serie.ticket_code = payload.ticket_code;
+                            dialog.vueApp.serie.expected_visitors = payload.expected_visitors;
+                            dialog.vueApp.serie.audience = payload.audience;
+                            dialog.vueApp.serie.arrangement_type = payload.arrangement_type;
+                            dialog.vueApp.serie.status = payload.status;
+                            dialog.vueApp.serie.meeting_place = payload.meeting_place;
+                            dialog.vueApp.serie.meeting_place_en = payload.meeting_place_en;
+                            dialog.vueApp.serie.display_layouts = payload.display_layouts;
+                            dialog.vueApp.serie.display_text = payload.display_text;
+                        } },
                         { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
                             // this stuff needs to be rewritten along with the other similar methods
                             // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
@@ -1296,9 +1309,10 @@
             
                             const person = payload.viewables[0];
                             dialog.data.mainPlannerPayload = payload;
+                            dialog.vueApp.serie.mainPlanner = { id: person.id, text: person.text };
                             
-                            //dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
-                            //dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
+                            dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
+                            dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
                         } },
                         { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
                             if (dialog.data.audienceJsTreeSelect)

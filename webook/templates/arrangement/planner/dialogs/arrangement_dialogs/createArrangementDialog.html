@@ -667,6 +667,19 @@
                     });
                 },
                 /**
+                * @summary Open dialog for planning a new timeplan / serie in the arrangement
+                */
+                openPlanSerieDialog() {
+                    this.openDialog("newTimePlanDialog", {
+                        data: {
+                            servicePresets: this.dialog.data.servicePresets,
+                            mainPlannerPayload: this.dialog.data.mainPlannerPayload,
+                            roomPayload: this.dialog.data.roomPayload,
+                            ...this.dialog.vueApp.arrangement
+                        }
+                    });
+                },
+                /**
                 * @summary Open dialog for adding new rooms to the arrangement
                 */
                 openAddRoomsDialog(dialog, {} = {}, triggeredByElement) {
@@ -690,19 +703,9 @@
                 openAddServiceOrderDialog(dialog, {} = {}, triggeredByElement) {
                     this.openDialog("orderServiceDialog", { multiple: false, data: { whenEventName: "newServiceOrder" }, entity_type: "unknown", entity_id: "0" });
                 },
-                /**
-                * @summary Open dialog for planning a new timeplan / serie in the arrangement
-                */
-                openPlanSerieDialog() {
-                    this.openDialog("newTimePlanDialog", {
-                        preorderedServices: Array.from(this.dialog.data.servicePresets.values()),
-                        preselectedMainPlanner: this.dialog.data.mainPlannerPayload,
-                        preselectedRooms: this.dialog.data.roomPayload,
-                    });
-                },
 
                 setMainPlanner(planner) {
-                    this.arrangement.mainPlannmouer = { id: planner.id, text: planner.full_name };
+                    this.arrangement.mainPlanner = { id: planner.id, text: planner.full_name };
 
                     this.dialog.data.mainPlannerPayload = {
                         allPresets: new Map(),
