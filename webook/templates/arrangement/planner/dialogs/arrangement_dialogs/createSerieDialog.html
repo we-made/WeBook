@@ -9,568 +9,552 @@
     <input type="hidden" id="_statusTypeId">
 
 
-    <div class="row">
-        <div class="col-9">
-            <div class="clearfix">
-                <div class="float-start">
-                    <h6 id="title">
-                        {{object}}
-                        {% if object.pk %}
-                            Rediger {{object.title}}
-                        {% else %}
-                            Definer tidsplan
-                        {% endif %}
-                    </h6>
-                    <h5 class="fw-bold">
-                        <i class="fas fa-calendar-plus"></i>&nbsp; Tidsplan
-                    </h5>
-                </div>
-                <div id="stepper" class="float-end stepper-rail"></div>
-            </div>
-        
-            <hr>
-        
-            <div>
-                <div id="step-1">
-                    <input type="hidden" name="uuid" id="serie_uuid">
-                    <form id="headMockForm">
-                        <input type="submit" style="display:none;" />
-                        <div class="mb-2">
-                            <div class="form-group">
-                                <label class="form-label" for="serie_title">
-                                    Tittel på norsk
-                                    <span class="fw-bold">&nbsp;*</span>
-                                </label>
-                                <input type="text" v-model="serie.title" id="serie_title" class="form-control form-control-lg" 
-                                    required/>
-                            </div>    
-                            <div class="form-group">
-                                <label class="form-label" for="serie_title_en">Tittel på engelsk</label>
-                                <input type="text" v-model="serie.title_en" id="serie_title_en" class="form-control form-control-lg" />
-                            </div>
-                        </div>
-            
-                        <div class="row mb-2">
-                            <div class="col-6">
-                                <label class="form-label" for="serie_start">
-                                    Start
-                                    <span class="fw-bold">&nbsp;*</span>
-                                </label>
-                                <input 
-                                    type="time" 
-                                    class="form-control form-control-lg" 
-                                    v-model="serie.start_time"
-                                    id="serie_start" required />
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label" for="serie_end">
-                                    Slutt
-                                    <span class="fw-bold">&nbsp;*</span>
-                                </label>
-                                <input 
-                                    type="time" 
-                                    class="form-control form-control-lg" 
-                                    v-model="serie.end_time"
-                                    id="serie_end" required />
-                            </div>
-                        </div>
-        
-                        <div class="alert alert-danger mt-3" id="invalidTimesStep1Feedback"
-                            style="display: none;">
-                            Ugyldige tider
-                        </div>
-        
-                        <div class="form-group mb-2">
-                            <label class="form-label" for="serie_ticket_code">Billettkode</label>
-                            <input 
-                                type="text" 
-                                id="serie_ticket_code" 
-                                v-model="serie.ticket_code"
-                                class="form-control form-control-lg" />
-                        </div>        
-                        <div class="form-group mb-2">
-                            <label class="form-label" for="serie_expected_visitors">Forventet besøkende</label>
-                            <input 
-                                type="text" 
-                                id="serie_expected_visitors" 
-                                class="form-control form-control-lg" 
-                                v-model="serie.expected_visitors"
-                                min="0" required/>
-                        </div>
-        
-                        <tree-select-component
-                            class="mb-2"
-                            label="Målgruppe *"
-                            json-url="/arrangement/audience/tree"
-                            icon="fas fa-users"
-                            button-label="Velg målgruppe"
-                            :selected="serie.audience"
-                            @input="(id, name) => { serie.audience = id; serie.audienceName = name; }">
-                        </tree-select-component>
-        
-                        <tree-select-component
-                            class="mb-2"
-                            label="Arrangementstype *"
-                            json-url="/arrangement/arrangementtype/treelist"
-                            icon="fas fa-cog"
-                            button-label="Velg arrangementstype"
-                            :selected="serie.arrangement_type"
-                            @input="(id, name) => { serie.arrangement_type = id; serie.arrangementTypeName = name; }">
-                        </tree-select-component>
-        
-                        <tree-select-component
-                            class="mb-2"
-                            label="Status"
-                            json-url="/arrangement/statustype/tree"
-                            icon="fas fa-cog"
-                            button-label="Velg status"
-                            :selected="serie.status"
-                            @input="(id, name) => { serie.status = id; serie.statusName = name; }">
-                        </tree-select-component>
-                    </form>
-                </div>
-        
-                <div id="step-2">
-                    <fieldset>
-                        <h5>
-                            Mønster
+    <div class="clearfix">
+        <div class="float-start">
+            <h6 id="title">
+                {{object}}
+                {% if object.pk %}
+                    Rediger {{object.title}}
+                {% else %}
+                    Definer tidsplan
+                {% endif %}
+            </h6>
+            <h5 class="fw-bold">
+                <i class="fas fa-calendar-plus"></i>&nbsp; Tidsplan
+            </h5>
+        </div>
+        <div id="stepper" class="float-end stepper-rail"></div>
+    </div>
+
+    <hr>
+
+    <div>
+        <div id="step-1">
+            <input type="hidden" name="uuid" id="serie_uuid">
+            <form id="headMockForm">
+                <input type="submit" style="display:none;" />
+                <div class="mb-2">
+                    <div class="form-group">
+                        <label class="form-label" for="serie_title">
+                            Tittel på norsk
                             <span class="fw-bold">&nbsp;*</span>
-                        </h5>
-                        <div class="row">
-                            <div class="col-3 border-end border-1">
-                                <form id="patternMockForm">
-                                    <input type="submit" style="display:none;" />
-                                    <div>
-                                        <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daglig</label>
-                                    </div>
-                                    <div>
-                                        <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Ukentlig</label>
-                                    </div>
-                                    <div>
-                                        <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Månedlig</label>
-                                    </div>
-                                    <div>
-                                        <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Årlig</label>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="col-9">
-                                <div id="patternRoute_daily">
-                                    <div>
-                                        <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
-                                        <label>Hver <input type="number" min="1"  id="every_x_day__interval" required /> dag</label>
-                                    </div>
-                                    
-                                    <div>
-                                        <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
-                                        <label>Hver ukedag</label>
-                                    </div>
-                                </div>
-            
-                                <div id="patternRoute_weekly" style="display: none;">
-                                    <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> uke på:</label></div>
-                                    <span id="day_checkbox_wrapper">
-                                        <input type="checkbox" id="monday"> <label>Mandag</label>
-                                        <input type="checkbox" id="tuesday"> <label>Tirsdag</label>
-                                        <input type="checkbox" id="wednesday"> <label>Onsdag</label>
-                                        <input type="checkbox" id="thursday"> <label>Torsdag</label>
-                                        <input type="checkbox" id="friday"> <label>Fredag</label>
-                                        <input type="checkbox" id="saturday"> <label>Lørdag</label>
-                                        <input type="checkbox" id="sunday"> <label>Søndag</label>
-                                    </span>
-                                </div>
-            
-                                <div id="patternRoute_monthly" style="display: none;">
-                                    <div>
-                                        <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
-                                        Dag <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> hver <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> måned
-                                    </div>
-                                    <div>
-                                        <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> Den
-                                        <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
-                                        </select>
-                                        <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
-                                        </select>
-                                        hver <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> måned
-                                    </div>
-                                </div>
-            
-                                <div id="patternRoute_yearly" style="display: none;">
-                                    <div>
-                                        Skjer hvert <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> år
-                                    </div>
-                                    <div>
-                                        <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
-                                        <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
-                                        <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
-                                        </select>
-                                    </div>
-            
-                                    <div>
-                                        <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Hver:
-                                        <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
-                                        </select>
-                                        <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
-                                        </select>
-                                        i
-                                        <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </fieldset>
-                    <fieldset class="mt-2">
-                        <h5>
-                            Område
-                            <span class="fw-bold">&nbsp;*</span>
-                        </h5>
-                        <div class="row">
-                            <div class="col-3">
-                                <label>Startdato</label>
-                                <input type="date" id="area_start_date" required>
-                            </div>
-                            <div class="col-9" id="area_methods_wrapper">
-                                <div>
-                                    <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
-                                    Stopp innen: <input type="date" id="area_stopWithin" required>
-                                </div>
-            
-                                <div>
-                                    <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
-                                    <fieldset>
-                                        Stopp etter: <input type="number" min="1" id="area_stopAfterXInstances" required /> instanser
-                                    </fieldset>
-                                </div>
-            
-                                <div>
-                                    <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
-                                    Ingen sluttdato
-                                    | Projiser <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> måneder inn i fremtiden
-                                </div>
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-        
-                <div id="step-3">
-                    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
-                        <input type="hidden" 
-                            name="{{ form.responsible.name }}" 
-                            id="{{ form.responsible.id_for_label }}">
-    
-                        <label for="" class="d-block form-label">
-                            <i class="fas fa-star"></i>
-                            Hovedplanlegger
                         </label>
-    
-                        <div class="text-danger" style="display: none;"
-                            id="mainPlanner_validationText">
-                            Vennligst velg en hovedplanlegger
-                        </div>
-                        
-                        <div>
-                            [[ serie.mainPlanner.text ]]
-                        </div>
-    
-                        <button class="wb-btn-main"
-                            id="setMainPlannerButton"
-                            type="button">
-                            Velg hovedplanlegger
-                        </button>
-    
-                        <div id="select-main-planner-popover" class="popover_wrapper dialog-popover-left-fix" style="display: none;">
-                            <div class="popover_content" style="width: 50em!important;">
-                                <h5>Velg hovedplanlegger</h5>
-                                
-                                <input type="search" name="" id="" class="form-control form-control-lg"
-                                    v-model="mainPlannerSearchTerm"
-                                    placeholder="Søk etter planlegger... (minst 3 tegn)">       
-    
-                                <div class="mt-3">
-                                    <div v-if="mainPlannerSearchResults.length">
-                                        <div v-if="mainPlannerSearchTerm.length == 0"
-                                            class="alert alert-info">
-                                            <div class="d-flex align-items-center">
-                                                <h2 class="mb-0"><i class="fas fa-info"></i></h2>
-                                                
-                                                <div class="ms-3">
-                                                    Uten søkeord vises alle personer med gruppe planlegger
-                                                    <br>
-                                                    Du kan fortsatt søke etter og velge personer uten gruppe planlegger ved å skrive inn minst 3 tegn i søkefeltet.
-                                                </div>
-                                            </div>
-                                        </div>
-    
-                                        <table class="table table-highlight table-bordered table-sm" v-if="mainPlannerSearchResults.length">
-                                            <tbody>
-                                                <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
-                                                    <td>
-                                                        <a>
-                                                            [[ result.full_name ]]
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        
-                                        <div class="clearfix">
-                                            <small class="text-muted float-end fw-bold">
-                                                <i class="fas fa-info"></i>&nbsp;
-                                                Trykk på navnet til personen du ønsker å velge som hovedplanlegger for arrangementet
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div 
-                                        class="alert alert-info"
-                                        v-else>
-                                        Ingen resultater
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <input type="text" v-model="serie.title" id="serie_title" class="form-control form-control-lg" 
+                            required/>
+                    </div>    
+                    <div class="form-group">
+                        <label class="form-label" for="serie_title_en">Tittel på engelsk</label>
+                        <input type="text" v-model="serie.title_en" id="serie_title_en" class="form-control form-control-lg" />
                     </div>
-        
-                    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
-                        <label for="" class="form-label">
-                            <i class="fas fa-building"></i>&nbsp;
-                            Rom
+                </div>
+    
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <label class="form-label" for="serie_start">
+                            Start
+                            <span class="fw-bold">&nbsp;*</span>
                         </label>
-                        <div>
-                            <button class="wb-btn-main"
-                                type="button"
-                                d-trigger="triggerAddRooms">
-                                Velg rom
-                            </button>
+                        <input 
+                            type="time" 
+                            class="form-control form-control-lg" 
+                            v-model="serie.start_time"
+                            id="serie_start" required />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="serie_end">
+                            Slutt
+                            <span class="fw-bold">&nbsp;*</span>
+                        </label>
+                        <input 
+                            type="time" 
+                            class="form-control form-control-lg" 
+                            v-model="serie.end_time"
+                            id="serie_end" required />
+                    </div>
+                </div>
+
+                <div class="alert alert-danger mt-3" id="invalidTimesStep1Feedback"
+                    style="display: none;">
+                    Ugyldige tider
+                </div>
+
+                <div class="form-group mb-2">
+                    <label class="form-label" for="serie_ticket_code">Billettkode</label>
+                    <input 
+                        type="text" 
+                        id="serie_ticket_code" 
+                        v-model="serie.ticket_code"
+                        class="form-control form-control-lg" />
+                </div>        
+                <div class="form-group mb-2">
+                    <label class="form-label" for="serie_expected_visitors">Forventet besøkende</label>
+                    <input 
+                        type="text" 
+                        id="serie_expected_visitors" 
+                        class="form-control form-control-lg" 
+                        v-model="serie.expected_visitors"
+                        min="0" required/>
+                </div>
+
+                <tree-select-component
+                    class="mb-2"
+                    label="Målgruppe *"
+                    json-url="/arrangement/audience/tree"
+                    icon="fas fa-users"
+                    button-label="Velg målgruppe"
+                    :selected="serie.audience"
+                    @input="(id, name) => { serie.audience = id; serie.audienceName = name; }">
+                </tree-select-component>
+
+                <tree-select-component
+                    class="mb-2"
+                    label="Arrangementstype *"
+                    json-url="/arrangement/arrangementtype/treelist"
+                    icon="fas fa-cog"
+                    button-label="Velg arrangementstype"
+                    :selected="serie.arrangement_type"
+                    @input="(id, name) => { serie.arrangement_type = id; serie.arrangementTypeName = name; }">
+                </tree-select-component>
+
+                <tree-select-component
+                    class="mb-2"
+                    label="Status"
+                    json-url="/arrangement/statustype/tree"
+                    icon="fas fa-cog"
+                    button-label="Velg status"
+                    :selected="serie.status"
+                    @input="(id, name) => { serie.status = id; serie.statusName = name; }">
+                </tree-select-component>
+            </form>
+        </div>
+
+        <div id="step-2">
+            <fieldset>
+                <h5>
+                    Mønster
+                    <span class="fw-bold">&nbsp;*</span>
+                </h5>
+                <div class="row">
+                    <div class="col-3 border-end border-1">
+                        <form id="patternMockForm">
+                            <input type="submit" style="display:none;" />
+                            <div>
+                                <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daglig</label>
+                            </div>
+                            <div>
+                                <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Ukentlig</label>
+                            </div>
+                            <div>
+                                <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Månedlig</label>
+                            </div>
+                            <div>
+                                <input v-model="pattern" type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Årlig</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-9">
+                        <div id="patternRoute_daily">
+                            <div>
+                                <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
+                                <label>Hver <input type="number" min="1"  id="every_x_day__interval" required /> dag</label>
+                            </div>
+                            
+                            <div>
+                                <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
+                                <label>Hver ukedag</label>
+                            </div>
                         </div>
-                        <div id="roomChips" class="chipsList">
-                            <span v-for="room in serie.rooms">
-                                <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
-                                    [[room.text]]
-                                    
-                                    <a href="#">
-                                        <i class="fa fa-times text-danger"
-                                            :id="room.id"
-                                            select-type="room"
-                                            @click="rooms.splice(rooms.indexOf(room), 1)"
-                                            d-trigger="removeAssociation">
-        
-                                        </i>
-                                    </a>
-                                </div>
+    
+                        <div id="patternRoute_weekly" style="display: none;">
+                            <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> uke på:</label></div>
+                            <span id="day_checkbox_wrapper">
+                                <input type="checkbox" id="monday"> <label>Mandag</label>
+                                <input type="checkbox" id="tuesday"> <label>Tirsdag</label>
+                                <input type="checkbox" id="wednesday"> <label>Onsdag</label>
+                                <input type="checkbox" id="thursday"> <label>Torsdag</label>
+                                <input type="checkbox" id="friday"> <label>Fredag</label>
+                                <input type="checkbox" id="saturday"> <label>Lørdag</label>
+                                <input type="checkbox" id="sunday"> <label>Søndag</label>
                             </span>
                         </div>
-                    </div>
-                </div>
-        
-                <div id="step-services">
-                    <div class="clearfix">
-                        <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
-                            style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                            d-trigger="triggerNewServiceOrder">
-                            <i class="fas fa-calendar-plus"></i>&nbsp;
-                            Bestill tjenester
-                        </a>
-                    </div>
-        
-                    <div class="alert alert-info mt-2">
-                        Her kan du bestille tjenester for denne tidsplanen. <br>
-                        Du kan også fjerne tidsplanen fra bestillinger plassert på arrangementsnivået. Fjerner du bestillinger her vil 
-                        denne tidsplanen ikke være delaktige i den respektive bestillingen, men de vil fortsatt være aktuelle for andre tidsplaner/aktiviteter <br>
-                    </div>
-        
-                    <div class="form-check" style="display:none;">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-                        <label class="form-check-label" for="flexCheckDefault">
-                            Reset eksisterende bestillinger
-                            <strong id="resetTooltip"
-                                data-mdb-toggle="tooltip"
-                                title="Restart de eksisterende bestillingene som har blitt plassert på denne serien, slik at de må behandles på nytt. <br>Nyttig hvis forandringen som blir gjort på serien er av en natur som kan affektere tjenesteplanleggingen.">
-                                (?)
-                            </strong>
-                        </label>
-                    </div>
-        
-                    <div id="serviceOrders">
-                        <div
-                        class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
-                        v-for="order in serie.serviceOrders">
-                        
-                        <h5>
-                            [[order.service_name]]
-                            <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' 
-                                :id="order.key" 
-                                @click="serviceOrders.splice(serviceOrders.indexOf(order), 1)"
-                                select-type='serviceOrder' 
-                                d-trigger="removeAssociation">
-                                
-                                <i class='fas fa-times'></i>
-                            </button>
-                        </h5>
-                        <code>
-                            [[order.freetext_comment]]
-                        </code>
-                    </div>
-                    </div>
-                </div>
-        
-                <div id="step-4">
-                    <div class="alert alert-info small">
-                        <h6><i class="fas fa-info-circle"></i>&nbsp; Opprigg og nedrigg blir opprettet som egne hendelser før og etter aktiviteten.</h6>
-                        Du trenger ikke å definere tider om du ikke ønsker å opprigg eller nedrigg aktiviteter. Du kan velge å bare definere tider for den ene eller andre, eller begge to.
-                        Det vil bare opprettes aktiviteter der hvor tider for rigging er definert. Så om du f.eks taster inn verdier for Fra-Til for opprigg, men lar nedrigg være blankt, så vil opprigg aktivitet opprettes med alle 
-                        hendelser som resulteres av denne tidsplanen men ikke nedrigg aktiviteter.
-                    </div>
-        
-                    <table class="table table-sm">
-                        <thead></thead>
-                        <tbody>
-                            <tr>
-                                <th colspan="3" class="fw-bold">Opprigg:</th>
-                            </tr>
-                            
-                            <tr style="border-bottom: none;">
-                                <td colspan="2" style="border:none;">
-                                    <div>
-                                        <label for="buffer_before_title" class="form-label">
-                                            Tittel
-                                        </label>
-                                        <input type="text" name="" id="buffer_before_title" class="form-control form-control-lg">
-                                    </div>
-        
-                                    <div class="mt-2">
-                                        <label for="buffer_before_date_offset" class="form-label">
-                                            Hvor mange dager før? ( 0 for samme dag )
-                                        </label>
-                                        <input type="number" name="" id="buffer_before_date_offset" class="form-control form-control-lg" min="0">
-                                    </div>
-                                </td>
-                            </tr>
-        
-                            <tr>
-                                <td style="padding-top: 0;">
-                                    Fra
-                                    <div>
-                                        <input type="time" id="buffer_before_start" class="form-control form-control-lg" />
-                                    </div>
-                                </td>
-                                <td style="padding-top: 0;">
-                                    Til
-                                    <div>
-                                        <input type="time" id="buffer_before_end" class="form-control form-control-lg" />
-                                    </div>
-                                </td>
-                            </tr>
-        
-                            <tr id="beforeRiggingTimesInvalidFeedback"
-                                style="display:none;">
-                                <td colspan="2">
-                                    <div class="alert alert-danger">
-                                        Ugyldige tider
-                                    </div>
-                                </td>
-                            </tr>
-        
-                            <tr>
-                                <th colspan="3" class="fw-bold">Nedrigg:</th>
-                            </tr>
-                            <tr>
-                                <td colspan="2">
-                                    <div>
-                                        <label for="buffer_after_title" class="form-label">
-                                            Tittel
-                                        </label>
-                                        <input type="text" name="" id="buffer_after_title" class="form-control form-control-lg">
-                                    </div>
-                                    <div class="mt-2">
-                                        <label for="buffer_after_date_offset" class="form-label">
-                                            Hvor mange dager etter? ( 0 for samme dag )
-                                        </label>
-                                        <input type="number" name="" id="buffer_after_date_offset" class="form-control form-control-lg" min="0">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding-top: 0;">
-                                    <label for="buffer_after_start" class="form-label">
-                                        Fra
-                                    </label>
-                                    <div>
-                                        <input type="time" id="buffer_after_start" class="form-control form-control-lg" />
-                                    </div>
-                                </td>
-                                <td style="padding-top: 0;">
-                                    <label for="buffer_after_end" class="buffer_after_end">
-                                        Til
-                                    </label>
-                                    <div>
-                                        <input type="time" id="buffer_after_end" class="form-control form-control-lg" />
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr id="afterRiggingTimesInvalidFeedback"
-                                style="display:none;">
-                                <td colspan="2">
-                                    <div class="alert alert-danger">
-                                        Ugyldige tider
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table> 
-                </div>
-                <div id="step-5">
-                    <div class="row">
-                        {% if form.display_layouts_serie_planner.field.choices %}
-                        <div class="form-group mt-2">
-                            <label class="d-block form-label"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Vises på:" %}</label>
-                            <ul>
-                                {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
-                                    <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck"
-                                        v-model="serie.display_layouts" />
-                                    <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
-                                {% endfor %}
-                            </ul>
+    
+                        <div id="patternRoute_monthly" style="display: none;">
+                            <div>
+                                <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
+                                Dag <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> hver <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> måned
+                            </div>
+                            <div>
+                                <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> Den
+                                <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
+                                </select>
+                                <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
+                                </select>
+                                hver <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> måned
+                            </div>
                         </div>
-                        {% endif %}
-        
-                        <div class="col-lg-8 col-sm-12 mt-sm-2">
-                            <div class="form-group" id="display-layout-text-group">
-                                <div v-show="showDisplayText">
-                                    <input type="text" name="{{form.display_text.name}}"
-                                        class="form-control form-control-lg"
-                                        id="{{form.display_text.id_for_label}}"
-                                        v-model="serie.display_text"
-                                        placeholder="Skjermtekst...">
-                                </div>
+    
+                        <div id="patternRoute_yearly" style="display: none;">
+                            <div>
+                                Skjer hvert <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> år
+                            </div>
+                            <div>
+                                <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
+                                <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
+                                <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
+                                </select>
+                            </div>
+    
+                            <div>
+                                <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Hver:
+                                <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
+                                </select>
+                                <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
+                                </select>
+                                i
+                                <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
+                                </select>
                             </div>
                         </div>
                     </div>
-        
-                    <div class="form-group mt-2">
-                        <label for="{{ form.meeting_place.id_for_label }}">{{ form.meeting_place.label }}</label>
-                        <input type="text" v-model="serie.meeting_place" name="{{ form.meeting_place.name }}" id="{{ form.meeting_place.id_for_label }}"
-                            class="form-control">
+                </div>
+            </fieldset>
+            <fieldset class="mt-2">
+                <h5>
+                    Område
+                    <span class="fw-bold">&nbsp;*</span>
+                </h5>
+                <div class="row">
+                    <div class="col-3">
+                        <label>Startdato</label>
+                        <input type="date" id="area_start_date" required>
                     </div>
-        
-                    <div class="form-group mt-2 mb-2">
-                        <label for="{{ form.meeting_place_en.id_for_label }}">{{ form.meeting_place_en.label }}</label>
-                        <input type="text" v-model="serie.meeting_place_en" name="{{ form.meeting_place.name }}" id="{{ form.meeting_place.id_for_label }}"
-                            class="form-control">
+                    <div class="col-9" id="area_methods_wrapper">
+                        <div>
+                            <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
+                            Stopp innen: <input type="date" id="area_stopWithin" required>
+                        </div>
+    
+                        <div>
+                            <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
+                            <fieldset>
+                                Stopp etter: <input type="number" min="1" id="area_stopAfterXInstances" required /> instanser
+                            </fieldset>
+                        </div>
+    
+                        <div>
+                            <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
+                            Ingen sluttdato
+                            | Projiser <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> måneder inn i fremtiden
+                        </div>
                     </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div id="step-3">
+            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+                <input type="hidden" 
+                    name="{{ form.responsible.name }}" 
+                    id="{{ form.responsible.id_for_label }}">
+
+                <label for="" class="d-block form-label">
+                    <i class="fas fa-star"></i>
+                    Hovedplanlegger
+                </label>
+
+                <div class="text-danger" style="display: none;"
+                    id="mainPlanner_validationText">
+                    Vennligst velg en hovedplanlegger
+                </div>
+                
+                <div>
+                    [[ serie.mainPlanner.text ]]
+                </div>
+
+                <button class="wb-btn-main"
+                    id="setMainPlannerButton"
+                    type="button">
+                    Velg hovedplanlegger
+                </button>
+
+                <div id="select-main-planner-popover" class="popover_wrapper dialog-popover-left-fix" style="display: none;">
+                    <div class="popover_content" style="width: 50em!important;">
+                        <h5>Velg hovedplanlegger</h5>
+                        
+                        <input type="search" name="" id="" class="form-control form-control-lg"
+                            v-model="mainPlannerSearchTerm"
+                            placeholder="Søk etter planlegger... (minst 3 tegn)">       
+
+                        <div class="mt-3">
+                            <div v-if="mainPlannerSearchResults.length">
+                                <div v-if="mainPlannerSearchTerm.length == 0"
+                                    class="alert alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <h2 class="mb-0"><i class="fas fa-info"></i></h2>
+                                        
+                                        <div class="ms-3">
+                                            Uten søkeord vises alle personer med gruppe planlegger
+                                            <br>
+                                            Du kan fortsatt søke etter og velge personer uten gruppe planlegger ved å skrive inn minst 3 tegn i søkefeltet.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <table class="table table-highlight table-bordered table-sm" v-if="mainPlannerSearchResults.length">
+                                    <tbody>
+                                        <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
+                                            <td>
+                                                <a>
+                                                    [[ result.full_name ]]
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                                <div class="clearfix">
+                                    <small class="text-muted float-end fw-bold">
+                                        <i class="fas fa-info"></i>&nbsp;
+                                        Trykk på navnet til personen du ønsker å velge som hovedplanlegger for arrangementet
+                                    </small>
+                                </div>
+                            </div>
+                            <div 
+                                class="alert alert-info"
+                                v-else>
+                                Ingen resultater
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
+                <label for="" class="form-label">
+                    <i class="fas fa-building"></i>&nbsp;
+                    Rom
+                </label>
+                <div>
+                    <button class="wb-btn-main"
+                        type="button"
+                        d-trigger="triggerAddRooms">
+                        Velg rom
+                    </button>
+                </div>
+                <div id="roomChips" class="chipsList">
+                    <span v-for="room in serie.rooms">
+                        <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
+                            [[room.text]]
+                            
+                            <a href="#">
+                                <i class="fa fa-times text-danger"
+                                    :id="room.id"
+                                    select-type="room"
+                                    @click="rooms.splice(rooms.indexOf(room), 1)"
+                                    d-trigger="removeAssociation">
+
+                                </i>
+                            </a>
+                        </div>
+                    </span>
                 </div>
             </div>
         </div>
-        <div class="col-3">
-            <div class="table-responsive">
-                <table class="table">
-                    <tbody>
-                        <tr v-for="prop in Object.entries(serie)">
-                            <th>[[prop]]</th>
-                            <td>[[ serie[prop] ]]</td>
-                        </tr>
-                    </tbody>
-                </table>
+
+        <div id="step-services">
+            <div class="clearfix">
+                <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
+                    style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                    d-trigger="triggerNewServiceOrder">
+                    <i class="fas fa-calendar-plus"></i>&nbsp;
+                    Bestill tjenester
+                </a>
+            </div>
+
+            <div class="alert alert-info mt-2">
+                Her kan du bestille tjenester for denne tidsplanen. <br>
+                Du kan også fjerne tidsplanen fra bestillinger plassert på arrangementsnivået. Fjerner du bestillinger her vil 
+                denne tidsplanen ikke være delaktige i den respektive bestillingen, men de vil fortsatt være aktuelle for andre tidsplaner/aktiviteter <br>
+            </div>
+
+            <div class="form-check" style="display:none;">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                <label class="form-check-label" for="flexCheckDefault">
+                    Reset eksisterende bestillinger
+                    <strong id="resetTooltip"
+                        data-mdb-toggle="tooltip"
+                        title="Restart de eksisterende bestillingene som har blitt plassert på denne serien, slik at de må behandles på nytt. <br>Nyttig hvis forandringen som blir gjort på serien er av en natur som kan affektere tjenesteplanleggingen.">
+                        (?)
+                    </strong>
+                </label>
+            </div>
+
+            <div id="serviceOrders">
+                <div
+                class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
+                v-for="order in serie.serviceOrders">
+                
+                <h5>
+                    [[order.service_name]]
+                    <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' 
+                        :id="order.key" 
+                        @click="serviceOrders.splice(serviceOrders.indexOf(order), 1)"
+                        select-type='serviceOrder' 
+                        d-trigger="removeAssociation">
+                        
+                        <i class='fas fa-times'></i>
+                    </button>
+                </h5>
+                <code>
+                    [[order.freetext_comment]]
+                </code>
+            </div>
+            </div>
+        </div>
+
+        <div id="step-4">
+            <div class="alert alert-info small">
+                <h6><i class="fas fa-info-circle"></i>&nbsp; Opprigg og nedrigg blir opprettet som egne hendelser før og etter aktiviteten.</h6>
+                Du trenger ikke å definere tider om du ikke ønsker å opprigg eller nedrigg aktiviteter. Du kan velge å bare definere tider for den ene eller andre, eller begge to.
+                Det vil bare opprettes aktiviteter der hvor tider for rigging er definert. Så om du f.eks taster inn verdier for Fra-Til for opprigg, men lar nedrigg være blankt, så vil opprigg aktivitet opprettes med alle 
+                hendelser som resulteres av denne tidsplanen men ikke nedrigg aktiviteter.
+            </div>
+
+            <table class="table table-sm">
+                <thead></thead>
+                <tbody>
+                    <tr>
+                        <th colspan="3" class="fw-bold">Opprigg:</th>
+                    </tr>
+                    
+                    <tr style="border-bottom: none;">
+                        <td colspan="2" style="border:none;">
+                            <div>
+                                <label for="buffer_before_title" class="form-label">
+                                    Tittel
+                                </label>
+                                <input type="text" name="" id="buffer_before_title" class="form-control form-control-lg">
+                            </div>
+
+                            <div class="mt-2">
+                                <label for="buffer_before_date_offset" class="form-label">
+                                    Hvor mange dager før? ( 0 for samme dag )
+                                </label>
+                                <input type="number" name="" id="buffer_before_date_offset" class="form-control form-control-lg" min="0">
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding-top: 0;">
+                            Fra
+                            <div>
+                                <input type="time" id="buffer_before_start" class="form-control form-control-lg" />
+                            </div>
+                        </td>
+                        <td style="padding-top: 0;">
+                            Til
+                            <div>
+                                <input type="time" id="buffer_before_end" class="form-control form-control-lg" />
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr id="beforeRiggingTimesInvalidFeedback"
+                        style="display:none;">
+                        <td colspan="2">
+                            <div class="alert alert-danger">
+                                Ugyldige tider
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="3" class="fw-bold">Nedrigg:</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div>
+                                <label for="buffer_after_title" class="form-label">
+                                    Tittel
+                                </label>
+                                <input type="text" name="" id="buffer_after_title" class="form-control form-control-lg">
+                            </div>
+                            <div class="mt-2">
+                                <label for="buffer_after_date_offset" class="form-label">
+                                    Hvor mange dager etter? ( 0 for samme dag )
+                                </label>
+                                <input type="number" name="" id="buffer_after_date_offset" class="form-control form-control-lg" min="0">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 0;">
+                            <label for="buffer_after_start" class="form-label">
+                                Fra
+                            </label>
+                            <div>
+                                <input type="time" id="buffer_after_start" class="form-control form-control-lg" />
+                            </div>
+                        </td>
+                        <td style="padding-top: 0;">
+                            <label for="buffer_after_end" class="buffer_after_end">
+                                Til
+                            </label>
+                            <div>
+                                <input type="time" id="buffer_after_end" class="form-control form-control-lg" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="afterRiggingTimesInvalidFeedback"
+                        style="display:none;">
+                        <td colspan="2">
+                            <div class="alert alert-danger">
+                                Ugyldige tider
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table> 
+        </div>
+        <div id="step-5">
+            <div class="row">
+                {% if form.display_layouts_serie_planner.field.choices %}
+                <div class="form-group mt-2">
+                    <label class="d-block form-label"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Vises på:" %}</label>
+                    <ul>
+                        {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
+                            <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck"
+                                v-model="serie.display_layouts" />
+                            <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="col-lg-8 col-sm-12 mt-sm-2">
+                    <div class="form-group" id="display-layout-text-group">
+                        <div v-show="showDisplayText">
+                            <input type="text" name="{{form.display_text.name}}"
+                                class="form-control form-control-lg"
+                                id="{{form.display_text.id_for_label}}"
+                                v-model="serie.display_text"
+                                placeholder="Skjermtekst...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="{{ form.meeting_place.id_for_label }}">{{ form.meeting_place.label }}</label>
+                <input type="text" v-model="serie.meeting_place" name="{{ form.meeting_place.name }}" id="{{ form.meeting_place.id_for_label }}"
+                    class="form-control">
+            </div>
+
+            <div class="form-group mt-2 mb-2">
+                <label for="{{ form.meeting_place_en.id_for_label }}">{{ form.meeting_place_en.label }}</label>
+                <input type="text" v-model="serie.meeting_place_en" name="{{ form.meeting_place.name }}" id="{{ form.meeting_place.id_for_label }}"
+                    class="form-control">
             </div>
         </div>
     </div>
@@ -1019,25 +1003,13 @@
                             old_alerts.forEach(function (elem) {
                                 $(elem).remove();
                             });
-            
+
                             let time = {
-                                title: dialog.interior.serie_title.value,
-                                title_en: dialog.interior.serie_title_en.value,
-                                start: dialog.interior.serie_start.value,
-                                end: dialog.interior.serie_end.value,
-                                ticket_code: dialog.interior.serie_ticket_code.value,
-                                expected_visitors: dialog.interior.serie_expected_visitors.value,
-                                audience: dialog.data.audienceJsTreeSelect.getSelectedValue(),
-                                arrangement_type: dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
-                                meeting_place: dialog.interior.id_meeting_place.value,
-                                meeting_place_en: dialog.interior.id_meeting_place_en.value,
-                                responsible: dialog.interior.id_responsible.value,
-                                display_text: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
-                            };
-            
-                            let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
-                            if (statusValue !== undefined)
-                                time.status = statusValue;
+                                ...dialog.vueApp.serie,
+                                responsible: dialog.vueApp.serie.mainPlanner.id,
+                                start: dialog.vueApp.serie.start_time,
+                                end: dialog.vueApp.serie.end_time,
+                            }
             
                             let pattern = {}
                             let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
