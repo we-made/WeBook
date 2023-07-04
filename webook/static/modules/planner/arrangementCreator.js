@@ -325,33 +325,23 @@ export class ArrangementCreator {
                                 const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
                                 this.dialogManager.setTitle("newSimpleActivityDialog", "Opprett aktivitet");
 
-                                if (context.lastTriggererDetails.preselectedPeople) {
-                                    window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preselectedPeople, "peopleSelected");
+                                const arrangementData = context.lastTriggererDetails.data;
+
+                                if (arrangementData.roomPayload) {
+                                    window.MessagesFacility.send("newSimpleActivityDialog", arrangementData.roomPayload, "roomsSelected");
                                 }
-                                if (context.lastTriggererDetails.preselectedRooms) {
-                                    window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preselectedRooms, "roomsSelected");
+                                if (arrangementData.mainPlannerPayload) {
+                                    window.MessagesFacility.send("newSimpleActivityDialog", arrangementData.mainPlannerPayload, "setPlanner");
                                 }
-                                if (context.lastTriggererDetails.preselectedMainPlanner) {
-                                    window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preselectedMainPlanner, "setPlanner");
-                                }
-                                if (context.lastTriggererDetails.preorderedServices) {
-                                    window.MessagesFacility.send("newSimpleActivityDialog", context.lastTriggererDetails.preorderedServices, "newServiceOrder");
+                                if (arrangementData.servicePresets) {
+                                    window.MessagesFacility.send("newSimpleActivityDialog", Array.from(arrangementData.servicePresets.values()), "newServiceOrder");
                                 }
 
-                                [
-                                    { from: '#id_ticket_code', to: '#ticket_code' },
-                                    { from: '#id_name', to: '#title' },
-                                    { from: '#id_name_en', to: '#title_en' },
-                                    { from: '#id_expected_visitors', to: '#expected_visitors'},
-                                    { from: '#id_meeting_place', to: '#id_meeting_place' },
-                                    { from: '#id_meeting_place_en', to: '#id_meeting_place_en' },
-                                    { from: '#id_display_text', to: '#id_display_text' },
-                                    { from: '#_audienceId', to: '#_backingAudienceId' },
-                                    { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId'},
-                                    { from: '#_statusTypeId', to: '#_statusTypeId' },
-                                ].forEach( (mapping) => { 
-                                    $simpleActivityDialog.find( mapping.to ).val( $mainDialog.find( mapping.from )[0].value );
-                                });
+                                window.MessagesFacility.send(
+                                    "newSimpleActivityDialog",
+                                    arrangementData,
+                                    "populateDialogWithEvent"
+                                )
 
                                 $simpleActivityDialog.find('#event_uuid').val(crypto.randomUUID());
                                 $mainDialog[0].querySelectorAll("input[name='display_layouts']:checked")

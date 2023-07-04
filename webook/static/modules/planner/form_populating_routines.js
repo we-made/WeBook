@@ -372,6 +372,8 @@ export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
     let [fromDate, fromTime]    = parseDateOrStringToArtifacts(event.start);
     let [toDate, toTime]        = parseDateOrStringToArtifacts(event.end);
 
+    console.log("PopulateCreateEventDialog", event);
+
     [
         { target: "#event_uuid", value: event._uuid },
         { target: "#title", value: event.title },

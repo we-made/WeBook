@@ -1,19 +1,22 @@
 {% load static i18n %}
 {% load crispy_forms_tags %}
 
+
+{% include "arrangement/vue/js_tree_select_component.html" %}
+
 <div id="{{dialogId}}" class="{{discriminator}}" >
 
     <input type="hidden" id="_backingAudienceId" />
     <input type="hidden" id="_backingArrangementTypeId" />
     <input type="hidden" id="_statusTypeId" />
 
-    <input type="hidden" id="_serie_reference">
-    <input type="hidden" id="_serie_position_hash" name="">
-    <input type="hidden" id="_parent_serie_position_hash" name="">
+    <input type="hidden" id="_serie_reference" v-model="activity.serie_uuid">
+    <input type="hidden" id="_serie_position_hash" v-model="activity.serie_position_hash">
+    <input type="hidden" id="_parent_serie_position_hash" v-model="activity.parent_serie_position_hash">
 
-    <input type="hidden" id="start_before_collision_resolution">
-    <input type="hidden" id="end_before_collision_resolution">
-    <input type="hidden" id="title_before_collision_resolution" name="">
+    <input type="hidden" id="start_before_collision_resolution" v-model="activity.start_before_collision_resolution">
+    <input type="hidden" id="end_before_collision_resolution" v-model="activity.end_before_collision_resolution">
+    <input type="hidden" id="title_before_collision_resolution" v-model="activity.title_before_collision_resolution">
 
     <div class="clearfix">
         <div class="float-start">
@@ -33,62 +36,50 @@
         <div id="step-1">
             <form id="newSimpleActivityForm">
                 <input type="submit" name="submit" style="display:none;" />
-                <input type="hidden" name="uuid" id="event_uuid" />
+                <input type="hidden" name="uuid" id="event_uuid" v-model="activity._uuid" />
                 
                 <div class="form-group mb-2">
                     <label class="form-label" for="title">
                         Tittel <i>(Norsk)</i>
                         <span class="fw-bold">&nbsp;*</span>
                     </label>
-                    <input type="text" id="title" name="title" class="form-control form-control-lg" required />
+                    <input type="text" id="title" name="title" v-model="activity.title" class="form-control form-control-lg" required />
                 </div>
 
                 <div class="form-group mb-2">
                     <label class="form-label" for="title_en">Tittel <i>(Engelsk)</i></label>
-                    <input type="text" id="title_en" name="title_en" class="form-control form-control-lg" />
+                    <input type="text" id="title_en" name="title_en" v-model="activity.title_en" class="form-control form-control-lg" />
                 </div>
 
-                <div class="form-group mb-2">
-                    <label>
-                        <i class="fas fa-users"></i>&nbsp;
-                        Målgruppe
-                        <span class="fw-bold">&nbsp;*</span>
-                    </label>
-                    <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
-                    
-                    {% if form.audience.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.audience.errors }}
-                    </div>
-                    {% endif %}
-                </div>
+                <tree-select-component
+                    class="mb-2"
+                    label="Målgruppe *"
+                    json-url="/arrangement/audience/tree"
+                    icon="fas fa-users"
+                    button-label="Velg målgruppe"
+                    :selected="activity.audience"
+                    @input="(id, name) => { activity.audience = id; activity.audienceName = name; }">
+                </tree-select-component>
 
-                <div class="form-group mb-2">
-                    <label>
-                        <i class="fas fa-cog"></i>&nbsp;
-                        Arrangementstype
-                        <span class="fw-bold">&nbsp;*</span>
-                    </label>
-                    <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
-                    {% if form.arrangement_type.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.arrangement_type.errors }}
-                    </div>
-                    {% endif %}
-                </div>
+                <tree-select-component
+                    class="mb-2"
+                    label="Arrangementstype *"
+                    json-url="/arrangement/arrangementtype/treelist"
+                    icon="fas fa-cog"
+                    button-label="Velg arrangementstype"
+                    :selected="activity.arrangement_type"
+                    @input="(id, name) => { activity.arrangement_type = id; activity.arrangementTypeName = name; }">
+                </tree-select-component>
 
-                <div class="form-group mb-2">
-                    <label>
-                        <i class="fas fa-cog"></i>&nbsp;
-                        Status
-                    </label>
-                    <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
-                    {% if form.status_type.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.status_type.errors }}
-                    </div>
-                    {% endif %}
-                </div>
+                <tree-select-component
+                    class="mb-2"
+                    label="Status"
+                    json-url="/arrangement/statustype/tree"
+                    icon="fas fa-cog"
+                    button-label="Velg status"
+                    :selected="activity.status"
+                    @input="(id, name) => { activity.status = id; activity.statusName = name; }">
+                </tree-select-component>
     
                 <div class="form-group mt-2">
                     <label for="" class="form-label">
@@ -98,12 +89,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" required />
+                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" v-model="activity.fromDate" required />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" required />
+                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" v-model="activity.fromTime" required />
                             </div>
                         </div>
                     </div>
@@ -117,12 +108,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" required />
+                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" v-model="activity.toDate" required />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" required />
+                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" v-model="activity.toTime" required />
                             </div>
                         </div>
                     </div>
@@ -137,29 +128,76 @@
         </div>
         <div id="step-2">
             <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
-                <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
+                <input type="hidden" 
+                    name="{{ form.responsible.name }}" 
+                    id="{{ form.responsible.id_for_label }}"
+                    v-model="activity.main_planner.id">
 
                 <label for="" class="d-block form-label">
                     <i class="fas fa-star"></i>
                     Hovedplanlegger
                 </label>
-                <h5 class="mb-2" id="mainPlannerName"></h5>
+
+                <h5 class="mb-2">[[ activity.main_planner.text ]]</h5>
                 <button class="wb-btn-main"
                     id="setMainPlannerButton"
-                    type="button"
-                    d-trigger="triggerSetPlanner">
+                    type="button">
                     Velg hovedplanlegger
                 </button>
+
+                <div id="select-main-planner-popover" class="popover_wrapper dialog-popover-left-fix" style="display: none;">
+                    <div class="popover_content" style="width: 50em!important;">
+                        <h5>Velg hovedplanlegger</h5>
+                        
+                        
+                        <input type="search" name="" id="" class="form-control form-control-lg"
+                            v-model="mainPlannerSearchTerm"
+                            placeholder="Søk etter planlegger... (minst 3 tegn)">       
+
+                        <div class="mt-3">
+                            <div v-if="mainPlannerSearchResults.length">
+                                <div v-if="mainPlannerSearchTerm.length == 0"
+                                    class="alert alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <h2 class="mb-0"><i class="fas fa-info"></i></h2>
+                                        
+                                        <div class="ms-3">
+                                            Uten søkeord vises alle personer med gruppe planlegger
+                                            <br>
+                                            Du kan fortsatt søke etter og velge personer uten gruppe planlegger ved å skrive inn minst 3 tegn i søkefeltet.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <table class="table table-highlight table-bordered table-sm" v-if="mainPlannerSearchResults.length">
+                                    <tbody>
+                                        <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
+                                            <td>
+                                                <a>
+                                                    [[ result.full_name ]]
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                                <div class="clearfix">
+                                    <small class="text-muted float-end fw-bold">
+                                        <i class="fas fa-info"></i>&nbsp;
+                                        Trykk på navnet til personen du ønsker å velge som hovedplanlegger for arrangementet
+                                    </small>
+                                </div>
+                            </div>
+                            <div 
+                                class="alert alert-info"
+                                v-else>
+                                Ingen resultater
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {% comment %} <div class="form-group mb-2">
-                <label for="{{form.responsible.id_for_label}}"
-                        class="form-label">
-                        <i class="fas fa-star"></i>&nbsp;
-                        Hovedplanlegger
-                </label>
-                {{ form.responsible }}
-            </div> {% endcomment %}
-            
+
             <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
                 <label for="" class="form-label">
                     <i class="fas fa-building"></i>&nbsp;
@@ -168,11 +206,27 @@
                 <div>
                     <button class="wb-btn-main"
                         type="button"
-                        d-trigger="triggerAddRooms">
+                        @click="openAddRoomsDialog()">
                         Velg rom
                     </button>
                 </div>
-                <div id="selectedRoomsWrapper" class="chipsList"></div>
+                <div id="selectedRoomsWrapper" class="chipsList">
+                    <span v-for="room in activity.rooms">
+                        <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
+                            [[room.text]]
+                            
+                            <a href="#">
+                                <i class="fa fa-times text-danger"
+                                    :id="room.id"
+                                    select-type="room"
+                                    @click="rooms.splice(rooms.indexOf(room), 1)"
+                                    d-trigger="removeAssociation">
+
+                                </i>
+                            </a>
+                        </div>
+                    </span>
+                </div>
             </div>
 
             <div class="form-group mb-2">
@@ -180,7 +234,7 @@
                     <i class="fas fa-receipt"></i>&nbsp;
                     Billettkode
                 </label>
-                <input type="text" id="ticket_code" name="ticket_code" class="form-control form-control-lg" />
+                <input type="text" id="ticket_code" name="ticket_code" v-model="activity.ticket_code" class="form-control form-control-lg" />
             </div>
 
             <div class="form-group mb-2">
@@ -188,14 +242,14 @@
                     <i class="fas fa-users"></i>
                     Forventet besøkende
                 </label>
-                <input type="text" id="expected_visitors" name="expected_visitors" class="form-control form-control-lg" required />
+                <input type="text" id="expected_visitors" name="expected_visitors" v-model="activity.expected_visitors" class="form-control form-control-lg" required />
             </div>
         </div>
         <div id="step-services">
             <div class="clearfix">
                 <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
                     style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                    d-trigger="triggerNewServiceOrder">
+                    @click="openAddServiceOrderDialog()">
                     <i class="fas fa-calendar-plus"></i>&nbsp;
                     Bestill tjenester
                 </a>
@@ -208,7 +262,25 @@
             </div>
 
             <div id="serviceOrders" class="mb-2">
-
+                <div
+                    class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
+                    v-for="order in activity.serviceOrders">
+                    
+                    <h5>
+                        [[order.service_name]]
+                        <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' 
+                            :id="order.key" 
+                            @click="serviceOrders.splice(serviceOrders.indexOf(order), 1)"
+                            select-type='serviceOrder' 
+                            d-trigger="removeAssociation">
+                            
+                            <i class='fas fa-times'></i>
+                        </button>
+                    </h5>
+                    <code>
+                        [[order.freetext_comment]]
+                    </code>
+                </div>
             </div>
         </div>
         <div id="step-3">
@@ -224,21 +296,21 @@
                         <th colspan="3" class="h4">Opprigg før aktiviteten:</th>
                     </tr>
                     <tr style="border-bottom:none;">
-                       <td colspan="2" style="border: none;">
+                        <td colspan="2" style="border: none;">
                         <div>
                             <label for="buffer_before_title" class="form-label">
                                 Tittel
                             </label>
-                            <input type="text" class="form-control form-control-lg" id="buffer_before_title" placeholder="Tittel... (valgfritt)">
+                            <input type="text" v-model="activity.buffer_before_title" class="form-control form-control-lg" id="buffer_before_title" placeholder="Tittel... (valgfritt)">
                         </div>
 
                         <div class="mt-2">
                             <label for="buffer_before_date" class="form-label">
                                 Dato
                             </label>
-                            <input type="date" id="buffer_before_date" class="form-control form-control-lg">
+                            <input type="date" v-model="activity.buffer_before_date" id="buffer_before_date" class="form-control form-control-lg">
                         </div>
-                       </td> 
+                        </td> 
                     </tr>
                     <tr>
                         <td style="padding-top: 0;">
@@ -246,7 +318,7 @@
                                 Fra
                             </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_before_start" name="buffer_before_start" class="form-control form-control-lg" />
+                                <input type="time" id="buffer_before_start" v-model="activity.buffer_before_start" name="buffer_before_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td style="padding-top: 0;">
@@ -254,7 +326,7 @@
                                 Til
                             </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_before_end" name="buffer_before_end" class="form-control form-control-lg" />
+                                <input type="time" id="buffer_before_end" v-model="activity.buffer_before_end" name="buffer_before_end" class="form-control form-control-lg" />
                             </div>  
                         </td>
                     </tr>
@@ -271,28 +343,28 @@
                     </tr>
                     <tr style="border-bottom:none;">
                         <td colspan="2" style="border: none;">
-                         <div>
+                            <div>
                             <label for="after_buffer_title" class="form-label">
                                 Tittel
                             </label>
-                             <input type="text" class="form-control form-control-lg" id="buffer_after_title" placeholder="Tittel... (valgfritt)">
-                         </div>
- 
-                         <div class="mt-2">
+                                <input type="text" v-model="activity.buffer_after_title" class="form-control form-control-lg" id="buffer_after_title" placeholder="Tittel... (valgfritt)">
+                            </div>
+    
+                            <div class="mt-2">
                             <label for="" class="form-label">
                                 Dato
                             </label>
-                            <input type="date" name="" class="form-control form-control-lg" id="buffer_after_date">
-                         </div>
+                            <input type="date" v-model="activity.buffer_after_date" class="form-control form-control-lg" id="buffer_after_date">
+                            </div>
                         </td> 
-                     </tr>
+                        </tr>
                     <tr>
                         <td style="padding-top: 0;">
                             <label for="buffer_after_start" class="form-label">
                                 Fra
                             </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_after_start" name="buffer_after_start" class="form-control form-control-lg" />
+                                <input type="time" id="buffer_after_start" v-model="activity.buffer_after_start" name="buffer_after_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td style="padding-top:0;">
@@ -300,7 +372,7 @@
                                 Til
                             </label>
                             <div class="form-outline">
-                                <input type="time" id="buffer_after_end" name="buffer_after_end" class="form-control form-control-lg" />
+                                <input type="time" id="buffer_after_end" v-model="activity.buffer_after_end" name="buffer_after_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
@@ -323,7 +395,8 @@
                         <label class="d-block form-label"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Vises på:" %}</label>
                         <ul>
                             {% for choice_id, choice_label in form.display_layouts.field.choices %}
-                                <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck" />
+                                <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck"
+                                    v-model="activity.display_layouts" />
                                 <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
                             {% endfor %}
                         </ul>
@@ -331,24 +404,38 @@
                     {% endif %}
                 </div>
                 <div class="col-lg-8 col-sm-12 mt-sm-2">
-                    <div class="form-group" id="display-layout-text-group" style="display: none;">
-                        <div>
-                            {{ form.display_text|as_crispy_field }}
+                    <div class="form-group" id="display-layout-text-group">
+                        <div v-show="showDisplayText">
+                            <input type="text" name="{{form.display_text.name}}"
+                                class="form-control form-control-lg"
+                                id="{{form.display_text.id_for_label}}"
+                                v-model="activity.display_text"
+                                placeholder="Skjermtekst...">
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="form-group mt-2">
-                {{ form.meeting_place | as_crispy_field }}
+                <label for="{{form.meeting_place.id_for_label}}">{{form.meeting_place.label}}</label>
+                <input type="text" 
+                    name="{{form.meeting_place.name}}"
+                    id="{{form.meeting_place.id_for_label}}" 
+                    class="form-control"
+                    v-model="activity.meeting_place">
             </div>
 
             <div class="form-group mt-2 mb-2">
-                {{ form.meeting_place_en | as_crispy_field }}
+                <label for="{{form.meeting_place_en.id_for_label}}">{{form.meeting_place_en.label}}</label>
+                <input type="text" 
+                    name="{{form.meeting_place_en.name}}" 
+                    id="{{form.meeting_place_en.id_for_label}}" 
+                    class="form-control"
+                    v-model="activity.meeting_place_en">
             </div>
         </div>
     </div>
-
+    
     <div class="clearfix">
         <div class="float-start">
             <button class="btn wb-btn-blank btn-lg text-muted"
@@ -381,424 +468,495 @@
 <script type="module">
     import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
     import { DateExtensions } from "{% static 'modules/planner/seriesutil.js' %}";
+    import { Popover } from "{% static 'js/popover.js' %}";
 
-    new Dialog({
-        dialogId: '{{ dialogId }}',
-        managerName: '{{ managerName }}',
-        discriminator: '{{ discriminator }}',
-        postInit: function (dialog) {
-            document.querySelectorAll('.form-outline').forEach((formOutline) => {
-                new mdb.Input(formOutline).init();
-            });
+    $(document).ready(function() {
+        let createActivityDialog = Vue.createApp({
+            components: { TreeSelectComponent },
+            data() {
+                return {
+                    dialog: null,
+                    mainPlannerSearchTerm: null,
+                    mainPlannerSearchResults: [],
+                    mainPlannerPopover: null,
 
-            dialog.$('#fromDate').on('change', (e) => {
-                dialog.interior.buffer_before_date.value = e.target.value;
-            });
-            dialog.$('#toDate').on('change', (e) => {
-                dialog.interior.buffer_after_date.value = e.target.value;
-            });
-
-            dialog.data.audienceJsTreeSelect = new JSTreeSelect({
-                element: dialog.querySelector('#audience_jstree_select'),
-                treeJsonSrcUrl: "/arrangement/audience/tree",
-                initialSelected: dialog.getElementById('_backingAudienceId').value ? { id: dialog.getElementById('_backingAudienceId').value } : undefined,
-                valueSelectedLabelText: ( selected ) => {
-                    let labelText = '';
-
-                    if (selected.parent && selected.parent.text)
-                        labelText += (selected.parent.text + " | ");
-                    
-                    labelText += selected.text;
-
-                    return labelText;
-                },
-                noneSelectedLabelText: "Ingen målgruppe valgt ennå",
-                selectFirstTimeButtonText: 'Velg målgruppe',
-                changeSelectedValueButtonText: 'Endre målgruppe',
-                popoverSaveChoicesButtonText: 'Lagre valg',
-            });
-
-            dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
-                element: dialog.querySelector('#arrangement_type_jstree_select'),
-                treeJsonSrcUrl: '/arrangement/arrangementtype/treelist',
-                initialSelected: dialog.getElementById('_backingArrangementTypeId').value ? { id: dialog.getElementById('_backingArrangementTypeId').value } : undefined,
-                valueSelectedLabelText: ( selected ) => {
-                    let labelText = '';
-
-                    if (selected.parent && selected.parent.text)
-                        labelText += (selected.parent.text + " | ");
-                    
-                    labelText += selected.text;
-
-                    return labelText;
-                },
-                noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
-                selectFirstTimeButtonText: 'Velg arrangementstype',
-                changeSelectedValueButtonText: 'Endre arrangementstype',
-                popoverSaveChoicesButtonText: 'Lagre valg',
-            });
-            dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
-                element: dialog.querySelector('#status_type_jstree_select'),
-                treeJsonSrcUrl: "/arrangement/statustype/tree",
-                initialSelected: dialog.getElementById('_statusTypeId').value ? { id: dialog.getElementById('_statusTypeId').value } : undefined,
-                onValueSet: ( data ) => {
-                    dialog.getElementById('_statusTypeId').value = data.selected[0];
-                },
-                valueSelectedLabelText: ( selected ) => {
-                    let labelText = '';
-
-                    if (selected.parent && selected.parent.text)
-                        labelText += (selected.parent.text + " | ");
-
-                    labelText += selected.text;
-                    
-                    return labelText;
-                },
-                noneSelectedLabelText: "Ingen status valgt ennå",
-                selectFirstTimeButtonText: 'Velg status',
-                changeSelectedValueButtonText: 'Endre status',
-                popoverSaveChoicesButtonText: 'Lagre valg',
-            });
-
-            dialog.$("#fromTime").on("change", (event) => {
-                dialog.$("#buffer_before_end").val(event.target.value);
-            });
-            dialog.$("#toTime").on("change", (event) => {
-                dialog.$("#buffer_after_start").val(event.target.value);
-            });
-
-            document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
-                dialog.data.roomsNameMap = e.detail.context.room_name_map;
-                dialog.setRooms({ rooms: e.detail.context.rooms });
-
-                dialog.$("#roomsCounter").text(dialog.$("#selectedRoomsWrapper").children().length);
-            });
-
-            dialog.data.stepper = new DialogStepper({
-                allowRailBasedNavigation: true,
-                railWrapperElement: dialog.getElementById('stepper'),
-                steps: [
-                    {
-                        element: dialog.getElementById('step-1'),
-                        title: 'Detaljer',
-                        stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { 
-                            /** PS!
-                             * Be aware that this will cause issues the moment you have inputs or selects
-                             * that are not in step-1. As of the writing of this comment all the fields we care
-                             * about validating are in step-1, so we can blanket-validate it like this.
-                             * This is not the case if you add input or selects to any other steps - and this will
-                             * prevent progression to further steps, until the inputs in those future steps are considered
-                             * valid, which is of course impossible, since one can not reach them due to this blanket-validation.
-                             * */                            
-                            if (dialog.validate() === false)
-                                return false;
-
-                            const fromDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
-                                dialog.interior.fromDate.value,
-                                dialog.interior.fromTime.value,
-                            )
-                            const toDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
-                                dialog.interior.toDate.value,
-                                dialog.interior.toTime.value,
-                            )
-
-                            if (fromDateTime >= toDateTime){
-                                $('#eventTimesInvalidFeedback').show();
-
-                                return false;
-                            }
-
-                            $('#eventTimesInvalidFeedback').hide();
-
-                            return true;
-                        }
+                    activity: {
+                        _uuid: null,
+                        arrangement: 0,
+                        serie_position_hash: null,
+                        parent_serie_position_hash: null,
+                        title_before_collision_resolution: null,
+                        serie_uuid: null,
+                        id: null,
+                        title: null,
+                        title_en: null,
+                        ticket_code: null,
+                        fromDate: null,
+                        fromTime: null,
+                        toDate: null,
+                        toTime: null,
+                        expected_visitors: null,
+                        buffer_before_title: null,
+                        buffer_after_title: null,
+                        buffer_before_date: null,
+                        buffer_after_date: null,
+                        buffer_before_start: null,
+                        buffer_before_end: null,
+                        buffer_after_start: null,
+                        buffer_after_end: null,
+                        audience: null,
+                        audienceName: "",
+                        arrangement_type: null,
+                        arrangementTypeName: "",
+                        status: null,
+                        statusName: "",
+                        display_layouts: [],
+                        display_text: null,
+                        meeting_place: null,
+                        meeting_place_en: null,
+                        serviceOrders: [],
+                        rooms: [],
+                        planners: [],
+                        main_planner: { id: null, text: null },
                     },
-                    {
-                        element: dialog.getElementById('step-2'),
-                        title: 'Rom & Personer',
-                        stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => { console.log("2. Step Out"); }
-                    },
-                    {
-                        element: dialog.getElementById('step-services'),
-                        title: 'Tjenestebestillinger',
-                        stepIn: () => { },
-                        stepout: () => { },
-                    },
-                    {
-                        element: dialog.getElementById('step-3'),
-                        title: 'Opp og ned-rigg',
-                        visible: {% if HIDE_RIGGING %}false{% else %}true{% endif %},
-                        stepIn: () => {},
-                        stepOut: (isSteppingForwards) => {
-                            let isValid = true;
-                            if (dialog.interior.buffer_before_start.value &&
-                                dialog.interior.buffer_before_end.value)
-                                if (dialog.interior.buffer_before_start.value > dialog.interior.buffer_before_end.value) {
-                                    dialog.$('#beforeRiggingTimesInvalidFeedback').show();
-                                    isValid = false;
-                                }
-                                else {
-                                    dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
-                                }
-                            if (dialog.interior.buffer_after_start.value &&
-                                dialog.interior.buffer_after_end.value)
-                                if (dialog.interior.buffer_after_start.value > dialog.interior.buffer_after_end.value) {
-                                    dialog.$('#afterRiggingTimesInvalidFeedback').show();
-                                    isValid = false;
-                                }
-                                else {
-                                    dialog.$('#afterRiggingTimesInvalidFeedback').hide();
-                                }
-                            
-                            if (isValid === true) {
-                                dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
-                                dialog.$('#afterRiggingTimesInvalidFeedback').hide();
-                            }
-
-                            return isValid;
-                        },
-                    },
-                    {
-                        element: dialog.getElementById('step-4'),
-                        title: 'Skjermer',
-                        stepIn: () => { 
-                            dialog.getElementById('next').style.display = "none";
-                            dialog.getElementById('finish').style.display = "inline-block";
-                        },
-                        stepOut: () => {
-                            dialog.getElementById('finish').style.display = "none";
-                            dialog.getElementById('next').style.display = "inline-block";
-                        },
-                    },
-                ]
-            });
-            dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
-            dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
-        },
-        methods: {
-            close(dialog, {} = {}, triggeredByElement) {
-                dialog.closeMe();
+                }
             },
-            submit(dialog, {} = {}, triggeredByElement) {
-                if (dialog.validate() === false) {
-                    console.warn("Validation failed.")
-                    return;
-                }
-
-
-                let qualifiedEvent = {
-                    _uuid:                      dialog.interior.event_uuid.value,
-                    title:                      dialog.interior.title.value,
-                    title_en:                   dialog.interior.title_en.value,
-                    ticket_code:                dialog.interior.ticket_code.value,
-                    expected_visitors:          dialog.interior.expected_visitors.value,
-                    audience:                   dialog.data.audienceJsTreeSelect.getSelectedValue(),
-                    audienceName:               dialog.data.audienceJsTreeSelect.getSelectedText(),
-                    arrangement_type:           dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
-                    arrangementTypeName:        dialog.data.arrangementTypeJsTreeSelect.getSelectedText(),     
-                    start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
-                    end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
-                    arrangement:                0,
-                    rooms:                      Array.from(dialog.data.selectedRoomIds.keys()),
-                    room_name_map:              dialog.data.roomsNameMap,       // Kept due to edit - not pertinent for save
-                    before_buffer_title:        dialog.interior.buffer_before_title.value ?? "",
-                    before_buffer_date:         dialog.interior.buffer_before_date.value,
-                    before_buffer_start:        dialog.interior.buffer_before_start.value ?? "",
-                    before_buffer_end:          dialog.interior.buffer_before_end.value ?? "",
-                    after_buffer_title:         dialog.interior.buffer_after_title.value ?? "",
-                    after_buffer_date:          dialog.interior.buffer_after_date.value,
-                    after_buffer_start:         dialog.interior.buffer_after_start.value ?? "",
-                    after_buffer_end:           dialog.interior.buffer_after_end.value ?? "",
-                    meeting_place:              dialog.interior.id_meeting_place.value,
-                    meeting_place_en:           dialog.interior.id_meeting_place_en.value,
-                    responsible:                dialog.interior.id_responsible.value,
-                    display_text:               dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
-                    room_payload:               dialog.data.roomPayload,
-                    planner_payload:            dialog.data.mainPlannerPayload,
-                    ordered_services:           Array.from(dialog.data.servicePresets.values()),
-                    serie_uuid:                 dialog.interior._serie_reference.value,
-                    serie_position_hash:        dialog.interior._serie_position_hash.value,
-                    parent_serie_position_hash: dialog.interior._parent_serie_position_hash.value,
-                    start_before_collision_resolution: dialog.interior.start_before_collision_resolution.value,
-                    end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
-                    title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
-                };
-
-                let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
-                if (statusValue !== undefined)
-                    qualifiedEvent.status = statusValue;
-
-                console.log("qualifiedEvent", qualifiedEvent);
-
-                qualifiedEvent.display_layouts = 
-                    [...dialog.querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
-                        .map(element => element.value);
-
-                dialog.raiseSubmitEvent({
-                    event: qualifiedEvent,
-                    csrf_token: '{{csrf_token}}',
-                });
-            },
-            validate(dialog, {} = {}, triggeredByElement) {
-                let field_elements = dialog.$('#newSimpleActivityForm').find("input, select");
-                let isInvalid = false;
-
-                for (let i = 0; i < field_elements.length; i++) {
-                    if (field_elements[i].checkValidity() === false) {
-                        isInvalid = true;
-                        break;
-                    }
-                }
-
-                if (isInvalid) {
-                    dialog.$('#newSimpleActivityForm').find(':submit').click();
-                    return false;
-                }
-
-                return true;
-            },
-            removeAssociation(dialog, {} = {}, triggeredByElement) {
-                const itemId = triggeredByElement.id;
-                const type = triggeredByElement.getAttribute("select-type");
-
-                let mapOfSelectedItemIds = null;
-                let appropriatePresetMap = null;
-
-                if (type === "room") {
-                    mapOfSelectedItemIds = dialog.data.selectedRoomIds;
-                    appropriatePresetMap = dialog.data.roomPresets;
-                }
-                else if (type === "serviceOrder") {
-                    dialog.data.servicePresets.delete(itemId);
-                    triggeredByElement.parentElement.parentElement.remove();
-                    return;
-                }
-                else {
-                    throw Error("Type not recognized")
-                }
-
-                if (itemId.startsWith("preset_")) {
-                    const preset = appropriatePresetMap.get(id.split("_")[1]);
-                    preset.ids.forEach((id) => mapOfSelectedItemIds.delete(id));
-                }
-                else {
-                    mapOfSelectedItemIds.delete(itemId);
-                }
-
-                triggeredByElement.remove();
-            },
-            triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true,  });
-            },
-            triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, renderInChain: true, data: { whenEventName: "setPlanner" } })
-            },
-            triggerNewServiceOrder(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "orderServiceDialog", { $parent:dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "newServiceOrder"}, entity_type:"event", entity_id:"0" })
-            },
-        },
-        data: {
-            servicePresets: new Map(),
-            selectedRoomIds: new Map(),
-            roomsNameMap: new Map(),
-            stepper: null,
-        },
-        when: [
-            { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
-                // this stuff needs to be rewritten along with the other similar methods
-                // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
-
-                console.log("payload!", payload);
-
-                dialog.data.servicePresets = new Map((payload.concat(
-                    Array.from(dialog.data.servicePresets.values())
-                )).map(x => [crypto.randomUUID(), x]));
-
-                let wrapper = dialog.$('#serviceOrders');
-                wrapper.empty();
-                
-                for (const [key, value] of dialog.data.servicePresets) {
-                    wrapper.append(
-                        $(`<div class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' id="${key}">
-                            <h5>
-                                ${value.service_name}
-                                <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end'  id="${key}" select-type='serviceOrder' d-trigger="removeAssociation"><i class='fas fa-times'></i></button>
-                            </h5>
-                            <code>
-                                ${value.freetext_comment}
-                            </code>
-                        </div>`)
-                    );
-                }
-            } },
-            { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                let wrapper = dialog.$('#selectedRoomsWrapper');
-                wrapper.empty();
-
-                payload.viewables.forEach((room) => {
-                    wrapper.append(
-                        $(`<selected-pill name='${room.text}'
-                                          id='${room.id}'
-                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)    
-                    );
-                });
-
-                dialog.data.selectedRoomIds = new Map();
-                dialog.data.roomPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
-                payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
-
-                dialog.data.roomPayload = payload;
-            } },
-            { eventKnownAs: "setPlanner", do: (dialog, payload) => {
-                if (payload.allSelectedEntityIds.length == 0)
-                    return;
-
-                const person = payload.viewables[0];
-
-                dialog.data.mainPlannerPayload = payload;
-                
-                dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
-                dialog.getElementById('mainPlannerName').innerText = person.text;
-                dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
-            } },
-            { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
-                if (dialog.data.audienceJsTreeSelect)
-                    dialog.data.audienceJsTreeSelect.setSelected(payload);
-                else
-                    dialog.$('#_backingAudienceId').val(payload);
-            } },
-            { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
-                if (dialog.data.arrangementTypeJsTreeSelect)
-                    dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
-                else
-                    dialog.$('#_backingArrangementTypeId').val(payload);
-            } },
-            { eventKnownAs: "setStatusFromParent", do: (dialog, payload) => {
-                if (dialog.data.statusTypeJsTreeSelect)
-                    dialog.data.statusTypeJsTreeSelect.setSelected(payload);
-                else
-                    dialog.$('#_statusTypeId').val(payload);
-            } },
-        ],
-        plugins: [
-            {
-                name: 'showIfSelected',
-                pluginClass: DialogShowIfSelectedPlugin,
-                args: {
-                    checkboxesSelector: "[name='display_layouts_create_event']",
-                    elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
-                    showIfAnyOfTheseValuesMap: new Map([
+            computed: {
+                showDisplayText() {
+                    let displayLayoutsWithRequisiteText = new Map([
                         {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
                             [ "{{ display_layout.id }}", true],
                         {% endfor %}
-                    ]),
+                    ]);
+
+                    let showDisplayText = false;
+
+                    this.activity.display_layouts.forEach((displayLayout) => {
+                        if (displayLayoutsWithRequisiteText.has(displayLayout)) {
+                            showDisplayText = true;
+                        }
+                    });
+
+                    return showDisplayText;
                 },
+            },
+            methods: {
+                /**
+                 * @summary Open a dialog, with the option to send data to the dialog 
+                 * @param {string} dialogName
+                 * @param {object} data
+                 */
+                 openDialog(dialogName, data = {}) {
+                    let payload = {
+                        $parent: this.dialog.dialogElement,
+                        sendTo: '{{dialogId}}',
+                        ...data
+                    }
+
+                    this.dialog.raiseTriggerEvent("{{managerName}}", dialogName, payload);
+                },
+                                /**
+                * @summary Open dialog for adding new rooms to the arrangement
+                */
+                openAddRoomsDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("{{orderRoomDialog}}");
+                },
+                /**
+                * @summary Open dialog for adding new planners to the arrangement
+                */
+                openAddPlannersDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("{{orderPersonDialog}}", { multiple: true, data: { whenEventName: "plannersSelected" } });
+                },
+                /**
+                * @summary Open dialog for setting the main planner
+                */
+                openSetMainPlannerDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("{{orderPersonDialog}}", { multiple: false, data: { whenEventName: "setPlanner" } });
+                },
+                /**
+                * @summary Open dialog for ordering new services to the arrangement
+                */
+                openAddServiceOrderDialog(dialog, {} = {}, triggeredByElement) {
+                    this.openDialog("orderServiceDialog", { multiple: false, data: { whenEventName: "newServiceOrder" }, entity_type: "unknown", entity_id: "0" });
+                },
+                setMainPlanner(planner) {
+                    this.activity.main_planner = { id: planner.id, text: planner.full_name };
+
+                    this.dialog.data.mainPlannerPayload = {
+                        allPresets: new Map(),
+                        allSelectedEntityIds: [ { id: planner.id, text: planner.full_name } ],
+                        selectedPresets: [],
+                        viewables: [ { id: planner.id, text: planner.full_name } ]
+                    }
+
+                    this.mainPlannerPopover.fadeAndHide();
+                }
+            },
+            watch: {
+                mainPlannerSearchTerm: async function (val) {
+                    if (val.length > 2 || val.length == 0) {
+                        await fetch("{% url 'arrangement:person_search_planners_ajax_view' %}?term=" + val, {
+                            method: "GET",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                            },
+                        }).then((response) => {
+                            if (response.ok) {
+                                response.json().then((data) => {
+                                    this.mainPlannerSearchResults = JSON.parse(data);
+
+                                    this.mainPlannerSearchResults.forEach((planner) => {
+                                        planner.full_name = [ planner.first_name, planner.middle_name, planner.last_name ].join(" ");
+                                    });
+                                });
+                            }
+                            else {
+                                console.log("HTTP-Error: " + response.status);
+                            }
+                        })
+                    }
+                }
+            },
+            delimiters: ['[[', ']]'],
+            mounted() {
+                this.mainPlannerSearchTerm = "";
+
+                this.dialog = new Dialog({
+                    vueApp: this,
+                    dialogId: '{{ dialogId }}',
+                    managerName: '{{ managerName }}',
+                    discriminator: '{{ discriminator }}',
+                    postInit: function (dialog) {
+                        document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                            new mdb.Input(formOutline).init();
+                        });
+                        
+                        const mainPlannerPopover = new Popover({
+                            triggerElement: dialog.dialogElement.querySelector('#setMainPlannerButton'),
+                            wrapperElement: dialog.dialogElement.querySelector('#select-main-planner-popover'),
+                        });
+                        dialog.vueApp.mainPlannerPopover = mainPlannerPopover;
+
+                        dialog.$('#fromDate').on('change', (e) => {
+                            dialog.interior.buffer_before_date.value = e.target.value;
+                        });
+                        dialog.$('#toDate').on('change', (e) => {
+                            dialog.interior.buffer_after_date.value = e.target.value;
+                        });
+            
+                        dialog.$("#fromTime").on("change", (event) => {
+                            dialog.$("#buffer_before_end").val(event.target.value);
+                        });
+                        dialog.$("#toTime").on("change", (event) => {
+                            dialog.$("#buffer_after_start").val(event.target.value);
+                        });
+            
+                        document.addEventListener("{{managerName}}.d1_roomsSelected", (e) => {
+                            dialog.data.roomsNameMap = e.detail.context.room_name_map;
+                            dialog.setRooms({ rooms: e.detail.context.rooms });
+            
+                            dialog.$("#roomsCounter").text(dialog.$("#selectedRoomsWrapper").children().length);
+                        });
+            
+                        dialog.data.stepper = new DialogStepper({
+                            allowRailBasedNavigation: true,
+                            railWrapperElement: dialog.getElementById('stepper'),
+                            steps: [
+                                {
+                                    element: dialog.getElementById('step-1'),
+                                    title: 'Detaljer',
+                                    stepIn: () => { console.log("1. Step In") },
+                                    stepOut: () => { 
+                                        /** PS!
+                                         * Be aware that this will cause issues the moment you have inputs or selects
+                                         * that are not in step-1. As of the writing of this comment all the fields we care
+                                         * about validating are in step-1, so we can blanket-validate it like this.
+                                         * This is not the case if you add input or selects to any other steps - and this will
+                                         * prevent progression to further steps, until the inputs in those future steps are considered
+                                         * valid, which is of course impossible, since one can not reach them due to this blanket-validation.
+                                         * */                            
+                                        if (dialog.validate() === false)
+                                            return false;
+            
+                                        const fromDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
+                                            dialog.interior.fromDate.value,
+                                            dialog.interior.fromTime.value,
+                                        )
+                                        const toDateTime = DateExtensions.OverwriteDateTimeWithTimeInputValue(
+                                            dialog.interior.toDate.value,
+                                            dialog.interior.toTime.value,
+                                        )
+            
+                                        if (fromDateTime >= toDateTime){
+                                            $('#eventTimesInvalidFeedback').show();
+            
+                                            return false;
+                                        }
+            
+                                        $('#eventTimesInvalidFeedback').hide();
+            
+                                        return true;
+                                    }
+                                },
+                                {
+                                    element: dialog.getElementById('step-2'),
+                                    title: 'Rom & Personer',
+                                    stepIn: () => { console.log("1. Step In") },
+                                    stepOut: () => { console.log("2. Step Out"); }
+                                },
+                                {
+                                    element: dialog.getElementById('step-services'),
+                                    title: 'Tjenestebestillinger',
+                                    stepIn: () => { },
+                                    stepout: () => { },
+                                },
+                                {
+                                    element: dialog.getElementById('step-3'),
+                                    title: 'Opp og ned-rigg',
+                                    visible: {% if HIDE_RIGGING %}false{% else %}true{% endif %},
+                                    stepIn: () => {},
+                                    stepOut: (isSteppingForwards) => {
+                                        let isValid = true;
+                                        if (dialog.interior.buffer_before_start.value &&
+                                            dialog.interior.buffer_before_end.value)
+                                            if (dialog.interior.buffer_before_start.value > dialog.interior.buffer_before_end.value) {
+                                                dialog.$('#beforeRiggingTimesInvalidFeedback').show();
+                                                isValid = false;
+                                            }
+                                            else {
+                                                dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
+                                            }
+                                        if (dialog.interior.buffer_after_start.value &&
+                                            dialog.interior.buffer_after_end.value)
+                                            if (dialog.interior.buffer_after_start.value > dialog.interior.buffer_after_end.value) {
+                                                dialog.$('#afterRiggingTimesInvalidFeedback').show();
+                                                isValid = false;
+                                            }
+                                            else {
+                                                dialog.$('#afterRiggingTimesInvalidFeedback').hide();
+                                            }
+                                        
+                                        if (isValid === true) {
+                                            dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
+                                            dialog.$('#afterRiggingTimesInvalidFeedback').hide();
+                                        }
+            
+                                        return isValid;
+                                    },
+                                },
+                                {
+                                    element: dialog.getElementById('step-4'),
+                                    title: 'Skjermer',
+                                    stepIn: () => { 
+                                        dialog.getElementById('next').style.display = "none";
+                                        dialog.getElementById('finish').style.display = "inline-block";
+                                    },
+                                    stepOut: () => {
+                                        dialog.getElementById('finish').style.display = "none";
+                                        dialog.getElementById('next').style.display = "inline-block";
+                                    },
+                                },
+                            ]
+                        });
+                        dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
+                        dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
+                    },
+                    methods: {
+                        close(dialog, {} = {}, triggeredByElement) {
+                            dialog.closeMe();
+                        },
+                        submit(dialog, {} = {}, triggeredByElement) {
+                            if (dialog.validate() === false) {
+                                console.warn("Validation failed.")
+                                return;
+                            }
+                            
+
+                            let qualifiedEvent = dialog.vueApp.activity;
+                            qualifiedEvent.responsible = qualifiedEvent.main_planner.id;
+                            qualifiedEvent.room_payload = dialog.data.roomPayload;
+                            qualifiedEvent.planner_payload = dialog.data.mainPlannerPayload;
+                            qualifiedEvent.ordered_services = qualifiedEvent.serviceOrders; //rename
+                            qualifiedEvent.start = new Date(qualifiedEvent.fromDate + "T" + qualifiedEvent.fromTime);
+                            qualifiedEvent.end = new Date(qualifiedEvent.toDate + "T" + qualifiedEvent.toTime);                            
+
+                            qualifiedEvent.room_name_map = dialog.data.roomsNameMap;
+                            qualifiedEvent.rooms = qualifiedEvent.rooms.map(room => room.id);
+
+                            /* 
+                            let qualifiedEvent = {
+                                _uuid:                      dialog.interior.event_uuid.value,
+                                title:                      dialog.interior.title.value,
+                                title_en:                   dialog.interior.title_en.value,
+                                ticket_code:                dialog.interior.ticket_code.value,
+                                expected_visitors:          dialog.interior.expected_visitors.value,
+                                audience:                   dialog.data.audienceJsTreeSelect.getSelectedValue(),
+                                audienceName:               dialog.data.audienceJsTreeSelect.getSelectedText(),
+                                arrangement_type:           dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
+                                arrangementTypeName:        dialog.data.arrangementTypeJsTreeSelect.getSelectedText(),     
+                                start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
+                                end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
+                                arrangement:                0,
+                                rooms:                      Array.from(dialog.data.selectedRoomIds.keys()),
+                                room_name_map:              dialog.data.roomsNameMap,       // Kept due to edit - not pertinent for save
+                                before_buffer_title:        dialog.interior.buffer_before_title.value ?? "",
+                                before_buffer_date:         dialog.interior.buffer_before_date.value,
+                                before_buffer_start:        dialog.interior.buffer_before_start.value ?? "",
+                                before_buffer_end:          dialog.interior.buffer_before_end.value ?? "",
+                                after_buffer_title:         dialog.interior.buffer_after_title.value ?? "",
+                                after_buffer_date:          dialog.interior.buffer_after_date.value,
+                                after_buffer_start:         dialog.interior.buffer_after_start.value ?? "",
+                                after_buffer_end:           dialog.interior.buffer_after_end.value ?? "",
+                                meeting_place:              dialog.interior.id_meeting_place.value,
+                                meeting_place_en:           dialog.interior.id_meeting_place_en.value,
+                                responsible:                dialog.interior.id_responsible.value,
+                                display_text:               dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
+                                room_payload:               dialog.data.roomPayload,
+                                planner_payload:            dialog.data.mainPlannerPayload,
+                                ordered_services:           Array.from(dialog.data.servicePresets.values()),
+                                serie_uuid:                 dialog.interior._serie_reference.value,
+                                serie_position_hash:        dialog.interior._serie_position_hash.value,
+                                parent_serie_position_hash: dialog.interior._parent_serie_position_hash.value,
+                                start_before_collision_resolution: dialog.interior.start_before_collision_resolution.value,
+                                end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
+                                title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
+                            }; */
+            
+                            console.log("qualifiedEvent", qualifiedEvent);
+            
+                            dialog.raiseSubmitEvent({
+                                event: qualifiedEvent,
+                                csrf_token: '{{csrf_token}}',
+                            });
+                        },
+                        validate(dialog, {} = {}, triggeredByElement) {
+                            let field_elements = dialog.$('#newSimpleActivityForm').find("input, select");
+                            let isInvalid = false;
+            
+                            for (let i = 0; i < field_elements.length; i++) {
+                                if (field_elements[i].checkValidity() === false) {
+                                    isInvalid = true;
+                                    break;
+                                }
+                            }
+            
+                            if (isInvalid) {
+                                dialog.$('#newSimpleActivityForm').find(':submit').click();
+                                return false;
+                            }
+            
+                            return true;
+                        },
+                        removeAssociation(dialog, {} = {}, triggeredByElement) {
+                            const itemId = triggeredByElement.id;
+                            const type = triggeredByElement.getAttribute("select-type");
+            
+                            let mapOfSelectedItemIds = null;
+                            let appropriatePresetMap = null;
+            
+                            if (type === "room") {
+                                mapOfSelectedItemIds = dialog.data.selectedRoomIds;
+                                appropriatePresetMap = dialog.data.roomPresets;
+                            }
+                            else if (type === "serviceOrder") {
+                                dialog.data.servicePresets.delete(itemId);
+                                triggeredByElement.parentElement.parentElement.remove();
+                                return;
+                            }
+                            else {
+                                throw Error("Type not recognized")
+                            }
+            
+                            if (itemId.startsWith("preset_")) {
+                                const preset = appropriatePresetMap.get(id.split("_")[1]);
+                                preset.ids.forEach((id) => mapOfSelectedItemIds.delete(id));
+                            }
+                            else {
+                                mapOfSelectedItemIds.delete(itemId);
+                            }
+            
+                            triggeredByElement.remove();
+                        },
+                    },
+                    data: {
+                        servicePresets: new Map(),
+                        selectedRoomIds: new Map(),
+                        roomsNameMap: new Map(),
+                        stepper: null,
+                    },
+                    when: [
+                        { eventKnownAs: "populateDialogWithEvent", do: (dialog, payload) => {
+                            dialog.vueApp.activity.title = payload.title;
+                            dialog.vueApp.activity.title_en = payload.title_english;
+                            dialog.vueApp.activity.ticket_code = payload.ticket_code;
+                            dialog.vueApp.activity.expected_visitors = payload.expected_visitors;
+                            dialog.vueApp.activity.audience = payload.audience;
+                            dialog.vueApp.activity.arrangement_type = payload.arrangement_type;
+                            dialog.vueApp.activity.status = payload.status;
+                            dialog.vueApp.activity.meeting_place = payload.meeting_place;
+                            dialog.vueApp.activity.meeting_place_en = payload.meeting_place_en;
+                            dialog.vueApp.activity.display_layouts = payload.display_layouts;
+                            dialog.vueApp.activity.display_text = payload.display_text;
+                        } },
+                        { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
+                            // this stuff needs to be rewritten along with the other similar methods
+                            // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
+
+                            dialog.data.servicePresets = new Map((payload.concat(
+                                Array.from(dialog.data.servicePresets.values())
+                            )).map(x => [crypto.randomUUID(), x]));
+                            
+                            dialog.vueApp.activity.serviceOrders = 
+                                Array.from(dialog.data.servicePresets.entries())
+                                .map(x => { return { key: x[0], ...x[1] } });
+                        } },
+                        { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                            dialog.data.selectedRoomIds = new Map();
+                            dialog.data.roomPresets = new Map();
+                            payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                            payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+            
+                            dialog.data.roomPayload = payload;
+
+                            dialog.vueApp.activity.rooms = payload.viewables;
+                        } },
+                        { eventKnownAs: "setPlanner", do: (dialog, payload) => {
+                            if (payload.allSelectedEntityIds.length == 0)
+                                return;
+            
+                            const person = payload.viewables[0];
+            
+                            dialog.data.mainPlannerPayload = payload;
+                            dialog.vueApp.activity.main_planner = { id: person.id, text: person.text }
+
+                            dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
+                            dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
+                        } },
+                        { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
+                            if (dialog.data.audienceJsTreeSelect)
+                                dialog.data.audienceJsTreeSelect.setSelected(payload);
+                            else
+                                dialog.$('#_backingAudienceId').val(payload);
+                        } },
+                        { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
+                            if (dialog.data.arrangementTypeJsTreeSelect)
+                                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
+                            else
+                                dialog.$('#_backingArrangementTypeId').val(payload);
+                        } },
+                        { eventKnownAs: "setStatusFromParent", do: (dialog, payload) => {
+                            if (dialog.data.statusTypeJsTreeSelect)
+                                dialog.data.statusTypeJsTreeSelect.setSelected(payload);
+                            else
+                                dialog.$('#_statusTypeId').val(payload);
+                        } },
+                    ],
+                });
             }
-        ],
-    });
+        });
+
+        createActivityDialog.mount(
+            document.getElementsByClassName('{{discriminator}}')[0]
+        );
+    })
 </script>

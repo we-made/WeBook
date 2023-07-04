@@ -1,0 +1,153 @@
+{% include "arrangement/vue/popover_component.html" %}
+
+
+<template id="vuec-js-tree-select-template">
+    <label>
+        <i :class="icon"></i>&nbsp;
+        [[ label ]]
+    </label>
+    <div class="mb-2 border rounded-4 p-2 ps-4 pe-4">
+        
+        <div class="d-flex justify-content-between align-items-center w-100">
+
+            <label>
+                [[selectedText]]
+            </label>
+
+            <div>
+                <button class="btn wb-btn-secondary" @click="toggleVisibility()" type="button" ref="trigger">
+                    [[buttonLabel]]
+                </button>
+                <popover-component
+                    :is-visible="isExpanded"
+                    :excludes="[ this.$refs.trigger ]">
+
+                    <h5>[[label]]</h5>
+
+                    <input type="search" class="form-control mb-1" placeholder="Søk....">
+
+                    <div ref="jsTreeEl">
+                    </div>
+
+                </popover-component>
+            </div>
+        </div>
+    </div>
+
+</template>
+
+<script>
+    let TreeSelectComponent = {
+        components: {
+            PopoverComponent
+        },
+        props: {
+            isOpen: Boolean,
+            label: String,
+            buttonLabel: String,
+            icon: String,
+            jsonUrl: String,
+            selected: Number,
+        },
+        methods: {
+            async loadJson() {
+                let response = await fetch(this.jsonUrl);
+                let json = await response.json();
+                return json;
+            },
+            setSelected() {
+                if (this.selected && this.hasInit) {
+                    $(this.$refs.jsTreeEl).jstree('select_node', this.selected);
+
+                    let node = $(this.$refs.jsTreeEl).jstree(true).get_node(this.selected);
+                    this.selectedValues.id = node.id;
+                    this.selectedValues.parent = node.parent;
+                    this.selectedValues.text = node.text;
+                }
+            },
+            async initJsTree() {
+                await this.loadJson()
+                    .then(treeValidObj => {
+                        $(this.$refs.jsTreeEl).jstree({
+                            'checkbox': {
+                                "three_state": false,
+                                "cascade": "up+undetermined",
+                            },
+                            'plugins': [ 'checkbox',  'search',], 
+                            'core': {
+                                'data': treeValidObj,
+                                'multiple': false,
+                            }
+                        });
+
+                        $(this.$refs.jsTreeEl).on('loaded.jstree', () => {
+                            this.hasInit = true;
+                            this.setSelected();
+                        });
+
+                        $(this.$refs.jsTreeEl).on('changed.jstree', (e, data) => {
+                            const selected = $(this.$refs.jsTreeEl).jstree("get_selected", true)[0];
+                            
+                            if (selected.parent !== "#")
+                            {
+                                let parentNode = $(this.$refs.jsTreeEl).jstree(true).get_node(selected.parent);
+                                this.selectedValues.parent = parentNode.text;
+                             }
+                            else 
+                            {
+                                this.selectedValues.parent = null;
+                            }
+
+                            this.selectedValues.id = selected.id;
+                            this.selectedValues.text = selected.text;
+
+                            this.isExpanded = false;
+
+                            this.$emit('input', this.selectedValues.id, this.selectedValues.text);
+                        });
+                    });
+            },
+            toggleVisibility() {
+                this.isExpanded = !this.isExpanded;
+            }
+        },
+        watch: {
+            selected: function (newVal, oldVal) {
+                this.setSelected();
+            }
+        },
+        computed: {
+            selectedText() {
+                let text = this.selectedValues.text;
+
+                if (text === null)
+                    text = "Velg " + this.label.toLowerCase();
+                else if (this.selectedValues.parent)
+                    text = this.selectedValues.parent + " - " + text;
+
+                return text;
+            }
+        },
+        data() {
+            return {
+                isExpanded: false,
+                selectedValues: {
+                    id: null,
+                    text: null,
+                    parent: null,
+                },
+                hasInit: false,
+            }
+        },
+        mounted() {
+            this.isExpanded = this.isOpen || false;
+            this.selectedValues = this.selected || { id: null, text: null, parent: null };
+
+            this.$nextTick(() => {
+                this.initJsTree();
+            });
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec-js-tree-select-template"
+    }
+</script>

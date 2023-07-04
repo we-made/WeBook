@@ -1,6 +1,9 @@
 {% load static i18n %}
 {% load crispy_forms_tags %}
 
+<!-- {% include "arrangement/vue/popover_component.html" %} -->
+{% include "arrangement/vue/js_tree_select_component.html" %}
+
 
 <div id="{{dialogId}}" class="{{discriminator}}" style="overflow-x: visible;">
     <input type="hidden" name="" id="_audienceId">
@@ -20,7 +23,7 @@
         <div id="step-1">
             <form id="arrangementInfoForm">
                 <input type="submit" style="display:none;" />
-
+                
                 <fieldset>
                     <div class="form-group mb-2">
                         <label>
@@ -33,6 +36,7 @@
                             value="{{ form.name.value|default:'' }}"
                             name="{{ form.name.name }}"
                             autocomplete="off"
+                            v-model="arrangement.title"
                             required />
                     </div>
                     {% if form.name.errors|length > 0 %}
@@ -50,6 +54,7 @@
                             id="{{ form.name_en.id_for_label }}"
                             value="{{ form.name_en.value|default:'' }}"
                             name="{{ form.name_en.name }}"
+                            v-model="arrangement.title_english"
                             autocomplete="off"
                             />
                     </div>
@@ -59,55 +64,36 @@
                         </div>
                     {% endif %}
 
-                    <div class="mb-2">
-                        <label>
-                            <i class="fas fa-users"></i>&nbsp;
-                            Målgruppe
-                            <span class="fw-bold">&nbsp;*</span>
-                        </label>
-                        <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
 
-                        {% if form.audience.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.audience.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
+                    <tree-select-component
+                        class="mb-2"
+                        label="Målgruppe *"
+                        json-url="/arrangement/audience/tree"
+                        icon="fas fa-users"
+                        button-label="Velg målgruppe"
+                        :selected="arrangement.audience"
+                        @input="(id) => arrangement.audience = id">
+                    </tree-select-component>
 
-                    <div class="mb-2">
-                        <label>
-                            <i class="fas fa-cog"></i>&nbsp;
-                            Arrangementstype
-                            <span class="fw-bold">&nbsp;*</span>
-                        </label>
-                        <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
-                        {% if form.arrangement_type.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.arrangement_type.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
+                    <tree-select-component
+                        class="mb-2"
+                        label="Arrangementstype *"
+                        json-url="/arrangement/arrangementtype/treelist"
+                        icon="fas fa-cog"
+                        button-label="Velg arrangementstype"
+                        :selected="arrangement.arrangement_type"
+                        @input="(id) => arrangement.arrangement_type = id">
+                    </tree-select-component>
 
-                    <div class="mb-2">
-                        <label>
-                            Status
-                        </label>
-
-                        <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
-                        {% if form.status_type.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.status_type.errors }}
-                        </div>
-                        {% endif %}
-
-                        {% comment %} {{ form.status }}
-
-                        {% if form.status.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.status.errors }}
-                        </div>
-                        {% endif %} {% endcomment %}
-                    </div>
+                    <tree-select-component
+                        class="mb-2"
+                        label="Status"
+                        json-url="/arrangement/statustype/tree"
+                        icon="fas fa-cog"
+                        button-label="Velg status"
+                        :selected="arrangement.status"
+                        @input="(id) => arrangement.status = id">
+                    </tree-select-component>
 
                     <div class="mb-2">
                         <label>
@@ -144,7 +130,7 @@
             <div id="serviceOrders">
                 <div
                     class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
-                    v-for="order in serviceOrders">
+                    v-for="order in arrangement.serviceOrders">
                     
                     <h5>
                         [[order.service_name]]
@@ -170,8 +156,7 @@
                 <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
                     <input type="hidden" 
                         name="{{ form.responsible.name }}" 
-                        id="{{ form.responsible.id_for_label }}"
-                        v-model="mainPlanner.id">
+                        id="{{ form.responsible.id_for_label }}">
 
                     <label for="" class="d-block form-label">
                         <i class="fas fa-star"></i>
@@ -182,8 +167,11 @@
                         id="mainPlanner_validationText">
                         Vennligst velg en hovedplanlegger
                     </div>
+                    
+                    <div>
+                        [[ arrangement.mainPlanner.text ]]
+                    </div>
 
-                    <h5 class="mb-2">[[ mainPlanner.text ]]</h5>
                     <button class="wb-btn-main"
                         id="setMainPlannerButton"
                         type="button">
@@ -193,7 +181,6 @@
                     <div id="select-main-planner-popover" class="popover_wrapper dialog-popover-left-fix" style="display: none;">
                         <div class="popover_content" style="width: 50em!important;">
                             <h5>Velg hovedplanlegger</h5>
-                            
                             
                             <input type="search" name="" id="" class="form-control form-control-lg"
                                 v-model="mainPlannerSearchTerm"
@@ -256,7 +243,7 @@
                         </button>
                     </div>
                     <div id="roomChips" class="chipsList">
-                        <span v-for="room in rooms">
+                        <span v-for="room in arrangement.rooms">
                             <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
                                 [[room.text]]
                                 
@@ -287,7 +274,7 @@
                         </button>
                     </div>
                     <div id="plannerChips" class="chipsList">
-                        <span v-for="planner in planners">
+                        <span v-for="planner in arrangement.planners">
                             <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
                                 [[planner.text]]
                                 
@@ -315,7 +302,8 @@
                         id="{{ form.ticket_code.id_for_label }}"
                         value="{{ form.ticket_code.value|default:'' }}"
                         name="{{ form.ticket_code.name }}"
-                        placeholder="Billetkode..."/>
+                        placeholder="Billetkode..."
+                        v-model="arrangement.ticket_code"/>
                 </div>
                 {% if form.ticket_code.errors|length > 0 %}
                     <div class="alert alert-danger">
@@ -333,6 +321,7 @@
                         id="{{ form.expected_visitors.id_for_label }}"
                         value="{{ form.expected_visitors.value|default:'0' }}"
                         name="{{ form.expected_visitors.name }}"
+                        v-model="arrangement.expected_visitors"
                         required />
                 </div>
                 {% if form.expected_visitors.errors|length > 0 %}
@@ -356,18 +345,20 @@
                 <div class="col-lg-8 col-sm-12 mt-sm-2">
                     <div
                         class="form-group"
-                        id="display-layout-text-group"
-                        style="display: none;">
+                        id="display-layout-text-group">
 
-                        <div>
-                            {{ form.display_text|as_crispy_field }}
+                        <div v-show="showDisplayText">
+                            <input type="text" name="{{form.display_text.name}}"
+                                class="form-control form-control-lg"
+                                id="{{form.display_text.id_for_label}}"
+                                v-model="arrangement.display_text"
+                                placeholder="Skjermtekst...">
                         </div>
                     </div>
                 </div>
             </div>
         
-
-                <div class="mt-2 form-group">
+            <div class="mt-2 form-group">
                 <label>
                     <i class="fas fa-door-open"></i>&nbsp;
                     Møtested <i>(Norsk)</i>
@@ -377,7 +368,8 @@
                     id="{{ form.meeting_place.id_for_label }}"
                     value="{{ form.meeting_place.value|default:'' }}"
                     name="{{ form.meeting_place.name }}"
-                    placeholder="{% trans 'Møtested' %}..."/>
+                    placeholder="{% trans 'Møtested' %}..."
+                    v-model="arrangement.meeting_place"/>
                 <div class="form-helper text-end">
                     <i class="fas fa-info-circle"></i>&nbsp;
                     Vil overskrive sted/rom vist på skjerm
@@ -399,7 +391,8 @@
                     id="{{ form.meeting_place_en.id_for_label }}"
                     value="{{ form.meeting_place_en.value|default:'' }}"
                     name="{{ form.meeting_place_en.name }}"
-                    placeholder="{% trans 'Møtested' %}..."/>
+                    placeholder="{% trans 'Møtested' %}..."
+                    v-model="arrangement.meeting_place_en"/>
                 <div class="form-helper text-end">
                     <i class="fas fa-info-circle"></i>&nbsp;
                     Vil overskrive sted/rom vist på skjerm
@@ -435,7 +428,7 @@
 
             <div id="eventsBody">
                 <div class="border border-2 rounded-2 p-3" id='[[element._uuid]]' style="background-color: #f6f6f0;"
-                    v-for="event in events">
+                    v-for="event in arrangement.events">
                     
                     <div class="d-flex justify-content-between align-items-center">
                         <h3>
@@ -588,27 +581,64 @@
 
 <script type="module">
     import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
-    import { Popover } from "{% static 'js/popover.js' %}"
+    import { Popover } from "{% static 'js/popover.js' %}";
 
     $(document).ready(function () {
         let createArrangementDialogApp = Vue.createApp({
-            components: {},
+            components: { TreeSelectComponent },
             data() {
                 return {
                     dialog: null,
-                    events: [],
-                    series: [],
-                    serviceOrders: [],
-                    rooms: [],
-                    planners: [],
-                    mainPlanner: { id: null, text: null },
                     mainPlannerSearchTerm: null,
                     mainPlannerSearchResults: [],
-                    mainPlannerPopover: null
+                    mainPlannerPopover: null,
+                    arrangement: {
+                        title: null,
+                        title_english: null,
+                        audience: null,         // TODO: implement component
+                        arrangement_type: null, // TODO: implement component
+                        status: null,           // TODO: implement component
+                        ticket_code: null,
+                        expected_visitors: null,
+                        location: null,
+                        events: [],                
+                        series: [],
+                        rooms: [],
+                        meeting_place: null,
+                        meeting_place_en: null,
+                        serviceOrders: [],
+                        planners: [],
+                        mainPlanner: { id: null, text: null },
+                        display_text: null,
+                        display_layouts: []
+                    },
                 }
             },
-            computed: {},
+            computed: {
+                showDisplayText() {
+                    let displayLayoutsWithRequisiteText = new Map([
+                        {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
+                            [ "{{ display_layout.id }}", true],
+                        {% endfor %}
+                    ]);
+
+                    let showDisplayText = false;
+
+                    this.arrangement.display_layouts.forEach((displayLayout) => {
+                        if (displayLayoutsWithRequisiteText.has(displayLayout)) {
+                            showDisplayText = true;
+                        }
+                    });
+
+                    return showDisplayText;
+                },
+            },
             methods: {
+
+                updateArrangementType(payload) {
+                    this.arrangement.arrangement_type = payload.id;
+                },
+
                 /**
                  * @summary Open a dialog, with the option to send data to the dialog 
                  * @param {string} dialogName
@@ -628,9 +658,12 @@
                  */
                 openPlanActivityDialog() {
                     this.openDialog("newSimpleActivityDialog", {
-                        preorderedServices: Array.from(this.dialog.data.servicePresets.values()),
-                        preselectedMainPlanner: this.dialog.data.mainPlannerPayload,
-                        preselectedRooms: this.dialog.data.roomPayload, 
+                        data: { 
+                            servicePresets: this.dialog.data.servicePresets,
+                            mainPlannerPayload: this.dialog.data.mainPlannerPayload,
+                            roomPayload: this.dialog.data.roomPayload,
+                            ...this.dialog.vueApp.arrangement
+                        }
                     });
                 },
                 /**
@@ -669,7 +702,7 @@
                 },
 
                 setMainPlanner(planner) {
-                    this.mainPlanner = { id: planner.id, text: planner.full_name };
+                    this.arrangement.mainPlanner = { id: planner.id, text: planner.full_name };
 
                     this.dialog.data.mainPlannerPayload = {
                         allPresets: new Map(),
@@ -683,7 +716,7 @@
             },
             watch: {
                 mainPlannerSearchTerm: async function (val) {
-                    if (val.length > 2 || val.length == 0) {
+                        if (val.length > 2 || val.length == 0) {
                         await fetch("{% url 'arrangement:person_search_planners_ajax_view' %}?term=" + val, {
                             method: "GET",
                             headers: {
@@ -723,8 +756,7 @@
                             triggerElement: dialog.dialogElement.querySelector('#setMainPlannerButton'),
                             wrapperElement: dialog.dialogElement.querySelector('#select-main-planner-popover'),
                         });
-                        dialog.vueApp.mainPlannerPopover = mainPlannerPopover;
-        
+                        dialog.vueApp.mainPlannerPopover = mainPlannerPopover;        
 
                         [
                             {
@@ -754,79 +786,15 @@
                             });
                         });
             
-                        dialog.data.audienceJsTreeSelect = new JSTreeSelect({
-                            element: dialog.querySelector('#audience_jstree_select'),
-                            treeJsonSrcUrl: "/arrangement/audience/tree",
-                            onValueSet: ( data ) => {
-                                dialog.getElementById('_audienceId').value = data.selected[0];
-                            },
-                            valueSelectedLabelText: ( selected) => {
-                                let labelText = '';
-            
-                                if (selected.parent && selected.parent.text)
-                                    labelText += (selected.parent.text + " | ");
-            
-                                labelText += selected.text;
-            
-                                return labelText;
-                            },
-                            noneSelectedLabelText: "Ingen målgruppe valgt ennå",
-                            selectFirstTimeButtonText: 'Velg målgruppe',
-                            changeSelectedValueButtonText: 'Endre målgruppe',
-                            popoverSaveChoicesButtonText: 'Lagre valg',
-                        });
-                        dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
-                            element: dialog.querySelector('#arrangement_type_jstree_select'),
-                            treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
-                            onValueSet: ( data ) => {
-                                dialog.getElementById('_arrangementTypeId').value = data.selected[0];
-                            },
-                            valueSelectedLabelText: ( selected ) => {
-                                let labelText = '';
-            
-                                if (selected.parent && selected.parent.text)
-                                    labelText += (selected.parent.text + " | ");
-            
-                                labelText += selected.text;
-            
-                                return labelText;
-                            },
-                            noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
-                            selectFirstTimeButtonText: 'Velg arrangementstype',
-                            changeSelectedValueButtonText: 'Endre arrangementstype',
-                            popoverSaveChoicesButtonText: 'Lagre valg',
-                        });
-                        dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
-                            element: dialog.querySelector('#status_type_jstree_select'),
-                            treeJsonSrcUrl: "/arrangement/statustype/tree",
-                            onValueSet: ( data ) => {
-                                dialog.getElementById('_statusTypeId').value = data.selected[0];
-                            },
-                            valueSelectedLabelText: ( selected ) => {
-                                let labelText = '';
-            
-                                if (selected.parent && selected.parent.text)
-                                    labelText += (selected.parent.text + " | ");
-            
-                                labelText += selected.text;
-                                
-                                return labelText;
-                            },
-                            noneSelectedLabelText: "Ingen status valgt ennå",
-                            selectFirstTimeButtonText: 'Velg status',
-                            changeSelectedValueButtonText: 'Endre status',
-                            popoverSaveChoicesButtonText: 'Lagre valg',
-                        });
-            
                         document.addEventListener("{{managerName}}.contextUpdated", (e) => {
                             if (e.detail.context.series !== undefined) {
                                 const series = e.detail.context.series;
-                                dialog.vueApp.series = Array.from(series.values());
+                                dialog.vueApp.arrangement.series = Array.from(series.values());
                                 dialog.data.seriesMap = series;
                             }
                             if (e.detail.context.events !== undefined) {
                                 const events = e.detail.context.events;
-                                dialog.vueApp.events = Array.from(events.values());
+                                dialog.vueApp.arrangement.events = Array.from(events.values());
                                 dialog.data.eventsMap = events;
                             }
                         });
@@ -839,8 +807,6 @@
                                 title: 'Generelt',
                                 stepIn: () => {},
                                 stepOut: () => {
-                                    debugger;
-            
                                     let field_elements = dialog.$('#step-1').find("input, select");
                                     [
                                         mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
@@ -857,11 +823,11 @@
                                         }
                                     }
             
-                                    if (!dialog.data.audienceJsTreeSelect.isValid()) {
-                                        dialog.data.audienceJsTreeSelect.showInvalidFeedback();
+                                    if (dialog.vueApp.arrangement.audience === null) {
+                                        toastr.error("Vennligst velg en målgruppe");
                                         return false;
                                     }
-                                    if (!dialog.data.arrangementTypeJsTreeSelect.isValid()) {
+                                    if (!dialog.vueApp.arrangement.arrangement_type) {
                                         dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
                                         return false;
                                     }
@@ -973,9 +939,9 @@
                                 console.log("name", dialog.getElementById('id_name').value);
                                 formData.append("name",             dialog.getElementById('id_name').value);
                                 formData.append("name_en",          dialog.getElementById('id_name_en').value);
-                                formData.append("audience",         dialog.data.audienceJsTreeSelect.getSelectedValue());
+                                formData.append("audience",         dialog.vueApp.arrangement.audience);
                                 formData.append("location",         dialog.getElementById('id_location').value);
-                                formData.append("arrangement_type", dialog.data.arrangementTypeJsTreeSelect.getSelectedValue());
+                                formData.append("arrangement_type", dialog.vueApp.arrangement.arrangement_type);
                                 formData.append("responsible",      dialog.getElementById('id_responsible').value);
                                 formData.append("ticket_code",      dialog.getElementById('id_ticket_code').value || '');
                                 formData.append("meeting_place",    dialog.getElementById('id_meeting_place').value);
@@ -985,10 +951,10 @@
                                     Array.from(dialog.data.selectedPlannerIds.keys())
                                         .forEach( ( id ) => formData.append("planners", id) )
             
-                                let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
+                                let statusValue = dialog.vueApp.arrangement.status;
                                 if (statusValue !== undefined)
                                     formData.append("status", statusValue);
-                                formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.getElementById('id_display_text').value : '');
+                                formData.append("display_text",     dialog.vueApp.arrangement.display_text);
                                 formData.append("collision_resolution_behaviour", resolution_behaviour);
                 
                                 let displayLayouts = [];
@@ -1033,7 +999,6 @@
                                     denyButtonText: "Opprett kollisjoner uten rom",
                                     confirmButtonText: 'Ignorer kolliderende aktiviteter'
                                 }).then((result) => {
-                                    console.log("SWAL RESULT", result)
                                     if (result.isConfirmed === true) {
                                         save(0); // 0 designates behaviour ignore colliding activities (dont create them)
                                     }
@@ -1086,28 +1051,28 @@
                         },
                     },
                     when: [
-                    { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
-                        // this stuff needs to be rewritten along with the other similar methods
-                        // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
-            
-                        dialog.data.servicePresets = new Map((payload.concat(
-                            Array.from(dialog.data.servicePresets.values())
-                        )).map(x => [crypto.randomUUID(), x]));
+                        { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
+                            // this stuff needs to be rewritten along with the other similar methods
+                            // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
+                
+                            dialog.data.servicePresets = new Map((payload.concat(
+                                Array.from(dialog.data.servicePresets.values())
+                            )).map(x => [crypto.randomUUID(), x]));
 
-                        dialog.vueApp.serviceOrders = 
-                            Array.from(dialog.data.servicePresets.entries())
-                            .map(x => { return { key: x[0], ...x[1] } });
+                            dialog.vueApp.arrangement.serviceOrders = 
+                                Array.from(dialog.data.servicePresets.entries())
+                                .map(x => { return { key: x[0], ...x[1] } });
 
-                    } },
-                    { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                            dialog.data.selectedRoomIds = new Map();
-                            dialog.data.roomPresets = new Map();
-                            payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
-                            payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
-            
-                            dialog.data.roomPayload = payload;
+                        } },
+                        { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                                dialog.data.selectedRoomIds = new Map();
+                                dialog.data.roomPresets = new Map();
+                                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                                payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+                
+                                dialog.data.roomPayload = payload;
 
-                            dialog.vueApp.rooms = payload.viewables;
+                                dialog.vueApp.arrangement.rooms = payload.viewables;
                         } },
                         { eventKnownAs: "plannersSelected", do: (dialog, payload) => {
                             dialog.data.selectedPlannerIds = new Map();
@@ -1116,9 +1081,8 @@
                             payload.selectedPresets.forEach( (presetId) => dialog.data.plannerPresets.set(presetId, payload.allPresets.get(presetId)));
             
                             dialog.data.plannerPayload = payload;
-                            console.log(dialog.data.plannerPayload);
 
-                            dialog.vueApp.planners = payload.viewables;
+                            dialog.vueApp.arrangement.planners = payload.viewables;
                         } },
                         { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                             if (payload.allSelectedEntityIds.length == 0)
@@ -1128,12 +1092,9 @@
             
                             // save the payload so that it can be re-used / re-applied to child activities / series
                             dialog.data.mainPlannerPayload = payload;
-
-                            console.log("SET PLANNER", payload)
-            
                             const person = payload.viewables[0];
                             
-                            dialog.vueApp.mainPlanner = { id: person.id, text: person.text }
+                            dialog.vueApp.arrangement.mainPlanner = { id: person.id, text: person.text }
 
                             dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                             dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
@@ -1149,21 +1110,6 @@
                         stepper: null,
                         vueApp: null,
                     },
-                    plugins: [
-                        {
-                            name: 'showIfSelected',
-                            pluginClass: DialogShowIfSelectedPlugin,
-                            args: {
-                                checkboxesSelector: "[name='display_layouts']",
-                                elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
-                                showIfAnyOfTheseValuesMap: new Map([
-                                    {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
-                                        [ "{{ display_layout.id }}", true],
-                                    {% endfor %}
-                                ]),
-                            },
-                        }
-                    ],
                 });
             }
         });
