@@ -55,6 +55,16 @@
                 let json = await response.json();
                 return json;
             },
+            setSelected() {
+                if (this.selected && this.hasInit) {
+                    $(this.$refs.jsTreeEl).jstree('select_node', this.selected);
+
+                    let node = $(this.$refs.jsTreeEl).jstree(true).get_node(this.selected);
+                    this.selectedValues.id = node.id;
+                    this.selectedValues.parent = node.parent;
+                    this.selectedValues.text = node.text;
+                }
+            },
             async initJsTree() {
                 await this.loadJson()
                     .then(treeValidObj => {
@@ -71,14 +81,8 @@
                         });
 
                         $(this.$refs.jsTreeEl).on('loaded.jstree', () => {
-                            if (this.selected !== null) {
-                                $(this.$refs.jsTreeEl).jstree('select_node', this.selected);
-        
-                                let node = $(this.$refs.jsTreeEl).jstree(true).get_node(this.selected);
-                                this.selectedValues.id = node.id;
-                                this.selectedValues.parent = node.parent;
-                                this.selectedValues.text = node.text;    
-                            }
+                            this.hasInit = true;
+                            this.setSelected();
                         });
 
                         $(this.$refs.jsTreeEl).on('changed.jstree', (e, data) => {
@@ -99,12 +103,17 @@
 
                             this.isExpanded = false;
 
-                            this.$emit('input', this.selectedValues.id);
+                            this.$emit('input', this.selectedValues.id, this.selectedValues.text);
                         });
                     });
             },
             toggleVisibility() {
                 this.isExpanded = !this.isExpanded;
+            }
+        },
+        watch: {
+            selected: function (newVal, oldVal) {
+                this.setSelected();
             }
         },
         computed: {
@@ -126,7 +135,8 @@
                     id: null,
                     text: null,
                     parent: null,
-                }
+                },
+                hasInit: false,
             }
         },
         mounted() {
