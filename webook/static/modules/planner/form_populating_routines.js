@@ -155,35 +155,15 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
  * @param {*} manifest
  */
 export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement, dialogId) {
-    [
-        { to: "#serie_uuid", value: serie_uuid },
-        { to: "#serie_title", value: manifest.title },
-        { to: "#serie_title_en", value: manifest.title_en },
-        { to: "#serie_expected_visitors", value: manifest.expected_visitors },
-        { to: "#serie_start", value: manifest.start_time },
-        { to: "#serie_end", value: manifest.end_time },
-        { to: "#serie_ticket_code", value: manifest.ticket_code },
-        { to: "#area_start_date", value: manifest.start_date },
-        { to: "#id_meeting_place", value: manifest.meeting_place },
-        { to: "#id_meeting_place_en", value: manifest.meeting_place_en },
-        { to: '#_statusTypeId', value: manifest.status },
-        { to: '#id_display_text', value: manifest.display_text },
-        { to: '#id_display_text_en', value: manifest.display_text_en },
-        { to: '#buffer_before_title', value: manifest.before_buffer_title },
-        { to: '#buffer_before_date_offset', value: manifest.before_buffer_date_offset },
-        { to: '#buffer_before_start', value: manifest.before_buffer_start },
-        { to: '#buffer_before_end', value: manifest.before_buffer_end },
-        { to: '#buffer_after_title', value: manifest.after_buffer_title },
-        { to: '#buffer_after_date_offset', value: manifest.after_buffer_date_offset },
-        { to: '#buffer_after_start', value: manifest.after_buffer_start },
-        { to: '#buffer_after_end', value: manifest.after_buffer_end },
-    ].forEach( (mapping) => { $dialogElement.find(mapping.to).val(mapping.value ).trigger('change'); } );
 
-    console.log("MANIFEST!", manifest)
+    let payload = {
+        "serie_uuid": serie_uuid,
+        "display_layouts": manifest.display_layouts.map(layout => layout.id),
+        ...manifest,
+    }
 
-    window.MessagesFacility.send(dialogId, manifest.audience, "setAudienceFromParent");
-    window.MessagesFacility.send(dialogId, manifest.arrangement_type, "setArrangementTypeFromParent");
-    window.MessagesFacility.send(dialogId, manifest.status, "setStatusFromParent");
+    window.MessagesFacility.send(dialogId, payload, "populateDialog")
+
     window.MessagesFacility.send(dialogId, manifest.service_orders, "newServiceOrder");
 
     if (manifest.rooms) {
@@ -198,10 +178,6 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
     }
     if (manifest.responsible)
         window.MessagesFacility.send(dialogId, manifest.responsible, "setPlanner");
-    
-    manifest.display_layouts.forEach(display_layout => {
-        $dialogElement.find('#id_display_layouts_serie_planner_' + display_layout.id).prop( "checked", true );
-    })
 
     switch(manifest.recurrence_strategy) {
         case "StopWithin":
