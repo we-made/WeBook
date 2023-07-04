@@ -27,9 +27,9 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
 
     if (serie.event_serie_pk)
         formData.append(`${keyPrefix}predecessorSerie`, serie.event_serie_pk);
-
+    
     appendArrayToFormData(serie.rooms, formData, `${keyPrefix}rooms`);
-    appendArrayToFormData(serie.display_layouts.split(","), formData, `${keyPrefix}display_layouts`);
+    appendArrayToFormData(serie.time.display_layouts, formData, `${keyPrefix}display_layouts`);
 
     if (serie.buffer) {
         if (serie.buffer.before) {
