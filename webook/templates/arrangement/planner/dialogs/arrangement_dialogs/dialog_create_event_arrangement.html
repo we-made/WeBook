@@ -886,8 +886,6 @@
                     },
                     when: [
                         { eventKnownAs: "populateDialogWithEvent", do: (dialog, payload) => {
-                            console.log("populateDialogWithEvent", payload);
-
                             dialog.vueApp.activity.title = payload.title;
                             dialog.vueApp.activity.title_en = payload.title_english;
                             dialog.vueApp.activity.ticket_code = payload.ticket_code;

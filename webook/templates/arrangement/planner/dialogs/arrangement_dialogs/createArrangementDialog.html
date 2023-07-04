@@ -939,9 +939,9 @@
                                 console.log("name", dialog.getElementById('id_name').value);
                                 formData.append("name",             dialog.getElementById('id_name').value);
                                 formData.append("name_en",          dialog.getElementById('id_name_en').value);
-                                formData.append("audience",         dialog.data.audienceJsTreeSelect.getSelectedValue());
+                                formData.append("audience",         dialog.vueApp.arrangement.audience);
                                 formData.append("location",         dialog.getElementById('id_location').value);
-                                formData.append("arrangement_type", dialog.data.arrangementTypeJsTreeSelect.getSelectedValue());
+                                formData.append("arrangement_type", dialog.vueApp.arrangement.arrangement_type);
                                 formData.append("responsible",      dialog.getElementById('id_responsible').value);
                                 formData.append("ticket_code",      dialog.getElementById('id_ticket_code').value || '');
                                 formData.append("meeting_place",    dialog.getElementById('id_meeting_place').value);
@@ -951,10 +951,10 @@
                                     Array.from(dialog.data.selectedPlannerIds.keys())
                                         .forEach( ( id ) => formData.append("planners", id) )
             
-                                let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
+                                let statusValue = dialog.vueApp.arrangement.status;
                                 if (statusValue !== undefined)
                                     formData.append("status", statusValue);
-                                formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.getElementById('id_display_text').value : '');
+                                formData.append("display_text",     dialog.vueApp.arrangement.display_text);
                                 formData.append("collision_resolution_behaviour", resolution_behaviour);
                 
                                 let displayLayouts = [];
