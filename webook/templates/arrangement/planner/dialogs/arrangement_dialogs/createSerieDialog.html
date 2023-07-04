@@ -1,6 +1,7 @@
 {% load static i18n %}
 {% load crispy_forms_tags %}
 
+{% include "arrangement/vue/js_tree_select_component.html" %}
 
 <div id="{{dialogId}}" title="Ny tidsplan" class="{{discriminator}}">
 
@@ -226,7 +227,7 @@
                 <div class="row">
                     <div class="col-3">
                         <label>Startdato</label>
-                        <input type="date" id="area_start_date" required>
+                        <input type="date" id="area_start_date" v-model="serie.start_date" required>
                     </div>
                     <div class="col-9" id="area_methods_wrapper">
                         <div>
@@ -433,14 +434,14 @@
                                 <label for="buffer_before_title" class="form-label">
                                     Tittel
                                 </label>
-                                <input type="text" name="" id="buffer_before_title" class="form-control form-control-lg">
+                                <input type="text" v-model="serie.buffer_before_title" id="buffer_before_title" class="form-control form-control-lg">
                             </div>
 
                             <div class="mt-2">
                                 <label for="buffer_before_date_offset" class="form-label">
                                     Hvor mange dager før? ( 0 for samme dag )
                                 </label>
-                                <input type="number" name="" id="buffer_before_date_offset" class="form-control form-control-lg" min="0">
+                                <input type="number" v-model="serie.buffer_before_date_offset" name="" id="buffer_before_date_offset" class="form-control form-control-lg" min="0">
                             </div>
                         </td>
                     </tr>
@@ -449,13 +450,13 @@
                         <td style="padding-top: 0;">
                             Fra
                             <div>
-                                <input type="time" id="buffer_before_start" class="form-control form-control-lg" />
+                                <input type="time" v-model="serie.buffer_before_start" id="buffer_before_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td style="padding-top: 0;">
                             Til
                             <div>
-                                <input type="time" id="buffer_before_end" class="form-control form-control-lg" />
+                                <input type="time" v-model="serie.buffer_before_end" id="buffer_before_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
@@ -478,13 +479,13 @@
                                 <label for="buffer_after_title" class="form-label">
                                     Tittel
                                 </label>
-                                <input type="text" name="" id="buffer_after_title" class="form-control form-control-lg">
+                                <input type="text" v-model="serie.buffer_after_title" id="buffer_after_title" class="form-control form-control-lg">
                             </div>
                             <div class="mt-2">
                                 <label for="buffer_after_date_offset" class="form-label">
                                     Hvor mange dager etter? ( 0 for samme dag )
                                 </label>
-                                <input type="number" name="" id="buffer_after_date_offset" class="form-control form-control-lg" min="0">
+                                <input type="number" v-model="serie.buffer_after_date_offset" id="buffer_after_date_offset" class="form-control form-control-lg" min="0">
                             </div>
                         </td>
                     </tr>
@@ -494,7 +495,7 @@
                                 Fra
                             </label>
                             <div>
-                                <input type="time" id="buffer_after_start" class="form-control form-control-lg" />
+                                <input type="time" v-model="serie.buffer_after_start" id="buffer_after_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td style="padding-top: 0;">
@@ -502,7 +503,7 @@
                                 Til
                             </label>
                             <div>
-                                <input type="time" id="buffer_after_end" class="form-control form-control-lg" />
+                                <input type="time" v-model="serie.buffer_after_end" id="buffer_after_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
@@ -611,9 +612,10 @@
                         title_en: null,
                         rooms: [],
                         serviceOrders: [],
+                        start_date: null,
                         start_time: null,
                         end_time: null,
-                        ticket_code: null,
+                        ticket_code: "",
                         expected_visitors: null,
                         audience: null,
                         audienceName: null,
@@ -626,7 +628,17 @@
                         meeting_place_en: null,
                         display_layouts: [],
                         display_text: null,
-                        mainPlanner: { id: null, text: null }
+                        mainPlanner: { id: null, text: null },
+
+                        buffer_before_title: null,
+                        buffer_before_date_offset: null,
+                        buffer_before_start: null,
+                        buffer_before_end: null,
+
+                        buffer_after_title: null,
+                        buffer_after_date_offset: null,
+                        buffer_after_start: null,
+                        buffer_after_end: null,
                     }
                 }
             },
@@ -1241,17 +1253,11 @@
                     },
                     when: [
                         { eventKnownAs: "populateDialog", do: (dialog, payload) => {
-                            dialog.vueApp.serie.title = payload.title;
-                            dialog.vueApp.serie.title_en = payload.title_english;
-                            dialog.vueApp.serie.ticket_code = payload.ticket_code;
-                            dialog.vueApp.serie.expected_visitors = payload.expected_visitors;
-                            dialog.vueApp.serie.audience = payload.audience;
-                            dialog.vueApp.serie.arrangement_type = payload.arrangement_type;
-                            dialog.vueApp.serie.status = payload.status;
-                            dialog.vueApp.serie.meeting_place = payload.meeting_place;
-                            dialog.vueApp.serie.meeting_place_en = payload.meeting_place_en;
-                            dialog.vueApp.serie.display_layouts = payload.display_layouts;
-                            dialog.vueApp.serie.display_text = payload.display_text;
+                            const establishedProperties = Object.entries(dialog.vueApp.serie).map(x => x[0]);
+                            Object.entries(payload).forEach(([key, value]) => {
+                                if (value !== null && value !== undefined && establishedProperties.includes(key))
+                                    dialog.vueApp.serie[key] = value;
+                            });
                         } },
                         { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
                             // this stuff needs to be rewritten along with the other similar methods
