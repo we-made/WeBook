@@ -10,13 +10,13 @@
     <input type="hidden" id="_backingArrangementTypeId" />
     <input type="hidden" id="_statusTypeId" />
 
-    <input type="hidden" id="_serie_reference">
-    <input type="hidden" id="_serie_position_hash" name="">
-    <input type="hidden" id="_parent_serie_position_hash" name="">
+    <input type="hidden" id="_serie_reference" v-model="activity.serie_uuid">
+    <input type="hidden" id="_serie_position_hash" v-model="activity.serie_position_hash">
+    <input type="hidden" id="_parent_serie_position_hash" v-model="activity.parent_serie_position_hash">
 
-    <input type="hidden" id="start_before_collision_resolution">
-    <input type="hidden" id="end_before_collision_resolution">
-    <input type="hidden" id="title_before_collision_resolution" name="">
+    <input type="hidden" id="start_before_collision_resolution" v-model="activity.start_before_collision_resolution">
+    <input type="hidden" id="end_before_collision_resolution" v-model="activity.end_before_collision_resolution">
+    <input type="hidden" id="title_before_collision_resolution" v-model="activity.title_before_collision_resolution">
 
     <div class="clearfix">
         <div class="float-start">
@@ -36,7 +36,7 @@
         <div id="step-1">
             <form id="newSimpleActivityForm">
                 <input type="submit" name="submit" style="display:none;" />
-                <input type="hidden" name="uuid" id="event_uuid" />
+                <input type="hidden" name="uuid" id="event_uuid" v-model="activity._uuid" />
                 
                 <div class="form-group mb-2">
                     <label class="form-label" for="title">
@@ -58,7 +58,7 @@
                     icon="fas fa-users"
                     button-label="Velg målgruppe"
                     :selected="activity.audience"
-                    @input="(id) => activity.audience = id">
+                    @input="(id, name) => { activity.audience = id; activity.audienceName = name; }">
                 </tree-select-component>
 
                 <tree-select-component
@@ -68,7 +68,7 @@
                     icon="fas fa-cog"
                     button-label="Velg arrangementstype"
                     :selected="activity.arrangement_type"
-                    @input="(id) => activity.arrangement_type = id">
+                    @input="(id, name) => { activity.arrangement_type = id; activity.arrangementTypeName = name; }">
                 </tree-select-component>
 
                 <tree-select-component
@@ -78,7 +78,7 @@
                     icon="fas fa-cog"
                     button-label="Velg status"
                     :selected="activity.status"
-                    @input="(id) => activity.status = id">
+                    @input="(id, name) => { activity.status = id; activity.statusName = name; }">
                 </tree-select-component>
     
                 <div class="form-group mt-2">
@@ -89,12 +89,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" v-model="activity.from_date" required />
+                                <input type="date" id="fromDate" name="fromDate" class="form-control form-control-lg" v-model="activity.fromDate" required />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" v-model="activity.from_time" required />
+                                <input type="time" id="fromTime" name="fromTime" class="form-control form-control-lg" v-model="activity.fromTime" required />
                             </div>
                         </div>
                     </div>
@@ -108,12 +108,12 @@
                     <div class="row">
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" v-model="activity.to_date" required />
+                                <input type="date" id="toDate" name="toDate" class="form-control form-control-lg" v-model="activity.toDate" required />
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-outline">
-                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" v-model="activity.to_time" required />
+                                <input type="time" id="toTime" name="toTime" class="form-control form-control-lg" v-model="activity.toTime" required />
                             </div>
                         </div>
                     </div>
@@ -419,7 +419,7 @@
             <div class="form-group mt-2">
                 <label for="{{form.meeting_place.id_for_label}}">{{form.meeting_place.label}}</label>
                 <input type="text" 
-                    name="{{form.meeting_place.name}}" 
+                    name="{{form.meeting_place.name}}"
                     id="{{form.meeting_place.id_for_label}}" 
                     class="form-control"
                     v-model="activity.meeting_place">
@@ -435,7 +435,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="clearfix">
         <div class="float-start">
             <button class="btn wb-btn-blank btn-lg text-muted"
@@ -481,11 +481,21 @@
                     mainPlannerPopover: null,
 
                     activity: {
+                        _uuid: null,
+                        arrangement: 0,
+                        serie_position_hash: null,
+                        parent_serie_position_hash: null,
+                        title_before_collision_resolution: null,
+                        serie_uuid: null,
                         id: null,
                         title: null,
                         title_en: null,
                         ticket_code: null,
-                        participants: null,
+                        fromDate: null,
+                        fromTime: null,
+                        toDate: null,
+                        toTime: null,
+                        expected_visitors: null,
                         buffer_before_title: null,
                         buffer_after_title: null,
                         buffer_before_date: null,
@@ -495,8 +505,11 @@
                         buffer_after_start: null,
                         buffer_after_end: null,
                         audience: null,
+                        audienceName: "",
                         arrangement_type: null,
+                        arrangementTypeName: "",
                         status: null,
+                        statusName: "",
                         display_layouts: [],
                         display_text: null,
                         meeting_place: null,
@@ -757,8 +770,20 @@
                                 console.warn("Validation failed.")
                                 return;
                             }
-            
-            
+                            
+
+                            let qualifiedEvent = dialog.vueApp.activity;
+                            qualifiedEvent.responsible = qualifiedEvent.main_planner.id;
+                            qualifiedEvent.room_payload = dialog.data.roomPayload;
+                            qualifiedEvent.planner_payload = dialog.data.mainPlannerPayload;
+                            qualifiedEvent.ordered_services = qualifiedEvent.serviceOrders; //rename
+                            qualifiedEvent.start = new Date(qualifiedEvent.fromDate + "T" + qualifiedEvent.fromTime);
+                            qualifiedEvent.end = new Date(qualifiedEvent.toDate + "T" + qualifiedEvent.toTime);                            
+
+                            qualifiedEvent.room_name_map = dialog.data.roomsNameMap;
+                            qualifiedEvent.rooms = qualifiedEvent.rooms.map(room => room.id);
+
+                            /* 
                             let qualifiedEvent = {
                                 _uuid:                      dialog.interior.event_uuid.value,
                                 title:                      dialog.interior.title.value,
@@ -795,17 +820,9 @@
                                 start_before_collision_resolution: dialog.interior.start_before_collision_resolution.value,
                                 end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
                                 title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
-                            };
-            
-                            let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
-                            if (statusValue !== undefined)
-                                qualifiedEvent.status = statusValue;
+                            }; */
             
                             console.log("qualifiedEvent", qualifiedEvent);
-            
-                            qualifiedEvent.display_layouts = 
-                                [...dialog.querySelectorAll("input[name='display_layouts_create_event'][type='checkbox']:checked")]
-                                    .map(element => element.value);
             
                             dialog.raiseSubmitEvent({
                                 event: qualifiedEvent,
@@ -870,6 +887,18 @@
                     when: [
                         { eventKnownAs: "populateDialogWithEvent", do: (dialog, payload) => {
                             console.log("populateDialogWithEvent", payload);
+
+                            dialog.vueApp.activity.title = payload.title;
+                            dialog.vueApp.activity.title_en = payload.title_english;
+                            dialog.vueApp.activity.ticket_code = payload.ticket_code;
+                            dialog.vueApp.activity.expected_visitors = payload.expected_visitors;
+                            dialog.vueApp.activity.audience = payload.audience;
+                            dialog.vueApp.activity.arrangement_type = payload.arrangement_type;
+                            dialog.vueApp.activity.status = payload.status;
+                            dialog.vueApp.activity.meeting_place = payload.meeting_place;
+                            dialog.vueApp.activity.meeting_place_en = payload.meeting_place_en;
+                            dialog.vueApp.activity.display_layouts = payload.display_layouts;
+                            dialog.vueApp.activity.display_text = payload.display_text;
                         } },
                         { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
                             // this stuff needs to be rewritten along with the other similar methods

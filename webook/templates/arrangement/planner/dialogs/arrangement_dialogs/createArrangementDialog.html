@@ -428,7 +428,7 @@
 
             <div id="eventsBody">
                 <div class="border border-2 rounded-2 p-3" id='[[element._uuid]]' style="background-color: #f6f6f0;"
-                    v-for="event in events">
+                    v-for="event in arrangement.events">
                     
                     <div class="d-flex justify-content-between align-items-center">
                         <h3>
@@ -658,9 +658,12 @@
                  */
                 openPlanActivityDialog() {
                     this.openDialog("newSimpleActivityDialog", {
-                        preorderedServices: Array.from(this.dialog.data.servicePresets.values()),
-                        preselectedMainPlanner: this.dialog.data.mainPlannerPayload,
-                        preselectedRooms: this.dialog.data.roomPayload, 
+                        data: { 
+                            servicePresets: this.dialog.data.servicePresets,
+                            mainPlannerPayload: this.dialog.data.mainPlannerPayload,
+                            roomPayload: this.dialog.data.roomPayload,
+                            ...this.dialog.vueApp.arrangement
+                        }
                     });
                 },
                 /**
@@ -713,7 +716,7 @@
             },
             watch: {
                 mainPlannerSearchTerm: async function (val) {
-                    if (val.length > 2 || val.length == 0) {
+                        if (val.length > 2 || val.length == 0) {
                         await fetch("{% url 'arrangement:person_search_planners_ajax_view' %}?term=" + val, {
                             method: "GET",
                             headers: {
