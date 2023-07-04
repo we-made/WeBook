@@ -158,8 +158,8 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
 
     let payload = {
         "serie_uuid": serie_uuid,
-        "display_layouts": manifest.display_layouts.map(layout => layout.id),
         ...manifest,
+        "display_layouts": manifest.display_layouts.map(layout => layout.id),
     }
 
     window.MessagesFacility.send(dialogId, payload, "populateDialog")
