@@ -305,13 +305,6 @@
                 </label>
             </div>
 
-            <!-- <div class="alert alert-warning">
-                Med den konfigurasjonen du har valgt her vil de eksisterende (allerede plasserte) ordre for denne serien bli refreshet.
-                Det vil bety at eksisterende tildelinger vil fjernes, og behandlere må prosessere ordren på nytt.
-                Om du ikke ønsker dette må "Reset eksisterende bestillinger" ikke være avhuket, da vil ingenting bli gjort i relasjon til de eksisterende 
-                bestillingene.
-            </div> -->
-
             <div id="serviceOrders">
             </div>
         </div>
@@ -506,7 +499,7 @@
                     managerName: '{{ managerName }}',
                     discriminator: '{{ discriminator }}',
                     postInit: function (dialog) {
-            
+                        
                         new mdb.Tooltip(dialog.getElementById('resetTooltip'), {
                             "container": dialog.dialogElement,
                             "template": `<div class="wb-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>`,
