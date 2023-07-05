@@ -449,7 +449,7 @@ class GetArrangementsInPeriod(LoginRequiredMixin, ListView):
         LEFT JOIN arrangement_serviceorderprovision_selected_personell as s_pers on s_pers.serviceorderprovision_id = sopr.id
         LEFT JOIN arrangement_person as participants on s_pers.person_id = participants.id
         LEFT JOIN arrangement_eventserie as evserie on evserie.id = ev.serie_id
-        WHERE arr.is_archived = false AND ev.start > %s AND ev.end < %s
+        WHERE arr.is_archived = false AND ev.start > %s AND ev.end < %s AND ev.is_archived = false
         GROUP BY 
             event_pk, audience.icon_class, audience.name, audience.slug,
             resp.first_name, resp.last_name, arr.id, ev.id, arr.slug,
