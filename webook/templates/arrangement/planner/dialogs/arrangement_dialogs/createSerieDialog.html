@@ -31,7 +31,7 @@
 
     <div>
         <div id="step-1">
-            <input type="hidden" name="uuid" id="serie_uuid">
+            <input type="hidden" name="uuid" id="serie_uuid" v-model="serie.uuid">
             <form id="headMockForm">
                 <input type="submit" style="display:none;" />
                 <div class="mb-2">
@@ -608,6 +608,7 @@
                     mainPlannerSearchResults: [],
 
                     serie: {
+                        uuid: crypto.randomUUID(),
                         title: null,
                         title_en: null,
                         rooms: [],
@@ -1133,7 +1134,7 @@
                                 }
                             }
             
-                            serie._uuid = dialog.$('#serie_uuid').val();
+                            serie._uuid = dialog.$('#serie_uuid').val() ;
                             serie.rooms = Array.from(dialog.data.selectedRoomIds.keys());
                             serie.room_name_map = dialog.data.roomsNameMap;
                             serie.room_payload = dialog.data.roomPayload;

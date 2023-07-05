@@ -33,8 +33,6 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         $dialogElement.find( mapping.target ).val( mapping.value );
     } );
 
-    console.log("serie", serie);
-
     if (serie.planner_payload) {
         window.MessagesFacility.send(dialogId, serie.planner_payload, "setPlanner");
     }
@@ -157,13 +155,22 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
 export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement, dialogId) {
 
     let payload = {
-        "serie_uuid": serie_uuid,
+        "uuid": serie_uuid,
         ...manifest,
         "display_layouts": manifest.display_layouts.map(layout => layout.id),
+        
+        "buffer_before_title": manifest.before_buffer_title,
+        "buffer_before_date_offset": manifest.before_buffer_date_offset,
+        "buffer_before_start": manifest.before_buffer_start,
+        "buffer_before_end": manifest.before_buffer_end,
+
+        "buffer_after_title": manifest.after_buffer_title,
+        "buffer_after_date_offset": manifest.after_buffer_date_offset,
+        "buffer_after_start": manifest.after_buffer_start,
+        "buffer_after_end": manifest.after_buffer_end,
     }
 
     window.MessagesFacility.send(dialogId, payload, "populateDialog")
-
     window.MessagesFacility.send(dialogId, manifest.service_orders, "newServiceOrder");
 
     if (manifest.rooms) {

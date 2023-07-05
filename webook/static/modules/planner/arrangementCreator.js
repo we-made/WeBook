@@ -138,8 +138,6 @@ export class ArrangementCreator {
                                     "populateDialog"
                                 )
                                 
-                                $thisDialog.find('#serie_uuid').val(crypto.randomUUID());
-                                
                                 $mainDialog[0].querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
                                         $thisDialog.find('#id_display_layouts_serie_planner_' + checkboxElement.value)

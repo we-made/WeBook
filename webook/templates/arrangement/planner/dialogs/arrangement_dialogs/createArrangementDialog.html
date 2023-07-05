@@ -471,6 +471,11 @@
                     :id='serie._uuid' 
                     style="background-color: #f6f6f0;"
                     v-for="serie in arrangement.series">
+
+                    <code>
+                        [[serie]]
+                    </code>
+
                     <h3 class="mb-0">
                         <i class="fas fa-sync"></i>&nbsp;
                         [[serie.time.title]]
@@ -599,7 +604,7 @@
                         arrangement_type: null, // TODO: implement component
                         status: null,           // TODO: implement component
                         ticket_code: null,
-                        expected_visitors: null,
+                        expected_visitors: 0,
                         location: null,
                         events: [],                
                         series: [],
