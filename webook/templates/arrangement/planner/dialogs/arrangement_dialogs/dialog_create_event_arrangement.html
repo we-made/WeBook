@@ -773,6 +773,9 @@
                             
 
                             let qualifiedEvent = dialog.vueApp.activity;
+                            
+                            qualifiedEvent._original = dialog.vueApp.activity;
+
                             qualifiedEvent.responsible = qualifiedEvent.main_planner.id;
                             qualifiedEvent.room_payload = dialog.data.roomPayload;
                             qualifiedEvent.planner_payload = dialog.data.mainPlannerPayload;
@@ -783,45 +786,6 @@
                             qualifiedEvent.room_name_map = dialog.data.roomsNameMap;
                             qualifiedEvent.rooms = qualifiedEvent.rooms.map(room => room.id);
 
-                            /* 
-                            let qualifiedEvent = {
-                                _uuid:                      dialog.interior.event_uuid.value,
-                                title:                      dialog.interior.title.value,
-                                title_en:                   dialog.interior.title_en.value,
-                                ticket_code:                dialog.interior.ticket_code.value,
-                                expected_visitors:          dialog.interior.expected_visitors.value,
-                                audience:                   dialog.data.audienceJsTreeSelect.getSelectedValue(),
-                                audienceName:               dialog.data.audienceJsTreeSelect.getSelectedText(),
-                                arrangement_type:           dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
-                                arrangementTypeName:        dialog.data.arrangementTypeJsTreeSelect.getSelectedText(),     
-                                start:                      new Date( dialog.interior.fromDate.value   + "T" + dialog.interior.fromTime.value ),
-                                end:                        new Date( dialog.interior.toDate.value     + "T" + dialog.interior.toTime.value ),
-                                arrangement:                0,
-                                rooms:                      Array.from(dialog.data.selectedRoomIds.keys()),
-                                room_name_map:              dialog.data.roomsNameMap,       // Kept due to edit - not pertinent for save
-                                before_buffer_title:        dialog.interior.buffer_before_title.value ?? "",
-                                before_buffer_date:         dialog.interior.buffer_before_date.value,
-                                before_buffer_start:        dialog.interior.buffer_before_start.value ?? "",
-                                before_buffer_end:          dialog.interior.buffer_before_end.value ?? "",
-                                after_buffer_title:         dialog.interior.buffer_after_title.value ?? "",
-                                after_buffer_date:          dialog.interior.buffer_after_date.value,
-                                after_buffer_start:         dialog.interior.buffer_after_start.value ?? "",
-                                after_buffer_end:           dialog.interior.buffer_after_end.value ?? "",
-                                meeting_place:              dialog.interior.id_meeting_place.value,
-                                meeting_place_en:           dialog.interior.id_meeting_place_en.value,
-                                responsible:                dialog.interior.id_responsible.value,
-                                display_text:               dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
-                                room_payload:               dialog.data.roomPayload,
-                                planner_payload:            dialog.data.mainPlannerPayload,
-                                ordered_services:           Array.from(dialog.data.servicePresets.values()),
-                                serie_uuid:                 dialog.interior._serie_reference.value,
-                                serie_position_hash:        dialog.interior._serie_position_hash.value,
-                                parent_serie_position_hash: dialog.interior._parent_serie_position_hash.value,
-                                start_before_collision_resolution: dialog.interior.start_before_collision_resolution.value,
-                                end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
-                                title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
-                            }; */
-            
                             console.log("qualifiedEvent", qualifiedEvent);
             
                             dialog.raiseSubmitEvent({
@@ -886,17 +850,11 @@
                     },
                     when: [
                         { eventKnownAs: "populateDialogWithEvent", do: (dialog, payload) => {
-                            dialog.vueApp.activity.title = payload.title;
-                            dialog.vueApp.activity.title_en = payload.title_english;
-                            dialog.vueApp.activity.ticket_code = payload.ticket_code;
-                            dialog.vueApp.activity.expected_visitors = payload.expected_visitors;
-                            dialog.vueApp.activity.audience = payload.audience;
-                            dialog.vueApp.activity.arrangement_type = payload.arrangement_type;
-                            dialog.vueApp.activity.status = payload.status;
-                            dialog.vueApp.activity.meeting_place = payload.meeting_place;
-                            dialog.vueApp.activity.meeting_place_en = payload.meeting_place_en;
-                            dialog.vueApp.activity.display_layouts = payload.display_layouts;
-                            dialog.vueApp.activity.display_text = payload.display_text;
+                            const establishedProperties = Object.entries(dialog.vueApp.activity).map(x => x[0]);
+                            Object.entries(payload).forEach(([key, value]) => {
+                                if (value !== null && value !== undefined && establishedProperties.includes(key))
+                                    dialog.vueApp.activity[key] = value;
+                            });
                         } },
                         { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
                             // this stuff needs to be rewritten along with the other similar methods

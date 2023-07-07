@@ -1,0 +1,39 @@
+<template id="vuec_arbitrator_select_component_template">
+    <select 
+        :value="modelValue" 
+        :name="name" 
+        :id="id" 
+        :required="required || false"
+        @change="$emit('update:modelValue', $event.target.value)">
+
+        <option v-for="option in options" :value="option.id">
+            [[ option.label ]]
+        </option>
+    </select>
+</template>
+
+
+<script>
+    let ArbitratorSelectComponent = {
+        props: {
+            modelValue: Number,
+            id: String,
+            name: String,
+            required: Boolean
+        },
+        emits: ["update:modelValue"],
+        data() {
+            return {
+                options: [
+                    { id: 0, label: "første" },
+                    { id: 1, label: "andre" },
+                    { id: 2, label: "tredje" },
+                    { id: 3, label: "fjerde" },
+                    { id: 4, label: "siste" },
+                ] 
+            }
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec_arbitrator_select_component_template"
+    }
+</script>

@@ -470,7 +470,8 @@
                 <div class="rounded-2 border border-2 p-3 ps-4 pe-4" 
                     :id='serie._uuid' 
                     style="background-color: #f6f6f0;"
-                    v-for="serie in series">
+                    v-for="serie in arrangement.series">
+
                     <h3 class="mb-0">
                         <i class="fas fa-sync"></i>&nbsp;
                         [[serie.time.title]]
@@ -599,7 +600,7 @@
                         arrangement_type: null, // TODO: implement component
                         status: null,           // TODO: implement component
                         ticket_code: null,
-                        expected_visitors: null,
+                        expected_visitors: 0,
                         location: null,
                         events: [],                
                         series: [],
@@ -662,6 +663,21 @@
                             servicePresets: this.dialog.data.servicePresets,
                             mainPlannerPayload: this.dialog.data.mainPlannerPayload,
                             roomPayload: this.dialog.data.roomPayload,
+                            title_en: this.dialog.vueApp.arrangement.title_english,
+                            ...this.dialog.vueApp.arrangement
+                        }
+                    });
+                },
+                /**
+                * @summary Open dialog for planning a new timeplan / serie in the arrangement
+                */
+                openPlanSerieDialog() {
+                    this.openDialog("newTimePlanDialog", {
+                        data: {
+                            servicePresets: this.dialog.data.servicePresets,
+                            mainPlannerPayload: this.dialog.data.mainPlannerPayload,
+                            roomPayload: this.dialog.data.roomPayload,
+                            title_en: this.dialog.vueApp.arrangement.title_english,
                             ...this.dialog.vueApp.arrangement
                         }
                     });
@@ -689,16 +705,6 @@
                 */
                 openAddServiceOrderDialog(dialog, {} = {}, triggeredByElement) {
                     this.openDialog("orderServiceDialog", { multiple: false, data: { whenEventName: "newServiceOrder" }, entity_type: "unknown", entity_id: "0" });
-                },
-                /**
-                * @summary Open dialog for planning a new timeplan / serie in the arrangement
-                */
-                openPlanSerieDialog() {
-                    this.openDialog("newTimePlanDialog", {
-                        preorderedServices: Array.from(this.dialog.data.servicePresets.values()),
-                        preselectedMainPlanner: this.dialog.data.mainPlannerPayload,
-                        preselectedRooms: this.dialog.data.roomPayload,
-                    });
                 },
 
                 setMainPlanner(planner) {
@@ -934,26 +940,25 @@
                             }
             
                             const save = (resolution_behaviour=0) => {
-                                console.log("The interior", dialog.interior)
                                 let formData = new FormData();
-                                console.log("name", dialog.getElementById('id_name').value);
-                                formData.append("name",             dialog.getElementById('id_name').value);
-                                formData.append("name_en",          dialog.getElementById('id_name_en').value);
+                                formData.append("name",             dialog.vueApp.arrangement.title);
+                                formData.append("name_en",          dialog.vueApp.arrangement.title_english || '');
                                 formData.append("audience",         dialog.vueApp.arrangement.audience);
-                                formData.append("location",         dialog.getElementById('id_location').value);
+                                formData.append("location",         dialog.vueApp.arrangement.location);
                                 formData.append("arrangement_type", dialog.vueApp.arrangement.arrangement_type);
-                                formData.append("responsible",      dialog.getElementById('id_responsible').value);
-                                formData.append("ticket_code",      dialog.getElementById('id_ticket_code').value || '');
-                                formData.append("meeting_place",    dialog.getElementById('id_meeting_place').value);
-                                formData.append("meeting_place_en", dialog.getElementById('id_meeting_place_en').value);
-                                formData.append("expected_visitors",dialog.getElementById('id_expected_visitors').value);
+                                if (dialog.vueApp.arrangement.mainPlanner.id)
+                                    formData.append("responsible",      dialog.vueApp.arrangement.mainPlanner.id);
+                                if (dialog.vueApp.arrangement.status)
+                                    formData.append("status",           dialog.vueApp.arrangement.status);
+                                formData.append("ticket_code",      dialog.vueApp.arrangement.ticket_code || '');
+                                formData.append("meeting_place",    dialog.vueApp.arrangement.meeting_place || '');
+                                formData.append("meeting_place_en", dialog.vueApp.arrangement.meeting_place_en || '');
+                                formData.append("expected_visitors",dialog.vueApp.arrangement.expected_visitors || 0);
+
                                 if (dialog.data.selectedPlannerIds)
                                     Array.from(dialog.data.selectedPlannerIds.keys())
                                         .forEach( ( id ) => formData.append("planners", id) )
-            
-                                let statusValue = dialog.vueApp.arrangement.status;
-                                if (statusValue !== undefined)
-                                    formData.append("status", statusValue);
+
                                 formData.append("display_text",     dialog.vueApp.arrangement.display_text);
                                 formData.append("collision_resolution_behaviour", resolution_behaviour);
                 

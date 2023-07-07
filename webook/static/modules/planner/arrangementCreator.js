@@ -120,32 +120,24 @@ export class ArrangementCreator {
                                 const $thisDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
                                 const $mainDialog = this.dialogManager.$getDialogElement("createArrangementDialog");
 
-                                if (context.lastTriggererDetails.preselectedRooms) {
-                                    window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preselectedRooms, "roomsSelected");
+                                const arrangementData = context.lastTriggererDetails.data;
+
+                                if (arrangementData.roomPayload) {
+                                    window.MessagesFacility.send("newTimePlanDialog", arrangementData.roomPayload, "roomsSelected");
                                 }
-                                if (context.lastTriggererDetails.preselectedMainPlanner) {
-                                    window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preselectedMainPlanner, "setPlanner");
+                                if (arrangementData.mainPlannerPayload) {
+                                    window.MessagesFacility.send("newTimePlanDialog", arrangementData.mainPlannerPayload, "setPlanner");
                                 }
-                                if (context.lastTriggererDetails.preorderedServices) {
-                                    window.MessagesFacility.send("newTimePlanDialog", context.lastTriggererDetails.preorderedServices, "newServiceOrder");
+                                if (arrangementData.servicePresets) {
+                                    window.MessagesFacility.send("newTimePlanDialog", Array.from(arrangementData.servicePresets.values()), "newServiceOrder");
                                 }
 
-                                [
-                                    { from: '#id_ticket_code', to: '#serie_ticket_code' },
-                                    { from: '#id_name', to: '#serie_title' },
-                                    { from: '#id_name_en', to: '#serie_title_en' },
-                                    { from: '#id_expected_visitors', to: '#serie_expected_visitors'},
-                                    { from: '#id_meeting_place', to: '#id_meeting_place' },
-                                    { from: '#id_meeting_place_en', to: '#id_meeting_place_en' },
-                                    { from: '#_audienceId', to: '#_backingAudienceId' },
-                                    { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId' },
-                                    { from: '#_statusTypeId', to: '#_statusTypeId' },
-                                    { from: '#id_display_text', to: '#id_display_text' },
-                                ].forEach( (mapping) => {
-                                    $thisDialog.find( mapping.to ).val( $mainDialog.find( mapping.from )[0].value );
-                                });
-
-                                $thisDialog.find('#serie_uuid').val(crypto.randomUUID());
+                                window.MessagesFacility.send(
+                                    "newTimePlanDialog",
+                                    arrangementData,
+                                    "populateDialog"
+                                )
+                                
                                 $mainDialog[0].querySelectorAll("#createArrangementDialog input[name='display_layouts']:checked")
                                     .forEach(checkboxElement => {
                                         $thisDialog.find('#id_display_layouts_serie_planner_' + checkboxElement.value)
