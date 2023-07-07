@@ -5,33 +5,9 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
         debugger;
     }
 
-    [
-        { target: '#serie_uuid', value: serie._uuid },
-        { target: '#serie_title', value: serie.time.title },
-        { target: '#serie_title_en', value: serie.time.title_en },
-        { target: '#serie_start', value: serie.time.start },
-        { target: '#serie_end', value: serie.time.end },
-        { target: '#serie_ticket_code', value: serie.time.ticket_code },
-        { target: '#serie_expected_visitors', value: serie.time.expected_visitors },
-        { target: '#area_start_date', value: serie.time_area.start_date },
-        { target: '#buffer_before_title', value: serie.buffer.before?.title },
-        { target: '#buffer_before_date_offset', value: serie.buffer.before?.date_offset },
-        { target: '#buffer_before_start', value: serie.buffer.before?.start },
-        { target: '#buffer_before_end', value: serie.buffer.before?.end },
-        { target: '#buffer_after_title', value: serie.buffer.after?.title },
-        { target: '#buffer_after_date_offset', value: serie.buffer.after?.date_offset },
-        { target: '#buffer_after_start', value: serie.buffer.after?.start },
-        { target: '#buffer_after_end', value: serie.buffer.after?.end },
-        { target: '#_statusTypeId', value: serie.time.status },
-        { target: '#_backingArrangementTypeId', value: serie.time.arrangement_type },
-        { target: '#_backingAudienceId', value: serie.time.audience },
-        { target: '#id_meeting_place', value: serie.time.meeting_place },
-        { target: '#id_meeting_place_en', value: serie.time.meeting_place_en },
-        { target: '#id_display_text', value: serie.time.display_text },
-        { target: '#id_display_text_en', value: serie.time.display_text_en },
-    ].forEach( (mapping) => {
-        $dialogElement.find( mapping.target ).val( mapping.value );
-    } );
+    console.log("PopulateCreateSerieDialogFromSerie", serie);
+
+    window.MessagesFacility.send(dialogId, serie._original, "populateDialog")
 
     if (serie.planner_payload) {
         window.MessagesFacility.send(dialogId, serie.planner_payload, "setPlanner");
@@ -42,13 +18,8 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
     if (serie.people_payload) {
         window.MessagesFacility.send(dialogId, serie.people_payload, "peopleSelected");
     }
-    if (serie.ordered_services) {
-        window.MessagesFacility.send(dialogId, serie.ordered_services, "newServiceOrder");
-    }
 
-    serie.display_layouts.split(",").forEach(element => {
-        $dialogElement.find('#id_display_layouts_serie_planner_' + element).prop( "checked", true );
-    });
+    debugger;
 
     switch(serie.time_area.method_name) {
         case "StopWithin":
@@ -344,63 +315,15 @@ export function PopulateCreateEventDialogFromCollisionResolution($dialogElement,
  * @param {*} event
  */
 export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
-    let parseDateOrStringToArtifacts = function (dateOrString) {
-        if (dateOrString instanceof String || typeof(dateOrString) === "string")
-            return Utils.splitStrDate(dateOrString);
-        else if (dateOrString instanceof Date)
-            return Utils.splitDateIntoDateAndTimeStrings(dateOrString);
-        else throw "Invalid value or type"
-    }
-
-    let [fromDate, fromTime]    = parseDateOrStringToArtifacts(event.start);
-    let [toDate, toTime]        = parseDateOrStringToArtifacts(event.end);
 
     console.log("PopulateCreateEventDialog", event);
 
-    [
-        { target: "#event_uuid", value: event._uuid },
-        { target: "#title", value: event.title },
-        { target: "#title_en", value: event.title_en },
-        { target: "#ticket_code", value: event.ticket_code },
-        { target: '#expected_visitors', value: event.expected_visitors },
-        { target: '#fromDate', value: fromDate },
-        { target: '#fromTime', value: fromTime },
-        { target: '#toDate', value: toDate },
-        { target: '#toTime', value: toTime },
-        { target: '#buffer_before_title', value: event.before_buffer_title },
-        { target: '#buffer_before_date', value: event.before_buffer_date },
-        { target: '#buffer_before_start', value: event.before_buffer_start },
-        { target: '#buffer_before_end', value: event.before_buffer_end },
-        { target: '#buffer_after_title', value: event.after_buffer_title },
-        { target: '#buffer_after_date', value: event.after_buffer_date },
-        { target: '#buffer_after_start', value: event.after_buffer_start },
-        { target: '#buffer_after_end', value: event.after_buffer_end },
-        { target: '#_backingAudienceId', value: event.audience },
-        { target: '#_backingArrangementTypeId', value: event.arrangement_type },
-        { target: '#id_meeting_place', value: event.meeting_place },
-        { target: '#id_meeting_place_en', value: event.meeting_place_en },
-        { target: '#_statusTypeId', value: event.status },
-        { target: '#id_display_text', value: event.display_text },
-        { target: '#id_display_text_en', value: event.display_text_en },
-    ].forEach( (mapping) => {
-        $dialogElement.find( mapping.target ).val( mapping.value );
-    } )
-
-    if (Array.isArray(event.display_layouts)) {
-        event.display_layouts.forEach(element => {
-            $dialogElement.find(`#${String(parseInt(element))}_dlcheck`).prop( "checked", true );
-        })
-    }
-    else {
-        throw "Display layouts must be an array";
-    }
+    window.MessagesFacility.send(dialogId, event._original, "populateDialogWithEvent")
 
     if (event.people_payload)
         window.MessagesFacility.send(dialogId, event.people_payload, "peopleSelected");
     if (event.room_payload)
         window.MessagesFacility.send(dialogId, event.room_payload, "roomsSelected");
     if (event.planner_payload)
-        window.MessagesFacility.send(dialogId, event.planner_payload, "setPlanner");
-    if (event.ordered_services)
-        window.MessagesFacility.send(dialogId, event.ordered_services, "newServiceOrder");
+        window.MessagesFacility.send(dialogId, event.planner_payload, "setPlanner");   
 }

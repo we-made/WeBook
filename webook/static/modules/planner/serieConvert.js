@@ -9,17 +9,18 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}startDate`, serie.time_area.start_date);
     formData.append(`${keyPrefix}startTime`, serie.time.start);
     formData.append(`${keyPrefix}endTime`, serie.time.end);
-    formData.append(`${keyPrefix}ticketCode`, serie.time.ticket_cod );
+    formData.append(`${keyPrefix}ticketCode`, serie.time.ticket_code );
     formData.append(`${keyPrefix}expectedVisitors`, serie.time.expected_visitors);
     formData.append(`${keyPrefix}title`, serie.time.title);
     formData.append(`${keyPrefix}title_en`, serie.time.title_en);
-    if (serie.time.status !== undefined && serie.time.status !== null)
+    if (serie.time.status)
         formData.append(`${keyPrefix}status`, serie.time.status);
     formData.append(`${keyPrefix}audience`, serie.time.audience);
     formData.append(`${keyPrefix}arrangement_type`, serie.time.arrangement_type);
     formData.append(`${keyPrefix}meeting_place`, serie.time.meeting_place);
     formData.append(`${keyPrefix}meeting_place_en`, serie.time.meeting_place_en);
-    formData.append(`${keyPrefix}responsible`, serie.time.responsible);
+    if (serie.time.responsible)
+        formData.append(`${keyPrefix}responsible`, serie.time.responsible);
     formData.append(`${keyPrefix}display_text`, serie.time.display_text);
     if (serie.collision_resolution_behaviour === undefined)
         serie.collision_resolution_behaviour = 0
@@ -56,7 +57,8 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
             formData.append(`${keyPrefix}interval`, serie.pattern.week_interval);
             let count = 0;
             for (const day of ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]) {
-                formData.append(`${keyPrefix}${day}`, serie.pattern.days.get(count));
+                debugger;
+                formData.append(`${keyPrefix}${day}`, serie.pattern.days.has(count));
                 count++;
             }
             break;

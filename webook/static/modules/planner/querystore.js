@@ -21,6 +21,8 @@ export class QueryStore {
             formData.append("predecessorSerie", serie.event_serie_pk);
         }
 
+        console.log("saving serie", serie, formData);
+
         const response = await fetch('/arrangement/event/create_serie', {
             method: 'POST',
             body: formData,
