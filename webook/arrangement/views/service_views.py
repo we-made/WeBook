@@ -218,10 +218,7 @@ class ServicesJsonListView(LoginRequiredMixin, ListView, JSONResponseMixin):
         return result
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
-        if request.user.is_superuser:
-            qs = Service.objects.all()
-        else:
-            qs = Service.objects.filter(emails__email__in=[request.user.email])
+        qs = Service.objects.all()
 
         return self.render_to_json_response(self.transform_queryset(qs), safe=False)
 
