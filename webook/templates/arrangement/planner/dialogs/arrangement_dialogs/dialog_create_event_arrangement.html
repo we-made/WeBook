@@ -770,11 +770,10 @@
                                 console.warn("Validation failed.")
                                 return;
                             }
-                            
 
                             let qualifiedEvent = dialog.vueApp.activity;
                             
-                            qualifiedEvent._original = dialog.vueApp.activity;
+                            qualifiedEvent._original = Object.assign({}, dialog.vueApp.activity);
 
                             qualifiedEvent.responsible = qualifiedEvent.main_planner.id;
                             qualifiedEvent.room_payload = dialog.data.roomPayload;

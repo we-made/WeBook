@@ -457,7 +457,7 @@
                         </a>
                         <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 ms-2"
                             data-toggle='tooltip' title='{% trans "Remove this activity from the arrangement" %}'
-                            @click="events.splice(events.indexOf(event), 1); dialog.data.eventsMap.delete(event._uuid);">
+                            @click="arrangement.events.splice(arrangement.events.indexOf(event), 1); dialog.data.eventsMap.delete(event._uuid);">
                             <i class="fas fa-trash"></i>&nbsp;
                             Slett
                         </a>
@@ -489,7 +489,7 @@
 
                         <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 ms-2"
                             data-toggle='tooltip' title='{% trans "Remove this recurring activity from the arrangement to be" %}'
-                            @click="series.splice(series.indexOf(serie), 1); dialog.data.seriesMap.delete(serie._uuid);">
+                            @click="arrangement.series.splice(arrangement.series.indexOf(serie), 1); dialog.data.seriesMap.delete(serie._uuid);">
                             <i class="fas fa-trash"></i>&nbsp;
                             Slett
                         </a>
@@ -596,9 +596,9 @@
                     arrangement: {
                         title: null,
                         title_english: null,
-                        audience: null,         // TODO: implement component
-                        arrangement_type: null, // TODO: implement component
-                        status: null,           // TODO: implement component
+                        audience: null,
+                        arrangement_type: null,
+                        status: null,
                         ticket_code: null,
                         expected_visitors: 0,
                         location: null,
