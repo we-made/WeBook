@@ -1,6 +1,8 @@
 <template id="vuec-popover-component">
-    <div :class="[ { active : internalIsVisible }, 'popover_wrapper', 'dialog-popover-left-fix' ]" ref="popover">
-        <div class="popover_content">
+    <div 
+        :class="[ { active : internalIsVisible }, 'popover_wrapper', 'dialog-popover-left-fix' ]" 
+        ref="popover">
+        <div class="popover_content" :style="style">
             <slot></slot>
         </div>
     </div>
@@ -11,6 +13,7 @@
         props: {
             isVisible: Boolean,
             excludes: Array,
+            style: String
         },
         data() {
             return {
@@ -18,9 +21,6 @@
             }
         },
         methods: {
-            initJsTree() {
-                      
-            },
             toggleVisibility() {
                 this.internalIsVisible = !this.internalIsVisible;
             }
@@ -49,10 +49,6 @@
 
             document.addEventListener('click', this.clickOutsideEvent);
             document.addEventListener('touchstart', this.clickOutsideEvent);
-
-            this.$nextTick(() => {
-                this.initJsTree();
-            });
         },
         unmounted() {
             document.removeEventListener('click', this.clickOutsideEvent);
