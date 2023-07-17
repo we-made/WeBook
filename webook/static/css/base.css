@@ -598,3 +598,42 @@ html, body {
 .activeTable tbody tr:hover {
     background-color:rgba(60, 64, 67, 0.15);
 }
+
+.select-card {
+    border: solid 1px var(--BORDER-STANDARD-COLOR);
+    border-radius: 0.5em;
+    padding: 1em;
+    margin: 1em;
+}
+
+.select-card:hover {
+    border: solid 1px var(--MAIN-COLOR);
+}
+
+.select-card.active {
+    background-color: var(--SECONDARY-COLOR);
+    border: solid 1px var(--MAIN-COLOR);
+}
+
+.danger-dotted-bg-pattern {
+    background-color: var(--MAIN-COLOR);
+    /* opacity: 0.9; */
+    background-size: 10px 10px;
+    background-image: repeating-linear-gradient(45deg, red 0, red 1px, white 0, white 50%);
+}
+
+.secondary-dotted-bg-pattern {
+    background-color: var(--MAIN-COLOR);
+    /* opacity: 0.9; */
+    background-size: 10px 10px;
+    background-image: repeating-linear-gradient(45deg, var(--SECONDARY-COLOR) 0, var(--SECONDARY-COLOR) 1px, white 0, white 50%);
+}
+
+
+.draggable {
+    cursor: grab
+}
+
+.draggable:active {
+    cursor: grabbing
+}
