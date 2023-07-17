@@ -1,0 +1,152 @@
+<template id="vuec-dialog-component-template">
+    
+    <div class="w-dialog" ref="dialogRoot" title="Dialog Title" v-if="internalIsVisible">
+        <div :class="['w-dialog__grille d-flex justify-content-between align-items-center', { 'draggable': isDraggable }]" 
+             ref="grille">
+            <div class="w-dialog__header">
+                <slot name="header"></slot>
+            </div>
+
+            <div class="w-dialog__options d-flex">  
+                <button class="btn btn-white shadow-0" type="button"
+                    @click="toggleFullScreen()">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="btn btn-white shadow-0" type="button"
+                    @click="internalIsVisible = false">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="w-dialog__content" ref="content">
+            <slot name="content"></slot>
+        </div>
+
+
+        <div class="w-dialog__footer">
+            <hr>
+            <slot name="footer" class="me-3"></slot>
+        </div>
+    </div>
+
+</template>
+
+<script>
+    let DialogComponent = {
+        props: {
+            excludes: Array,
+            width: String,
+            startFullScreen: Boolean,
+            isVisible: Boolean,
+            isDraggable: Boolean,
+            isResizable: Boolean,
+            useBackdrop: Boolean,
+            chainTo: Element
+        },
+        data() {
+            return {
+                internalIsVisible: false,
+                isMounted: false,
+                isFullScreen: false,
+            }
+        },
+        methods: {
+            toggleFullScreen() {
+                if (this.isFullScreen) {
+                    $(this.$refs.dialogRoot).dialog("option", "width", this.width || "40rem");
+                    $(this.$refs.dialogRoot).dialog( "option", "height", "auto" );
+                    this.isFullScreen = false;
+                }
+                else {
+                    $(this.$refs.dialogRoot).dialog("option", "width", "100%");
+                    $(this.$refs.dialogRoot).dialog("option", "height", window.innerHeight);
+                    this.isFullScreen = true;
+                }
+            },
+        },
+        watch: {
+            internalIsVisible() {
+                if (this.internalIsVisible) {
+                    this.$nextTick(function () {
+                        $(this.$refs.dialogRoot).dialog({
+                            width: this.width || "40rem",
+                            resizable: this.isResizable,
+                            modal: this.useBackdrop,
+                            draggable: false // We must deactivate the native jQuery UI draggable, because we want to use our own
+                        });
+
+                        if (this.chainTo) {
+                            let chainToEl = this.chainTo;
+                            if (typeof this.chainTo === "string") {
+                                this.chainToEl = document.querySelector(this.chainTo)
+                                if (!this.chainToEl)
+                                    throw new Error("Could not find element with selector " + this.chainTo
+                                        + " to chain dialog to");
+                                
+                                // If the element is child of a dialog, we must chain to the parent dialog element
+                                // Lest we chain to the content of the dialog which would cause
+                                // the dialog to be overlapping the parent dialog
+                                if ($(this.chainToEl).closest(".ui-dialog").length > 0) {
+                                    this.chainToEl = $(this.chainToEl).closest(".ui-dialog")[0];
+                                }
+                            }
+
+                            /*
+                            if (this.chainToEl instanceof Element) {
+                                // Adjust height of this dialog to the parent dialog
+                                $(this.$refs.dialogRoot).dialog("option", "height", $(this.chainToEl).height());
+                            }*/
+
+                            $(this.$refs.dialogRoot).dialog("option", "position", {
+                                my: "left top", 
+                                at: "right top",
+                                of: this.chainToEl,
+                                collision: "none"
+                            });
+                        }
+
+                        window.parent = this.$parent;
+
+                        if (this.isDraggable)
+                            $(this.$refs.dialogRoot).parent().draggable({
+                                handle: this.$refs.grille,
+                            });
+
+                        // Remove the native jQuery UI titlebar - we will use our own
+                        $(this.$refs.dialogRoot).parent().find(".ui-dialog-titlebar").remove();
+                    })
+                }
+                else {
+                    if ($(this.$refs.dialogRoot).dialog("isOpen"))
+                        $(this.$refs.dialogRoot).dialog("close");
+                }
+
+                this.$emit("update:isVisible", this.internalIsVisible);
+            },
+            isVisible() {
+                this.internalIsVisible = this.isVisible;
+            },
+        },
+        emits : ["update:isVisible"],
+        computed: {
+        },
+        mounted() {
+            this.internalIsVisible = this.isVisible;
+            this.isFullScreen = !!this.startFullScreen;
+
+            $(this.$refs.dialogRoot).dialog({
+                width: this.width || "40rem",
+            });
+
+            this.isMounted = true;
+        },
+        unmounted() {
+            $(this.$refs.dialogRoot).dialog("destroy");
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec-dialog-component-template"
+    }
+</script>

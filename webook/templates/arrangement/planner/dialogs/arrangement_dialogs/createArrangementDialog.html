@@ -3,579 +3,562 @@
 
 <!-- {% include "arrangement/vue/popover_component.html" %} -->
 {% include "arrangement/vue/js_tree_select_component.html" %}
+{% include "arrangement/vue/room_presets_component.html" %}
 
+{% include "arrangement/vue/dialog-component.html" %}
+{% include "arrangement/vue/dialogs/order_room_dialog.html" %}
+
+{% include "arrangement/vue/room_and_preset_selector_component.html" %}
 
 <div id="{{dialogId}}" class="{{discriminator}}" style="overflow-x: visible;">
-    <input type="hidden" name="" id="_audienceId">
-    <input type="hidden" name="" id="_arrangementTypeId">
-    <input type="hidden" name="" id="_statusTypeId">
 
-    <div class="clearfix">
-        <div class="float-start">
-            <h4 class="fw-bold">Planlegg nytt arrangement</h4>
+    <div ref="root">
+
+        <input type="hidden" name="" id="_audienceId">
+        <input type="hidden" name="" id="_arrangementTypeId">
+        <input type="hidden" name="" id="_statusTypeId">
+    
+        <div class="clearfix">
+            <div class="float-start">
+                <h4 class="fw-bold">Planlegg nytt arrangement</h4>
+            </div>
+            <div id="rail" class="float-end stepper-rail"></div>
         </div>
-        <div id="rail" class="float-end stepper-rail"></div>
-    </div>
-
-    <hr>
-
-    <div>
-        <div id="step-1">
-            <form id="arrangementInfoForm">
-                <input type="submit" style="display:none;" />
-                
-                <fieldset>
-                    <div class="form-group mb-2">
-                        <label>
-                            Tittel <i>(Norsk)</i>
-                            <span class="fw-bold">&nbsp;*</span>
-                        </label>
-                        <input type="text"
-                            class="form-control form-control-lg mb-2"
-                            id="{{ form.name.id_for_label }}"
-                            value="{{ form.name.value|default:'' }}"
-                            name="{{ form.name.name }}"
-                            autocomplete="off"
-                            v-model="arrangement.title"
-                            required />
-                    </div>
-                    {% if form.name.errors|length > 0 %}
-                        <div class="alert alert-danger">
-                            {{ form.name.errors }}
+    
+        <hr>
+    
+        <div>
+            <div id="step-1">
+                <form id="arrangementInfoForm">
+                    <input type="submit" style="display:none;" />
+                    
+                    <fieldset>
+                        <div class="form-group mb-2">
+                            <label>
+                                Tittel <i>(Norsk)</i>
+                                <span class="fw-bold">&nbsp;*</span>
+                            </label>
+                            <input type="text"
+                                class="form-control form-control-md mb-2"
+                                id="{{ form.name.id_for_label }}"
+                                value="{{ form.name.value|default:'' }}"
+                                name="{{ form.name.name }}"
+                                autocomplete="off"
+                                v-model="arrangement.title"
+                                required />
                         </div>
-                    {% endif %}
-
-                    <div class="form-group mb-2">
+                        {% if form.name.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.name.errors }}
+                            </div>
+                        {% endif %}
+    
+                        <div class="form-group mb-2">
+                            <label>
+                                Tittel <i>(Engelsk)</i>
+                            </label>
+                            <input type="text"
+                                class="form-control form-control-md"
+                                id="{{ form.name_en.id_for_label }}"
+                                value="{{ form.name_en.value|default:'' }}"
+                                name="{{ form.name_en.name }}"
+                                v-model="arrangement.title_english"
+                                autocomplete="off"
+                                />
+                        </div>
+                        {% if form.name_en.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.name_en.errors }}
+                            </div>
+                        {% endif %}
+    
+    
+                        <tree-select-component
+                            class="mb-2"
+                            label="Målgruppe *"
+                            json-url="/arrangement/audience/tree"
+                            icon="fas fa-users"
+                            button-label="Velg målgruppe"
+                            :selected="arrangement.audience"
+                            @input="(id) => arrangement.audience = id">
+                        </tree-select-component>
+    
+                        <tree-select-component
+                            class="mb-2"
+                            label="Arrangementstype *"
+                            json-url="/arrangement/arrangementtype/treelist"
+                            icon="fas fa-cog"
+                            button-label="Velg arrangementstype"
+                            :selected="arrangement.arrangement_type"
+                            @input="(id) => arrangement.arrangement_type = id">
+                        </tree-select-component>
+    
+                        <tree-select-component
+                            class="mb-2"
+                            label="Status"
+                            json-url="/arrangement/statustype/tree"
+                            icon="fas fa-cog"
+                            button-label="Velg status"
+                            :selected="arrangement.status"
+                            @input="(id) => arrangement.status = id">
+                        </tree-select-component>
+    
+                        <div class="mb-2">
+                            <label>
+                                <i class="fas fa-map-marker-alt"></i>&nbsp;
+                                Lokasjon
+                                <span class="fw-bold">&nbsp;*</span>
+                            </label>
+                            {{ form.location }}
+                        </div>
+                        {% if form.location.errors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {{ form.location.errors }}
+                            </div>
+                        {% endif %}
+                    </fieldset>
+                </form>
+            </div>
+            <div id="step-services">
+                <div class="clearfix">
+                    <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
+                        style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                        @click="openAddServiceOrderDialog()">
+                        <i class="fas fa-calendar-plus"></i>&nbsp;
+                        Bestill tjenester
+                    </a>
+                </div>
+    
+                <div class="alert alert-info mt-2">
+                    Du kan bestille forskjellige tjenester for dette arrangementet. Om du bestiller for arrangementet
+                    vil bestillingen gjelde alle tidspunkter for arrangementet. Du kan velge å også bare bestille for en
+                    gitt tidspunkt eller serie av tidspunkt.
+                </div>
+    
+                <div id="serviceOrders">
+                    <div
+                        class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
+                        v-for="order in arrangement.serviceOrders">
+                        
+                        <h5>
+                            [[order.service_name]]
+                            <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' 
+                                :id="order.key" 
+                                @click="serviceOrders.splice(serviceOrders.indexOf(order), 1)"
+                                select-type='serviceOrder' 
+                                d-trigger="removeAssociation">
+                                
+                                <i class='fas fa-times'></i>
+                            </button>
+                        </h5>
+                        <code>
+                            [[order.freetext_comment]]
+                        </code>
+                    </div>
+                </div>
+            </div>
+            <div id="step-2">
+                <form id="arrangementDetailsForm">
+                    <input type="submit" value="" style="display: none;">
+    
+                    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+                        <input type="hidden" 
+                            name="{{ form.responsible.name }}" 
+                            id="{{ form.responsible.id_for_label }}">
+    
+                        <label for="" class="d-block form-label">
+                            <i class="fas fa-star"></i>
+                            Hovedplanlegger
+                        </label>
+    
+                        <div class="text-danger" style="display: none;"
+                            id="mainPlanner_validationText">
+                            Vennligst velg en hovedplanlegger
+                        </div>
+                        
+                        <div>
+                            [[ arrangement.mainPlanner.text ]]
+                        </div>
+    
+                        <button class="wb-btn-main"
+                            id="setMainPlannerButton"
+                            type="button">
+                            Velg hovedplanlegger
+                        </button>
+    
+                        <div id="select-main-planner-popover" class="popover_wrapper dialog-popover-left-fix" style="display: none;">
+                            <div class="popover_content" style="width: 50em!important;">
+                                <h5>Velg hovedplanlegger</h5>
+                                
+                                <input type="search" name="" id="" class="form-control form-control-lg"
+                                    v-model="mainPlannerSearchTerm"
+                                    placeholder="Søk etter planlegger... (minst 3 tegn)">       
+    
+                                <div class="mt-3">
+                                    <div v-if="mainPlannerSearchResults.length">
+                                        <div v-if="mainPlannerSearchTerm.length == 0"
+                                            class="alert alert-info">
+                                            <div class="d-flex align-items-center">
+                                                <h2 class="mb-0"><i class="fas fa-info"></i></h2>
+                                                
+                                                <div class="ms-3">
+                                                    Uten søkeord vises alle personer med gruppe planlegger
+                                                    <br>
+                                                    Du kan fortsatt søke etter og velge personer uten gruppe planlegger ved å skrive inn minst 3 tegn i søkefeltet.
+                                                </div>
+                                            </div>
+                                        </div>
+    
+                                        <table class="table table-highlight table-bordered table-sm" v-if="mainPlannerSearchResults.length">
+                                            <tbody>
+                                                <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
+                                                    <td>
+                                                        <a>
+                                                            [[ result.full_name ]]
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        
+                                        <div class="clearfix">
+                                            <small class="text-muted float-end fw-bold">
+                                                <i class="fas fa-info"></i>&nbsp;
+                                                Trykk på navnet til personen du ønsker å velge som hovedplanlegger for arrangementet
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div 
+                                        class="alert alert-info"
+                                        v-else>
+                                        Ingen resultater
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <room-and-preset-selector-component
+                        dialog-id="{{dialogId}}"
+                        v-model="selectedRooms">
+                    </room-and-preset-selector-component>
+    
+                    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
+                        <label for="" class="form-label">
+                            <i class="fas fa-users-cog"></i>&nbsp;
+                            Planleggere
+                        </label>
+                        <div>
+                            <button class="wb-btn-main"
+                                type="button"
+                                @click="openAddPlannersDialog()">
+                                Velg planleggere
+                            </button>
+                        </div>
+                        <div id="plannerChips" class="chipsList">
+                            <span v-for="planner in arrangement.planners">
+                                <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
+                                    [[planner.text]]
+                                    
+                                    <a href="#">
+                                        <i class="fa fa-times text-danger"
+                                            :id="planner.id"
+                                            select-type="person"
+                                            @click="planners.splice(planners.indexOf(room), 1)"
+                                            d-trigger="removeAssociation">
+    
+                                        </i>
+                                    </a>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+    
+                    <div class="mb-2 mt-4 form-group">
                         <label>
-                            Tittel <i>(Engelsk)</i>
+                            <i class="fas fa-receipt"></i>&nbsp;
+                            Billetkode
                         </label>
                         <input type="text"
                             class="form-control form-control-lg"
-                            id="{{ form.name_en.id_for_label }}"
-                            value="{{ form.name_en.value|default:'' }}"
-                            name="{{ form.name_en.name }}"
-                            v-model="arrangement.title_english"
-                            autocomplete="off"
-                            />
+                            id="{{ form.ticket_code.id_for_label }}"
+                            value="{{ form.ticket_code.value|default:'' }}"
+                            name="{{ form.ticket_code.name }}"
+                            placeholder="Billetkode..."
+                            v-model="arrangement.ticket_code"/>
                     </div>
-                    {% if form.name_en.errors|length > 0 %}
+                    {% if form.ticket_code.errors|length > 0 %}
                         <div class="alert alert-danger">
-                            {{ form.name_en.errors }}
+                            {{ form.ticket_code.errors }}
                         </div>
                     {% endif %}
-
-
-                    <tree-select-component
-                        class="mb-2"
-                        label="Målgruppe *"
-                        json-url="/arrangement/audience/tree"
-                        icon="fas fa-users"
-                        button-label="Velg målgruppe"
-                        :selected="arrangement.audience"
-                        @input="(id) => arrangement.audience = id">
-                    </tree-select-component>
-
-                    <tree-select-component
-                        class="mb-2"
-                        label="Arrangementstype *"
-                        json-url="/arrangement/arrangementtype/treelist"
-                        icon="fas fa-cog"
-                        button-label="Velg arrangementstype"
-                        :selected="arrangement.arrangement_type"
-                        @input="(id) => arrangement.arrangement_type = id">
-                    </tree-select-component>
-
-                    <tree-select-component
-                        class="mb-2"
-                        label="Status"
-                        json-url="/arrangement/statustype/tree"
-                        icon="fas fa-cog"
-                        button-label="Velg status"
-                        :selected="arrangement.status"
-                        @input="(id) => arrangement.status = id">
-                    </tree-select-component>
-
-                    <div class="mb-2">
+    
+                    <div class="mb-2 form-group">
                         <label>
-                            <i class="fas fa-map-marker-alt"></i>&nbsp;
-                            Lokasjon
-                            <span class="fw-bold">&nbsp;*</span>
+                            Forventet besøkende
                         </label>
-                        {{ form.location }}
+                        <input type="number"
+                            min="0"
+                            class="form-control form-control-lg"
+                            id="{{ form.expected_visitors.id_for_label }}"
+                            value="{{ form.expected_visitors.value|default:'0' }}"
+                            name="{{ form.expected_visitors.name }}"
+                            v-model="arrangement.expected_visitors"
+                            required />
                     </div>
-                    {% if form.location.errors|length > 0 %}
+                    {% if form.expected_visitors.errors|length > 0 %}
                         <div class="alert alert-danger">
-                            {{ form.location.errors }}
+                            {{ form.expected_visitors.errors }}
                         </div>
                     {% endif %}
-                </fieldset>
-            </form>
-        </div>
-        <div id="step-services">
-            <div class="clearfix">
-                <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
-                    style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                    @click="openAddServiceOrderDialog()">
-                    <i class="fas fa-calendar-plus"></i>&nbsp;
-                    Bestill tjenester
-                </a>
+                </form>
             </div>
-
-            <div class="alert alert-info mt-2">
-                Du kan bestille forskjellige tjenester for dette arrangementet. Om du bestiller for arrangementet
-                vil bestillingen gjelde alle tidspunkter for arrangementet. Du kan velge å også bare bestille for en
-                gitt tidspunkt eller serie av tidspunkt.
-            </div>
-
-            <div id="serviceOrders">
-                <div
-                    class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
-                    v-for="order in arrangement.serviceOrders">
-                    
-                    <h5>
-                        [[order.service_name]]
-                        <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' 
-                            :id="order.key" 
-                            @click="serviceOrders.splice(serviceOrders.indexOf(order), 1)"
-                            select-type='serviceOrder' 
-                            d-trigger="removeAssociation">
-                            
-                            <i class='fas fa-times'></i>
-                        </button>
-                    </h5>
-                    <code>
-                        [[order.freetext_comment]]
-                    </code>
-                </div>
-            </div>
-        </div>
-        <div id="step-2">
-            <form id="arrangementDetailsForm">
-                <input type="submit" value="" style="display: none;">
-
-                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
-                    <input type="hidden" 
-                        name="{{ form.responsible.name }}" 
-                        id="{{ form.responsible.id_for_label }}">
-
-                    <label for="" class="d-block form-label">
-                        <i class="fas fa-star"></i>
-                        Hovedplanlegger
-                    </label>
-
-                    <div class="text-danger" style="display: none;"
-                        id="mainPlanner_validationText">
-                        Vennligst velg en hovedplanlegger
+            <div id="step-3">
+                <div class="row">
+                    <div class="col-lg-4 col-sm-12">
+                        <h5 class="header-fonted">
+                            <i class="fas fa-tv"></i>
+                            Skjerm
+                        </h5>
+                        <label class="d-block">&nbsp; {% trans "Vises på skjerm:" %}</label>
+                        {{form.display_layouts}}
                     </div>
-                    
-                    <div>
-                        [[ arrangement.mainPlanner.text ]]
-                    </div>
-
-                    <button class="wb-btn-main"
-                        id="setMainPlannerButton"
-                        type="button">
-                        Velg hovedplanlegger
-                    </button>
-
-                    <div id="select-main-planner-popover" class="popover_wrapper dialog-popover-left-fix" style="display: none;">
-                        <div class="popover_content" style="width: 50em!important;">
-                            <h5>Velg hovedplanlegger</h5>
-                            
-                            <input type="search" name="" id="" class="form-control form-control-lg"
-                                v-model="mainPlannerSearchTerm"
-                                placeholder="Søk etter planlegger... (minst 3 tegn)">       
-
-                            <div class="mt-3">
-                                <div v-if="mainPlannerSearchResults.length">
-                                    <div v-if="mainPlannerSearchTerm.length == 0"
-                                        class="alert alert-info">
-                                        <div class="d-flex align-items-center">
-                                            <h2 class="mb-0"><i class="fas fa-info"></i></h2>
-                                            
-                                            <div class="ms-3">
-                                                Uten søkeord vises alle personer med gruppe planlegger
-                                                <br>
-                                                Du kan fortsatt søke etter og velge personer uten gruppe planlegger ved å skrive inn minst 3 tegn i søkefeltet.
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <table class="table table-highlight table-bordered table-sm" v-if="mainPlannerSearchResults.length">
-                                        <tbody>
-                                            <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
-                                                <td>
-                                                    <a>
-                                                        [[ result.full_name ]]
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    
-                                    <div class="clearfix">
-                                        <small class="text-muted float-end fw-bold">
-                                            <i class="fas fa-info"></i>&nbsp;
-                                            Trykk på navnet til personen du ønsker å velge som hovedplanlegger for arrangementet
-                                        </small>
-                                    </div>
-                                </div>
-                                <div 
-                                    class="alert alert-info"
-                                    v-else>
-                                    Ingen resultater
-                                </div>
+    
+                    <div class="col-lg-8 col-sm-12 mt-sm-2">
+                        <div
+                            class="form-group"
+                            id="display-layout-text-group">
+    
+                            <div v-show="showDisplayText">
+                                <input type="text" name="{{form.display_text.name}}"
+                                    class="form-control form-control-lg"
+                                    id="{{form.display_text.id_for_label}}"
+                                    v-model="arrangement.display_text"
+                                    placeholder="Skjermtekst...">
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
-                    <label for="" class="form-label">
-                        <i class="fas fa-building"></i>&nbsp;
-                        Rom
-                    </label>
-                    <div>
-                        <button class="wb-btn-main"
-                            type="button"
-                            @click="openAddRoomsDialog()">
-                            Velg rom
-                        </button>
-                    </div>
-                    <div id="roomChips" class="chipsList">
-                        <span v-for="room in arrangement.rooms">
-                            <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
-                                [[room.text]]
-                                
-                                <a href="#">
-                                    <i class="fa fa-times text-danger"
-                                        :id="room.id"
-                                        select-type="room"
-                                        @click="rooms.splice(rooms.indexOf(room), 1)"
-                                        d-trigger="removeAssociation">
-
-                                    </i>
-                                </a>
-                            </div>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
-                    <label for="" class="form-label">
-                        <i class="fas fa-users-cog"></i>&nbsp;
-                        Planleggere
-                    </label>
-                    <div>
-                        <button class="wb-btn-main"
-                            type="button"
-                            @click="openAddPlannersDialog()">
-                            Velg planleggere
-                        </button>
-                    </div>
-                    <div id="plannerChips" class="chipsList">
-                        <span v-for="planner in arrangement.planners">
-                            <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
-                                [[planner.text]]
-                                
-                                <a href="#">
-                                    <i class="fa fa-times text-danger"
-                                        :id="planner.id"
-                                        select-type="person"
-                                        @click="planners.splice(planners.indexOf(room), 1)"
-                                        d-trigger="removeAssociation">
-
-                                    </i>
-                                </a>
-                            </div>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="mb-2 mt-4 form-group">
+            
+                <div class="mt-2 form-group">
                     <label>
-                        <i class="fas fa-receipt"></i>&nbsp;
-                        Billetkode
+                        <i class="fas fa-door-open"></i>&nbsp;
+                        Møtested <i>(Norsk)</i>
                     </label>
                     <input type="text"
                         class="form-control form-control-lg"
-                        id="{{ form.ticket_code.id_for_label }}"
-                        value="{{ form.ticket_code.value|default:'' }}"
-                        name="{{ form.ticket_code.name }}"
-                        placeholder="Billetkode..."
-                        v-model="arrangement.ticket_code"/>
+                        id="{{ form.meeting_place.id_for_label }}"
+                        value="{{ form.meeting_place.value|default:'' }}"
+                        name="{{ form.meeting_place.name }}"
+                        placeholder="{% trans 'Møtested' %}..."
+                        v-model="arrangement.meeting_place"/>
+                    <div class="form-helper text-end">
+                        <i class="fas fa-info-circle"></i>&nbsp;
+                        Vil overskrive sted/rom vist på skjerm
+                    </div>
                 </div>
-                {% if form.ticket_code.errors|length > 0 %}
+                {% if form.meeting_place.errors|length > 0 %}
                     <div class="alert alert-danger">
-                        {{ form.ticket_code.errors }}
+                        {{ form.meeting_place.errors }}
                     </div>
                 {% endif %}
-
-                <div class="mb-2 form-group">
+    
+                <div class="mt-2 form-group">
                     <label>
-                        Forventet besøkende
+                        <i class="fas fa-door-open"></i>&nbsp;
+                        Møtested <i>(Engelsk)</i>
                     </label>
-                    <input type="number"
-                        min="0"
+                    <input type="text"
                         class="form-control form-control-lg"
-                        id="{{ form.expected_visitors.id_for_label }}"
-                        value="{{ form.expected_visitors.value|default:'0' }}"
-                        name="{{ form.expected_visitors.name }}"
-                        v-model="arrangement.expected_visitors"
-                        required />
+                        id="{{ form.meeting_place_en.id_for_label }}"
+                        value="{{ form.meeting_place_en.value|default:'' }}"
+                        name="{{ form.meeting_place_en.name }}"
+                        placeholder="{% trans 'Møtested' %}..."
+                        v-model="arrangement.meeting_place_en"/>
+                    <div class="form-helper text-end">
+                        <i class="fas fa-info-circle"></i>&nbsp;
+                        Vil overskrive sted/rom vist på skjerm
+                    </div>
                 </div>
-                {% if form.expected_visitors.errors|length > 0 %}
+                {% if form.meeting_place.errors|length > 0 %}
                     <div class="alert alert-danger">
-                        {{ form.expected_visitors.errors }}
+                        {{ form.meeting_place.errors }}
                     </div>
                 {% endif %}
-            </form>
-        </div>
-        <div id="step-3">
-            <div class="row">
-                <div class="col-lg-4 col-sm-12">
-                    <h5 class="header-fonted">
-                        <i class="fas fa-tv"></i>
-                        Skjerm
-                    </h5>
-                    <label class="d-block">&nbsp; {% trans "Vises på skjerm:" %}</label>
-                    {{form.display_layouts}}
+            </div>
+            <div id="step-4">
+                <div class="row">
+                    <div class="col-6">
+                        <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
+                            style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                            @click="openPlanSerieDialog()">
+                            <i class="fas fa-calendar-plus"></i>&nbsp;
+                            Ny gjentagende aktivitet
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a class="btn btn-lg btn-outline-dark shadow-0 btn-block mb-2 p-2"
+                            style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                            @click="openPlanActivityDialog()">
+                            <i class="fas fa-calendar-plus"></i>&nbsp;
+                            Ny enkel aktivitet
+                        </a>
+                    </div>
                 </div>
-
-                <div class="col-lg-8 col-sm-12 mt-sm-2">
-                    <div
-                        class="form-group"
-                        id="display-layout-text-group">
-
-                        <div v-show="showDisplayText">
-                            <input type="text" name="{{form.display_text.name}}"
-                                class="form-control form-control-lg"
-                                id="{{form.display_text.id_for_label}}"
-                                v-model="arrangement.display_text"
-                                placeholder="Skjermtekst...">
+    
+                <hr class="mt-0">
+    
+                <div id="eventsBody">
+                    <div class="border border-2 rounded-2 p-3" id='[[element._uuid]]' style="background-color: #f6f6f0;"
+                        v-for="event in arrangement.events">
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3>
+                                <i class="fas fa-calendar"></i>&nbsp;
+                                [[event.title]]
+                            </h3>
+        
+                            <h5>
+                                [[event.start.toLocaleString()]] - [[event.end.toLocaleString()]]
+                            </h5>    
+                        </div>
+                        
+                        <div>
+                            <span class="fw-bolder">Målgruppe:</span> [[event.audienceName]]
+                        </div>
+                        <div>
+                            <span class="fw-bolder">Arrangement Type:</span> [[event.arrangementTypeName]]
+                        </div>
+    
+                        <div class="mt-2">
+                            <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 "
+                                data-toggle='tooltip' title='{% trans "Edit this activity" %}'
+                                @click="openDialog('newSimpleActivityDialog', { event_uuid: event._uuid})">
+                                <i class="fas fa-edit"></i>&nbsp;
+                                Rediger
+                            </a>
+                            <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 ms-2"
+                                data-toggle='tooltip' title='{% trans "Remove this activity from the arrangement" %}'
+                                @click="arrangement.events.splice(arrangement.events.indexOf(event), 1); dialog.data.eventsMap.delete(event._uuid);">
+                                <i class="fas fa-trash"></i>&nbsp;
+                                Slett
+                            </a>
                         </div>
                     </div>
-                </div>
-            </div>
-        
-            <div class="mt-2 form-group">
-                <label>
-                    <i class="fas fa-door-open"></i>&nbsp;
-                    Møtested <i>(Norsk)</i>
-                </label>
-                <input type="text"
-                    class="form-control form-control-lg"
-                    id="{{ form.meeting_place.id_for_label }}"
-                    value="{{ form.meeting_place.value|default:'' }}"
-                    name="{{ form.meeting_place.name }}"
-                    placeholder="{% trans 'Møtested' %}..."
-                    v-model="arrangement.meeting_place"/>
-                <div class="form-helper text-end">
-                    <i class="fas fa-info-circle"></i>&nbsp;
-                    Vil overskrive sted/rom vist på skjerm
-                </div>
-            </div>
-            {% if form.meeting_place.errors|length > 0 %}
-                <div class="alert alert-danger">
-                    {{ form.meeting_place.errors }}
-                </div>
-            {% endif %}
-
-            <div class="mt-2 form-group">
-                <label>
-                    <i class="fas fa-door-open"></i>&nbsp;
-                    Møtested <i>(Engelsk)</i>
-                </label>
-                <input type="text"
-                    class="form-control form-control-lg"
-                    id="{{ form.meeting_place_en.id_for_label }}"
-                    value="{{ form.meeting_place_en.value|default:'' }}"
-                    name="{{ form.meeting_place_en.name }}"
-                    placeholder="{% trans 'Møtested' %}..."
-                    v-model="arrangement.meeting_place_en"/>
-                <div class="form-helper text-end">
-                    <i class="fas fa-info-circle"></i>&nbsp;
-                    Vil overskrive sted/rom vist på skjerm
-                </div>
-            </div>
-            {% if form.meeting_place.errors|length > 0 %}
-                <div class="alert alert-danger">
-                    {{ form.meeting_place.errors }}
-                </div>
-            {% endif %}
-        </div>
-        <div id="step-4">
-            <div class="row">
-                <div class="col-6">
-                    <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
-                        style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                        @click="openPlanSerieDialog()">
-                        <i class="fas fa-calendar-plus"></i>&nbsp;
-                        Ny gjentagende aktivitet
-                    </a>
-                </div>
-                <div class="col-6">
-                    <a class="btn btn-lg btn-outline-dark shadow-0 btn-block mb-2 p-2"
-                        style="text-transform: none; font-size: larger; border-width: 0.7px;"
-                        @click="openPlanActivityDialog()">
-                        <i class="fas fa-calendar-plus"></i>&nbsp;
-                        Ny enkel aktivitet
-                    </a>
-                </div>
-            </div>
-
-            <hr class="mt-0">
-
-            <div id="eventsBody">
-                <div class="border border-2 rounded-2 p-3" id='[[element._uuid]]' style="background-color: #f6f6f0;"
-                    v-for="event in arrangement.events">
-                    
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3>
-                            <i class="fas fa-calendar"></i>&nbsp;
-                            [[event.title]]
-                        </h3>
     
-                        <h5>
-                            [[event.start.toLocaleString()]] - [[event.end.toLocaleString()]]
-                        </h5>    
-                    </div>
-                    
-                    <div>
-                        <span class="fw-bolder">Målgruppe:</span> [[event.audienceName]]
-                    </div>
-                    <div>
-                        <span class="fw-bolder">Arrangement Type:</span> [[event.arrangementTypeName]]
-                    </div>
-
-                    <div class="mt-2">
-                        <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 "
-                            data-toggle='tooltip' title='{% trans "Edit this activity" %}'
-                            @click="openDialog('newSimpleActivityDialog', { event_uuid: event._uuid})">
-                            <i class="fas fa-edit"></i>&nbsp;
-                            Rediger
-                        </a>
-                        <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 ms-2"
-                            data-toggle='tooltip' title='{% trans "Remove this activity from the arrangement" %}'
-                            @click="arrangement.events.splice(arrangement.events.indexOf(event), 1); dialog.data.eventsMap.delete(event._uuid);">
-                            <i class="fas fa-trash"></i>&nbsp;
-                            Slett
-                        </a>
-                    </div>
                 </div>
-
-            </div>
-            <div id="timeplansBody">
-
-                <div class="rounded-2 border border-2 p-3 ps-4 pe-4" 
-                    :id='serie._uuid' 
-                    style="background-color: #f6f6f0;"
-                    v-for="serie in arrangement.series">
-
-                    <h3 class="mb-0">
-                        <i class="fas fa-sync"></i>&nbsp;
-                        [[serie.time.title]]
-                    </h5>
-                    <h5 class="mb-0"><i class="fas fa-clock"></i> [[serie.time.start]] - [[serie.time.end]] </h6>
-                    <h6>[[serie.friendlyDesc]] </h6>
-
-                    <div class="mb-2">
-                        <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0"
-                            data-toggle='tooltip' title='{% trans "Edit this recurring activity" %}'
-                            @click="openDialog('newTimePlanDialog', { serie_uuid: serie._uuid })">
-                            <i class="fas fa-edit"></i>&nbsp;
-                            Rediger tidsplan
-                        </a>
-
-                        <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 ms-2"
-                            data-toggle='tooltip' title='{% trans "Remove this recurring activity from the arrangement to be" %}'
-                            @click="arrangement.series.splice(arrangement.series.indexOf(serie), 1); dialog.data.seriesMap.delete(serie._uuid);">
-                            <i class="fas fa-trash"></i>&nbsp;
-                            Slett
-                        </a>
-                    </div>
-
-                    <div class="accordion" id="accordion_series_[[serie._uuid]]" v-if="serie.collisions.length">
-                        <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingOne">
-                            <a
-                            class="accordion-button text-muted collapsed"
-                            type="button"
-                            data-mdb-toggle="collapse"
-                            data-mdb-target="#collisionsCollapse_[[serie._uuid]]"
-                            aria-expanded="true"
-                            aria-controls="collisionsCollapse_[[serie._uuid]]"
-                            >
-                            <span class="bg-danger rounded-pill text-white p-1 collisions-counter" id='[[serie._uuid]]_collisionCounter'>[[serie.collisions.length]]</span>
-                            <i class="fas fa-exclamation-triangle ms-2"></i>&nbsp; Kollisjoner
-                        </a>
-                        </h2>
-                        <div id="collisionsCollapse_[[serie._uuid]]" class="accordion-collapse collapse" aria-labelledby="headingOne" data-mdb-parent="#accordion_series_[[serie._uuid]]">
-                            <div class="accordion-body" style="max-height: 35em; overflow: scroll;">
-                                <div class="alert alert-danger small">
-                                    <strong>OBS: </strong> kollisjoner som ikke blir <abbr title="Bryt ut kollisjoner til enkle aktiviteter og løs kollisjonen">brutt ut</abbr> og løst vil ikke bli opprettet
-                                    når arrangementet opprettes.
-                                </div>
-                                
-                                <div
-                                    v-for="collisionRecord in serie.collisions">
-
-                                        <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}"
-                                            style='background-color: #f6f6f0'>
-                                            <h5><i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikt på [[collisionRecord.contested_resource_name]]</h5>
-                                            <div class="row">
-                                                <div class="col-5">
-                                                    <div>
-                                                        <div class="fw-bolder">[[collisionRecord.event_a_title]]</div>
-                                                        <h6>[[collisionRecord.event_a_start]] - [[collisionRecord.event_a_end]]</h6>
+                <div id="timeplansBody">
+    
+                    <div class="rounded-2 border border-2 p-3 ps-4 pe-4" 
+                        :id='serie._uuid' 
+                        style="background-color: #f6f6f0;"
+                        v-for="serie in arrangement.series">
+    
+                        <h3 class="mb-0">
+                            <i class="fas fa-sync"></i>&nbsp;
+                            [[serie.time.title]]
+                        </h5>
+                        <h5 class="mb-0"><i class="fas fa-clock"></i> [[serie.time.start]] - [[serie.time.end]] </h6>
+                        <h6>[[serie.friendlyDesc]] </h6>
+    
+                        <div class="mb-2">
+                            <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0"
+                                data-toggle='tooltip' title='{% trans "Edit this recurring activity" %}'
+                                @click="openDialog('newTimePlanDialog', { serie_uuid: serie._uuid })">
+                                <i class="fas fa-edit"></i>&nbsp;
+                                Rediger tidsplan
+                            </a>
+    
+                            <a href="#" class="btn wb-btn-main-outline bg-white border border-dark shadow-0 ms-2"
+                                data-toggle='tooltip' title='{% trans "Remove this recurring activity from the arrangement to be" %}'
+                                @click="arrangement.series.splice(arrangement.series.indexOf(serie), 1); dialog.data.seriesMap.delete(serie._uuid);">
+                                <i class="fas fa-trash"></i>&nbsp;
+                                Slett
+                            </a>
+                        </div>
+    
+                        <div class="accordion" id="accordion_series_[[serie._uuid]]" v-if="serie.collisions.length">
+                            <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <a
+                                class="accordion-button text-muted collapsed"
+                                type="button"
+                                data-mdb-toggle="collapse"
+                                data-mdb-target="#collisionsCollapse_[[serie._uuid]]"
+                                aria-expanded="true"
+                                aria-controls="collisionsCollapse_[[serie._uuid]]"
+                                >
+                                <span class="bg-danger rounded-pill text-white p-1 collisions-counter" id='[[serie._uuid]]_collisionCounter'>[[serie.collisions.length]]</span>
+                                <i class="fas fa-exclamation-triangle ms-2"></i>&nbsp; Kollisjoner
+                            </a>
+                            </h2>
+                            <div id="collisionsCollapse_[[serie._uuid]]" class="accordion-collapse collapse" aria-labelledby="headingOne" data-mdb-parent="#accordion_series_[[serie._uuid]]">
+                                <div class="accordion-body" style="max-height: 35em; overflow: scroll;">
+                                    <div class="alert alert-danger small">
+                                        <strong>OBS: </strong> kollisjoner som ikke blir <abbr title="Bryt ut kollisjoner til enkle aktiviteter og løs kollisjonen">brutt ut</abbr> og løst vil ikke bli opprettet
+                                        når arrangementet opprettes.
+                                    </div>
+                                    
+                                    <div
+                                        v-for="collisionRecord in serie.collisions">
+    
+                                            <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}"
+                                                style='background-color: #f6f6f0'>
+                                                <h5><i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikt på [[collisionRecord.contested_resource_name]]</h5>
+                                                <div class="row">
+                                                    <div class="col-5">
+                                                        <div>
+                                                            <div class="fw-bolder">[[collisionRecord.event_a_title]]</div>
+                                                            <h6>[[collisionRecord.event_a_start]] - [[collisionRecord.event_a_end]]</h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-2">
+                                                        <h3 class=" text-center"><i class="fas fa-arrow-right"></i></h3>
+                                                    </div>
+                                                    <div class="col-5">
+                                                        <div>
+                                                            <div class="fw-bolder">[[collisionRecord.event_b_title]]</div>
+                                                            <h6>[[collisionRecord.event_b_start]] - [[collisionRecord.event_b_end]]</h6>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-2">
-                                                    <h3 class=" text-center"><i class="fas fa-arrow-right"></i></h3>
+                                                <div class="clearfix">
+                                                    <a href="#" class="btn wb-btn-secondary shadow-0"
+                                                        d-trigger="breakOutEvent" d-arg-serie_uuid="[[serie._uuid]]" d-arg-collision_index="[[serie.collisions.length]]"><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
+                                                    </a>
                                                 </div>
-                                                <div class="col-5">
-                                                    <div>
-                                                        <div class="fw-bolder">[[collisionRecord.event_b_title]]</div>
-                                                        <h6>[[collisionRecord.event_b_start]] - [[collisionRecord.event_b_end]]</h6>
-                                                    </div>
+                                                <div v-if="collisionRecord.is_rigging">
+                                                    <br>
+    
+                                                    <i class="fas fa-hammer"></i>&nbsp;Rigghendelse
                                                 </div>
                                             </div>
-                                            <div class="clearfix">
-                                                <a href="#" class="btn wb-btn-secondary shadow-0"
-                                                    d-trigger="breakOutEvent" d-arg-serie_uuid="[[serie._uuid]]" d-arg-collision_index="[[serie.collisions.length]]"><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
-                                                </a>
-                                            </div>
-                                            <div v-if="collisionRecord.is_rigging">
-                                                <br>
-
-                                                <i class="fas fa-hammer"></i>&nbsp;Rigghendelse
-                                            </div>
-                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            </div>
                         </div>
                     </div>
+    
                 </div>
-
             </div>
         </div>
-    </div>
-
-    <div class="navigationButtons clearfix pt-2">
-        <div class="float-start">
-            <button class="btn wb-btn-blank btn-lg text-muted"
-                    d-trigger="close">
-                <i class="fas fa-times"></i>&nbsp;
-                Avbryt
-            </button>
-        </div>
-        <div class="float-end">
-            <button class="btn wb-btn-secondary btn-lg" id="back" type="button">Tilbake</button>
-            <a class="btn wb-btn-main btn-lg" id="next" href="#"> Neste</a>
-            <button class="btn wb-btn-main btn-lg" type="button" id="finish" d-trigger="submit" style="display: none;">
-                Opprett arrangement
-            </button>
+    
+        <div class="navigationButtons clearfix pt-2">
+            <div class="float-start">
+                <button class="btn wb-btn-blank btn-lg text-muted"
+                        d-trigger="close">
+                    <i class="fas fa-times"></i>&nbsp;
+                    Avbryt
+                </button>
+            </div>
+            <div class="float-end">
+                <button class="btn wb-btn-secondary btn-lg" id="back" type="button">Tilbake</button>
+                <a class="btn wb-btn-main btn-lg" id="next" href="#"> Neste</a>
+                <button class="btn wb-btn-main btn-lg" type="button" id="finish" d-trigger="submit" style="display: none;">
+                    Opprett arrangement
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -586,13 +569,21 @@
 
     $(document).ready(function () {
         let createArrangementDialogApp = Vue.createApp({
-            components: { TreeSelectComponent },
+            components: { TreeSelectComponent, RoomPresetSelectComponent, DialogComponent, OrderRoomDialogComponent, RoomAndPresetSelectorComponent },
             data() {
                 return {
+                    dialogIsVisible: false,
                     dialog: null,
                     mainPlannerSearchTerm: null,
                     mainPlannerSearchResults: [],
                     mainPlannerPopover: null,
+                    selectedRooms: {
+                        'presets': [],
+                        'rooms': []
+                    },
+                    dialogVisibilityFlags: {
+                        orderRoomDialogIsVisible: false
+                    },
                     arrangement: {
                         title: null,
                         title_english: null,
@@ -632,10 +623,20 @@
                     });
 
                     return showDisplayText;
-                },
+                }
             },
             methods: {
-
+                updateRoomsDialogState() {
+                    return;
+                    window.MessagesFacility.send(
+                        "{{orderRoomDialog}}", 
+                        {
+                            "selectedRooms": Array.from(this.selectedRooms
+                                .filter(room => !room.is_removed)
+                                .map(room => room.id)),
+                        }, 
+                        "setState");
+                },
                 updateArrangementType(payload) {
                     this.arrangement.arrangement_type = payload.id;
                 },
@@ -663,8 +664,9 @@
                             servicePresets: this.dialog.data.servicePresets,
                             mainPlannerPayload: this.dialog.data.mainPlannerPayload,
                             roomPayload: this.dialog.data.roomPayload,
-                            title_en: this.dialog.vueApp.arrangement.title_english,
-                            ...this.dialog.vueApp.arrangement
+                            title_en: this.arrangement.title_english,
+                            selectedRooms: this.selectedRooms,
+                            ...this.arrangement
                         }
                     });
                 },
@@ -672,21 +674,17 @@
                 * @summary Open dialog for planning a new timeplan / serie in the arrangement
                 */
                 openPlanSerieDialog() {
+                    console.log("Sending data to newTimePlanDialog", this.selectedRooms)
                     this.openDialog("newTimePlanDialog", {
                         data: {
                             servicePresets: this.dialog.data.servicePresets,
                             mainPlannerPayload: this.dialog.data.mainPlannerPayload,
                             roomPayload: this.dialog.data.roomPayload,
-                            title_en: this.dialog.vueApp.arrangement.title_english,
-                            ...this.dialog.vueApp.arrangement
+                            title_en: this.arrangement.title_english,
+                            selectedRooms: this.selectedRooms,
+                            ...this.arrangement
                         }
                     });
-                },
-                /**
-                * @summary Open dialog for adding new rooms to the arrangement
-                */
-                openAddRoomsDialog(dialog, {} = {}, triggeredByElement) {
-                    this.openDialog("{{orderRoomDialog}}");
                 },
                 /**
                 * @summary Open dialog for adding new planners to the arrangement

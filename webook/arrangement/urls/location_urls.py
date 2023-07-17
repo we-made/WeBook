@@ -1,6 +1,7 @@
 from django.urls import path
 
 from webook.arrangement.views import (
+    location_and_rooms_json_list_view,
     location_create_view,
     location_delete_view,
     location_detail_view,
@@ -26,6 +27,11 @@ location_urls = [
         route="location/create/",
         view=location_create_view,
         name="location_create",
+    ),
+    path(
+        route="location/location_and_rooms_json/",
+        view=location_and_rooms_json_list_view,
+        name="location_and_rooms_json",
     ),
     path(
         route="location/edit/<slug:slug>",

@@ -1,8 +1,9 @@
 {% load static i18n %}
 {% load crispy_forms_tags %}
 
-
 {% include "arrangement/vue/js_tree_select_component.html" %}
+{% include "arrangement/vue/room_and_preset_selector_component.html" %}
+
 
 <div id="{{dialogId}}" class="{{discriminator}}" >
 
@@ -198,36 +199,10 @@
                 </div>
             </div>
 
-            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
-                <label for="" class="form-label">
-                    <i class="fas fa-building"></i>&nbsp;
-                    Rom
-                </label>
-                <div>
-                    <button class="wb-btn-main"
-                        type="button"
-                        @click="openAddRoomsDialog()">
-                        Velg rom
-                    </button>
-                </div>
-                <div id="selectedRoomsWrapper" class="chipsList">
-                    <span v-for="room in activity.rooms">
-                        <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
-                            [[room.text]]
-                            
-                            <a href="#">
-                                <i class="fa fa-times text-danger"
-                                    :id="room.id"
-                                    select-type="room"
-                                    @click="rooms.splice(rooms.indexOf(room), 1)"
-                                    d-trigger="removeAssociation">
-
-                                </i>
-                            </a>
-                        </div>
-                    </span>
-                </div>
-            </div>
+            <room-and-preset-selector-component
+                v-model="activity.selectedRooms"
+                dialog-id="{{dialogId}}">
+            </room-and-preset-selector-component>
 
             <div class="form-group mb-2">
                 <label class="form-label" for="ticket_code">
@@ -472,13 +447,14 @@
 
     $(document).ready(function() {
         let createActivityDialog = Vue.createApp({
-            components: { TreeSelectComponent },
+            components: { TreeSelectComponent, RoomAndPresetSelectorComponent },
             data() {
                 return {
                     dialog: null,
                     mainPlannerSearchTerm: null,
                     mainPlannerSearchResults: [],
                     mainPlannerPopover: null,
+
 
                     activity: {
                         _uuid: null,
@@ -518,6 +494,11 @@
                         rooms: [],
                         planners: [],
                         main_planner: { id: null, text: null },
+                        
+                        selectedRooms: {
+                            'presets': [],
+                            'rooms': []
+                        },
                     },
                 }
             },
@@ -783,9 +764,7 @@
                             qualifiedEvent.end = new Date(qualifiedEvent.toDate + "T" + qualifiedEvent.toTime);                            
 
                             qualifiedEvent.room_name_map = dialog.data.roomsNameMap;
-                            qualifiedEvent.rooms = qualifiedEvent.rooms.map(room => room.id);
-
-                            console.log("qualifiedEvent", qualifiedEvent);
+                            qualifiedEvent.rooms = dialog.vueApp.activity.selectedRooms.rooms.map(x => x.id);
             
                             dialog.raiseSubmitEvent({
                                 event: qualifiedEvent,

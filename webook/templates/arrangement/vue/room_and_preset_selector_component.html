@@ -1,0 +1,254 @@
+{% include "arrangement/vue/room_presets_component.html" %}
+{% include "arrangement/vue/dialog-component.html" %}
+{% include "arrangement/vue/dialogs/order_room_dialog.html" %}
+
+<template id="vuec-room-and-preset-selector-template">
+    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
+        <label for="" class="form-label">
+            <i class="fas fa-building"></i>&nbsp;
+            Rom
+        </label>
+        <div class="d-flex align-items-center">
+            <button type="button" 
+                class="wb-btn-main"
+                @click="dialogIsVisible = !dialogIsVisible">
+                Velg rom
+            </button>
+            <order-room-dialog-component
+                @update:is-visible="(value) => dialogIsVisible = value"
+                :is-visible="dialogIsVisible"
+                v-model="allSelectedRooms"
+                :chain-to="'#' + dialogId">
+            </order-room-dialog-component>
+
+            <h5 class="ms-1 me-1 mb-0">eller</h5>
+
+            <room-preset-select-component
+                v-model="allSelectedPresets">
+            </room-preset-select-component>
+        </div>
+        
+        <div v-show="allSelectedRooms.filter(x => !x.is_part_of_preset).length">
+            <h5 class="mt-3">Valgte Rom</h5>
+            <div id="roomChips" class="chipsList" >
+                
+                <span v-for="room in allSelectedRooms.filter(x => !x.is_part_of_preset)">
+                    <div class="bg-white p-2 rounded-3 m-1 border border-dark d-flex align-items-center">
+                        <span>
+                            [[room.name]]
+                        </span>
+                        
+                        <button class="btn btn-white shadow-0 p-1 ms-2" type="button">
+                            <i class="fa fa-times text-danger"
+                                :id="room.id"
+                                @click="allSelectedRooms = allSelectedRooms.filter(x => x.id != room.id); updateRoomsDialogState();">
+                            </i>
+                        </button>
+                    </div>
+                </span>
+            </div>
+        </div>
+
+
+        <div v-if="allSelectedPresets.length">
+            <h5 class="mt-3">Valgte Presets</h5>
+            <span v-for="preset in allSelectedPresets">
+                <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-white border border-dark wb-bg-secondary shadow-0" @click="preset.isExpanded = !preset.isExpanded"
+                                data-toggle="tooltip" type="button"
+                                :title="preset.isExpanded ? 'Skjul rom' : 'Vis rom'">
+                                <i :class="['fas', preset.isExpanded ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+                            </button>
+
+                            <span class="fw-bold ms-2">[[preset.text]]</span>
+                        </div>
+
+                        <div class="border border-dark rounded-3 secondary-dotted-bg-pattern ps-2 pe-2 fw-bolder text-dark" v-if="preset.rooms.filter(x => x.is_removed).length">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            [[preset.rooms.filter(x => x.is_removed).length]] rom ekskludert
+                        </div>
+
+                        <button class="btn btn-white shadow-0" type="button" data-toggle="tooltip" title="Fjern preset fra arrangement"
+                            @click="allSelectedPresets = allSelectedPresets.filter(x => x.id != preset.id); updateRoomsDialogState();">
+                            <i class="fas fa-times text-danger"></i>
+                        </button>
+                    </div>
+                    <div v-show="preset.isExpanded">
+                        <div class="mt-2">
+                            <span v-for="room in preset.rooms">
+                                <div :class="['bg-white p-2 rounded-3 me-2 mt-1 bg-wheat border border-dark d-flex justify-content-between align-items-center', { 'danger-dotted-bg-pattern': room.is_removed } ]">
+                                    <span :style="{ 'text-decoration: line-through;': room.is_removed }">[[room.text]] - [[room.id]]</span>
+                                    <span v-show="room.is_removed">
+                                        <i class="fas fa-exclamation-triangle"></i> Fjernet fra arrangement
+                                    </span>
+                                    
+                                    <button 
+                                        v-if="!room.is_removed"
+                                        class="btn btn-white shadow-0" 
+                                        data-toggle="tooltip"
+                                        title="Fjern rommet fra arrangementet"
+                                        type="button" 
+                                        @click="room.is_removed = true">
+                                        <i class="fa fa-times text-danger"></i>
+                                    </button>
+                                    <button
+                                        v-else
+                                        data-toggle="tooltip"
+                                        title="Legg rommet tilbake i arrangementet"
+                                        class="btn btn-white shadow-0 border border-dark"
+                                        type="button"
+                                        @click="room.is_removed = false">
+                                        <i class="fas fa-plus text-success"></i>
+                                    </button>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </span>
+        </div>
+    </div>
+</template>
+
+<script>
+    let RoomAndPresetSelectorComponent = {
+        components: {
+            'order-room-dialog-component': OrderRoomDialogComponent,
+            'room-preset-select-component': RoomPresetSelectComponent,
+        },
+        props: {
+            dialogId: String,
+            modelValue: Object
+        },
+        emits: ['update:modelValue'],
+        data() {
+            return {
+                isInitialized: false,
+                dialogIsVisible: false,
+                allSelectedRooms: [],
+                allSelectedPresets: [],
+            }
+        },
+        computed: {
+            totalSelectedRooms() {
+                return this.allSelectedRooms.length;
+            },
+            totalSelectedPresetRooms() {
+                return this.allSelectedPresets
+                    .map(preset => preset.rooms).flat()
+                    .filter(room => !room.is_removed).length;
+            },
+            roomsInPreset() {
+                if (this.allSelectedPresets.length == 0)
+                    return new Map();
+
+                return new Map(
+                    this.allSelectedPresets.map(preset => preset.rooms)
+                        .flat()
+                        .map(room => [room.id, room])
+                );
+            }
+        },
+        methods: {
+            emitUpdate() {
+                let newModelValue = {
+                    "rooms": this.allSelectedRooms,
+                    "presets": this.allSelectedPresets
+                };
+                console.log('emitting update', newModelValue)
+                this.$emit('update:modelValue', newModelValue);
+            }
+        }, 
+        watch: {
+            modelValue: function () {
+                this.isInitialized = false;
+                
+                console.log('modelValue changed', this.modelValue)
+
+                this.allSelectedRooms = this.modelValue.rooms;
+                this.allSelectedPresets = this.modelValue.presets;
+
+                this.isInitialized = true;
+            },
+            totalSelectedPresetRooms: function () {
+                const presentlyActiveRoomIds = this.allSelectedRooms.map((room) => room.id);
+
+                this.allSelectedRooms.forEach(room => {
+                    if (room.is_part_of_preset && !this.roomsInPreset.has(room.id)) {
+                        room.is_selected = false;
+                    }
+                })
+
+                this.allSelectedPresets.forEach((preset) => {
+                    preset.rooms.forEach((room) => {
+                        if (room.is_removed && presentlyActiveRoomIds.includes(room.id)) {
+                            this.allSelectedRooms = this.allSelectedRooms.filter((r) => r.id != room.id);
+                        }
+                        else if (!room.is_removed && !presentlyActiveRoomIds.includes(room.id)) {
+                            this.allSelectedRooms.push(room);
+                        }
+                    });
+                });
+                if (this.isInitialized)
+                    this.emitUpdate();
+            },
+            totalSelectedRooms: function () {
+                this.allSelectedRooms.forEach((room) => {
+                    if (this.roomsInPreset.has(room.id)) {
+                        room.is_selected = true;
+                        room.is_part_of_preset = true;
+
+                        this.roomsInPreset.get(room.id).is_removed = false;
+                    }
+                });
+
+                const presentlyActiveRoomIds = this.allSelectedRooms.map((room) => room.id);
+                this.roomsInPreset.forEach((room) => {
+                    if (!presentlyActiveRoomIds.includes(room.id)) {
+                        room.is_removed = true;
+                    }
+                });
+
+                if (this.isInitialized)
+                    this.emitUpdate();
+            },
+            allSelectedPresets: function () {
+                const roomsLookup = new Map(
+                    this.allSelectedRooms.map((room) => [ room.id, room ])
+                );
+                this.allSelectedPresets.forEach((preset) => {
+                    preset.rooms.forEach((room) => {
+                        if (roomsLookup.has(room.id)) {
+                            roomsLookup.get(room.id).is_removed = false;
+                            roomsLookup.get(room.id).is_part_of_preset = true;
+                        }
+                        else {
+                            this.allSelectedRooms.push({
+                                id: room.id,
+                                name: room.text,
+                                is_selected: true,
+                                is_part_of_preset: true,
+                                is_removed: false
+                            });
+                        }
+                    });
+                });
+
+                if (this.isInitialized)
+                    this.emitUpdate();
+            },
+        },
+        mounted() {
+            if (this.modelValue) {
+                this.allSelectedRooms = this.modelValue.rooms;
+                this.allSelectedPresets = this.modelValue.presets;
+            }
+            
+            this.isInitialized = true;
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec-room-and-preset-selector-template"
+    }
+</script>

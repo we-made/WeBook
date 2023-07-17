@@ -78,6 +78,7 @@ from .event_views import (
     upload_files_to_event_serie_json_form_view,
 )
 from .location_views import (
+    location_and_rooms_json_list_view,
     location_create_view,
     location_delete_view,
     location_detail_view,
@@ -183,6 +184,7 @@ from .room_preset_views import (
     room_preset_create_view,
     room_preset_delete_view,
     room_preset_detail_view,
+    room_preset_json_list_view,
     room_preset_update_view,
     room_presets_listview,
 )
@@ -212,6 +214,7 @@ from .service_views import (
     get_preconfigurations_for_service_json_view,
     get_provisions_json_view,
     get_service_overview_calendar,
+    get_service_personell_json_view,
     get_service_responsibles_json_view,
     open_service_order_for_revisioning_form_view,
     process_service_request_view,
@@ -220,7 +223,6 @@ from .service_views import (
     service_detail_view,
     service_orders_for_service_json_list_view,
     service_personnell_json_list_view,
-    get_service_personell_json_view,
     service_preconfiguration_add_person_view,
     service_tree_json_view,
     services_add_email_view,

@@ -220,6 +220,37 @@ class LocationsCalendarResourcesListView(LoginRequiredMixin, ListView):
 locations_calendar_resources_list_view = LocationsCalendarResourcesListView.as_view()
 
 
+class LocationsAndRoomsJsonListView(LoginRequiredMixin, JsonListView):
+    model = Location
+
+    def get_queryset(self):
+        locations = Location.objects.all()
+        serializable_locations = []
+
+        for location in locations:
+            l = {
+                "id": location.id,
+                "slug": location.slug,
+                "name": location.name,
+                "rooms": [],
+            }
+
+            for room in location.rooms.all():
+                l["rooms"].append(
+                    {
+                        "id": room.id,
+                        "slug": room.slug,
+                        "name": room.name,
+                    }
+                )
+            serializable_locations.append(l)
+
+        return serializable_locations
+
+
+location_and_rooms_json_list_view = LocationsAndRoomsJsonListView.as_view()
+
+
 class LocationRoomsJsonListView(LoginRequiredMixin, JsonListView):
     slug_field = "slug"
     slug_url_kwarg = "slug"
