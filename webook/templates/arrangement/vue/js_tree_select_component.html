@@ -50,6 +50,9 @@
             selected: Number,
         },
         methods: {
+            getNode(id) {
+                return $(this.$refs.jsTreeEl).jstree(true).get_node(id);
+            },
             async loadJson() {
                 let response = await fetch(this.jsonUrl);
                 let json = await response.json();
@@ -87,7 +90,7 @@
 
                         $(this.$refs.jsTreeEl).on('changed.jstree', (e, data) => {
                             const selected = $(this.$refs.jsTreeEl).jstree("get_selected", true)[0];
-                            
+                            debugger;
                             if (selected.parent !== "#")
                             {
                                 let parentNode = $(this.$refs.jsTreeEl).jstree(true).get_node(selected.parent);
@@ -120,10 +123,14 @@
             selectedText() {
                 let text = this.selectedValues.text;
 
-                if (text === null)
+                if (text === null) {
                     text = "Velg " + this.label.toLowerCase();
-                else if (this.selectedValues.parent)
-                    text = this.selectedValues.parent + " - " + text;
+                }
+                else if (this.selectedValues.parent && this.selectedValues.parent !== "#") {
+                    const parentNode = this.getNode(this.selectedValues.parent);
+
+                    text = parentNode.text + " - " + text;
+                }
 
                 return text;
             }
