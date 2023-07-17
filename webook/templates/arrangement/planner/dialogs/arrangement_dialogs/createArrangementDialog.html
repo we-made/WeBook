@@ -631,7 +631,7 @@
                     window.MessagesFacility.send(
                         "{{orderRoomDialog}}", 
                         {
-                            "selectedRooms": Array.from(this.dialog.vueApp.selectedRooms
+                            "selectedRooms": Array.from(this.selectedRooms
                                 .filter(room => !room.is_removed)
                                 .map(room => room.id)),
                         }, 
@@ -664,9 +664,9 @@
                             servicePresets: this.dialog.data.servicePresets,
                             mainPlannerPayload: this.dialog.data.mainPlannerPayload,
                             roomPayload: this.dialog.data.roomPayload,
-                            title_en: this.dialog.vueApp.arrangement.title_english,
-                            selectedRooms: this.dialog.vueApp.selectedRooms,
-                            ...this.dialog.vueApp.arrangement
+                            title_en: this.arrangement.title_english,
+                            selectedRooms: this.selectedRooms,
+                            ...this.arrangement
                         }
                     });
                 },
@@ -674,64 +674,17 @@
                 * @summary Open dialog for planning a new timeplan / serie in the arrangement
                 */
                 openPlanSerieDialog() {
-                    console.log("Sending data to newTimePlanDialog", this.dialog.vueApp.selectedRooms)
+                    console.log("Sending data to newTimePlanDialog", this.selectedRooms)
                     this.openDialog("newTimePlanDialog", {
                         data: {
                             servicePresets: this.dialog.data.servicePresets,
                             mainPlannerPayload: this.dialog.data.mainPlannerPayload,
                             roomPayload: this.dialog.data.roomPayload,
-                            title_en: this.dialog.vueApp.arrangement.title_english,
-                            selectedRooms: this.dialog.vueApp.selectedRooms,
-                            ...this.dialog.vueApp.arrangement
+                            title_en: this.arrangement.title_english,
+                            selectedRooms: this.selectedRooms,
+                            ...this.arrangement
                         }
                     });
-                },
-                /**
-                * @summary Open dialog for adding new rooms to the arrangement
-                */
-                openAddRoomsDialog(dialog, {} = {}, triggeredByElement) {
-                    this.openDialog("{{orderRoomDialog}}");
-                    this.updateRoomsDialogState();
-
-                    // Register callback on the rooms dialog, this callback will be triggered when the rooms state changes 
-                    // on that end. We want to mirror these changes. Rewriting to wholly using Vue would avoid this (as state would be managed in a more intelligent manner),
-                    // but we are not there yet.
-                    /*
-                    window.MessagesFacility.send("{{orderRoomDialog}}", (activeRooms) => {
-                        activeRooms.forEach((room) => {
-                            let existingRoom = this.selectedRooms.find((selectedRoom) => selectedRoom && selectedRoom.id == room.id);
-
-                            if (existingRoom) {
-                                if (this.roomsEncasedByPresets.has(existingRoom.id)) {
-                                    existingRoom.is_removed = false;
-                                }
-                            }
-                            else {
-                                this.arrangement.rooms.push({
-                                    id: parseInt(room.id),
-                                    text: room.name
-                                });
-                            }
-                        })
-
-                        this.selectedRooms.forEach((existingRoom) => {
-                            let activeRoom = activeRooms.find(
-                                (room) => parseInt(room.id) == existingRoom.id
-                            );
-
-                            if (!activeRoom) {
-                                if (this.roomsEncasedByPresets.has(existingRoom.id)) {
-                                    existingRoom.is_removed = true;
-                                }
-                                else {
-                                    this.arrangement.rooms = this.arrangement.rooms.filter(
-                                        (room) => room.id != existingRoom.id
-                                    );
-                                }
-                            }
-                        });
-                        
-                    }, "registerCallback"); */
                 },
                 /**
                 * @summary Open dialog for adding new planners to the arrangement
