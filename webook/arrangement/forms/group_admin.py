@@ -1,9 +1,8 @@
 from django import forms
 from django.contrib import admin
-from django.contrib.auth import get_user_model
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-
 
 User = get_user_model()
 

@@ -637,3 +637,7 @@ html, body {
 .draggable:active {
     cursor: grabbing
 }
+
+.active.page-item .page-link {
+    background-color: var(--MAIN-COLOR)!important;
+}
