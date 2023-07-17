@@ -6,6 +6,7 @@
 {% include "arrangement/vue/month_select_component.html" %}
 {% include "arrangement/vue/arbitrator_select_component.html" %}
 {% include "arrangement/vue/weekday_select_component.html" %}
+{% include "arrangement/vue/room_and_preset_selector_component.html" %}
 
 
 <div id="{{dialogId}}" title="Ny tidsplan" class="{{discriminator}}">
@@ -479,37 +480,11 @@
                     </div>
                 </div>
             </div>
-
-            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
-                <label for="" class="form-label">
-                    <i class="fas fa-building"></i>&nbsp;
-                    Rom
-                </label>
-                <div>
-                    <button class="wb-btn-main"
-                        type="button"
-                        d-trigger="triggerAddRooms">
-                        Velg rom
-                    </button>
-                </div>
-                <div id="roomChips" class="chipsList">
-                    <span v-for="room in serie.rooms">
-                        <div class="bg-white p-2 rounded-3 me-2 mt-1 border border-dark">
-                            [[room.text]]
-                            
-                            <a href="#">
-                                <i class="fa fa-times text-danger"
-                                    :id="room.id"
-                                    select-type="room"
-                                    @click="rooms.splice(rooms.indexOf(room), 1)"
-                                    d-trigger="removeAssociation">
-
-                                </i>
-                            </a>
-                        </div>
-                    </span>
-                </div>
-            </div>
+            
+            <room-and-preset-selector-component
+                v-model="serie.selectedRooms"
+                dialog-id="{{dialogId}}">
+            </room-and-preset-selector-component>
         </div>
 
         <div id="step-services">
@@ -747,7 +722,14 @@
 
     $(document).ready(function () {
         let createSerieDialog = Vue.createApp({
-            components: { TreeSelectComponent, DayOfWeekSelectComponent, ArbitratorSelectComponent, MonthSelectComponent, WeekdaySelectComponent },
+            components: { 
+                TreeSelectComponent, 
+                DayOfWeekSelectComponent, 
+                ArbitratorSelectComponent, 
+                MonthSelectComponent, 
+                WeekdaySelectComponent,
+                RoomAndPresetSelectorComponent
+            },
             data() {
                 return {
                     dialog: null,
@@ -766,6 +748,8 @@
                     ],
 
                     showDaysErrorMessage: false,
+
+
 
                     serie: {
                         uuid: crypto.randomUUID(),
@@ -788,6 +772,11 @@
                         display_layouts: [],
                         display_text: '',
                         mainPlanner: { id: null, text: null },
+
+                        selectedRooms: {
+                            'presets': [],
+                            'rooms': []
+                        },
 
                         buffer_before_title: null,
                         buffer_before_date_offset: null,
@@ -1448,7 +1437,7 @@
                             }
             
                             serie._uuid = dialog.vueApp.serie.uuid;
-                            serie.rooms = Array.from(dialog.data.selectedRoomIds.keys());;
+                            serie.rooms = dialog.vueApp.serie.selectedRooms.rooms.map(x => x.id);
                             serie.room_name_map = dialog.data.roomsNameMap;
                             serie.room_payload = dialog.data.roomPayload;
                             serie.planner_payload = dialog.data.mainPlannerPayload;
