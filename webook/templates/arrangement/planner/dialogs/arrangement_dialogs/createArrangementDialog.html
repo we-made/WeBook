@@ -626,17 +626,6 @@
                 }
             },
             methods: {
-                updateRoomsDialogState() {
-                    return;
-                    window.MessagesFacility.send(
-                        "{{orderRoomDialog}}", 
-                        {
-                            "selectedRooms": Array.from(this.selectedRooms
-                                .filter(room => !room.is_removed)
-                                .map(room => room.id)),
-                        }, 
-                        "setState");
-                },
                 updateArrangementType(payload) {
                     this.arrangement.arrangement_type = payload.id;
                 },
