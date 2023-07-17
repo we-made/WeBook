@@ -1,0 +1,146 @@
+{% include "arrangement/vue/table_component.html" %}
+{% include "arrangement/vue/popover_component.html" %}
+{% include "arrangement/vue/dialog-component.html" %}
+
+
+<template id="vuec-order-room-dialog-component-template">
+    <dialog-component
+        @update.is-visible="$emit('update:isVisible', isVisible)"
+        :is-visible="isVisible"
+        :chain-to="chainTo"
+        >
+
+        <template v-slot:header>
+            <h3 class="mb-0">Velg rom</h3>
+        </template>
+
+        <template v-slot:content>
+            <div style="overflow-y: scroll;">
+                <div class="mb-5">
+                    <div class="d-flex flex-wrap justify-content-center">
+                        <div v-for="location in locations" 
+                            @click="focusedLocation = location"
+                            :class="['card wb-bg-white border border-dark shadow-0 m-1', { 'wb-bg-secondary shadow-5': focusedLocation == location }]">
+        
+                            <div class="card-body p-2">
+                                <h6 class="text-center mb-0">
+                                    [[location.name]]
+                                </h6>
+                            </div>
+        
+                            <div class="card-footer p-1">
+                                <div class="d-flex justify-content-center">
+                                    <div class="badge badge-light bg-white border border-1 border-dark text-center m-1">
+                                        <span class="h6 mt-0 mb-0">
+                                            [[location.rooms.length]]
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <hr>
+        
+                    <table-component
+                        v-if="focusedLocation"
+                        :data-source="locationDataSourceFunc(focusedLocation.id)"
+                        :can-search="true">
+                    </table-component>
+                </div>
+            </div>
+        </template>
+
+        <template v-slot:footer>
+            <div class="clearfix">
+                <div class="float-end">
+                    <a class="btn wb-btn-secondary shadow-0" type="button" @click="$emit('update:isVisible', false)">
+                        <i class="fas fa-times"></i>&nbsp; Lukk
+                    </a>
+                </div>
+            </div>
+        </template>
+    </dialog-component>
+</template>
+
+<script>
+    let OrderRoomDialogComponent = {
+        components: { TableComponent, DialogComponent },
+        props: {
+            isVisible: Boolean,
+            modelValue: Array,
+            chainTo: String
+        },
+        emits: ["update:isVisible", "update:modelValue"],
+        data() {
+            return {
+                locations: [
+                ],
+                focusedLocation: null,
+                disabledRooms: [],
+            }
+        },
+        computed: {
+            totalSelectedRoomsCount() {
+                return this.locations.map(location => location.rooms).flat().filter(room => room.is_selected).length;
+            },
+        },
+        watch: {
+            totalSelectedRoomsCount: {
+                handler() {
+                    console.log(this.locations.map(location => location.rooms).flat().filter(room => room.is_selected))
+                    this.$emit("update:modelValue", 
+                        this.locations.map(location => location.rooms).flat().filter(room => room.is_selected));
+                },
+                immediate: true,
+            },
+        },
+        methods: {
+            async getData() {
+                await fetch("/arrangement/location/location_and_rooms_json/")
+                    .then(response => response.json())
+                    .then(data => {
+                        this.locations = data;
+                    });
+            },
+            async locationDataSourceFunc(locationPk) {
+                let roomsOnLocation = this.locations.find(location => location.id == locationPk).rooms;
+                roomsOnLocation.forEach(room => {
+                    const prevalue = this.modelValue.find(r => r.id == room.id);
+                    room.is_selected = !!prevalue;
+                    room.is_part_of_preset = !!prevalue?.is_part_of_preset;
+                });
+
+                return {
+                    columns: {
+                        "id": {
+                            isHtml: false,
+                            friendlyName: "Id",
+                            isSearchable: true,
+                        },
+                        "name": {
+                            isHtml: false,
+                            friendlyName: "Romnavn",
+                            isSearchable: true,
+                        },
+                        "is_selected": {
+                            isHtml: false,
+                            friendlyName: "Valgt",
+                            componentName: "checkbox",
+                            isComponent: true,
+                        },
+                    },
+                    actions: {
+                    },
+                    data: roomsOnLocation
+                }
+            },
+        },
+        async mounted() {
+            await this.getData();
+            this.focusedLocation = this.locations[0];
+        },
+        template: "#vuec-order-room-dialog-component-template",
+        delimiters: ["[[", "]]"],
+    };
+</script>
