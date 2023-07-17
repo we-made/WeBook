@@ -18,9 +18,11 @@
                 <button class="btn wb-btn-secondary" @click="toggleVisibility()" type="button" ref="trigger">
                     [[buttonLabel]]
                 </button>
+
                 <popover-component
                     :is-visible="isExpanded"
-                    :excludes="[ this.$refs.trigger ]">
+                    :excludes="[ triggerRef ]"
+                    @update:is-visible="(value) => isExpanded = value">
 
                     <h5>[[label]]</h5>
 
@@ -120,6 +122,12 @@
             }
         },
         computed: {
+            triggerRef() {
+                if (!this.isMounted) {
+                    return null;
+                }
+                return this.$refs.trigger;
+            },
             selectedText() {
                 let text = this.selectedValues.text;
 
@@ -144,6 +152,7 @@
                     parent: null,
                 },
                 hasInit: false,
+                isMounted: false,
             }
         },
         mounted() {
@@ -153,6 +162,8 @@
             this.$nextTick(() => {
                 this.initJsTree();
             });
+
+            this.isMounted = true;
         },
         delimiters: ["[[", "]]"],
         template: "#vuec-js-tree-select-template"

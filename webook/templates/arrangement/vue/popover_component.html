@@ -36,13 +36,16 @@
                     this.internalIsVisible = newState;
                     $(this.$refs.popover).show("fade", {}, 400);
                 }
+            },
+            internalIsVisible(newState, oldState) {
+                this.$emit("update:isVisible", newState);
             }
         },
         mounted() {
             this.internalIsVisible = this.isVisible;
 
             this.clickOutsideEvent = (e) => {
-                if (this.$el !== event.target && !this.$el.contains(event.target) && !event.target in this.excludes) {
+                if (this.$el !== event.target && !this.$el.contains(event.target) && !this.excludes || !this.excludes.includes(event.target)) {
                     this.internalIsVisible = false;
                 }
             };
