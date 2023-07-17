@@ -1,0 +1,155 @@
+{% include "arrangement/vue/popover_component.html" %}
+
+
+<template id="vuec-room-presets-select-template">
+    <div>
+        <button class="btn wb-btn-secondary" @click="toggleVisibility()" type="button" ref="trigger">
+            Velg preset
+        </button>
+        <popover-component
+            style="width: 40rem!important;"
+            :is-visible="isExpanded"
+            :excludes="[ this.$refs.trigger ]">
+            
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0">
+                    Velg preset
+                </h5>
+
+                <button class="btn btn-sm btn-white shadow-0" type="button" @click="isExpanded = false">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <hr>
+            
+            <div class="row">
+                <div class="col-8">
+                    <div :class="[ 'card select-card shadow-0 p-1', { 'active': preset.active } ]" 
+                        v-for="preset in presets"
+                        @click="preset.active = !preset.active"
+                        @mouseover="if (!preset.active) { preset.expanded = true; focusedPreset = preset; }"
+                        @mouseout="preset.expanded = false; focusedPreset = null;"
+                        style="max-height: 30rem; overflow: scroll">
+
+                        <div class="card-body p-1">
+                            <div class="d-flex justify-content-center flex-wrap">
+                                <div class="text-center">
+                                    <h5 class="mb-0">
+                                        [[preset.text]]
+                                    </h5>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>  
+                </div>
+                <div class="col-4">
+                    <div class="border border-1 rounded-4 wb-bg-secondary">
+                        <div v-if="focusedPreset">
+                            <h6 class="mb-0 text-center fw-bold mt-1">[[focusedPreset.text]]</h6>
+                            <ul class="mb-0 pb-0">
+                                <li v-for="room in focusedPreset.rooms">
+                                    [[room.text]]
+                                </li>
+                            </ul>
+                        </div>
+                        <div v-else-if="selectedPresets.length" style="max-height:30rem; overflow: scroll">
+                            <h6 class="mb-0 text-center fw-bold mt-1">[[selectedPresets.length]] presets valgt</h6>
+                            <ul class="mb-0 pb-0">
+                                <li v-for="preset in selectedPresets">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            [[preset.text]] 
+                                            <small>( [[preset.rooms.length]] )</small> 
+                                        </div>
+                                    </div>
+
+                                    <ul>
+                                        <li v-for="room in preset.rooms">
+                                            [[room.text]]
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div v-else class="p-2">
+                            <h5 class="mb-0 text-center mt-2">
+                                <i class="fas fa-info"></i>&nbsp; Presets
+                            </h5>
+                            <hr>
+                            <div>
+                                <em>
+                                    Ingen presets valgt. Trykk på en preset for å legge den til.
+                                </em>
+                            </div>
+                            <div>
+                                <em>
+                                    Du kan holde musepekeren over en preset for å se hvilke rom som er inkludert.
+                                </em>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="clearfix mt-3">
+                <button class="btn wb-btn-main float-end" type="button" @click="saveChoices()">
+                    Bekreft valg
+                </button>
+                <button class="btn wb-btn-secondary float-end" @click="isExpanded = false" type="button">
+                    Avbryt
+                </button>
+            </div>
+        </popover-component>
+    </div>
+</template>
+
+<script>
+    let RoomPresetSelectComponent = {
+        components: {
+            PopoverComponent
+        },
+        props: {
+        },
+        emits: ["update:modelValue"],
+        methods: {
+            async getPresets() {
+                await fetch("/arrangement/room_preset/json_list")
+                    .then(response => response.json())
+                    .then(json => {
+                        this.presets = json;
+                    })
+            },
+
+            toggleVisibility() {
+                this.isExpanded = !this.isExpanded;
+            },
+
+            saveChoices() {
+                this.$emit("update:modelValue", this.selectedPresets);
+                this.isExpanded = false;
+            }
+        },
+        watch: {
+        },
+        computed: {
+            selectedPresets() {
+                return this.presets.filter(preset => preset.active);
+            }
+        },
+        data() {
+            return {
+                isExpanded: false,
+                presets: [],
+                focusedPreset: null,
+            }
+        },
+        mounted() {
+            this.getPresets();
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec-room-presets-select-template"
+    }
+</script>
