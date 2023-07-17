@@ -32,7 +32,6 @@
             </div>
         </div>
     </div>
-    
 
     <table :class="tableClasses ? tableClasses : 'table  align-middle table-sm mt-3 text-center'">
         <thead>
@@ -49,7 +48,7 @@
                 </span>
 
                </th> 
-               <th v-if="actions">
+               <th v-if="actions && actions.length > 0">
                     <i class="fas fa-ellipsis-v"></i>
                </th>
             </tr>
@@ -66,7 +65,7 @@
                         </status-indicator-component>
                         <div class="form-group" v-if="options.componentName == 'checkbox'">
                             <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
-                                v-model="row[columnKey]">
+                                v-model="row[columnKey]" :disabled="'is_disabled' in row && row.is_disabled">
                         </div>
                     </span>
                     <span v-else>
@@ -75,7 +74,7 @@
                     </span>
                 </td>
 
-                <td v-if="actions" style="min-width: 15rem">
+                <td v-if="actions && actions.length > 0" style="min-width: 15rem">
                     <span v-if="Object.keys(actions).length > 2">
                         <div class="dropdown" id="actionDropdown">
                             <button
