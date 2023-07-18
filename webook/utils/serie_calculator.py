@@ -213,7 +213,7 @@ def _pattern_strategy_every_x_day_every_y_month(cycle: _CycleInstruction) -> _Ev
         cycle.start_date = cycle.start_date + relativedelta(months=cycle.interval)
         cycle.start_date.replace(day=1)
 
-    if cycle.day_of_month > cycle.start_date.day:
+    if cycle.day_of_month < cycle.start_date.day:
         return
 
     adjusted_date = cycle.start_date.replace(day=cycle.day_of_month)
