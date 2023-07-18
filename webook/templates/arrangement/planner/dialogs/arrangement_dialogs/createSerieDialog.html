@@ -7,6 +7,7 @@
 {% include "arrangement/vue/arbitrator_select_component.html" %}
 {% include "arrangement/vue/weekday_select_component.html" %}
 {% include "arrangement/vue/room_and_preset_selector_component.html" %}
+{% include "arrangement/vue/select_main_planner_popover.html" %}
 
 
 <div id="{{dialogId}}" title="Ny tidsplan" class="{{discriminator}}">
@@ -404,82 +405,9 @@
         </div>
 
         <div id="step-3">
-            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
-                <input type="hidden" 
-                    name="{{ form.responsible.name }}" 
-                    id="{{ form.responsible.id_for_label }}">
-
-                <label for="" class="d-block form-label">
-                    <i class="fas fa-star"></i>
-                    Hovedplanlegger
-                </label>
-
-                <div class="text-danger" style="display: none;"
-                    id="mainPlanner_validationText">
-                    Vennligst velg en hovedplanlegger
-                </div>
-                
-                <div>
-                    [[ serie.mainPlanner.text ]]
-                </div>
-
-                <button class="wb-btn-main"
-                    id="setMainPlannerButton"
-                    type="button">
-                    Velg hovedplanlegger
-                </button>
-
-                <div id="select-main-planner-popover" class="popover_wrapper dialog-popover-left-fix" style="display: none;">
-                    <div class="popover_content" style="width: 50em!important;">
-                        <h5>Velg hovedplanlegger</h5>
-                        
-                        <input type="search" name="" id="" class="form-control form-control-lg"
-                            v-model="mainPlannerSearchTerm"
-                            placeholder="Søk etter planlegger... (minst 3 tegn)">       
-
-                        <div class="mt-3">
-                            <div v-if="mainPlannerSearchResults.length">
-                                <div v-if="mainPlannerSearchTerm.length == 0"
-                                    class="alert alert-info">
-                                    <div class="d-flex align-items-center">
-                                        <h2 class="mb-0"><i class="fas fa-info"></i></h2>
-                                        
-                                        <div class="ms-3">
-                                            Uten søkeord vises alle personer med gruppe planlegger
-                                            <br>
-                                            Du kan fortsatt søke etter og velge personer uten gruppe planlegger ved å skrive inn minst 3 tegn i søkefeltet.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <table class="table table-highlight table-bordered table-sm" v-if="mainPlannerSearchResults.length">
-                                    <tbody>
-                                        <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
-                                            <td>
-                                                <a>
-                                                    [[ result.full_name ]]
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                
-                                <div class="clearfix">
-                                    <small class="text-muted float-end fw-bold">
-                                        <i class="fas fa-info"></i>&nbsp;
-                                        Trykk på navnet til personen du ønsker å velge som hovedplanlegger for arrangementet
-                                    </small>
-                                </div>
-                            </div>
-                            <div 
-                                class="alert alert-info"
-                                v-else>
-                                Ingen resultater
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <select-main-planner-popover-component
+                v-model="serie.mainPlanner">
+            </select-main-planner-popover-component>
             
             <room-and-preset-selector-component
                 v-model="serie.selectedRooms"
@@ -728,14 +656,12 @@
                 ArbitratorSelectComponent, 
                 MonthSelectComponent, 
                 WeekdaySelectComponent,
-                RoomAndPresetSelectorComponent
+                RoomAndPresetSelectorComponent,
+                SelectMainPlannerPopoverComponent
             },
             data() {
                 return {
                     dialog: null,
-                    mainPlannerPopover: null,
-                    mainPlannerSearchTerm: null,
-                    mainPlannerSearchResults: [],
 
                     days_definition: [
                         { value: 0, label: "Mandag" },
@@ -851,18 +777,6 @@
                 },
             },
             methods: {
-                setMainPlanner(planner) {
-                    this.serie.mainPlanner = { id: planner.id, text: planner.full_name };
-
-                    this.dialog.data.mainPlannerPayload = {
-                        allPresets: new Map(),
-                        allSelectedEntityIds: [ { id: planner.id, text: planner.full_name } ],
-                        selectedPresets: [],
-                        viewables: [ { id: planner.id, text: planner.full_name } ]
-                    }
-
-                    this.mainPlannerPopover.fadeAndHide();
-                },
                 __watchInputForValidityChange (element) {
                     const onInput = (event) => {
 
@@ -1051,46 +965,16 @@
                     if (this.selectedDays > 0) {
                         this.showDaysErrorMessage = false;
                     }
-                },
-                mainPlannerSearchTerm: async function (val) {
-                        if (val.length > 2 || val.length == 0) {
-                        await fetch("{% url 'arrangement:person_search_planners_ajax_view' %}?term=" + val, {
-                            method: "GET",
-                            headers: {
-                                "X-CSRFToken": "{{ csrf_token }}",
-                            },
-                        }).then((response) => {
-                            if (response.ok) {
-                                response.json().then((data) => {
-                                    this.mainPlannerSearchResults = JSON.parse(data);
-
-                                    this.mainPlannerSearchResults.forEach((planner) => {
-                                        planner.full_name = [ planner.first_name, planner.middle_name, planner.last_name ].join(" ");
-                                    });
-                                });
-                            }
-                            else {
-                                console.log("HTTP-Error: " + response.status);
-                            }
-                        })
-                    }
                 }
             },
             delimiters: ["[[", "]]"],
             mounted() {
-                this.mainPlannerSearchTerm = "";
-
                 this.dialog = new Dialog({
                     vueApp: this,
                     dialogId: '{{ dialogId }}',
                     managerName: '{{ managerName }}',
                     discriminator: '{{ discriminator }}',
                     postInit: function (dialog) {
-                        dialog.vueApp.mainPlannerPopover = new Popover({
-                            triggerElement: dialog.dialogElement.querySelector('#setMainPlannerButton'),
-                            wrapperElement: dialog.dialogElement.querySelector('#select-main-planner-popover'),
-                        });
-                        
                         new mdb.Tooltip(dialog.getElementById('resetTooltip'), {
                             "container": dialog.dialogElement,
                             "template": `<div class="wb-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>`,
@@ -1528,10 +1412,10 @@
                         { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                             if (payload.allSelectedEntityIds.length == 0)
                                 return;
-            
+
                             const person = payload.viewables[0];
                             dialog.data.mainPlannerPayload = payload;
-                            dialog.vueApp.serie.mainPlanner = { id: person.id, text: person.text };
+                            dialog.vueApp.serie.mainPlanner = { id: person.id, full_name: person.text };
                             
                             dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                             dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";

@@ -89,7 +89,6 @@
         watch: {
             totalSelectedRoomsCount: {
                 handler() {
-                    console.log(this.locations.map(location => location.rooms).flat().filter(room => room.is_selected))
                     this.$emit("update:modelValue", 
                         this.locations.map(location => location.rooms).flat().filter(room => room.is_selected));
                 },
