@@ -50,7 +50,10 @@
                     <div v-if="mainPlannerSearchResults.length">
                         <table class="table table-highlight table-sm" v-if="mainPlannerSearchResults.length">
                             <tbody>
-                                <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
+                                <tr v-for="result in mainPlannerSearchResults" 
+                                    :class="['secondary-hover', { 'table-active fw-bold': result.id === modelValue?.id }]" 
+                                    @click="setMainPlanner(result)">
+
                                     <td>
                                         <a>
                                             [[ result.full_name ]]
