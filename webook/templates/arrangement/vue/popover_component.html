@@ -45,7 +45,14 @@
             this.internalIsVisible = this.isVisible;
 
             this.clickOutsideEvent = (e) => {
-                if (this.$el !== event.target && !this.$el.contains(event.target) && !this.excludes || !this.excludes.includes(event.target)) {
+                if (this.$el !== event.target && !this.$el.contains(event.target)) {
+                    if (this.excludes && this.excludes.length > 0 && this.excludes.includes(event.target)) {
+                        return;
+                    }
+                    
+                    console.log("Clicked outside");
+                    console.log(event.target, this.$el.contains(event.target));
+
                     this.internalIsVisible = false;
                 }
             };
