@@ -15,7 +15,7 @@
             </label>
 
             <div>
-                <button class="btn wb-btn-secondary" @click="toggleVisibility()" type="button" ref="trigger">
+                <button class="btn wb-btn-secondary" @click="this.isExpanded = !this.isExpanded;" type="button" ref="trigger">
                     [[buttonLabel]]
                 </button>
 
