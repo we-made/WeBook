@@ -1,0 +1,147 @@
+{% include "arrangement/vue/popover_component.html" %}
+
+
+<template id="vuec-select-main-planner-popover-component-template">
+
+    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+        <label class="d-block form-label">
+            <i class="fas fa-star"></i>
+            Hovedplanlegger
+        </label>
+
+        <div>
+            [[ modelValue?.full_name || 'Ingen valgt' ]]
+        </div>
+
+        <button class="wb-btn-main"
+            @click="isExpanded = !isExpanded"
+            ref="trigger"
+            type="button">
+
+            Velg hovedplanlegger
+        </button>
+
+        <popover-component
+            :is-visible="isExpanded"
+            :excludes="[ triggerRef ]"
+            @update:is-visible="(value) => isExpanded = value"
+            style="width: 50em">
+            
+                <h5>Velg hovedplanlegger</h5>
+
+                <div v-if="!mainPlannerSearchTerm"
+                    class="alert alert-info bg-white border border-dark text-dark">
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0"><i class="fas fa-info"></i></h2>
+                        
+                        <div class="ms-3">
+                            Uten søk vises alle personer med gruppe planlegger
+                            <br>
+                            Du kan fortsatt søke etter og velge personer uten gruppe planlegger ved å skrive inn minst 3 tegn i søkefeltet.
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="search" class="form-control form-control-lg"
+                    v-model="mainPlannerSearchTerm"
+                    placeholder="Søk etter planlegger... (minst 3 tegn)">       
+    
+                <div class="mt-3">
+                    <div v-if="mainPlannerSearchResults.length">
+                        <table class="table table-highlight table-sm" v-if="mainPlannerSearchResults.length">
+                            <tbody>
+                                <tr v-for="result in mainPlannerSearchResults" class="secondary-hover" @click="setMainPlanner(result)">
+                                    <td>
+                                        <a>
+                                            [[ result.full_name ]]
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div v-if="mainPlannerSearchTerm.length > 2" class="text-end">
+                            [[mainPlannerSearchResults.length]] resultater
+                        </div>
+                        
+                        <div class="clearfix">
+                            <small class="text-muted float-end fw-bold">
+                                <i class="fas fa-info"></i>&nbsp;
+                                Trykk på navnet til personen du ønsker å velge som hovedplanlegger for arrangementet
+                            </small>
+                        </div>
+                    </div>
+                    <div 
+                        class="alert alert-info"
+                        v-else>
+                        Ingen resultater
+                    </div>
+                </div>
+        </popover-component>
+    </div>
+</template>
+
+<script>
+    let SelectMainPlannerPopoverComponent = {
+            components: {
+                PopoverComponent,
+            },
+            props: {
+                modelValue: Object,
+            },
+            emits: ["update:modelValue"],
+            data() {
+                return {
+                    isMounted: false,
+                    isExpanded: false,
+                    mainPlannerSearchTerm: null,
+                    mainPlannerSearchResults: [],
+                }
+            },
+            methods: {
+                setMainPlanner(planner) {
+                    this.$emit("update:modelValue", planner);
+                    this.isExpanded = false;
+                },
+            },
+            computed: {
+                triggerRef() {
+                    if (!this.isMounted) {
+                        return null;
+                    }
+                    return this.$refs.trigger;
+                },
+            },
+            watch: {
+                mainPlannerSearchTerm: async function (val) {
+                    if (val.length > 2 || val.length == 0) {
+                        await fetch("/arrangement/person/search_planners?term=" + val, {
+                            method: "GET",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                            },
+                        }).then((response) => {
+                            if (response.ok) {
+                                response.json().then((data) => {
+                                    this.mainPlannerSearchResults = JSON.parse(data);
+
+                                    this.mainPlannerSearchResults.forEach((planner) => {
+                                        planner.full_name = [ planner.first_name, planner.middle_name, planner.last_name ].join(" ");
+                                    });
+                                });
+                            }
+                            else {
+                                console.log("HTTP-Error: " + response.status);
+                            }
+                        })
+                    }
+                }
+            },
+            mounted() {
+                this.mainPlannerSearchTerm = "";
+                this.isMounted = true;
+            },
+            delimiters: ["[[", "]]"],
+            template: "#vuec-select-main-planner-popover-component-template"
+    }
+</script>
