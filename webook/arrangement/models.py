@@ -1742,7 +1742,7 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     internal_uuid = models.CharField(
         max_length=512, blank=True, null=True, default=None
     )
-
+    
     class CollisionResolutionBehaviour(models.IntegerChoices):
         # Ignore colliding activities; don't create them at all
         IGNORE_COLLIDING_ACTIVITIES = 0, _("Ignore colliding activities")

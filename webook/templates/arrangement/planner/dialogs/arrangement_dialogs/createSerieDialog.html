@@ -194,7 +194,6 @@
                                 <label>Hver ukedag</label>
                             </div>
                         </div>
-    
                         <div id="patternRoute_weekly" v-if="serie.recurrence_stratagem.pattern == 'weekly'">
                             <div><label>Skjer hver <input v-model="serie.recurrence_stratagem.subpattern.weekly.interval" type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> uke på:</label></div>
                             <span id="day_checkbox_wrapper">
@@ -228,7 +227,7 @@
                                     :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_x_day_every_y_month'"/> 
                                 hver 
                                 <input 
-                                    v-model="serie.recurrence_stratagem.subpattern.monthly.interval1"
+                                    v-model="serie.recurrence_stratagem.subpattern.monthly.interval"
                                     type="number" 
                                     required 
                                     min="1" 
@@ -261,7 +260,7 @@
                                     :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_arbitrary_date_of_month'">
                                 </day-of-week-select-component>
 
-                                hver <input v-model="serie.recurrence_stratagem.subpattern.monthly.interval" type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px" :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_arbitrary_date_of_month'"> måned
+                                hver <input v-model="serie.recurrence_stratagem.subpattern.monthly.interval1" type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px" :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_arbitrary_date_of_month'"> måned
                             </div>
                         </div>
     
@@ -734,9 +733,9 @@
                                     days: [],                       // Which days of the week the pattern repeats on
                                 },
                                 monthly: {
-                                    day_of_month: null,             // Which day of the month the pattern repeats on
-                                    interval1: null,                // How often the pattern repeats - every 2nd month, every 3rd month, etc
-                                    interval2: null,                // How often the pattern repeats - every 2nd month, every 3rd month, etc
+                                    day_of_month: null,
+                                    interval: null,                // How often the pattern repeats - every 2nd month, every 3rd month, etc
+                                    interval1: null,
                                     weekday: null,                  // Which weekday of the month the pattern repeats on
                                     arbitrator: null,               // first / second / third / fourth / last
                                 },
@@ -1246,8 +1245,6 @@
                                     pickedDayIndices.map(x => [x, true])
                                  );
 
-                                console.log("days", days);
-
                                 pattern["days"] = days;
                                 pattern["pattern_routine"] = "weekly__standard";
                             }
@@ -1296,11 +1293,6 @@
                             }
             
                             let display_layouts = dialog.vueApp.serie.display_layouts;
-
-                            /*let display_layouts = [];
-                            dialog.querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
-                                display_layouts.push(element.value)
-                            })*/
             
                             serie.buffer = {}
                             if ( dialog.$('#buffer_before_start').val() && dialog.$('#buffer_before_end').val() ) {
@@ -1327,7 +1319,7 @@
                             serie.planner_payload = dialog.data.mainPlannerPayload;
                             serie.display_layouts = display_layouts.join(",");
                             serie.ordered_services = dialog.vueApp.serie.serviceOrders;
-            
+
                             dialog.raiseSubmitEvent({
                                 serie: serie,
                                 csrf_token: '{{csrf_token}}',
@@ -1381,11 +1373,23 @@
                     },
                     when: [
                         { eventKnownAs: "populateDialog", do: (dialog, payload) => {
-                            const establishedProperties = Object.entries(dialog.vueApp.serie).map(x => x[0]);
-                            Object.entries(payload).forEach(([key, value]) => {
-                                if (value !== null && value !== undefined && establishedProperties.includes(key))
-                                    dialog.vueApp.serie[key] = value;
-                            });
+                            const setToVue = function (targetAttribute, sourceObj) {
+                                const establishedProperties = Object.entries(targetAttribute).map(x => x[0]);
+
+                                Object.entries(sourceObj).forEach( ([key, value]) => {
+                                    if (value === null || value === undefined) return;
+
+                                    if (establishedProperties.includes(key)) {
+                                        if (typeof value === "object" && !Array.isArray(value)) {
+                                            setToVue(targetAttribute[key], value);
+                                        } else {
+                                            targetAttribute[key] = value;
+                                        }
+                                    }
+                                });
+                            }
+
+                            setToVue(dialog.vueApp.serie, payload);
                         } },
                         { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
                             // this stuff needs to be rewritten along with the other similar methods

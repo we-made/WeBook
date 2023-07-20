@@ -124,7 +124,6 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
  * @param {*} manifest
  */
 export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dialogElement, dialogId) {
-
     let payload = {
         "uuid": serie_uuid,
         ...manifest,
@@ -139,6 +138,45 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
         "buffer_after_date_offset": manifest.after_buffer_date_offset,
         "buffer_after_start": manifest.after_buffer_start,
         "buffer_after_end": manifest.after_buffer_end,
+
+        "recurrence_stratagem": {
+            "pattern": manifest.pattern,
+            "recurrence_method": manifest.recurrence_strategy,
+            "start_date": manifest.start_date,
+            "end_date": manifest.stop_within,
+            "chosen_subpattern": manifest.pattern_strategy,
+            "stop_after_x_instances": manifest.stop_after_x_occurences,
+            "project_x_months": manifest.project_x_months_into_future,
+            "subpattern": {}
+        }
+    }
+
+    payload.recurrence_stratagem.subpattern[manifest.pattern] = manifest.strategy_specific;
+
+    payload.recurrence_stratagem.subpattern[manifest.pattern].weekday = manifest.strategy_specific.day_of_week;
+
+    if (manifest.pattern == "weekly") {
+        let daysArray = [];
+        for (let i = 0; i < 7; i++) {
+            if (manifest.strategy_specific.days[i] === true) {
+                daysArray.push(i + 1);
+            }
+        }
+
+        payload.recurrence_stratagem.subpattern[manifest.pattern].days = daysArray;
+    }
+
+    if (manifest.pattern == "yearly" && manifest.pattern_strategy == "year__every_x_of_month") {
+        payload.recurrence_stratagem.subpattern[manifest.pattern].month1 = manifest.strategy_specific.month;
+    }
+    if (manifest.pattern == "yearly" && manifest.pattern_strategy == "year__every_x_of_month") {
+        payload.recurrence_stratagem.subpattern[manifest.pattern].month1 = manifest.strategy_specific.month;
+    }
+    if (manifest.pattern == "yearly" && manifest.pattern_strategy == "yearly__every_arbitrary_weekday_in_month") {
+        payload.recurrence_stratagem.subpattern[manifest.pattern].month2 = manifest.strategy_specific.month;
+    }
+    if (manifest.pattern == "monthly" && manifest.pattern_strategy == "month__every_arbitrary_date_of_month") {
+        payload.recurrence_stratagem.subpattern[manifest.pattern].interval1 = manifest.strategy_specific.interval;
     }
 
     window.MessagesFacility.send(dialogId, payload, "populateDialog")

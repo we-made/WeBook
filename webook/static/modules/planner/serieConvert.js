@@ -1,7 +1,9 @@
 import { appendArrayToFormData } from "./commonLib.js";
 
 
-export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
+export function serieConvert(serie, formData, keyPrefix = `manifest.`) {
+    formData.append(`${keyPrefix}vue_json`, JSON.stringify(serie._original));
+
     formData.append(`${keyPrefix}internal_uuid`, serie._uuid);
     formData.append(`${keyPrefix}pattern`, serie.pattern.pattern_type);
     formData.append(`${keyPrefix}patternRoutine`, serie.pattern.pattern_routine);
