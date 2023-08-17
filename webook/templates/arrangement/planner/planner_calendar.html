@@ -555,6 +555,7 @@ container-fluid
                 { key: "arrangement", provider: new ColorByArrangementProvider() },
             ],
             initialColorProvider: "arrangement",
+            useOnclickEvents: {% if user|has_group:"planners" or user|has_group:"readonly_level_2" or user.is_superuser %}true{% else %}false{% endif %},
             licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
             calendarFilter: calendarFilter,
             navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),

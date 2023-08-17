@@ -8,9 +8,12 @@ export class LocationCalendar extends FullCalendarBased {
         colorProviders=[], 
         initialColorProvider="", 
         navigationHeaderWrapperElement = undefined,
+        useOnclickEvents=true,
         licenseKey=undefined,
         calendarFilter = undefined,} = {}) {
         super(navigationHeaderWrapperElement);
+
+        this.useOnclickEvents = useOnclickEvents;
 
         this.viewButtons = new Map([
             [
@@ -262,7 +265,8 @@ export class LocationCalendar extends FullCalendarBased {
                 },
                 eventDidMount: (arg) => {
                     this._bindPopover(arg.el);
-                    this._bindInspectorTrigger(arg.el);
+                    if (this.useOnclickEvents)
+                        this._bindInspectorTrigger(arg.el);
                 },
                 navLinks: true,
                 locale: 'nb',
