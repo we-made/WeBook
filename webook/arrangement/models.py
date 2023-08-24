@@ -1042,7 +1042,7 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         return list(
             map(lambda p: p.for_event, self.interim_provisions_assigned_to.all())
         )
-        
+
     def my_events_qs(self):
         return self.interim_provisions_assigned_to.all()
 
@@ -1481,9 +1481,8 @@ class Event(
                 datetime.datetime.combine(date or offset or self.end, end_time)
             )
 
-            # We can not set rooms or people before the event has been saved -- unfortunately.
             rigging_event._rooms = root_event_rooms.values_list("id", flat=True)
-            # rigging_event._people = root_event_people.values_list("id", flat=True)
+            rigging_event.arrangement_type = self.arrangement_type
 
             rigging_events[position_key] = rigging_event
 
@@ -1508,23 +1507,26 @@ class Event(
             self.save()
 
         rigging_results = self.generate_rigging_events()
-        before_activity_buffer = rigging_results.get("before", None)
-        after_activity_buffer = rigging_results.get("after", None)
 
-        if before_activity_buffer is not None:
-            self.buffer_before_event = before_activity_buffer
-            self.buffer_before_event.save()
-            self.buffer_before_event.rooms.set(self.buffer_before_event._rooms)
-            # self.buffer_before_event.people.set(self.buffer_before_event._people)
-            self.save()
-        if after_activity_buffer is not None:
-            self.buffer_after_event = after_activity_buffer
-            self.buffer_after_event.save()
-            self.buffer_after_event.rooms.set(self.buffer_after_event._rooms)
-            # self.buffer_after_event.people.set(self.buffer_after_event._people)
-            self.save()
+        attrs = {"before": "buffer_before_event", "after": "buffer_after_event"}
 
-        return (before_activity_buffer, after_activity_buffer)
+        for position_key, rigging_event in rigging_results.items():
+            if position_key not in attrs:
+                continue
+
+            attr_name: str = attrs[position_key]
+            setattr(self, attr_name, rigging_event)
+            rigging_event.save()
+            rigging_event.rooms.set(rigging_event._rooms)
+            rigging_event.audience = self.audience
+            rigging_event.arrangement_type = self.arrangement_type
+            rigging_event.responsible = self.responsible
+            rigging_event.status = self.status
+            rigging_event.save()
+
+        self.save()
+
+        return (rigging_results.get("before", None), rigging_results.get("after", None))
 
     def delete(self, using=None, keep_parents=False):
         self.abandon_rigging_relations()
@@ -1742,7 +1744,7 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     internal_uuid = models.CharField(
         max_length=512, blank=True, null=True, default=None
     )
-    
+
     class CollisionResolutionBehaviour(models.IntegerChoices):
         # Ignore colliding activities; don't create them at all
         IGNORE_COLLIDING_ACTIVITIES = 0, _("Ignore colliding activities")
