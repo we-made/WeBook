@@ -221,6 +221,7 @@
                                     v-model="serie.recurrence_stratagem.subpattern.monthly.day_of_month"
                                     type="number" 
                                     min="1" 
+                                    max="31"
                                     required 
                                     id="every_x_day_every_y_month__day_of_month" 
                                     style="width: 40px"
@@ -231,6 +232,7 @@
                                     type="number" 
                                     required 
                                     min="1" 
+                                    max="12"
                                     id="every_x_day_every_y_month__month_interval" 
                                     style="width: 40px;" 
                                     :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_x_day_every_y_month'"/> 
@@ -281,6 +283,7 @@
                                     v-model="serie.recurrence_stratagem.subpattern.yearly.day_of_month"
                                     type="number" 
                                     min="1" 
+                                    max="31"
                                     id="every_x_of_month__date" 
                                     style="width: 40px" 
                                     required 
@@ -301,7 +304,6 @@
                                        name="pattern_yearly_subroute" 
                                        id="every_x_dynamic_day_in_month_radio" 
                                        value="yearly__every_arbitrary_weekday_in_month"> Hver:
-
 
                                 <arbitrator-select-component
                                     v-model="serie.recurrence_stratagem.subpattern.yearly.arbitrator"
