@@ -566,8 +566,10 @@ export class FullCalendarBased {
             if (buttonElement.classList.contains("active") === false) {
                 buttonElement.classList.add("active");
             }
-
-            _this.getFcCalendar().changeView(event.detail.view);
+            
+            if (_this.getFcCalendar().view.type !== event.detail.view) {
+                _this.getFcCalendar().changeView(event.detail.view);
+            }
         })
     }
 
