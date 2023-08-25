@@ -40,13 +40,14 @@ class Dialog {
         
         this.oldMessages = window.MessagesFacility.addressedTo(this.dialogId)?._messages;
 
-        if (this.oldMessages) {
+        if (this.oldMessages && this.oldMessages.size > 0) {
             for (let [key, value] of this.oldMessages)
             {
                 this._handleMessage(key, value);
             }
             window.MessagesFacility.addressedTo(this.dialogId)?.clear();
         }
+
 
         this._listenToGlobalBroadcasts();
 
@@ -61,7 +62,7 @@ class Dialog {
     }
 
     _handleMessage(messageKey, message) {
-        if (this === undefined || this._whenMap === undefined)
+        if (this === undefined || this._whenMap === undefined || this._getDialogElement().length == 0)
             return null;
 
         if (this._whenMap.has(messageKey))
