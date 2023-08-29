@@ -508,6 +508,7 @@ container-fluid
             if (result.isConfirmed) {
                 let date = new Date(document.getElementById('swalGoToDate').value);
                 activeDate = date;
+                debugger;
                 activeCalendar.getFcCalendar().gotoDate(activeDate);
             }
         })
