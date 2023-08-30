@@ -55,3 +55,30 @@ div.dt-buttons.btn-group {
     box-shadow: none;
     margin-bottom: 0.4em;
 }
+
+.fc-daygrid-day-top {
+    flex-wrap: wrap!important;
+    flex-direction: unset!important;
+}
+
+.fc-daygrid-day:not(.fc-day-other) .fc-daygrid-day-number:not(:empty):hover {
+    background-color: var(--MAIN-COLOR);
+    color:white;
+}
+
+.fc-col-header-cell-cushion  {
+    color: black!important;
+}
+
+.fc-daygrid-week-number {
+    width: 100%;
+    color: black!important;
+    position: unset!important;
+}
+
+.fc-daygrid-day:not(.fc-day-other) .fc-daygrid-day-number:not(:empty) {
+    color: black;
+    /* border: solid 1px black; */
+    /* background-color: var(--fc-neutral-bg-color,rgba(208,208,208,.3)); */
+    background-color: #d6d6d6;
+    color:black;

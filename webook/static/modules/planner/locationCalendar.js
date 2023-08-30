@@ -268,7 +268,7 @@ export class LocationCalendar extends FullCalendarBased {
                     if (this.useOnclickEvents)
                         this._bindInspectorTrigger(arg.el);
                 },
-                navLinks: true,
+                navLinks: false,
                 locale: 'nb',
                 eventSources: [
                     {

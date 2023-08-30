@@ -400,7 +400,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 initialView: initialView,
                 selectable: true,
                 weekNumbers: true,
-                navLinks: true,
+                navLinks: false,
                 minTime: "06:00",
                 themeSystem: 'bootstrap5',
                 maxTime: "23:00",
@@ -426,6 +426,23 @@ export class PlannerCalendar extends FullCalendarBased {
                     }
                 },
                 datesSet: (dateInfo) => {
+                    if (dateInfo.view.type == "dayGridDay") {
+                        document.dispatchEvent(
+                            new CustomEvent(this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": "timeGridDay" } })
+                        );
+                    }
+                    if (dateInfo.view.type == "dayGridWeek") {
+                        $('.fc-daygrid-day-number, .fc-daygrid-week-number').hide();
+                        document.dispatchEvent(
+                            new CustomEvent(this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": "dayGridWeek" } })
+                        );
+                    }
+                    if (dateInfo.view.type == "dayGridMonth") {
+                        document.dispatchEvent(
+                            new CustomEvent(this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": "dayGridMonth" } })
+                        )
+                    }
+
                     $('#plannerCalendarHeader').text("");
                     $(".popover").popover('hide');
                     $('#plannerCalendarHeader').text(this._headerGenerator.generate(
