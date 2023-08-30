@@ -322,7 +322,7 @@ export class PersonCalendar extends FullCalendarBased {
                 eventRender: function (event, element, view) {
                     $(element).find(".fc-list-item-title").append("<div>" + event.resourceId + "</div>");
                 },
-                navLinks: true,
+                navLinks: false,
                 locale: 'nb',
                 eventSources: [
                     {
