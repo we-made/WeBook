@@ -1390,7 +1390,6 @@ class Event(
 
         root_event_rooms = self.rooms
         root_event_people = self.people
-        rigging_event.arrangement_type = self.arrangement_type
 
         is_before = True
         for date, start_time, end_time, date_offset in time_pairs:
@@ -1404,6 +1403,7 @@ class Event(
             is_before = False
 
             rigging_event = Event()
+            rigging_event.arrangement_type = self.arrangement_type
             rigging_event.title = _title_generators_per_position[position_key](
                 self.title
             )
