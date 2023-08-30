@@ -400,7 +400,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 initialView: initialView,
                 selectable: true,
                 weekNumbers: true,
-                navLinks: false,
+                navLinks: true,
                 minTime: "06:00",
                 themeSystem: 'bootstrap5',
                 maxTime: "23:00",
