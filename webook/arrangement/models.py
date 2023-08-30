@@ -1390,6 +1390,7 @@ class Event(
 
         root_event_rooms = self.rooms
         root_event_people = self.people
+        rigging_event.arrangement_type = self.arrangement_type
 
         is_before = True
         for date, start_time, end_time, date_offset in time_pairs:
@@ -1450,23 +1451,26 @@ class Event(
             self.save()
 
         rigging_results = self.generate_rigging_events()
-        before_activity_buffer = rigging_results.get("before", None)
-        after_activity_buffer = rigging_results.get("after", None)
 
-        if before_activity_buffer is not None:
-            self.buffer_before_event = before_activity_buffer
-            self.buffer_before_event.save()
-            self.buffer_before_event.rooms.set(self.buffer_before_event._rooms)
-            self.buffer_before_event.people.set(self.buffer_before_event._people)
-            self.save()
-        if after_activity_buffer is not None:
-            self.buffer_after_event = after_activity_buffer
-            self.buffer_after_event.save()
-            self.buffer_after_event.rooms.set(self.buffer_after_event._rooms)
-            self.buffer_after_event.people.set(self.buffer_after_event._people)
-            self.save()
+        attrs = {"before": "buffer_before_event", "after": "buffer_after_event"}
 
-        return (before_activity_buffer, after_activity_buffer)
+        for position_key, rigging_event in rigging_results.items():
+            if position_key not in attrs:
+                continue
+
+            attr_name: str = attrs[position_key]
+            setattr(self, attr_name, rigging_event)
+            rigging_event.save()
+            rigging_event.rooms.set(rigging_event._rooms)
+            rigging_event.audience = self.audience
+            rigging_event.arrangement_type = self.arrangement_type
+            rigging_event.responsible = self.responsible
+            rigging_event.status = self.status
+            rigging_event.save()
+
+        self.save()
+
+        return (rigging_results.get("before", None), rigging_results.get("after", None))
 
     def delete(self, using=None, keep_parents=False):
         self.abandon_rigging_relations()
@@ -1613,7 +1617,6 @@ class EventService(TimeStampedModel, ModelArchiveableMixin):
 
 
 class RequisitionRecord(TimeStampedModel, ModelArchiveableMixin):
-
     REQUISITION_UNDEFINED = "undefined"
     REQUISITION_PEOPLE = "people"
     REQUISITION_SERVICES = "services"
