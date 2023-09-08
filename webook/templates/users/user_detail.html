@@ -11,62 +11,79 @@
     {% if request.user|has_group:"planners" %}
 
     <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-clipboard"></i>&nbsp; Min Agenda
+        <div class="{% if user|has_group:'planners' %}col-lg-8 col-md-12 col-sm-12{% else %}col-12{% endif %}">
+
+            <div class="p-3 border rounded-6 shadow-3 mt-2 pb-5">
+                <div class="d-flex justify-content-center">
+                    <div>
+                        <h4 class="text-center"><i class="fas fa-calendar-alt"></i></h4>
+                        <h4>
+                            Agenda
+                        </h4>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div id="day_calendar"></div>
+                <div id="day_calendar"></div>
+            </div>
+
+        </div>
+        {% if user|has_group:"planners" %}
+            <div class="col-lg-4 col-md-12 col-sm-12">
+                <div class="p-3 border rounded-6 shadow-3 mt-2">
+                    <div class="d-flex justify-content-center">
+                        <div>
+                            <h4 class="text-center"><i class="fas fa-calendar-alt"></i></h4>
+                            <h4>
+                                Mine arrangementer
+                            </h4>
+                        </div>
+                    </div>
+
+
+                    {% if FUTURE_ARRANGEMENTS_RESPONSIBLE|length == 0 %}
+                        <div class="alert alert-info">
+                            Du har ingen fremtidige arrangementer. Arrangementer du er ansvarlig for vil vises her.
+                        </div>
+                    {% else %}
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Dato</th>
+                                        <th>Status</th>
+                                        <th>Navn</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for arrangement in FUTURE_ARRANGEMENTS_RESPONSIBLE %}
+                                    <tr>
+                                        <td>{{arrangement.start.start}} -- {{arrangement.end.end}}</td>
+                                        <td>
+                                            {% if arrangement.state.value == 2 %}
+                                                <div class="badge badge-info">
+                                                    Fremtidig
+                                                </div>    
+                                            {% elif arrangement.state.value == 0 %}
+                                                <div class="badge badge-light">
+                                                    Fortidig
+                                                </div>
+                                            {% elif arrangement.state.value == 1 %}
+                                                <div class="badge badge-success">
+                                                    Pågår
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{arrangement.name}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
 
                 </div>
             </div>
-        </div>
-        <div class="col-12 mt-3">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-clipboard"></i>&nbsp; Mine pågående og fremtidige arrangementer
-                </div>
-                <div class="card-body">
-                    <div id="day_calendar"></div>
-                   
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Dato</th>
-                                    <th>Status</th>
-                                    <th>Navn</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for arrangement in FUTURE_ARRANGEMENTS_RESPONSIBLE %}
-                                <tr>
-                                    <td>{{arrangement.start.start}} -- {{arrangement.end.end}}</td>
-                                    <td>
-                                        {% if arrangement.state.value == 2 %}
-                                            <div class="badge badge-info">
-                                                Fremtidig
-                                            </div>    
-                                        {% elif arrangement.state.value == 0 %}
-                                            <div class="badge badge-light">
-                                                Fortidig
-                                            </div>
-                                        {% elif arrangement.state.value == 1 %}
-                                            <div class="badge badge-success">
-                                                Pågår
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{arrangement.name}}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% endif %}
     </div>
 
     {% else %}
