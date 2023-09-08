@@ -267,12 +267,23 @@ class CreateEventForm(BaseEventForm):
     pass
 
 
-class UpdateEventForm(BaseEventForm):
+class UpdateEventForm(BaseEventForm, EventFormLabelMixin):
     def __init__(self, *args, **kwargs):
         # first call parent's constructor
         super(BaseEventForm, self).__init__(*args, **kwargs)
         # there's a `fields` property now
         self.fields["responsible"].required = False
+
+        self.fields["expected_visitors"].label = "Forventet antall besøkende"
+        self.fields["actual_visitors"].label = "Faktisk antall besøkende"
+        self.fields["meeting_place"].label = "Møtested"
+        self.fields["meeting_place_en"].label = "Møtested (engelsk)"
+        self.fields["audience"].label = "Målgruppe"
+        self.fields["arrangement_type"].label = "Arrangementstype"
+        self.fields["responsible"].label = "Ansvarlig"
+        self.fields["display_text"].label = "Visningstekst"
+        self.fields["title"].label = "Tittel"
+        self.fields["title_en"].label = "Tittel (engelsk)"
 
     class Meta:
         model = Event
