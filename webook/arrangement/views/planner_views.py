@@ -19,26 +19,14 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.decorators.http import require_http_methods
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    ListView,
-    RedirectView,
-    TemplateView,
-    UpdateView,
-)
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
 from django.views.generic.edit import DeleteView, FormView
 
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.facilities.calendar import analysis_strategies
-from webook.arrangement.facilities.service_ordering import (
-    remove_provision_from_service_order,
-)
+from webook.arrangement.facilities.service_ordering import remove_provision_from_service_order
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
-from webook.arrangement.forms.file_forms import (
-    UploadFilesToArrangementForm,
-    UploadFilesToEventSerieForm,
-)
+from webook.arrangement.forms.file_forms import UploadFilesToArrangementForm, UploadFilesToEventSerieForm
 from webook.arrangement.forms.note_forms import CreateNoteForm, UpdateNoteForm
 from webook.arrangement.forms.ordering_forms import (
     LooselyOrderServiceForm,
@@ -49,20 +37,11 @@ from webook.arrangement.forms.ordering_forms import (
     RemovePersonFromEventForm,
     RemoveRoomFromEventForm,
 )
-from webook.arrangement.forms.planner.planner_create_arrangement_form import (
-    PlannerCreateArrangementModelForm,
-)
-from webook.arrangement.forms.planner.planner_plan_serie_form import (
-    PlannerPlanSerieForm,
-)
-from webook.arrangement.forms.planner.planner_update_arrangement_form import (
-    PlannerUpdateArrangementModelForm,
-)
+from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
+from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
+from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
 from webook.arrangement.forms.planner_forms import AddPlannersForm, RemovePlannersForm
-from webook.arrangement.forms.service_forms import (
-    OrderServiceForm,
-    UpdateServiceOrderForm,
-)
+from webook.arrangement.forms.service_forms import OrderServiceForm, UpdateServiceOrderForm
 from webook.arrangement.models import (
     Arrangement,
     ArrangementFile,
@@ -81,14 +60,8 @@ from webook.arrangement.models import (
     RoomPreset,
     ServiceOrder,
 )
-from webook.arrangement.views.generic_views.archive_view import (
-    ArchiveView,
-    JsonArchiveView,
-)
-from webook.arrangement.views.generic_views.json_form_view import (
-    JsonFormView,
-    JsonModelFormMixin,
-)
+from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
@@ -889,12 +862,7 @@ class PlannerCalendarOrderPersonDialogView(
         context["serie_guid"] = self.request.GET.get("serie_guid", None)
         event_pk = self.request.GET.get("event_pk", None)
         context["event_pk"] = event_pk
-        event = None
-        if event_pk is not None and event_pk != 0 and event_pk != "0":
-            event = Event.objects.get(pk=event_pk)
-            for person in people:
-                if person in event.people.all():
-                    person.is_selected = True
+
         context["people"] = people
 
         context["recipientDialogId"] = self.request.GET.get("recipientDialogId", None)
