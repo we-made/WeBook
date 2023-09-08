@@ -267,7 +267,7 @@ class CreateEventForm(BaseEventForm):
     pass
 
 
-class UpdateEventForm(BaseEventForm, EventFormLabelMixin):
+class UpdateEventForm(BaseEventForm):
     def __init__(self, *args, **kwargs):
         # first call parent's constructor
         super(BaseEventForm, self).__init__(*args, **kwargs)
