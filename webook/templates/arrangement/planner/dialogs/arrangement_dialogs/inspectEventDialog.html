@@ -661,12 +661,26 @@
         </div>
         
         <div class="tab-pane fade" id="service-orders-tab" role="tabpanel" aria-labelledby="service-orders-tab">
-            {% if user|has_group:"planners" or user.is_superuser %}
-            <div class="clearfix mb-2">
-                <button class="btn wb-btn-main float-end" d-trigger="triggerOrderServiceDialog">
-                    Bestill tjeneste(r)
-                </button>
-            </div>
+            {% if event.provisions|length == 0 %}
+                <div class="alert wb-bg-secondary">
+                    <h4 class="text-center">Ingen tjenester bestilt</h4>
+                    {% if user|has_group:"planners" or user.is_superuser %}
+                    <div class="row">
+                        <div class="col text-center">
+                            <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
+                                d-trigger="triggerOrderServiceDialog">
+                                Bestill tjeneste(r)
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            {% elif user|has_group:"planners" or user.is_superuser %}
+                <div class="clearfix mb-2">
+                    <button class="btn wb-btn-main float-end" d-trigger="triggerOrderServiceDialog">
+                        Bestill tjeneste(r)
+                    </button>
+                </div>
             {% endif %}
 
             {% for provision in event.provisions.all %}
