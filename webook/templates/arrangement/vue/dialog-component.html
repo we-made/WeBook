@@ -75,7 +75,14 @@
                             resizable: this.isResizable,
                             modal: this.useBackdrop,
                             draggable: false // We must deactivate the native jQuery UI draggable, because we want to use our own
-                        });
+                        })
+                        
+                        $(document).keyup(function (e) {
+                            if (e.keyCode == 27) {
+                                this.internalIsVisible = false;
+                                e.stopPropagation();
+                            }
+                        }.bind(this));
 
                         if (this.chainTo) {
                             let chainToEl = this.chainTo;
@@ -109,7 +116,6 @@
                                 }
                             });
                         }
-
 
                         window.parent = this.$parent;
 
