@@ -13,7 +13,6 @@ User = get_user_model()
 
 
 class ComplexUserUpdateForm(forms.UserChangeForm):
-
     profile_picture = dj_forms.ImageField(
         max_length=512, label=_("Profile Picture"), required=False
     )
@@ -101,7 +100,6 @@ class UserChangeForm(forms.UserChangeForm):
 
 
 class UserCreationForm(SignupForm):
-
     first_name = dj_forms.CharField(max_length=512, label=_("First Name"))
     middle_name = dj_forms.CharField(
         max_length=512, label=_("Middle Name"), required=False
@@ -122,3 +120,76 @@ class UserCreationForm(SignupForm):
 
         user.save()
         return user
+
+
+class UpdateUserDetailsForm(dj_forms.Form):
+    email = dj_forms.EmailField(max_length=512, label=_("Email"))
+    first_name = dj_forms.CharField(max_length=512, label=_("First Name"))
+    middle_name = dj_forms.CharField(
+        max_length=512, label=_("Middle Name"), required=False
+    )
+    last_name = dj_forms.CharField(max_length=512, label=_("Last Name"))
+
+    def __init__(self, instance: User = None, *args, **kwargs):
+        self.instance = instance
+        super().__init__(*args, **kwargs)
+
+    def save(self):
+        person = self.instance.person
+
+        if person is None:
+            person = Person()
+        elif person.social_provider_id:
+            raise ValidationError(
+                _(
+                    "Cannot update user with social provider id, social provider sync is master."
+                ),
+                code="invalid",
+            )
+
+        # check if email is already in use by another user
+        if (
+            User.objects.filter(email=self.cleaned_data["email"])
+            .exclude(id=self.instance.id)
+            .exists()
+        ):
+            raise ValidationError(
+                _("Email is already in use"),
+                code="invalid",
+            )
+
+        self.instance.email = self.cleaned_data["email"]
+        person.first_name = self.cleaned_data["first_name"]
+        person.middle_name = self.cleaned_data["middle_name"]
+        person.last_name = self.cleaned_data["last_name"]
+        person.save()
+
+        if self.instance.person is None:
+            self.instance.person = person
+
+        self.instance.save()
+
+
+class UpdateUserRoleForm(dj_forms.Form):
+    role = dj_forms.ChoiceField(
+        choices=(
+            ("planners", "Planlegger"),
+            ("readonly", "Lesetilgang - Nivå 1"),
+            ("readonly_level_2", "Lesetilgang - Nivå 2"),
+        ),
+        required=True,
+    )
+
+    def __init__(self, instance: User = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if instance is None:
+            raise ValueError("user instance must be provided")
+
+        self.instance = instance
+        self.fields["role"].initial = self.instance.groups.first().name
+
+    def save(self):
+        self.instance.groups.clear()
+        self.instance.groups.add(Group.objects.get(name=self.cleaned_data["role"]))
+        self.instance.save()

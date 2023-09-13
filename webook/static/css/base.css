@@ -21,7 +21,10 @@
 [v-cloak] {
     display: none;
   }
-  
+
+.overflow-dialog {
+    overflow: visible!important;
+}
 
 .date-reel-grid-item:hover {
     background-color: #e9e8e8;

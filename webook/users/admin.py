@@ -10,17 +10,29 @@ User = get_user_model()
 @admin.register(User)
 class CustomUserAdmin(auth_admin.UserAdmin):
     model = User
-    list_display = ('email', 'is_staff', 'is_active', 'person',)
-    list_filter = ('email', 'is_staff', 'is_active',)
+    list_display = (
+        "email",
+        "is_staff",
+        "is_active",
+        "person",
+    )
+    list_filter = (
+        "email",
+        "is_staff",
+        "is_active",
+    )
     fieldsets = (
-        (None, {'fields': ('email', 'password', 'person')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active')}),
+        (None, {"fields": ("email", "password", "person")}),
+        ("Permissions", {"fields": ("is_staff", "is_active")}),
     )
     add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'is_staff', 'is_active')}
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "password1", "password2", "is_staff", "is_active"),
+            },
         ),
     )
-    search_fields = ('email',)
-    ordering = ('email',)
+    search_fields = ("email",)
+    ordering = ("email",)

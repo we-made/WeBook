@@ -1,0 +1,561 @@
+{% include "arrangement/vue/popover_component.html" %}
+
+{% include "user_management/role-select-popover.html" %}
+
+
+<template id="edit-user-dialog-template">
+    <dialog-component
+        :is-visible="isVisible"
+        :use-backdrop="true"
+        :is-resizable="true"
+        :is-draggable="true"
+        :start-full-screen="true"
+        @update:is-visible="(value) => isVisible = value"
+        width="50%">
+
+        <template v-slot:header>
+            <h3 class="mb-0">
+                <i class="fas fa-user-edit"></i>&nbsp;
+                [[ user.name ]]
+            </h3>
+        </template>
+
+        <template v-slot:content>
+            <div class="row">
+                <div class="col-7">
+                    <div class="d-flex justify-content-center">
+                        <div>
+                            <h4 class="mt-0 text-center">
+                                <i class="fas fa-user-circle"></i>
+                                Profilbilde
+                            </h4>
+                            <div class="d-flex justify-content-center">
+                                <div class="border border-dark shadow-3" v-if="user.profile_picture_url">
+                                    <img :src="user.profile_picture_url"  alt="Brukerens profilbilde" width="300">
+                                </div>
+                                <div style="width: 300; height: 200;" class="border border-dark d-flex justify-content-center align-items-center wb-bg-secondary" v-else>
+                                    <h2 class="text-center align-items-center text-muted">
+                                        <i class="fas fa-question"></i>
+                                    </h2>
+                                </div>
+                            </div>
+                            
+
+                            <div class="clearfix mt-3">
+                                <div class="d-flex justify-content-center">
+                                    <button class="btn btn-sm wb-btn-secondary" @click="clearProfilePicture()">
+                                        <i class="fas fa-trash"></i>
+                                        Fjern profilbilde
+                                    </button>
+                                    <form id="uploadProfilePictureForm" class="mb-0">
+                                        <label class="btn btn-sm wb-btn-main" for="profilePictureUpload">
+                                            <i class="fas fa-upload"></i>
+                                            Last opp profilbilde
+                                        </label>
+
+                                        <input type="file" style="display: none;" id="profilePictureUpload"
+                                            name="profile_picture"
+                                            @change="uploadProfilePicture($event, index)" /> 
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+                        <div class="d-flex justify-content-center mt-4">
+                            <div>
+                                <div class="ms-3 d-flex justify-content-between">
+                                    <div>
+                                        <strong> <i class="fas fa-cog"></i> Kilde: </strong> 
+                                    </div>
+                                    <div class="ms-2">
+                                        <span v-if="isAADUser" class="badge badge-success">
+                                            SSO / AAD
+                                        </span>
+                                        <span class="badge badge-info" v-else>
+                                            Opprettet i planlegger
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="ms-3 d-flex justify-content-between">
+                                    <div>
+                                        <strong> <i class="fas fa-cog"></i> Status: </strong> 
+                                    </div>
+                                    <div class="ms-2">
+                                        <span v-if="user.is_active" class="badge badge-success">
+                                            Konto er aktiv
+                                        </span>
+                                        <span class="badge badge-danger" v-else>
+                                            Konto er deaktivert
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="ms-3 d-flex justify-content-between">
+                                    <div>
+                                        <strong> <i class="fas fa-edit"></i> Sist oppdatert: </strong> 
+                                    </div>
+                                    <div class="ms-2">
+                                        01.01.2021 12:00
+                                    </div>
+                                </div>
+                                <div class="ms-3 mt-1 d-flex justify-content-between">
+                                    <div>
+                                        <strong> <i class="fas fa-plus"></i> Registrert: </strong> 
+                                    </div>
+                                    <div class="ms-2">
+                                        [[ user.date_joined ]]
+                                    </div>
+                                </div>
+                                <div class="ms-3 mt-1 d-flex justify-content-between">
+                                    <div>
+                                        <strong> <i class="fas fa-unlock"></i> Siste innlogging: </strong> 
+                                    </div>
+                                    <div class="ms-2">
+                                        [[ user.last_login ]]
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row mt-3">
+                <div class="col-7">  
+                        <h4 class="border-bottom  mt-0 text-center">
+                            Personalia
+                        </h4>
+
+                    <table class="table mt-2">
+                        <tbody>
+                            <tr>
+                                <th class="fw-bold align-items-center text-center" style="vertical-align: middle;">
+                                    <div  class="fw-bold">
+                                        SSO / AAD
+                                    </div>
+                                </th>
+                                <td>
+                                    <div class="small">
+                                        <strong>E-Post:</strong> [[ user.social_provider_email || "Ikke tilgjengelig" ]]
+                                    </div>
+                                    <div class="small">
+                                        <strong>Objekt ID:</strong> [[ user.social_provider_id || "Ikke tilgjengelig" ]]
+                                    </div>
+
+                                    <div class="badge badge-success mt-2" v-if="isAADUser">
+                                        <span class="h6">
+                                            Kan logge inn med SSO / AAD
+                                        </span>
+                                    </div>
+                                    <div class="badge badge-danger mt-2" v-else>
+                                        <span class="h6">
+                                            Innlogging med SSO / AAD er ikke aktivert for denne brukeren
+                                        </span>
+                                    </div>
+
+                                    <div v-if="isAADUser && !user.is_active" class="d-flex alert alert-danger d-block fw-bold mt-2 align-items-center">
+                                        <div>
+                                            <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i></h4>
+                                        </div>
+                                        <div class="ms-3">
+                                            Kontoen er deaktivert, og vil ikke kunne logge inn i systemet gjennom SSO / AAD
+                                        </div>
+                                    </div>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <th class="fw-bold text-center align-items-center" style="vertical-align: middle;">E-Post: </th>
+                                <td>
+                                    <input :value="user.email" :disabled="isAADUser" type="mail" class="form-control form-control-lg" v-model="user.email">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="fw-bold align-items-center text-center" style="vertical-align: middle;">Fornavn: </th>
+                                <td>
+                                    <input type="text" :disabled="isAADUser" class="form-control form-control-lg" v-model="firstNameInput">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="fw-bold text-center align-items-center" style="vertical-align: middle;">Mellomnavn: </th>
+                                <td>
+                                    <input type="text" :disabled="isAADUser" class="form-control form-control-lg" v-model="middleNameInput">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="fw-bold text-center align-items-center" style="vertical-align: middle;">Etternavn: </th>
+                                <td>
+                                    <input :disabled="isAADUser" type="text" class="form-control form-control-lg" v-model="lastNameInput">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">
+                                    <em class="text-end d-block" v-if="isAADUser">
+                                        * Personopplysninger håndteres av SSO / AAD, og kan ikke endres her.
+                                    </em>
+                                    <div class="clearfix" v-else>
+                                        <button class="btn wb-btn-main float-end" @click="updateDetails()">
+                                            <i class="fas fa-save"></i>
+                                            Lagre endringer
+                                        </button>
+                                    </div>
+                                </th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-5">
+                    <div class="rounded-3 p-3 pt-0">
+                        <h4 class="border-bottom  mt-0 text-center">
+                            <i class="fas fa-user-shield "></i>
+                            Systemrolle  
+                        </h4>
+
+                        <div class="d-flex justify-content-center">
+                            <div>
+                                <div class="badge badge-danger h4 text-center w-100" v-if="user.is_superuser">
+                                    <span class="h5">
+                                        Systemadministrator
+                                    </span>
+                                </div>
+                                <div v-else>
+                                    <h5 class="mt-3 text-center w-100 fw-light">
+                                        [[ plannerNameMap[role] ]]
+                                    </h5>
+            
+                                    <div class="clearfix">
+                                        <role-select-popover-component v-model="role">
+                                        </role-select-popover-component>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="mt-5 rounded-3 p-3">
+                        <h4 class="border-bottom  text-center">
+                            <i class="fas fa-user-shield "></i>
+                            Bruker Administrator  
+                        </h4>
+
+                        <div class="d-flex justify-content-center mt-4 mb-2">
+                            <div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" 
+                                        v-model="is_user_admin"/>
+                                    <label class="form-check-label" for="flexSwitchCheckDefault">Kan administrere brukere</label>
+                                  </div>
+                            </div>
+                        </div>
+
+                        <p class="text-center">
+                            Hvis avhuket så kan denne brukeren administrere andre brukere. Dette inkluderer å endre brukerens rolle, deaktivere brukere og endre brukerens personopplysninger.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </template>
+        
+        <template v-slot:footer>
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn wb-btn-blank" @click="toggleActiveState()">
+                    <i class="fas fa-lock"></i>&nbsp;
+                    <span v-if="user.is_active">
+                        Deaktiver bruker
+                    </span>
+                    <span v-else>
+                        Aktiver bruker
+                    </span>
+                </button>
+                <button class="btn wb-btn-secondary" @click="isVisible = false">
+                    <i class="fas fa-times"></i>
+                    Lukk
+                </button>
+            </div>
+
+            </div>
+            <div class="clearfix">
+                <div class="float-end">
+
+                </div>
+            </div>
+        </template>
+    </dialog-component>
+</template>
+
+
+<script>
+    let EditUserDialogComponent = {
+        components: {
+            DialogComponent,
+            RoleSelectPopoverComponent
+        },
+        props: {
+
+        },
+        data() {
+            return {
+                plannerNameMap: {
+                    "planners": "Planlegger",
+                    "readonly": "Lesetilgang - Nivå 1",
+                    "readonly_level_2": "Lesetilgang - Nivå 2",
+                },
+                firstNameInput: null,
+                middleNameInput: null,
+                profilePictureUpload: null,
+                lastNameInput: null,
+                ignoreRoleChangeFlag: true,
+                ignoreUserAdminChangeFlag: true,
+                role: "planner",
+                is_user_admin: false,
+                popoverExpanded: false,
+                isVisible: false,
+                user: {
+                    id: null,
+                    name: null,
+                    is_active: null,
+                    email: null,
+                    groups: [],
+                    is_superuser: null,
+                    last_login: null,
+                    date_joined: null,
+                }
+            }
+        },
+        computed: {
+            isAADUser() {
+                return this.user.social_provider_id != null;
+            },
+            firstName() {
+                if (this.user.name == null) {
+                    return "";
+                }
+                return this.user.name.split(" ")[0];
+            },
+            middleName() {
+                if (this.user.name == null) {
+                    return "";
+                }
+                let artifacts = this.user.name.split(" ");
+                if (artifacts.length > 2) {
+                    return artifacts.slice(1, artifacts.length - 1).join(" ");
+                }
+                else {
+                    return "";
+                }
+            },
+            lastName() {
+                if (this.user.name == null) {
+                    return "";
+                }
+                let artifacts = this.user.name.split(" ");
+                return artifacts[artifacts.length - 1];
+            }
+
+        },
+        methods: {
+            uploadProfilePicture(event, index) {
+                let formData = new FormData(document.getElementById("uploadProfilePictureForm"));
+
+                fetch("/users/administration/" + this.user.slug + "/update_profile_picture", {
+                    method: 'POST',
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: formData,
+                }).then(response => {
+                    if (response.ok) {
+                        toastr.success("Profilbilde oppdatert");
+                        return response.json();
+                    }
+                    else {
+                        toastr.error("Kunne ikke oppdatere profilbilde");
+                        throw new Error("Failed to update profile picture");
+                    }
+                }).then(data => {
+                    console.log("data", data)
+                    this.user.profile_picture_url = data.url;
+                }).catch(error => {
+                    console.error(error);
+                });
+            },
+            clearProfilePicture() {
+                fetch("/users/administration/" + this.user.slug + "/clear_profile_picture", {
+                    method: 'POST',
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        toastr.success("Profilbilde fjernet");
+                        this.user.profile_picture_url = null;
+                    }
+                    else {
+                        toastr.error("Kunne ikke fjerne profilbilde");
+                        throw new Error("Failed to clear profile picture");
+                    }
+                });
+            },
+            open(user) {
+                this.ignoreRoleChangeFlag = true;
+                this.ignoreUserAdminChangeFlag = true;
+
+                this.role = user.groups[0];
+                this.user = user;
+                this.is_user_admin = user.is_user_admin;
+                this.isVisible = true;
+
+                this.firstNameInput = this.firstName;
+                this.middleNameInput = this.middleName;
+                this.lastNameInput = this.lastName;
+
+                console.log("user", user);
+            },
+            updateDetails() {
+                let formData = new FormData();
+                formData.append("email", this.user.email);
+                formData.append("first_name", this.firstNameInput);
+                formData.append("middle_name", this.middleNameInput);
+                formData.append("last_name", this.lastNameInput);
+
+                fetch("/users/administration/" + this.user.slug + "/update_details", {
+                    method: 'POST',
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: formData
+                }).then(response => {
+                    if (response.ok) {
+                        toastr.success("Brukerdetaljer oppdatert");
+                    }
+                    else {
+                        toastr.error("Kunne ikke oppdatere brukerdetaljer");
+                        throw new Error("Failed to update user details");
+                    }
+                })
+            },
+            toggleActiveState() {
+                let deactivateText = "Brukeren vil ikke lenger kunne logge inn i systemet. AAD synkroniseringen vil ikke aktivere denne brukeren igjen. Foretrekk å fjerne brukeren fra AAD gruppen istedenfor.";
+                let activateText = "Brukeren vil kunne logge inn i systemet igjen. Synkronisering fra AAD kan overskrive denne endringen, foretrekk å legeg brukeren til en gyldig AAD gruppe istedenfor.";
+                
+                Swal.fire({
+                    title: 'Er du sikker?',
+                    text: this.user.is_active ? deactivateText : activateText,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ja',
+                    cancelButtonText: 'Avbryt'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch("/users/administration/" + this.user.slug + "/toggle_active", {
+                            method: 'POST',
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}"
+                            }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                toastr.success("Bruker " + (this.user.is_active ? "deaktivert" : "aktivert"));
+                                this.user.is_active = !this.user.is_active;
+                            }
+                            else {
+                                toastr.error("Kunne ikke " + (this.user.is_active) ? "deaktivere" : "aktivere" + " bruker");
+                                throw new Error("Failed to toggle active state of user");
+                            }
+                        })
+                    }
+                })
+            }
+        },
+        watch: {
+            profilePictureUpload(val) {
+                console.log("profilePictureUpload", val);
+            },
+            is_user_admin(val) {
+                if (this.ignoreUserAdminChangeFlag) {
+                    this.ignoreUserAdminChangeFlag = false;
+                    console.log("Ignoring user admin change")
+                    return;
+                }
+
+                let promoteText = "Brukeren vil få tilgang til å administrere andre brukere, og kan endre brukerens rolle samt deaktivere brukere.";
+                let demoteText = "Brukeren vil miste tilgang til å administrere andre brukere, og kan ikke lenger endre brukerens rolle eller deaktivere brukere.";
+
+                Swal.fire({
+                    title: 'Er du sikker?',
+                    text: val ? promoteText : demoteText,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ja',
+                    cancelButtonText: 'Avbryt'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch("/users/administration/" + this.user.slug + "/toggle_user_admin", {
+                            method: 'POST',
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}"
+                            }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                toastr.success("Bruker administrator status oppdatert");
+                            }
+                            else {
+                                toastr.error("Kunne ikke oppdatere bruker administrator status");
+                                throw new Error("Failed to update user admin status");
+                            }
+                        })
+                    }
+                    else {
+                        this.ignoreUserAdminChangeFlag = true;
+                        this.is_user_admin = !this.is_user_admin;
+                    }
+                })
+            },
+            role (val) {
+                if (this.ignoreRoleChangeFlag)  {
+                    this.ignoreRoleChangeFlag = false;
+                    return;
+                }
+
+                let formData = new FormData();
+                formData.append("role", val);
+
+                fetch("/users/administration/" + this.user.slug + "/update_role", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: formData
+                }).then(response => {
+                    if (response.ok) {
+                        this.user.groups = [ val ];
+                        toastr.success("Rolle oppdatert");
+                    }
+                    else {
+                        toastr.error("Kunne ikke oppdatere rolle");
+                        throw new Error("Failed to update role");
+                    }
+                }).then(data => {
+                    console.log(data);
+                }).catch(error => {
+                    console.error(error);
+                });
+            }
+        },
+        mounted() {
+
+        },
+        template: "#edit-user-dialog-template",
+        delimiters: ['[[', ']]']
+    }
+</script>
