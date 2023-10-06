@@ -13,24 +13,12 @@ from django.urls import reverse
 from django.utils import timezone as dj_timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import (
-    DetailView,
-    FormView,
-    ListView,
-    RedirectView,
-    TemplateView,
-    UpdateView,
-)
+from django.views.generic import DetailView, FormView, ListView, RedirectView, TemplateView, UpdateView
 
 from webook.arrangement.models import Person
 from webook.arrangement.templatetags.custom_tags import has_group
-from webook.arrangement.views.generic_views.json_form_view import (
-    JsonFormView,
-    JsonModelFormMixin,
-)
-from webook.arrangement.views.mixins.form_view_instance_enriched_mixin import (
-    FormViewModelEnrichedMixin,
-)
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.mixins.form_view_instance_enriched_mixin import FormViewModelEnrichedMixin
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.authorization_mixins import UserAdminAuthorizationMixin
 from webook.users.forms import (

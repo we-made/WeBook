@@ -3,6 +3,7 @@
         :value="modelValue" 
         :name="name" 
         :id="id" 
+        :class="classes"
         :required="required || false"
         @change="$emit('update:modelValue', $event.target.value)">
 
@@ -19,7 +20,8 @@
             modelValue: Number,
             id: String,
             name: String,
-            required: Boolean
+            required: Boolean,
+            classes: String
         },
         emits: ["update:modelValue"],
         data() {

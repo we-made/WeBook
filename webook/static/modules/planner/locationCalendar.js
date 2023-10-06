@@ -313,6 +313,7 @@ export class LocationCalendar extends FullCalendarBased {
 
                     if (arg.resource.extendedProps.resourceType === "location") {
                         name.classList.add("fw-bolder");
+
                     }
                     else {
                         name.innerHTML = `${name.innerText} <abbr title="Maks kapasitet på dette rommet"><em class='small text-muted'>(${arg.resource.extendedProps.maxCapacity})</em></abbr>`;

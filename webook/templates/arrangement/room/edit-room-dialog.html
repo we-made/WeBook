@@ -1,0 +1,248 @@
+{% include "arrangement/vue/popover_component.html" %}
+
+<template id="edit-room-dialog-template">
+    <dialog-component :is-visible="isVisible" 
+                      :use-backdrop="true"
+                      @update:is-visible="(value) => isVisible = value"
+                      :is-draggable="true">
+        <template v-slot:header>
+            <h4 class="mb-0" v-if="roomSlug">
+                <i class="fas fa-edit"></i>&nbsp;
+                [[ room.name ]]
+            </h4>
+            <h4 class="mb-0" v-else>
+                <i class="fas fa-plus"></i>&nbsp;
+                Nytt rom
+            </h4>
+        </template>
+    
+        <template v-slot:content>
+            
+            <div class="form-group">
+                <label for="name_input" class="fw-bold">Navn</label>
+                <input type="text" placeholder="Rommets navn..." id="name_input" class="form-control" v-model="room.name">
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="name_en_input" class="fw-bold">Navn <span class="small">(Engelsk)</span></label>
+                <input type="text" name="" id="name_en_input" class="form-control" placeholder="Rommets navn på engelsk..." v-model="room.name_en">
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="capacity_input" class="fw-bold">Kapasitet</label>
+                <input type="number" name="" id="capacity_input" class="form-control" value="0" v-model="room.max_capacity">
+            </div>
+
+            <div class="form-group mt-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="isExclusiveCheck" v-model="room.is_exclusive" />
+                    <label class="form-check-label fw-bold" for="isExclusiveCheck">Rommet er eksklusivt <i>(kan ikke dobbeltbookes)</i></label>
+                </div>
+
+                <div class="border-start border-3 ps-3 text-muted">
+                    <p>
+                        Eksklusive rom kan ikke dobbeltbookes. Dette betyr at rommet ikke kan bookes av flere arrangementer samtidig.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-group mt-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="hasScreenCheck" v-model="room.has_screen">
+                    <label class="form-check-label fw-bold" for="hasScreenCheck">Har skjerm?</label>
+                </div>
+
+                <div class="border-start border-3 ps-3 text-muted">
+                    <p>
+                        Definerer om rommet har en skjerm eller ikke. Relatert til skjermvisning.
+                    </p>
+                </div>
+            </div>
+
+        </template>
+    
+        <template v-slot:footer>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <button class="btn wb-btn-blank text-muted" v-if="roomSlug" @click="deleteRoom()">
+                        <i class="fas fa-trash"></i>&nbsp;
+                        Slett rom
+                    </button>
+                </div>
+                
+
+                <div>
+                    <button class="btn wb-btn-secondary" @click="isVisible = false">
+                        <i class="fas fa-times"></i>
+                        Avbryt
+                    </button>
+                    <button class="btn wb-btn-main mt-2" @click="save()">
+                        <i class="fas fa-save"></i>
+                        Lagre
+                    </button>
+                </div>
+            </div>
+        </template>
+    </dialog-component>
+
+</template>
+
+<script>
+    let EditRoomDialogComponent = {
+        components: {
+            DialogComponent
+        },
+        props: {
+        },
+        data() {
+            return {
+                isVisible: false,
+                roomSlug: null,            
+                room: {
+                    location: null,
+                    name: null,
+                    name_en: null,
+                    max_capacity: 0,
+                    is_exclusive: null,
+                    has_screen: null
+                }
+            }
+        },
+        computed: {
+
+        },
+        emits: ["updated"],
+        methods: {
+            flush() {
+                this.room = {
+                    location: null,
+                    name: null,
+                    name_en: null,
+                    max_capacity: 0,
+                    is_exclusive: null,
+                    has_screen: null
+                }
+            },
+
+            open(roomSlug, locationId) {
+                this.flush();
+
+                if (locationId) {
+                    this.room.location = locationId;
+                }
+
+                this.isVisible = true;
+                this.roomSlug = roomSlug;
+
+                if (roomSlug) {
+                    this.getData();
+                }
+            },
+            getData() {
+                fetch("/arrangement/room/json/" + this.roomSlug)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        this.room = data;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            },
+            save() {
+                console.log(this.room)
+
+                if (this.roomSlug) {
+                    this.update();
+                }
+                else {
+                    this.create();
+                }
+            },
+            getFormData() {
+                let formData = new FormData();
+                formData.append("location", this.room.location);
+                formData.append("name", this.room.name);
+                formData.append("name_en", this.room.name_en);
+                formData.append("max_capacity", this.room.max_capacity);
+                formData.append("is_exclusive", this.room.is_exclusive);
+                formData.append("has_screen", this.room.has_screen);
+                return formData;
+            },
+            create() {
+                let formData = this.getFormData();
+
+                fetch("/arrangement/room/create/json/", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        toastr.success("Rommet ble opprettet");
+                        this.isVisible = false;
+                        this.$emit("updated");
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            },
+            update() {
+                let formData = this.getFormData();
+
+                fetch("/arrangement/room/update/json/" + this.roomSlug + "/", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: formData
+                }).then(response => response.json())
+                .then(data => {
+                    toastr.success("Rommet ble oppdatert")
+                    this.isVisible = false;
+                    this.$emit("updated");
+                }).catch(error => {
+                    console.error(error);
+                });
+            },
+            deleteRoom() {
+                if (!this.roomSlug) 
+                    return;
+
+                Swal.fire({
+                    title: "Slett rom",
+                    text: "Er du sikker på at du vil slette dette rommet?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ja, slett rommet",
+                    cancelButtonText: "Avbryt"
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        fetch("/arrangement/room/delete/" + this.roomSlug + "/", {
+                            method: "DELETE",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}"
+                            }
+                        }).then(response => {
+                            if (response.status === 200) {
+                                toastr.success("Rommet ble slettet");
+                                this.isVisible = false;
+                                this.$emit("updated");
+                            }
+                        });
+                    }
+                });
+            }
+        },
+        watch: {
+        },
+        mounted() {
+
+        },
+        template: "#edit-room-dialog-template",
+        delimiters: ['[[', ']]']
+    }
+</script>

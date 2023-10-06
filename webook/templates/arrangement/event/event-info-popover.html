@@ -1,0 +1,73 @@
+<template id="vuec-event-info-popover-component">
+    <popover-component
+        :is-visible="isExpanded"
+        @update:is-visible="(value) => isExpanded = value"
+        ref="eventPopover"
+        style="width: 200px!important; z-index: 1000000001">
+
+        <span class="fw-bold small" style="font-size: 12;">
+            [[ event.title ]]
+        </span>
+        
+
+    </popover-component>
+</template>
+
+
+<script>
+    let EventInfoPopoverComponent = {
+        components: {
+            PopoverComponent
+        },
+        props: {
+            eventId: String,
+            isVisible: Boolean
+        },
+        data() {
+            return {
+                activeLocation: null,
+                isExpanded: false,
+                event: {
+                    id: null,
+                    title: null,
+                    location_name: null,
+                    arrangement_type: null,
+                    status: null,
+                    audience: null,
+                    start_date: null,
+                    end_date: null,
+                    expected_attendees: null,
+                    responsible_name: null,
+                }
+            }
+        },
+        watch: {
+            eventId() {
+  
+            },
+            isVisible() {
+                this.isExpanded = this.isVisible;
+
+                if (this.isVisible) {
+                    this.getEvent();
+                }
+            }
+        },
+        computed: {
+        },
+        methods: {
+            getEvent() {
+                fetch("/arrangement/event/" + this.eventId + "/popover_json")
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        this.event = data;
+                    });
+            },
+        },
+        mounted() {
+        },
+        template: "#vuec-event-info-popover-component",
+        delimiters: ['[[', ']]']
+    }
+</script>

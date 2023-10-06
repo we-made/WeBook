@@ -14,8 +14,22 @@ from webook.arrangement.views import (
     upload_files_to_event_json_form_view,
     upload_files_to_event_serie_json_form_view,
 )
+from webook.arrangement.views.event_views import (
+    GetEventJsonView,
+    get_event_popover_json_view,
+)
 
-event_urls = [
+event_urls = [ 
+    path(
+        route="event/<int:pk>/popover_json",
+        view=get_event_popover_json_view,
+        name="get_event_json",
+    ),
+    path(
+        route="event/<int:pk>/json",
+        view=GetEventJsonView.as_view(),
+        name="get_event_json",
+    ),
     path(
         route="event/create_serie",
         view=create_event_serie_json_view,

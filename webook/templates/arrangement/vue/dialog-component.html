@@ -22,7 +22,29 @@
         <hr>
 
         <div class="w-dialog__content" ref="content" style="overflow: visible;">
-            <slot name="content"></slot>
+            
+            <div class="border border-dark" style="backgroundColor: ghostwhite;">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>Start Fullscreen</th>
+                            <td>[[ startFullScreen ]]</td>
+                        </tr>
+                        
+                        <tr>
+                            <th>Width</th>
+                            <td>[[ width ]]</td>
+                        </tr>
+
+                        <tr>
+                            <th>Position</th>
+                            <td>[[position]]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <slot name="content" style="height: 100%;"></slot>
         </div>
 
         <div class="w-dialog__footer">
@@ -43,25 +65,82 @@
             isDraggable: Boolean,
             isResizable: Boolean,
             useBackdrop: Boolean,
-            chainTo: Element
+            chainTo: Element,
+            position: Object,
         },
         data() {
             return {
+                queuedToggleFullScreen: false,
                 internalIsVisible: false,
                 isMounted: false,
                 isFullScreen: false,
             }
         },
         methods: {
+            handleOverlay() {
+                console.log("handleOverlay")
+
+                // If we have multiple dialogs open at once with backdrops, we must make sure that the overlay
+                // is on top of other previously triggered dialogs
+
+                // Get all overlays in document. We'll use this to find the highest z-index
+                let overlays = document.querySelectorAll(".ui-widget-overlay");
+
+                // Find the highest z-index
+                let highestZIndex = 0;
+                for (let i = 0; i < overlays.length; i++) {
+                    let zIndex = parseInt($(overlays[i]).css("z-index"));
+                    if (zIndex > highestZIndex)
+                        highestZIndex = zIndex;
+                }
+
+                // Set the z-index of the overlay to the highest z-index + 2 (supercedes the previous overlay + the previous dialog)
+                $(this.$refs.dialogRoot)
+                    .parent()
+                    .next(".ui-widget-overlay")
+                    .attr("style", "z-index: " + (highestZIndex + 2) + " !important");
+
+                // Move the current dialog +1 of the overlay
+                $(this.$refs.dialogRoot)
+                    .parent()
+                    .attr("style", "z-index: " + (highestZIndex + 3) + " !important");
+
+                
+                let pos = this.position || { my: "center", at: "center", of: window };
+                if (this.isFullScreen)
+                    pos = { my: "left top", at: "right top", of: this.chainToEl, collision: "none" };
+                pos.of = $(this.$refs.dialogRoot).parent().next(".ui-widget-overlay");
+
+                $(this.$refs.dialogRoot).dialog("option", "position", pos);
+            },
             toggleFullScreen() {
                 if (this.isFullScreen) {
                     $(this.$refs.dialogRoot).dialog("option", "width", this.width || "40rem");
                     $(this.$refs.dialogRoot).dialog( "option", "height", "auto" );
+
+                    // remove fullscreen class from dialog
+                    $(this.$refs.dialogRoot).parent().removeClass("fullscreen");
+                    
                     this.isFullScreen = false;
                 }
                 else {
                     $(this.$refs.dialogRoot).dialog("option", "width", "100%");
-                    $(this.$refs.dialogRoot).dialog("option", "height", window.innerHeight);
+                    $(this.$refs.dialogRoot).dialog("option", "height", window.screen.height + "px");
+
+
+                    $(this.$refs.dialogRoot).dialog("option", "position", {
+                        my: "top", 
+                        at: "center top",
+                        of: window
+                    });
+
+                    // add fullscreen class to dialog
+                    $(this.$refs.dialogRoot).parent().addClass("fullscreen");
+                    $(this.$refs.dialogRoot).parent().css("height", window.screen.height + "px")
+
+                    // deactivate window scroll
+                    $("body").css("overflow", "hidden");
+
                     this.isFullScreen = true;
                 }
             },
@@ -74,9 +153,17 @@
                             width: this.width || "40rem",
                             resizable: this.isResizable,
                             modal: this.useBackdrop,
+                            position: this.position || { my: "center", at: "center", of: window },
                             draggable: false // We must deactivate the native jQuery UI draggable, because we want to use our own
                         })
                         
+                        // Figure out if we more dialogs exist along us
+                        // This matters due to z-indexing. If we are not alone, we must coordinate the z-index to the last dialog rendered.
+                        // This applies wether we are using a backdrop or not - consider if we are triggering a dialog from a dialog with a backdrop,
+                        // if we let things be the new dialog will be rendered beneath the backdrop of the parent dialog, which ultimately is nonsense
+                        // and not what you would expect.
+
+
                         $(document).keyup(function (e) {
                             if (e.keyCode == 27) {
                                 this.internalIsVisible = false;
@@ -126,6 +213,29 @@
 
                         // Remove the native jQuery UI titlebar - we will use our own
                         $(this.$refs.dialogRoot).parent().find(".ui-dialog-titlebar").remove();
+
+                        if (this.queuedToggleFullScreen) {
+                            console.log("queuedToggleFullScreen: " + this.queuedToggleFullScreen)
+                            this.toggleFullScreen();
+                        }
+
+                        
+                        if (this.useBackdrop) {
+                            this.handleOverlay();
+                        }
+                        else {
+                            if ($(".ui-dialog").not(this.$refs.dialogRoot).length > 0) {
+                                // Get the last dialog rendered
+                                console.log("dialogs", $(".ui-dialog").not(this.$refs.dialogRoot.parentElement));
+                                let lastDialog = $(".ui-dialog").not(this.$refs.dialogRoot.parentElement).last();
+                                
+                                // Get the z-index of the last dialog
+                                let zIndex = parseInt($(lastDialog).css("z-index"));
+    
+                                // Set the z-index of the current dialog to the last dialog
+                                $(this.$refs.dialogRoot).parent().attr("style", "z-index: " + (zIndex + 1) + " !important");
+                            }
+                        }
                     })
                 }
                 else {
@@ -145,11 +255,13 @@
         },
         mounted() {
             this.internalIsVisible = this.isVisible;
-            this.isFullScreen = !!this.startFullScreen;
+            //this.isFullScreen = !!this.startFullScreen;
 
             $(this.$refs.dialogRoot).dialog({
                 width: this.width || "40rem",
             });
+
+            this.queuedToggleFullScreen = this.startFullScreen || null;
 
             this.isMounted = true;
         },

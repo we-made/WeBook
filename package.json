@@ -20,6 +20,7 @@
     "@fonticonpicker/fonticonpicker": "^3.1.1",
     "@fullcalendar/core": "^5.10.1",
     "@fullcalendar/resource-timeline": "^5.10.1",
+    "@vuepic/vue-datepicker": "^6.1.0",
     "color": "^4.2.0",
     "colorjs.io": "^0.4.0",
     "datatables": "^1.10.18",
@@ -29,8 +30,9 @@
     "jquery.repeater": "^1.2.1",
     "jstree": "^3.3.12",
     "mustache": "^4.2.0",
+    "pinia": "^2.1.6",
     "vis-timeline": "^7.5.0",
-    "vue": "^3.2.45",
+    "vue": "^3.3.4",
     "vue-simple-context-menu": "^4.0.4"
   }
 }

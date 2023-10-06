@@ -1,14 +1,23 @@
 import datetime
-from typing import Any
+from typing import Any, List
 
 from dateutil import parser
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import SuspiciousOperation
+from django.db import connection
 from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views import View
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 
 from webook.arrangement.exceptions import UserHasNoPersonException
 from webook.arrangement.models import Event, Location, Person, Room
@@ -49,6 +58,9 @@ class RoomBasedResourceSourceView:
         return {
             "id": resource.slug,
             "title": resource.name,
+            "max_capacity": resource.max_capacity,
+            "is_exclusive": resource.is_exclusive,
+            "has_screen": resource.has_screen,
         }
 
 
@@ -134,10 +146,13 @@ class EventSourceViewMixin(ListView):
             end = self.request.GET.get("end", None)
 
             if start and end is not None:
-                self.event_list = self.event_list.get_in_period(
-                    start=parser.parse(start),
-                    end=parser.parse(end),
+                self.event_list = self.event_list.filter(
+                    Q(start__gte=parser.parse(start)) | Q(end__lte=parser.parse(end))
                 )
+                # self.event_list = self.event_list.get_in_period(
+                #     start=parser.parse(start),
+                #     end=parser.parse(end),
+                # )
 
         if self.event_list.model is not Event:
             raise "Event source view mixin requires that the QuerySet is of the model Event"
@@ -166,23 +181,111 @@ class MyCalendarEventsSourceView(EventSourceViewMixin):
 my_calendar_events_source_view = MyCalendarEventsSourceView.as_view()
 
 
+class GetAvailabilityForLocation(View):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        location_slug = self.request.GET.get("location", None)
+        location = Location.objects.get(slug=location_slug)
+
+        result: dict = {}
+
+        now = datetime.datetime.now()
+
+        rooms = location.rooms.all()
+        for room in rooms:
+            result[room.slug] = (
+                Event.objects.filter(
+                    Q(rooms__in=[room], start__lte=now, end__gte=now)
+                ).count()
+                == 0
+            )
+
+        return JsonResponse(result, safe=False)
+
+
+get_availability_for_location_view = GetAvailabilityForLocation.as_view()
+
+
+class RoomEventSourceView(EventSourceViewMixin):
+    model = Event
+
+    def run_raw_query(self, start, end, room_id) -> List[dict]:
+        result: List[dict] = []
+
+        query = """
+            SELECT
+                ev.id,
+                ev.title,
+                ev.start,
+                ev.end,
+                arr.id as arrangement_id
+                FROM arrangement_event_rooms as aer
+                LEFT JOIN arrangement_event as ev on ev.id = aer.event_id
+                LEFT JOIN arrangement_arrangement as arr on arr.id = ev.arrangement_id
+                WHERE aer.room_id = %s AND ev.start > %s AND ev.end < %s AND ev.is_archived = false AND arr.is_archived = false
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query, [room_id, start, end])
+
+            columns = [col[0] for col in cursor.description]
+            for row in cursor.fetchall():
+                result.append(dict(zip(columns, row)))
+
+        return result
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        room_slug = kwargs.get("slug", None)
+        room_id = Room.objects.get(slug=room_slug).id
+        start = self.request.GET.get("start", None)
+        end = self.request.GET.get("end", None)
+
+        events = self.run_raw_query(start, end, room_id)
+
+        return JsonResponse(events, safe=False)
+
+
 class LocationEventSourceView(EventSourceViewMixin):
     model = Event
 
-    def get_queryset(self):
+    def run_raw_query(self, start, end, location_id) -> List[dict]:
+        results: List[dict] = []
+
+        query = """SELECT 
+                    ev.id,
+                    ev.title, 
+                    ev.start, 
+                    ev.end, 
+                    (array_to_string(array_agg(DISTINCT room.slug ), ',')) as room_slugs,
+                    arr.id as arrangement_id 
+                    FROM arrangement_arrangement as arr
+                    LEFT JOIN arrangement_event as ev on ev.arrangement_id = arr.id
+                    LEFT JOIN arrangement_event_rooms as evr on evr.event_id = ev.id
+                    LEFT JOIN arrangement_room as room on room.id = evr.room_id
+                    WHERE arr.location_id = %s AND ev.is_archived = false AND arr.is_archived = false and ev.start > %s AND ev.end < %s
+                    GROUP by ev.id, ev.title, ev.start, ev.end, arr.id"""
+
+        with connection.cursor() as cursor:
+            cursor.execute(query, [location_id, start, end])
+
+            columns = [col[0] for col in cursor.description]
+            for row in cursor.fetchall():
+                ev = dict(zip(columns, row))
+                ev["resourceIds"] = (
+                    ev["room_slugs"].split(",") if ev["room_slugs"] else []
+                )
+                results.append(ev)
+
+        return results
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         location_slug = self.request.GET.get("location", None)
+        location_id = Location.objects.get(slug=location_slug).id
+        start = self.request.GET.get("start", None)
+        end = self.request.GET.get("end", None)
 
-        if location_slug is None:
-            raise SuspiciousOperation("No location supplied, please supply a location.")
+        events = self.run_raw_query(start, end, location_id)
 
-        location = Location.objects.get(slug=location_slug)
-
-        if location is None:
-            raise Http404(f"Location with slug {location_slug} does not exist")
-
-        return Event.objects.filter(
-            rooms__in=[room.id for room in location.rooms.all()]
-        )
+        return JsonResponse(events, safe=False)
 
 
 location_event_source_view = LocationEventSourceView.as_view()

@@ -1088,3 +1088,9 @@ class InspectServiceOrderDialogView(
 
 
 inspect_service_order_dialog_view = InspectServiceOrderDialogView.as_view()
+
+
+class PlannerCalendarV2(TemplateView):
+    template_name = "arrangement/planner/planner_calendar_v2.html"
+
+planner_calendar_v2 = PlannerCalendarV2.as_view()

@@ -1,0 +1,101 @@
+{% include "arrangement/vue/popover_component.html" %}
+
+<template id="edit-location-dialog-template">
+    <dialog-component :is-visible="isVisible" 
+                      :use-backdrop="true"
+                      @update:is-visible="(value) => isVisible = value"
+                      :is-draggable="true">
+        <template v-slot:header>
+            <h4 class="mb-0">
+                <i class="fas fa-edit"></i>&nbsp;
+                Rediger [[ originalName ]]
+            </h4>
+        </template>
+    
+        <template v-slot:content>
+            
+            <div class="form-group">
+                <label for="" class="fw-bold">Navn</label>
+                <input type="text" placeholder="Lokasjonens navn..." id="" class="form-control" v-model="location.name">
+            </div>
+
+        </template>
+    
+        <template v-slot:footer>
+            <div class="d-flex justify-content-center align-items-center">
+                <div>
+                    <button class="btn wb-btn-secondary" @click="isVisible = false">
+                        Avbryt
+                    </button>
+                    <button class="btn wb-btn-main" @click="save()">
+                        Lagre
+                    </button>
+                </div>
+            </div>
+        </template>
+    </dialog-component>
+
+</template>
+
+<script>
+    let EditLocationDialogComponent = {
+        components: {
+            DialogComponent
+        },
+        props: {
+        },
+        data() {
+            return {
+                isVisible: false,
+                locationSlug: null,
+                location: {
+                    id: null,
+                    slug: null,
+                    name: null,
+                }
+            }
+        },
+        computed: {
+        },
+        methods: {
+            open(locationSlug) {
+                this.locationSlug = locationSlug;
+                this.isVisible = true;
+
+                this.getLocation();
+            },
+            getLocation() {
+                fetch("/arrangement/location/detail/json/" + this.locationSlug)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.location = data;
+                        this.originalName = data.name;
+                    });
+            },
+            save() {
+                let formData = new FormData();
+                formData.append("name", this.location.name);
+
+                fetch("/arrangement/location/update/json/" + this.locationSlug, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    this.isVisible = false;
+                    window.location.reload();
+                });
+            }
+        },
+        watch: {
+        },
+        mounted() {
+
+        },
+        template: "#edit-location-dialog-template",
+        delimiters: ['[[', ']]']
+    }
+</script>

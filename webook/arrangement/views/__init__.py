@@ -81,12 +81,15 @@ from .location_views import (
     location_and_rooms_json_list_view,
     location_create_view,
     location_delete_view,
+    location_detail_json_view,
     location_detail_view,
+    location_list_json_view,
     location_list_view,
     location_rooms_json_list_view,
     location_update_view,
     locations_calendar_resources_list_view,
     locations_tree_json_view,
+    update_location_json_view,
 )
 from .note_views import (
     delete_note_view,
@@ -190,10 +193,13 @@ from .room_preset_views import (
 )
 from .room_views import (
     location_room_list_view,
+    room_create_json_view,
     room_create_view,
     room_delete_view,
+    room_detail_json_view,
     room_detail_view,
     room_list_view,
+    room_update_json_view,
     room_update_view,
     search_room_ajax_view,
     search_rooms_ajax_view,

@@ -1,0 +1,140 @@
+{% load static i18n %}
+
+
+<template id="vuec-calendar">
+    <div ref="popover" :is-visible="false" style="display: none;">
+        <span class="fw-bold">
+            [[ hoveredEvent.title ]]
+        </span>
+        <br>
+        <i class="fas fa-clock"></i>&nbsp; [[ getTime(hoveredEvent.start) ]] - [[ getTime(hoveredEvent.end) ]]
+    </div>
+
+    <div ref="calendar">
+    </div>
+</template>
+
+
+<script>
+
+    let CalendarComponent = {
+        components: {
+        },
+        data() {
+            return {
+                calendar: null,
+                hoveredEvent: {
+                    title: null,
+                    start: null,
+                    end: null,
+                },
+            }
+        },
+        props: {
+            startDate: Date,
+            view: String,
+            locale: String,
+            showHeader: Boolean,
+            headerToolbar: Boolean,
+            eventContent: Function,
+            eventSource: Function,
+            weekNumbers: Boolean,
+            contextMenuItems: Array,
+            onEventClick: Function,
+        },
+        methods: {
+            getTime(date) {
+                if (date === undefined || date === null)
+                    return "";
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            },
+            initCalendar() {
+                this.$nextTick(() => {
+                    if (this.$refs.calendar === undefined) {
+                       this.initCalendar();
+                       return;
+                    }
+                    else {
+                        console.log("calendar is defined");
+                        console.log(this.$refs.calendar);
+                    }
+
+                    this.calendar = new FullCalendar.Calendar(this.$refs.calendar, {
+                        eventMouseEnter: function (arg) {
+                            
+                            this.hoveredEvent = arg.event;
+                                                       
+                            this.$nextTick(() => {
+                                $(arg.el).popover({
+                                    content: this.$refs.popover.innerHTML,
+                                    animation: true,
+                                    container: this.$refs.calendar,
+                                    html: true,
+                                    trigger: 'manual',
+                                });
+                                $(arg.el).popover('show');
+                            });
+                        }.bind(this),
+                        eventMouseLeave: function (arg) {
+                            $(arg.el).popover('hide');
+                        }.bind(this),
+                        eventDidMount: function (arg) {
+
+                        }.bind(this),
+                        schedulerLicenseKey: "{{ FULLCALENDAR_LICENSE_KEY }}",
+                        initialView: this.view || "dayGridMonth",
+                        initialDate: this.startDate || new Date(),
+                        eventContent: this.eventContent || null,
+                        scrollTime: "06:00:00",
+                        locale: this.locale || "nb",
+                        headerToolbar: this.headerToolbar || true,
+                        events: this.eventSource || [],
+                        weekNumbers: this.weekNumbers || false,
+                        eventClick: this.onEventClick || null,
+                    })
+                    this.calendar.render();
+                })
+            },
+            openNavigateToDateSwal() {
+                Swal.fire({
+                    title: 'Gå til dato',
+                    html: "<input type='date' id='swalGoToDate' class='form-control'></input>",
+                    showCancelButton: true,
+                    confirmButtonText: 'Gå til dato',
+                    cancelButtonText: 'Avbryt',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let date = new Date(document.getElementById('swalGoToDate').value);
+                        this.gotoDate(date);
+                    }
+                })
+            },
+            today() {
+                this.calendar.today();
+            },
+            gotoDate(date) {
+                this.calendar.gotoDate(date);
+            },
+            getDate() {
+                return this.calendar.getDate();
+            },
+            addEventSource(source) {
+                this.calendar.addEventSource(source);
+            },
+        },
+        mounted() {
+            this.initCalendar();
+
+            if (this.contextMenuItems) {
+                $.contextMenu({
+                    className: "",
+                    selector: ".fc-event",
+                    items: this.contextMenuItems
+                });
+            }
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec-calendar",
+    }
+
+</script>

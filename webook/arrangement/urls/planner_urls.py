@@ -43,6 +43,7 @@ from webook.arrangement.views import (
     planner_view,
     upload_files_dialog,
 )
+from webook.arrangement.views.planner_views import planner_calendar_v2
 
 planner_urls = [
     path(
@@ -228,5 +229,10 @@ planner_urls = [
         route="planner/dialogs/inspect_service_order/<int:pk>",
         view=inspect_service_order_dialog_view,
         name="inspect_service_order_dialog",
+    ),
+    path(
+        route="planner/calendar_v2",
+        view=planner_calendar_v2,
+        name="planner_calendar_v2",
     ),
 ]

@@ -316,51 +316,27 @@
         <div class="tab-pane fade" id="files-tab" role="tabpanel" aria-labelledby="ex1-tab-2">
             {% if object.arrangement.files.exists or object.files.exists %}
             
-            {% if user|has_group:"planners" or user.is_superuser %}
-            <div class="clearfix">
-                <div class="float-end">
-                    <a class="btn wb-btn-main" d-trigger="triggerUploadFilesDialog"><i class="fas fa-upload"></i>&nbsp; Last opp fil(er)</a>
-                </div>
-            </div>
-            {% endif %}
-
-            <div data-mdb-perfect-scrollbar="true" data-mdb-handlers="click-rail" style="position: relative; max-height: 30em; overflow-y: scroll;">
-                {% for file in object.arrangement.files.all %}
-                    <div class="wb-bg-extra p-3 mt-2 rounded-pill" id="fileRow_{{file.pk}}">
-                        <span><i class="fas fa-arrow-down"></i> <small class="me-2 fw-bold">Hentet fra arrangementet</small>&nbsp; {{file.filename}}</span>
-                        <span class="float-end">
-                            {% if user|has_group:"planners" or user.is_superuser %}
-                            <a href="#" class="text-muted"
-                                data-mdb-toggle="tooltip"
-                                title="Denne filen kommer fra arrangementet og kan dermed bare slettes der">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                            {% endif %}
-                            
-                            <a data-mdb-toggle="tooltip"
-                                    class="ms-2 me-3"
-                                    title="{% trans 'Download this file' %}"
-                                    href="/media/{{file.file}}"
-                                    download>
-                                <i class="fas fa-download"></i>
-                            </a>
-                        </span>
+                {% if user|has_group:"planners" or user.is_superuser %}
+                <div class="clearfix">
+                    <div class="float-end">
+                        <a class="btn wb-btn-main" d-trigger="triggerUploadFilesDialog"><i class="fas fa-upload"></i>&nbsp; Last opp fil(er)</a>
                     </div>
-                {% endfor %}
+                </div>
+                {% endif %}
 
-
-                <div class="mb-2">
-                    {% for file in object.files.all %}
+                <div data-mdb-perfect-scrollbar="true" data-mdb-handlers="click-rail" style="position: relative; max-height: 30em; overflow-y: scroll;">
+                    {% for file in object.arrangement.files.all %}
                         <div class="wb-bg-extra p-3 mt-2 rounded-pill" id="fileRow_{{file.pk}}">
-                            <span>{{file.filename}}</span>
+                            <span><i class="fas fa-arrow-down"></i> <small class="me-2 fw-bold">Hentet fra arrangementet</small>&nbsp; {{file.filename}}</span>
                             <span class="float-end">
-                                <a href="#"
-                                        d-trigger="deleteFile"
-                                        d-arg-type_discriminator="event_serie"
-                                        d-arg-file_id="{{file.pk}}">
+                                {% if user|has_group:"planners" or user.is_superuser %}
+                                <a href="#" class="text-muted"
+                                    data-mdb-toggle="tooltip"
+                                    title="Denne filen kommer fra arrangementet og kan dermed bare slettes der">
                                     <i class="fas fa-trash"></i>
                                 </a>
-
+                                {% endif %}
+                                
                                 <a data-mdb-toggle="tooltip"
                                         class="ms-2 me-3"
                                         title="{% trans 'Download this file' %}"
@@ -371,24 +347,48 @@
                             </span>
                         </div>
                     {% endfor %}
-                </div>
-            </div>
-            {% else %}
-            <div class="alert wb-bg-secondary">
-                <h4 class="text-center">Ingen filer lastet opp her ennå!</h4>
-                {% if user|has_group:"planners" or user.is_superuser %}
-                <div class="row">
-                    <div class="col text-center">
-                        <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
-                        d-trigger="triggerUploadFilesDialog"
-                        href="#">
-                        <i class="fas fa-upload"></i>
-                        Last opp
-                    </a>
+
+
+                    <div class="mb-2">
+                        {% for file in object.files.all %}
+                            <div class="wb-bg-extra p-3 mt-2 rounded-pill" id="fileRow_{{file.pk}}">
+                                <span>{{file.filename}}</span>
+                                <span class="float-end">
+                                    <a href="#"
+                                            d-trigger="deleteFile"
+                                            d-arg-type_discriminator="event_serie"
+                                            d-arg-file_id="{{file.pk}}">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+
+                                    <a data-mdb-toggle="tooltip"
+                                            class="ms-2 me-3"
+                                            title="{% trans 'Download this file' %}"
+                                            href="/media/{{file.file}}"
+                                            download>
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </span>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
-                {% endif %}
-            </div>
+            {% else %}
+                <div class="alert wb-bg-secondary">
+                    <h4 class="text-center">Ingen filer lastet opp her ennå!</h4>
+                    {% if user|has_group:"planners" or user.is_superuser %}
+                    <div class="row">
+                        <div class="col text-center">
+                            <a class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto"
+                            d-trigger="triggerUploadFilesDialog"
+                            href="#">
+                            <i class="fas fa-upload"></i>
+                            Last opp
+                        </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
             {% endif %}
         </div>
 

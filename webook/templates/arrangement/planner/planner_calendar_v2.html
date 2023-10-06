@@ -1,0 +1,399 @@
+{% extends "common/meta_base.html" %}
+{% load static i18n %}
+{% load custom_tags %}
+
+{% block container_classes %}
+container-fluid
+{% endblock %}
+
+{% block superheader %}
+{% endblock %}
+
+{% block content %}
+
+{% include "arrangement/calendar/calendar.html" %}
+{% include "arrangement/vue/dialog-component.html" %}
+{% include "arrangement/planner/event-info-dialog.html" %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<div id="vuec-planner-calendar">
+
+    <event-info-dialog-component ref="eventInfoDialog">
+    </event-info-dialog-component>
+
+    <div class="sticky-top border-bottom" >
+        <nav class="navbar navbar-expand-lg navbar-light bg-white p-2 pb-0 wb-sub-bar shadow-0">
+            <div class="container-fluid p-0">
+              <div
+                class="collapse navbar-collapse p-0 "
+                id="navbarCenteredExample"
+              >
+                <div class="row calendar-btn-nav" style="flex-basis: 100%;">
+                    <div class="col-4">
+                        <div class="btn-group wb-btn-white shadow-0">
+                            <button class="btn border-1 wb-large-btn wb-btn-white shadow-0"
+                                @click="move('back')">
+                                <h5 class="mb-0"> <i class="fas fa-angle-left"></i> </h5>
+                            </button>
+                            <button class="btn border-1 wb-large-btn wb-btn-white shadow-0"
+                                @click="move('forward')">
+                                <h5 class="mb-0"> <i class="fas fa-angle-right"></i> </h5>
+                            </button>
+                        </div>
+    
+                        <span style="font-size: large!important;" class="me-5 ms-5">
+                            <span id="plannerCalendarHeader"></span>
+                        </span>
+    
+                        <button class="btn wb-large-btn wb-btn-secondary ms-2 border-0 shadow-0"
+                            @click="goToToday()">
+                            I dag
+                        </button>
+                        <button class="btn wb-large-btn wb-btn-secondary border-0 shadow-0"
+                            type="button"
+                            title="Gå til dato"
+                            @click="openGoToDateDialog()"
+                            data-mdb-toggle="tooltip">
+                            <i class="fas fa-door"></i>
+                            <i class="fas fa-calendar"></i>
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <ul class="nav nav-tabs webook-tabs border-0 justify-content-center" id="sectionNav">
+                            <li class="nav-item" role="presentation">
+                                <a href="#" onclick="$('#overview-tab')[0].click(); setNavActive(this);" class="nav-link active">
+                                    <i class="fas fa-theater-masks"></i>&nbsp; 
+                                    Arrangementer
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="#" role="presentation" class="nav-link"
+                                    onclick="$('#locations-tab')[0].click(); setNavActive(this);">
+                                    <i class="fas fa-building"></i>&nbsp; 
+                                    Lokasjoner
+                                </a>
+                            </li>
+                            {% if user|has_group:"planners" or user.is_superuser %}
+                            <li class="nav-item" role="presentation">
+                                <a href="#" onclick="$('#people-tab')[0].click(); setNavActive(this);" class="nav-link">
+                                    <i class="fas fa-users"></i>&nbsp; 
+                                    Personer
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% if user|has_group:"planners" or user.is_superuser %}
+                    <div class="col-4 d-flex justify-content-end">
+
+                        <div class="input-group  me-3">
+                            <input type="text" name="" id="" class="form-control form-control-lg">
+                        </div>
+                        <div>
+                            <button class="btn wb-btn-main float-end" id="newArrangementBtn">
+                                <i class="fas fa-plus"></i>&nbsp; Opprett arrangement
+                            </button>
+                        </div>
+                        
+                    </div>
+                    {% endif %}
+                </div>
+              </div>
+            </div>
+        </nav>
+    </div>
+    
+    <calendar-component
+        view="dayGridMonth"
+        ref="calendar"
+        :event-source="getEventsInPeriod"
+        :context-menu-items="contextMenuItems"
+        :event-content="eventLabelGeneratorFunction"
+        :on-event-click="onEventClick">
+    </calendar-component>
+
+</div>
+
+<script>
+    const colorSwatch = [
+        "#63b598", "#ce7d78", "#ea9e70", "#a48a9e", "#c6e1e8", "#648177", "#0d5ac1",
+        "#f205e6", "#1c0365", "#14a9ad", "#4ca2f9", "#a4e43f", "#d298e2", "#6119d0",
+        "#d2737d", "#c0a43c", "#f2510e", "#651be6", "#79806e", "#61da5e", "#cd2f00",
+        "#9348af", "#01ac53", "#c5a4fb", "#996635", "#b11573", "#4bb473", "#75d89e",
+        "#2f3f94", "#2f7b99", "#da967d", "#34891f", "#b0d87b", "#ca4751", "#7e50a8",
+        "#c4d647", "#e0eeb8", "#11dec1", "#289812", "#566ca0", "#ffdbe1", "#2f1179",
+        "#935b6d", "#916988", "#513d98", "#aead3a", "#9e6d71", "#4b5bdc", "#0cd36d",
+        "#250662", "#cb5bea", "#228916", "#ac3e1b", "#df514a", "#539397", "#880977",
+        "#f697c1", "#ba96ce", "#679c9d", "#c6c42c", "#5d2c52", "#48b41b", "#e1cf3b",
+        "#5be4f0", "#57c4d8", "#a4d17a", "#be608b", "#96b00c", "#088baf", "#f158bf",
+        "#e145ba", "#ee91e3", "#05d371", "#5426e0", "#4834d0", "#802234", "#6749e8",
+        "#0971f0", "#8fb413", "#b2b4f0", "#c3c89d", "#c9a941", "#41d158", "#fb21a3",
+        "#51aed9", "#5bb32d", "#21538e", "#89d534", "#d36647", "#7fb411", "#0023b8",
+        "#3b8c2a", "#986b53", "#f50422", "#983f7a", "#ea24a3", "#79352c", "#521250",
+        "#c79ed2", "#d6dd92", "#e33e52", "#b2be57", "#fa06ec", "#1bb699", "#6b2e5f",
+        "#64820f", "#21538e", "#89d534", "#d36647", "#7fb411", "#0023b8", "#3b8c2a",
+        "#986b53", "#f50422", "#983f7a", "#ea24a3", "#79352c", "#521250", "#c79ed2",
+        "#d6dd92", "#e33e52", "#b2be57", "#fa06ec", "#1bb699", "#6b2e5f", "#64820f",
+        "#9cb64a", "#996c48", "#9ab9b7", "#06e052", "#e3a481", "#0eb621", "#fc458e",
+        "#b2db15", "#aa226d", "#792ed8", "#73872a", "#520d3a", "#cefcb8", "#a5b3d9",
+        "#7d1d85", "#c4fd57", "#f1ae16", "#8fe22a", "#ef6e3c", "#243eeb", "#dd93fd",
+        "#3f8473", "#e7dbce", "#421f79", "#7a3d93", "#635f6d", "#93f2d7", "#9b5c2a",
+        "#15b9ee", "#0f5997", "#409188", "#911e20", "#1350ce", "#10e5b1", "#fff4d7",
+        "#cb2582", "#ce00be", "#32d5d6", "#608572", "#c79bc2", "#00f87c", "#77772a",
+        "#6995ba", "#fc6b57", "#f07815", "#8fd883", "#060e27", "#96e591", "#21d52e",
+        "#d00043", "#b47162", "#1ec227", "#4f0f6f", "#1d1d58", "#947002", "#bde052",
+        "#e08c56", "#28fcfd", "#36486a", "#d02e29", "#1ae6db", "#3e464c", "#a84a8f",
+        "#911e7e", "#3f16d9", "#0f525f", "#ac7c0a", "#b4c086", "#c9d730", "#30cc49",
+        "#3d6751", "#fb4c03", "#640fc1", "#62c03e", "#d3493a", "#88aa0b", "#406df9",
+        "#615af0", "#2a3434", "#4a543f", "#79bca0", "#a8b8d4", "#00efd4", "#7ad236",
+        "#7260d8", "#1deaa7", "#06f43a", "#823c59", "#e3d94c", "#dc1c06", "#f53b2a",
+        "#b46238", "#2dfff6", "#a82b89", "#1a8011", "#436a9f", "#1a806a", "#4cf09d",
+        "#c188a2", "#67eb4b", "#b308d3", "#fc7e41", "#af3101", "#71b1f4", "#a2f8a5",
+        "#e23dd0", "#d3486d", "#00f7f9", "#474893", "#3cec35", "#1c65cb", "#5d1d0c",
+        "#2d7d2a", "#ff3420", "#5cdd87", "#a259a4", "#e4ac44", "#1bede6", "#8798a4",
+        "#d7790f", "#b2c24f", "#de73c2", "#d70a9c", "#88e9b8", "#c2b0e2", "#86e98f",
+        "#ae90e2", "#1a806b", "#436a9e", "#0ec0ff", "#f812b3", "#b17fc9", "#8d6c2f",
+        "#d3277a", "#2ca1ae", "#9685eb", "#8a96c6", "#dba2e6", "#76fc1b", "#608fa4",
+        "#20f6ba", "#07d7f6", "#dce77a", "#77ecca"
+    ]
+
+    $(document).ready(function () {
+        let app = Vue.createApp({
+            components: { DialogComponent, CalendarComponent, EventInfoDialogComponent },
+            data() {
+                return {
+                    contextMenuItems: {
+                        arrangement_inspector: {
+                            name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+        
+                            }
+                        },
+                        event_inspector: {
+                            name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+
+                            }
+                        },
+                    },
+                    eventLabelGeneratorFunction: (arg) => {
+                        const formatTime = function (text) {
+                            if (text.length == 1 || text.length == 3)
+                                text = "0" + text
+                            if (text.length == 2)
+                                text += ":00"
+                                
+                            return text;
+                        }
+    
+
+                        if (arg.view.type === "dayGridMonth" || arg.view.type === "dayGridWeek") {
+                            let nodes = [];
+    
+                            const eventIsSameDay = (arg.event.start !== null && arg.event.end !== null) &&
+                                arg.event.start.getFullYear() === arg.event.end.getFullYear() &&
+                                arg.event.start.getMonth() === arg.event.end.getMonth() &&
+                                arg.event.start.getDate() === arg.event.end.getDate();
+    
+                            let colorDot = document.createElement('div');
+                            colorDot.classList.add("fc-daygrid-event-dot");
+                            colorDot.style = "border-color: " + arg.backgroundColor;
+                            if (eventIsSameDay === true)
+                                nodes.push(colorDot);
+    
+                            let timeText = document.createElement('strong');
+                            timeText.style="font-family: 'Times New Roman';"
+                            timeText.innerText = `${formatTime(arg.timeText)}`;
+                            nodes.push(timeText);
+    
+                            let iconsRail = document.createElement('span');
+                            nodes.push(iconsRail);
+    
+                            let hasIcon = false;
+    
+                            if (arg.event.extendedProps.isRigging === true) {
+                                let riggingIconEl = document.createElement('i');
+                                riggingIconEl.classList.add("fas", "fa-hammer", "fa-fw", "ms-2", "me-1");
+                                nodes.push(riggingIconEl);
+                                hasIcon = true;
+                            }
+                            if (arg.event.extendedProps.isSerie === true) {
+                                let serieIconEl = document.createElement('i');
+                                serieIconEl.classList.add("fas", "fa-sync", "fa-fw", "ms-2", "me-1");
+                                nodes.push(serieIconEl);
+                                hasIcon = true;
+                            }
+    
+                            if (hasIcon === false) {
+                                let spacerElement = document.createElement("i")
+                                spacerElement.classList.add("fas", "fa-sync", "fa-fw", "ms-2", "me-1");
+                                spacerElement.style = "visibility: hidden!important;"
+                                nodes.push(spacerElement);
+                            }
+    
+                            let eventTitle = document.createElement('span');
+                            eventTitle.classList.add("ms-1", "event-title-text");
+                            eventTitle.innerText = arg.event.title;
+                            nodes.push(eventTitle);
+    
+                            return { domNodes: nodes };
+                        }
+                        if (arg.view.type === "timelineMonth" || arg.view.type === "timelineYear") {
+                            let nodes = [];
+    
+                            let timeText = document.createElement('strong');
+                            timeText.classList.add('d-block');
+                            timeText.innerText = `(${formatTime(arg.timeText)})`;
+                            nodes.push(timeText);
+    
+                            let iconsRail = document.createElement('div');
+                            nodes.push(iconsRail);
+    
+                            if (arg.event.extendedProps.isRigging === true) {
+                                let riggingIconEl = document.createElement('i');
+                                riggingIconEl.classList.add("fas", "fa-hammer");
+                                iconsRail.appendChild(riggingIconEl);
+                            }
+                            if (arg.event.extendedProps.isSerie === true) {
+                                let serieIconEl = document.createElement('i');
+                                serieIconEl.classList.add("fas", "fa-sync");
+                                iconsRail.appendChild(serieIconEl);
+                            }
+    
+                            let eventTitle = document.createElement('span');
+                            eventTitle.classList.add("event-title-text")
+                            eventTitle.innerText = arg.event.title;
+                            nodes.push(eventTitle);
+    
+                            return { domNodes: nodes };
+                        }
+                        if (arg.view.type === "timeGridDay" || arg.view.type === "timeGridWeek") {
+                            let nodes = [];
+    
+                            let wrapper = document.createElement('div');
+                            wrapper.classList.add("p-2");
+    
+                            let iconsRail = document.createElement('div');
+                            wrapper.appendChild(iconsRail);
+    
+                            if (arg.event.extendedProps.isRigging === true) {
+                                let riggingIconEl = document.createElement('i');
+                                riggingIconEl.classList.add("fas", "fa-hammer");
+                                iconsRail.appendChild(riggingIconEl);
+                            }
+                            if (arg.event.extendedProps.isSerie === true) {
+                                let serieIconEl = document.createElement('i');
+                                serieIconEl.classList.add("fas", "fa-sync");
+                                iconsRail.appendChild(serieIconEl);
+                            }
+    
+                            let timeText = document.createElement('strong');
+                            timeText.classList.add('d-block');
+                            timeText.innerText = `(${formatTime(arg.timeText)})`;
+                            wrapper.appendChild(timeText);
+    
+                            let eventTitle = document.createElement('strong');
+                            eventTitle.classList.add("mb-2", "event-title-text");
+                            eventTitle.innerText = arg.event.title;
+                            wrapper.appendChild(eventTitle);
+    
+                            nodes.push(wrapper);
+    
+                            return { domNodes: nodes };
+                        }
+                        if (arg.view.type === "listWeek") {
+                            let nodes = [];
+    
+                            if (arg.event.extendedProps.isRigging === true ||
+                                arg.event.extendedProps.isSerie === true) {
+                                    
+                                let iconsRail = document.createElement('span');
+                                iconsRail.classList.add("me-2");
+                                if (arg.event.extendedProps.isRigging === true) {
+                                    let riggingIconEl = document.createElement('i');
+                                    riggingIconEl.classList.add("fas", "fa-hammer");
+                                    iconsRail.appendChild(riggingIconEl);
+                                }
+                                if (arg.event.extendedProps.isSerie === true) {
+                                    let serieIconEl = document.createElement('i');
+                                    serieIconEl.classList.add("fas", "fa-sync");
+                                    iconsRail.appendChild(serieIconEl);
+                                }
+                                nodes.push(iconsRail);
+                            }
+    
+                            let titleElement = document.createElement('span');
+                            titleElement.innerText = arg.event.title;
+                            titleElement.classList.add("event-title-text");
+                            nodes.push(titleElement);
+    
+                            return { domNodes: nodes };
+                        }
+                    }
+                }
+            },
+            delimiters: ["[[", "]]"],
+            methods: {
+                move(direction) {
+                    if (direction === "back") {
+                        this.$refs.calendar.calendar.prev();
+                        return;
+                    }
+                    this.$refs.calendar.calendar.next();
+                },
+
+                onEventClick(arg) {
+                    console.log("onEventClick", arg);
+                    this.$refs.eventInfoDialog.open(arg.event);
+                },
+
+                openGoToDateDialog() {
+                    this.$refs.calendar.openNavigateToDateSwal();
+                },
+
+                goToToday() {
+                    this.$refs.calendar.calendar.today();
+                },
+
+                async getEventsInPeriod(arg) {
+                    let events = await fetch(`/arrangement/planner/arrangements_in_period?start=${arg.start.toISOString()}&end=${arg.end.toISOString()}`)
+                        .then(response => response.json());
+
+                    let fcCalendarEvents = [];
+                    events.forEach((event) => {
+
+                        if (sessionStorage.getItem(`${event.arrangement_pk}_color`) === null) {
+                            sessionStorage.setItem(`${event.arrangement_pk}_color`, colorSwatch[Math.floor(Math.random() * colorSwatch.length)]);
+                        }                        
+                        
+                        
+                        fcCalendarEvents.push({
+                            "id": event.event_pk,
+                            "title": event.name,
+                            "start": event.starts,
+                            "end": event.ends,
+                            "backgroundColor": sessionStorage.getItem(`${event.arrangement_pk}_color`),
+                            "extendedProps": {
+                                "event_id": event.event_pk,
+                                "arrangement_id": event.arrangement_pk,
+                                "is_rigging": event.is_rigging,
+                                "status_color": event.status_color,
+                                "association_type": event.association_type,
+                                "event_serie_id": event.evserie_id
+                            }
+                        })
+                    })
+
+                    return fcCalendarEvents;
+                },
+                
+            },
+        })
+        app.mount("#vuec-planner-calendar");
+    })
+</script>
+
+{% endblock %}

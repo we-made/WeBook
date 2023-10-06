@@ -1,15 +1,19 @@
 from unicodedata import name
+
 from django.urls import path
+
 from webook.arrangement.views import (
-    room_list_view,
-    room_create_view,
-    room_update_view,
-    room_detail_view,
-    room_delete_view,
     location_room_list_view,
+    room_create_json_view,
+    room_create_view,
+    room_delete_view,
+    room_detail_json_view,
+    room_detail_view,
+    room_list_view,
+    room_update_json_view,
+    room_update_view,
     search_rooms_ajax_view,
 )
-
 
 room_urls = [
     path(
@@ -39,12 +43,27 @@ room_urls = [
     ),
     path(
         route="room/locationrooms?location=<str:location>",
-        view=location_room_list_view, 
-        name="locationroomlist"
+        view=location_room_list_view,
+        name="locationroomlist",
     ),
     path(
         route="room/search",
         view=search_rooms_ajax_view,
         name="search_room_ajax_view",
+    ),
+    path(
+        route="room/json/<slug:slug>/",
+        view=room_detail_json_view,
+        name="room_detail_json_view",
+    ),
+    path(
+        route="room/create/json/",
+        view=room_create_json_view,
+        name="room_create_json_view",
+    ),
+    path(
+        route="room/update/json/<slug:slug>/",
+        view=room_update_json_view,
+        name="room_update_json_view",
     ),
 ]

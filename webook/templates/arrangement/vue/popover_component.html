@@ -46,6 +46,7 @@
 
             this.clickOutsideEvent = (e) => {
                 if (this.$el !== event.target && !this.$el.contains(event.target)) {
+                    console.log("excludes", this.excludes)
                     if (this.excludes && this.excludes.length > 0 && this.excludes.includes(event.target)) {
                         return;
                     }

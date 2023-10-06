@@ -3,7 +3,8 @@ from typing import Any, Dict
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
-from django.http import JsonResponse
+from django.forms.models import BaseModelForm
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse
@@ -21,6 +22,10 @@ from webook.arrangement.models import BusinessHour, Location, Room
 from webook.arrangement.views.generic_views.archive_view import (
     ArchiveView,
     JsonArchiveView,
+)
+from webook.arrangement.views.generic_views.json_form_view import (
+    JsonFormView,
+    JsonModelFormMixin,
 )
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.authorization_mixins import PlannerAuthorizationMixin
@@ -73,6 +78,32 @@ class RoomDetailView(
 room_detail_view = RoomDetailView.as_view()
 
 
+class RoomDetailJsonView(LoginRequiredMixin, RoomSectionManifestMixin, DetailView):
+    model = Room
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+        data = json.dumps(
+            {
+                "id": self.object.id,
+                "slug": self.object.slug,
+                "name": self.object.name,
+                "name_en": self.object.name_en,
+                "max_capacity": self.object.max_capacity,
+                "location": self.object.location.id,
+                "location_name": self.object.location.name,
+                "is_exclusive": self.object.is_exclusive,
+                "has_screen": self.object.has_screen,
+            }
+        )
+        return HttpResponse(data, content_type="appliwation/json")
+
+
+room_detail_json_view = RoomDetailJsonView.as_view()
+
+
 class RoomUpdateView(
     LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, UpdateView
 ):
@@ -90,6 +121,36 @@ class RoomUpdateView(
 
 
 room_update_view = RoomUpdateView.as_view()
+
+
+class RoomCreateJsonView(LoginRequiredMixin, CreateView, JsonModelFormMixin):
+    model = Room
+    fields = [
+        "location",
+        "name",
+        "name_en",
+        "max_capacity",
+        "has_screen",
+        "is_exclusive",
+    ]
+
+
+room_create_json_view = RoomCreateJsonView.as_view()
+
+
+class RoomUpdateJsonView(LoginRequiredMixin, UpdateView, JsonModelFormMixin):
+    model = Room
+    fields = [
+        "location",
+        "name",
+        "name_en",
+        "max_capacity",
+        "has_screen",
+        "is_exclusive",
+    ]
+
+
+room_update_json_view = RoomUpdateJsonView.as_view()
 
 
 class RoomCreateView(

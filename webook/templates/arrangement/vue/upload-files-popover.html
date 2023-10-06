@@ -1,0 +1,76 @@
+<template id="vuec-upload-files-popover-component">
+    
+    <button class="wb-btn-main"
+        @click="isExpanded = !isExpanded"
+        ref="trigger"
+        type="button">
+
+        <i class="fas fa-upload"></i>
+        Last opp fil(er)
+    </button>
+
+    <popover-component
+        :is-visible="isExpanded"
+        @update:is-visible="(value) => isExpanded = value"
+        :excludes="[ triggerRef ]"
+        ref="eventPopover"
+        style="z-index: 1000000001">
+
+        <div class="file-upload-wrapper p-2 wb-bg-secondary" style="border: dotted 2px black;">
+            <input type="file"
+                ref="file_field"
+                id="input-file-now"
+                name="file_field"
+                class="file-upload-input"
+                data-mdb-default-msg="Last opp en eller flere filer ved å trykke her eller dra filene hit"
+                multiple="true"
+                data-mdb-file-upload="file-upload" />
+        </div>
+    </popover-component>
+</template>
+
+<script>
+    let UploadFilesPopoverComponent = {
+        components: {
+            PopoverComponent
+        },
+        props: {
+            isVisible: {
+                type: Boolean,
+                default: true
+            },
+        },
+        data() {
+            return {
+                isMounted: false,
+                isExpanded: false,
+            }
+        },
+        computed: {
+            triggerRef() {
+                if (!this.isMounted) {
+                    return null;
+                }
+                return this.$refs.trigger;
+            },
+        },
+        watch: {
+            isExpanded(value) {
+                if (value === true) {
+                }
+            }
+        },
+        mounted() {
+            this.$nextTick(() => {
+                new FileUpload(
+                    this.$refs.file_field
+                );
+                this.excludes = this.$parent.$refs.excludes;
+                console.log("parent", this.$parent)
+            });
+            this.isMounted = true;
+        },
+        delimiters: ['[[', ']]'],
+        template: '#vuec-upload-files-popover-component'
+    }
+</script>

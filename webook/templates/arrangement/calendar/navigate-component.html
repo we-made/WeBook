@@ -1,0 +1,62 @@
+<template id="vuec-calendar-navigate-component">
+    <div class="btn-group wb-btn-white shadow-0">
+        <button class="btn border-1 wb-large-btn wb-btn-white shadow-0" @click="move('back')">
+            <h5 class="mb-0"> <i class="fas fa-angle-left"></i> </h5>
+        </button>
+        <button class="btn border-1 wb-large-btn wb-btn-white shadow-0" @click="move('forward')">
+            <h5 class="mb-0"> <i class="fas fa-angle-right"></i> </h5>
+        </button>
+    </div>
+</template>
+
+
+<script>
+    let CalendarNavigateComponent = {
+        props: {
+            modelValue: Object,
+        },
+        data() {
+            return {
+                month: null,
+                year: null,
+            }
+        },
+        methods: {
+            actualize() {
+                this.modelValue.gotoDate(
+                    this.year + "-" + String(this.month).padStart(2, "0") + "-01"
+                )
+            },
+            move(direction) {
+                if (direction === "back") {
+                    this.oneIntervalBack();
+                    this.actualize();
+                    return;
+                }
+
+                this.oneIntervalForward();
+                this.actualize();
+            },
+            oneIntervalBack() {
+                if (this.month === 1) {
+                    this.year -= 1;
+                    this.month = 12;
+                    return;
+                }
+
+                this.month -= 1; 
+            },
+            oneIntervalForward() {
+                if (this.month === 12) {
+                    this.year += 1;
+                    this.month = 1;
+                    return;
+                }
+
+                this.month += 1;
+            }
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec-calendar-navigate-component"
+    }
+</script>

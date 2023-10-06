@@ -497,10 +497,16 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     {% block javascript %}
+      <script>
 
+      </script>
       <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script> -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js" integrity="sha512-kvg/Lknti7OoAw0GqMBP8B+7cGHvp4M9O9V6nAYG91FZVDMW3Xkkq5qrdMhrXiawahqU7IZ5CNsY/wWy1PpGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+      <script src="{% static 'js/datastore.js' %}">
+
+      </script>
 
       <!-- Your stuff: Third-party javascript libraries go here -->
       <script src="{{ ASSET_SERVER_URL }}mdb/js/mdb.min.js"></script>

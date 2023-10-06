@@ -1,0 +1,41 @@
+{% include "arrangement/vue/table_component.html" %}
+
+<template id="vuec-files-list">
+    <table-component
+        :data-source="enrichedRoomsDataSourceFunc"
+        :can-search="true"
+        :rerender-toggle="renderToggle">
+    </table-component>
+</template>
+
+<script>
+    let FilesList = {
+        computed: {
+            enrichedRoomsDataSourceFunc() {
+                let out = this.dataSource();
+                out.actions = {
+                    "download": {
+                        "type": "main",
+                        "isContentHtml": true,
+                        content: "<i class='fas fa-download'></i> Last ned",
+                    },
+                    "delete": {
+                        "type": "main",
+                        "isContentHtml": true,
+                        content: "<i class='fas fa-trash'></i> Slett",
+                    },
+                }
+                return out;
+            }
+        },
+        props: {
+            dataSource: callable,
+        },
+        components: { TableComponent },
+        delimiters: ['[[', ']]'],
+        template: '#vuec-files-list',
+        mounted() {
+
+        }
+    }
+</script>

@@ -17,10 +17,7 @@ from django.views.generic import (
 
 from webook.arrangement.facilities.service_ordering import log_provision_changed, remove_provision_from_service_order
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
-from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import (
-    CreateSerieForm,
-    SerieManifestForm,
-)
+from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import CreateSerieForm, SerieManifestForm
 from webook.arrangement.forms.file_forms import UploadFilesForm
 from webook.arrangement.models import (
     Arrangement,
@@ -36,14 +33,9 @@ from webook.arrangement.models import (
 )
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
-from webook.arrangement.views.generic_views.json_form_view import (
-    JsonFormView,
-    JsonModelFormMixin,
-)
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
 from webook.arrangement.views.generic_views.json_list_view import JsonListView
-from webook.arrangement.views.generic_views.upload_files_standard_form import (
-    UploadFilesStandardFormView,
-)
+from webook.arrangement.views.generic_views.upload_files_standard_form import UploadFilesStandardFormView
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
@@ -79,6 +71,102 @@ class CreateEventJsonFormView(
 create_event_json_view = CreateEventJsonFormView.as_view()
 
 
+class GetEventPopoverJsonView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
+):
+    """View for getting a single event"""
+
+    model = Event
+    pk_url_kwarg = "pk"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+
+        transformed = {
+            "id": self.object.id,
+            "title": self.object.title,
+            "location_name": self.object.arrangement.location.name,
+            "arrangement_type": self.object.arrangement_type.name
+            if self.object.arrangement_type
+            else None,
+            "status": self.object.status.name if self.object.status else None,
+            "audience": self.object.audience.name if self.object.audience else None,
+            "start_date": self.object.start,
+            "end_date": self.object.end,
+            "responsible_name": self.object.responsible.full_name
+            if self.object.responsible
+            else None,
+        }
+
+        return JsonResponse(transformed, safe=False)
+
+
+get_event_popover_json_view = GetEventPopoverJsonView.as_view()
+
+
+class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView):
+    """View for getting detailed information of a single event in JSON"""
+
+    model = Event
+    pk_url_kwarg = "pk"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+
+        transformed = {
+            "id": self.object.id,
+            "title": self.object.title,
+            "title_en": self.object.title_en,
+            "location_name": self.object.arrangement.location.name,
+            "arrangement_type": self.object.arrangement_type.name
+            if self.object.arrangement_type
+            else None,
+            "status": self.object.status.name if self.object.status else None,
+            "audience": self.object.audience.name if self.object.audience else None,
+            "start_date": self.object.start.strftime("%Y-%m-%d %H:%M:%S"),
+            "end_date": self.object.end.strftime("%Y-%m-%d %H:%M:%S"),
+            "responsible_name": self.object.responsible.full_name
+            if self.object.responsible
+            else None,
+            "is_part_of_serie": self.object.serie is not None,
+            "manifest_schedule_description": self.object.serie.serie_plan_manifest.schedule_description
+            if self.object.serie
+            else None,
+            "arrangement": {
+                "id": self.object.arrangement.id,
+                "name": self.object.arrangement.name,
+                "responsible": self.object.arrangement.responsible.full_name,
+                "created": self.object.arrangement.created,
+                "modified": self.object.arrangement.modified,
+                "location_name": self.object.arrangement.location.name,
+            },
+            "created": self.object.created.strftime("%Y-%m-%d %H:%M"),
+            "modified": self.object.modified.strftime("%Y-%m-%d %H:%M"),
+            "expected_visitors": self.object.expected_visitors,
+            "actual_visitors": self.object.actual_visitors,
+            "meeting_place": self.object.meeting_place,
+            "meeting_place_en": self.object.meeting_place_en,
+            "rooms": [
+                list(
+                    map(
+                        lambda r: {
+                            "name": r.name,
+                            "id": r.id,
+                            "slug": r.slug,
+                        },
+                        self.object.rooms.all(),
+                    )
+                )
+            ],
+            "files": [
+                {"name": file.name, "id": file.id, "slug": file.slug}
+                for file in self.object.files.all()
+            ],
+        }
+
+        return JsonResponse(transformed, safe=False)
+
+
 @transaction.non_atomic_requests
 class UpdateEventJsonFormView(
     LoginRequiredMixin, PlannerAuthorizationMixin, UpdateView, JsonModelFormMixin
@@ -89,7 +177,6 @@ class UpdateEventJsonFormView(
     form_class = UpdateEventForm
 
     def form_valid(self, form: UpdateEventForm) -> HttpResponse:
-        
         if form.instance.id:
             og_event = Event.objects.get(id=form.instance.id)
             had_serie_before_save = og_event.serie is not None
@@ -119,7 +206,7 @@ class UpdateEventJsonFormView(
                     "post_buffer_event_is_in_collision": post_buffer_event_is_in_collision,
                 }
             )
-        
+
         provisions: List[ServiceOrderProvision]
         for provision in form.instance.provisions.all():
             log_provision_changed(
@@ -132,8 +219,6 @@ class UpdateEventJsonFormView(
         return JsonResponse({"success": True})
 
 
-
-
 update_event_json_view = UpdateEventJsonFormView.as_view()
 
 
@@ -141,6 +226,7 @@ class DeleteEventJsonView(
     LoginRequiredMixin, PlannerAuthorizationMixin, JsonArchiveView
 ):
     """Delete event"""
+
     def delete(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         event = self.get_object()
         provisions: List[ServiceOrderProvision]
@@ -151,7 +237,6 @@ class DeleteEventJsonView(
                     provision=provision,
                 )
         return super().delete(request, *args, **kwargs)
-
 
     model = Event
 

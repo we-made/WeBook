@@ -1,7 +1,6 @@
 from django.urls import path
 
 from webook.users.views import (
-    ClearProfilePictureView,
     batch_change_user_group_view,
     batch_change_user_state_view,
     clear_profile_picture_view,

@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.views.generic.edit import DeleteView
 
+from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.screenshow.models import ScreenResource
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
@@ -21,7 +22,7 @@ def get_section_manifest():
             create_url="screenshow:screen_create",
             edit_url="screenshow:screen_edit",
             delete_url="screenshow:screen_delete",
-        )
+        ),
     )
 
 
@@ -31,7 +32,10 @@ class ScreenSectionManifestMixin(UserPassesTestMixin):
         self.section = get_section_manifest()
 
     def _is_member(self):
-        return self.request.user.groups.filter(name='display_organizer').exists() or self.request.user.is_superuser
+        return (
+            self.request.user.groups.filter(name="display_organizer").exists()
+            or self.request.user.is_superuser
+        )
 
     def test_func(self):
         return self._is_member()
@@ -41,12 +45,15 @@ class ScreenSectionManifestMixin(UserPassesTestMixin):
         return context
 
 
-class ScreenListView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, GenericListTemplateMixin, ListView):
+class ScreenListView(
+    LoginRequiredMixin,
+    ScreenSectionManifestMixin,
+    MetaMixin,
+    GenericListTemplateMixin,
+    ListView,
+):
     queryset = ScreenResource.objects.all()
-    fields = [
-        "items_shown",
-        "room"
-    ]
+    fields = ["items_shown", "room"]
     template_name = "common/list_view.html"
     model = ScreenResource
     view_meta = ViewMeta.Preset.table(ScreenResource)
@@ -60,7 +67,9 @@ class ScreenListView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, 
 screen_list_view = ScreenListView.as_view()
 
 
-class ScreenCreateView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, CreateView):
+class ScreenCreateView(
+    LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, CreateView
+):
     model = ScreenResource
     fields = [
         "screen_model",
@@ -96,7 +105,9 @@ class ScreenUpdateView(ScreenCreateView, UpdateView):
 screen_update_view = ScreenUpdateView.as_view()
 
 
-class ScreenDetailView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, DetailView):
+class ScreenDetailView(
+    LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, DetailView
+):
     model = ScreenResource
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -107,7 +118,9 @@ class ScreenDetailView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin
 screen_detail_view = ScreenDetailView.as_view()
 
 
-class ScreenDeleteView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, DeleteView):
+class ScreenDeleteView(
+    LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin, DeleteView
+):
     model = ScreenResource
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -115,9 +128,7 @@ class ScreenDeleteView(LoginRequiredMixin, ScreenSectionManifestMixin, MetaMixin
     view_meta = ViewMeta.Preset.delete(ScreenResource)
 
     def get_success_url(self) -> str:
-        return reverse(
-            "screenshow:screen_list"
-        )
+        return reverse("screenshow:screen_list")
+
 
 screen_delete_view = ScreenDeleteView.as_view()
-
