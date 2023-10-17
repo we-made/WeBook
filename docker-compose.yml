@@ -7,7 +7,13 @@ services:
       - .:/app
       - /app/node_modules
     restart: always
-
+  scheduler:
+      build:
+        context: .
+        dockerfile: scheduler.Dockerfile
+      volumes:
+        - .:/app
+        - /app/node_modules
   dozzle:
     image: amir20/dozzle:latest
     container_name: dozzle
