@@ -76,6 +76,7 @@
     
     
                         <tree-select-component
+                            ref="audienceTreeSelect"
                             class="mb-2"
                             label="Målgruppe *"
                             json-url="/arrangement/audience/tree"
@@ -86,6 +87,7 @@
                         </tree-select-component>
     
                         <tree-select-component
+                            ref="arrangementTypeTreeSelect"
                             class="mb-2"
                             label="Arrangementstype *"
                             json-url="/arrangement/arrangementtype/treelist"
@@ -96,8 +98,9 @@
                         </tree-select-component>
     
                         <tree-select-component
+                            ref="statusTreeSelect"
                             class="mb-2"
-                            label="Status"
+                            label="Status *"
                             json-url="/arrangement/statustype/tree"
                             icon="fas fa-cog"
                             button-label="Velg status"
@@ -670,15 +673,7 @@
                             {
                                 element: dialog.querySelector('#{{ form.location.id_for_label }}'),
                                 invalidFeedback: "Vennligst velg en lokasjon",
-                            },
-                            {% comment %} {
-                                element: dialog.querySelector('#{{ form.responsible.id_for_label }}'),
-                                invalidFeedback: "Vennligst velg en hovedplanlegger",
-                            }, {% endcomment %}
-                            {% comment %} {
-                                element: dialog.querySelector('#{{ form.status.id_for_label }}'),
-                                invalidFeedback: 'Vennligst velg en status',
-                            }, {% endcomment %}
+                            }
                         ].forEach((select) => {
                             const mdbSelect = new mdb.Select(select.element, {
                                 {% comment %} filter: true, {% endcomment %}
@@ -733,6 +728,10 @@
             
                                     if (dialog.vueApp.arrangement.audience === null) {
                                         toastr.error("Vennligst velg en målgruppe");
+                                        return false;
+                                    }
+                                    if (dialog.vueApp.arrangement.status === null) {
+                                        toastr.error("Vennligst velg en status");
                                         return false;
                                     }
                                     if (!dialog.vueApp.arrangement.arrangement_type) {
