@@ -876,7 +876,7 @@ class Note(TimeStampedModel, ModelArchiveableMixin):
     """
 
     author = models.ForeignKey(to="Person", on_delete=models.RESTRICT)
-    content = models.TextField(verbose_name=_("Content"), max_length=1024)
+    content = models.TextField(verbose_name=_("Content"), max_length=5000)
     has_personal_information = models.BooleanField(
         verbose_name=_("Has personal information"), default=False
     )
@@ -1042,7 +1042,7 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         return list(
             map(lambda p: p.for_event, self.interim_provisions_assigned_to.all())
         )
-        
+
     def my_events_qs(self):
         return self.interim_provisions_assigned_to.all()
 
