@@ -37,7 +37,7 @@ export class PlannerCalendar extends FullCalendarBased {
             [1, {
                 "key": 1,
                 "title": "Dag",
-                "isParent": false,
+                "isParent": true,
                 "view": "timeGridDay",
                 "parent": undefined,
                 "weight": 100,
@@ -111,6 +111,22 @@ export class PlannerCalendar extends FullCalendarBased {
                 },
                 "parent": undefined,
                 "weight": 400,
+            }],
+            [7, {
+                "key": 7,
+                "title": "Liste",
+                "isParent": false,
+                "view": "listDay",
+                "parent": 1,
+                "weight": undefined
+            }],
+            [8, {
+                "key": 8,
+                "title": "Grid",
+                "isParent": false,
+                "view": "timeGridDay",
+                "parent": 1,
+                "weight": 100,
             }],
         ]);
 
