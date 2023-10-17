@@ -77,6 +77,7 @@
     
                         <tree-select-component
                             :class="['mb-2', { 'border-danger': flags.audienceInvalidFlag }]"
+                            ref="audienceTreeSelect"
                             label="Målgruppe *"
                             json-url="/arrangement/audience/tree"
                             icon="fas fa-users"
@@ -90,6 +91,7 @@
     
                         <tree-select-component
                             :class="['mb-2', { 'border-danger': flags.arrangementTypeInvalidFlag }]"
+                            ref="arrangementTypeTreeSelect"
                             label="Arrangementstype *"
                             json-url="/arrangement/arrangementtype/treelist"
                             icon="fas fa-cog"
@@ -103,6 +105,7 @@
     
                         <tree-select-component
                             :class="['mb-2', { 'border-danger': flags.statusInvalidFlag }]"
+                            ref="statusTreeSelect"
                             label="Status *"
                             json-url="/arrangement/statustype/tree"
                             icon="fas fa-cog"
@@ -711,15 +714,7 @@
                             {
                                 element: dialog.querySelector('#{{ form.location.id_for_label }}'),
                                 invalidFeedback: "Vennligst velg en lokasjon",
-                            },
-                            {% comment %} {
-                                element: dialog.querySelector('#{{ form.responsible.id_for_label }}'),
-                                invalidFeedback: "Vennligst velg en hovedplanlegger",
-                            }, {% endcomment %}
-                            {% comment %} {
-                                element: dialog.querySelector('#{{ form.status.id_for_label }}'),
-                                invalidFeedback: 'Vennligst velg en status',
-                            }, {% endcomment %}
+                            }
                         ].forEach((select) => {
                             const mdbSelect = new mdb.Select(select.element, {
                                 {% comment %} filter: true, {% endcomment %}
@@ -766,6 +761,10 @@
             
                                     if (dialog.vueApp.arrangement.audience === null) {
                                         dialog.vueApp.flags.audienceInvalidFlag = true;
+                                        return false;
+                                    }
+                                    if (dialog.vueApp.arrangement.status === null) {
+                                        toastr.error("Vennligst velg en status");
                                         return false;
                                     }
                                     if (!dialog.vueApp.arrangement.arrangement_type) {
