@@ -21,3 +21,4 @@ anytree
 python-dateutil
 django-colorfield
 httpx
+schedule
