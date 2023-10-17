@@ -1,39 +1,31 @@
 services:
   webook:
-    # image: "ghcr.io/wemadefree/webook-nm:Docker"
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: "ghcr.io/wemadefree/webook-nm:Docker"
     ports:
       - "8080:8080"
     volumes:
       - .:/app
       - /app/node_modules
     restart: always
-  webook-sanitizer:
+  scheduler:
     build:
       context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
+      dockerfile: scheduler.Dockerfile
     volumes:
       - .:/app
       - /app/node_modules
-    restart: always
-    entrypoint: [ "python", "scheduler/main.py" ]
-
-  # dozzle:
-  #   image: amir20/dozzle:latest
-  #   container_name: dozzle
-  #   restart: unless-stopped
-  #   ports:
-  #     - 8888:80
-  #   environment:
-  #     - PUID=${PUID}
-  #     - PGID=${PGID}
-  #     - DOZZLE_USERNAME=${DOZZLE_USER}
-  #     - DOZZLE_PASSWORD=${DOZZLE_PASSWORD}
-  #     - DOZZLE_KEY=${DOZZLE_KEY}
-  #     - DOZZLE_ADDR=:80
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    ports:
+      - 8888:80
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - DOZZLE_USERNAME=${DOZZLE_USER}
+      - DOZZLE_PASSWORD=${DOZZLE_PASSWORD}
+      - DOZZLE_KEY=${DOZZLE_KEY}
+      - DOZZLE_ADDR=:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
