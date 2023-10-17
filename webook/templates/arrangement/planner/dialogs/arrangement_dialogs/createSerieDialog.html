@@ -95,7 +95,7 @@
                         class="form-control form-control-lg" />
                 </div>        
                 <div class="form-group mb-2">
-                    <label class="form-label" for="serie_expected_visitors">Forventet besøkende</label>
+                    <label class="form-label" for="serie_expected_visitors">Forventet besøkende *</label>
                     <input 
                         type="text" 
                         id="serie_expected_visitors" 
@@ -113,6 +113,9 @@
                     :selected="serie.audience"
                     @input="(id, name) => { serie.audience = id; serie.audienceName = name; }">
                 </tree-select-component>
+                <div class="text-danger" v-if="flags.audienceInvalidFlag">
+                    Vennligst velg en gyldig målgruppe!
+                </div>
 
                 <tree-select-component
                     class="mb-2"
@@ -123,16 +126,22 @@
                     :selected="serie.arrangement_type"
                     @input="(id, name) => { serie.arrangement_type = id; serie.arrangementTypeName = name; }">
                 </tree-select-component>
+                <div class="text-danger" v-if="flags.arrangementTypeInvalidFlag">
+                    Vennlighst velg en gyldig arrangementstype!
+                </div>
 
                 <tree-select-component
                     class="mb-2"
-                    label="Status"
+                    label="Status * "
                     json-url="/arrangement/statustype/tree"
                     icon="fas fa-cog"
                     button-label="Velg status"
                     :selected="serie.status"
                     @input="(id, name) => { serie.status = id; serie.statusName = name; }">
                 </tree-select-component>
+                <div class="text-danger" v-if="flags.statusInvalidFlag">
+                    Vennligst velg en gyldig status!
+                </div>
             </form>
         </div>
 
@@ -676,6 +685,11 @@
 
                     showDaysErrorMessage: false,
 
+                    flags: {
+                        statusInvalidFlag: false,
+                        audienceInvalidFlag: false,
+                        arrangementTypeInvalidFlag: false
+                    },
 
 
                     serie: {
@@ -776,6 +790,15 @@
                 selectedDays() {
                     return this.serie.recurrence_stratagem.subpattern.weekly.days.length;
                 },
+                audience() {
+                    return this.serie.audience;
+                },
+                arrangementType() {
+                    return this.serie.arrangement_type;
+                },
+                status() {
+                    return this.serie.status;
+                }
             },
             methods: {
                 __watchInputForValidityChange (element) {
@@ -966,7 +989,19 @@
                     if (this.selectedDays > 0) {
                         this.showDaysErrorMessage = false;
                     }
-                }
+                },
+                audience: function(val) {
+                    if (this.flags.audienceInvalidFlag)
+                        this.flags.audienceInvalidFlag = false;
+                },
+                arrangementType: function(val) {
+                    if (this.flags.arrangementTypeInvalidFlag)
+                        this.flags.arrangementTypeInvalidFlag = false;
+                },
+                status: function(val) {
+                    if (this.flags.statusInvalidFlag)
+                        this.flags.statusInvalidFlag = false;
+                },
             },
             delimiters: ["[[", "]]"],
             mounted() {
@@ -1010,6 +1045,19 @@
                                             return false;
                                         }
                                         
+                                        if (dialog.vueApp.serie.audience === null) {
+                                            dialog.vueApp.flags.audienceInvalidFlag = true;
+                                            return false;
+                                        }
+                                        if (dialog.vueApp.serie.arrangement_type === null) {
+                                            dialog.vueApp.flags.arrangementTypeInvalidFlag = true;
+                                            return false;
+                                        }
+                                        if (dialog.vueApp.serie.status === null) {
+                                            dialog.vueApp.flags.statusInvalidFlag = true;
+                                            return false;
+                                        }
+
                                         dialog.$('#invalidTimesStep1Feedback').hide();
                                         return true;
                                     }
