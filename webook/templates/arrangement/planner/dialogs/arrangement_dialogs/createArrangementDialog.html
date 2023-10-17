@@ -76,8 +76,8 @@
     
     
                         <tree-select-component
+                            :class="['mb-2', { 'border-danger': flags.audienceInvalidFlag }]"
                             ref="audienceTreeSelect"
-                            class="mb-2"
                             label="Målgruppe *"
                             json-url="/arrangement/audience/tree"
                             icon="fas fa-users"
@@ -85,10 +85,13 @@
                             :selected="arrangement.audience"
                             @input="(id) => arrangement.audience = id">
                         </tree-select-component>
+                        <div class="text-danger mb-2" v-if="flags.audienceInvalidFlag">
+                            Vennligst velg en gyldig målgruppe!
+                        </div>
     
                         <tree-select-component
+                            :class="['mb-2', { 'border-danger': flags.arrangementTypeInvalidFlag }]"
                             ref="arrangementTypeTreeSelect"
-                            class="mb-2"
                             label="Arrangementstype *"
                             json-url="/arrangement/arrangementtype/treelist"
                             icon="fas fa-cog"
@@ -96,10 +99,13 @@
                             :selected="arrangement.arrangement_type"
                             @input="(id) => arrangement.arrangement_type = id">
                         </tree-select-component>
+                        <div class="text-danger mb-2" v-if="flags.arrangementTypeInvalidFlag">
+                            Vennligst velg en gyldig arrangementstype!
+                        </div>
     
                         <tree-select-component
+                            :class="['mb-2', { 'border-danger': flags.statusInvalidFlag }]"
                             ref="statusTreeSelect"
-                            class="mb-2"
                             label="Status *"
                             json-url="/arrangement/statustype/tree"
                             icon="fas fa-cog"
@@ -107,6 +113,9 @@
                             :selected="arrangement.status"
                             @input="(id) => arrangement.status = id">
                         </tree-select-component>
+                        <div class="text-danger mb-2" v-if="flags.statusInvalidFlag">
+                            Vennligst velg en gyldig status!
+                        </div>
     
                         <div class="mb-2">
                             <label>
@@ -116,11 +125,9 @@
                             </label>
                             {{ form.location }}
                         </div>
-                        {% if form.location.errors|length > 0 %}
-                            <div class="alert alert-danger">
-                                {{ form.location.errors }}
-                            </div>
-                        {% endif %}
+                        <div class="text-danger mb-2" v-if="flags.locationInvalidFlag">
+                            Vennligst velg en gyldig lokasjon!
+                        </div>
                     </fieldset>
                 </form>
             </div>
@@ -511,6 +518,12 @@
              },
             data() {
                 return {
+                    flags: {
+                        arrrangementTypeInvalidFlag: false,
+                        audienceInvalidFLag: false,
+                        statusInvalidFlag: false,
+                        locationInvalidFlag: false
+                    },
                     dialogIsVisible: false,
                     dialog: null,
                     selectedRooms: {
@@ -559,6 +572,18 @@
                     });
 
                     return showDisplayText;
+                },
+                status() {
+                    return this.arrangement.status;
+                },
+                arrangementType() {
+                    return this.arrangement.arrangement_type;
+                },
+                audience() {
+                    return this.arrangement.audience;
+                },
+                location() {
+                    return this.arrangement.location;
                 }
             },
             methods: {
@@ -653,6 +678,22 @@
                             }
                         })
                     }
+                },
+                location: function (val) {
+                    if (this.flags.locationInvalidFlag)
+                        this.flags.locationInvalidFlag = false;
+                },
+                status: function (val) {
+                    if (this.flags.statusInvalidFlag)
+                        this.flags.statusInvalidFlag = false;
+                },
+                arrangementType: function (val) {
+                    if (this.flags.arrangementTypeInvalidFlag)
+                        this.flags.arrangementTypeInvalidFlag = false;
+                },
+                audience: function (val) {
+                    if (this.flags.audienceInvalidFlag)
+                        this.flags.audienceInvalidFlag = false;
                 }
             },
             delimiters: ['[[', ']]'],
@@ -710,15 +751,7 @@
                                 title: 'Generelt',
                                 stepIn: () => {},
                                 stepOut: () => {
-                                    let field_elements = dialog.$('#step-1').find("input, select");
-                                    [
-                                        mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
-                                    ].forEach(mdbSelect => {
-                                        if (mdbSelect.hasSelection?.label === "---------" ) {
-                                            $(mdbSelect._wrapper).find(".invalid-feedback").show();
-                                        }
-                                    })
-            
+                                    let field_elements = dialog.$('#step-1').find("input");
                                     for (let i = 0; i < field_elements.length; i++) {
                                         if (field_elements[i].checkValidity() === false) {
                                             dialog.$('#arrangementInfoForm').find(':submit').click();
@@ -727,7 +760,7 @@
                                     }
             
                                     if (dialog.vueApp.arrangement.audience === null) {
-                                        toastr.error("Vennligst velg en målgruppe");
+                                        dialog.vueApp.flags.audienceInvalidFlag = true;
                                         return false;
                                     }
                                     if (dialog.vueApp.arrangement.status === null) {
@@ -735,7 +768,18 @@
                                         return false;
                                     }
                                     if (!dialog.vueApp.arrangement.arrangement_type) {
-                                        dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
+                                        dialog.vueApp.flags.arrangementTypeInvalidFlag = true;
+                                        {% comment %} dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback(); {% endcomment %}
+                                        return false;
+                                    }
+                                    if (dialog.vueApp.arrangement.status === null) {
+                                        dialog.vueApp.flags.statusInvalidFlag = true;
+                                        return false;
+                                    }
+
+                                    if (dialog.vueApp.arrangement.location === null)
+                                    {
+                                        dialog.vueApp.flags.locationInvalidFlag = true;
                                         return false;
                                     }
             

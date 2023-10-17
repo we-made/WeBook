@@ -61,6 +61,9 @@
                     :selected="activity.audience"
                     @input="(id, name) => { activity.audience = id; activity.audienceName = name; }">
                 </tree-select-component>
+                <div class="text-danger" v-if="flags.audienceInvalidFlag">
+                    Vennligst velg en gyldig målgruppe!
+                </div>
 
                 <tree-select-component
                     class="mb-2"
@@ -71,6 +74,9 @@
                     :selected="activity.arrangement_type"
                     @input="(id, name) => { activity.arrangement_type = id; activity.arrangementTypeName = name; }">
                 </tree-select-component>
+                <div class="text-danger" v-if="flags.arrangementTypeInvalidFlag">
+                    Vennligst velg en gyldig arrangementstype!
+                </div>
 
                 <tree-select-component
                     class="mb-2"
@@ -81,6 +87,9 @@
                     :selected="activity.status"
                     @input="(id, name) => { activity.status = id; activity.statusName = name; }">
                 </tree-select-component>
+                <div class="text-danger" v-if="flags.statusInvalidFlag">
+                    Vennligst velg en gyldig status!
+                </div>
     
                 <div class="form-group mt-2">
                     <label for="" class="form-label">
@@ -384,6 +393,12 @@
                 return {
                     dialog: null,
 
+                    flags: {
+                        audienceInvalidFlag: false,
+                        statusInvalidFlag: false,
+                        arrangementTypeInvalidFlag: false
+                    },
+
                     activity: {
                         _uuid: null,
                         arrangement: 0,
@@ -445,9 +460,18 @@
                             showDisplayText = true;
                         }
                     });
-
+                    
                     return showDisplayText;
                 },
+                status() {
+                    return this.activity.status;
+                },
+                arrangementType() {
+                    return this.activity.arrangement_type;
+                },
+                audience() {
+                    return this.activity.audience;
+                }
             },
             methods: {
                 /**
@@ -488,6 +512,20 @@
                 openAddServiceOrderDialog(dialog, {} = {}, triggeredByElement) {
                     this.openDialog("orderServiceDialog", { multiple: false, data: { whenEventName: "newServiceOrder" }, entity_type: "unknown", entity_id: "0" });
                 },
+            },
+            watch: {
+                audience: function(val) {
+                    if (this.flags.audienceInvalidFlag)
+                        this.flags.audienceInvalidFlag = false;
+                },
+                arrangementType: function(val) {
+                    if (this.flags.arrangementTypeInvalidFlag)
+                        this.flags.arrangementTypeInvalidFlag = false;
+                },
+                status: function(val) {
+                    if (this.flags.statusInvalidFlag)
+                        this.flags.statusInvalidFlag = false;
+                }
             },
             delimiters: ['[[', ']]'],
             mounted() {
@@ -558,6 +596,19 @@
                                         }
             
                                         $('#eventTimesInvalidFeedback').hide();
+
+                                        if (dialog.vueApp.activity.audience === null) {
+                                            dialog.vueApp.flags.audienceInvalidFlag = true;
+                                            return false;
+                                        }
+                                        if (dialog.vueApp.activity.arrangement_type === null) {
+                                            dialog.vueApp.flags.arrangementTypeInvalidFlag = true;
+                                            return false;
+                                        }
+                                        if (dialog.vueApp.activity.status === null) {
+                                            dialog.vueApp.flags.statusInvalidFlag = true;
+                                            return false;
+                                        }
             
                                         return true;
                                     }
