@@ -16,16 +16,30 @@
         ref="eventPopover"
         style="z-index: 1000000001">
 
-        <div class="file-upload-wrapper p-2 wb-bg-secondary" style="border: dotted 2px black;">
-            <input type="file"
-                ref="file_field"
-                id="input-file-now"
-                name="file_field"
-                class="file-upload-input"
-                data-mdb-default-msg="Last opp en eller flere filer ved å trykke her eller dra filene hit"
-                multiple="true"
-                data-mdb-file-upload="file-upload" />
+        <div class="d-flex">
+            <div class="file-upload-wrapper p-2 wb-bg-secondary" style="border: dotted 2px black;">
+                <input type="file"
+                    ref="file_field"
+                    id="input-file-now"
+                    name="file_field"
+                    multiple="true"/>
+            </div>
+
+            <div>
+                [[fileField]]
+                <ul>
+                    <li>A</li>
+                    <li>B</li>
+                </ul>
+            </div>
         </div>
+
+
+
+        <button class="btn wb-btn-main btn-block mt-1">
+            <i class="fas fa-upload"></i>
+            Last opp
+        </button>
     </popover-component>
 </template>
 
@@ -53,6 +67,9 @@
                 }
                 return this.$refs.trigger;
             },
+            fileField() {
+                return this.$refs.file_field
+            }
         },
         watch: {
             isExpanded(value) {
@@ -65,6 +82,7 @@
                 new FileUpload(
                     this.$refs.file_field
                 );
+                console.log("fileField", this.$refs.file_field);
                 this.excludes = this.$parent.$refs.excludes;
                 console.log("parent", this.$parent)
             });

@@ -10,6 +10,10 @@
             <div class="w-dialog__options d-flex">  
                 <button class="btn btn-white shadow-0" type="button"
                     @click="toggleFullScreen()">
+                    <i class="fas fa-cogs"></i>
+                </button>
+                <button class="btn btn-white shadow-0" type="button"
+                    @click="toggleFullScreen()">
                     <i class="fas fa-expand"></i>
                 </button>
                 <button class="btn btn-white shadow-0" type="button"
@@ -23,7 +27,7 @@
 
         <div class="w-dialog__content" ref="content" style="overflow: visible;">
             
-            <div class="border border-dark" style="backgroundColor: ghostwhite;">
+            {% comment %} <div class="border border-dark" style="backgroundColor: ghostwhite;">
                 <table>
                     <tbody>
                         <tr>
@@ -42,7 +46,7 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </div> {% endcomment %}
 
             <slot name="content" style="height: 100%;"></slot>
         </div>

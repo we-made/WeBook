@@ -9,11 +9,11 @@
 {% include "arrangement/vue/dialogs/order_room_dialog.html" %}
 {% include "arrangement/vue/dialogs/upload-files-dialog.html" %}
 {% include "arrangement/vue/upload-files-popover.html" %}
-{% include "arrangement/vue/files-list.html" %}
+{% comment %} {% include "arrangement/vue/files-list.html" %} {% endcomment %}
 
 {% include "arrangement/vue/room_and_preset_selector_component.html" %}
-
 {% include "arrangement/vue/select_main_planner_dialog.html" %}
+{% include "arrangement/vue/files-browser-component.html" %}
 
 <link rel="stylesheet" href="{% static '@vuepic\vue-datepicker\dist\main.css' %}">
 
@@ -37,6 +37,8 @@
         </template>
 
         <template v-slot:content>
+            {{ event }}
+
             <upload-files-dialog-component ref="uploadFilesDialog">
             </upload-files-dialog-component>
 
@@ -310,7 +312,10 @@
                         </div>
                     </div>
                     <div v-if="event.files.length == 0">
-                        <div class="alert wb-bg-secondary">
+                        <files-browser-component></files-browser-component>
+
+
+                        {% comment %} <div class="alert wb-bg-secondary">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <i class="fas fa-info-circle"></i>&nbsp; Ingen filer lastet opp
@@ -326,7 +331,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> {% endcomment %}
                     </div>
                 </div>
             </div>
@@ -448,7 +453,8 @@
             RoomAndPresetSelectorComponent,
             SelectMainPlannerDialogComponent,
             UploadFilesPopoverComponent,
-            FilesList
+            FilesBrowserComponent
+            {% comment %} FilesList {% endcomment %}
         },
         template: "#vuec-event-info-dialog",
         delimiters: ["[[", "]]"],

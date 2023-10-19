@@ -1,0 +1,114 @@
+<template id="vuec-files-browser-component">
+    <div class="border border-1 ">
+        <div class="p-1" >
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="me-2">
+
+                    <div class="ps-3 pe-3 pt-2 pb-2 d-flex">
+                        <button class="btn btn-white ripple-surface shadow-0 border" title="Gå ett nivå opp">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <div class="ms-2">
+                            <button class="btn btn-white ripple-surface shadow-0 border ms-2" data-toggle="tooltip" title="Gå tilbake">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                        </div>
+                        <div class="ms-2">
+                            <button class="btn btn-white ripple-surface shadow-0 border ms-2" title="Gå fremover" disabled>
+                                <i class="fas fa-arrow-right text-muted"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border border-1 rounded-3 w-100 pt-2 pb-1 text-center text-muted fw-bold">
+                    <a href="#">Arrangement navn</a> > <a href="#" class="text-muted ">Event navn</a>
+                </div>
+
+                <div class="ms-2">
+                    <button class="btn btn-white ripple-surface shadow-0 border" data-toggle="tooltip" title="Last opp en eller flere filer">
+                        <i class="fas fa-upload"></i>
+                    </button>
+                </div>
+                <div class="ms-2">
+                    <button class="btn btn-white ripple-surface shadow-0 border" data-toggle="tooltip" title="Opprett en ny mappe">
+                        <i class="fas fa-folder-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <div>
+
+                </div>
+
+                <div>
+                    <div>
+                        <input type="checkbox" name="" id="">
+                        <label for="">&nbsp;Skjul mapper</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-100 p-3">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="search" name="" id="" class="form-control">
+                </div>
+            </div>
+
+        </div>
+        <div class="p-3">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td>
+                            📁
+                            Mappenavn
+                        </td>
+                        <td>
+                            
+                        </td>
+                        <td colspan="2">
+                            {% comment %} <i class="fas fa-trash"></i> {% endcomment %}
+                        </td>
+                    </tr>
+                    <tr class="align-middle">
+                        <td>
+                            <i class="fas fa-file"></i>
+                            filnavn
+
+                        </td>
+                        <td class="align-items-center">20kb</td>
+                        <td class="align-items-center">Ola Nordmann</td>
+                        <td class="align-items-center">
+                            <button class="btn btn-outline-success btn-floating btn-sm">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-floating btn-sm ms-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>
+
+<script>
+    let FilesBrowserComponent = {
+        computed: {
+        },
+        props: {
+        },
+        components: {},
+        delimiters: ['[[', ']]'],
+        template: '#vuec-files-browser-component',
+        mounted() {
+
+        }
+    }
+</script>

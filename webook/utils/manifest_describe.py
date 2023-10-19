@@ -64,7 +64,7 @@ describe_pattern = {
         f"Den {manifest.day_of_month} hver {manifest.interval} måned"
     ),
     "month__every_arbitrary_date_of_month": lambda manifest: _(
-        f"Hver {_arbitrators[manifest.arbitrator]} {calendar.day_name[manifest.day_of_week]} hver {manifest.interval} måned"
+        f"Hver {_arbitrators[manifest.arbitrator]} {calendar.day_name[manifest.day_of_week-1]} hver {manifest.interval} måned"
     ),
     "yearly__every_x_of_month": lambda manifest: _(
         f"Den {manifest.day_of_month} {calendar.month_name[manifest.month]} hvert {manifest.interval} år"
