@@ -491,6 +491,12 @@
                             return false;
                         }
 
+                        if (!dialog.data.statusTypeJsTreeSelect.isValid())
+                        {
+                            dialog.data.statusTypeJsTreeSelect.showInvalidFeedback();
+                            return false;
+                        }
+
                         return true;
                     }
                 },
