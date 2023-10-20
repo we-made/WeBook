@@ -483,7 +483,6 @@ export class PlannerCalendar extends FullCalendarBased {
                             
                         return text;
                     }
-                    console.log("arg", arg)
 
                     if (arg.backgroundColor === "prussianblue") {
                         if (arg.view.type == "dayGridMonth" || arg.view.type == "dayGridWeek") {
@@ -671,9 +670,7 @@ export class PlannerCalendar extends FullCalendarBased {
    
                 },
                 eventDidMount: (arg) => {
-                    console.log(arg.event)
                     if (arg.backgroundColor == "prussianblue") {
-                        console.log("returning")
                         return;
                     }
 
@@ -690,7 +687,7 @@ export class PlannerCalendar extends FullCalendarBased {
                         name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
                         isHtmlName: true,
                         callback: (key, opt) => {
-                            if (opt.event.backgroundColor !== "prussianblue") {
+                            if (!opt.event || opt.event.backgroundColor !== "prussianblue") {
                                 let pk = _this._findEventPkFromEl(opt.$trigger[0]);
                                 let arrangement = _this._ARRANGEMENT_STORE.get({
                                     pk: pk,
