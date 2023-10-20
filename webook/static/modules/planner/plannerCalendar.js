@@ -483,6 +483,16 @@ export class PlannerCalendar extends FullCalendarBased {
                             
                         return text;
                     }
+                    console.log("arg", arg)
+
+                    if (arg.backgroundColor === "prussianblue") {
+                        if (arg.view.type == "dayGridMonth" || arg.view.type == "dayGridWeek") {
+                            return { html: `<div><span class='d-block float-end me-3 fw-bold'>${arg.event.title}</strong></div>` };
+                        }
+                        else {
+                            return { html: `<div><span class='d-block fw-bold'>${arg.event.title}</strong></div>` };
+                        }
+                    }
 
                     if (arg.view.type === "dayGridMonth" || arg.view.type === "dayGridWeek") {
                         let nodes = [];
@@ -642,7 +652,13 @@ export class PlannerCalendar extends FullCalendarBased {
                                         filterSet: this.filter.rooms,
                                     }
                                 ));
-                        },
+                        }
+                    },
+                    {
+                        url: "/static/holidays.json",
+                        color: "prussianblue",
+                        display: "background",
+                        textColor: "white",
                     }
                 ],
 
@@ -655,6 +671,12 @@ export class PlannerCalendar extends FullCalendarBased {
    
                 },
                 eventDidMount: (arg) => {
+                    console.log(arg.event)
+                    if (arg.backgroundColor == "prussianblue") {
+                        console.log("returning")
+                        return;
+                    }
+
                     if (this.renderPopovers === true)
                         this._bindPopover(arg.el);
                     if (this.useOnclickEvents)
@@ -668,22 +690,26 @@ export class PlannerCalendar extends FullCalendarBased {
                         name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
                         isHtmlName: true,
                         callback: (key, opt) => {
-                            console.log(opt);
-                            let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                            let arrangement = _this._ARRANGEMENT_STORE.get({
-                                pk: pk,
-                                get_as: _NATIVE_ARRANGEMENT
-                            });
-                    
-                            this.arrangementInspectorUtility.inspect(arrangement);
+                            if (opt.event.backgroundColor !== "prussianblue") {
+                                let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                let arrangement = _this._ARRANGEMENT_STORE.get({
+                                    pk: pk,
+                                    get_as: _NATIVE_ARRANGEMENT
+                                });
+                        
+                                this.arrangementInspectorUtility.inspect(arrangement);
+                            }
+
                         }
                     },
                     event_inspector: {
                         name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
                         isHtmlName: true,
                         callback: (key, opt) => {
-                            let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                            this.eventInspectorUtility.inspect(pk);
+                            if (opt.event.backgroundColor !== "prussianblue") {
+                                let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                this.eventInspectorUtility.inspect(pk);
+                            }
                         }
                     },
                 }
