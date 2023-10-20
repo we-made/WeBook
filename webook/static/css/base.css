@@ -555,3 +555,8 @@ html, body {
     background-color: #d6d6d6;
     color:black;
 }
+
+
+.fc-daygrid-day-frame  {
+    height: 100%;
+}
