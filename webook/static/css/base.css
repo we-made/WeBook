@@ -560,3 +560,8 @@ html, body {
 .fc-daygrid-day-frame  {
     height: 100%;
 }
+
+.btn-group button.wb-btn-secondary:hover {
+    background-color: #4C4345;
+    color: white!important;
+}

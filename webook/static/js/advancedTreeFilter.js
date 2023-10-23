@@ -115,17 +115,47 @@ export class AdvancedTreeFilter extends Popover {
                 popoverContentEl.appendChild(searchInput);
             }
 
-            let submitBtnElement = document.createElement("button");
-            submitBtnElement.classList.add("btn", "wb-btn-secondary", "mt-1", "mb-1");
-            submitBtnElement.innerHTML = "<i class='fas fa-filter'></i>&nbsp; Filtrer med gjeldende valg";
-            submitBtnElement.onclick = (event) => {
+            let actionsBtnGroup = document.createElement("div");
+            actionsBtnGroup.classList.add("btn-group", "w-100", "shadow-0");
+            actionsBtnGroup.setAttribute("role", "group");
+            actionsBtnGroup.setAttribute("aria-label", "Filter Actions");
+
+            let filterBtn = document.createElement("button");
+            filterBtn.setAttribute("type", "button");
+            filterBtn.classList.add("btn", "wb-btn-secondary");
+            filterBtn.innerHTML = "<i class='fas fa-filter'></i> Filtrer";
+            filterBtn.setAttribute("data-mdb-toggle", "tooltip");
+            filterBtn.setAttribute("data-mdb-placement", "top");
+            filterBtn.setAttribute("title", "Filtrer med gjeldende valg");
+
+            filterBtn.addEventListener("click", (event) => {
                 this._selectedMap.clear();
                 const selectedNodes = $(this._jsTreeElement).jstree("get_selected", true);
                 const undeterminedNodes = $(this._jsTreeElement).jstree("get_undetermined", true);
 
                 this._onSubmit(this, selectedNodes, undeterminedNodes);
-            }
-            popoverContentEl.appendChild(submitBtnElement)
+            });
+
+            actionsBtnGroup.appendChild(filterBtn);
+
+            let clearBtn = document.createElement("button");
+            clearBtn.setAttribute("type", "button");
+            clearBtn.classList.add("btn", "wb-btn-secondary");
+            clearBtn.innerHTML = "<i class='fas fa-times'></i>";
+            clearBtn.setAttribute("data-mdb-toggle", "tooltip");
+            clearBtn.setAttribute("data-mdb-placement", "top");
+            clearBtn.setAttribute("title", "Fjern alle valg");
+
+            clearBtn.addEventListener("click", (event) => {
+                this._selectedMap.clear();
+                $(this._jsTreeElement).jstree("deselect_all");
+
+                this._onSubmit(this, [], []);
+            });
+
+            actionsBtnGroup.appendChild(clearBtn);
+
+            popoverContentEl.appendChild(actionsBtnGroup);
 
             let treeHolder = document.createElement("div");
             treeHolder.style = "max-height: 35em; overflow: scroll;"
