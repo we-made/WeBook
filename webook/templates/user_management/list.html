@@ -119,7 +119,7 @@
 
                     if (this.usersSearchTerm.length >= 3)
                     {
-                        const fuse = new Fuse(JSON.parse(JSON.stringify(users)), {
+                        const fuse = new Fuse(users, {
                             keys: [
                                 'name',
                                 'email',
