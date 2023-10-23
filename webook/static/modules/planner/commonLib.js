@@ -268,12 +268,15 @@ export class ArrangementStore extends BaseStore {
         let arrangementTypesMap =   mapTypeFilter(arrangement_types);
         let audienceTypesMap =      mapTypeFilter(audience_types);
         let statusTypesMap =        mapTypeFilter(statuses);
+        let locationsMap =          mapTypeFilter(locations);
+        
 
         arrangements.forEach ( (arrangement) => {
             let isWithinFilter =
                 (arrangementTypesMap === undefined  || arrangementTypesMap.has(arrangement.arrangement_type_slug) === true) &&
                 (audienceTypesMap === undefined     || audienceTypesMap.has(arrangement.audience_slug) === true) &&
-                (statusTypesMap === undefined       || statusTypesMap.has(arrangement.status_slug) === true)
+                (statusTypesMap === undefined || statusTypesMap.has(arrangement.status_slug) === true) &&
+                (locationsMap === undefined || locationsMap.has(arrangement.location_slug) === true);
 
             if (filterSet.showOnlyEventsWithNoRooms === true && arrangement.room_names.length > 0 && arrangement.room_names[0] !== null) {
                 isWithinFilter = false;
