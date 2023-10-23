@@ -129,7 +129,7 @@ container-fluid
                 </div>
             </div>
             <div class="float-end d-inline">
-                <div id="location-and-rooms-popover-filter" class="mb-2  d-inline">
+                <div id="location-and-rooms-popover-filter" class="mb-2 d-inline">
                     <button class="btn wb-btn-white wb-large-btn btn-lg" id="location-and-rooms-popover-filter-trigger">
                         <i class="fas fa-building text-dark"></i>&nbsp;
                         Lokasjoner & Rom
@@ -163,6 +163,14 @@ container-fluid
                     </button>
                     <span id="status-type-popover-filter-content">
                     </span>
+                </div>
+                <div class="mb-2 d-inline">
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" 
+                            id="clearAllFilters"
+                            data-mdb-toggle="tooltip"
+                            title="Fjern alle filtervalg">
+                        &nbsp;<i class="fas fa-times text-dark"></i>&nbsp;
+                    </button>
                 </div>
             </div>
         </div>
@@ -325,6 +333,14 @@ container-fluid
         treeSrcUrl: "{% url 'arrangement:location_tree' %}",
         cascadeBehaviour: NORMAL_CASCADE_BEHAVIOUR,
         isSearchable: true,
+    });
+
+    // Temporary until we rewrite to use Vue
+    document.getElementById("clearAllFilters").addEventListener('click', function () {
+        statusTypeFilter.clear();
+        arrangementTypeTreeFilter.clear();
+        audienceTreeFilter.clear();
+        locationAndRoomsFilter.clear();
     });
 
     const colorSwatch = [
