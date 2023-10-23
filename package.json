@@ -25,6 +25,7 @@
     "datatables": "^1.10.18",
     "fullcalendar": "^5.10.1",
     "fullcalendar-scheduler": "^5.10.1",
+    "fuse.js": "^6.6.2",
     "jquery-treetable": "^3.2.0-1",
     "jquery.repeater": "^1.2.1",
     "jstree": "^3.3.12",
