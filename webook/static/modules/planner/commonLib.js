@@ -107,9 +107,11 @@ export class LocationStore extends BaseStore {
     getAll({ get_as, filteredLocations, filteredRooms } = {}) {
         let resources = this._getStoreAsArray();
 
-        if (filteredLocations) {
+        console.log("locationStore.getAll -> ", filteredLocations, filteredRooms);
+
+        if (filteredLocations.length > 0) {
             let slugsToIgnoreMap = new Map(filteredLocations.concat(filteredRooms).map(x => [x, true]))
-            resources = resources.filter(x => !slugsToIgnoreMap.has(x.id));
+            resources = resources.filter(x => slugsToIgnoreMap.has(x.id));
         }
 
         if (get_as === _FC_RESOURCE) {
@@ -215,7 +217,7 @@ export class ArrangementStore extends BaseStore {
         return new FullCalendarEvent({
             title: arrangement.name,
             start: arrangement.starts,
-            resourceIds: arrangement.slug_list,
+            resourceIds: (arrangement.slug_list || []).concat([ arrangement.location_slug ]),
             end: arrangement.ends,
             color: this.colorProvider.getColor(arrangement),
             classNames: [ slugClass, pkClass ],
@@ -270,6 +272,7 @@ export class ArrangementStore extends BaseStore {
         let statusTypesMap =        mapTypeFilter(statuses);
         let locationsMap =          mapTypeFilter(locations);
         
+        debugger;
 
         arrangements.forEach ( (arrangement) => {
             let isWithinFilter =
@@ -302,11 +305,15 @@ export class ArrangementStore extends BaseStore {
         
         arrangements = filteredArrangements;
 
+        debugger;
+
         if (get_as === _FC_EVENT) {
             let mappedEvents = [];
             arrangements.forEach( (arrangement) => {
                 mappedEvents.push( this._mapArrangementToFullCalendarEvent(arrangement) );
             });
+
+            console.log("get_all -> ", mappedEvents);
 
             return mappedEvents;
         }
@@ -346,6 +353,8 @@ export class CalendarFilter {
         this.locations = locationSlugs;
         if (runOnFilterUpdate)
             this.onFilterUpdated(this);
+
+        console.log("Filtering locations", locationSlugs)
     }
 
     filterRooms (roomSlugs, runOnFilterUpdate=true) {
