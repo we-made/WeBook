@@ -77,30 +77,6 @@ export class PlannerCalendar extends FullCalendarBased {
                 "parent": undefined,
                 "weight": 300,
             }],
-            [8, {
-                "key": '5',
-                "title": "Tidsgrid",
-                "isParent": false,
-                "view": "timeGridWeek",
-                "parent": 5,
-                "weight": undefined,
-            }],
-            [9, {
-                "key": '5',
-                "title": "Dagsgrid",
-                "isParent": false,
-                "view": "dayGridWeek",
-                "parent": 5,
-                "weight": undefined,
-            }],
-            [7, {
-                "key": '5',
-                "title": "Liste",
-                "isParent": false,
-                "view": "listWeek",
-                "parent": 5,
-                "weight": undefined,
-            }],
             [6, {
                 "key": 6,
                 "title": "År",
@@ -117,6 +93,32 @@ export class PlannerCalendar extends FullCalendarBased {
             }],
             [7, {
                 "key": 7,
+                "title": "Liste",
+                "isParent": false,
+                "view": "listWeek",
+                "parent": 5,
+                "weight": undefined,
+            }],
+            [8, {
+                "key": '5',
+                "title": "Tidsgrid",
+                "isParent": false,
+                "view": "timeGridWeek",
+                "parent": 5,
+                "weight": undefined,
+            }],
+            [9, {
+                "key": '5',
+                "title": "Dagsgrid",
+                "isParent": false,
+                "view": "dayGridWeek",
+                "parent": 5,
+                "weight": undefined,
+            }],
+
+
+            [10, {
+                "key": 10,
                 "title": "Liste",
                 "isParent": false,
                 "view": "listDay",
@@ -422,7 +424,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 navLinks: true,
                 minTime: "06:00",
                 height: this.height,
-                
+                themeSystem: "bootstrap",
                 maxTime: "23:00",
                 slotEventOverlap: false,
                 locale: 'nb',
