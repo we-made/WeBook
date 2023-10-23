@@ -51,6 +51,7 @@ class SelfNestedModelMixin(models.Model):
     class Meta:
         abstract = True
 
+
 class ModelAuditableMixin(models.Model):
     created_by = models.ForeignKey(
         verbose_name=_("Created by"),
@@ -59,7 +60,7 @@ class ModelAuditableMixin(models.Model):
         null=True,
         on_delete=models.RESTRICT,
     )
-    
+
     updated_by = models.ForeignKey(
         verbose_name=_("Updated by"),
         related_name="%(class)s_updated_by",
@@ -67,23 +68,24 @@ class ModelAuditableMixin(models.Model):
         null=True,
         on_delete=models.RESTRICT,
     )
-    
+
     def save(self, *args, **kwargs):
-        user = get_current_user()
-        person = user.person
-        
-        if person is None:
-            raise Exception("User has no person")
-        
-        if self._state.adding:
-            self.created_by = person
-        else:
-            self.updated_by = person
-            
+        # user = get_current_user()
+        # person = user.person
+
+        # if person is None:
+        #     raise Exception("User has no person")
+
+        # if self._state.adding:
+        #     self.created_by = person
+        # else:
+        #     self.updated_by = person
+
         super().save(*args, **kwargs)
-    
+
     class Meta:
         abstract = True
+
 
 class ColorCodeMixin(models.Model):
     color = ColorField()
@@ -1178,7 +1180,7 @@ class Event(
     ModelVisitorsMixin,
     ModelArchiveableMixin,
     BufferFieldsMixin,
-    ModelAuditableMixin
+    ModelAuditableMixin,
 ):
     """The event model represents an event, or happening that takes place in a set span of time, and which may
     reserve certain resources for use in that span of time (such as a room, or a person etc..).
