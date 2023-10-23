@@ -538,7 +538,7 @@ container-fluid
             calendarElement: document.getElementById('arrangementPlannerCalendar'),
             arrangementInspectorUtility: arrangementInspector,
             eventInspectorUtility: eventInspector,
-            eventsSrcUrl: "{% url 'arrangement:arrangement_events' %}",
+            eventsSrcUrl: "/arrangement/planner/arrangements_in_period",
             colorProviders: [ 
                 { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
                 { key: "audience", provider: new ColorByAudienceColorProvider() },

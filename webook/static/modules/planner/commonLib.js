@@ -172,9 +172,10 @@ export class PersonStore extends BaseStore {
  * Stores, fetches, and provides an easy interface from which to retrieve arrangements
  */
 export class ArrangementStore extends BaseStore {
-    constructor (colorProvider) {
+    constructor (colorProvider, sourceUrl = "/arrangement/planner/arrangements_in_period") {
         super();
 
+        this._sourceUrl = sourceUrl;
         this._store = new Map(); 
         this._refreshStore();
         this.colorProvider = colorProvider;
@@ -191,7 +192,7 @@ export class ArrangementStore extends BaseStore {
             query_string = `?start=${time.startStr}&end=${time.endStr}`;
         }
 
-        return fetch(`/arrangement/planner/arrangements_in_period${query_string}`)
+        return fetch(this._sourceUrl + query_string)
             .then(response => response.json())
             .then(obj => { obj.forEach((arrangement) => {
                 this._store.set(arrangement.event_pk, arrangement);
@@ -502,10 +503,9 @@ export class FullCalendarBased {
     }
 
     _listenToViewNavigationEvents() {
-        const _this = this;
         document.addEventListener(this._instanceUUID + '_callForFullCalendarViewRender', function(event) {
-            for (let i = 0; i < _this._navigationButtonElements.children().length > 0; i++) {
-                let childEl = _this._navigationButtonElements.children()[i];
+            for (let i = 0; i < this._navigationButtonElements.children().length > 0; i++) {
+                let childEl = this._navigationButtonElements.children()[i];
 
                 if (childEl.tagName === "BUTTON") {
                     childEl.classList.remove("active");
@@ -515,7 +515,7 @@ export class FullCalendarBased {
                 }
             }
 
-            let parentTriggerElement = document.getElementById(_this._instanceUUID + "_" + event.detail.view)
+            let parentTriggerElement = document.getElementById(this._instanceUUID + "_" + event.detail.view)
 
             let buttonElement = undefined;
             if (parentTriggerElement.tagName === "A") {
@@ -529,10 +529,10 @@ export class FullCalendarBased {
                 buttonElement.classList.add("active");
             }
 
-            if (_this.getFcCalendar().view.type !== event.detail.view) {
-                _this.getFcCalendar().changeView(event.detail.view);
+            if (this.getFcCalendar().view.type !== event.detail.view) {
+                this.getFcCalendar().changeView(event.detail.view);
             }
-        })
+        }.bind(this));
     }
 
     /**
