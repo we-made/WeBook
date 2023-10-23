@@ -23,10 +23,13 @@ export class PlannerCalendar extends FullCalendarBased {
         calendarFilter=undefined,
         useOnclickEvents=true,
         renderContextMenu = true,
+        height = "auto",
         showAdministrativeActionsInContextMenu = false,
         renderPopovers=true, } = {},) {
 
         super(navigationHeaderWrapperElement);
+
+        this.height = height;
 
         this.showAdministrativeActionsInContextMenu = showAdministrativeActionsInContextMenu;
         this.useOnclickEvents = useOnclickEvents;
@@ -157,7 +160,7 @@ export class PlannerCalendar extends FullCalendarBased {
 
         // If user has not supplied an active color provider key we use default color provider as active.
         this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? this._colorProviders.get(initialColorProvider) : this._colorProviders.get("DEFAULT");
-        this._ARRANGEMENT_STORE = new ArrangementStore(this.activeColorProvider);
+        this._ARRANGEMENT_STORE = new ArrangementStore(this.activeColorProvider, this._eventsSrcUrl);
         this._LOCATIONS_STORE = new LocationStore(this);
         this._PEOPLE_STORE = new PersonStore(this);
 
@@ -404,7 +407,7 @@ export class PlannerCalendar extends FullCalendarBased {
     /**
      * First-time initialize the calendar
      */
-    async init () {
+    async init() {
         let _this = this;
 
         let initialView = 'dayGridMonth';
@@ -418,6 +421,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 weekNumbers: true,
                 navLinks: true,
                 minTime: "06:00",
+                height: this.height,
                 
                 maxTime: "23:00",
                 slotEventOverlap: false,
