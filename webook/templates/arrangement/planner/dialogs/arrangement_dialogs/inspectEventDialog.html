@@ -20,7 +20,7 @@
     <hr>
 
     <div class="clearfix">
-        <small class="float-end">Opprettet {{event.created}} <strong>|</strong> Sist oppdatert {{event.modified}}</small>
+        <small class="float-end">Opprettet {{event.created}} av <strong>{{event.created_by.full_name }}</strong> <strong>|</strong> Sist oppdatert {{event.modified}} av <strong>{{ event.updated_by.full_name }}</strong></small>
     </div>
 
     <div class="row">
