@@ -707,7 +707,7 @@ export class PlannerCalendar extends FullCalendarBased {
                         name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
                         isHtmlName: true,
                         callback: (key, opt) => {
-                            if (opt.event.backgroundColor !== "prussianblue") {
+                            if (!opt.event || opt.event.backgroundColor !== "prussianblue") {
                                 let pk = _this._findEventPkFromEl(opt.$trigger[0]);
                                 this.eventInspectorUtility.inspect(pk);
                             }
