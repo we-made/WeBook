@@ -565,3 +565,7 @@ html, body {
     background-color: #4C4345;
     color: white!important;
 }
+
+a.fc-event {
+    color: unset!important;
+}
