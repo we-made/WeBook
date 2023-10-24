@@ -23,7 +23,7 @@ export class PlannerCalendar extends FullCalendarBased {
         calendarFilter=undefined,
         useOnclickEvents=true,
         renderContextMenu = true,
-        height = "auto",
+        height = null,
         showAdministrativeActionsInContextMenu = false,
         renderPopovers=true, } = {},) {
 
@@ -421,10 +421,10 @@ export class PlannerCalendar extends FullCalendarBased {
                 initialView: initialView,
                 selectable: true,
                 weekNumbers: true,
+                themeSystem: 'bootstrap5',
                 navLinks: true,
                 minTime: "06:00",
                 height: this.height,
-                themeSystem: "bootstrap",
                 maxTime: "23:00",
                 slotEventOverlap: false,
                 locale: 'nb',
