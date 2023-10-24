@@ -20,6 +20,7 @@
 <template id="vuec-event-info-dialog">
     <dialog-component 
         :is-visible="isVisible" 
+        @close="emit('close')"
         use-backdrop="true" 
         is-draggable="true"
         width="100em">
@@ -39,7 +40,10 @@
         <template v-slot:content>
             {{ event }}
 
-            <upload-files-dialog-component ref="uploadFilesDialog">
+            <upload-files-dialog-component 
+                    @upload="uploadFiles"
+                    @close="modalVisibilityFlags.uploadFilesDialog = false;"
+                    :is-visible="modalVisibilityFlags.uploadFilesDialog">
             </upload-files-dialog-component>
 
             <div class="clearfix">
@@ -81,7 +85,6 @@
                     </div>
                 </div>
             </div>
-
 
             <ul class="nav nav-tabs webook-tabs mb-3" id="ex1" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -294,7 +297,6 @@
                      id="tab-resources"
                      role="tabpanel">
 
-
                 </div>
 
                 <div
@@ -302,36 +304,52 @@
                     id="files-tab"
                     role="tabpanel"
                     aria-labelledby="ex1-tab-2">
-                
-                    <div class="d-flex justify-content-end mb-2" v-if="user.is_planner && event.files.length > 0">
-                        <div>
-                            <upload-files-popover-component 
-                                :is-expanded="uploadFilesPopoverExpanded"
-                                :excludes='[expandFilesUploadButtonRef]'>
-                            </upload-files-popover-component>  
-                        </div>
-                    </div>
+            
+
                     <div v-if="event.files.length == 0">
-                        <files-browser-component></files-browser-component>
-
-
-                        {% comment %} <div class="alert wb-bg-secondary">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fas fa-info-circle"></i>&nbsp; Ingen filer lastet opp
-                                </div>
-                                <div>
-                                    <div class="d-flex justify-content-end" v-if="user.is_planner">
-                                        <div>
-                                            <upload-files-popover-component 
-                                                :is-expanded="uploadFilesPopoverExpanded"
-                                                :excludes='[expandFilesUploadButtonRef]'>
-                                            </upload-files-popover-component>  
-                                        </div>
-                                    </div>
+                        <div class="alert wb-bg-secondary">
+                            <h4 class="text-center">Ingen filer lastet opp her ennå!</h4>
+                            <div class="row" v-if="user.is_planner">
+                                <div class="col text-center">
+                                    <button class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto" @click="modalVisibilityFlags.uploadFilesDialog = true;">
+                                        <i class="fas fa-upload"></i>
+                                        Last opp
+                                    </buttons>
                                 </div>
                             </div>
-                        </div> {% endcomment %}
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="clearfix">
+                            <button class="float-end btn wb-btn-main" @click="modalVisibilityFlags.uploadFilesDialog = true;">
+                                <i class="fas fa-upload"></i>
+                                Last opp
+                            </button>
+                        </div>
+
+                        <div class="wb-bg-extra p-3 mt-2 rounded-pill d-flex justify-content-between" v-for="file in event.files">
+                            <div>
+                                [[file.name]]
+                            </div>
+
+                            <div>
+                                <a href="#"
+                                    data-mdb-toggle="tooltip"
+                                    title="Slett denne filen">
+
+                                    <i class="fas fa-trash"></i>
+                                </a>
+
+                                <a data-mdb-toggle="tooltip"
+                                    class="ms-2 me-3"
+                                    title="Last ned denne filen"
+                                    :href="'/media/' + [[file.name]]"
+                                    download>
+
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -364,7 +382,9 @@
 
                     return `${day}.${month}.${year} ${hours}:${minutes}`;
                 },
-                uploadFilesPopoverExpanded: false,
+                modalVisibilityFlags: {
+                    uploadFilesDialog: false,
+                },
                 displayLayouts: [],
                 user: {
                     is_superuser: false,
@@ -408,6 +428,32 @@
             }
         },
         methods: {
+            uploadFiles(files) {
+                // files is a FileList of File objects. List some properties.
+                
+                let url = "/arrangement/event/" + this.event.id + "/upload";
+
+                const formData = new FormData();
+                // file_field is the name of the field the backend expects
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    formData.append("file_field", file);
+                }
+
+                formData.append("pk", this.event.id);
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                }).then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    this.event.files = data.files;
+                })
+            },
             open(event) {
                 //this.event = event;
                 console.log("event", event)
@@ -427,9 +473,6 @@
 
                 })
             },
-            {% comment %} openUploadFilesDialog() {
-                this.$refs.uploadFilesDialog.open(this.event);
-            }, {% endcomment %}
             getData() {
                 fetch("/arrangement/event/" + this.event.id + "/json")
                     .then(response => response.json())
@@ -439,6 +482,7 @@
                     })
             }
         },
+        emits: ["close"],
         async mounted() {
             this.displayLayouts = await DataStore.getDisplayLayouts();
             this.hasMounted = true;
@@ -453,7 +497,8 @@
             RoomAndPresetSelectorComponent,
             SelectMainPlannerDialogComponent,
             UploadFilesPopoverComponent,
-            FilesBrowserComponent
+            FilesBrowserComponent,
+            UploadFilesDialogComponent
             {% comment %} FilesList {% endcomment %}
         },
         template: "#vuec-event-info-dialog",

@@ -3,7 +3,7 @@
 <template id="edit-location-dialog-template">
     <dialog-component :is-visible="isVisible" 
                       :use-backdrop="true"
-                      @update:is-visible="(value) => isVisible = value"
+                      @close="isVisible = false"
                       :is-draggable="true">
         <template v-slot:header>
             <h4 class="mb-0">

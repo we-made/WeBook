@@ -1,30 +1,39 @@
 {% include "arrangement/vue/dialog-component.html" %}
 
 <template id="vuec-upload-files-dialog-template">
-    <dialog-component :is-visible="isOpen" 
+    Shaking Mouse
+    <div class="file-upload-wrapper">
+
+    </div>
+    <dialog-component :is-visible="isVisible" 
+        :use-backdrop="true" 
+        :is-draggable="true"
+        @close="$emit('close')"
         :position="{ my: 'bottom', at: 'center', of: window }"
         width="70em">
 
         <template v-slot:header>
-            <h3>[[ title ]]</h3>
+            <h3 class="mb-0 fw-bold">Last opp filer</h3>
         </template>
 
         <template v-slot:content>
-            <div class="file-upload-wrapper">
-                <input type="file"
-                    ref="file_field"
-                    id="input-file-now"
-                    name="file_field"
-                    class="file-upload-input"
-                    data-mdb-default-msg="Last opp en eller flere filer ved å trykke her eller dra filene hit"
-                    multiple="true"
-                    data-mdb-file-upload="file-upload" />
-            </div>
+            <input type="file"
+                id="input-file-now"
+                name="file_field"
+                class="file-upload-input"
+                ref="fileUploadInput"
+                @change="files = $event.target.files;"
+                data-mdb-default-msg="Last opp en eller flere filer ved å trykke her eller dra filene hit"
+                multiple="true"
+                data-mdb-file-upload="file-upload" />
+
+            <span v-for="file in files">[[file.name]]</span>
         </template>
 
         <template v-slot:footer>
             <div class="d-flex justify-content-end">
-                <button v-for="button in buttons" @click="button.action" :class="button.class" :key="button.text">[[ button.text ]]</button>
+                <button class="btn wb-btn-secondary" @click="$emit('close')">Steng</button>
+                <button class="btn wb-btn-main" @click="upload">Last opp</button>
             </div>
         </template>
 
@@ -39,39 +48,53 @@
         },
         data() {
             return {
-                isOpen: false,
                 title: 'Upload files',
+                files: [],
                 content: 'Upload files',
-                buttons: [
-                    {
-                        text: 'Cancel',
-                        action: 'cancel',
-                        class: 'btn wb-btn-secondary'
-                    },
-                    {
-                        text: 'Upload',
-                        action: 'upload',
-                        class: 'btn wb-btn-main'
-                    }
-                ]
             }
         },
-        methods: {
-            open() {
-                this.isOpen = true;
-                this.$nextTick(() => {
-                    new FileUpload(
-                        this.$refs.file_field
-                    );
-                });
-
+        props: {
+            isVisible: {
+                type: Boolean,
+                default: false
             },
+            close: {
+                type: Function,
+                default: () => {}
+            }
+        },
+        watch: {
+            isVisible: function (val) {
+                // $refs are not available until after the first render, which happens only first when isVisible is true due to v-if
+                // therefore using mounted hook to initialize the file upload component would not work
+                // instead we use a watcher on isVisible and initialize the file upload component when isVisible is set to true
+                if (val) {
+                    this.$nextTick(() => {
+                        new FileUpload(this.$refs.fileUploadInput);
+                    })
+                }
+                else {
+                    this.files = [];
+                }
+            },
+            files: function (val) {
+                console.log(this.files)
+
+                this.files.forEach(file => {
+                    console.log(file)
+                });
+            },
+        },
+        emits: ['close', 'upload'],
+        methods: {
             cancel() {
-                console.log('cancel');
+                this.$emit('close');
             },
             upload() {
-                console.log('upload');
-            }
+                this.$emit('upload', this.files);
+            },
+        },
+        mounted() {
         },
         delimiters: ['[[', ']]'],
         template: '#vuec-upload-files-dialog-template'
