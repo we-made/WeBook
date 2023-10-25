@@ -55,8 +55,9 @@ container-fluid
                             title="Gå til dato"
                             @click="openGoToDateDialog()"
                             data-mdb-toggle="tooltip">
-                            <i class="fas fa-door"></i>
+                            &nbsp;
                             <i class="fas fa-calendar"></i>
+                            &nbsp;
                         </button>
                     </div>
                     <div class="col-4">
@@ -87,11 +88,12 @@ container-fluid
                     {% if user|has_group:"planners" or user.is_superuser %}
                     <div class="col-4 d-flex justify-content-end">
 
-                        <div class="input-group  me-3">
+                        {% comment %} <div class="input-group me-3">
                             <input type="text" name="" id="" class="form-control form-control-lg">
-                        </div>
+                        </div> {% endcomment %}
+
                         <div>
-                            <button class="btn wb-btn-main float-end" id="newArrangementBtn">
+                            <button class="btn wb-btn-main" id="newArrangementBtn">
                                 <i class="fas fa-plus"></i>&nbsp; Opprett arrangement
                             </button>
                         </div>
@@ -205,7 +207,6 @@ container-fluid
                                 nodes.push(colorDot);
     
                             let timeText = document.createElement('strong');
-                            timeText.style="font-family: 'Times New Roman';"
                             timeText.innerText = `${formatTime(arg.timeText)}`;
                             nodes.push(timeText);
     
