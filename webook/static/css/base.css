@@ -664,3 +664,7 @@ html, body {
     justify-content: center;
     align-items: center;
 }
+
+a.fc-daygrid-event  {
+    color: black;
+}

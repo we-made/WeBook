@@ -1,6 +1,6 @@
 <template id="vuec-dialog-component-template">
     
-    <div class="w-dialog" ref="dialogRoot" title="Dialog Title" v-if="internalIsVisible" style="overflow: visible;">
+    <div class="w-dialog" ref="dialogRoot" title="Dialog Title" v-if="isVisible" style="overflow: visible;">
         <div :class="['w-dialog__grille d-flex justify-content-between align-items-center', { 'draggable': isDraggable }]" 
              ref="grille">
             <div class="w-dialog__header">
@@ -10,10 +10,13 @@
             <div class="w-dialog__options d-flex">  
                 <button class="btn btn-white shadow-0" type="button"
                     @click="toggleFullScreen()">
-                    <i class="fas fa-expand"></i>
+                    <i class="fas fa-cogs"></i>
                 </button>
                 <button class="btn btn-white shadow-0" type="button"
-                    @click="internalIsVisible = false; ">
+                    @click="toggleFullScreen()">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="btn btn-white shadow-0" type="button" @click="$emit('close')">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -22,8 +25,8 @@
         <hr>
 
         <div class="w-dialog__content" ref="content" style="overflow: visible;">
-            
-            <div class="border border-dark" style="backgroundColor: ghostwhite;">
+            [[close]]
+            {% comment %} <div class="border border-dark" style="backgroundColor: ghostwhite;">
                 <table>
                     <tbody>
                         <tr>
@@ -42,7 +45,7 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </div> {% endcomment %}
 
             <slot name="content" style="height: 100%;"></slot>
         </div>
@@ -71,7 +74,6 @@
         data() {
             return {
                 queuedToggleFullScreen: false,
-                internalIsVisible: false,
                 isMounted: false,
                 isFullScreen: false,
             }
@@ -146,8 +148,8 @@
             },
         },
         watch: {
-            internalIsVisible() {
-                if (this.internalIsVisible) {
+            isVisible() {
+                if (this.isVisible) {
                     this.$nextTick(function () {
                         $(this.$refs.dialogRoot).dialog({
                             width: this.width || "40rem",
@@ -166,8 +168,9 @@
 
                         $(document).keyup(function (e) {
                             if (e.keyCode == 27) {
-                                this.internalIsVisible = false;
-                                e.stopPropagation();
+                                this.$emits("close");
+
+                                //e.stopPropagation();
                             }
                         }.bind(this));
 
@@ -242,21 +245,14 @@
                     if ($(this.$refs.dialogRoot).dialog("isOpen"))
                         $(this.$refs.dialogRoot).dialog("close");
                 }
-
-                this.$emit("update:isVisible", this.internalIsVisible);
-            },
-            isVisible() {
-                console.log("dialog.isVisible changed to " + this.isVisible)
-                this.internalIsVisible = this.isVisible;
             },
         },
-        emits : ["update:isVisible"],
         computed: {
         },
         mounted() {
-            this.internalIsVisible = this.isVisible;
             //this.isFullScreen = !!this.startFullScreen;
 
+            console.log("close function", this.close)
             $(this.$refs.dialogRoot).dialog({
                 width: this.width || "40rem",
             });
@@ -264,7 +260,13 @@
             this.queuedToggleFullScreen = this.startFullScreen || null;
 
             this.isMounted = true;
+
+            this.$nextTick(function () {
+                this.$emits("rendered");
+                console.log("dialogComponent ref", this.$refs)
+            });
         },
+        emits: ["close", "rendered"],
         unmounted() {
             $(this.$refs.dialogRoot).dialog("destroy");
         },
