@@ -9,7 +9,7 @@
 {% include "arrangement/vue/dialogs/order_room_dialog.html" %}
 {% include "arrangement/vue/dialogs/upload-files-dialog.html" %}
 {% include "arrangement/vue/upload-files-popover.html" %}
-{% comment %} {% include "arrangement/vue/files-list.html" %} {% endcomment %}
+{% include "arrangement/vue/files-list.html" %}
 
 {% include "arrangement/vue/room_and_preset_selector_component.html" %}
 {% include "arrangement/vue/select_main_planner_dialog.html" %}
@@ -20,7 +20,7 @@
 <template id="vuec-event-info-dialog">
     <dialog-component 
         :is-visible="isVisible" 
-        @close="emit('close')"
+        @close="$emit('close')"
         use-backdrop="true" 
         is-draggable="true"
         width="100em">
@@ -39,12 +39,6 @@
 
         <template v-slot:content>
             {{ event }}
-
-            <upload-files-dialog-component 
-                    @upload="uploadFiles"
-                    @close="modalVisibilityFlags.uploadFilesDialog = false;"
-                    :is-visible="modalVisibilityFlags.uploadFilesDialog">
-            </upload-files-dialog-component>
 
             <div class="clearfix">
                 <small class="float-end">Opprettet [[event.created]] <strong>|</strong> Sist oppdatert [[event.modified]]</small>
@@ -305,52 +299,12 @@
                     role="tabpanel"
                     aria-labelledby="ex1-tab-2">
             
-
-                    <div v-if="event.files.length == 0">
-                        <div class="alert wb-bg-secondary">
-                            <h4 class="text-center">Ingen filer lastet opp her ennå!</h4>
-                            <div class="row" v-if="user.is_planner">
-                                <div class="col text-center">
-                                    <button class="btn wb-btn-main text-center shadow-0 mb-2 center" style="margin:auto" @click="modalVisibilityFlags.uploadFilesDialog = true;">
-                                        <i class="fas fa-upload"></i>
-                                        Last opp
-                                    </buttons>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-else>
-                        <div class="clearfix">
-                            <button class="float-end btn wb-btn-main" @click="modalVisibilityFlags.uploadFilesDialog = true;">
-                                <i class="fas fa-upload"></i>
-                                Last opp
-                            </button>
-                        </div>
-
-                        <div class="wb-bg-extra p-3 mt-2 rounded-pill d-flex justify-content-between" v-for="file in event.files">
-                            <div>
-                                [[file.name]]
-                            </div>
-
-                            <div>
-                                <a href="#"
-                                    data-mdb-toggle="tooltip"
-                                    title="Slett denne filen">
-
-                                    <i class="fas fa-trash"></i>
-                                </a>
-
-                                <a data-mdb-toggle="tooltip"
-                                    class="ms-2 me-3"
-                                    title="Last ned denne filen"
-                                    :href="'/media/' + [[file.name]]"
-                                    download>
-
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    <files-list-component
+                        :is-upload-enabled="user.is_planner || user.is_superuser"
+                        :files="event.files"
+                        @upload="(files) => uploadFiles(files)"
+                        @delete="(id) => deleteFile(id)">
+                    </files-list-component>
                 </div>
             </div>
         </template>
@@ -368,10 +322,19 @@
 
 <script>
     let EventInfoDialogComponent = {
+        props: {
+            eventId: {
+                type: Number,
+                required: true
+            },
+            isVisible: {
+                type: Boolean,
+                required: true
+            }
+        },
         data: function() {
             return {
                 hasMounted: false,
-                isVisible: false,
                 dateFormatter: (date) => {
                     const day = String(date.getDate()).padStart(2, '0');
                     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -381,9 +344,6 @@
                     const minutes = String(date.getMinutes()).padStart(2, '0');
 
                     return `${day}.${month}.${year} ${hours}:${minutes}`;
-                },
-                modalVisibilityFlags: {
-                    uploadFilesDialog: false,
                 },
                 displayLayouts: [],
                 user: {
@@ -429,8 +389,6 @@
         },
         methods: {
             uploadFiles(files) {
-                // files is a FileList of File objects. List some properties.
-                
                 let url = "/arrangement/event/" + this.event.id + "/upload";
 
                 const formData = new FormData();
@@ -451,33 +409,32 @@
                 }).then(response => response.json())
                 .then(data => {
                     console.log(data);
-                    this.event.files = data.files;
+                    this.getData();
                 })
             },
-            open(event) {
-                //this.event = event;
-                console.log("event", event)
-                this.event.id = event.id;
-                this.isVisible = true;
-                this.getData();
+            deleteFile(id) {
+                let url = `/arrangement/event/${this.event.id}/files/${id}/delete`;
 
-                console.log(this.event.start_date);
-
-                this.$nextTick(() => {
-
-                    this.$nextTick(() => {
-                        document.querySelectorAll('.form-outline').forEach((formOutline) => {
-                            new mdb.Input(formOutline).init();
-                        });
-                    })
-
-                })
+                fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        "X-CSRFToken": '{{ csrf_token }}'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        this.getData();
+                        toastr.success("Filen ble slettet");
+                    }
+                    else {
+                        console.error("Failed deleting file", response);
+                        toastr.error("Kunne ikke slette filen")
+                    }
+                });
             },
             getData() {
-                fetch("/arrangement/event/" + this.event.id + "/json")
+                fetch("/arrangement/event/" + this.eventId + "/json")
                     .then(response => response.json())
                     .then(data => {
-                        console.log(data)
                         this.event = data;
                     })
             }
@@ -486,6 +443,19 @@
         async mounted() {
             this.displayLayouts = await DataStore.getDisplayLayouts();
             this.hasMounted = true;
+        },
+        watch: {
+            isVisible: function(val) {
+                if (val) {
+                    this.getData();
+
+                    this.$nextTick(() => {
+                        document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                            new mdb.Input(formOutline).init();
+                        });
+                    })
+                }
+            }
         },
         components: {
             DialogComponent, 
@@ -498,8 +468,8 @@
             SelectMainPlannerDialogComponent,
             UploadFilesPopoverComponent,
             FilesBrowserComponent,
-            UploadFilesDialogComponent
-            {% comment %} FilesList {% endcomment %}
+            UploadFilesDialogComponent,
+            FilesListComponent
         },
         template: "#vuec-event-info-dialog",
         delimiters: ["[[", "]]"],

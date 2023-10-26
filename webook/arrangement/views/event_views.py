@@ -15,9 +15,15 @@ from django.views.generic import (
     View,
 )
 
-from webook.arrangement.facilities.service_ordering import log_provision_changed, remove_provision_from_service_order
+from webook.arrangement.facilities.service_ordering import (
+    log_provision_changed,
+    remove_provision_from_service_order,
+)
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
-from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import CreateSerieForm, SerieManifestForm
+from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import (
+    CreateSerieForm,
+    SerieManifestForm,
+)
 from webook.arrangement.forms.file_forms import UploadFilesForm
 from webook.arrangement.models import (
     Arrangement,
@@ -33,9 +39,14 @@ from webook.arrangement.models import (
 )
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.delete_view import JsonDeleteView
-from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.generic_views.json_form_view import (
+    JsonFormView,
+    JsonModelFormMixin,
+)
 from webook.arrangement.views.generic_views.json_list_view import JsonListView
-from webook.arrangement.views.generic_views.upload_files_standard_form import UploadFilesStandardFormView
+from webook.arrangement.views.generic_views.upload_files_standard_form import (
+    UploadFilesStandardFormView,
+)
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
@@ -161,7 +172,7 @@ class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
                 )
             ],
             "files": [
-                {"name": file.file.name, "id": file.id}
+                {"path": file.file.name, "filename": file.filename, "id": file.id}
                 for file in self.object.files.all()
             ],
         }

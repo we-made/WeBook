@@ -19,7 +19,10 @@ container-fluid
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <div id="vuec-planner-calendar">
 
-    <event-info-dialog-component ref="eventInfoDialog">
+    <event-info-dialog-component 
+        @close="isEventDialogOpen = false"
+        :event-id="focusedEventId"
+        :is-visible="isEventDialogOpen">
     </event-info-dialog-component>
 
     <div class="sticky-top border-bottom" >
@@ -165,6 +168,8 @@ container-fluid
             components: { DialogComponent, CalendarComponent, EventInfoDialogComponent },
             data() {
                 return {
+                    focusedEventId: null,
+                    isEventDialogOpen: false,
                     contextMenuItems: {
                         arrangement_inspector: {
                             name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
@@ -347,8 +352,8 @@ container-fluid
                 },
 
                 onEventClick(arg) {
-                    console.log("onEventClick", arg);
-                    this.$refs.eventInfoDialog.open(arg.event);
+                    this.focusedEventId = arg.event.id;
+                    this.isEventDialogOpen = true;
                 },
 
                 openGoToDateDialog() {
