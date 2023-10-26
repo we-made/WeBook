@@ -15,7 +15,8 @@ export class PlannerCalendar extends FullCalendarBased {
         arrangementInspectorUtility,
         eventInspectorUtility,
         eventsSrcUrl, 
-        colorProviders=[], 
+        colorProviders = [],
+        initialView = "dayGridMonth",
         initialColorProvider="",
         csrf_token=undefined, 
         licenseKey=undefined,
@@ -28,6 +29,8 @@ export class PlannerCalendar extends FullCalendarBased {
         renderPopovers=true, } = {},) {
 
         super(navigationHeaderWrapperElement);
+
+        this.initialView = initialView;
 
         this.height = height;
 
@@ -412,13 +415,11 @@ export class PlannerCalendar extends FullCalendarBased {
     async init() {
         let _this = this;
 
-        let initialView = 'dayGridMonth';
-
         if (this._fcCalendar === undefined) {
             this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
                 schedulerLicenseKey: this._fcLicenseKey,
                 stickyFooterToolbar: true,
-                initialView: initialView,
+                initialView: _this.initialView,
                 selectable: true,
                 weekNumbers: true,
                 navLinks: true,
