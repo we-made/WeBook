@@ -171,6 +171,18 @@ class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
                     )
                 )
             ],
+            "notes": [
+                list(
+                    map(
+                        lambda n: {
+                            "id": n.id,
+                            "text": n.content,
+                            "created": n.created.strftime("%Y-%m-%d %H:%M"),
+                        },
+                        self.object.notes.all(),
+                    )
+                )
+            ],
             "files": [
                 {"path": file.file.name, "filename": file.filename, "id": file.id}
                 for file in self.object.files.all()
