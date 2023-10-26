@@ -155,7 +155,9 @@ export class AdvancedTreeFilter extends Popover {
             const selectedNodes = $(this._jsTreeElement).jstree("get_selected", true);
             const undeterminedNodes = $(this._jsTreeElement).jstree("get_undetermined", true);
 
-            this._onSubmit(this, selectedNodes, undeterminedNodes);
+            if (selectedNodes.length > 0) {
+                this._onSubmit(this, selectedNodes, undeterminedNodes);
+            }
         });
 
         actionsBtnGroup.appendChild(filterBtn);
