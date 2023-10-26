@@ -7,13 +7,10 @@
 
 {% include "arrangement/vue/dialog-component.html" %}
 {% include "arrangement/vue/dialogs/order_room_dialog.html" %}
-{% include "arrangement/vue/dialogs/upload-files-dialog.html" %}
-{% include "arrangement/vue/upload-files-popover.html" %}
 {% include "arrangement/vue/files-list.html" %}
 
 {% include "arrangement/vue/room_and_preset_selector_component.html" %}
 {% include "arrangement/vue/select_main_planner_dialog.html" %}
-{% include "arrangement/vue/files-browser-component.html" %}
 
 <link rel="stylesheet" href="{% static '@vuepic\vue-datepicker\dist\main.css' %}">
 
@@ -466,9 +463,6 @@
             OrderRoomDialogComponent, 
             RoomAndPresetSelectorComponent,
             SelectMainPlannerDialogComponent,
-            UploadFilesPopoverComponent,
-            FilesBrowserComponent,
-            UploadFilesDialogComponent,
             FilesListComponent
         },
         template: "#vuec-event-info-dialog",
