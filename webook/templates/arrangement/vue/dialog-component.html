@@ -193,11 +193,6 @@
 
                         // Remove the native jQuery UI titlebar - we will use our own
                         $(this.$refs.dialogRoot).parent().find(".ui-dialog-titlebar").remove();
-
-                        if (this.queuedToggleFullScreen) {
-                            this.toggleFullScreen();
-                        }
-
                         
                         if (this.useBackdrop) {
                             this.handleOverlay();
@@ -213,6 +208,10 @@
                                 // Set the z-index of the current dialog to the last dialog
                                 $(this.$refs.dialogRoot).parent().attr("style", "z-index: " + (zIndex + 1) + " !important");
                             }
+                        }
+
+                        if (this.queuedToggleFullScreen) {
+                            this.toggleFullScreen();
                         }
                     })
                 }
