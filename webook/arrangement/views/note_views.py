@@ -76,7 +76,9 @@ class GetNotesForEntityView(LoginRequiredMixin, PlannerAuthorizationMixin, ListV
 get_notes_view = GetNotesForEntityView.as_view()
 
 
-class CreateNoteView(LoginRequiredMixin, PlannerAuthorizationMixin, JsonFormView):
+class CreateNoteView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, CreateView, JsonFormView
+):
     form_class = CreateNoteForm
 
     def form_valid(self, form):
@@ -87,8 +89,12 @@ class CreateNoteView(LoginRequiredMixin, PlannerAuthorizationMixin, JsonFormView
 create_note_view = CreateNoteView.as_view()
 
 
-class UpdateNoteView(LoginRequiredMixin, PlannerAuthorizationMixin, JsonFormView):
+class UpdateNoteView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, UpdateView, JsonFormView
+):
+    model = Note
     form_class = UpdateNoteForm
+    pk_url_kwarg = "entityPk"
 
     def form_valid(self, form):
         form.save(self.request.user.person)
