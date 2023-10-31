@@ -11,6 +11,7 @@
 
 {% include "arrangement/vue/room_and_preset_selector_component.html" %}
 {% include "arrangement/vue/select_main_planner_dialog.html" %}
+{% include "arrangement/vue/notes/note-list.html" %}
 
 <link rel="stylesheet" href="{% static '@vuepic\vue-datepicker\dist\main.css' %}">
 
@@ -303,14 +304,29 @@
                         @delete="(id) => deleteFile(id)">
                     </files-list-component>
                 </div>
+
+                <div
+                    class="tab-pane fade¨"
+                    id="notes-tab"
+                    role="tabpanel"
+                    aria-labelledby="ex1-tab-3">
+            
+                    <notes-list-component
+                        :notes="event.notes"
+                        :are-notes-editable="user.is_planner || user.is_superuser"
+                        @save="(id, title, content, hasPii) => saveNote(id, title, content, hasPii)"
+                        @delete="(id) => deleteNote(id)">
+
+                    </notes-list-component>
+                </div>
             </div>
         </template>
 
         <template v-slot:footer>
-            <div class="d-flex justify-content-end">
+            {% comment %} <div class="d-flex justify-content-end">
                 <button type="button" class="btn wb-btn-secondary me-2" @click="isVisible = false">Lukk</button>
                 <button type="button" class="btn wb-btn-main" @click="isVisible = false">Lagre</button>
-            </div>
+            </div> {% endcomment %}
         </template>
     </dialog-component>
 </template>
@@ -355,6 +371,7 @@
                     end_date: null,
                     files: [],
                     rooms: [],
+                    notes: [],
                     arrangement: {
                         id: null,
                         name: null,
@@ -385,6 +402,67 @@
             }
         },
         methods: {
+            saveNote(id, title, content, hasPii) {
+                let url = "/arrangement/note/" + id;
+                
+                const formData = new FormData();
+                formData.append("id", id ? id : 0);
+                formData.append("title", title);
+                formData.append("content", content);
+                formData.append("has_personal_information", hasPii);
+
+                if (!id) {
+                    formData.append("entityPk", this.event.id)
+                    formData.append("entityType", "event");
+                    url = "/arrangement/note/create";
+                }
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData, 
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        toastr.success("Notatet ble lagret");
+                        this.getData();
+                    }
+                    else {
+                        toastr.error("Kunne ikke lagre notatet");
+                    }
+                });
+            },
+            deleteNote(id) {
+                Swal.fire({
+                    title: 'Er du sikker?',
+                    text: "Notatet vil bli slettet for alltid",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Slett',
+                    cancelButtonText: 'Avbryt'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        fetch("/arrangement/note/delete/" + id, {
+                            method: 'DELETE',
+                            headers: {
+                                "X-CSRFToken": '{{ csrf_token }}'
+                            }
+                        }).then(response => {
+                            if (response.ok) {
+                                this.getData();
+                                toastr.success("Notatet ble slettet");
+                            }
+                            else {
+                                console.error("Failed deleting note", response);
+                                toastr.error("Kunne ikke slette notatet")
+                            }
+                        })
+                    }
+                })
+            },
             uploadFiles(files) {
                 let url = "/arrangement/event/" + this.event.id + "/upload";
 
@@ -463,7 +541,8 @@
             OrderRoomDialogComponent, 
             RoomAndPresetSelectorComponent,
             SelectMainPlannerDialogComponent,
-            FilesListComponent
+            FilesListComponent,
+            NotesListComponent
         },
         template: "#vuec-event-info-dialog",
         delimiters: ["[[", "]]"],

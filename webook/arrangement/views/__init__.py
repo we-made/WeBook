@@ -95,7 +95,8 @@ from .note_views import (
     delete_note_view,
     get_notes_view,
     notes_on_entity_view,
-    post_note_view,
+    create_note_view,
+    update_note_view,
 )
 from .notification_views import (
     archive_notification_view,

@@ -668,3 +668,11 @@ html, body {
 a.fc-daygrid-event  {
     color: black;
 }
+
+.notes-row .note-summary:hover {
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.notes-row .note-summary.active {
+    background-color: var(--SECONDARY-COLOR);
+}

@@ -197,9 +197,9 @@ container-fluid
                         }
     
 
-                        if (arg.view.type === "dayGridMonth" || arg.view.type === "dayGridWeek") {
-                            let nodes = [];
-    
+                        let nodes = [];
+
+                        if (arg.view.type === "dayGridMonth" || arg.view.type === "dayGridWeek") {    
                             const eventIsSameDay = (arg.event.start !== null && arg.event.end !== null) &&
                                 arg.event.start.getFullYear() === arg.event.end.getFullYear() &&
                                 arg.event.start.getMonth() === arg.event.end.getMonth() &&
@@ -244,12 +244,8 @@ container-fluid
                             eventTitle.classList.add("ms-1", "event-title-text");
                             eventTitle.innerText = arg.event.title;
                             nodes.push(eventTitle);
-    
-                            return { domNodes: nodes };
                         }
-                        if (arg.view.type === "timelineMonth" || arg.view.type === "timelineYear") {
-                            let nodes = [];
-    
+                        if (arg.view.type === "timelineMonth" || arg.view.type === "timelineYear") {    
                             let timeText = document.createElement('strong');
                             timeText.classList.add('d-block');
                             timeText.innerText = `(${formatTime(arg.timeText)})`;
@@ -273,12 +269,8 @@ container-fluid
                             eventTitle.classList.add("event-title-text")
                             eventTitle.innerText = arg.event.title;
                             nodes.push(eventTitle);
-    
-                            return { domNodes: nodes };
                         }
-                        if (arg.view.type === "timeGridDay" || arg.view.type === "timeGridWeek") {
-                            let nodes = [];
-    
+                        if (arg.view.type === "timeGridDay" || arg.view.type === "timeGridWeek") {    
                             let wrapper = document.createElement('div');
                             wrapper.classList.add("p-2");
     
@@ -307,12 +299,8 @@ container-fluid
                             wrapper.appendChild(eventTitle);
     
                             nodes.push(wrapper);
-    
-                            return { domNodes: nodes };
                         }
                         if (arg.view.type === "listWeek") {
-                            let nodes = [];
-    
                             if (arg.event.extendedProps.isRigging === true ||
                                 arg.event.extendedProps.isSerie === true) {
                                     
@@ -335,9 +323,9 @@ container-fluid
                             titleElement.innerText = arg.event.title;
                             titleElement.classList.add("event-title-text");
                             nodes.push(titleElement);
-    
-                            return { domNodes: nodes };
                         }
+
+                        return { domNodes: nodes };
                     }
                 }
             },
@@ -381,6 +369,7 @@ container-fluid
                             "start": event.starts,
                             "end": event.ends,
                             "backgroundColor": sessionStorage.getItem(`${event.arrangement_pk}_color`),
+                            "classNames": "event-id-" + event.event_pk,
                             "extendedProps": {
                                 "event_id": event.event_pk,
                                 "arrangement_id": event.arrangement_pk,

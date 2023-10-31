@@ -1,6 +1,13 @@
+{% comment %}
+/**
+* @file dialog-component.html
+* @brief Turbo-boosted Vue component for jQuery UI dialog
+* @details This component is a wrapper for jQuery UI dialog. It is used to render a dialog with a header, content and footer.
+{% endcomment %}
+
 <template id="vuec-dialog-component-template">
     
-    <div class="w-dialog" ref="dialogRoot" title="Dialog Title" v-if="isVisible" style="overflow: visible;">
+    <div class="w-dialog" ref="dialogRoot" title="Dialog Title" v-if="isVisible" style="overflow: scroll;">
         <div :class="['w-dialog__grille d-flex justify-content-between align-items-center', { 'draggable': isDraggable }]" 
              ref="grille">
             <div class="w-dialog__header">
@@ -127,7 +134,7 @@
                 }
                 else {
                     $(this.$refs.dialogRoot).dialog("option", "width", "100%");
-                    $(this.$refs.dialogRoot).dialog("option", "height", window.screen.height + "px");
+                    $(this.$refs.dialogRoot).dialog("option", "height", window.innerHeight + "px");
 
 
                     $(this.$refs.dialogRoot).dialog("option", "position", {
@@ -138,7 +145,8 @@
 
                     // add fullscreen class to dialog
                     $(this.$refs.dialogRoot).parent().addClass("fullscreen");
-                    $(this.$refs.dialogRoot).parent().css("height", window.screen.height + "px")
+                    $(this.$refs.dialogRoot).parent().css("height", window.innerHeight + "px")
+                    $(this.$refs.dialogRoot).css("height", window.innerHeight + "px")
 
                     // deactivate window scroll
                     $("body").css("overflow", "hidden");
@@ -154,6 +162,7 @@
                         $(this.$refs.dialogRoot).dialog({
                             width: this.width || "40rem",
                             resizable: this.isResizable,
+                            maxHeight: window.innerHeight,
                             modal: this.useBackdrop,
                             position: this.position || { my: "center", at: "center", of: window },
                             draggable: false // We must deactivate the native jQuery UI draggable, because we want to use our own
