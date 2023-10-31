@@ -32,28 +32,6 @@
         <hr>
 
         <div class="w-dialog__content" ref="content" style="overflow: visible;">
-            [[close]]
-            {% comment %} <div class="border border-dark" style="backgroundColor: ghostwhite;">
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>Start Fullscreen</th>
-                            <td>[[ startFullScreen ]]</td>
-                        </tr>
-                        
-                        <tr>
-                            <th>Width</th>
-                            <td>[[ width ]]</td>
-                        </tr>
-
-                        <tr>
-                            <th>Position</th>
-                            <td>[[position]]</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div> {% endcomment %}
-
             <slot name="content" style="height: 100%;"></slot>
         </div>
 
@@ -176,8 +154,6 @@
                         $(document).keyup(function (e) {
                             if (e.keyCode == 27) {
                                 this.$emits("close");
-
-                                //e.stopPropagation();
                             }
                         }.bind(this));
 
@@ -196,12 +172,6 @@
                                     this.chainToEl = $(this.chainToEl).closest(".ui-dialog")[0];
                                 }
                             }
-
-                            /*
-                            if (this.chainToEl instanceof Element) {
-                                // Adjust height of this dialog to the parent dialog
-                                $(this.$refs.dialogRoot).dialog("option", "height", $(this.chainToEl).height());
-                            }*/
 
                             $(this.$refs.dialogRoot).dialog("option", "position", {
                                 my: "left top", 
