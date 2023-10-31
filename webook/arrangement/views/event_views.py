@@ -52,6 +52,7 @@ from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
+from webook.utils.utc_to_current import utc_to_current
 
 
 class CreateEventSerieJsonFormView(
@@ -171,18 +172,23 @@ class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
                     )
                 )
             ],
-            "notes": [
-                list(
-                    map(
-                        lambda n: {
-                            "id": n.id,
-                            "text": n.content,
-                            "created": n.created.strftime("%Y-%m-%d %H:%M"),
-                        },
-                        self.object.notes.all(),
-                    )
+            "notes": list( # ToDo: Consider separating this out into a separate view
+                map(
+                    lambda n: {
+                        "id": n.id,
+                        "title": n.title,
+                        "text": n.content,
+                        "created": utc_to_current(n.created).strftime("%Y-%m-%d %H:%M"),
+                        "author": n.author.full_name,
+                        "has_personal_information": n.has_personal_information,
+                        "updated_by": n.updated_by.full_name if n.updated_by else None,
+                        "updated": utc_to_current(n.modified).strftime(
+                            "%Y-%m-%d %H:%M"
+                        ),
+                    },
+                    self.object.notes.all(),
                 )
-            ],
+            ),
             "files": [
                 {"path": file.file.name, "filename": file.filename, "id": file.id}
                 for file in self.object.files.all()
