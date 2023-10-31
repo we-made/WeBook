@@ -160,19 +160,17 @@ class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
             "actual_visitors": self.object.actual_visitors,
             "meeting_place": self.object.meeting_place,
             "meeting_place_en": self.object.meeting_place_en,
-            "rooms": [
-                list(
-                    map(
-                        lambda r: {
-                            "name": r.name,
-                            "id": r.id,
-                            "slug": r.slug,
-                        },
-                        self.object.rooms.all(),
-                    )
+            "rooms": list(
+                map(
+                    lambda r: {
+                        "name": r.name,
+                        "id": r.id,
+                        "slug": r.slug,
+                    },
+                    self.object.rooms.all(),
                 )
-            ],
-            "notes": list( # ToDo: Consider separating this out into a separate view
+            ),
+            "notes": list(  # ToDo: Consider separating this out into a separate view
                 map(
                     lambda n: {
                         "id": n.id,
