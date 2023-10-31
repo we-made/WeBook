@@ -17,7 +17,8 @@
 
 <template id="vuec-event-info-dialog">
     <dialog-component 
-        :is-visible="isVisible" 
+        :is-visible="isVisible"
+        :start-full-screen="true"
         @close="$emit('close')"
         use-backdrop="true" 
         is-draggable="true"
