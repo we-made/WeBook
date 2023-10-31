@@ -875,7 +875,11 @@ class Note(TimeStampedModel, ModelArchiveableMixin):
 
     """
 
+    title = models.CharField(
+        verbose_name=_("Title"), max_length=512, null=True, blank=True
+    )
     author = models.ForeignKey(to="Person", on_delete=models.RESTRICT)
+    updated_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT, related_name="updated_notes", null=True, blank=True)
     content = models.TextField(verbose_name=_("Content"), max_length=5000)
     has_personal_information = models.BooleanField(
         verbose_name=_("Has personal information"), default=False
