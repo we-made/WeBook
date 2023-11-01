@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict
+from typing import Any, Dict, List, Union
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
@@ -9,24 +9,13 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    ListView,
-    RedirectView,
-    UpdateView,
-)
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, UpdateView
 from django.views.generic.edit import DeleteView
 
-from webook.arrangement.models import BusinessHour, Location, Room
-from webook.arrangement.views.generic_views.archive_view import (
-    ArchiveView,
-    JsonArchiveView,
-)
-from webook.arrangement.views.generic_views.json_form_view import (
-    JsonFormView,
-    JsonModelFormMixin,
-)
+from webook.arrangement.models import BusinessHour, Location, Room, RoomPreset
+from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
+from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
@@ -241,3 +230,46 @@ class SearchRoomsAjax(LoginRequiredMixin, SearchView):
 
 
 search_rooms_ajax_view = SearchRoomsAjax.as_view()
+
+
+class RoomsSelect2JsonView(LoginRequiredMixin, PlannerAuthorizationMixin, JsonListView):
+    """ListView for Select2 to return all rooms as json, grouped by location"""
+
+    model = Room
+
+    def get_queryset(self) -> List[Dict[str, Dict[str, Union[int, str]]]]:
+        locations = Location.objects.all()
+
+        data: List[Dict[str, Dict[str, Any]]] = []
+
+        presets = RoomPreset.objects.all()
+
+        # PRESET- prefix to distinguish presets from rooms
+        data.append(
+            {
+                "text": "Presets",
+                "children": [
+                    {"id": "PRESET-" + str(preset.id), "text": preset.name} for preset in presets
+                ],
+            }
+        )
+
+        for location in locations:
+            rooms = Room.objects.filter(location=location)
+            data.append(
+                {
+                    "text": location.name,
+                    "children": [
+                        {
+                            "id": room.id,
+                            "text": room.name + " " + str(room.id),
+                        }
+                        for room in rooms
+                    ],
+                }
+            )
+
+        return data
+
+
+rooms_select2_json_view = RoomsSelect2JsonView.as_view()

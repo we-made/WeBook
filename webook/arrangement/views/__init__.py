@@ -92,10 +92,10 @@ from .location_views import (
     update_location_json_view,
 )
 from .note_views import (
+    create_note_view,
     delete_note_view,
     get_notes_view,
     notes_on_entity_view,
-    create_note_view,
     update_note_view,
 )
 from .notification_views import (
@@ -202,6 +202,7 @@ from .room_views import (
     room_list_view,
     room_update_json_view,
     room_update_view,
+    rooms_select2_json_view,
     search_room_ajax_view,
     search_rooms_ajax_view,
 )
