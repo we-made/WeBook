@@ -73,6 +73,7 @@ from .event_views import (
     delete_file_from_event_view,
     event_serie_delete_file_view,
     event_serie_manifest_view,
+    update_event_buffer_times_view,
     update_event_json_view,
     upload_files_to_event_json_form_view,
     upload_files_to_event_serie_json_form_view,
@@ -92,10 +93,10 @@ from .location_views import (
     update_location_json_view,
 )
 from .note_views import (
+    create_note_view,
     delete_note_view,
     get_notes_view,
     notes_on_entity_view,
-    create_note_view,
     update_note_view,
 )
 from .notification_views import (

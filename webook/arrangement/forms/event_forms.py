@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import pytz
 from django import forms
@@ -8,7 +8,7 @@ from django.utils import timezone as dj_timezone
 
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.models import Event, EventSerie, PlanManifest
-from webook.utils.collision_analysis import analyze_collisions
+from webook.utils.collision_analysis import CollisionRecord, analyze_collisions
 from webook.utils.sph_gen import get_serie_positional_hash
 from webook.utils.utc_to_current import utc_to_current
 
@@ -298,3 +298,59 @@ class UpdateEventForm(BaseEventForm):
             ),
             "status": forms.Select(attrs={"class": "form-control form-control-lg"}),
         }
+
+
+class UpdateEventBuffersForm(forms.ModelForm):
+    def save(self, commit: bool = True):
+        current_tz = pytz.timezone(str(dj_timezone.get_current_timezone()))
+        
+        before_buffer_collisions: Union[
+            List[CollisionRecord], CollisionRecord
+        ] = analyze_collisions(
+            [
+                EventDTO(
+                    title=self.cleaned_data["before_buffer_title"],
+                    start=self.cleaned_data["before_buffer_start"],
+                    end=self.cleaned_data["before_buffer_end"],
+                    rooms=self.instance.rooms.values_list("id", flat=True),
+                )
+            ]
+        )
+        after_buffer_collisions: Union[
+            List[CollisionRecord], CollisionRecord
+        ] = analyze_collisions(
+            [
+                EventDTO(
+                    title=self.cleaned_data["before_buffer_title"],
+                    start=self.cleaned_data["before_buffer_start"],
+                    end=self.cleaned_data["before_buffer_end"],
+                    rooms=self.instance.rooms.values_list("id", flat=True),
+                )
+            ]
+        )
+
+        if (len(before_buffer_collisions + after_buffer_collisions)) == 0:
+            return super().save(commit)
+
+        return {
+            "success": False,
+            "collisions": {
+                "before": before_buffer_collisions,
+                "after": after_buffer_collisions,
+            },
+        }
+
+    class Meta:
+        model = Event
+        fields = (
+            "before_buffer_title",
+            "before_buffer_date",
+            "before_buffer_date_offset",
+            "before_buffer_start",
+            "before_buffer_end",
+            "after_buffer_title",
+            "after_buffer_date",
+            "after_buffer_date_offset",
+            "after_buffer_start",
+            "after_buffer_end",
+        )
