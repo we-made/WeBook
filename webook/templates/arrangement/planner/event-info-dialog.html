@@ -12,6 +12,7 @@
 {% include "arrangement/vue/room_and_preset_selector_component.html" %}
 {% include "arrangement/vue/select_main_planner_dialog.html" %}
 {% include "arrangement/vue/notes/note-list.html" %}
+{% include "arrangement/vue/rigging-form.html" %}
 
 <link rel="stylesheet" href="{% static '@vuepic\vue-datepicker\dist\main.css' %}">
 
@@ -131,7 +132,7 @@
                         class="nav-link"
                         id="ex1-tab-4"
                         data-mdb-toggle="tab"
-                        href="#ex1-tabs-4"
+                        href="#rigging-tab"
                         role="tab"
                         aria-controls="ex1-tabs-4"
                         aria-selected="false"
@@ -307,7 +308,7 @@
                 </div>
 
                 <div
-                    class="tab-pane fade¨"
+                    class="tab-pane fade"
                     id="notes-tab"
                     role="tabpanel"
                     aria-labelledby="ex1-tab-3">
@@ -319,6 +320,33 @@
                         @delete="(id) => deleteNote(id)">
 
                     </notes-list-component>
+                </div>
+
+                <div class="tab-pane fade"
+                    id="rigging-tab"
+                    role="tabpanel"
+                    aria-labelledby="ex1-tab-4">
+
+                    <h2>Opprigging</h2>
+                    <p>
+                        Definer tidspunkt for opprigging av arrangementet.
+                    </p>
+                    
+                    <rigging-form v-model="event.riggingBefore"></rigging-form>
+                
+                    <h2 class="mt-3">Nedrigging</h2>
+                    <p>
+                        Definer tidspunkt for nedrigging av arrangementet
+                    </p>
+
+                    <rigging-form v-model="event.riggingAfter">                        
+                    </rigging-form>
+                
+                    <hr>
+                
+                    <button class="btn wb-btn-main mt-3" @click="updateBuffers()">
+                        Lagre endringer
+                    </button>
                 </div>
             </div>
         </template>
@@ -373,6 +401,18 @@
                     files: [],
                     rooms: [],
                     notes: [],
+                    riggingBefore: {
+                        title: null,
+                        date: null,
+                        start_time: null,
+                        end_time: null,
+                    },
+                    riggingAfter: {
+                        title: null,
+                        date: null,
+                        start_time: null,
+                        end_time: null,
+                    },
                     arrangement: {
                         id: null,
                         name: null,
@@ -403,6 +443,36 @@
             }
         },
         methods: {
+            updateBuffers() {
+                let url = "/arrangement/event/" + this.event.id + "/update_buffers";
+
+                const formData = new FormData();
+                formData.append("before_buffer_title", this.event.riggingBefore.title);
+                formData.append("before_buffer_date", this.event.riggingBefore.date);
+                formData.append("before_buffer_start", this.event.riggingBefore.start_time);
+                formData.append("before_buffer_end", this.event.riggingBefore.end_time);
+
+                formData.append("after_buffer_title", this.event.riggingAfter.title);
+                formData.append("after_buffer_date", this.event.riggingAfter.date);
+                formData.append("after_buffer_start", this.event.riggingAfter.start_time);
+                formData.append("after_buffer_end", this.event.riggingAfter.end_time);
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": '{{ csrf_token }}'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        toastr.success("Opprigg og nedrigg ble oppdatert");
+                    }
+                    else {
+                        console.error("Failed updating buffers", response);
+                        toastr.error("Kunne ikke oppdatere opprigg og nedrigg");
+                    }
+                })
+            },
             saveNote(id, title, content, hasPii) {
                 let url = "/arrangement/note/" + id;
                 
@@ -543,7 +613,8 @@
             RoomAndPresetSelectorComponent,
             SelectMainPlannerDialogComponent,
             FilesListComponent,
-            NotesListComponent
+            NotesListComponent,
+            RiggingForm
         },
         template: "#vuec-event-info-dialog",
         delimiters: ["[[", "]]"],
