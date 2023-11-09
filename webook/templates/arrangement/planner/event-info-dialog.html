@@ -449,13 +449,13 @@
                 const formData = new FormData();
                 formData.append("before_buffer_title", this.event.riggingBefore.title);
                 formData.append("before_buffer_date", this.event.riggingBefore.date);
-                formData.append("before_buffer_start_time", this.event.riggingBefore.start_time);
-                formData.append("before_buffer_end_time", this.event.riggingBefore.end_time);
+                formData.append("before_buffer_start", this.event.riggingBefore.start_time);
+                formData.append("before_buffer_end", this.event.riggingBefore.end_time);
 
                 formData.append("after_buffer_title", this.event.riggingAfter.title);
                 formData.append("after_buffer_date", this.event.riggingAfter.date);
-                formData.append("after_buffer_start_time", this.event.riggingAfter.start_time);
-                formData.append("after_buffer_end_time", this.event.riggingAfter.end_time);
+                formData.append("after_buffer_start", this.event.riggingAfter.start_time);
+                formData.append("after_buffer_end", this.event.riggingAfter.end_time);
 
                 fetch(url, {
                     method: 'POST',

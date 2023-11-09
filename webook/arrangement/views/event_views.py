@@ -164,6 +164,18 @@ class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
             "actual_visitors": self.object.actual_visitors,
             "meeting_place": self.object.meeting_place,
             "meeting_place_en": self.object.meeting_place_en,
+            "riggingBefore": {
+                "title": self.object.before_buffer_title,
+                "date": self.object.before_buffer_date,
+                "start_time": self.object.before_buffer_start,
+                "end_time": self.object.before_buffer_end,
+            },
+            "riggingAfter": {
+                "title": self.object.after_buffer_title,
+                "date": self.object.after_buffer_date,
+                "start_time": self.object.after_buffer_start,
+                "end_time": self.object.after_buffer_end,
+            },
             "rooms": [
                 list(
                     map(

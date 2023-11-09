@@ -172,7 +172,9 @@ class BaseEventForm(forms.ModelForm):
                     title=self.instance.title,
                     start=self.instance.start,
                     end=self.instance.end,
-                    rooms=self.cleaned_data["rooms"].values_list("id", flat=True),
+                    rooms=self.cleaned_data["rooms"].values_list("id", flat=True)
+                    if "rooms" in self.cleaned_data
+                    else self.instance.rooms.values_list("id", flat=True),
                     before_buffer_title=self.instance.before_buffer_title,
                     before_buffer_date_offset=self.instance.before_buffer_date_offset,
                     before_buffer_start=self.instance.before_buffer_start,
@@ -243,8 +245,10 @@ class BaseEventForm(forms.ModelForm):
             super().save(commit)
 
         self.instance.save()
-        self.instance.display_layouts.set(self.cleaned_data["display_layouts"])
-        self.instance.rooms.set(self.cleaned_data["rooms"])
+        if "display_layouts" in self.cleaned_data:
+            self.instance.display_layouts.set(self.cleaned_data["display_layouts"])
+        if "rooms" in self.cleaned_data:
+            self.instance.rooms.set(self.cleaned_data["rooms"])
 
     class Meta:
         model = Event
@@ -300,46 +304,7 @@ class UpdateEventForm(BaseEventForm):
         }
 
 
-class UpdateEventBuffersForm(forms.ModelForm):
-    def save(self, commit: bool = True):
-        current_tz = pytz.timezone(str(dj_timezone.get_current_timezone()))
-        
-        before_buffer_collisions: Union[
-            List[CollisionRecord], CollisionRecord
-        ] = analyze_collisions(
-            [
-                EventDTO(
-                    title=self.cleaned_data["before_buffer_title"],
-                    start=self.cleaned_data["before_buffer_start"],
-                    end=self.cleaned_data["before_buffer_end"],
-                    rooms=self.instance.rooms.values_list("id", flat=True),
-                )
-            ]
-        )
-        after_buffer_collisions: Union[
-            List[CollisionRecord], CollisionRecord
-        ] = analyze_collisions(
-            [
-                EventDTO(
-                    title=self.cleaned_data["before_buffer_title"],
-                    start=self.cleaned_data["before_buffer_start"],
-                    end=self.cleaned_data["before_buffer_end"],
-                    rooms=self.instance.rooms.values_list("id", flat=True),
-                )
-            ]
-        )
-
-        if (len(before_buffer_collisions + after_buffer_collisions)) == 0:
-            return super().save(commit)
-
-        return {
-            "success": False,
-            "collisions": {
-                "before": before_buffer_collisions,
-                "after": after_buffer_collisions,
-            },
-        }
-
+class UpdateEventBuffersForm(BaseEventForm):
     class Meta:
         model = Event
         fields = (
