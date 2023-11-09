@@ -13,7 +13,7 @@
 
     <div class="d-flex flex-lg-row flex-md-column flex-sm-column justify-content-between align-items-center w-100">
         <div>
-            <div class="d-flex flex-lg-row flex-md-column flex-sm-column justify-content-between w-100 mb-2">
+            <div class="d-flex flex-lg-row flex-md-column flex-sm-column justify-content-lg-between justify-content-md-start justify-content-sm-start w-100 mb-2">
                 <div class="btn-group wb-btn-white shadow-0">
                     <button class="btn border-1 wb-large-btn wb-btn-white shadow-0"
                         id="planner__moveBackOneIntervalButton">
@@ -256,7 +256,22 @@
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('day_calendar');
 
-            
+            document.getElementById('planner__goToDateButton').addEventListener('click', (event) => {
+                Swal.fire({
+                    title: 'Gå til dato',
+                    html: "<input type='date' id='swalGoToDate' class='form-control'></input>",
+                    showCancelButton: true,
+                    confirmButtonText: 'Gå til dato',
+                    cancelButtonText: 'Avbryt',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let date = new Date(document.getElementById('swalGoToDate').value);
+                        activeDate = date;
+                        activeCalendar.getFcCalendar().gotoDate(activeDate);
+                    }
+                })
+            });
+
             let plannerCalendar = new PlannerCalendar({
                 calendarElement: document.getElementById('day_calendar'),
                 arrangementInspectorUtility: arrangementInspector,
