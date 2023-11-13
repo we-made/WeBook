@@ -573,3 +573,51 @@ a.fc-event {
 .dialog-fullscreen {
     border-radius: 0px!important;
 }
+
+.sidenav-subheading {
+    padding: 1rem 1.5rem;
+}
+
+.sidenav-link-danger-subtle {
+    background-color: #ed9aa2!important
+}
+
+.sidenav-link-danger {
+    background-color: #DC3545!important;
+    color:white!important;
+}
+
+
+.sidenav-link-success-subtle {
+    color: white!important;
+    background-color: #0f5132!important
+}
+
+.sidenav-link-success-subtle:hover {
+    color: white!important;
+    background-color: #0f5132!important
+}
+
+.sidenav-link-info-subtle {
+    color: white!important;
+    background-color: #087990!important
+}
+
+.sidenav-link-info-subtle:hover {
+    color: white!important;
+    background-color: #087990!important
+}
+
+.sidenav-link-danger-subtle:hover {
+    color: white!important;
+    background-color: #ed9aa2!important
+}
+
+.sidenav-link:hover {
+    border: solid 1px;
+    background-color: darkblue!important;
+}
+
+.body-container {
+    padding-left: 240px;
+}
