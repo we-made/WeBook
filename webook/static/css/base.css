@@ -618,6 +618,10 @@ a.fc-event {
     background-color: darkblue!important;
 }
 
+.sidenav-item.active {
+    border: solid 1px;
+}
+
 .body-container {
     padding-left: 240px;
 }

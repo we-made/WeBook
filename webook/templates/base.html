@@ -116,7 +116,6 @@
       </a>
 
       {% with request.resolver_match.url_name as url_name %}
-
       <div class="text-center mb-2">
         <h5 class="fw-bold">
           Hei, {{ request.user.person.first_name }}
@@ -134,16 +133,16 @@
       </div>
     
       <ul class="sidenav-menu">
-        <li class="sidenav-item">
+        <li class="sidenav-item {% if url_name == 'detail' %}active{% endif %}">
           <a  href="{% url 'users:detail' request.user.slug %}" 
-              class="sidenav-link {% if url_name == 'detail' %}active{% endif %}">
+              class="sidenav-link">
             <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Min Side</span></a
           >
         </li>
     
-        <li class="sidenav-item">
+        <li class="sidenav-item {% if url_name == 'planner_calendar' %}active{% endif %}">
           <a  href="{% url 'arrangement:planner_calendar' %}" 
-              class="sidenav-link {% if url_name == 'planner_calendar' %}active{% endif %}">
+              class="sidenav-link">
             <i class="fas fa-calendar-plus fa-fw me-3"></i><span>Planleggingskalender</span></a
           >
         </li>
@@ -156,21 +155,21 @@
           
           <hr>
 
-          <li class="sidenav-item">
+          <li class="sidenav-item {% if url_name == 'location_list' %}active{% endif %}">
             <a  href="{% url 'arrangement:location_list' %}" 
-            class="sidenav-link {% if url_name == 'location_list' %}active{% endif %}">
+            class="sidenav-link">
               <i class="fas fa-building fa-fw me-3"></i><span>Lokasjoner</span></a
             >
           </li>
-          <li class="sidenav-item">
+          <li class="sidenav-item {% if url_name == 'person_list' %}active{% endif %}">
             <a  href="{% url 'arrangement:person_list' %}" 
-                class="sidenav-link {% if url_name == 'person_list' %}active{% endif %}">
+                class="sidenav-link">
               <i class="fas fa-users fa-fw me-3"></i><span>Personer</span></a
             >
           </li>
-          <li class="sidenav-item">
+          <li class="sidenav-item {% if url_name == 'organization_list' %}active{% endif %}">
             <a  href="{% url 'arrangement:organization_list' %}"
-                class="sidenav-link {% if url_name == 'organization_list' %}active{% endif %}">
+                class="sidenav-link">
               <i class="fas fa-dollar-sign fa-fw me-3"></i><span>Kunder</span>
             </a>
           </li>
@@ -180,32 +179,35 @@
         <li class="sidenav-item pt-3">
           <span class="sidenav-subheading text-muted fw-bold"><i class="fas fa-cogs"></i>&nbsp; Typer</span>
           <hr>
-          <a  href="{% url 'arrangement:audience_list' %}"
-              class="sidenav-link {% if url_name == 'audience_list' %}active{% endif %}">
-            <i class="fas fa-cubes fa-fw me-3"></i><span>Målgrupper</span></a
-          >
+
         </li>
-        <li class="sidenav-item">
+        <li class="sidenav-item {% if url_name == 'audience_list' %}active{% endif %}">
+          <a  href="{% url 'arrangement:audience_list' %}"
+              class="sidenav-link">
+            <i class="fas fa-cubes fa-fw me-3"></i><span>Målgrupper</span>
+            </a>
+        </li>
+        <li class="sidenav-item {% if url_name == 'statustype_list' %}active{% endif %}">
           <a  href="{% url 'arrangement:statustype_list' %}"
-              class="sidenav-link {% if url_name == 'statustype_list' %}active{% endif %}">
+              class="sidenav-link">
             <i class="fas fa-database fa-fw me-3"></i><span>Status</span></a
           >
         </li>
-        <li class="sidenav-item">
+        <li class="sidenav-item {% if url_name == 'arrangement_type_list' %}active{% endif %}">
           <a  href="{% url 'arrangement:arrangement_type_list' %}" 
-              class="sidenav-link {% if url_name == 'arrangement_type_list' %}active{% endif %}">
+              class="sidenav-link">
             <i class="fas fa-stream fa-fw me-3"></i><span>Arrangement</span></a
           >
         </li>
-        <li class="sidenav-item">
+        <li class="sidenav-item {% if url_name == "servicetype_list" %}active{% endif %}">
           <a  href="{% url 'arrangement:servicetype_list' %}" 
-              class="sidenav-link {% if url_name == "servicetype_list" %}active{% endif %}">
+              class="sidenav-link">
             <i class="fas fa-code-branch fa-fw me-3"></i><span>Tjenestetyper</span></a
           >
         </li>
-        <li class="sidenav-item">
+        <li class="sidenav-item {% if url_name == "organizationtype_list" %}active{% endif %}">
           <a  href="{% url 'arrangement:organizationtype_list' %}"
-              class="sidenav-link {% if url_name == "organizationtype_list" %}active{% endif %}">
+              class="sidenav-link">
             <i class="fas fa-users fa-fw me-3"></i><span>Organisasjonstyper</span></a
           >
         </li>
@@ -222,17 +224,17 @@
         {% endif %}
 
         {% if user.is_superuser or user.is_user_admin %}
-        <li class="sidenav-item mb-1">
+        <li class="sidenav-item {% if url_name == 'user_list' %}active{% endif %} mb-1">
           <a  href="{% url 'users:user_admin_list' %}"
-              class="sidenav-link sidenav-link-success-subtle {% if url_name == 'user_list' %}active{% endif %}">
+              class="sidenav-link sidenav-link-success-subtle">
             <i class="fas fa-user-shield fa-fw me-3"></i><span>Brukere</span></a
           >
         </li>
         {% endif %}
         {% if user.is_superuser or user|has_group:"display_organizer" %}
-        <li class="sidenav-item mb-1">
+        <li class="sidenav-item {% if url_name == 'screen_list' %}active{% endif %} mb-1">
           <a  href="{% url 'screenshow:screen_list' %}"
-              class="sidenav-link sidenav-link-info-subtle {% if url_name == 'screen_list' %}active{% endif %}">
+              class="sidenav-link sidenav-link-info-subtle">
             <i class="fas fa-tv fa-fw me-3"></i><span>Skjermvisning</span></a
           >
         </li>
