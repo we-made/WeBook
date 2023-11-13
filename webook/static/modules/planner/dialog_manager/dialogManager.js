@@ -298,19 +298,35 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                         node.setAttribute("class", "fas " + newClass)
                     };
 
+                    let $dialogElement = dialog._$getDialogEl();
+
                     let options = {};
                     if (dialog._isExpanded === true) {
-                        options = { height: dialog._originalHeight, width: dialog._originalWidth };
+                        options = {
+                            height: dialog._originalHeight,
+                            width: dialog._originalWidth,
+                            position: dialog._originalPosition
+                        };
                         changeIcon(clickEvent.target, "fa-expand");
                     }
                     else {
-                        options = { height: "100%", width: "100%" };
-                        dialog._originalHeight = dialog._$getDialogEl().dialog("option", "height");
-                        dialog._originalWidth = dialog._$getDialogEl().dialog("option", "width");
+                        options = {
+                            height: window.innerHeight + "px",
+                            width: "100%",
+                            position: { my: "left top", at: "left top", of: document }
+                        };
+                        
+                        dialog._originalHeight = "auto";
+                        dialog._originalWidth = $dialogElement.dialog("option", "width");
+                        dialog._originalPosition = $dialogElement.dialog("option", "position");
+
                         changeIcon(clickEvent.target, "fa-compress");
                     }
 
-                    dialog._$getDialogEl().dialog("option", options);
+                    $dialogElement.toggleClass("dialog-fullscreen");
+
+                    $dialogElement.dialog("option", options);
+                    $dialogElement.parent().css("height", options.height);
 
                     dialog._isExpanded = !dialog._isExpanded;
                 }

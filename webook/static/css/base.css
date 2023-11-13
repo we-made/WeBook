@@ -569,3 +569,7 @@ html, body {
 a.fc-event {
     color: unset!important;
 }
+
+.dialog-fullscreen {
+    border-radius: 0px!important;
+}
