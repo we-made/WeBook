@@ -184,32 +184,32 @@
         <li class="sidenav-item {% if url_name == 'audience_list' %}active{% endif %}">
           <a  href="{% url 'arrangement:audience_list' %}"
               class="sidenav-link">
-            <i class="fas fa-cubes fa-fw me-3"></i><span>Målgrupper</span>
+            <span>Målgrupper</span>
             </a>
         </li>
         <li class="sidenav-item {% if url_name == 'statustype_list' %}active{% endif %}">
           <a  href="{% url 'arrangement:statustype_list' %}"
               class="sidenav-link">
-            <i class="fas fa-database fa-fw me-3"></i><span>Status</span></a
+            <span>Status</span></a
           >
         </li>
         <li class="sidenav-item {% if url_name == 'arrangement_type_list' %}active{% endif %}">
           <a  href="{% url 'arrangement:arrangement_type_list' %}" 
               class="sidenav-link">
-            <i class="fas fa-stream fa-fw me-3"></i><span>Arrangement</span></a
-          >
+            <span>Arrangement</span>
+          </a>
         </li>
         <li class="sidenav-item {% if url_name == "servicetype_list" %}active{% endif %}">
           <a  href="{% url 'arrangement:servicetype_list' %}" 
               class="sidenav-link">
-            <i class="fas fa-code-branch fa-fw me-3"></i><span>Tjenestetyper</span></a
-          >
+            <span>Tjenestetyper</span>
+            </a>
         </li>
         <li class="sidenav-item {% if url_name == "organizationtype_list" %}active{% endif %}">
           <a  href="{% url 'arrangement:organizationtype_list' %}"
               class="sidenav-link">
-            <i class="fas fa-users fa-fw me-3"></i><span>Organisasjonstyper</span></a
-          >
+            <span>Organisasjonstyper</span>
+          </a>
         </li>
         {% endif %}
 
