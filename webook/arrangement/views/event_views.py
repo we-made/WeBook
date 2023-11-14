@@ -18,6 +18,20 @@ from django.views.generic import (
 from webook.arrangement.facilities.service_ordering import log_provision_changed, remove_provision_from_service_order
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
 from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import CreateSerieForm, SerieManifestForm
+
+from webook.arrangement.facilities.service_ordering import (
+    log_provision_changed,
+    remove_provision_from_service_order,
+)
+from webook.arrangement.forms.event_forms import (
+    CreateEventForm,
+    UpdateEventBuffersForm,
+    UpdateEventForm,
+)
+from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import (
+    CreateSerieForm,
+    SerieManifestForm,
+)
 from webook.arrangement.forms.file_forms import UploadFilesForm
 from webook.arrangement.models import (
     Arrangement,
@@ -149,6 +163,18 @@ class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
             "actual_visitors": self.object.actual_visitors,
             "meeting_place": self.object.meeting_place,
             "meeting_place_en": self.object.meeting_place_en,
+            "riggingBefore": {
+                "title": self.object.before_buffer_title,
+                "date": self.object.before_buffer_date,
+                "start_time": self.object.before_buffer_start,
+                "end_time": self.object.before_buffer_end,
+            },
+            "riggingAfter": {
+                "title": self.object.after_buffer_title,
+                "date": self.object.after_buffer_date,
+                "start_time": self.object.after_buffer_start,
+                "end_time": self.object.after_buffer_end,
+            },
             "rooms": [ r.id for r in self.object.rooms.all() ],
             "notes": list(  # ToDo: Consider separating this out into a separate view
                 map(
@@ -174,6 +200,18 @@ class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
         }
 
         return JsonResponse(transformed, safe=False)
+
+
+class UpdateEventBufferTimesView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, UpdateView, JsonModelFormMixin
+):
+    """Update the buffer times on an event"""
+
+    model = Event
+    form_class = UpdateEventBuffersForm
+
+
+update_event_buffer_times_view = UpdateEventBufferTimesView.as_view()
 
 
 @transaction.non_atomic_requests

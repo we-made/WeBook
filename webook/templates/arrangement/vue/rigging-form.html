@@ -1,0 +1,80 @@
+
+
+<template id="vuec-rigging-form">
+    <div class="d-flex align-items-center">
+        <div>
+            <input type="text" name="title" id="title"
+                v-model="modelValue.title" @input="emitUpdateEvent"
+                class="form-control w-auto" placeholder="Tittel">
+        </div>
+        <span class="ms-3">
+            Fra
+        </span>
+        <div class="input-group w-auto ms-3">
+            <input type="date" class="form-control" 
+                v-model="modelValue.date" @input="emitUpdateEvent">
+            </input>
+        </div>
+
+        <div class="input-group w-auto ms-2">
+            <span class="input-group-text">
+                <i class="fas fa-clock"></i>
+            </span>
+            <input type="time" class="form-control" 
+                v-model="modelValue.start_time" @input="emitUpdateEvent">
+            </input>
+        </div>
+
+        <span class="ms-2">
+            Til
+        </span>
+
+        <div class="input-group w-auto ms-2">
+            <span class="input-group-text">
+                <i class="fas fa-clock"></i>
+            </span>
+            <input type="time" class="form-control" 
+                v-model="modelValue.end_time"
+                @input="emitUpdateEvent">
+            </input>
+        </div>
+    </div>
+</template>
+
+
+<script>
+    let RiggingForm = {
+        template: '#vuec-rigging-form',
+        delimiters: ['[[', ']]'],
+        props: {
+            modelValue: {
+                type: Object,
+                default: function() {
+                    return {
+                        title: '',
+                        date: '',
+                        start_time: '',
+                        end_time: '',
+                    }
+                }
+            }
+        },
+        mounted: function() {
+            
+        },
+        data() {
+            return {
+            }
+        },
+        emits: ['update:modelValue'],
+        methods: {
+            emitUpdateEvent() {
+                console.log('Emitting update event');
+                console.log(this.modelValue);
+                this.$emit('update:modelValue', this.modelValue);
+            },
+        },
+        components: { 
+        },
+    }
+</script>

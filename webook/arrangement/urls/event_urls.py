@@ -10,6 +10,7 @@ from webook.arrangement.views import (
     delete_file_from_event_view,
     event_serie_delete_file_view,
     event_serie_manifest_view,
+    update_event_buffer_times_view,
     update_event_json_view,
     upload_files_to_event_json_form_view,
     upload_files_to_event_serie_json_form_view,
@@ -19,7 +20,7 @@ from webook.arrangement.views.event_views import (
     get_event_popover_json_view,
 )
 
-event_urls = [ 
+event_urls = [
     path(
         route="event/<int:pk>/popover_json",
         view=get_event_popover_json_view,
@@ -89,5 +90,10 @@ event_urls = [
         route="eventSerie/<int:pk>/preview",
         view=calculate_event_serie_preview_view,
         name="calculate_event_serie_preview",
+    ),
+    path(
+        route="event/<int:pk>/update_buffers",
+        view=update_event_buffer_times_view,
+        name="update_event_buffer_times",
     ),
 ]
