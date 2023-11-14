@@ -314,71 +314,77 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                 tooltip: "Ekspander dialogen til å dekke hele skjermen",
                 icon: "fa-expand",
                 action: (dialog, clickEvent) => {
-                    const changeIcon = (node, newClass) => {
-                        if (node.tagName === "SPAN")
-                            node = node.children[0];
-                        node.setAttribute("class", "fas " + newClass)
-                    };
-
-                    let $dialogElement = dialog._$getDialogEl();
-
-                    let options = {};
-                    if (dialog._isExpanded === true) {
-                        options = {
-                            height: dialog._originalHeight,
-                            width: dialog._originalWidth,
-                            position: dialog._originalPosition
-                        };
-                        changeIcon(clickEvent.target, "fa-expand");
-                        
-                        dialog.unregisterDialogInGlobalScope();
-                        if (Object.keys(window.fullScreenedDialogs).length === 0) {
-                            // only re-active window scroll if no other dialogs are fullscreened
-                            $("body").css("overflow-y", "auto");
-                        }
-                    }
-                    else {
-                        options = {
-                            height: window.innerHeight + "px",
-                            width: "100%",
-                            position: { my: "left top", at: "left top", of: window }
-                        };
-                        
-                        dialog._originalHeight = "auto";
-                        dialog._originalWidth = $dialogElement.dialog("option", "width");
-                        dialog._originalPosition = $dialogElement.dialog("option", "position");
-
-                        // lock window y scroll
-                        $("body").css("overflow-y", "hidden");
-
-                        // make dialog scrollable
-                        $dialogElement.parent().css("overflow-y", "scroll");
-
-                        // Register the dialog as fullscreened in global scope
-                        // If multiple dialogs are fullscreened, we don't want to prematurely reactivate
-                        // window scroll.
-                        // It's a hacky solution, no doubt, like much of this. But with the eventual advent of 
-                        // the vue rewrite i suppose it is fine - this is going out of the window anyway.
-                        dialog.registerDialogInGlobalScope();
-
-                        changeIcon(clickEvent.target, "fa-compress");
-                    }
-
-                    $dialogElement.toggleClass("dialog-fullscreen");
-
-                    $dialogElement.dialog("option", options);
-                    $dialogElement.parent().css("height", options.height);
-
-                    dialog._isExpanded = !dialog._isExpanded;
+                    this.toggleFullscreen(dialog);
                 }
             }
         ];
+    }
+
+    toggleFullscreen(dialog) {
+        const changeIcon = (node, newClass) => {
+            if (node.tagName === "SPAN")
+                node = node.children[0];
+            node.setAttribute("class", "fas " + newClass)
+        };
+
+        let $dialogElement = dialog._$getDialogEl();
+
+        let options = {};
+        if (dialog._isExpanded === true) {
+            options = {
+                height: dialog._originalHeight,
+                width: dialog._originalWidth,
+                position: dialog._originalPosition
+            };
+            // changeIcon(clickEvent.target, "fa-expand");
+            
+            dialog.unregisterDialogInGlobalScope();
+            if (Object.keys(window.fullScreenedDialogs).length === 0) {
+                // only re-active window scroll if no other dialogs are fullscreened
+                $("body").css("overflow-y", "auto");
+            }
+        }
+        else {
+            options = {
+                height: window.innerHeight + "px",
+                width: "100%",
+                position: { my: "left top", at: "left top", of: window }
+            };
+            
+            dialog._originalHeight = "auto";
+            dialog._originalWidth = $dialogElement.dialog("option", "width");
+            dialog._originalPosition = $dialogElement.dialog("option", "position");
+
+            // lock window y scroll
+            $("body").css("overflow-y", "hidden");
+
+            // make dialog scrollable
+            $dialogElement.parent().css("overflow-y", "scroll");
+
+            // Register the dialog as fullscreened in global scope
+            // If multiple dialogs are fullscreened, we don't want to prematurely reactivate
+            // window scroll.
+            // It's a hacky solution, no doubt, like much of this. But with the eventual advent of 
+            // the vue rewrite i suppose it is fine - this is going out of the window anyway.
+            dialog.registerDialogInGlobalScope();
+
+            // changeIcon(clickEvent.target, "fa-compress");
+        }
+
+        $dialogElement.toggleClass("dialog-fullscreen");
+
+        $dialogElement.dialog("option", options);
+        $dialogElement.parent().css("height", options.height);
+
+        dialog._isExpanded = !dialog._isExpanded;
     }
 
     async render(context, dialog, html=null) {
         // if (this.discriminator) {
         //     dialog.destroy();
         // }
+
+        console.log("Rendering dialog: ", dialog.dialogElementId)
 
         if (this._isRendering === false) {
             this._isRendering = true;
@@ -426,6 +432,11 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
             dialog.onRenderedCallback(dialog, context);
 
             this._isRendering = false;
+
+            if (window.isMobile) {
+                dialog._isExpanded = false; // If dialog is re-opened, old fullscreen state is preserved.
+                this.toggleFullscreen(dialog);
+            }
         }
         else {
             console.warn("Dialog is already rendering...")
