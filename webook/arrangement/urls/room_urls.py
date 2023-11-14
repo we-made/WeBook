@@ -13,6 +13,7 @@ from webook.arrangement.views import (
     room_update_json_view,
     room_update_view,
     search_rooms_ajax_view,
+    rooms_select2_json_view,
 )
 
 room_urls = [
@@ -65,5 +66,10 @@ room_urls = [
         route="room/update/json/<slug:slug>/",
         view=room_update_json_view,
         name="room_update_json_view",
+    ),
+    path(
+        route="room/select2/json/",
+        view=rooms_select2_json_view,
+        name="rooms_select2_json_view",  
     ),
 ]

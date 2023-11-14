@@ -14,6 +14,8 @@
 {% include "arrangement/vue/notes/note-list.html" %}
 {% include "arrangement/vue/rigging-form.html" %}
 
+{% include "arrangement/vue/rooms-select.html" %}
+
 <link rel="stylesheet" href="{% static '@vuepic\vue-datepicker\dist\main.css' %}">
 
 <template id="vuec-event-info-dialog">
@@ -91,11 +93,6 @@
                         aria-controls="ex1-tabs-1"
                         aria-selected="true">
                     Aktivitet
-                    </a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a href="#tab-resources" role="tab" data-mdb-toggle="tab" class="nav-link" id="tab-resource">
-                        Rom
                     </a>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -211,9 +208,18 @@
                                                     <input type="number" class="form-control" v-model="event.actual_visitors" min="0">
                                                 </div>
                                             </div>
+
+                                            <div class="col-12">
+                                                <h4>Rom</h4>
+                                                [[event.rooms]]
+                                                <div class="d-flex">
+                                                    <rooms-select v-model:selected="event.rooms">
+                                                    </rooms-select>
+                                                </div>
+                                            </div>
                                         </div>
             
-                                        <h4>Skjermvisning</h4>
+                                        <h4 class="mt-2">Skjermvisning</h4>
                                         <div class="mt-2 mb-1">
                                             <div class="row">
                                                 <div class="col-lg-4 col-sm-12">
@@ -285,12 +291,6 @@
                             </div>
                         </div>
                     </form>
-                </div>
-
-                <div class="tab-pane fade"
-                     id="tab-resources"
-                     role="tabpanel">
-
                 </div>
 
                 <div
@@ -614,6 +614,7 @@
             SelectMainPlannerDialogComponent,
             FilesListComponent,
             NotesListComponent,
+            RoomsSelect,
             RiggingForm
         },
         template: "#vuec-event-info-dialog",
