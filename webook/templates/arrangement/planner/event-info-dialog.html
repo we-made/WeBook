@@ -586,7 +586,14 @@
         },
         emits: ["close"],
         async mounted() {
-            this.displayLayouts = await DataStore.getDisplayLayouts();
+            this.displayLayouts = await fetch("/screenshow/layout/list/json", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }).then(function (response) {
+                return response.json();
+            });
             this.hasMounted = true;
         },
         watch: {
