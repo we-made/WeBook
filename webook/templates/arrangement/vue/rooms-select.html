@@ -1,3 +1,17 @@
+{% comment %}
+Rooms select2 component
+
+This component is used to select rooms. It also allows for selecting presets, which are predefined collections of rooms.
+Logic related to presets are encased in the processIncoming and processOutgoing methods, which effectively means the consumer of this component
+does not need to care about presets, only room ids.
+So feed this component an array of room ids, and it will take care of the rest. When the user selects a preset, the component will
+automatically select all the rooms in the preset, and inversely on deselection of preset, rooms in said preset will be removed.
+The consumer only needs to handle room ids.
+
+When room ids come in, the component will check if all the rooms in a preset are selected, and if so, it will collapse the rooms into the preset.
+
+{% endcomment %}
+
 {% include "arrangement/vue/select2.html" %}
 
 <template id="vuec-rooms-select">
@@ -5,7 +19,7 @@
         @input="(values) => processOutgoing(values)"
         :options="rooms" 
         :multiple="true" 
-        :selected="selected" 
+        :selected="selectedRooms" 
         placeholder="Velg rom og presets">
 
     </select>
@@ -27,15 +41,23 @@
             return {
                 presets: [],
                 rooms: [],
+                skipFlag : false,
                 selectedRooms: this.selected
             }
         },
         watch: {
             selected: function (newSelected) {
-                // Process the ids, replacing with presets where applicable
+                if (this.skipFlag) {
+                    // Avoid infinite loop when updating selectedRooms
+                    // I wonder if this is the best way to do this. it likely is not.
+                    // If you stumble upon this and have a better way, please let me know.
+                    this.skipFlag = false;
+                    return;
+                }
+                // Process the ids, replacing them with presets where applicable, so as to show the "collapsed" presets in the select2
+                // upstream only cares about the room ids
                 let transformedIdsArray = this.processIncoming(newSelected);
 
-                // Set the selected ids
                 this.selectedRooms = transformedIdsArray;
             }
         },
@@ -63,7 +85,6 @@
             },
             processOutgoing: function (selectedIds) {
                 let roomIds = [];
-                console.log("selectedIds", this.presetsLookup);
                 selectedIds.forEach(function(id) {
                     if (String(id).startsWith("PRESET-")) {
                         roomIds = roomIds.concat(this.presetsLookup[id].rooms.map((room) => room.id));
@@ -72,8 +93,7 @@
                         roomIds.push(id);
                     }
                 }.bind(this));
-
-                console.log("new roomids", roomIds)
+                this.skipFlag = true;
 
                 this.$emit('update:selected', roomIds);
             },
