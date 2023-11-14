@@ -625,3 +625,7 @@ a.fc-event {
 .body-container {
     padding-left: 240px;
 }
+
+.dialog-fullscreen {
+    overflow-y: scroll!important;
+}

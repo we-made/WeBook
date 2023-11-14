@@ -49,6 +49,21 @@
             this.plugins.push( plugin );
         });
     }
+    
+    registerDialogInGlobalScope() {
+        if (window.fullScreenedDialogs === undefined) {
+            window.fullScreenedDialogs = {};
+        }
+            
+        window.fullScreenedDialogs[this.dialogElementId] = this;
+    }
+     
+    unregisterDialogInGlobalScope() {
+        if (window.fullScreenedDialogs !== undefined) {
+            delete window.fullScreenedDialogs[this.dialogElementId];
+        }
+    }
+     
 
     standardOnDestroy() {
     }
@@ -66,8 +81,6 @@
         $(this.renderer.$dialogElement).on("dialogclose", (event) => {
             this.destroy();
         });
-        
-        debugger;
 
         this.plugins.forEach((plugin) => plugin.onRender(context));
         return result;
@@ -99,6 +112,16 @@
     }
 
     close() {
+        if (window.fullScreenedDialogs !== undefined) {
+            if (window.fullScreenedDialogs[this.dialogElementId] !== undefined) {
+                window.fullScreenedDialogs[this.dialogElementId].unregisterDialogInGlobalScope();
+            }
+            
+            if (Object.keys(window.fullScreenedDialogs).length === 0) {
+                $("body").css("overflow-y", "auto");
+            }
+        }
+         
         if (this.isOpen() === true) {
             if (typeof this.destructure !== "undefined")
                 this.destructure();
@@ -284,8 +307,7 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                 tooltip: "Lukk denne dialogen",
                 icon: "fa-times",
                 action: (dialog, $buttonNode) => {
-                    dialog.onDestroy();
-                    dialog.destroy();
+                    dialog.close();
                 },
             },
             {
@@ -308,17 +330,36 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
                             position: dialog._originalPosition
                         };
                         changeIcon(clickEvent.target, "fa-expand");
+                        
+                        dialog.unregisterDialogInGlobalScope();
+                        if (Object.keys(window.fullScreenedDialogs).length === 0) {
+                            // only re-active window scroll if no other dialogs are fullscreened
+                            $("body").css("overflow-y", "auto");
+                        }
                     }
                     else {
                         options = {
                             height: window.innerHeight + "px",
                             width: "100%",
-                            position: { my: "left top", at: "left top", of: document }
+                            position: { my: "left top", at: "left top", of: window }
                         };
                         
                         dialog._originalHeight = "auto";
                         dialog._originalWidth = $dialogElement.dialog("option", "width");
                         dialog._originalPosition = $dialogElement.dialog("option", "position");
+
+                        // lock window y scroll
+                        $("body").css("overflow-y", "hidden");
+
+                        // make dialog scrollable
+                        $dialogElement.parent().css("overflow-y", "scroll");
+
+                        // Register the dialog as fullscreened in global scope
+                        // If multiple dialogs are fullscreened, we don't want to prematurely reactivate
+                        // window scroll.
+                        // It's a hacky solution, no doubt, like much of this. But with the eventual advent of 
+                        // the vue rewrite i suppose it is fine - this is going out of the window anyway.
+                        dialog.registerDialogInGlobalScope();
 
                         changeIcon(clickEvent.target, "fa-compress");
                     }
@@ -478,7 +519,7 @@ export class DialogManager {
         this._dialogRepository.get(dialogId)._$getDialogEl().dialog("option", "title", newTitle);
     } 
 
-    closeDialog(dialogId) {
+    closeDialog(dialogId) {        
         const dialog = this._dialogRepository.get(dialogId);
         dialog.onDestroy();
         dialog.close();
@@ -572,8 +613,6 @@ export class DialogManager {
 
                     this.context.lastTriggererDetails = event.detail;
                     value.render(this.context);
-
-                    debugger;
 
                     let parent = event.detail.$parent;
                     let overrideRenderInChain = event.detail.renderInChain;
