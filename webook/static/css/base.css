@@ -687,6 +687,7 @@ a.fc-daygrid-event  {
 
 .select2-selection__choice__remove {
     color: var(--MAIN-COLOR)!important;
+}
 
 .sidenav-subheading {
     padding: 1rem 1.5rem;
