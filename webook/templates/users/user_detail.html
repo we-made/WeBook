@@ -252,6 +252,7 @@
                 return color;
             }
         }
+        let activeDate = new Date();
 
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('day_calendar');
@@ -294,6 +295,7 @@
                 renderPopovers: true,
                 showAdministrativeActionsInContextMenu: {% if user|has_group:"planners" or user.is_superuser %}true{% else %}false{% endif %},
             });
+            let activeCalendar = plannerCalendar;
             plannerCalendar.renderNavigationButtons();
 
             document.getElementById('planner__todayButton').addEventListener('click', (event) => {
