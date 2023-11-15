@@ -20,9 +20,9 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p> {% endco
   <ul class="socialaccount_providers">
     {% include "socialaccount/snippets/provider_list.html" with process="login" %}
   </ul>
-
+  {% if ALLOW_EMAIL_LOGIN %}
   <div class="login-or text-center">eller</div>
-
+  {% endif %}
 </div>
 
 {% include "socialaccount/snippets/login_extra.html" %}
@@ -32,6 +32,7 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p> {% endco
 <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
 {% endif %}
 
+{% if ALLOW_EMAIL_LOGIN %}
 <form class="login" method="POST" action="{% url 'account_login' %}">
   {% csrf_token %}
   <div class="form-group">
@@ -68,5 +69,6 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p> {% endco
     <button class="primaryAction float-end btn btn-lg btn-block wb-btn-main" type="submit">Logg inn</button>
   </div>
 </form>
+{% endif %}
 {% endblock %}
 

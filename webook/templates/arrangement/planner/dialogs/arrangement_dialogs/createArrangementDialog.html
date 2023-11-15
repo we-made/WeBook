@@ -703,6 +703,30 @@
                                 console.log("HTTP-Error: " + response.status);
                             }
                         })
+
+                        for (let i = 0; i < field_elements.length; i++) {
+                            if (field_elements[i].checkValidity() === false) {
+                                dialog.$('#arrangementInfoForm').find(':submit').click();
+                                return false;
+                            }
+                        }
+
+                        if (!dialog.data.audienceJsTreeSelect.isValid()) {
+                            dialog.data.audienceJsTreeSelect.showInvalidFeedback();
+                            return false;
+                        }
+                        if (!dialog.data.arrangementTypeJsTreeSelect.isValid()) {
+                            dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
+                            return false;
+                        }
+
+                        if (!dialog.data.statusTypeJsTreeSelect.isValid())
+                        {
+                            dialog.data.statusTypeJsTreeSelect.showInvalidFeedback();
+                            return false;
+                        }
+
+                        return true;
                     }
                 }
             },

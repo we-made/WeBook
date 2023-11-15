@@ -178,6 +178,7 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webook.middleware.timezone_middleware.TimezoneMiddleware",
+    "crum.CurrentRequestUserMiddleware",
 ]
 
 # STATIC
@@ -201,6 +202,8 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = str(APPS_DIR / "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
+
+DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
@@ -338,6 +341,8 @@ SOCIALACCOUNT_PROVIDERS["microsoft"] = {
         "adapter": "webook.users.adapters.MicrosoftPersonAccountAdapter",
     },
 }
+
+ALLOW_EMAIL_LOGIN = env("ALLOW_EMAIL_LOGIN", default=True)
 
 # Your stuff...
 # ------------------------------------------------------------------------------

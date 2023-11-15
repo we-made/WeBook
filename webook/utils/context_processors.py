@@ -7,12 +7,14 @@ def settings_context(_request):
 
     messages = []
     for message in get_messages(_request):
-        messages.append({ "tag": message.tags, "message": str(message) })
+        messages.append({"tag": message.tags, "message": str(message)})
 
-    return {"DEBUG": settings.DEBUG,
-            "APP_TITLE": settings.APP_TITLE,
-            "APP_LOGO": settings.APP_LOGO,
-            "ASSET_SERVER_URL": settings.ASSET_SERVER_URL,
-            "FULLCALENDAR_LICENSE_KEY": settings.FULLCALENDAR_LICENSE_KEY,
-            "MESSAGES_SERIALIZABLE": messages,
-            }
+    return {
+        "DEBUG": settings.DEBUG,
+        "APP_TITLE": settings.APP_TITLE,
+        "APP_LOGO": settings.APP_LOGO,
+        "ASSET_SERVER_URL": settings.ASSET_SERVER_URL,
+        "FULLCALENDAR_LICENSE_KEY": settings.FULLCALENDAR_LICENSE_KEY,
+        "MESSAGES_SERIALIZABLE": messages,
+        "ALLOW_EMAIL_LOGIN": settings.ALLOW_EMAIL_LOGIN,
+    }

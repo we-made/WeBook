@@ -174,7 +174,7 @@
                         <div id="patternRoute_monthly" style="display: none;">
                             <div>
                                 <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
-                                Dag <input type="number" min="1" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> hver <input type="number" required min="1" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> måned
+                                Dag <input type="number" min="1" max="31" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> hver <input type="number" required min="1" max="12" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> måned
                             </div>
                             <div>
                                 <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> Den
@@ -192,7 +192,7 @@
                             </div>
                             <div>
                                 <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
-                                <input type="number" min="1" required id="every_x_of_month__date" style="width: 40px" />
+                                <input type="number" min="1" max="31" required id="every_x_of_month__date" style="width: 40px" />
                                 <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
                                 </select>
                             </div>
@@ -221,7 +221,7 @@
                         <label>Startdato</label>
                         <input type="date" id="area_start_date" required>
                     </div>
-                    <div class="col-9" id="area_methods_wrapper">
+                    <div class="col-9" id="area_methods_wrapper">   
                         <div>
                             <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
                             Stopp innen: <input type="date" id="area_stopWithin" required>
@@ -777,6 +777,19 @@
 
                             if (dialog.interior.serie_start.value >= dialog.interior.serie_end.value) {
                                 dialog.$('#invalidTimesStep1Feedback').show();
+                                return false;
+                            }
+                            if (!dialog.data.audienceJsTreeSelect.isValid()) {
+                                dialog.data.audienceJsTreeSelect.showInvalidFeedback();
+                                return false;
+                            }
+                            if (!dialog.data.arrangementTypeJsTreeSelect.isValid()) {
+                                dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
+                                return false;
+                            }
+                            if (!dialog.data.statusTypeJsTreeSelect.isValid())
+                            {
+                                dialog.data.statusTypeJsTreeSelect.showInvalidFeedback();
                                 return false;
                             }
                             

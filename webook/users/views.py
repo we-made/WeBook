@@ -2,6 +2,7 @@ import datetime
 from typing import Any, Dict, List, Optional
 
 import pytz
+from allauth.account.views import LoginView, SignupView
 from django import forms as dj_forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -44,9 +45,14 @@ class SingleSignOnErrorView(TemplateView):
 error_sso_view = SingleSignOnErrorView.as_view()
 
 
-class UsersJsonListView(
-    LoginRequiredMixin, ListView, UserAdminAuthorizationMixin, JSONResponseMixin
-):
+class LoginView(TemplateView):
+    template_name = "account/login.html"
+
+
+login_view = LoginView.as_view()
+
+
+class UsersJsonListView(LoginRequiredMixin, ListView, JSONResponseMixin):
     """JSON data source view for the User Administration list view
     The list (sort-of) view uses Vue and should load its requisite data from this view
     """
@@ -193,12 +199,12 @@ sso_detail_dialog_view = UserSSODetailView.as_view()
 
 
 class UserUpdateView(LoginRequiredMixin, FormView):
-
     profile_picture = dj_forms.ImageField(max_length=512, label=_("Profile Picture"))
 
     form_class = ComplexUserUpdateForm
     template_name = "users/user_form.html"
     model = Person
+
     # Send the User Back to Their Own Page after a
     #   successful Update
     def get_success_url(self):
@@ -276,7 +282,6 @@ class UserAdminDetailView(UserAdminAuthorizationMixin, UserUpdateView):
         return context
 
     def form_valid(self, form):
-
         user = self.get_user()
 
         for key, value in form.cleaned_data.items():

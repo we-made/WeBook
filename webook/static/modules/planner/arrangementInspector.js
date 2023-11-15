@@ -694,7 +694,11 @@ export class ArrangementInspector {
                                 headers: {
                                     "X-CSRFToken": details.csrf_token
                                 }
-                            });
+                            }).then(response => {
+                                if (!response.ok) {
+                                    toast.error("Noe gikk galt, prøv igjen senere");
+                                }
+                            })
                         },
                         dialogOptions: { width: 500, dialogClass: 'no-titlebar' },
                     })

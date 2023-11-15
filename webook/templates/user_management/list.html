@@ -50,7 +50,7 @@
 
         <users-table
             :users="visibleUsers"
-            :componentKey="componentKey"
+
             @trigger-view-more-dialog="openViewMoreDialog"
             @batch-deactivate-users="batchDeactivateUsers"
             @batch-activate-users="batchActivateUsers"
@@ -60,6 +60,7 @@
         </users-table>
     </div>
 
+<script src="{% static 'fuse.js/dist/fuse.min.js' %}"></script>
 <script src="{% static 'vue-simple-context-menu/dist/vue-simple-context-menu.min.js' %}"></script>
 
 <script type="module">
@@ -113,10 +114,20 @@
                 },
                 filter( users ) {
                     let matches = users;
-                    if (this.usersSearchTerm.length >= 3) {
-                        matches = matches.filter(user => user.name.includes(this.usersSearchTerm) || user.email.includes(this.usersSearchTerm));
-                    }
 
+                    if (this.usersSearchTerm.length >= 3)
+                    {
+                        const fuse = new Fuse(users, {
+                            keys: [
+                                'name',
+                                'email',
+                            ],
+                            includeScore: true,
+                            threshold: 0.35,
+                        });
+                        matches = fuse.search(this.usersSearchTerm).map( (hit) => hit.item );
+                    }
+                    
                     if (!this.showSystemAdministrators)
                         matches = matches.filter( (user) => user.is_superuser === false )
                     if (!this.showPlanners)

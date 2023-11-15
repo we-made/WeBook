@@ -22,3 +22,5 @@ python-dateutil
 django-colorfield
 httpx
 schedule
+django-crum==0.7.9
+django-storages==1.14.2

@@ -54,7 +54,12 @@
                 theme: 'snow'
             });
 
-            dialog.data.editor.focus();
+            dialog.data.editor.on('text-change', function (delta, old, source) {
+                if (dialog.data.editor.getLength() > 5000) {
+                    dialog.data.editor.deleteText(5000, dialog.data.editor.getLength());
+                    toastr.error('Maks 5000 tegn');
+                }
+            });
         },
         methods: {
             cancel(dialog) {

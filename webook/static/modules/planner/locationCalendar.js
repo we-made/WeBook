@@ -268,7 +268,7 @@ export class LocationCalendar extends FullCalendarBased {
                     if (this.useOnclickEvents)
                         this._bindInspectorTrigger(arg.el);
                 },
-                navLinks: true,
+                navLinks: false,
                 locale: 'nb',
                 eventSources: [
                     {
@@ -302,6 +302,7 @@ export class LocationCalendar extends FullCalendarBased {
                     ));
                 },
                 resources: async (fetchInfo, successCallback, failureCallback) => {
+                    console.log("Fetching resources");
                     await _this._LOCATIONS_STORE._refreshStore();
                     successCallback(_this._LOCATIONS_STORE.getAll({ get_as: _FC_RESOURCE, filteredLocations: this.filter.locations, filteredRooms: this.filter.rooms }));
                 },

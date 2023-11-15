@@ -18,7 +18,7 @@ class Command(BaseCommand):
         arrangements: List[Arrangement] = Arrangement.objects.all()
 
         for arrangement in arrangements:
-            latest_activity: datetime = arrangement.event_set.order_by("end").first()
+            latest_activity: datetime = arrangement.event_set.order_by("-end").first()
             if latest_activity is None:
                 continue
 
@@ -41,5 +41,6 @@ class Command(BaseCommand):
                 continue
 
             for note in filter(lambda x: x.has_personal_information, notes):
+                print(f"\t() Sanitizing note {note.id} for arrangement {arrangement.id} (past {options['delete_after_n_days']} days)")
                 note.content = "** Notat sanitisert etter endt arrangement grunnet personlig identifiserende informasjon **"
                 note.save()

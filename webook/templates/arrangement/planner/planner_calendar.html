@@ -98,10 +98,6 @@ container-fluid
 
 {% block content %}
 
-<div class="mb-3">
-    <div id="jstree-of-test"></div>
-</div>
-
 <div class="row">
     <div class="col-12">
         <div class="clearfix">
@@ -133,7 +129,7 @@ container-fluid
                 </div>
             </div>
             <div class="float-end d-inline">
-                <div id="location-and-rooms-popover-filter" class="mb-2  d-inline">
+                <div id="location-and-rooms-popover-filter" class="mb-2 d-inline">
                     <button class="btn wb-btn-white wb-large-btn btn-lg" id="location-and-rooms-popover-filter-trigger">
                         <i class="fas fa-building text-dark"></i>&nbsp;
                         Lokasjoner & Rom
@@ -168,14 +164,13 @@ container-fluid
                     <span id="status-type-popover-filter-content">
                     </span>
                 </div>
-                <div id="services-popover-filter" class="mb-2  d-inline">
-                    <button class="btn wb-btn-white btn-lg wb-large-btn" id="services-popover-filter-trigger">
-                        <i class="fas fa-briefcase text-dark"></i>&nbsp;
-                        Tjenester
-                        <i class="fas fa-angle-down"></i>
+                <div class="mb-2 d-inline">
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" 
+                            id="clearAllFilters"
+                            data-mdb-toggle="tooltip"
+                            title="Fjern alle filtervalg">
+                        &nbsp;<i class="fas fa-times text-dark"></i>&nbsp;
                     </button>
-                    <span id="services-popover-filter-content">
-                    </span>
                 </div>
             </div>
         </div>
@@ -363,6 +358,14 @@ container-fluid
         isSearchable: true,
     });
 
+    // Temporary until we rewrite to use Vue
+    document.getElementById("clearAllFilters").addEventListener('click', function () {
+        statusTypeFilter.clear();
+        arrangementTypeTreeFilter.clear();
+        audienceTreeFilter.clear();
+        locationAndRoomsFilter.clear();
+    });
+
     const colorSwatch = [
         "#63b598", "#ce7d78", "#ea9e70", "#a48a9e", "#c6e1e8", "#648177", "#0d5ac1",
         "#f205e6", "#1c0365", "#14a9ad", "#4ca2f9", "#a4e43f", "#d298e2", "#6119d0",
@@ -540,6 +543,7 @@ container-fluid
             if (result.isConfirmed) {
                 let date = new Date(document.getElementById('swalGoToDate').value);
                 activeDate = date;
+                debugger;
                 activeCalendar.getFcCalendar().gotoDate(activeDate);
             }
         })
@@ -557,7 +561,7 @@ container-fluid
             calendarElement: document.getElementById('arrangementPlannerCalendar'),
             arrangementInspectorUtility: arrangementInspector,
             eventInspectorUtility: eventInspector,
-            eventsSrcUrl: "{% url 'arrangement:arrangement_events' %}",
+            eventsSrcUrl: "/arrangement/planner/arrangements_in_period",
             colorProviders: [ 
                 { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
                 { key: "audience", provider: new ColorByAudienceColorProvider() },

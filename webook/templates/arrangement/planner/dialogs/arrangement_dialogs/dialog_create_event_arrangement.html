@@ -511,6 +511,20 @@
 
                             $('#eventTimesInvalidFeedback').hide();
 
+                            if (!dialog.data.audienceJsTreeSelect.isValid()) {
+                                dialog.data.audienceJsTreeSelect.showInvalidFeedback();
+                                return false;
+                            }
+                            if (!dialog.data.arrangementTypeJsTreeSelect.isValid()) {
+                                dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
+                                return false;
+                            }
+                            if (!dialog.data.statusTypeJsTreeSelect.isValid())
+                            {
+                                dialog.data.statusTypeJsTreeSelect.showInvalidFeedback();
+                                return false;
+                            }
+
                             return true;
                         }
                     },
