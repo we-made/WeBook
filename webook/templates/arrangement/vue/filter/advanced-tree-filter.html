@@ -3,12 +3,10 @@
 <template id="vuec-advanced-tree-filter">
     <button class="btn wb-btn-white btn-lg wb-large-btn" 
         @click="isExpanded = !isExpanded">
-        <i class="fa fa-filter"></i>&nbsp;
+        <i :class="'fa ' + icon"></i>&nbsp;
         <span>[[label]]</span>&nbsp;
         <i class="fas fa-angle-down"></i>
     </button>
-
-    [[ trigger ]]
 
     <popover-component 
         :is-visible="isExpanded"
@@ -29,11 +27,15 @@
     let AdvancedTreeFilter = {
         components: { PopoverComponent },
         props: {
+            icon: {
+                type: String,
+                default: 'fa fa-filter'
+            },
             label: {
                 type: String,
                 default: 'Filter'
             },
-            cascade_behaviour: {
+            cascadeBehaviour: {
                 type: String,
                 default: 'normal'
             },
@@ -45,7 +47,7 @@
         methods: {
             initializeTree() {
                 $(this.$refs.tree).jstree({
-                    'checkbox': {},
+                    'checkbox': this.cascadeBehaviour in this.behaviours ? this.behaviours[this.cascadeBehaviour] : this.behaviours.normal,
                     'plugins': ['checkbox', 'search', 'changed'],
                     'core': {
                         "themes" : { "icons": false },
@@ -69,7 +71,14 @@
             return {
                 isExpanded: false,
                 data: [],
-                searchTerm: ''
+                searchTerm: '',
+                behaviours: {
+                    normal: {},
+                    parent_independent_cascade: {
+                        "three_state": false,
+                        "cascade": "up+undetermined",
+                    },
+                }
             }
         },
         watch: {
