@@ -1,4 +1,4 @@
-<template id="vuec-popover-component">
+r<template id="vuec-popover-component">
     <div 
         :class="[ { active : internalIsVisible }, 'popover_wrapper', 'dialog-popover-left-fix' ]" 
         ref="popover">
@@ -18,6 +18,7 @@
         data() {
             return {
                 internalIsVisible: false,
+                ignoreNextClick: false,
             }
         },
         methods: {
@@ -34,6 +35,7 @@
                 }
                 else {
                     this.internalIsVisible = newState;
+                    this.ignoreNextClick = true;
                     $(this.$refs.popover).show("fade", {}, 400);
                 }
             },
@@ -45,14 +47,15 @@
             this.internalIsVisible = this.isVisible;
 
             this.clickOutsideEvent = (e) => {
+                if (this.ignoreNextClick) {
+                    this.ignoreNextClick = false;
+                    return;
+                }
+
                 if (this.$el !== event.target && !this.$el.contains(event.target)) {
-                    console.log("excludes", this.excludes)
                     if (this.excludes && this.excludes.length > 0 && this.excludes.includes(event.target)) {
                         return;
                     }
-                    
-                    console.log("Clicked outside");
-                    console.log(event.target, this.$el.contains(event.target));
 
                     this.internalIsVisible = false;
                 }
