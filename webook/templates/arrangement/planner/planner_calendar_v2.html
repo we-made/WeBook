@@ -15,6 +15,7 @@ container-fluid
 {% include "arrangement/vue/dialog-component.html" %}
 {% include "arrangement/planner/event-info-dialog.html" %}
 {% include "arrangement/vue/filter/advanced-tree-filter.html" %}
+{% include "arrangement/planner/arrangement-info-dialog.html" %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -30,6 +31,14 @@ container-fluid
         :is-visible="isEventDialogOpen">
     </event-info-dialog-component>
 
+    <arrangement-info-dialog
+        @close="isArrangementDialogOpen = false"
+        :is-visible="isArrangementDialogOpen">
+    </arrangement-info-dialog>
+
+    <button @click="isArrangementDialogOpen = true">
+        <i class="fas fa-plus"></i>
+    </button>
 
     <div class="sticky-top border-bottom" >
         <nav class="navbar navbar-expand-lg navbar-light bg-white p-2 pb-0 wb-sub-bar shadow-0">
@@ -229,12 +238,14 @@ container-fluid
                 DialogComponent, 
                 CalendarComponent, 
                 EventInfoDialogComponent, 
-                AdvancedTreeFilter 
+                AdvancedTreeFilter,
+                ArrangementInfoDialog
             },
             data() {
                 return {
                     focusedEventId: null,
                     isEventDialogOpen: false,
+                    isArrangementDialogOpen: false,
                     contextMenuItems: {
                         arrangement_inspector: {
                             name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
