@@ -1,3 +1,5 @@
+{% include "arrangement/vue/popover-tree-select.html" %}
+
 <template id="vuec-arrangement-info-dialog">
 
     <dialog-component
@@ -13,11 +15,20 @@
                 Arrangement Tittel          
             </h3>
         
-
         </template>
 
         <template v-slot:content>
         
+            <div>
+                <button @click="selectIsExpanded = !selectIsExpanded">Clickity click</button>
+                <popover-tree-select
+                    :is-visible="selectIsExpanded"
+                    data-source="/arrangement/audience/tree"
+                    @update:selected="(selected) => { console.log('wololo', selected); }">
+                </popover-tree-select>
+            </div>
+
+
             <div class="d-flex mt-2">
                 <div>
                     <button class="btn wb-btn-secondary">
@@ -250,17 +261,19 @@
 <script>
     let ArrangementInfoDialog = {
         name: 'ArrangementInfoDialog',
-        components: { DialogComponent, NotesListComponent, FilesListComponent },
+        components: { DialogComponent, NotesListComponent, FilesListComponent, PopoverTreeSelect },
         data() {
             return {
                 dialogVisible: false,
-                arrangementInfo: {}
+                arrangementInfo: {},
+                selectIsExpanded: false
             }
         },
         methods: {
             show(arrangementInfo) {
                 this.arrangementInfo = arrangementInfo;
-                this.dialogVisible = true;            },
+                this.dialogVisible = true;            
+            },
             close() {
                 this.dialogVisible = false;
             }
