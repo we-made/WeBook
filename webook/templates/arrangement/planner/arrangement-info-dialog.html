@@ -206,8 +206,10 @@
                             </div>
 
                             <div class="mt-2">
-                                <h5>Skjermvisning</h5>
-
+                                <display-layout-select
+                                    v-model:selected-display-layouts="selectedLayouts"
+                                    v-model:text="displayText">
+                                </display-layout-select>
                             </div>
 
                         </div>
@@ -250,11 +252,13 @@
 <script>
     let ArrangementInfoDialog = {
         name: 'ArrangementInfoDialog',
-        components: { DialogComponent, NotesListComponent, FilesListComponent },
+        components: { DialogComponent, NotesListComponent, FilesListComponent, DisplayLayoutSelect },
         data() {
             return {
                 dialogVisible: false,
-                arrangementInfo: {}
+                arrangementInfo: {},
+                selectedLayouts: [],
+                displayText: "Hi"
             }
         },
         methods: {
