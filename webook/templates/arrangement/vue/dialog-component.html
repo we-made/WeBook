@@ -170,7 +170,7 @@
                                 this.chainToEl = document.querySelector(this.chainTo)
                                 if (!this.chainToEl)
                                     throw new Error("Could not find element with selector " + this.chainTo
-                                        + " to chain dialog to");
+                                        + " to chain dialog to");e
                                 
                                 // If the element is child of a dialog, we must chain to the parent dialog element
                                 // Lest we chain to the content of the dialog which would cause
@@ -240,7 +240,7 @@
             this.isMounted = true;
 
             this.$nextTick(function () {
-                this.$emits("rendered");
+                this.$emit("rendered");
 
                 if (this.isVisible)
                 {
