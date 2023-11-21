@@ -252,10 +252,8 @@ container-fluid
                             name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
                             isHtmlName: true,
                             callback: (key, opt) => {
-                                const arrangementId = [...opt.$trigger[0].classList]
-                                    .filter((x) => x.startsWith("arrangement-id"))
-                                    ?.map((x) => x.split("-").pop())[0];
-                                
+                                const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);
+
                                 this.isArrangementDialogOpen = true;
                                 this.focuseedArrangementId = arrangementId;
                             }
@@ -264,14 +262,78 @@ container-fluid
                             name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
                             isHtmlName: true,
                             callback: (key, opt) => {
-                                const eventId = [...opt.$trigger[0].classList]
-                                    .filter((x) => x.startsWith("event-id"))
-                                    ?.map((x) => x.split("-").pop())[0];
-                                
+                                const eventId = this.getEventIdFromElement(opt.$trigger[0]);
+
                                 this.isEventDialogOpen = true;
                                 this.focusedEventId = eventId;
                             }
                         },
+                        delete_event: {
+                            name: "Slett tidspunkt",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+                                const eventId = this.getEventIdFromElement(opt.$trigger[0]);
+
+                                Swal.fire({
+                                    title: "Er du sikker?",
+                                    text: "Dette vil slette tidspunktet fra arrangementet",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                }).then(response => {
+                                    if (response.isConfirmed) {
+                                        fetch(`/arrangement/planner/delete_event/${eventId}`, {
+                                            method: "DELETE",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "X-CSRFToken": "{{ csrf_token }}"
+                                            }
+                                        }).then(response => {
+                                            if (response.status === 200) {
+                                                Swal.fire({
+                                                    title: "Tidspunktet ble slettet",
+                                                    icon: "success"
+                                                }).then(() => {
+                                                    this.$refs.calendar.calendar.refetchEvents();
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        },
+                        delete_arrangement: {
+                            name: "Slett arrangement",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+                                const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);
+
+                                Swal.fire({
+                                    title: "Er du sikker?",
+                                    text: "Dette vil slette arrangementet",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                }).then(response => {
+                                    if (response.isConfirmed) {
+                                        fetch(`/arrangement/arrangement/delete/${arrangementId}`, {
+                                            method: "DELETE",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "X-CSRFToken": "{{ csrf_token }}"
+                                            }
+                                        }).then(response => {
+                                            if (response.status === 200) {
+                                                Swal.fire({
+                                                    title: "Arrangementet ble slettet",
+                                                    icon: "success"
+                                                }).then(() => {
+                                                    this.$refs.calendar.calendar.refetchEvents();
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        }
                     },
                     eventLabelGeneratorFunction: (arg) => {
                         const formatTime = function (text) {
@@ -437,6 +499,18 @@ container-fluid
 
                 goToToday() {
                     this.$refs.calendar.calendar.today();
+                },
+
+                getEventIdFromElement(element) {
+                    return [...element.classList]
+                                .filter((x) => x.startsWith("event-id"))
+                                ?.map((x) => x.split("-").pop())[0];
+                },
+
+                getArrangementIdFromElement(element) {
+                    return [...element.classList]
+                                .filter((x) => x.startsWith("arrangement-id"))
+                                ?.map((x) => x.split("-").pop())[0];
                 },
 
                 async getEventsInPeriod(arg) {
