@@ -17,6 +17,7 @@ container-fluid
 {% include "arrangement/planner/event-info-dialog.html" %}
 {% include "arrangement/vue/filter/advanced-tree-filter.html" %}
 {% include "arrangement/planner/arrangement-info-dialog.html" %}
+{% include "arrangement/planner/planner-base-dialog.html" %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -25,6 +26,11 @@ container-fluid
 <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
 
 <div id="vuec-planner-calendar">
+
+    <planner-base-dialog
+        @close="isPlannerDialogOpen = false"
+        :is-visible="isPlannerDialogOpen">
+    </planner-base-dialog>
 
     <event-info-dialog-component 
         @close="isEventDialogOpen = false"
@@ -102,17 +108,15 @@ container-fluid
                     </div>
                     {% if user|has_group:"planners" or user.is_superuser %}
                     <div class="col-4 d-flex justify-content-end">
-
                         {% comment %} <div class="input-group me-3">
                             <input type="text" name="" id="" class="form-control form-control-lg">
                         </div> {% endcomment %}
 
                         <div>
-                            <button class="btn wb-btn-main" id="newArrangementBtn">
+                            <button class="btn wb-btn-main" id="newArrangementBtn" @click="isPlannerDialogOpen = true">
                                 <i class="fas fa-plus"></i>&nbsp; Opprett arrangement
                             </button>
                         </div>
-                        
                     </div>
                     {% endif %}
                 </div>
@@ -236,11 +240,13 @@ container-fluid
                 CalendarComponent, 
                 EventInfoDialogComponent, 
                 AdvancedTreeFilter,
-                ArrangementInfoDialog
+                ArrangementInfoDialog,
+                PlannerBaseDialog
             },
             data() {
                 return {
                     focusedEventId: null,
+                    isPlannerDialogOpen: false,
                     isEventDialogOpen: false,
                     isArrangementDialogOpen: false,
                     contextMenuItems: {
