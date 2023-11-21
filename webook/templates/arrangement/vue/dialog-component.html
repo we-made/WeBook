@@ -23,7 +23,7 @@
                     @click="toggleFullScreen()">
                     <i class="fas fa-expand"></i>
                 </button>
-                <button class="btn btn-white shadow-0" type="button" @click="$emit('close')">
+                <button class="btn btn-white shadow-0" type="button" @click="close()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -112,7 +112,6 @@
                     $(this.$refs.dialogRoot).dialog("option", "width", "100%");
                     $(this.$refs.dialogRoot).dialog("option", "height", window.innerHeight + "px");
 
-
                     $(this.$refs.dialogRoot).dialog("option", "position", {
                         my: "top", 
                         at: "center top",
@@ -130,6 +129,12 @@
                     this.isFullScreen = true;
                 }
             },
+            close() {
+                if (this.isFullScreen)
+                    this.toggleFullScreen();
+
+                this.$emit("close");
+            }
         },
         watch: {
             isVisible() {
@@ -155,7 +160,7 @@
 
                         $(document).keyup(function (e) {
                             if (e.keyCode == 27) {
-                                this.$emits("close");
+                                this.close();
                             }
                         }.bind(this));
 
