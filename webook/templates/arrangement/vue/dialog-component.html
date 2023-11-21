@@ -129,17 +129,8 @@
                     this.isFullScreen = true;
                 }
             },
-            close() {
-                if (this.isFullScreen)
-                    this.toggleFullScreen();
-
-                this.$emit("close");
-            }
-        },
-        watch: {
-            isVisible() {
-                if (this.isVisible) {
-                    this.$nextTick(function () {
+            show() {
+                this.$nextTick(function () {
                         $(this.$refs.dialogRoot).dialog({
                             width: this.width || "40rem",
                             resizable: this.isResizable,
@@ -219,11 +210,18 @@
                             this.toggleFullScreen();
                         }
                     })
-                }
-                else {
-                    if ($(this.$refs.dialogRoot).dialog("isOpen"))
+            },
+            close() {
+                if ($(this.$refs.dialogRoot).dialog("isOpen"))
                         $(this.$refs.dialogRoot).dialog("close");
-                }
+
+                if (this.isFullScreen)
+                    this.toggleFullScreen();
+            }
+        },
+        watch: {
+            isVisible() {
+                this.isVisible ? this.show() : this.close();
             },
         },
         computed: {
@@ -242,8 +240,8 @@
 
                 if (this.isVisible)
                 {
-                    this.isVisible = false;
-                    this.isVisible = true;
+                    this.close();
+                    this.show();
                 }
             });
         },
