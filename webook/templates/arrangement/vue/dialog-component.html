@@ -139,8 +139,6 @@
         watch: {
             isVisible() {
                 if (this.isVisible) {
-                    debugger;
-
                     this.$nextTick(function () {
                         $(this.$refs.dialogRoot).dialog({
                             width: this.width || "40rem",
