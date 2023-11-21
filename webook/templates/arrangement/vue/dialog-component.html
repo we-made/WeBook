@@ -217,6 +217,8 @@
 
                 if (this.isFullScreen)
                     this.toggleFullScreen();
+
+                this.$emit("close");
             }
         },
         watch: {
