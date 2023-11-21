@@ -252,14 +252,24 @@ container-fluid
                             name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
                             isHtmlName: true,
                             callback: (key, opt) => {
-        
+                                const arrangementId = [...opt.$trigger[0].classList]
+                                    .filter((x) => x.startsWith("arrangement-id"))
+                                    ?.map((x) => x.split("-").pop())[0];
+                                
+                                this.isArrangementDialogOpen = true;
+                                this.focusedArrangementId = arrangementId;
                             }
                         },
                         event_inspector: {
                             name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
                             isHtmlName: true,
                             callback: (key, opt) => {
-
+                                const eventId = [...opt.$trigger[0].classList]
+                                    .filter((x) => x.startsWith("event-id"))
+                                    ?.map((x) => x.split("-").pop())[0];
+                                
+                                this.isEventDialogOpen = true;
+                                this.focusedEventId = eventId;
                             }
                         },
                     },
@@ -439,6 +449,8 @@ container-fluid
                         if (sessionStorage.getItem(`${event.arrangement_pk}_color`) === null) {
                             sessionStorage.setItem(`${event.arrangement_pk}_color`, colorSwatch[Math.floor(Math.random() * colorSwatch.length)]);
                         }                        
+
+                        console.log("event", event);
                         
                         fcCalendarEvents.push({
                             "id": event.event_pk,
@@ -446,7 +458,10 @@ container-fluid
                             "start": event.starts,
                             "end": event.ends,
                             "backgroundColor": sessionStorage.getItem(`${event.arrangement_pk}_color`),
-                            "classNames": "event-id-" + event.event_pk,
+                            "classNames": [
+                                "event-id-" + event.event_pk,
+                                "arrangement-id-" + event.arrangement_pk
+                            ],
                             "extendedProps": {
                                 "event_id": event.event_pk,
                                 "arrangement_id": event.arrangement_pk,
