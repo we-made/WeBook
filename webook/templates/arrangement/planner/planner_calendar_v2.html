@@ -448,10 +448,8 @@ container-fluid
 
                         if (sessionStorage.getItem(`${event.arrangement_pk}_color`) === null) {
                             sessionStorage.setItem(`${event.arrangement_pk}_color`, colorSwatch[Math.floor(Math.random() * colorSwatch.length)]);
-                        }                        
-
-                        console.log("event", event);
-                        
+                        }
+                    
                         fcCalendarEvents.push({
                             "id": event.event_pk,
                             "title": event.name,
