@@ -7,6 +7,7 @@
         :start-full-screen="true"
         @close="$emit('close')"
         use-backdrop="true" 
+        width="50%"
         is-draggable="true">
 
         <template v-slot:header>
@@ -159,11 +160,20 @@
                                         <input type="number" name="" id="" class="form-control " min="0">
                                     </div>
 
-                                    <div>
+                                    <div class>
                                         <label for="">Faktisk antall besøkende</label>
                                         <input type="number" name="" id="" class="form-control" min="0">
                                     </div>
 
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="mt-3">
+                                        <display-layout-select
+                                            v-model:selected-display-layouts="selectedLayouts"
+                                            v-model:text="displayText">
+                                        </display-layout-select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -181,46 +191,39 @@
                             </div>
 
                             <div class="mt-2">
-                                <label for="">
-                                    <i class="fas fa-users"></i>&nbsp;
-                                    Målgruppe
-                                </label>
-                                <select name="" id="" class="form-select">
-                                    <option value="">Barn</option>
-                                    <option value="">Ungdom</option>
-                                    <option value="">Voksne</option>
-                                </select>
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Målgruppe" 
+                                    json-url="{% url 'arrangement:audience_tree' %}"
+                                    button-label="Velg målgruppe"
+                                    icon="fas fa-users"
+                                    v-model="arrangement.audience">
+
+                                </tree-select-component>
                             </div>
 
                             <div class="mt-2">
-                                <label for="">
-                                    <i class="fas fa-cogs"></i>&nbsp;
-                                    Arrangementstype
-                                </label>
-                                <select name="" id="" class="form-select">
-                                    <option value="">Konsert</option>
-                                    <option value="">Festival</option>
-                                    <option value="">Kurs</option>
-                                </select>
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Arrangementstype" 
+                                    json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                    button-label="Velg arrangementstype"
+                                    icon="fas fa-cog"
+                                    v-model="arrangement.arrangement_type">
+
+                                </tree-select-component>
                             </div>
 
                             <div class="mt-2">
-                                <label for="">
-                                    <i class="fas fa-cogs"></i>&nbsp;
-                                    Status
-                                </label>
-                                <select name="" id="" class="form-select">
-                                    <option value="">Planlagt</option>
-                                    <option value="">Gjennomført</option>
-                                    <option value="">Avlyst</option>
-                                </select>
-                            </div>
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Status" 
+                                    json-url="{% url 'arrangement:statustype_tree' %}"
+                                    button-label="Velg status"
+                                    icon="fas fa-cog"
+                                    v-model="arrangement.status_type">
 
-                            <div class="mt-2">
-                                <display-layout-select
-                                    v-model:selected-display-layouts="selectedLayouts"
-                                    v-model:text="displayText">
-                                </display-layout-select>
+                                </tree-select-component>
                             </div>
 
                         </div>
@@ -263,14 +266,26 @@
 <script>
     let ArrangementInfoDialog = {
         name: 'ArrangementInfoDialog',
-        components: { DialogComponent, NotesListComponent, FilesListComponent, PopoverTreeSelect, DisplayLayoutSelect },
+        components: { 
+            DialogComponent, 
+            NotesListComponent, 
+            FilesListComponent, 
+            PopoverTreeSelect, 
+            DisplayLayoutSelect, 
+            TreeSelectComponent
+         },
         data() {
             return {
                 dialogVisible: false,
                 arrangementInfo: {},
                 selectIsExpanded: false,
                 selectedLayouts: [],
-                displayText: "Hi"
+                displayText: "Hi",
+                arrangement: {
+                    audience: null,
+                    arrangement_type: null,
+                    status_type: null
+                }
             }
         },
         methods: {
