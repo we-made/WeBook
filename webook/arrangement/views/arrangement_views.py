@@ -207,6 +207,7 @@ arrangement_update_view = ArrangementUpdateView.as_view()
 class ArrangementDeleteView(
     LoginRequiredMixin, PlannerAuthorizationMixin, MetaMixin, JsonArchiveView
 ):
+    pk_url_kwarg = "pk"
     model = Arrangement
     current_crumb_title = _("Delete Arrangement")
     section_subtitle = _("Edit Arrangement")

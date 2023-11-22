@@ -38,7 +38,7 @@ arrangement_urls = [
         name="arrangement_edit",
     ),
     path(
-        route="arrangement/delete/<slug:slug>",
+        route="arrangement/delete/<int:pk>",
         view=arrangement_delete_view,
         name="arrangement_delete",
     ),

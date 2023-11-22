@@ -23,7 +23,7 @@
                     @click="toggleFullScreen()">
                     <i class="fas fa-expand"></i>
                 </button>
-                <button class="btn btn-white shadow-0" type="button" @click="$emit('close')">
+                <button class="btn btn-white shadow-0" type="button" @click="close()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -112,7 +112,6 @@
                     $(this.$refs.dialogRoot).dialog("option", "width", "100%");
                     $(this.$refs.dialogRoot).dialog("option", "height", window.innerHeight + "px");
 
-
                     $(this.$refs.dialogRoot).dialog("option", "position", {
                         my: "top", 
                         at: "center top",
@@ -130,13 +129,8 @@
                     this.isFullScreen = true;
                 }
             },
-        },
-        watch: {
-            isVisible() {
-                if (this.isVisible) {
-                    debugger;
-
-                    this.$nextTick(function () {
+            show() {
+                this.$nextTick(function () {
                         $(this.$refs.dialogRoot).dialog({
                             width: this.width || "40rem",
                             resizable: this.isResizable,
@@ -155,7 +149,7 @@
 
                         $(document).keyup(function (e) {
                             if (e.keyCode == 27) {
-                                this.$emits("close");
+                                this.close();
                             }
                         }.bind(this));
 
@@ -165,7 +159,7 @@
                                 this.chainToEl = document.querySelector(this.chainTo)
                                 if (!this.chainToEl)
                                     throw new Error("Could not find element with selector " + this.chainTo
-                                        + " to chain dialog to");
+                                        + " to chain dialog to");e
                                 
                                 // If the element is child of a dialog, we must chain to the parent dialog element
                                 // Lest we chain to the content of the dialog which would cause
@@ -216,11 +210,20 @@
                             this.toggleFullScreen();
                         }
                     })
-                }
-                else {
-                    if ($(this.$refs.dialogRoot).dialog("isOpen"))
+            },
+            close() {
+                if ($(this.$refs.dialogRoot).dialog("isOpen"))
                         $(this.$refs.dialogRoot).dialog("close");
-                }
+
+                if (this.isFullScreen)
+                    this.toggleFullScreen();
+
+                this.$emit("close");
+            }
+        },
+        watch: {
+            isVisible() {
+                this.isVisible ? this.show() : this.close();
             },
         },
         computed: {
@@ -235,12 +238,12 @@
             this.isMounted = true;
 
             this.$nextTick(function () {
-                this.$emits("rendered");
+                this.$emit("rendered");
 
                 if (this.isVisible)
                 {
-                    this.isVisible = false;
-                    this.isVisible = true;
+                    this.close();
+                    this.show();
                 }
             });
         },

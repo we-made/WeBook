@@ -147,6 +147,7 @@ class DisplayLayoutsListJsonView(LoginRequiredMixin, JsonListView):
                     "id": x.id,
                     "slug": x.slug,
                     "name": x.name,
+                    "display_layout_text": x.triggers_display_layout_text,
                 },
                 qs,
             )

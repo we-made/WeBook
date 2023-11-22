@@ -13,10 +13,13 @@ container-fluid
 
 {% include "arrangement/calendar/calendar.html" %}
 {% include "arrangement/vue/dialog-component.html" %}
+{% include "arrangement/vue/display-layout-select-component.html" %}
 {% include "arrangement/planner/event-info-dialog.html" %}
 {% include "arrangement/vue/filter/advanced-tree-filter.html" %}
 {% include "arrangement/planner/arrangement-info-dialog.html" %}
 {% include "arrangement/vue/popover-tree-select.html" %}
+{% include "arrangement/planner/planner-base-dialog.html" %}
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="{% static 'select2/dist/css/select2.min.css' %}"></link>
@@ -29,6 +32,10 @@ container-fluid
         data-source="/arrangement/audience/tree">
     </popover-tree-select>
 
+    <planner-base-dialog
+        @close="isPlannerDialogOpen = false"
+        :is-visible="isPlannerDialogOpen">
+    </planner-base-dialog>
 
     <event-info-dialog-component 
         @close="isEventDialogOpen = false"
@@ -40,10 +47,6 @@ container-fluid
         @close="isArrangementDialogOpen = false"
         :is-visible="isArrangementDialogOpen">
     </arrangement-info-dialog>
-
-    <button @click="isArrangementDialogOpen = true">
-        <i class="fas fa-plus"></i>
-    </button>
 
     <div class="sticky-top border-bottom" >
         <nav class="navbar navbar-expand-lg navbar-light bg-white p-2 pb-0 wb-sub-bar shadow-0">
@@ -110,17 +113,15 @@ container-fluid
                     </div>
                     {% if user|has_group:"planners" or user.is_superuser %}
                     <div class="col-4 d-flex justify-content-end">
-
                         {% comment %} <div class="input-group me-3">
                             <input type="text" name="" id="" class="form-control form-control-lg">
                         </div> {% endcomment %}
 
                         <div>
-                            <button class="btn wb-btn-main" id="newArrangementBtn">
+                            <button class="btn wb-btn-main" id="newArrangementBtn" @click="isPlannerDialogOpen = true">
                                 <i class="fas fa-plus"></i>&nbsp; Opprett arrangement
                             </button>
                         </div>
-                        
                     </div>
                     {% endif %}
                 </div>
@@ -246,10 +247,12 @@ container-fluid
                 AdvancedTreeFilter,
                 ArrangementInfoDialog,
                 PopoverTreeSelect
+                PlannerBaseDialog
             },
             data() {
                 return {
                     focusedEventId: null,
+                    isPlannerDialogOpen: false,
                     isEventDialogOpen: false,
                     isArrangementDialogOpen: false,
                     contextMenuItems: {
@@ -257,16 +260,88 @@ container-fluid
                             name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
                             isHtmlName: true,
                             callback: (key, opt) => {
-        
+                                const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);
+
+                                this.isArrangementDialogOpen = true;
+                                this.focuseedArrangementId = arrangementId;
                             }
                         },
                         event_inspector: {
                             name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
                             isHtmlName: true,
                             callback: (key, opt) => {
+                                const eventId = this.getEventIdFromElement(opt.$trigger[0]);
 
+                                this.isEventDialogOpen = true;
+                                this.focusedEventId = eventId;
                             }
                         },
+                        delete_event: {
+                            name: "Slett tidspunkt",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+                                const eventId = this.getEventIdFromElement(opt.$trigger[0]);
+
+                                Swal.fire({
+                                    title: "Er du sikker?",
+                                    text: "Dette vil slette tidspunktet fra arrangementet",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                }).then(response => {
+                                    if (response.isConfirmed) {
+                                        fetch(`/arrangement/planner/delete_event/${eventId}`, {
+                                            method: "DELETE",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "X-CSRFToken": "{{ csrf_token }}"
+                                            }
+                                        }).then(response => {
+                                            if (response.status === 200) {
+                                                Swal.fire({
+                                                    title: "Tidspunktet ble slettet",
+                                                    icon: "success"
+                                                }).then(() => {
+                                                    this.$refs.calendar.calendar.refetchEvents();
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        },
+                        delete_arrangement: {
+                            name: "Slett arrangement",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+                                const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);
+
+                                Swal.fire({
+                                    title: "Er du sikker?",
+                                    text: "Dette vil slette arrangementet",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                }).then(response => {
+                                    if (response.isConfirmed) {
+                                        fetch(`/arrangement/arrangement/delete/${arrangementId}`, {
+                                            method: "DELETE",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "X-CSRFToken": "{{ csrf_token }}"
+                                            }
+                                        }).then(response => {
+                                            if (response.status === 200) {
+                                                Swal.fire({
+                                                    title: "Arrangementet ble slettet",
+                                                    icon: "success"
+                                                }).then(() => {
+                                                    this.$refs.calendar.calendar.refetchEvents();
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        }
                     },
                     eventLabelGeneratorFunction: (arg) => {
                         const formatTime = function (text) {
@@ -434,6 +509,18 @@ container-fluid
                     this.$refs.calendar.calendar.today();
                 },
 
+                getEventIdFromElement(element) {
+                    return [...element.classList]
+                                .filter((x) => x.startsWith("event-id"))
+                                ?.map((x) => x.split("-").pop())[0];
+                },
+
+                getArrangementIdFromElement(element) {
+                    return [...element.classList]
+                                .filter((x) => x.startsWith("arrangement-id"))
+                                ?.map((x) => x.split("-").pop())[0];
+                },
+
                 async getEventsInPeriod(arg) {
                     let events = await fetch(`/arrangement/planner/arrangements_in_period?start=${arg.start.toISOString()}&end=${arg.end.toISOString()}`)
                         .then(response => response.json());
@@ -443,15 +530,18 @@ container-fluid
 
                         if (sessionStorage.getItem(`${event.arrangement_pk}_color`) === null) {
                             sessionStorage.setItem(`${event.arrangement_pk}_color`, colorSwatch[Math.floor(Math.random() * colorSwatch.length)]);
-                        }                        
-                        
+                        }
+                    
                         fcCalendarEvents.push({
                             "id": event.event_pk,
                             "title": event.name,
                             "start": event.starts,
                             "end": event.ends,
                             "backgroundColor": sessionStorage.getItem(`${event.arrangement_pk}_color`),
-                            "classNames": "event-id-" + event.event_pk,
+                            "classNames": [
+                                "event-id-" + event.event_pk,
+                                "arrangement-id-" + event.arrangement_pk
+                            ],
                             "extendedProps": {
                                 "event_id": event.event_pk,
                                 "arrangement_id": event.arrangement_pk,

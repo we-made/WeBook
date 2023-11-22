@@ -1,0 +1,26 @@
+<template id="vuec-planner-base">
+    <dialog-component
+        use-backdrop="true" 
+        :is-draggable="true"
+        :start-full-screen="true">
+
+        <template v-slot:header>
+            <h3 class="mb-0 fw-bold">
+                <i class="fas fa-calendar-alt"></i> Planlegging
+            </h3>
+        </template>
+
+        <template v-slot:content>
+            Content
+        </template>
+
+    </dialog-component>
+</template>
+
+<script>
+    let PlannerBaseDialog = {
+        template: "#vuec-planner-base",
+        delimiters: ['[[', ']]'],
+        components: { DialogComponent },
+    }
+</script>

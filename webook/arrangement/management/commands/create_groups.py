@@ -5,8 +5,7 @@ database. The command will populate the database with the groups that are used i
 """
 
 from django.core.management.base import BaseCommand
-
-from webook.users.models import Group
+from django.contrib.auth.models import Group
 
 
 class Command(BaseCommand):
