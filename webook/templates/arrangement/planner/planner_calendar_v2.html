@@ -12,7 +12,6 @@ container-fluid
 {% block content %}
 
 {% include "arrangement/calendar/calendar.html" %}
-{% include "arrangement/vue/popover-tree-select.html" %}
 {% include "arrangement/vue/dialog-component.html" %}
 {% include "arrangement/vue/display-layout-select-component.html" %}
 {% include "arrangement/planner/event-info-dialog.html" %}
@@ -28,11 +27,6 @@ container-fluid
 <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
 
 <div id="vuec-planner-calendar">
-
-    <popover-tree-select
-        data-source="/arrangement/audience/tree">
-    </popover-tree-select>
-
     <planner-base-dialog
         @close="isPlannerDialogOpen = false"
         :is-visible="isPlannerDialogOpen">
