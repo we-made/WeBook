@@ -17,6 +17,7 @@ container-fluid
 {% include "arrangement/planner/event-info-dialog.html" %}
 {% include "arrangement/vue/filter/advanced-tree-filter.html" %}
 {% include "arrangement/planner/arrangement-info-dialog.html" %}
+{% include "arrangement/vue/popover-tree-select.html" %}
 {% include "arrangement/planner/planner-base-dialog.html" %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -26,6 +27,10 @@ container-fluid
 <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
 
 <div id="vuec-planner-calendar">
+
+    <popover-tree-select
+        data-source="/arrangement/audience/tree">
+    </popover-tree-select>
 
     <planner-base-dialog
         @close="isPlannerDialogOpen = false"
@@ -241,6 +246,7 @@ container-fluid
                 EventInfoDialogComponent, 
                 AdvancedTreeFilter,
                 ArrangementInfoDialog,
+                PopoverTreeSelect
                 PlannerBaseDialog
             },
             data() {

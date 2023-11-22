@@ -1,0 +1,47 @@
+{% include "arrangement/vue/tree-select.html" %}
+
+<template id="vuec-popover-tree-select">
+    <popover-component 
+        :ignore-next-click="true" 
+        :is-visible="isVisible"
+        @update:is-visible="(newState) => $emit('update:isVisible', newState)">
+        
+        <tree-select :data-source="dataSource">
+        </tree-select>
+    </popover-component>
+</template>
+
+<script>
+    let PopoverTreeSelect = {
+        components: { PopoverComponent, TreeSelect },
+        props: {
+            isVisible: {
+                type: Boolean,
+                default: false
+            },
+            dataSource: {
+                type: String,
+                default: ""
+            },
+            multiple: {
+                type: Boolean,
+                default: false
+            },
+            modelValue: {
+                type: Array,
+                default: () => []
+            },
+        },
+        watch: {
+
+        },
+        data: function () {
+            return {
+                selected: [],
+            }
+        },
+        emits: [ 'update:modelValue', 'update:isVisible' ],
+        template: '#vuec-popover-tree-select',
+        delimiters: ['[[', ']]'],
+    }
+</script>
