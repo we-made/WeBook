@@ -270,8 +270,9 @@ container-fluid
                                 this.focusedEventId = eventId;
                             }
                         },
+                        sep: "---------",
                         delete_event: {
-                            name: "Slett tidspunkt",
+                            name: "<i class='fas fa-trash'></i>&nbsp; Slett tidspunkt",
                             isHtmlName: true,
                             callback: (key, opt) => {
                                 const eventId = this.getEventIdFromElement(opt.$trigger[0]);
@@ -304,7 +305,7 @@ container-fluid
                             }
                         },
                         delete_arrangement: {
-                            name: "Slett arrangement",
+                            name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
                             isHtmlName: true,
                             callback: (key, opt) => {
                                 const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);

@@ -482,7 +482,7 @@ html, body {
 }
 
 .context-menu-item:not(.context-menu-separator) {
-    padding: .5em 2em!important;
+    padding: .2em 1.5em !important;
 }
 
 .popover_content {
