@@ -12,6 +12,7 @@ container-fluid
 {% block content %}
 
 {% include "arrangement/calendar/calendar.html" %}
+{% include "arrangement/vue/popover-tree-select.html" %}
 {% include "arrangement/vue/dialog-component.html" %}
 {% include "arrangement/vue/display-layout-select-component.html" %}
 {% include "arrangement/planner/event-info-dialog.html" %}
@@ -246,7 +247,6 @@ container-fluid
                 EventInfoDialogComponent, 
                 AdvancedTreeFilter,
                 ArrangementInfoDialog,
-                PopoverTreeSelect
                 PlannerBaseDialog
             },
             data() {
