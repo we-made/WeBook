@@ -1,0 +1,165 @@
+<template id="editSerieDialog">
+    <dialog-component
+        :is-draggable="true"
+        :is-visible="isVisible"
+        :chain-to="chainTo"
+        @close="$emit('close')">
+        <template v-slot:header>
+            <h3 class="mb-0 fw-bold">
+                <i class="fas fa-calendar-alt"></i> Ny Gjentagende Hendelse
+            </h3>
+            <div class="mt-2">
+                <stepper :steps="['Generelt', 'Mønster', 'Assosierte', 'Rigging', 'Skjermvisning']"></stepper>
+            </div>
+
+        </template>
+        <template v-slot:content>
+            <div v-if="step == 1">
+                
+                <div>
+                    <label for="">Tittel på norsk</label>
+                    <input type="text" name="" id="" class="form-control">
+                </div>
+
+                <div>
+                    <label for="">Tittel på engelsk</label>
+                    <input type="text" name="" id="" class="form-control">
+                </div>
+
+                <div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="">Start</label>
+                            <input type="time" name="" id="" class="form-control">
+                        </div>
+                        <div class="col-6">
+                            <label for="">Slutt</label>
+                            <input type="time" name="" id="" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="">Billettkode</label>
+                    <input type="text" name="" id="" class="form-control">
+                </div>
+
+                <div>
+                    <label for="">Forventet besøkende</label>
+                    <input type="number" name="" id="" class="form-control">
+                </div>
+
+                <div>
+                    <tree-select-component 
+                        :is-open="false" 
+                        label="Målgruppe" 
+                        json-url="{% url 'arrangement:audience_tree' %}"
+                        button-label="Velg målgruppe"
+                        icon="fas fa-users"
+                        v-model="serie.audience">
+
+                    </tree-select-component>
+                </div>
+
+                <div>
+                    <tree-select-component 
+                        :is-open="false" 
+                        label="Arrangementstype" 
+                        json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                        button-label="Velg arrangementstype"
+                        icon="fas fa-cog"
+                        v-model="serie.arrangement_type">
+
+                    </tree-select-component>
+                </div>
+
+                <div>
+                    <tree-select-component 
+                        :is-open="false" 
+                        label="Status" 
+                        json-url="{% url 'arrangement:statustype_tree' %}"
+                        button-label="Velg status"
+                        icon="fas fa-cog"
+                        v-model="serie.status_type">
+
+                    </tree-select-component>
+                </div>
+
+            </div>
+
+            <div v-if="step == 2">
+                <display-layout-select></display-layout-select>
+            </div>
+
+        </template>
+        <template v-slot:footer>
+            <div class="d-flex justify-content-between">
+                <div>
+                    <button class="btn wb-btn-secondary">
+                        <i class="fas fa-times"></i>&nbsp;
+                        <span>Avbryt</span>
+                    </button>
+                </div>
+                <div>
+                    <button class="btn wb-btn-secondary" @click="step -= 1">
+                        Tilbake
+                    </button>
+                    <button class="btn wb-btn-main" @click="step += 1">
+                        Neste
+                    </button>
+                </div>
+            </div>
+        </template>
+    </dialog-component>
+</template>
+
+
+<script>
+
+    let EditSerieDialog = {
+        template: '#editSerieDialog',
+        components: { Stepper, DialogComponent, DisplayLayoutSelect, TreeSelectComponent, RoomsSelect, },
+        props: {
+            isVisible: {
+                type: Boolean,
+                default: false,
+            },
+            chainTo: {
+                type: String,
+                default: '',
+            },
+        },
+        emits: ['close'],
+        delimiters: ['[[', ']]'],
+        data: function () {
+            return {
+                serie: {
+                    arrangement_type: null,
+                    status_type: null,
+                    audience: null,
+                },
+                step: 1,
+                dialog: false,
+                valid: false,
+                name: '',
+                nameRules: [
+                    v => !!v || 'Name is required',
+                    v => (v && v.length <= 20) || 'Name must be less than 20 characters',
+                ],
+                description: '',
+                descriptionRules: [
+                    v => !!v || 'Description is required',
+                    v => (v && v.length <= 100) || 'Description must be less than 100 characters',
+                ],
+                form: {
+                    name: '',
+                    description: '',
+                },
+                loading: false,
+                error: false,
+                errorMessage: '',
+            }
+        },
+    }
+
+</script>

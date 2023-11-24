@@ -1,17 +1,444 @@
+{% include "arrangement/vue/stepper.html" %}
+{% include "arrangement/vue/display-layout-select-component.html" %}
+{% include "arrangement/vue/rooms-select.html" %}
+{% include "arrangement/planner/edit-serie-dialog.html" %}
+
 <template id="vuec-planner-base">
+
+    [[baseDialogEl]]
+
+    <edit-serie-dialog
+        :use-backdrop="false"
+        :is-visible="editSerieDialogExpanded"
+        @close="editSerieDialogExpanded = false"
+        chain-to="#plannerBaseDialogAA">
+
+    </edit-serie-dialog>
+
     <dialog-component
-        use-backdrop="true" 
+        :use-backdrop="false"
+        width="50%" 
+        id="plannerBaseDialogAA"
+        ref="baseDialog"
+        :is-visible="isVisible"
+        @close="$emit('close')"
         :is-draggable="true"
-        :start-full-screen="true">
+        :start-full-screen="false">
 
         <template v-slot:header>
             <h3 class="mb-0 fw-bold">
-                <i class="fas fa-calendar-alt"></i> Planlegging
+                <i class="fas fa-calendar-alt"></i> Designer
             </h3>
         </template>
 
         <template v-slot:content>
-            Content
+
+            <div v-if="!nextStep">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h5>
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Grunnleggende
+                                    </h5>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="">Tittel på norsk</label>
+                                            <input type="text" name="" id="" class="form-control">
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="">Tittel på engelsk</label>
+                                            <input type="text" name="" id="" class="form-control">
+                                        </div>
+                                    </div>
+            
+                                    <div class="mt-2 row">
+                                        <div class="col-6">
+                                            <label for="">Billettkode</label>
+                                            <input type="text" name="" id="" class="form-control">
+                                        </div>
+            
+                                        <div class="col-6">
+                                            <label for="">Forventet besøkende</label>
+                                            <input type="number" name="" id="" class="form-control">
+                                        </div>
+                                    </div>
+    
+                                    <div class="mt-2">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <tree-select-component 
+                                                    :is-open="false" 
+                                                    label="Målgruppe" 
+                                                    json-url="{% url 'arrangement:audience_tree' %}"
+                                                    button-label="Velg målgruppe"
+                                                    icon="fas fa-users"
+                                                    v-model="arrangement.audience">
+                        
+                                                </tree-select-component>
+                                            </div>
+                                            <div class="col-6">
+                                                <tree-select-component 
+                                                    :is-open="false" 
+                                                    label="Status" 
+                                                    json-url="{% url 'arrangement:statustype_tree' %}"
+                                                    button-label="Velg status"
+                                                    icon="fas fa-cog"
+                                                    v-model="arrangement.status_type">
+                        
+                                                </tree-select-component>
+                                            </div>
+                                            <div class="col-6">
+                                                <tree-select-component 
+                                                    :is-open="false" 
+                                                    label="Arrangementstype" 
+                                                    json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                                    button-label="Velg arrangementstype"
+                                                    icon="fas fa-cog"
+                                                    v-model="arrangement.arrangement_type">
+                        
+                                                </tree-select-component>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                        
+                                    <div class="mt-4">
+                                        <h5>
+                                            <i class="fas fa-building"></i>&nbsp;
+                                            Lokasjon & Rom
+                                        </h5>
+    
+                                        <hr>
+    
+                                        {% comment %} <div class="alert alert-info">
+                                            Møtested vil vises på skjerm hvis arrangementet har skjerm satt.
+                                        </div> {% endcomment %}
+    
+                                        <div class="row">
+    
+                                            <div class="col-6">
+                                                <div>
+                                                    <label for="">Lokasjon</label>
+    
+                                                    <select name="" id="" class="form-select">
+                                                        <option value="">Velg lokasjon</option>
+                                                    </select>
+                                                </div>
+    
+                                                <div>
+                                                    <label for="" class="text-muted text-end">
+                                                        Tast i feltet over for å søke etter rom og/eller presets. Hold inne <strong>CTRL</strong> for å velge flere på en gang.
+                                                    </label>
+                                                </div>
+    
+                                            </div>
+    
+                                            <div class="col-6">
+                                                <div>
+                                                    <label for="">Møtested</label>
+                                                    <input type="text" name="" id="" class="form-control" placeholder="Møtested">
+                                                </div>
+                                                <div>
+                                                    <label for="">Møtested (Engelsk)</label>
+                                                    <input type="text" name="" id="" class="form-control" placeholder="Møtested (Engelsk)">
+                                                </div>
+                                            </div>
+    
+                                            <div class="col-12">
+                                                <label for="">Rom</label>
+                                                <div>
+                                                    <rooms-select v-model:selected="arrangement.rooms">
+                                                    </rooms-select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+    
+                                <div class="col-6">
+                                    <h5>
+                                        <i class="fas fa-users"></i>&nbsp;
+                                        Planleggere
+                                    </h5>
+                                    <hr>
+                                    
+                                    <div class="mt-2">
+                                        <div class="input-group mb-3">
+                                            <input type="text" name="" id="" class="form-control"
+                                                placeholder="Søk etter planleggere...">
+    
+                                            <span class="input-group-text">
+                                                <i class="fas fa-plus text-success"></i>
+                                            </span>
+                                        </div>
+    
+                                        <table class="table table-sm table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Navn</th>
+                                                    <th>Hovedplanlegger</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        Ola Nordmann
+                                                    </td>
+                                                    <td>
+                                                        <input type="radio" name="" id="">
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm wb-btn-white">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Kari Nordmann
+                                                    </td>
+                                                    <td>
+                                                        <input type="radio" name="" id="">
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm wb-btn-white">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Ola Nordmann
+                                                    </td>                                              
+                                                    <td>
+                                                        <input type="radio" name="" id="">
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm wb-btn-white">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+    
+                                    <div class="mt-4">
+                                        <display-layout-select></display-layout-select>
+                                    </div>
+                                </div>
+                            </div>
+    
+                        </div>
+                    </div>
+    
+                    <div class="mt-3">
+                    <hr>
+    
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <button class="btn wb-btn-secondary" @click="nextStep = false">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Tilbake
+                                </button>
+                            </div>
+    
+                            <div>
+                                <em>
+                                    <i class="fas fa-circle-notch fa-spin"></i>
+                                </em>
+                            </div>
+    
+                            <div>
+                                <button class="btn wb-btn-main" @click="nextStep = true">
+                                    <i class="fas fa-arrow-right"></i>
+                                    Neste
+                                </button>
+                            </div>
+                        </div>
+    
+                    </div>
+                </div>
+            </div>
+            <div v-else>
+                <div class="row">
+                    <div class="col-4">
+
+                        <div>
+                            <button class="btn wb-btn-white border text-start btn-block text-white"
+                                style="background-color: #087990!important">
+                                <i class="fas fa-plus"></i>&nbsp; Legg til hendelse
+                            </button>
+                            <button class="btn wb-btn-white border text-start btn-block text-white"
+                                style="background-color: #087990!important" @click="editSerieDialogExpanded = true">
+                                <i class="fas fa-plus"></i>&nbsp; Legg til gjentagende hendelse
+                            </button>
+                        </div>
+
+                        <div class="mt-3">
+                            <h4>
+                                Lagte Planer
+                            </h4>
+                            <hr class="mb-1">
+
+                            <table class="table table-sm mb-0 mt-0 shadow-0">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-eye"></i></th>
+                                        <th><i class="fas fa-cog"></i></th>
+                                        <th><i class="fas fa-calendar"></i></th>
+                                        <th><i class="fas fa-ellipsis-v"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="" id="">
+                                        </td>
+                                        <td>Enkelt</td>
+                                        <td>01.01.2023 09:00 - 01.01.2023 15:00</td>
+                                        <td>
+                                            <button class="btn wb-btn-secondary">
+                                                Rediger
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="" id="">
+                                        </td>
+                                        <td>Enkelt</td>
+                                        <td>01.01.2023 09:00 - 01.01.2023 15:00</td>
+                                        <td>
+                                            <button class="btn wb-btn-secondary">
+                                                Rediger
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="" id="">
+                                        </td>
+                                        <td>Enkelt</td>
+                                        <td>01.01.2023 09:00 - 01.01.2023 15:00</td>
+                                        <td>
+                                            <button class="btn wb-btn-secondary">
+                                                Rediger
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="" id="">
+                                        </td>
+                                        <td>Enkelt</td>
+                                        <td>01.01.2023 09:00 - 01.01.2023 15:00</td>
+                                        <td>
+                                            <button class="btn wb-btn-secondary">
+                                                Rediger
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                        {% comment %} <div class="mt-3">
+                            <h4>
+                                Visning
+                            </h4>
+                            <hr>
+
+                            <div>
+                                <input type="checkbox" name="" id="">
+                                <label for="" class="ms-3">Vis kollisjoner</label>
+                            </div>
+                        </div> {% endcomment %}
+
+                    </div>
+
+                    <div class="col-8">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div>
+                                    <button class="btn wb-btn-white btn-lg">
+                                        <i class="fas fa-calendar"></i>
+                                    </button>
+                                    <button class="btn wb-btn-white btn-lg ms-2">
+                                        <i class="fas fa-table"></i>
+                                    </button>
+
+                                </div>
+
+                                <div>
+                                </div>
+
+                                <div>
+                                    <button class="btn wb-btn-white btn-lg text-white" style="background-color: #0f5132!important">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="btn wb-btn-white btn-lg text-white ms-2" style="background-color: #0f5132!important">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button class="btn wb-btn-white btn-lg ms-2 text-white" style="background-color: #087990!important">
+                                        <i class="fas fa-palette"></i>
+                                    </button>
+                                    <button class="btn wb-btn-white btn-lg ms-2" style="background-color: #ed9aa2">
+                                        <i class="fas fa-cogs"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex">
+                                        <button class="btn wb-btn-white me-1">
+                                            <i class="fas fa-arrow-left"></i>
+                                        </button>
+                                        <button class="btn wb-btn-white ms-1">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        HEADER
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <button class="btn wb-btn-white text-dark fw-light">
+                                            Dag
+                                        </button>
+                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
+                                            Uke
+                                        </button>
+                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
+                                            Måned
+                                        </button>
+                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
+                                            År
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <calendar-component
+                                class="w-100"
+                                view="dayGridMonth"
+                                ref="calendar">
+                            </calendar-component>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </template>
 
     </dialog-component>
@@ -20,7 +447,35 @@
 <script>
     let PlannerBaseDialog = {
         template: "#vuec-planner-base",
-        delimiters: ['[[', ']]'],
-        components: { DialogComponent },
+        delimiters: ['[[', ']]'],   
+        props: {
+            isVisible: {
+                type: Boolean,
+                default: false
+            }
+        },
+        emits: ['close'],
+        data: function() {
+            return {
+                baseDialogEl: null,
+                nextStep: false,
+                editSerieDialogExpanded: false,
+                arrangement: {
+                    audience: [],
+                    status_type: [],
+                    arrangement_type: [],
+                    rooms: []
+                }
+            }
+        },
+        watch: {
+            isVisible: function(val) {
+                this.$nextTick(() => {
+                    this.baseDialogEl = this.$refs.baseDialog.$el;
+
+                })
+            }
+        },
+        components: { DialogComponent, Stepper, DisplayLayoutSelect, TreeSelectComponent, RoomsSelect, CalendarComponent, EditSerieDialog }
     }
 </script>
