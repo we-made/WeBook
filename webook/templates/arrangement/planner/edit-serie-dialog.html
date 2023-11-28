@@ -1,3 +1,5 @@
+{% include "arrangement/vue/pattern_designer.html" %}
+
 <template id="editSerieDialog">
     <dialog-component
         :is-draggable="true"
@@ -6,15 +8,12 @@
         @close="$emit('close')">
         <template v-slot:header>
             <h3 class="mb-0 fw-bold">
-                <i class="fas fa-calendar-alt"></i> Ny Gjentagende Hendelse
+                <i class="fas fa-calendar-alt"></i> Planlegg Gjentagende Hendelse
             </h3>
-            <div class="mt-2">
-                <stepper :steps="['Generelt', 'Mønster', 'Assosierte', 'Rigging', 'Skjermvisning']"></stepper>
-            </div>
-
         </template>
+
         <template v-slot:content>
-            <div v-if="step == 1">
+            <div v-show="step == 1">
                 
                 <div>
                     <label for="">Tittel på norsk</label>
@@ -39,56 +38,222 @@
                     </div>
                 </div>
 
-                <div>
-                    <label for="">Billettkode</label>
-                    <input type="text" name="" id="" class="form-control">
+                <div class="accordion accordion-flush" id="accordionFlushExample">
+
+                    <div class="accordion-item">
+                        <h4 class="accordion header" id="accordionHeadingSchedule">
+                            <button
+                                data-mdb-collapse-init
+                                class="accordion-button collapsed"
+                                type="button"
+                                data-mdb-toggle="collapse"
+                                data-mdb-target="#flush-collapseSchedule"
+                                aria-expanded="false"
+                                aria-controls="flush-collapseSchedule">
+
+                                <div class="badge badge-success">
+                                    <i class="fas fa-redo"></i>
+                                </div>&nbsp;
+                                Mønster
+                            </button>
+                        </h4>
+                        <div id="flush-collapseSchedule" 
+                            class="accordion-collapse collapse" 
+                            data-mdb-parent="#accordionFlushExample">
+
+                            <div class="accordion-body">
+                                <pattern-designer v-model:schedule="schedule"></pattern-designer>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h4 class="accordion-header" id="flush-headingTwo">
+                          <button
+                            data-mdb-collapse-init
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-mdb-toggle="collapse"
+                            data-mdb-target="#flush-collapseTwo"
+                            aria-expanded="false"
+                            aria-controls="flush-collapseTwo"
+                          >
+                            <div class="badge badge-success">
+                                <i class="fas fa-clipboard"></i>
+                            </div>&nbsp;
+                            Detaljer
+                          </button>
+                        </h4>
+                        <div
+                          id="flush-collapseTwo"
+                          class="accordion-collapse collapse"
+                          aria-labelledby="flush-headingTwo"
+                          data-mdb-parent="#accordionFlushExample"
+                        >
+                          <div class="accordion-body">
+                              <div>
+                                  <tree-select-component 
+                                      :is-open="false" 
+                                      label="Målgruppe" 
+                                      json-url="{% url 'arrangement:audience_tree' %}"
+                                      button-label="Velg målgruppe"
+                                      icon="fas fa-users"
+                                      v-model="serie.audience">
+                  
+                                  </tree-select-component>
+                              </div>
+                  
+                              <div>
+                                  <tree-select-component 
+                                      :is-open="false" 
+                                      label="Arrangementstype" 
+                                      json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                      button-label="Velg arrangementstype"
+                                      icon="fas fa-cog"
+                                      v-model="serie.arrangement_type">
+                  
+                                  </tree-select-component>
+                              </div>
+                  
+                              <div>
+                                  <tree-select-component 
+                                      :is-open="false" 
+                                      label="Status" 
+                                      json-url="{% url 'arrangement:statustype_tree' %}"
+                                      button-label="Velg status"
+                                      icon="fas fa-cog"
+                                      v-model="serie.status_type">
+                  
+                                  </tree-select-component>
+                              </div>
+      
+                              <div>
+                                  <label for="">Billettkode</label>
+                                  <input type="text" name="" id="" class="form-control">
+                              </div>
+                  
+                              <div>
+                                  <label for="">Forventet besøkende</label>
+                                  <input type="number" name="" id="" class="form-control">            
+                              </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                      <h4 class="accordion-header" id="flush-headingOne">
+                        <button
+                          data-mdb-collapse-init
+                          class="accordion-button collapsed"
+                          type="button"
+                          data-mdb-toggle="collapse"
+                          data-mdb-target="#flush-collapseOne"
+                          aria-expanded="false"
+                          aria-controls="flush-collapseOne"
+                        >
+                            <div class="badge badge-warning">
+                                <i class="fas fa-hammer"></i>
+                            </div>&nbsp;
+                          Rigging
+                        </button>
+                      </h4>
+                      <div
+                        id="flush-collapseOne"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="flush-headingOne"
+                        data-mdb-parent="#accordionFlushExample"
+                      >
+                        <div class="accordion-body">
+                            <h4>Opprigging</h4>
+                            <p>
+                                Definer tidspunkt for opprigging av arrangementet.
+                            </p>
+                            
+                            <rigging-form v-model="serie.riggingBefore"></rigging-form>
+                        
+                            <h4 class="mt-3">Nedrigging</h4>
+                            <p>
+                                Definer tidspunkt for nedrigging av arrangementet
+                            </p>
+                
+                            <rigging-form v-model="serie.riggingAfter">                        
+                            </rigging-form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h4 class="accordion-header" id="flush-headingThree">
+                          <button
+                            data-mdb-collapse-init
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-mdb-toggle="collapse"
+                            data-mdb-target="#flush-collapseThree"
+                            aria-expanded="false"
+                            aria-controls="flush-collapseThree"
+                          >
+                            <div class="badge badge-info">
+                                <i class="fas fa-tv"></i>
+                            </div>&nbsp;
+                            Skjerm & Møteplass
+                          </button>
+                        </h4>
+                        <div
+                          id="flush-collapseThree"
+                          class="accordion-collapse collapse"
+                          aria-labelledby="flush-headingThree"
+                          data-mdb-parent="#accordionFlushExample"
+                        >
+                          <div class="accordion-body">
+                            
+                            <display-layout-select></display-layout-select>
+    
+                            <div>
+                                <label for="">Møtested (Norsk)</label>
+                                <input type="text" name="" id="" class="form-control">
+                            </div>
+    
+                            <div>
+                                <label for="">Møtested (Engelsk)</label>
+                                <input type="text" name="" id="" class="form-control">
+                            </div>
+    
+    
+                          </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h4 class="accordion-header" id="flush-headingFour">
+                          <button
+                            data-mdb-collapse-init
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-mdb-toggle="collapse"
+                            data-mdb-target="#flush-collapseFour"
+                            aria-expanded="false"
+                            aria-controls="flush-collapseFour"
+                          >
+                            <div class="badge badge-info">
+                                <i class="fas fa-users"></i>
+                            </div>&nbsp;
+                            Planleggere
+                          </button>
+                        </h4>
+                        <div
+                          id="flush-collapseFour"
+                          class="accordion-collapse collapse"
+                          aria-labelledby="flush-headingThree"
+                          data-mdb-parent="#accordionFlushExample"
+                        >
+                          <div class="accordion-body">
+                            
+    
+    
+                          </div>
+                        </div>
+                    </div>
                 </div>
-
-                <div>
-                    <label for="">Forventet besøkende</label>
-                    <input type="number" name="" id="" class="form-control">
-                </div>
-
-                <div>
-                    <tree-select-component 
-                        :is-open="false" 
-                        label="Målgruppe" 
-                        json-url="{% url 'arrangement:audience_tree' %}"
-                        button-label="Velg målgruppe"
-                        icon="fas fa-users"
-                        v-model="serie.audience">
-
-                    </tree-select-component>
-                </div>
-
-                <div>
-                    <tree-select-component 
-                        :is-open="false" 
-                        label="Arrangementstype" 
-                        json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
-                        button-label="Velg arrangementstype"
-                        icon="fas fa-cog"
-                        v-model="serie.arrangement_type">
-
-                    </tree-select-component>
-                </div>
-
-                <div>
-                    <tree-select-component 
-                        :is-open="false" 
-                        label="Status" 
-                        json-url="{% url 'arrangement:statustype_tree' %}"
-                        button-label="Velg status"
-                        icon="fas fa-cog"
-                        v-model="serie.status_type">
-
-                    </tree-select-component>
-                </div>
-
-            </div>
-
-            <div v-if="step == 2">
-                <display-layout-select></display-layout-select>
             </div>
 
         </template>
@@ -101,11 +266,8 @@
                     </button>
                 </div>
                 <div>
-                    <button class="btn wb-btn-secondary" @click="step -= 1">
-                        Tilbake
-                    </button>
-                    <button class="btn wb-btn-main" @click="step += 1">
-                        Neste
+                    <button class="btn wb-btn-main">
+                        Lagre
                     </button>
                 </div>
             </div>
@@ -118,7 +280,14 @@
 
     let EditSerieDialog = {
         template: '#editSerieDialog',
-        components: { Stepper, DialogComponent, DisplayLayoutSelect, TreeSelectComponent, RoomsSelect, },
+        components: { 
+            DialogComponent, 
+            DisplayLayoutSelect, 
+            TreeSelectComponent, 
+            RoomsSelect, 
+            PatternDesigner,
+            RiggingForm
+         },
         props: {
             isVisible: {
                 type: Boolean,
@@ -137,7 +306,10 @@
                     arrangement_type: null,
                     status_type: null,
                     audience: null,
+                    riggingBefore: {},
+                    riggingAfter: {},
                 },
+                schedule: {},
                 step: 1,
                 dialog: false,
                 valid: false,

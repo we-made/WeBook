@@ -2,6 +2,9 @@
 {% include "arrangement/vue/display-layout-select-component.html" %}
 {% include "arrangement/vue/rooms-select.html" %}
 {% include "arrangement/planner/edit-serie-dialog.html" %}
+{% include "arrangement/planner/edit-event-dialog.html" %}
+{% include "arrangement/vue/select-main-planner-s2.html" %}
+{% include "arrangement/vue/location-select2.html" %}
 
 <template id="vuec-planner-base">
 
@@ -15,9 +18,17 @@
 
     </edit-serie-dialog>
 
+    <edit-event-dialog
+        :use-backdrop="false"
+        :is-visible="editEventDialogExpanded"
+        @close="editEventDialogExpanded = false"
+        chain-to="#plannerBaseDialogAA">
+
+    </edit-event-dialog>
+
     <dialog-component
         :use-backdrop="false"
-        width="50%" 
+        width="40%" 
         id="plannerBaseDialogAA"
         ref="baseDialog"
         :is-visible="isVisible"
@@ -32,18 +43,13 @@
         </template>
 
         <template v-slot:content>
-
             <div v-if="!nextStep">
                 <div class="row">
                     <div class="col-12">
                         <div class="">
                             <div class="row">
-                                <div class="col-6">
-                                    <h5>
-                                        <i class="fas fa-calendar-alt"></i>
-                                        Grunnleggende
-                                    </h5>
-                                    <hr>
+                                <div class="col-12">
+
                                     <div class="row">
                                         <div class="col-6">
                                             <label for="">Tittel på norsk</label>
@@ -55,7 +61,7 @@
                                         </div>
                                     </div>
             
-                                    <div class="mt-2 row">
+                                    <div class="mt-3 row">
                                         <div class="col-6">
                                             <label for="">Billettkode</label>
                                             <input type="text" name="" id="" class="form-control">
@@ -65,11 +71,60 @@
                                             <label for="">Forventet besøkende</label>
                                             <input type="number" name="" id="" class="form-control">
                                         </div>
+
+                                        <div class="col-6 mt-4">
+                                            <h4 class="mb-0">
+                                                <span class="badge badge-info">
+                                                    <i class="fas fa-building"></i>
+                                                </span>
+                                                Sted
+                                            </h4>
+                                            <hr>
+                                            <div class="w-25">
+                                                <label for="" class="d-block">Lokasjon</label>
+
+                                                <location-select v-model:selected="arrangement.location"></location-select>
+                                            </div>
+                                            <label for="">Rom</label>
+                                            <div class="w-25">
+                                                <rooms-select  v-model:selected="arrangement.rooms">
+                                                </rooms-select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-6 mt-4">
+                                            <h4 class="mb-0">
+                                                <span class="badge badge-info">
+                                                    <i class="fas fa-users"></i>
+                                                </span>
+                                                Planleggere
+                                            </h4>
+                                            <hr>
+                                            <div class="mt-2 w-25 ">
+                                                <label for="">Hovedplanlegger</label>
+                                                <select-main-planner-s2></select-main-planner-s2>
+                                            </div>
+        
+                                            <div class="mt-2 w-25">
+                                                <label for="">Medplanleggere</label>
+                                                <select-main-planner-s2 :multiple="true"></select-main-planner-s2>
+                                                
+                                            </div>
+                                        </div>
                                     </div>
-    
-                                    <div class="mt-2">
+                                    
+
+
+                                    <div class="mt-4">
+                                        <h4 class="mb-0">
+                                            <span class="badge badge-info">
+                                                <i class="fas fa-cogs"></i>
+                                            </span>
+                                            Typer
+                                        </h4>
+                                        <hr>
                                         <div class="row">
-                                            <div class="col-6">
+                                            <div class="col-4">
                                                 <tree-select-component 
                                                     :is-open="false" 
                                                     label="Målgruppe" 
@@ -80,7 +135,7 @@
                         
                                                 </tree-select-component>
                                             </div>
-                                            <div class="col-6">
+                                            <div class="col-4">
                                                 <tree-select-component 
                                                     :is-open="false" 
                                                     label="Status" 
@@ -91,7 +146,7 @@
                         
                                                 </tree-select-component>
                                             </div>
-                                            <div class="col-6">
+                                            <div class="col-4">
                                                 <tree-select-component 
                                                     :is-open="false" 
                                                     label="Arrangementstype" 
@@ -104,164 +159,34 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
     
-                                        
-                                    <div class="mt-4">
-                                        <h5>
-                                            <i class="fas fa-building"></i>&nbsp;
-                                            Lokasjon & Rom
-                                        </h5>
-    
-                                        <hr>
-    
-                                        {% comment %} <div class="alert alert-info">
-                                            Møtested vil vises på skjerm hvis arrangementet har skjerm satt.
-                                        </div> {% endcomment %}
-    
-                                        <div class="row">
-    
-                                            <div class="col-6">
-                                                <div>
-                                                    <label for="">Lokasjon</label>
-    
-                                                    <select name="" id="" class="form-select">
-                                                        <option value="">Velg lokasjon</option>
-                                                    </select>
+                                <div class="col-12 mt-3">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <display-layout-select></display-layout-select>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="row mt-4">
+                                                <div class="col-12">
+                                                    <div>
+                                                        <label for="">Møtested</label>
+                                                        <input type="text" name="" id="" class="form-control" placeholder="Møtested">
+                                                    </div>
                                                 </div>
-    
-                                                <div>
-                                                    <label for="" class="text-muted text-end">
-                                                        Tast i feltet over for å søke etter rom og/eller presets. Hold inne <strong>CTRL</strong> for å velge flere på en gang.
-                                                    </label>
-                                                </div>
-    
-                                            </div>
-    
-                                            <div class="col-6">
-                                                <div>
-                                                    <label for="">Møtested</label>
-                                                    <input type="text" name="" id="" class="form-control" placeholder="Møtested">
-                                                </div>
-                                                <div>
-                                                    <label for="">Møtested (Engelsk)</label>
-                                                    <input type="text" name="" id="" class="form-control" placeholder="Møtested (Engelsk)">
-                                                </div>
-                                            </div>
-    
-                                            <div class="col-12">
-                                                <label for="">Rom</label>
-                                                <div>
-                                                    <rooms-select v-model:selected="arrangement.rooms">
-                                                    </rooms-select>
+                                                <div class="col-12">
+                                                    <div>
+                                                        <label for="">Møtested (Engelsk)</label>
+                                                        <input type="text" name="" id="" class="form-control" placeholder="Møtested (Engelsk)">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-    
-                                <div class="col-6">
-                                    <h5>
-                                        <i class="fas fa-users"></i>&nbsp;
-                                        Planleggere
-                                    </h5>
-                                    <hr>
-                                    
-                                    <div class="mt-2">
-                                        <div class="input-group mb-3">
-                                            <input type="text" name="" id="" class="form-control"
-                                                placeholder="Søk etter planleggere...">
-    
-                                            <span class="input-group-text">
-                                                <i class="fas fa-plus text-success"></i>
-                                            </span>
-                                        </div>
-    
-                                        <table class="table table-sm table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>Navn</th>
-                                                    <th>Hovedplanlegger</th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>
-                                                        Ola Nordmann
-                                                    </td>
-                                                    <td>
-                                                        <input type="radio" name="" id="">
-                                                    </td>
-                                                    <td>
-                                                        <button class="btn btn-sm wb-btn-white">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        Kari Nordmann
-                                                    </td>
-                                                    <td>
-                                                        <input type="radio" name="" id="">
-                                                    </td>
-                                                    <td>
-                                                        <button class="btn btn-sm wb-btn-white">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        Ola Nordmann
-                                                    </td>                                              
-                                                    <td>
-                                                        <input type="radio" name="" id="">
-                                                    </td>
-                                                    <td>
-                                                        <button class="btn btn-sm wb-btn-white">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-    
-                                    <div class="mt-4">
-                                        <display-layout-select></display-layout-select>
-                                    </div>
+
                                 </div>
                             </div>
-    
                         </div>
-                    </div>
-    
-                    <div class="mt-3">
-                    <hr>
-    
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <button class="btn wb-btn-secondary" @click="nextStep = false">
-                                    <i class="fas fa-arrow-left"></i>
-                                    Tilbake
-                                </button>
-                            </div>
-    
-                            <div>
-                                <em>
-                                    <i class="fas fa-circle-notch fa-spin"></i>
-                                </em>
-                            </div>
-    
-                            <div>
-                                <button class="btn wb-btn-main" @click="nextStep = true">
-                                    <i class="fas fa-arrow-right"></i>
-                                    Neste
-                                </button>
-                            </div>
-                        </div>
-    
                     </div>
                 </div>
             </div>
@@ -271,7 +196,7 @@
 
                         <div>
                             <button class="btn wb-btn-white border text-start btn-block text-white"
-                                style="background-color: #087990!important">
+                                style="background-color: #087990!important" @click="editEventDialogExpanded = true">
                                 <i class="fas fa-plus"></i>&nbsp; Legg til hendelse
                             </button>
                             <button class="btn wb-btn-white border text-start btn-block text-white"
@@ -346,21 +271,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-
                         </div>
-
-                        {% comment %} <div class="mt-3">
-                            <h4>
-                                Visning
-                            </h4>
-                            <hr>
-
-                            <div>
-                                <input type="checkbox" name="" id="">
-                                <label for="" class="ms-3">Vis kollisjoner</label>
-                            </div>
-                        </div> {% endcomment %}
-
                     </div>
 
                     <div class="col-8">
@@ -374,10 +285,6 @@
                                     <button class="btn wb-btn-white btn-lg ms-2">
                                         <i class="fas fa-table"></i>
                                     </button>
-
-                                </div>
-
-                                <div>
                                 </div>
 
                                 <div>
@@ -441,6 +348,31 @@
 
         </template>
 
+        <template v-slot:footer>
+    
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <button class="btn wb-btn-secondary" @click="nextStep = false">
+                        <i class="fas fa-arrow-left"></i>
+                        Tilbake
+                    </button>
+                </div>
+
+                <div>
+                    <em>
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                    </em>
+                </div>
+
+                <div>
+                    <button class="btn wb-btn-main" @click="nextStep = true">
+                        <i class="fas fa-arrow-right"></i>
+                        Neste
+                    </button>
+                </div>
+            </div>
+        </template>
+
     </dialog-component>
 </template>
 
@@ -460,11 +392,14 @@
                 baseDialogEl: null,
                 nextStep: false,
                 editSerieDialogExpanded: false,
+                editEventDialogExpanded: false,
                 arrangement: {
                     audience: [],
                     status_type: [],
                     arrangement_type: [],
-                    rooms: []
+                    rooms: [],
+                    planner: {},
+                    location: {}
                 }
             }
         },
@@ -476,6 +411,18 @@
                 })
             }
         },
-        components: { DialogComponent, Stepper, DisplayLayoutSelect, TreeSelectComponent, RoomsSelect, CalendarComponent, EditSerieDialog }
+        components: { 
+            DialogComponent, 
+            Stepper, 
+            DisplayLayoutSelect, 
+            TreeSelectComponent, 
+            RoomsSelect,
+            CalendarComponent, 
+            EditSerieDialog, 
+            EditEventDialog,
+            SelectMainPlannerDialogComponent,
+            SelectMainPlannerS2,
+            LocationSelect
+        }
     }
 </script>

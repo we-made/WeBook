@@ -1,0 +1,254 @@
+<template id="editEventDialog">
+    <dialog-component
+        :is-draggable="true"
+        :is-visible="isVisible"
+        :chain-to="chainTo"
+        @close="$emit('close')">
+
+        <template v-slot:header>
+            <h4>Planlegg aktivitet</h4>
+        </template>
+
+        <template v-slot:content>
+            
+            <div>
+                <label for="">Tittel (Norsk)</label>
+                <input type="text" name="" id="" class="form-control">
+            </div>
+
+            <div>
+                <label for="">Tittel (Engelsk)</label>
+                <input type="text" name="" id="" class="form-control">
+            </div>
+
+
+            <div>
+                <label for="">Fra</label>
+                <div class="row">
+                    <div class="col-6">
+                        <input type="date" name="" id="" class="form-control">
+                    </div>
+                    <div class="col-6">
+                        <input type="time" name="" id="" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label for="">Til</label>
+                <div class="row">
+                    <div class="col-6">
+                        <input type="date" name="" id="" class="form-control">
+                    </div>
+                    <div class="col-6">
+                        <input type="time" name="" id="" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="mt-3">
+                <label for="" class="d-block">Rom</label>
+                <rooms-select v-model="event.rooms"></rooms-select>
+            </div>
+
+            <div class="accordion accordion-flush" id="accordionFlushExample">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="flush-headingOne">
+                    <button
+                      data-mdb-collapse-init
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-mdb-toggle="collapse"
+                      data-mdb-target="#flush-collapseOne"
+                      aria-expanded="false"
+                      aria-controls="flush-collapseOne"
+                    >
+                      Rigging
+                    </button>
+                  </h2>
+                  <div
+                    id="flush-collapseOne"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="flush-headingOne"
+                    data-mdb-parent="#accordionFlushExample"
+                  >
+                    <div class="accordion-body">
+                        <h4>Opprigging</h4>
+                        <p>
+                            Definer tidspunkt for opprigging av arrangementet.
+                        </p>
+                        
+                        <rigging-form v-model="event.riggingBefore"></rigging-form>
+                    
+                        <h4 class="mt-3">Nedrigging</h4>
+                        <p>
+                            Definer tidspunkt for nedrigging av arrangementet
+                        </p>
+            
+                        <rigging-form v-model="event.riggingAfter">                        
+                        </rigging-form>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="flush-headingTwo">
+                    <button
+                      data-mdb-collapse-init
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-mdb-toggle="collapse"
+                      data-mdb-target="#flush-collapseTwo"
+                      aria-expanded="false"
+                      aria-controls="flush-collapseTwo"
+                    >
+                      Detaljer
+                    </button>
+                  </h2>
+                  <div
+                    id="flush-collapseTwo"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="flush-headingTwo"
+                    data-mdb-parent="#accordionFlushExample"
+                  >
+                    <div class="accordion-body">
+                        <div>
+                            <tree-select-component 
+                                :is-open="false" 
+                                label="Målgruppe" 
+                                json-url="{% url 'arrangement:audience_tree' %}"
+                                button-label="Velg målgruppe"
+                                icon="fas fa-users"
+                                v-model="event.audience">
+            
+                            </tree-select-component>
+                        </div>
+            
+                        <div>
+                            <tree-select-component 
+                                :is-open="false" 
+                                label="Arrangementstype" 
+                                json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                button-label="Velg arrangementstype"
+                                icon="fas fa-cog"
+                                v-model="event.arrangement_type">
+            
+                            </tree-select-component>
+                        </div>
+            
+                        <div>
+                            <tree-select-component 
+                                :is-open="false" 
+                                label="Status" 
+                                json-url="{% url 'arrangement:statustype_tree' %}"
+                                button-label="Velg status"
+                                icon="fas fa-cog"
+                                v-model="event.status_type">
+            
+                            </tree-select-component>
+                        </div>
+
+                        <div>
+                            <label for="">Billettkode</label>
+                            <input type="text" name="" id="" class="form-control">
+                        </div>
+            
+                        <div>
+                            <label for="">Forventet besøkende</label>
+                            <input type="number" name="" id="" class="form-control">            
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-headingThree">
+                      <button
+                        data-mdb-collapse-init
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-mdb-toggle="collapse"
+                        data-mdb-target="#flush-collapseThree"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseThree"
+                      >
+                        Skjerm & Møteplass
+                      </button>
+                    </h2>
+                    <div
+                      id="flush-collapseThree"
+                      class="accordion-collapse collapse"
+                      aria-labelledby="flush-headingThree"
+                      data-mdb-parent="#accordionFlushExample"
+                    >
+                      <div class="accordion-body">
+                        
+                        <display-layout-select></display-layout-select>
+
+                        <div>
+                            <label for="">Møtested (Norsk)</label>
+                            <input type="text" name="" id="" class="form-control">
+                        </div>
+
+                        <div>
+                            <label for="">Møtested (Engelsk)</label>
+                            <input type="text" name="" id="" class="form-control">
+                        </div>
+
+
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </template>
+
+        <template v-slot:footer>
+            <div class="d-flex justify-content-end">
+                <button class="btn wb-btn-secondary">
+                    Avbryt
+                </button>
+                <button class="btn wb-btn-main">
+                    Lagre
+                </button>
+            </div>
+        </template>
+
+    </dialog-component>
+</template>
+
+<script>
+    let EditEventDialog = {
+        template: '#editEventDialog',
+        delimiters: ['[[', ']]'],
+        components: {
+            'dialog-component': DialogComponent,
+            TreeSelectComponent, 
+            RoomsSelect, 
+            DisplayLayoutSelect, 
+            Stepper,
+            RiggingForm
+        },
+        props: {
+            isVisible: {
+                type: Boolean,
+                default: false,
+            },
+            chainTo: {
+                type: String,
+                default: '',
+            },
+        },
+        data() {
+            return {
+                event: {
+                    rooms: [],
+                    audience: [],
+                    arrangement_type: [],
+                    status_type: [],
+                }
+            }
+        },
+        emits: ['close'],
+    }
+</script>

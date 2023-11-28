@@ -343,3 +343,25 @@ class LocationRoomsJsonListView(LoginRequiredMixin, JsonListView):
 
 
 location_rooms_json_list_view = LocationRoomsJsonListView.as_view()
+
+
+class LocationSelect2JsonListView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, JsonListView
+):
+    model = Location
+
+    def get_queryset(self):
+        qs = Location.objects.all()
+
+        return list(
+            map(
+                lambda x: {
+                    "id": x.id,
+                    "text": x.name,
+                },
+                list(qs),
+            )
+        )
+
+
+location_select2_json_list_view = LocationSelect2JsonListView.as_view()

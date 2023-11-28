@@ -26,7 +26,6 @@
                 default: false
             }
         },
-
         mounted() {
             this.$nextTick(() => {
                 console.log("selected", this.selected)
@@ -36,12 +35,9 @@
                     .val(this.selected)
                     .trigger('change')
                     .on('change', e => {
-
                         this.$emit('input', $(this.$refs.select).val() || [])
-                    
                     });
             })
-
         },
         emits: ['input'],
         watch: {

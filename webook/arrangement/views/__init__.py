@@ -25,6 +25,7 @@ from .arrangement_views import (
     arrangement_search_view,
     arrangement_update_view,
     arrangement_upload_files_json_form_view,
+    main_planner_select2_json_view,
     planners_on_arrangement_table_view,
     planners_on_arrangement_view,
     synchronize_events_in_arrangement_view,
@@ -91,6 +92,7 @@ from .location_views import (
     locations_calendar_resources_list_view,
     locations_tree_json_view,
     update_location_json_view,
+    location_select2_json_list_view
 )
 from .note_views import (
     create_note_view,

@@ -1,0 +1,49 @@
+<template id="selectMainPlannerS2">
+
+    <select2 
+        @input="(e) => { console.log(e); }"
+        :options="options"
+        :selected="mainPlanner && mainPlanner.id ? [mainPlanner.id] : []"
+        :multiple="false" 
+        @input="input">
+
+    </select2>
+
+</template>
+
+<script>
+    let SelectMainPlannerS2 = {
+        template: "#selectMainPlannerS2",
+        props: {
+            mainPlanner: {
+                type: Object,
+                default: {
+                    id: null,
+                    name: null,
+                },
+            },
+        },
+        emits: ["update:mainPlanner"],
+        data() {
+            return {
+                mainPlannerList: [],
+                mainPlanner: null,
+                options: [],
+            }
+        },
+        methods: {
+            async getMainPlannerList() {    
+                this.options = await fetch("{% url 'arrangement:arrangement_main_planner_select2' %}", {
+                    method: "GET",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                }).then(response => response.json());
+            },
+        },
+        mounted() {
+            this.getMainPlannerList();
+        },
+        components: { Select2 },
+    }
+</script>

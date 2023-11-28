@@ -1,7 +1,8 @@
 import json
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
@@ -43,12 +44,14 @@ from webook.arrangement.views.generic_views.archive_view import (
 )
 from webook.arrangement.views.generic_views.dialog_views import DialogView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
+from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.generic_views.upload_files_standard_form import (
     UploadFilesStandardFormView,
 )
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
+from webook.users.models import User
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin
@@ -503,3 +506,29 @@ class SynchronizeEventsInArrangementView(
 
 
 synchronize_events_in_arrangement_view = SynchronizeEventsInArrangementView.as_view()
+
+
+class MainPlannerSelect2JsonView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, JsonListView
+):
+    """A view that serves the JSON for the main planner select2"""
+
+    model = Person
+
+    def get_queryset(self) -> List[Dict[str, Dict[str, Union[int, str]]]]:
+        valid_persons: List[Person] = [
+            x.person for x in Group.objects.get(name="planners").user_set.all()
+        ]
+
+        data: List[Dict[str, Dict[str, Any]]] = [
+            {
+                "id": person.id,
+                "text": person.full_name,
+            }
+            for person in valid_persons
+        ]
+
+        return data
+
+
+main_planner_select2_json_view = MainPlannerSelect2JsonView.as_view()
