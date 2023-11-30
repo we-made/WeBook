@@ -102,7 +102,7 @@
                       data-mdb-parent="#accordionFlushExample"
                     >
                       <div class="accordion-body">
-                          <div>
+                          {% comment %} <div>
                               <tree-select-component 
                                   :is-open="false" 
                                   label="Målgruppe" 
@@ -136,7 +136,7 @@
                                   v-model="localEvent.status_type">
               
                               </tree-select-component>
-                          </div>
+                          </div> {% endcomment %}
   
                           <div>
                               <label for="">Billettkode</label>
@@ -316,10 +316,10 @@
                 default: () => {
                     return {
                         title: '',
-                        rooms: [],
-                        audience: [],
-                        arrangement_type: [],
-                        status_type: [],
+                        rooms: 0,
+                        audience: 0,
+                        arrangement_type: 0,
+                        status_type: 0,
                         riggingBefore: {
                             date: '',
                             start_time: '',
@@ -347,7 +347,14 @@
                 this.$emit('close');
             },
             save() {
-                this.localEvent.convertToFullCalendarEvent = this.convertToFullCalendarEvent;
+                this.localEvent.fc = {
+                    title: this.localEvent.title,
+                    start: new Date(this.localEvent.from_date + 'T' + this.localEvent.from_time),
+                    end:   new Date(this.localEvent.to_date + 'T' + this.localEvent.to_time),
+                    extendedProps: {
+                        event: this.localEvent,
+                    }
+                }
                 this.$emit('update:event', this.localEvent);
                 this.close();
             }
@@ -355,7 +362,7 @@
         watch: {
             event: {
                 handler: function(n, o) {
-                    this.localEvent = n || {};
+                    this.localEvent = {...n} || {};
                 },
                 deep: true,
             }
@@ -363,8 +370,7 @@
         emits: ['update:event', 'close'],
         data() {
             return {
-                localEvent: this.event || {},
-                convertToFullCalendarEvent: (event) => {}
+                localEvent: {...this.event} || {},
             }
         }
     }

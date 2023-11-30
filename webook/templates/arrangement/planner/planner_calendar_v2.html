@@ -43,20 +43,6 @@ container-fluid
         :is-visible="isArrangementDialogOpen">
     </arrangement-info-dialog>
 
-    <div class="btn-group">
-        <button type="button" class="btn btn-dark dropdown-toggle" data-mdb-dropdown-init data-mdb-ripple-init aria-expanded="false">
-          Action
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Action</a></li>
-          <li><a class="dropdown-item" href="#">Another action</a></li>
-          <li><a class="dropdown-item" href="#">Something else here</a></li>
-          <li><hr class="dropdown-divider" /></li>
-          <li><a class="dropdown-item" href="#">Separated link</a></li>
-        </ul>
-      </div>
-      
-
     <div class="sticky-top border-bottom" >
         <nav class="navbar navbar-expand-lg navbar-light bg-white p-2 pb-0 wb-sub-bar shadow-0">
             <div class="container-fluid p-0">
@@ -206,9 +192,12 @@ container-fluid
 
 <script type="module">
     import { SeriesUtil } from "{% static 'modules/planner/seriesutil.js' %}";
+    import { SerieMetaTranslator } from "{% static 'modules/planner/serie_meta_translator.js' %}"
+
     $(document).ready(function () {
         console.log("SeriesUtil")
         window.SeriesUtil = SeriesUtil;
+        window.SerieMetaTranslator = SerieMetaTranslator;
         console.log("SeriesUtil", SeriesUtil);        
     })
     const colorSwatch = [

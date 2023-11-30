@@ -138,6 +138,8 @@ Date.prototype.addDays = function(days) {
             )
         );
 
+        console.log(serie.pattern.pattern_routine);
+
         let area_strategy = area_strategies.get(serie.time_area.method_name);
         let scope = area_strategy.run({ start_date: serie.time_area.start_date });
 

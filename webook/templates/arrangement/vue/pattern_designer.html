@@ -54,6 +54,7 @@
                         <input type="radio" v-model="localSchedule.subpattern" value="daily__every_x_day" id="daily_every_x_day_subpattern">
                     </div>
     
+                    [[localSchedule.subpattern]]
                     <div class="ms-1">
                         <label for="daily_every_x_day_subpattern_interval">
                             Hver
@@ -246,7 +247,7 @@
 
         <div class="row">
             <div class="col-3">
-                <label for="areaStartDate">Stardato</label>
+                <label for="areaStartDate">Startdato</label>
                 <input type="date" v-model="localSchedule.startDate" id="areaStartDate" required>
             </div>
             <div class="col-9">
