@@ -1,12 +1,10 @@
 <template id="selectMainPlannerS2">
 
     <select2 
-        @input="(e) => { console.log(e); }"
+        @input="(val) => $emit('update:selected', val)"
         :options="options"
-        :selected="mainPlanner && mainPlanner.id ? [mainPlanner.id] : []"
-        :multiple="false" 
-        @input="input">
-
+        :selected="selected"
+        :multiple="false">
     </select2>
 
 </template>
@@ -15,24 +13,19 @@
     let SelectMainPlannerS2 = {
         template: "#selectMainPlannerS2",
         props: {
-            mainPlanner: {
-                type: Object,
-                default: {
-                    id: null,
-                    name: null,
-                },
-            },
+            selected: { 
+                type: Array, 
+                default: [] 
+            }
         },
-        emits: ["update:mainPlanner"],
+        emits: ["update:selected"],
         data() {
             return {
-                mainPlannerList: [],
-                mainPlanner: null,
                 options: [],
             }
         },
         methods: {
-            async getMainPlannerList() {    
+            async getMainPlannerOptions() {    
                 this.options = await fetch("{% url 'arrangement:arrangement_main_planner_select2' %}", {
                     method: "GET",
                     headers: {
@@ -42,7 +35,7 @@
             },
         },
         mounted() {
-            this.getMainPlannerList();
+            this.getMainPlannerOptions();
         },
         components: { Select2 },
     }

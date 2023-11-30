@@ -34,10 +34,12 @@
             startDate: Date,
             view: String,
             locale: String,
+            height: String,
             showHeader: Boolean,
             headerToolbar: Boolean,
             eventContent: Function,
             eventSource: Function,
+            navLinks: Boolean,
             weekNumbers: Boolean,
             contextMenuItems: Array,
             onEventClick: Function,
@@ -47,6 +49,12 @@
                 if (date === undefined || date === null)
                     return "";
                 return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            },
+            render() {
+                if (this.calendar)
+                    this.calendar.render();
+                else
+                    this.initCalendar();
             },
             initCalendar() {
                 this.$nextTick(() => {
@@ -84,7 +92,8 @@
                         schedulerLicenseKey: "{{ FULLCALENDAR_LICENSE_KEY }}",
                         initialView: this.view || "dayGridMonth",
                         initialDate: this.startDate || new Date(),
-                        eventContent: this.eventContent || null,
+                        height: this.height || "auto",
+                        navLinks: this.navLinks || true,
                         scrollTime: "06:00:00",
                         locale: this.locale || "nb",
                         headerToolbar: this.headerToolbar || true,
@@ -120,6 +129,15 @@
             },
             addEventSource(source) {
                 this.calendar.addEventSource(source);
+                console.log("addEventSource", source)
+                //this.render();
+                console.log("events in fc", this.calendar.getEvents());
+                this.calendar.refetchEvents();
+            },
+            removeAllEventSources() {
+                this.calendar.getEventSources().forEach(function (source) {
+                    source.remove();
+                });
             },
         },
         mounted() {

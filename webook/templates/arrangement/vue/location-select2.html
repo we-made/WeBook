@@ -1,5 +1,6 @@
 <template id="locationSelect2">
     <select2
+        @input="(val) => $emit('update:selected', val)"
         :options="locations"
         :selected="selected">
     </select2>

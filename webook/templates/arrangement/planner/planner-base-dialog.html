@@ -8,10 +8,9 @@
 
 <template id="vuec-planner-base">
 
-    [[baseDialogEl]]
-
     <edit-serie-dialog
-        :use-backdrop="false"
+        v-model="focusedSerie"
+        :use-backdrop="true"
         :is-visible="editSerieDialogExpanded"
         @close="editSerieDialogExpanded = false"
         chain-to="#plannerBaseDialogAA">
@@ -19,7 +18,8 @@
     </edit-serie-dialog>
 
     <edit-event-dialog
-        :use-backdrop="false"
+        v-model:event="focusedEvent"
+        :use-backdrop="true"
         :is-visible="editEventDialogExpanded"
         @close="editEventDialogExpanded = false"
         chain-to="#plannerBaseDialogAA">
@@ -28,324 +28,93 @@
 
     <dialog-component
         :use-backdrop="false"
-        width="40%" 
+        width="60rem" 
         id="plannerBaseDialogAA"
         ref="baseDialog"
         :is-visible="isVisible"
         @close="$emit('close')"
+        @fullscreenenter="rerender()"
+        @fullscreenexit="rerender()"
         :is-draggable="true"
-        :start-full-screen="false">
+        :start-full-screen="true">
 
         <template v-slot:header>
             <h3 class="mb-0 fw-bold">
-                <i class="fas fa-calendar-alt"></i> Designer
+                <i class="fas fa-calendar-plus"></i> Nytt Arrangement
             </h3>
         </template>
 
         <template v-slot:content>
-            <div v-if="!nextStep">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="">
-                            <div class="row">
-                                <div class="col-12">
-
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <label for="">Tittel på norsk</label>
-                                            <input type="text" name="" id="" class="form-control">
-                                        </div>
-                                        <div class="col-6">
-                                            <label for="">Tittel på engelsk</label>
-                                            <input type="text" name="" id="" class="form-control">
-                                        </div>
-                                    </div>
-            
-                                    <div class="mt-3 row">
-                                        <div class="col-6">
-                                            <label for="">Billettkode</label>
-                                            <input type="text" name="" id="" class="form-control">
-                                        </div>
-            
-                                        <div class="col-6">
-                                            <label for="">Forventet besøkende</label>
-                                            <input type="number" name="" id="" class="form-control">
-                                        </div>
-
-                                        <div class="col-6 mt-4">
-                                            <h4 class="mb-0">
-                                                <span class="badge badge-info">
-                                                    <i class="fas fa-building"></i>
-                                                </span>
-                                                Sted
-                                            </h4>
-                                            <hr>
-                                            <div class="w-25">
-                                                <label for="" class="d-block">Lokasjon</label>
-
-                                                <location-select v-model:selected="arrangement.location"></location-select>
-                                            </div>
-                                            <label for="">Rom</label>
-                                            <div class="w-25">
-                                                <rooms-select  v-model:selected="arrangement.rooms">
-                                                </rooms-select>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-6 mt-4">
-                                            <h4 class="mb-0">
-                                                <span class="badge badge-info">
-                                                    <i class="fas fa-users"></i>
-                                                </span>
-                                                Planleggere
-                                            </h4>
-                                            <hr>
-                                            <div class="mt-2 w-25 ">
-                                                <label for="">Hovedplanlegger</label>
-                                                <select-main-planner-s2></select-main-planner-s2>
-                                            </div>
-        
-                                            <div class="mt-2 w-25">
-                                                <label for="">Medplanleggere</label>
-                                                <select-main-planner-s2 :multiple="true"></select-main-planner-s2>
-                                                
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-
-
-                                    <div class="mt-4">
-                                        <h4 class="mb-0">
-                                            <span class="badge badge-info">
-                                                <i class="fas fa-cogs"></i>
-                                            </span>
-                                            Typer
-                                        </h4>
-                                        <hr>
-                                        <div class="row">
-                                            <div class="col-4">
-                                                <tree-select-component 
-                                                    :is-open="false" 
-                                                    label="Målgruppe" 
-                                                    json-url="{% url 'arrangement:audience_tree' %}"
-                                                    button-label="Velg målgruppe"
-                                                    icon="fas fa-users"
-                                                    v-model="arrangement.audience">
-                        
-                                                </tree-select-component>
-                                            </div>
-                                            <div class="col-4">
-                                                <tree-select-component 
-                                                    :is-open="false" 
-                                                    label="Status" 
-                                                    json-url="{% url 'arrangement:statustype_tree' %}"
-                                                    button-label="Velg status"
-                                                    icon="fas fa-cog"
-                                                    v-model="arrangement.status_type">
-                        
-                                                </tree-select-component>
-                                            </div>
-                                            <div class="col-4">
-                                                <tree-select-component 
-                                                    :is-open="false" 
-                                                    label="Arrangementstype" 
-                                                    json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
-                                                    button-label="Velg arrangementstype"
-                                                    icon="fas fa-cog"
-                                                    v-model="arrangement.arrangement_type">
-                        
-                                                </tree-select-component>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-    
-                                <div class="col-12 mt-3">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <display-layout-select></display-layout-select>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="row mt-4">
-                                                <div class="col-12">
-                                                    <div>
-                                                        <label for="">Møtested</label>
-                                                        <input type="text" name="" id="" class="form-control" placeholder="Møtested">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12">
-                                                    <div>
-                                                        <label for="">Møtested (Engelsk)</label>
-                                                        <input type="text" name="" id="" class="form-control" placeholder="Møtested (Engelsk)">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="row">
+                <div class="col-3">
+                    <h3 class="text-muted">Legende</h3>
+                    <hr>
                 </div>
-            </div>
-            <div v-else>
-                <div class="row">
-                    <div class="col-4">
+                <div class="col-9">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                HEADER
+                            </div>
+                            <div>
+                                <button class="btn border-1 wb-large-btn wb-btn-white " @click="newEvent()">
+                                    <i class="fas fa-plus"></i>&nbsp; Legg til hendelse
+                                </button>
+                                <button class="btn border-1 wb-large-btn wb-btn-white " @click="newSerie()">
+                                    <i class="fas fa-plus"></i>&nbsp; Legg til gjentagende hendelse
+                                </button>
+                                <button class="btn wb-btn-main btn-lg ms-2">
+                                    <i class="fas fa-calendar text-white"></i>
+                                </button>
+                                <button class="btn wb-btn-main btn-lg ms-2">
+                                    <i class="fas fa-table text-white"></i>
+                                </button>
+                            </div>
 
-                        <div>
-                            <button class="btn wb-btn-white border text-start btn-block text-white"
-                                style="background-color: #087990!important" @click="editEventDialogExpanded = true">
-                                <i class="fas fa-plus"></i>&nbsp; Legg til hendelse
-                            </button>
-                            <button class="btn wb-btn-white border text-start btn-block text-white"
-                                style="background-color: #087990!important" @click="editSerieDialogExpanded = true">
-                                <i class="fas fa-plus"></i>&nbsp; Legg til gjentagende hendelse
-                            </button>
                         </div>
 
-                        <div class="mt-3">
-                            <h4>
-                                Lagte Planer
-                            </h4>
-                            <hr class="mb-1">
-
-                            <table class="table table-sm mb-0 mt-0 shadow-0">
-                                <thead>
-                                    <tr>
-                                        <th><i class="fas fa-eye"></i></th>
-                                        <th><i class="fas fa-cog"></i></th>
-                                        <th><i class="fas fa-calendar"></i></th>
-                                        <th><i class="fas fa-ellipsis-v"></i></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="" id="">
-                                        </td>
-                                        <td>Enkelt</td>
-                                        <td>01.01.2023 09:00 - 01.01.2023 15:00</td>
-                                        <td>
-                                            <button class="btn wb-btn-secondary">
-                                                Rediger
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="" id="">
-                                        </td>
-                                        <td>Enkelt</td>
-                                        <td>01.01.2023 09:00 - 01.01.2023 15:00</td>
-                                        <td>
-                                            <button class="btn wb-btn-secondary">
-                                                Rediger
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="" id="">
-                                        </td>
-                                        <td>Enkelt</td>
-                                        <td>01.01.2023 09:00 - 01.01.2023 15:00</td>
-                                        <td>
-                                            <button class="btn wb-btn-secondary">
-                                                Rediger
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="" id="">
-                                        </td>
-                                        <td>Enkelt</td>
-                                        <td>01.01.2023 09:00 - 01.01.2023 15:00</td>
-                                        <td>
-                                            <button class="btn wb-btn-secondary">
-                                                Rediger
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="col-8">
                         <div>
                             <div class="d-flex justify-content-between align-items-center">
-
-                                <div>
-                                    <button class="btn wb-btn-white btn-lg">
-                                        <i class="fas fa-calendar"></i>
+                                <div class="d-flex">
+                                    <button class="btn wb-btn-white me-1">
+                                        <i class="fas fa-arrow-left"></i>
                                     </button>
-                                    <button class="btn wb-btn-white btn-lg ms-2">
-                                        <i class="fas fa-table"></i>
-                                    </button>
-                                </div>
-
-                                <div>
-                                    <button class="btn wb-btn-white btn-lg text-white" style="background-color: #0f5132!important">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                    <button class="btn wb-btn-white btn-lg text-white ms-2" style="background-color: #0f5132!important">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    <button class="btn wb-btn-white btn-lg ms-2 text-white" style="background-color: #087990!important">
-                                        <i class="fas fa-palette"></i>
-                                    </button>
-                                    <button class="btn wb-btn-white btn-lg ms-2" style="background-color: #ed9aa2">
-                                        <i class="fas fa-cogs"></i>
+                                    <button class="btn wb-btn-white ms-1">
+                                        <i class="fas fa-arrow-right"></i>
                                     </button>
                                 </div>
 
-                            </div>
+                                <div class="border rounded-4 border-dark p-2">
+                                    <input type="checkbox" name="" id="">
+                                    Automatisk juster visning basert på hendelser
+                                </div>
 
-                            <div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex">
-                                        <button class="btn wb-btn-white me-1">
-                                            <i class="fas fa-arrow-left"></i>
-                                        </button>
-                                        <button class="btn wb-btn-white ms-1">
-                                            <i class="fas fa-arrow-right"></i>
-                                        </button>
-                                    </div>
-
-                                    <div>
-                                        HEADER
-                                    </div>
-
-                                    <div class="mt-2">
-                                        <button class="btn wb-btn-white text-dark fw-light">
-                                            Dag
-                                        </button>
-                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
-                                            Uke
-                                        </button>
-                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
-                                            Måned
-                                        </button>
-                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
-                                            År
-                                        </button>
-                                    </div>
+                                <div class="mt-2">
+                                    <button class="btn wb-btn-white text-dark fw-light">
+                                        Dag
+                                    </button>
+                                    <button class="btn wb-btn-white text-dark fw-light ms-1">
+                                        Uke
+                                    </button>
+                                    <button class="btn wb-btn-white text-dark fw-light ms-1">
+                                        Måned
+                                    </button>
+                                    <button class="btn wb-btn-white text-dark fw-light ms-1">
+                                        År
+                                    </button>
                                 </div>
                             </div>
-
-                            <calendar-component
-                                class="w-100"
-                                view="dayGridMonth"
-                                ref="calendar">
-                            </calendar-component>
                         </div>
+
+                        <calendar-component
+                            class="w-100"
+                            height="50rem"
+                            view="timelineMonth"
+                            ref="calendar">
+                        </calendar-component>
                     </div>
                 </div>
             </div>
-
         </template>
 
         <template v-slot:footer>
@@ -393,22 +162,116 @@
                 nextStep: false,
                 editSerieDialogExpanded: false,
                 editEventDialogExpanded: false,
+                focusedEvent: null,
+                calendarEventsSource: [],
+                focusedSerie: null,
                 arrangement: {
+                    title: '',
+                    title_en: '',
                     audience: [],
                     status_type: [],
                     arrangement_type: [],
                     rooms: [],
-                    planner: {},
-                    location: {}
+                    location: {},
+                    events: [],
+                    series: []
                 }
             }
         },
+        methods: {
+            close() {
+                this.$emit('close');
+            },
+            regenerateEventSource() {
+                let events = [];
+                this.arrangement.series.forEach(serie => {
+                    if (serie.schedule) {
+                        events = events.concat(
+                            serie.schedule.exploded.map((ev) => ev.fc)
+                        );
+                    }
+                });
+
+                this.calendarEventsSource = events;
+            },
+            rerender() {
+                this.$refs.calendar.render();
+            },
+            newEvent() {
+                this.editEventDialogExpanded = true;
+                this.focusedEvent = {
+                    title:              this.arrangement.title,
+                    title_en:           this.arrangement.title_en,
+                    meeting_place:      this.arrangement.meeting_place,
+                    meeting_place_en:   this.arrangement.meeting_place_en,
+                    audience:           this.arrangement.audience,
+                    status_type:        this.arrangement.status_type,
+                    arrangement_type:   this.arrangement.arrangement_type,
+                    rooms:              this.arrangement.rooms,
+                    mainPlanner:        this.arrangement.mainPlanner,
+                    planners:           this.arrangement.planners,
+                    ticket_code:        this.arrangement.ticket_code,
+                    expected_visitors:  this.arrangement.expected_visitors,
+                    location:           this.arrangement.location,
+                };
+            },
+            editEvent(event) {
+                this.focusedEvent = event;
+                this.editEventDialogExpanded = true;
+            },
+            newSerie() {
+                this.editSerieDialogExpanded = true;
+                this.focusedSerie = {
+                    uuid:               crypto.randomUUID(), 
+                    title:              this.arrangement.title,
+                    title_en:           this.arrangement.title_en,
+                    meeting_place:      this.arrangement.meeting_place,
+                    meeting_place_en:   this.arrangement.meeting_place_en,
+                    audience:           this.arrangement.audience,
+                    status_type:        this.arrangement.status_type,
+                    arrangement_type:   this.arrangement.arrangement_type,
+                    rooms:              this.arrangement.rooms,
+                    mainPlanner:        this.arrangement.mainPlanner,
+                    planners:           this.arrangement.planners,
+                    ticket_code:        this.arrangement.ticket_code,
+                    expected_visitors:  this.arrangement.expected_visitors,
+                    location:           this.arrangement.location,
+                }
+            },
+            editSerie(serie) {
+                this.focusedSerie = serie;
+                this.editSerieDialogExpanded = true;
+            }
+        },
         watch: {
+            calendarEventsSource: function(val) {
+                this.$refs.calendar.removeAllEventSources();
+                this.$refs.calendar.addEventSource(val);
+                console.log("val calendarEventsSource", val);
+            },
             isVisible: function(val) {
                 this.$nextTick(() => {
                     this.baseDialogEl = this.$refs.baseDialog.$el;
-
                 })
+            },
+            focusedEvent: function(val) {
+                if (val) {
+                    this.arrangement.events.splice(this.arrangement.events.indexOf(this.focusedEvent), 1);
+                    this.arrangement.events.push(val);
+                }
+            },
+            focusedSerie: function(newValue, oldValue) {
+                if (newValue) {                    
+                    this.arrangement.series.forEach((serie, index) => {
+                        if (serie.uuid === newValue.uuid) {
+                            this.arrangement.series.splice(index, 1);
+                        }
+                    });
+                    
+                    this.regenerateEventSource();
+
+                    this.arrangement.series.push(newValue);
+                }
             }
         },
         components: { 

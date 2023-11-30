@@ -109,6 +109,8 @@
                     this.$refs.dialogRoot.dispatchEvent(new Event("dialogfullscreenexit"));
 
                     this.isFullScreen = false;
+
+                    this.$emit("fullscreenexit");
                 }
                 else {
                     $(this.$refs.dialogRoot).dialog("option", "width", "100%");
@@ -131,18 +133,23 @@
                     this.$refs.dialogRoot.dispatchEvent(new Event("dialogfullscreenenter"));
 
                     this.isFullScreen = true;
+
+                    this.$emit("fullscreenenter");
                 }
             },
             show() {
                 this.$nextTick(function () {
+                    console.log("showing dialog", this.$refs.dialogRoot)
+                    console.log("width", this.width );
                     $(this.$refs.dialogRoot).dialog({
-                        width: this.width || "40rem",
+                        width: this.width,
                         resizable: this.isResizable,
                         maxHeight: window.innerHeight,
                         modal: this.useBackdrop,
                         position: this.position || { my: "center", at: "center", of: window },
                         draggable: false // We must deactivate the native jQuery UI draggable, because we want to use our own
                     })
+                    
                     
                     // Figure out if we more dialogs exist along us
                     // This matters due to z-indexing. If we are not alone, we must coordinate the z-index to the last dialog rendered.
@@ -157,16 +164,17 @@
                         }
                     }.bind(this));
 
-                    console.log("chainTo", this.chainTo);
-
                     window.parent = this.$parent;
 
                     if (this.isDraggable) {
                         $(this.$refs.dialogRoot).parent().draggable({
                             handle: this.$refs.grille,
-                            helper: "clone",
-                            opacity: 0.35,
-                            drag: () => { this.$refs.dialogRoot.dispatchEvent(new Event("dialogdrag")) },
+                            drag: () => { 
+                                if (this.isFullScreen || this.chainTo)
+                                    return false;
+
+                                this.$refs.dialogRoot.dispatchEvent(new Event("dialogdrag")) 
+                            },
                             stop: () => { this.$refs.dialogRoot.dispatchEvent(new Event("dialogdragstop")) },
                             start: () => { this.$refs.dialogRoot.dispatchEvent(new Event("dialogdragstart")) },
                         });
@@ -188,6 +196,8 @@
 
                             // Set the z-index of the current dialog to the last dialog
                             $(this.$refs.dialogRoot).parent().attr("style", "z-index: " + (zIndex + 1) + " !important");
+                            // reset width
+                            $(this.$refs.dialogRoot).dialog("option", "width", this.width || "40rem");
                         }
                     }
 
@@ -221,10 +231,9 @@
 
                         const adjustToFullScreen = () => {
                             $(this.$refs.dialogRoot).parent().addClass("fullscreen");
-
+                            
                             const parentWidth = $(this.chainTo).dialog("option", "width");
                             const ourWidth = $(this.$refs.dialogRoot).dialog("option", "width");
-                            const parentNewWidth = window.innerWidth - ourWidth;
                             
                             //reposition parent dialog
                             $(this.chainTo).dialog("option", "width", "70%");
@@ -240,11 +249,9 @@
                                 }
                             });
 
-
                             //reposition our dialog
                             $(this.$refs.dialogRoot).dialog("option", "width", "30%");
                             $(this.$refs.dialogRoot).dialog("option", "height", window.innerHeight);
-
 
                             $(this.$refs.dialogRoot).dialog("option", "position", {
                                 my: "left top", 
@@ -253,6 +260,13 @@
                                 collision: "none",
                                 classes: {
                                     "ui-dialog": "overflow-dialog ui-corner-all"
+                                }
+                            });
+
+                            $(this.$refs.dialogRoot).on("dialogclose", () => { 
+                                // reset parent dialog when the chained dialog is closed
+                                if($(this.chainTo).parent().hasClass("fullscreen")) {
+                                    $(this.chainTo).dialog("option", "width", "100%");
                                 }
                             });
                         }
@@ -269,6 +283,9 @@
                             reposition(); 
                         });
 
+                        if($(this.chainTo).parent().hasClass("fullscreen"))
+                            adjustToFullScreen();
+
                         $(this.$refs.dialogRoot).dialog("option", "position", {
                             my: "left top", 
                             at: "right top",
@@ -278,6 +295,7 @@
                                 "ui-dialog": "overflow-dialog ui-corner-all"
                             }
                         });
+
                         return;
                     }
 
@@ -302,10 +320,15 @@
             isVisible() {
                 this.isVisible ? this.show() : this.close();
             },
+            width() {
+                if (this.isMounted)
+                    $(this.$refs.dialogRoot).dialog("option", "width", this.width || "40rem");
+            },
         },
         computed: {
         },
         mounted() {
+            console.log("width", this.width)
             $(this.$refs.dialogRoot).dialog({
                 width: this.width || "40rem",
             });
@@ -324,7 +347,7 @@
                 }
             });
         },
-        emits: ["close", "rendered"],
+        emits: ["close", "rendered", "fullscreenenter", "fullscreenexit"],
         unmounted() {
             $(this.$refs.dialogRoot).dialog("destroy");
         },

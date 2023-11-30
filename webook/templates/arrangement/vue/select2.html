@@ -27,9 +27,8 @@
             }
         },
         mounted() {
+            console.log('select2 mounted', this.selected);
             this.$nextTick(() => {
-                console.log("selected", this.selected)
-
                 $(this.$refs.select)
                     .select2()
                     .val(this.selected)
@@ -37,6 +36,10 @@
                     .on('change', e => {
                         this.$emit('input', $(this.$refs.select).val() || [])
                     });
+
+                    
+
+                $(this.$refs.select).val(this.selected);
             })
         },
         emits: ['input'],

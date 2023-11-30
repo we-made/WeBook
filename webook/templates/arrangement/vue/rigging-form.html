@@ -3,9 +3,9 @@
 <template id="vuec-rigging-form">
     <div class="d-flex flex-column">
         <div>
-            <input type="text" name="title" id="title"
-                v-model="modelValue.title" @input="emitUpdateEvent"
-                class="form-control w-auto" placeholder="Tittel">
+            <input type="text" name="title" id="title" placeholder="Tittel"
+                v-model="localModelValue.title"
+                class="form-control w-auto">
         </div>
         <span class="mt-2">
             Fra
@@ -14,7 +14,7 @@
             <div class="col-6">
                 <div class="input-group w-auto">
                     <input type="date" class="form-control" 
-                        v-model="modelValue.date" @input="emitUpdateEvent">
+                        v-model="localModelValue.date">
                     </input>
                 </div>
             </div>
@@ -23,15 +23,10 @@
                     <span class="input-group-text">
                         <i class="fas fa-clock"></i>
                     </span>
-                    <input type="time" class="form-control" 
-                        v-model="modelValue.start_time" @input="emitUpdateEvent">
-                    </input>
+                    <input type="time" class="form-control" v-model="localModelValue.start_time" />
                 </div>
             </div>
         </div>
-
-
-
 
         <span class="mt-2">
             Til
@@ -41,10 +36,7 @@
             <span class="input-group-text">
                 <i class="fas fa-clock"></i>
             </span>
-            <input type="time" class="form-control" 
-                v-model="modelValue.end_time"
-                @input="emitUpdateEvent">
-            </input>
+            <input type="time" class="form-control" v-model="localModelValue.end_time" />
         </div>
     </div>
 </template>
@@ -71,22 +63,22 @@
                 }
             }
         },
-        mounted: function() {
-            
-        },
         data() {
             return {
+                localModelValue: this.modelValue,
+            }
+        },
+        watch: {
+            modelValue: function(newVal, oldVal) {
+                this.localModelValue = newVal;
+            },
+            localModelValue: {
+                handler(n, o) {
+                    this.$emit('update:modelValue', n);
+                },
+                deep: true,
             }
         },
         emits: ['update:modelValue'],
-        methods: {
-            emitUpdateEvent() {
-                console.log('Emitting update event');
-                console.log(this.modelValue);
-                this.$emit('update:modelValue', this.modelValue);
-            },
-        },
-        components: { 
-        },
     }
 </script>
