@@ -12,16 +12,14 @@
     <div class="row">
         <div class="col-3 border-end border-1">
             <div>
-                <input type="radio" v-model="localSchedule.pattern" value="daily"
-                    id="pattern_daily">
+                <input type="radio" v-model="localSchedule.pattern" value="daily" id="pattern_daily">
                 <label for="pattern_daily" class="ms-1">
                     Daglig
                 </label>
             </div>
 
             <div>
-                <input type="radio" v-model="localSchedule.pattern" value="weekly"
-                    id="pattern_weekly">
+                <input type="radio" v-model="localSchedule.pattern" value="weekly" id="pattern_weekly">
                 <label for="pattern_weekly" class="ms-1">
                     Ukentlig
                 </label>
@@ -54,14 +52,13 @@
                         <input type="radio" v-model="localSchedule.subpattern" value="daily__every_x_day" id="daily_every_x_day_subpattern">
                     </div>
     
-                    [[localSchedule.subpattern]]
                     <div class="ms-1">
                         <label for="daily_every_x_day_subpattern_interval">
                             Hver
                             <input type="number" min="1" required
                                 v-model="localSchedule.interval"
                                 id="daily_every_x_day_subpattern_interval"
-                                :disabled="subpattern != 'daily__every_x_day'" />
+                                :disabled="localSchedule.subpattern != 'daily__every_x_day'" />
                             dag
                         </label>
                     </div>
@@ -106,8 +103,7 @@
                         min="1"
                         max="31"
                         style="width: 40px"
-                        :disabled="localSchedule.subpattern != 'month__every_x_day_every_y_month'" 
-                        />
+                        :disabled="localSchedule.subpattern != 'month__every_x_day_every_y_month'" />
 
                     hver
 
@@ -222,7 +218,7 @@
                     </arbitrator-select-component>
 
                     <day-of-week-select-component
-                        v-model="dlocalSchedule.dayOfWeek"
+                        v-model="localSchedule.dayOfWeek"
                         required
                         :disabled="localSchedule.subpattern != 'yearly__every_arbitrary_weekday_in_month'">
                     </day-of-week-select-component>
@@ -337,8 +333,16 @@
         watch: {
             localSchedule: {
                 handler(n, o) {
+                    if (this.ignoreNextLocalScheduleChange) {
+                        this.ignoreNextLocalScheduleChange = false;
+                        return;
+                    }
+
+                    this.ignoreNextLocalScheduleChange = true;
+                    console.log("localSchedule changed")
                     n.inOldStyle = this.convertToOldFormat();
                     this.$emit('update:schedule', n);
+
                 },
                 deep: true,
             }
@@ -372,8 +376,12 @@
         },
         data: function () {
             return {
-                localSchedule: this.schedule || { pattern: "daily" },
+                localSchedule: { pattern: "daily" },
+                ignoreNextLocalScheduleChange: false,
             }
+        },
+        mounted() {
+            this.localSchedule = {...this.schedule} || { pattern: "daily" };
         }
     }
 </script>
