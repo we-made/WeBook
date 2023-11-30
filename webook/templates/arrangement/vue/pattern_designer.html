@@ -5,6 +5,7 @@
 
 
 <template id="patternDesignerTemplate">
+    [[localSchedule]]
     <h5>
         Mønster
         <span class="fw-bold">&nbsp;*</span>
@@ -339,7 +340,6 @@
                     }
 
                     this.ignoreNextLocalScheduleChange = true;
-                    console.log("localSchedule changed")
                     n.inOldStyle = this.convertToOldFormat();
                     this.$emit('update:schedule', n);
 
@@ -382,6 +382,8 @@
         },
         mounted() {
             this.localSchedule = {...this.schedule} || { pattern: "daily" };
+            if (!("patttern" in this.localSchedule))
+                this.localSchedule.pattern = "daily";
         }
     }
 </script>
