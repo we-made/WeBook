@@ -45,10 +45,13 @@
                 }
             }
         },
-        watchers: {
-            values: function (values) {
-                this.$emit('update:modelValue', values);
-            },
+        watch: {
+            values: {
+                handler() {
+                    this.$emit("update:modelValue", this.values);
+                },
+                deep: true
+            }
         },
         mounted() {
             this.values = this.modelValue || [];
