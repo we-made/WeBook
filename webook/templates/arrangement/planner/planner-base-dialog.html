@@ -138,6 +138,67 @@
             </div>
             <div v-show="step == 2">
                 <div class="row">
+                    <div class="col-9">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    [[ header ]]
+                                </div>
+                                <div>
+                                    <button class="btn wb-btn-main btn-lg ms-2">
+                                        <i class="fas fa-calendar text-white"></i>
+                                    </button>
+                                    <button class="btn wb-btn-main btn-lg ms-2">
+                                        <i class="fas fa-table text-white"></i>
+                                    </button>
+                                </div>
+    
+                            </div>
+    
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex">
+                                        <button class="btn wb-btn-white me-1" @click="moveCalendarOneUnitBackward()">
+                                            <i class="fas fa-arrow-left"></i>
+                                        </button>
+                                        <button class="btn wb-btn-white ms-1" @click="moveCalendarOneUnitForward()">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </button>
+                                    </div>
+    
+                                    <div class="border rounded-4 border-dark p-2">
+                                        <input type="checkbox" name="" id="">
+                                        Automatisk juster visning basert på hendelser
+                                    </div>
+    
+                                    <div class="mt-2">
+                                        <button class="btn wb-btn-white text-dark fw-light">
+                                            Dag
+                                        </button>
+                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
+                                            Uke
+                                        </button>
+                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
+                                            Måned
+                                        </button>
+                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
+                                            År
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <calendar-component
+                                class="w-100"
+                                height="50rem"
+                                :context-menu-items="contextMenuItems"
+                                view="timelineMonth"
+                                @date-changed="(date) =>  { header = date.toISOString(); }"
+                                ref="calendar"
+                                :on-event-click="handleEventClickedInCalendar">
+                            </calendar-component>
+                        </div>
+                    </div>
                     <div class="col-3">
                         <div>
                             <button class="btn wb-btn-main w-100" @click="newEvent()">
@@ -206,68 +267,6 @@
                                 </div>
                             </li>
                           </ul>
-
-                    </div>
-                    <div class="col-9">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    [[ header ]]
-                                </div>
-                                <div>
-                                    <button class="btn wb-btn-main btn-lg ms-2">
-                                        <i class="fas fa-calendar text-white"></i>
-                                    </button>
-                                    <button class="btn wb-btn-main btn-lg ms-2">
-                                        <i class="fas fa-table text-white"></i>
-                                    </button>
-                                </div>
-    
-                            </div>
-    
-                            <div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex">
-                                        <button class="btn wb-btn-white me-1" @click="moveCalendarOneUnitBackward()">
-                                            <i class="fas fa-arrow-left"></i>
-                                        </button>
-                                        <button class="btn wb-btn-white ms-1" @click="moveCalendarOneUnitForward()">
-                                            <i class="fas fa-arrow-right"></i>
-                                        </button>
-                                    </div>
-    
-                                    <div class="border rounded-4 border-dark p-2">
-                                        <input type="checkbox" name="" id="">
-                                        Automatisk juster visning basert på hendelser
-                                    </div>
-    
-                                    <div class="mt-2">
-                                        <button class="btn wb-btn-white text-dark fw-light">
-                                            Dag
-                                        </button>
-                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
-                                            Uke
-                                        </button>
-                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
-                                            Måned
-                                        </button>
-                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
-                                            År
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-    
-                            <calendar-component
-                                class="w-100"
-                                height="50rem"
-                                :context-menu-items="contextMenuItems"
-                                view="timelineMonth"
-                                @date-changed="(date) =>  { header = date.toISOString(); }"
-                                ref="calendar"
-                                :on-event-click="handleEventClickedInCalendar">
-                            </calendar-component>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -306,40 +305,58 @@
         },
         emits: ['close'],
         data: function() {
+            // Attempt to get either the event or serie information from the element
+            // Returns an array with [ type, entity ]
+            const getCalendarEntityFromElement = (element) => {
+                const extractUuidFromClass = (element, className, separator) => {
+                    return [...element.classList]
+                        .filter((x) => x.startsWith(className))
+                        ?.map((x) => x.split(separator).pop())[0];
+                }   
+                
+                const eventUuid = extractUuidFromClass(element, "event", ":");
+                const serieUuid = extractUuidFromClass(element, "serie-event", ":");
+
+                if (eventUuid) {
+                    console.log("eventUuid", eventUuid)
+                    let eventObject = this.arrangement.events.filter(x => x.uuid == eventUuid)[0];
+                    return [ "event", eventObject ];
+                }
+                if (serieUuid) {
+                    let serie = this.arrangement.series.filter(x => x.uuid == serieUuid)[0];
+                    return [ "serie", serie ];
+                }
+
+                throw new Error("Could not find uuid - no matching class found on element");
+            }
+            
+            const calendarEntityTypes = {
+                event: {
+                    "edit": this.editEvent,
+                    "delete": this.removeEvent
+                },
+                serie: {
+                    "edit": this.editSerie,
+                    "delete": this.removeSerie
+                }
+            }
+
             return {
                 contextMenuItems: {
                     edit: {
                         name: "<i class='fas fa-edit'></i>&nbsp; Rediger",
                         isHtmlName: true,
                         callback: (key, opt) => {
-                            const extractUuidFromClass = (className, separator) => {
-                                return [...opt.$trigger[0].classList]
-                                    .filter((x) => x.startsWith(className))
-                                    ?.map((x) => x.split(separator).pop())[0];
-                            }
-
-                            let eventUuid = extractUuidFromClass("event", ":");
-                            let serieUuid = extractUuidFromClass("serie-event", ":");
-
-                            if (eventUuid) {
-                                let eventObject = this.arrangement.events.filter(x => x.uuid == eventUuid)[0];
-                                this.editEvent(eventObject);
-                                return;
-                            }
-                            if (serieUuid) {
-                                console.log("serieUuid", serieUuid)
-                                let serie = this.arrangement.series.filter(x => x.uuid == serieUuid)[0];
-                                this.editSerie(serie);
-                                return;
-                            } 
-
-                            throw new Error("Could not find uuid - no matching class found on element");
+                            const [ type, entity ] = getCalendarEntityFromElement(opt.$trigger[0]);
+                            calendarEntityTypes[type].edit(entity);
                         }
                     },
-                    event_inspector: {
+                    delete: {
                         name: "<i class='fas fa-trash'></i>&nbsp; Fjern",
                         isHtmlName: true,
                         callback: (key, opt) => {
+                            const [ type, entity ] = getCalendarEntityFromElement(opt.$trigger[0]);
+                            calendarEntityTypes[type].delete(entity);
                         }
                     }
                 },
@@ -534,8 +551,6 @@
                 };
             },
             getSerieDescription(serie) {
-                console.log("getSerieDescription", serie);
-
                 if (serie.schedule)
                     return window.SerieMetaTranslator.generate(serie.schedule.inOldStyle);
                 
@@ -562,6 +577,7 @@
                                 this.arrangement.events.splice(index, 1);
                             }
                         });
+
                         this.regenerateEventSource();
                     }
                 });

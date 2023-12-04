@@ -350,7 +350,7 @@
                     title: this.localEvent.title,
                     start: new Date(this.localEvent.from_date + 'T' + this.localEvent.from_time),
                     end:   new Date(this.localEvent.to_date + 'T' + this.localEvent.to_time),
-                    classNames: ['event:' + this.localEvent.status_type.uuid],
+                    classNames: ['event:' + this.localEvent.uuid],
                     extendedProps: {
                         parentType: 'event',
                         parentUuid: this.localEvent.uuid,
