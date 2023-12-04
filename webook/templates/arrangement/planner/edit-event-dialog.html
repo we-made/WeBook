@@ -101,52 +101,51 @@
                       aria-labelledby="flush-headingTwo"
                       data-mdb-parent="#accordionFlushExample"
                     >
-                      <div class="accordion-body">
-                          {% comment %} <div>
-                              <tree-select-component 
-                                  :is-open="false" 
-                                  label="Målgruppe" 
-                                  json-url="{% url 'arrangement:audience_tree' %}"
-                                  button-label="Velg målgruppe"
-                                  icon="fas fa-users"
-                                  v-model="localEvent.audience">
+                        <div class="accordion-body">
+                            <div>
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Målgruppe" 
+                                    json-url="{% url 'arrangement:audience_tree' %}"
+                                    button-label="Velg målgruppe"
+                                    icon="fas fa-users"
+                                    v-model="localEvent.audience">
+                
+                                </tree-select-component>
+                            </div>
               
-                              </tree-select-component>
-                          </div>
+                            <div>
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Arrangementstype" 
+                                    json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                    button-label="Velg arrangementstype"
+                                    icon="fas fa-cog"
+                                    v-model="localEvent.arrangement_type">
+                
+                                </tree-select-component>
+                            </div>
               
-                          <div>
-                              <tree-select-component 
-                                  :is-open="false" 
-                                  label="Arrangementstype" 
-                                  json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
-                                  button-label="Velg arrangementstype"
-                                  icon="fas fa-cog"
-                                  v-model="localEvent.arrangement_type">
+                            <div>
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Status" 
+                                    json-url="{% url 'arrangement:statustype_tree' %}"
+                                    button-label="Velg status"
+                                    icon="fas fa-cog"
+                                    v-model="localEvent.status_type">
+                
+                                </tree-select-component>
+                            </div>
+                            <div>
+                                <label for="">Billettkode</label>
+                                <input type="text" v-model="localEvent.ticket_code" class="form-control">
+                            </div>
               
-                              </tree-select-component>
-                          </div>
-              
-                          <div>
-                              <tree-select-component 
-                                  :is-open="false" 
-                                  label="Status" 
-                                  json-url="{% url 'arrangement:statustype_tree' %}"
-                                  button-label="Velg status"
-                                  icon="fas fa-cog"
-                                  v-model="localEvent.status_type">
-              
-                              </tree-select-component>
-                          </div> {% endcomment %}
-  
-                          <div>
-                              <label for="">Billettkode</label>
-                              <input type="text" v-model="localEvent.ticket_code" class="form-control">
-                          </div>
-              
-                          <div>
-                              <label for="">Forventet besøkende</label>
-                              <input type="number" v-model="localEvent.expected_visitors" class="form-control">            
-                          </div>
+                            <div>
+                                <label for="">Forventet besøkende</label>
+                                <input type="number" v-model="localEvent.expected_visitors" class="form-control">            
+                            </div>
                       </div>
                     </div>
                 </div>
@@ -219,12 +218,12 @@
                         <display-layout-select></display-layout-select>
 
                         <div>
-                            <label for="">Møtested (Norsk)</label>
+                            <label>Møtested (Norsk)</label>
                             <input type="text" v-model="localEvent.meeting_place" class="form-control">
                         </div>
 
                         <div>
-                            <label for="">Møtested (Engelsk)</label>
+                            <label>Møtested (Engelsk)</label>
                             <input type="text" v-model="localEvent.meeting_place_en" class="form-control">
                         </div>
                       </div>
@@ -351,10 +350,12 @@
                     title: this.localEvent.title,
                     start: new Date(this.localEvent.from_date + 'T' + this.localEvent.from_time),
                     end:   new Date(this.localEvent.to_date + 'T' + this.localEvent.to_time),
+                    classNames: ['event:' + this.localEvent.status_type.uuid],
                     extendedProps: {
-                        event: this.localEvent,
+                        parentType: 'event',
+                        parentUuid: this.localEvent.uuid,
                     }
-                }
+                };
                 this.$emit('update:event', this.localEvent);
                 this.close();
             }

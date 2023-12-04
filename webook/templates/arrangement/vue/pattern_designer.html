@@ -73,6 +73,7 @@
 
             <!-- Pattern: Weekly -->
             <div v-if="localSchedule.pattern == 'weekly'">
+                [[localSchedule.daysOfWeek]]
                 <!-- Subpattern: Days of Week -->
                 <label for="">Skjer hver</label>
                 <input type="number" class="ms-1 me-1" min="1" v-model="localSchedule.interval" style="width: 40px" required>
@@ -341,16 +342,26 @@
                     this.ignoreNextLocalScheduleChange = true;
                     n.inOldStyle = this.convertToOldFormat();
                     this.$emit('update:schedule', n);
-
                 },
                 deep: true,
             }
         },
         methods: {
             convertToOldFormat(){
+                console.log("at convertToOldFormat", this.localSchedule)
                 return {
                     "pattern": {
-                        "pattern_routine": this.localSchedule.subpattern,
+                        "pattern_routine": this.localSchedule.pattern == "weekly" ? 'weekly__standard' : this.localSchedule.subpattern,
+                        "method_name": this.localSchedule.recurrenceMethod,
+                        "stop_within": this.localSchedule.endDate,
+                        "start_date": this.localSchedule.startDate,
+                        "week_interval": this.localSchedule.interval,
+                        "days": this.localSchedule.daysOfWeek,
+                        "day_of_month": this.localSchedule.dayOfMonth,
+                        "arbitrator": this.localSchedule.arbitrator,
+                        "weekday": this.localSchedule.dayOfWeek,
+                        "day_index": this.localSchedule.dayOfMonth,
+                        "year_interval": this.localSchedule.interval,
                     },
                     "time_area": {
                         "method_name": this.localSchedule.recurrenceMethod,

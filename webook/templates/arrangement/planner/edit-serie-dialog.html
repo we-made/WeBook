@@ -354,8 +354,10 @@
                         title: this.localModelValue.title,
                         start: ev.from,
                         end: ev.to,
+                        classNames: ['serie-event:' + this.localModelValue.uuid],
                         extendedProps: {
-                            serie: this.localModelValue,
+                            parentType: 'serie',
+                            parentUuid: this.localModelValue.uuid
                         }
                     }
                 });

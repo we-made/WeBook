@@ -56,7 +56,9 @@ Date.prototype.addDays = function(days) {
      */
  export class SeriesUtil {
 
-    static calculate_serie (serie) {
+     static calculate_serie(serie) {
+        console.log("serie", serie);
+         
         const pattern_strategies = new Map();
         pattern_strategies.set(
             "daily__every_x_day",
@@ -294,7 +296,7 @@ Date.prototype.addDays = function(days) {
         let events = [];
         let y = 0;
         for (let i = start_date.getDay(); i < 6; i++) {
-            let day = days.get(i)
+            let day = days instanceof Map ? days.get(i) : days[i];
             if (day === true) {
                 let adjusted_date = (new Date(start_date)).addDays(y);
                 let ev_copy = Object.assign({}, event);
