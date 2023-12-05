@@ -193,11 +193,13 @@ container-fluid
 <script type="module">
     import { SeriesUtil } from "{% static 'modules/planner/seriesutil.js' %}";
     import { SerieMetaTranslator } from "{% static 'modules/planner/serie_meta_translator.js' %}"
+    import { HeaderGenerator } from "{% static 'modules/planner/calendar_utilities/header_generator.js' %}"
 
     $(document).ready(function () {
         console.log("SeriesUtil")
         window.SeriesUtil = SeriesUtil;
         window.SerieMetaTranslator = SerieMetaTranslator;
+        window.HeaderGenerator = new HeaderGenerator();
         console.log("SeriesUtil", SeriesUtil);        
     })
     const colorSwatch = [

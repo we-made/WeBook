@@ -49,51 +49,62 @@
                 <div class="row">
                     <div class="col-6">
                         <label>Tittel</label>
-                        <input type="text" class="form-control form-control-lg">
+                        <input type="text" class="form-control form-control-lg" v-model="arrangement.title">
                     </div>
                     <div class="col-6">
                         <label>Tittel (Engelsk)</label>
-                        <input type="text" class="form-control form-control-lg">
+                        <input type="text" class="form-control form-control-lg" v-model="arrangement.title_en">
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-4">
+                        <tree-select-component 
+                            :is-open="false" 
+                            label="Målgruppe" 
+                            json-url="{% url 'arrangement:audience_tree' %}"
+                            button-label="Velg målgruppe"
+                            icon="fas fa-users"
+                            v-model="arrangement.audience">
+        
+                        </tree-select-component>
+                    </div>
+        
+                    <div class="col-4">
+                        <tree-select-component 
+                            :is-open="false" 
+                            label="Arrangementstype" 
+                            json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                            button-label="Velg arrangementstype"
+                            icon="fas fa-cog"
+                            v-model="arrangement.arrangement_type">
+        
+                        </tree-select-component>
+                    </div>
+        
+                    <div class="col-4">
+                        <tree-select-component 
+                            :is-open="false" 
+                            label="Status" 
+                            json-url="{% url 'arrangement:statustype_tree' %}"
+                            button-label="Velg status"
+                            icon="fas fa-cog"
+                            v-model="arrangement.status_type">
+        
+                        </tree-select-component>
                     </div>
                 </div>
 
                 <div>
-                    <tree-select-component 
-                        :is-open="false" 
-                        label="Målgruppe" 
-                        json-url="{% url 'arrangement:audience_tree' %}"
-                        button-label="Velg målgruppe"
-                        icon="fas fa-users"
-                        v-model="arrangement.audience">
-    
-                    </tree-select-component>
+                    <label>Forventet Besøkende</label>
+                    <input type="number" v-model="arrangement.expected_visitors" class="form-control">
                 </div>
-    
                 <div>
-                    <tree-select-component 
-                        :is-open="false" 
-                        label="Arrangementstype" 
-                        json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
-                        button-label="Velg arrangementstype"
-                        icon="fas fa-cog"
-                        v-model="arrangement.arrangement_type">
-    
-                    </tree-select-component>
-                </div>
-    
-                <div>
-                    <tree-select-component 
-                        :is-open="false" 
-                        label="Status" 
-                        json-url="{% url 'arrangement:statustype_tree' %}"
-                        button-label="Velg status"
-                        icon="fas fa-cog"
-                        v-model="arrangement.status_type">
-    
-                    </tree-select-component>
+                    <label>Billettkode</label>
+                    <input type="text" v-model="arrangement.ticket_code" class="form-control">
                 </div>
 
-                <div class="row">
+                <div class="row mt-2">
                     <div class="col-4">
                         <label class="fw-bold">Lokasjon</label>
                         <location-select v-model:selected="arrangement.location"></location-select>v    
@@ -140,58 +151,12 @@
                 <div class="row">
                     <div class="col-9">
                         <div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    [[ header ]]
-                                </div>
-                                <div>
-                                    <button class="btn wb-btn-main btn-lg ms-2">
-                                        <i class="fas fa-calendar text-white"></i>
-                                    </button>
-                                    <button class="btn wb-btn-main btn-lg ms-2">
-                                        <i class="fas fa-table text-white"></i>
-                                    </button>
-                                </div>
-    
-                            </div>
-    
-                            <div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex">
-                                        <button class="btn wb-btn-white me-1" @click="moveCalendarOneUnitBackward()">
-                                            <i class="fas fa-arrow-left"></i>
-                                        </button>
-                                        <button class="btn wb-btn-white ms-1" @click="moveCalendarOneUnitForward()">
-                                            <i class="fas fa-arrow-right"></i>
-                                        </button>
-                                    </div>
-    
-                                    <div class="border rounded-4 border-dark p-2">
-                                        <input type="checkbox" name="" id="">
-                                        Automatisk juster visning basert på hendelser
-                                    </div>
-    
-                                    <div class="mt-2">
-                                        <button class="btn wb-btn-white text-dark fw-light">
-                                            Dag
-                                        </button>
-                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
-                                            Uke
-                                        </button>
-                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
-                                            Måned
-                                        </button>
-                                        <button class="btn wb-btn-white text-dark fw-light ms-1">
-                                            År
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-    
                             <calendar-component
-                                class="w-100"
+                                class="w-100 mt-4"
                                 height="50rem"
                                 :context-menu-items="contextMenuItems"
+                                :arrow-navigation="true"
+                                :allowed-views="[ { name: 'dayGridMonth', friendlyName: 'Måned' }, { name: 'timeGridWeek', friendlyName: 'Uke' }, { name: 'timeGridDay', friendlyName: 'Dag' } ]"
                                 view="timelineMonth"
                                 @date-changed="(date) =>  { header = date.toISOString(); }"
                                 ref="calendar"
@@ -209,9 +174,25 @@
                             </button>
                         </div>
 
+                        <hr>
+
                         <ul class="list-group list-group-light mt-3">
-                            <li class="list-group-item mt-2" v-for="event in arrangement.events">
-                                [[event]]
+                            <div>
+                                <h3 class="text-center">
+                                    <i class="fas fa-info-circle"></i>
+                                </h3>
+                                <h4 class="text-center">
+                                    
+                                </h4>
+
+                                <p>Velkommen til arangement designer</p>
+                                <p>
+                                    Opprett en hendelse eller en gjentagende hendelse ved å trykke på knappene over.
+                                    Når du er ferdig med å legge til hendelser kan du trykke på "Lagre" knappen nederst på siden.
+                                </p>
+                            </div>
+
+                            <li class="list-group-item shadow-2 mt-2" v-for="event in arrangement.events">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <div class="fw-bold">
@@ -239,7 +220,7 @@
                                 </div>
                             </li>
 
-                            <li class="list-group-item mt-2" v-for="serie in arrangement.series">
+                            <li class="list-group-item shadow-2 mt-2" v-for="serie in arrangement.series">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="fw-bold">
                                         <i class="fas fa-redo"></i> [[serie.title]]
@@ -252,7 +233,7 @@
                                 </div>
 
                                 <div>
-                                    [[serie.schedule.exploded.length]] hendelser
+                                    [[serie.schedule.exploded.length]] instanser forekommer
                                     <br>
                                     [[getSerieDescription(serie)]]
                                 </div>

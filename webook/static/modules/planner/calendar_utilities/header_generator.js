@@ -19,7 +19,7 @@ export class StandardGenerator {
     ])
 
     generate(classifier, date) {
-        if (date instanceof Date === false) {
+        if ((date instanceof Date) === false) {
             throw "Not a valid date";
         }
         if (this.CLASSIFIER_MAP.has(classifier) === false) {

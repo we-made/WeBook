@@ -176,35 +176,35 @@
                                         <div class="row">
                                             <div class="col-6">
                                                 <div class="form-group">
-                                                    <label for="">Tittel</label>
+                                                    <label>Tittel</label>
                                                     <input type="text" class="form-control form-control-lg" v-model="event.title"
                                                         placeholder="Tittel">
                                                 </div>
                                             </div>
                                             <div class="col-6">
-                                                <label for="">Tittel (engelsk)</label>
+                                                <label>Tittel (engelsk)</label>
                                                 <div class="form-group">
                                                     <input type="text" class="form-control form-control-lg" v-model="event.title_en"
                                                         placeholder="Tittel (engelsk)">
                                                 </div>
                                             </div>
                                             <div class="col-6 mt-3">
-                                                <label for="">Startdato og tid</label>
+                                                <label>Startdato og tid</label>
                                                 <vue-date-picker v-model="event.start_date" locale="nb-no" :format="dateFormatter"></vue-date-picker>
                                             </div>
                                             <div class="col-6 mt-3">
-                                                <label for="">Sluttdato og tid</label>
+                                                <label>Sluttdato og tid</label>
                                                 <vue-date-picker v-model="event.end_date"  locale="nb-no" :format="dateFormatter"></vue-date-picker>
                                             </div>
                                             <div class="col-6 mt-2">
                                                 <div class="form-group mb-3">
-                                                    <label for="">Forventet antall besøkende</label>
+                                                    <label>Forventet antall besøkende</label>
                                                     <input type="number" class="form-control" v-model="event.expected_visitors" min="0">
                                                 </div>
                                             </div>
                                             <div class="col-6 mt-2">
                                                 <div class="form-group mb-3">
-                                                    <label for="">Faktisk antall besøkende</label>
+                                                    <label>Faktisk antall besøkende</label>
                                                     <input type="number" class="form-control" v-model="event.actual_visitors" min="0">
                                                 </div>
                                             </div>
@@ -220,12 +220,12 @@
 
                                         <div class="row mt-2">
                                             <div class="col-6">
-                                                <label for="">Møtested</label>
+                                                <label>Møtested</label>
                                                 <input type="text" v-model="event.meeting_place" class="form-control">
                                             </div>
                     
                                             <div class="col-6">
-                                                <label for="">Møtested (engelsk)</label>
+                                                <label>Møtested (engelsk)</label>
                                                 <input type="text" v-model="event.meeting_place_en" class="form-control">
                                             </div>
                                         </div>
@@ -288,7 +288,7 @@
                 </div>
 
                 <div
-                    class="tab-pane fade¨"
+                    class="tab-pane fade"
                     id="files-tab"
                     role="tabpanel"
                     aria-labelledby="ex1-tab-2">

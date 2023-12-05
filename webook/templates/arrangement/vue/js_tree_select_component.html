@@ -108,6 +108,7 @@
 
                             this.isExpanded = false;
 
+                            this.skipUpdate = true;
                             this.$emit('update:modelValue', this.selectedValues.id);
                         });
                     });
@@ -118,9 +119,14 @@
         },
         watch: {
             selected: function (newVal, oldVal) {
+                if (this.skipUpdate) {
+                    this.skipUpdate = false;
+                    return;
+                }
                 this.setSelected();
             }
         },
+        emits: ['update:modelValue'],
         computed: {
             triggerRef() {
                 if (!this.isMounted) {
@@ -153,6 +159,7 @@
                 },
                 hasInit: false,
                 isMounted: false,
+                skipUpdate: false,
             }
         },
         mounted() {

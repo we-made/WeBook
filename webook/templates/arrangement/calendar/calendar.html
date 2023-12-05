@@ -10,16 +10,68 @@
         <i class="fas fa-clock"></i>&nbsp; [[ getTime(hoveredEvent.start) ]] - [[ getTime(hoveredEvent.end) ]]
     </div>
 
-    <div ref="calendar" :id="autoId">
+    <h4>
+        [[header]]
+    </h4>
+
+    <div class="d-flex justify-content-between">
+        <div v-if="arrowNavigation">
+            <button class="btn border-1 wb-large-btn wb-btn-white shadow-0" @click="prev()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="btn border-1 wb-large-btn wb-btn-white ms-2 shadow-0" @click="today()">
+                I dag
+            </button>
+            <button class="btn border-1 wb-large-btn wb-btn-white ms-2 shadow-0" @click="next()">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+
+            <button class="btn border-1 wb-large-btn wb-btn-white ms-4 shadow-0" @click="openNavigateToDateSwal()">
+                Gå til dato
+            </button>
+        </div>
+
+        <div>
+            <button class="btn border-1 wb-large-btn wb-btn-white ms-2 shadow-0" type="button">
+                <i class="fas fa-palette"></i>
+            </button>
+
+            <button 
+                class="btn border-1 wb-large-btn wb-btn-white ms-2 shadow-0"
+                v-for="view in allowedViews"
+                @click="changeView(view.name)">
+                
+                [[view.friendlyName]]
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <!-- <div class="col-2">
+            <h5 class="text-muted mt-3">
+                Kalendere
+            </h5>
+
+            <ul>
+                <li v-for="eventSource in calendar ? calendar.getEventSources() : []">
+                    <input type="checkbox" checked>
+                    [[eventSource.url]] Helligdager
+                </li>
+            </ul>
+
+            <select name="" class="form-select form-select-sm" id="">
+                <option value="">Legg til kalender</option>
+            </select>
+        </div> -->
+        <div class="col-12">
+            <div ref="calendar" :id="autoId">
+            </div>
+        </div>
     </div>
 </template>
 
 
 <script>
-
     let CalendarComponent = {
-        components: {
-        },
         data() {
             return {
                 autoId: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
@@ -29,6 +81,8 @@
                     start: null,
                     end: null,
                 },
+                currentDate: null,
+                currentView: this.view,
             }
         },
         props: {
@@ -44,6 +98,19 @@
             weekNumbers: Boolean,
             contextMenuItems: Array,
             onEventClick: Function,
+            arrowNavigation: Boolean,
+            allowedViews: Array,
+        },
+        computed: {
+            header() {
+                if (this.calendar === null)
+                    return "";
+
+                return window.HeaderGenerator.generate(
+                    this.currentView,
+                    this.currentDate
+                )
+            }
         },
         methods: {
             getTime(date) {
@@ -52,10 +119,11 @@
                 return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             },
             render() {
-                if (this.calendar)
-                    this.calendar.render();
-                else
-                    this.initCalendar();
+                this.calendar ? this.calendar.render() : this.initCalendar();
+            },
+            changeView(view) {
+                this.calendar.changeView(view);
+                this.currentView = view;
             },
             initCalendar() {
                 this.$nextTick(() => {
@@ -63,14 +131,9 @@
                        this.initCalendar();
                        return;
                     }
-                    else {
-                        console.log("calendar is defined");
-                        console.log(this.$refs.calendar);
-                    }
 
                     this.calendar = new FullCalendar.Calendar(this.$refs.calendar, {
                         eventMouseEnter: function (arg) {
-                            
                             this.hoveredEvent = arg.event;
                                                        
                             this.$nextTick(() => {
@@ -81,14 +144,12 @@
                                     html: true,
                                     trigger: 'manual',
                                 });
+
                                 $(arg.el).popover('show');
                             });
                         }.bind(this),
                         eventMouseLeave: function (arg) {
                             $(arg.el).popover('hide');
-                        }.bind(this),
-                        eventDidMount: function (arg) {
-
                         }.bind(this),
                         schedulerLicenseKey: "{{ FULLCALENDAR_LICENSE_KEY }}",
                         initialView: this.view || "dayGridMonth",
@@ -124,6 +185,7 @@
             },
             gotoDate(date) {
                 this.calendar.gotoDate(date);
+                this.currentDate = this.calendar.getDate();
             },
             getDate() {
                 return this.calendar.getDate();
@@ -131,16 +193,15 @@
             next() {
                 this.calendar.next();
                 this.$emit('dateChanged', this.calendar.getDate());
+                this.currentDate = this.calendar.getDate();
             },
             prev() {
                 this.calendar.prev();
                 this.$emit('dateChanged', this.calendar.getDate());
+                this.currentDate = this.calendar.getDate();
             },
             addEventSource(source) {
                 this.calendar.addEventSource(source);
-                console.log("addEventSource", source)
-                //this.render();
-                console.log("events in fc", this.calendar.getEvents());
                 this.calendar.refetchEvents();
             },
             removeAllEventSources() {
@@ -153,6 +214,10 @@
         mounted() {
             this.initCalendar(); 
 
+            this.$nextTick(() => {
+                this.currentDate = this.calendar.getDate();
+            });
+            
             if (this.contextMenuItems) {
                 $.contextMenu({
                     className: "",

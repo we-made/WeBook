@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="col-6">
-                    <label for="" class="fw-bold">
+                    <label class="fw-bold">
                         <i class="fas fa-clock"></i>&nbsp;
                     </label>
                     <input type="time" v-model="localEvent.from_time" class="form-control">
@@ -51,7 +51,7 @@
                     <input type="date" v-model="localEvent.to_date" class="form-control">
                 </div>
                 <div class="col-6">
-                    <label for="" class="fw-bold">
+                    <label class="fw-bold">
                         <i class="fas fa-clock"></i>&nbsp;
                     </label>
 
@@ -138,12 +138,12 @@
                                 </tree-select-component>
                             </div>
                             <div>
-                                <label for="">Billettkode</label>
+                                <label>Billettkode</label>
                                 <input type="text" v-model="localEvent.ticket_code" class="form-control">
                             </div>
               
                             <div>
-                                <label for="">Forventet besøkende</label>
+                                <label>Forventet besøkende</label>
                                 <input type="number" v-model="localEvent.expected_visitors" class="form-control">            
                             </div>
                       </div>
@@ -233,9 +233,6 @@
                 <div class="accordion-item mb-0">
                     <h4 class="accordion-header mb-0" id="flush-headingFour">
                         <div class="d-flex align-items-center">
-                            <!-- <button class="btn btn-success btn-floating">
-                                <i class="fas fa-check"></i>
-                            </button> -->
                             <button
                                 data-mdb-collapse-init
                                 class="accordion-button collapsed"
@@ -251,8 +248,6 @@
                                 Planleggere
                             </button>
                         </div>
-
-
                     </h4>
                     <div
                       id="flush-collapseFour"
