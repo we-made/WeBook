@@ -328,16 +328,17 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = False
 
 SOCIALACCOUNT_PROVIDERS = {}
 
-SOCIALACCOUNT_PROVIDERS["microsoft"] = {
-    "tenant": env("MICROSOFT_TENANT", default="common"),
-    "APP": {
-        "name": env("MICROSOFT_SOCIAL_NAME"),
-        "client_id": env("MICROSOFT_CLIENT_ID"),
-        "secret": env("MICROSOFT_CLIENT_SECRET"),
-        "sites": env("MICROSOFT_CLIENT_SITES"),
-        "adapter": "webook.users.adapters.MicrosoftPersonAccountAdapter",
-    },
-}
+if (ALLOW_SSO):
+    SOCIALACCOUNT_PROVIDERS["microsoft"] = {
+        "tenant": env("MICROSOFT_TENANT", default="common"),
+        "APP": {
+            "name": env("MICROSOFT_SOCIAL_NAME"),
+            "client_id": env("MICROSOFT_CLIENT_ID"),
+            "secret": env("MICROSOFT_CLIENT_SECRET"),
+            "sites": env("MICROSOFT_CLIENT_SITES"),
+            "adapter": "webook.users.adapters.MicrosoftPersonAccountAdapter",
+        },
+    }
 
 # Your stuff...
 # ------------------------------------------------------------------------------
