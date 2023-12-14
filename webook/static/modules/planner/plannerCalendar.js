@@ -443,7 +443,7 @@ export class PlannerCalendar extends FullCalendarBased {
         if (date.getDay() === 0)
             weekNumber -= 1;
 
-        const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week')][contains(.,'${weekNumber}')]`, document).iterateNext();
+        const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week') or contains(@class, 'fc-timeline-slot-cushion')][contains(.,'${weekNumber}')]`, document).iterateNext();
 
         setTimeout(function(){
             row.scrollIntoView();
@@ -507,7 +507,8 @@ export class PlannerCalendar extends FullCalendarBased {
                             new CustomEvent(this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": "dayGridMonth" } })
                         )
                     }
-                    if (dateInfo.view.type == "timeGridWeek") {
+                    console.log("dateinfo", dateInfo);
+                    if (["dayGridMonth", "timelineYear"].includes(dateInfo.view.type)) {
                         if (this.lastGoneToDate !== undefined) {
                             console.log("Scrolling to week of date", this.lastGoneToDate)
                             this.scrollToWeekOfDate(this.lastGoneToDate);
