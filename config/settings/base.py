@@ -55,10 +55,17 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db(
-        "DATABASE_URL",
-        default=f"sqlite:///{str(BASE_DIR / 'webook.db')}",
-    )
+    "default": {
+        "ENGINE": env.str(
+            "DB_ENGINE", default="django.db.backends.postgresql_psycopg2"
+        ),
+        "NAME": env.str("DB_NAME", default="webook"),
+        "USER": env.str("DB_USER", default="postgres"),
+        "PASSWORD": env.str("DB_PASSWORD", default="postgres"),
+        "PORT": env.str("DB_PORT", default="5432"),
+    }
+    if not env.str("DATABASE_URL", default=None)
+    else env.db("DATABASE_URL")
 }
 
 # DATABASES = {
