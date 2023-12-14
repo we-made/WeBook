@@ -435,6 +435,23 @@ export class PlannerCalendar extends FullCalendarBased {
         this.init()
     }
 
+    scrollToWeekOfDate(date) {
+        const startDate = new Date(date.getFullYear(), 0, 1);
+        const dayOfYear = Math.ceil((date - startDate) / 86400000);
+        let weekNumber = Math.ceil(dayOfYear / 7);
+
+        if (date.getDay() === 0)
+            weekNumber -= 1;
+
+        const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week')][contains(.,'${weekNumber}')]`, document).iterateNext();
+
+        setTimeout(function(){
+            row.scrollIntoView();
+            // scroll up by 100px to account for the header
+            window.scrollBy(0, -100);
+        }, 500);
+    }
+
     /**
      * First-time initialize the calendar
      */
@@ -489,6 +506,13 @@ export class PlannerCalendar extends FullCalendarBased {
                         document.dispatchEvent(
                             new CustomEvent(this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": "dayGridMonth" } })
                         )
+                    }
+                    if (dateInfo.view.type == "timeGridWeek") {
+                        if (this.lastGoneToDate !== undefined) {
+                            console.log("Scrolling to week of date", this.lastGoneToDate)
+                            this.scrollToWeekOfDate(this.lastGoneToDate);
+                            delete this.lastGoneToDate;
+                        }
                     }
 
                     $('#plannerCalendarHeader').text("");
@@ -696,30 +720,31 @@ export class PlannerCalendar extends FullCalendarBased {
                 loading: function( isLoading ) {
                     if (isLoading === false) {
                         $(".popover").popover('hide');
-                    }
 
-                    console.log("this", this)
-
-                    const setDate = this.currentData.currentDate;
-                    const currentDate = new Date();
-
-                    if(this.currentData.currentViewType == "dayGridMonth") {
-                        if (setDate.getMonth() === currentDate.getMonth() && setDate.getFullYear() === currentDate.getFullYear()) {
-                            const currentDate = new Date();
-                            const startDate = new Date(currentDate.getFullYear(), 0, 1);
-                            const dayOfYear = Math.ceil((currentDate - startDate) / 86400000);
-                            const weekNum = Math.ceil(dayOfYear / 7);
-
-                            const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week')][contains(.,'${weekNum}')]`, document).iterateNext();
-
-                            setTimeout(function(){
-                                row.scrollIntoView();
-                                // scroll up by 100px to account for the header
-                                window.scrollBy(0, -100);
-                            }, 500);
+                        const setDate = this.currentData.currentDate;
+                        const currentDate = new Date();
+    
+                        if(this.currentData.currentViewType == "dayGridMonth") {
+                            if (setDate.getMonth() === currentDate.getMonth() && setDate.getFullYear() === currentDate.getFullYear()) {
+                                const currentDate = new Date();
+                                const startDate = new Date(currentDate.getFullYear(), 0, 1);
+                                const dayOfYear = Math.ceil((currentDate - startDate) / 86400000);
+                                const weekNum = Math.ceil(dayOfYear / 7);
+    
+                                const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week')][contains(.,'${weekNum}')]`, document).iterateNext();
+    
+                                setTimeout(function(){
+                                    row.scrollIntoView();
+                                    // scroll up by 100px to account for the header
+                                    window.scrollBy(0, -100);
+                                }, 500);
+                            }
                         }
                     }
-                }
+                    else {
+                    }
+
+
                 },
                 eventAfterAllRender: function (view) {
    
