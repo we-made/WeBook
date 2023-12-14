@@ -507,10 +507,8 @@ export class PlannerCalendar extends FullCalendarBased {
                             new CustomEvent(this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": "dayGridMonth" } })
                         )
                     }
-                    console.log("dateinfo", dateInfo);
                     if (["dayGridMonth", "timelineYear"].includes(dateInfo.view.type)) {
                         if (this.lastGoneToDate !== undefined) {
-                            console.log("Scrolling to week of date", this.lastGoneToDate)
                             this.scrollToWeekOfDate(this.lastGoneToDate);
                             delete this.lastGoneToDate;
                         }
