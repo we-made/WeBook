@@ -697,6 +697,29 @@ export class PlannerCalendar extends FullCalendarBased {
                     if (isLoading === false) {
                         $(".popover").popover('hide');
                     }
+
+                    console.log("this", this)
+
+                    const setDate = this.currentData.currentDate;
+                    const currentDate = new Date();
+
+                    if(this.currentData.currentViewType == "dayGridMonth") {
+                        if (setDate.getMonth() === currentDate.getMonth() && setDate.getFullYear() === currentDate.getFullYear()) {
+                            const currentDate = new Date();
+                            const startDate = new Date(currentDate.getFullYear(), 0, 1);
+                            const dayOfYear = Math.ceil((currentDate - startDate) / 86400000);
+                            const weekNum = Math.ceil(dayOfYear / 7);
+
+                            const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week')][contains(.,'${weekNum}')]`, document).iterateNext();
+
+                            setTimeout(function(){
+                                row.scrollIntoView();
+                                // scroll up by 100px to account for the header
+                                window.scrollBy(0, -100);
+                            }, 500);
+                        }
+                    }
+                }
                 },
                 eventAfterAllRender: function (view) {
    
