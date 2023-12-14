@@ -328,7 +328,7 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = False
 
 SOCIALACCOUNT_PROVIDERS = {}
 
-if (ALLOW_SSO):
+if ALLOW_SSO:
     SOCIALACCOUNT_PROVIDERS["microsoft"] = {
         "tenant": env("MICROSOFT_TENANT", default="common"),
         "APP": {
