@@ -12,7 +12,7 @@ steps:
     id: Push image
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
-      '-c'
+      - '-c'
       - >
         echo "FROM gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA
         COPY --from=gcr.io/cloudsql-docker/gce_proxy /cloud_sql_proxy
