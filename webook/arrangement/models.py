@@ -71,16 +71,16 @@ class ModelAuditableMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        user = get_current_user()
-        person = user.person
+        # user = get_current_user()
+        # person = user.person
 
-        if person is None:
-            raise Exception("User has no person")
+        # if person is None:
+        #     raise Exception("User has no person")
 
-        if self._state.adding:
-            self.created_by = person
-        else:
-            self.updated_by = person
+        # if self._state.adding:
+        #     self.created_by = person
+        # else:
+        #     self.updated_by = person
 
         super().save(*args, **kwargs)
 
