@@ -21,7 +21,7 @@ steps:
         docker build -f Dockerfile-proxy -t gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA-proxy .
     id: Build proxy image
     entrypoint: bash
-  - name: '$REPO_NAME:$COMMIT_SHA-proxy'
+  - name: 'gcr.io/cloud-builders/docker'
     secretEnv: ['DATABASE_URL']
     args:
       - -instances=${_INSTANCE_CONNECTION_NAME}=tcp:5432
