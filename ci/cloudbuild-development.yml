@@ -22,6 +22,9 @@ steps:
         docker build -f Dockerfile-proxy -t gcr.io/$PROJECT_ID/$_IMAGE_BASENAME-cr-$BRANCH_NAME-proxy .
     id: Build proxy image
     entrypoint: /bin/bash
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/$_IMAGE_BASENAME-cr-$BRANCH_NAME-proxy']
+    id: Push proxy image
   - name: 'gcr.io/$PROJECT_ID/$_IMAGE_BASENAME-cr-$BRANCH_NAME-proxy'
     secretEnv: ['DATABASE_URL']
     args:
