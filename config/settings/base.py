@@ -49,6 +49,23 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+
+if env.db("DATABASE_URL", default=None):
+    DATABASES = {"default": env.db("DATABASE_URL")}
+
+if env.str("DATABASE_HOST", default=None):
+    DATABASES["default"]["HOST"] = env.str("DATABASE_HOST")
+if env.str("DATABASE_ENGINE", default=None):
+    DATABASES["default"]["ENGINE"] = env.str("DATABASE_ENGINE")
+if env.str("DATABASE_NAME", default=None):
+    DATABASES["default"]["NAME"] = env.str("DATABASE_NAME")
+if env.str("DATABASE_USER", default=None):
+    DATABASES["default"]["USER"] = env.str("DATABASE_USER")
+if env.str("DATABASE_PASSWORD", default=None):
+    DATABASES["default"]["PASSWORD"] = env.str("DATABASE_PASSWORD")
+if env.str("DATABASE_PORT", default=None):
+    DATABASES["default"]["PORT"] = env.str("DATABASE_PORT")
+
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
