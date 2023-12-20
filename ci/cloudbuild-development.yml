@@ -28,7 +28,7 @@ steps:
       - '-c'
       - >
         /cloudsql/cloud_sql_proxy
-        -instances=${_INSTANCE_CONNECTION_NAME}=tcp:5432 & sleep 7;
+        -instances=${_INSTANCE_CONNECTION_NAME}=tcp:5432 & sleep 15;
         python manage.py migrate
     id: Apply migrations
     entrypoint: /bin/bash
