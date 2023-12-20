@@ -56,6 +56,8 @@ DATABASES = {
     )
 }
 
+print(DATABASES["default"])
+
 # DATABASES = {
 
 #     'default': {
