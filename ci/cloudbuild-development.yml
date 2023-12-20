@@ -12,7 +12,9 @@ steps:
     id: Push image
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      - echo "FROM gcr.io/$PROJECT_ID/$_IMAGE_BASENAME-cr-$BRANCH_NAME
+      - '-c'
+      - >
+        echo "FROM gcr.io/$PROJECT_ID/$_IMAGE_BASENAME-cr-$BRANCH_NAME
         
         COPY --from=gcr.io/cloudsql-docker/gce-proxy /cloud_sql_proxy 
         /cloudsql/cloud_sql_proxy" > Dockerfile-proxy;
