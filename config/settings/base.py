@@ -50,8 +50,12 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 
-if env.db("DATABASE_URL", default=None):
-    DATABASES = {"default": env.db("DATABASE_URL")}
+DATABASES = {
+    "default": env.db(
+        "DATABASE_URL",
+        default=f"sqlite:///{str(BASE_DIR / 'webook.db')}",
+    )
+}
 
 if env.str("DATABASE_HOST", default=None):
     print("DATABASE_HOST", env.str("DATABASE_HOST"))
@@ -69,12 +73,6 @@ if env.str("DATABASE_PASSWORD", default=None):
 if env.str("DATABASE_PORT", default=None):
     DATABASES["default"]["PORT"] = env.str("DATABASE_PORT")
 
-DATABASES = {
-    "default": env.db(
-        "DATABASE_URL",
-        default=f"sqlite:///{str(BASE_DIR / 'webook.db')}",
-    )
-}
 
 # DATABASES = {
 
