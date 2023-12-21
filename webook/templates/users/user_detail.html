@@ -8,8 +8,6 @@
 
 {% block inner %}
 
-
-    {% if request.user|has_group:"planners" %}
     
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center w-100">
         <div>
@@ -99,10 +97,6 @@
             </div>
         </div> {% endcomment %}
     </div>
-
-    {% else %}
-        <div id="day_calendar"></div>
-    {% endif %}
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -252,6 +246,7 @@
                 return color;
             }
         }
+        let activeDate = new Date();
 
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('day_calendar');
@@ -284,7 +279,7 @@
                 ],
                 initialColorProvider: "arrangement",
                 csrf_token: '{{ csrf_token }}',
-                initialView: "listDay",
+                initialView: "listWeek",
                 height: 900,
                 calendarFilter: calendarFilter,
                 licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
@@ -294,6 +289,7 @@
                 renderPopovers: true,
                 showAdministrativeActionsInContextMenu: {% if user|has_group:"planners" or user.is_superuser %}true{% else %}false{% endif %},
             });
+            let activeCalendar = plannerCalendar;
             plannerCalendar.renderNavigationButtons();
 
             document.getElementById('planner__todayButton').addEventListener('click', (event) => {
