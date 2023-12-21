@@ -58,10 +58,7 @@ DATABASES = {
 }
 
 if env.str("DATABASE_HOST", default=None):
-    print("DATABASE_HOST", env.str("DATABASE_HOST"))
     DATABASES["default"]["HOST"] = env.str("DATABASE_HOST")
-else:
-    print("No database host. Terrible.")
 if env.str("DATABASE_ENGINE", default=None):
     DATABASES["default"]["ENGINE"] = env.str("DATABASE_ENGINE")
 if env.str("DATABASE_NAME", default=None):
