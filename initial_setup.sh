@@ -1,2 +1,2 @@
-python manage.py create-groups
+python manage.py create_groups
 python manage.py createsuperuser --noinput
