@@ -521,6 +521,7 @@ container-fluid
                 let date = new Date(document.getElementById('swalGoToDate').value);
                 activeDate = date;
                 debugger;
+                activeCalendar.lastGoneToDate = date;
                 activeCalendar.getFcCalendar().gotoDate(activeDate);
             }
         })
