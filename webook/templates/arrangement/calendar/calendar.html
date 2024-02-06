@@ -97,6 +97,7 @@
             navLinks: Boolean,
             weekNumbers: Boolean,
             contextMenuItems: Array,
+            buildContextMenu: Function,
             onEventClick: Function,
             arrowNavigation: Boolean,
             allowedViews: Array,
@@ -222,7 +223,11 @@
                 $.contextMenu({
                     className: "",
                     selector: "#" + this.autoId + " .fc-event",
-                    items: this.contextMenuItems
+                    build: this.buildContextMenu || function ($trigger, e) {
+                        return {
+                            items: this.contextMenuItems
+                        }
+                    },
                 });
             }
         },
