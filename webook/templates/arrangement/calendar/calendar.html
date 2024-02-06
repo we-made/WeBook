@@ -219,15 +219,15 @@
                 this.currentDate = this.calendar.getDate();
             });
             
-            if (this.contextMenuItems) {
+            if (this.contextMenuItems || this.buildContextMenu) {
                 $.contextMenu({
                     className: "",
                     selector: "#" + this.autoId + " .fc-event",
                     build: this.buildContextMenu || function ($trigger, e) {
                         return {
-                            items: this.contextMenuItems
+                            items: this.contextMenuItems || {}
                         }
-                    },
+                    }
                 });
             }
         },

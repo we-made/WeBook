@@ -153,6 +153,7 @@
                         <div>
                             <calendar-component
                                 @date-changed="(date) =>  { header = date.toISOString(); }"
+                                :build-context-menu="buildContextMenu"
                                 :context-menu-items="contextMenuItems"
                                 :arrow-navigation="true"
                                 :allowed-views="[ { name: 'dayGridMonth', friendlyName: 'Måned' }, { name: 'timeGridWeek', friendlyName: 'Uke' }, { name: 'timeGridDay', friendlyName: 'Dag' } ]"
@@ -323,24 +324,78 @@
             }
 
             return {
-                contextMenuItems: {
-                    edit: {
-                        name: "<i class='fas fa-edit'></i>&nbsp; Rediger",
-                        isHtmlName: true,
-                        callback: (key, opt) => {
-                            const [ type, entity ] = getCalendarEntityFromElement(opt.$trigger[0]);
-                            calendarEntityTypes[type].edit(entity);
-                        }
-                    },
-                    
-                    delete: {
-                        name: "<i class='fas fa-trash'></i>&nbsp; Fjern",
-                        isHtmlName: true,
-                        callback: (key, opt) => {
-                            const [ type, entity ] = getCalendarEntityFromElement(opt.$trigger[0]);
-                            calendarEntityTypes[type].delete(entity);
+                buildContextMenu: function ($trigger) {
+                    let options = {
+                        callback: function(key, options) {
+                            console.log(key, options);
+                        },
+                        items: {
+                            title: {
+                                type: "html",
+                                html: "<h4 class='fw-bold mb-0 mt-1'>$TITLE</h4>"
+                            },
+                            edit: {
+                                name: "<i class='fas fa-edit'></i>&nbsp; Rediger",
+                                isHtmlName: true,
+                                callback: (key, opt) => {
+                                    const [ type, entity ] = getCalendarEntityFromElement(opt.$trigger[0]);
+                                    calendarEntityTypes[type].edit(entity);
+                                }
+                            },
+                            
+                            delete: {
+                                name: "<i class='fas fa-trash'></i>&nbsp; Fjern",
+                                isHtmlName: true,
+                                callback: (key, opt) => {
+                                    const [ type, entity ] = getCalendarEntityFromElement(opt.$trigger[0]);
+                                    calendarEntityTypes[type].delete(entity);
+                                }
+                            }
                         }
                     }
+
+                    const [ type, entity ] = getCalendarEntityFromElement($trigger[0]);
+
+                    if (type == "serie") {
+                        options.items.title.html = `
+                            ${options.items.title.html.replace("$TITLE", entity.title)}
+                            <div class='fw-light text-muted'>
+                                <div class='fw-bold'>
+                                    <i class='fas fa-clock'></i>&nbsp; ${entity.start_time} - ${entity.end_time}
+                                </div>
+                                <div>
+                                    ${window.SerieMetaTranslator.generate(entity.schedule.inOldStyle)}, totalt ${entity.schedule.exploded.length} forekomster.
+                                </div>
+                            </div>
+                            <hr>`;
+                        options.items.edit.name = "<i class='fas fa-edit text-success'></i>&nbsp; Rediger Serie";
+                        options.items.delete.name = "<i class='fas fa-trash text-danger'></i>&nbsp; Fjern serie";
+                        options.items.breakout = {
+                            name: "<i class='fas fa-arrow-right text-info'></i>&nbsp; Omgjør tidspunktet til unik aktivitet",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+                                //TODO: Implement
+                            }
+                        };
+                    }
+
+                    if (type == "event") {
+                        options.items.title.html = `
+                            ${options.items.title.html.replace("$TITLE", entity.title)}
+                            <div class='fw-light text-muted'>
+                                <div>
+                                    ${entity.from_date == entity.to_date ? entity.from_date : string(entity.from_date) + " " + string(entity.to_date) }
+                                </div>
+                                <div>
+                                    ${entity.from_time} - ${entity.to_time}
+                                </div>
+                            </div>
+                            <hr>`;
+                        options.items.edit.name = "<i class='fas fa-edit text-success'></i>&nbsp; Rediger aktivitet";
+                        options.items.delete.name = "<i class='fas fa-trash text-danger'></i>&nbsp; Fjern aktivitet";
+                    }
+
+                    return options;
                 },
                 header: "",
                 step: 1,
@@ -481,6 +536,7 @@
                             eventsInSerie.forEach((e) => {
                                 e.color = serie.color;
                             });
+                            
                             events = events.concat(eventsInSerie);
                             return;
                         }
@@ -490,6 +546,7 @@
                         eventsInSerie.forEach((e) => {
                             e.color = color;
                         });
+
                         events = events.concat(eventsInSerie);
                     }
                 });
