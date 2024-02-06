@@ -10,33 +10,33 @@
 
     <edit-serie-dialog
         v-model="focusedSerie"
+        @close="editSerieDialogExpanded = false"
         :use-backdrop="true"
         :is-visible="editSerieDialogExpanded"
-        @close="editSerieDialogExpanded = false"
         chain-to="#plannerBaseDialogAA">
 
     </edit-serie-dialog>
 
     <edit-event-dialog
         v-model:event="focusedEvent"
+        @close="editEventDialogExpanded = false"
         :use-backdrop="true"
         :is-visible="editEventDialogExpanded"
-        @close="editEventDialogExpanded = false"
         chain-to="#plannerBaseDialogAA">
 
     </edit-event-dialog>
 
     <dialog-component
-        :use-backdrop="false"
-        width="60rem" 
-        id="plannerBaseDialogAA"
-        ref="baseDialog"
-        :is-visible="isVisible"
         @close="$emit('close')"
         @fullscreenenter="rerender()"
         @fullscreenexit="rerender()"
+        :use-backdrop="false"
+        :is-visible="isVisible"
         :is-draggable="true"
-        :start-full-screen="true">
+        :start-full-screen="true"
+        width="60rem" 
+        id="plannerBaseDialogAA"
+        ref="baseDialog">
 
         <template v-slot:header>
             <h3 class="mb-0 fw-bold">
@@ -152,15 +152,15 @@
                     <div class="col-9">
                         <div>
                             <calendar-component
-                                class="w-100 mt-4"
-                                height="50rem"
+                                @date-changed="(date) =>  { header = date.toISOString(); }"
                                 :context-menu-items="contextMenuItems"
                                 :arrow-navigation="true"
                                 :allowed-views="[ { name: 'dayGridMonth', friendlyName: 'Måned' }, { name: 'timeGridWeek', friendlyName: 'Uke' }, { name: 'timeGridDay', friendlyName: 'Dag' } ]"
+                                :on-event-click="handleEventClickedInCalendar"
+                                class="w-100 mt-4"
+                                height="50rem"
                                 view="timelineMonth"
-                                @date-changed="(date) =>  { header = date.toISOString(); }"
-                                ref="calendar"
-                                :on-event-click="handleEventClickedInCalendar">
+                                ref="calendar">
                             </calendar-component>
                         </div>
                     </div>
@@ -332,6 +332,7 @@
                             calendarEntityTypes[type].edit(entity);
                         }
                     },
+                    
                     delete: {
                         name: "<i class='fas fa-trash'></i>&nbsp; Fjern",
                         isHtmlName: true,
@@ -565,6 +566,7 @@
             },
             newSerie() {
                 this.editSerieDialogExpanded = true;
+
                 this.focusedSerie = {
                     _isNew: true,
                     uuid:               crypto.randomUUID(), 
@@ -584,7 +586,6 @@
                 }
             },
             removeSerie(serie) {
-
                 Swal.fire({
                     title: 'Er du sikker?',
                     text: "Den gjentagende aktiviteten vil fjernes fra arrangementet",
@@ -601,6 +602,7 @@
                                 this.arrangement.series.splice(index, 1);
                             }
                         });
+
                         this.regenerateEventSource();
                     }
                 });
