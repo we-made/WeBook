@@ -97,6 +97,7 @@
                                     json-url="{% url 'arrangement:audience_tree' %}"
                                     button-label="Velg målgruppe"
                                     icon="fas fa-users"
+                                    button-position="left"
                                     v-model="localModelValue.audience">
                 
                                 </tree-select-component>
@@ -109,6 +110,7 @@
                                     json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
                                     button-label="Velg arrangementstype"
                                     icon="fas fa-cog"
+                                    button-position="left"
                                     v-model="localModelValue.arrangement_type">
                 
                                 </tree-select-component>
@@ -121,6 +123,7 @@
                                     json-url="{% url 'arrangement:statustype_tree' %}"
                                     button-label="Velg status"
                                     icon="fas fa-cog"
+                                    button-position="left"
                                     v-model="localModelValue.status_type">
                 
                                 </tree-select-component>

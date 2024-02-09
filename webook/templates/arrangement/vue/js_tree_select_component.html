@@ -9,8 +9,7 @@
     <div class="mb-2 border rounded-4 p-2 ps-4 pe-4">
         
         <div class="d-flex justify-content-between align-items-center">
-
-            <label>
+            <label v-if="buttonPosition === 'right'">
                 [[selectedText]]
             </label>
 
@@ -33,6 +32,10 @@
 
                 </popover-component>
             </div>
+
+            <label v-if="buttonPosition === 'left'">
+                [[selectedText]]
+            </label>
         </div>
     </div>
 
@@ -44,6 +47,10 @@
             PopoverComponent
         },
         props: {
+            buttonPosition: {
+                type: String,
+                default: "right"
+            },
             isOpen: Boolean,
             label: String,
             buttonLabel: String,
