@@ -64,7 +64,6 @@ from webook.arrangement.views.generic_views.archive_view import ArchiveView, Jso
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
-from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.json_serial import json_serial
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
 from webook.utils.meta_utils.meta_mixin import MetaMixin

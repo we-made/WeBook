@@ -561,6 +561,30 @@
                         meeting_place_en: x.meeting_place_en
                     }
                 });
+
+                for (const eventToAnalyze of eventsForAnalysis) {
+                    const results = fetch("/arrangement/analysis/analyzeNonExistentEvent", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: JSON.stringify(eventToAnalyze)
+                    }).then(response => response.json())
+                      .then(data => "event collision analysis results", data);
+                }
+
+                for (const serieToAnalyze of seriesForAnalysis) {
+                    const results = fetch("/arrangement/analysis/analyzeNonExistentSerie", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: JSON.stringify(serieToAnalyze)
+                    }).then(response => response.json())
+                      .then(data => "serie collision results", data);
+                }
             },
             moveCalendarOneUnitForward() {
                 this.$refs.calendar.next();
@@ -585,6 +609,7 @@
             },
             regenerateEventSource() {
                 let events = [];
+
                 for (const serie of this.arrangement.series) {
                     if (!serie.schedule) {
                         continue;

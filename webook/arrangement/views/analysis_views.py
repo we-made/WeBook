@@ -7,26 +7,12 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone as dj_timezone
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    ListView,
-    RedirectView,
-    TemplateView,
-    UpdateView,
-    View,
-)
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView, View
 
 from webook.arrangement.dto.event import EventDTO
-from webook.arrangement.forms.exclusivity_analysis.analyze_arrangement_form import (
-    AnalyzeArrangementForm,
-)
-from webook.arrangement.forms.exclusivity_analysis.analyze_non_existant_event import (
-    AnalyzeNonExistantEventForm,
-)
-from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import (
-    SerieManifestForm,
-)
+from webook.arrangement.forms.exclusivity_analysis.analyze_arrangement_form import AnalyzeArrangementForm
+from webook.arrangement.forms.exclusivity_analysis.analyze_non_existant_event import AnalyzeNonExistantEventForm
+from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import SerieManifestForm
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.utils.collision_analysis import CollisionRecord, analyze_collisions
@@ -52,6 +38,12 @@ class AnalyzeNonExistentSerieManifest(
     def form_valid(self, form) -> JsonResponse:
         manifest = form.as_plan_manifest()
         calculated_serie: List[_Event] = calculate_serie(manifest)
+
+        if manifest.exclusions:
+            excluded_dates = map(lambda ex: ex.date, manifest.exclusions.all())
+            calculated_serie = [
+                ev for ev in calculated_serie if ev.start.date() not in excluded_dates
+            ]
 
         converted_events: List[EventDTO] = []
 
