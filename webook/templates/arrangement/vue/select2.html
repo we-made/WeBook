@@ -30,14 +30,12 @@
             console.log('select2 mounted', this.selected);
             this.$nextTick(() => {
                 $(this.$refs.select)
-                    .select2()
+                    .select2({ width: "100%" })
                     .val(this.selected)
                     .trigger('change')
                     .on('change', e => {
                         this.$emit('input', $(this.$refs.select).val() || [])
                     });
-
-                    
 
                 $(this.$refs.select).val(this.selected);
             })
