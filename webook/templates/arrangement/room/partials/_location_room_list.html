@@ -13,10 +13,10 @@
         </thead>
 
         <tbody>
-            {% for item in object_list %}
+            {% for item in object_list.all %}
                 <tr>
                     <td>{{ item.name }}</td>
-                    <td>{{ item.max_capacity }}</td>
+                    <td>{{ item.max_capacity }}</td>
                     <td>
                         {% if item.is_exclusive %}
                             <i class="fas fa-check text-success"></i>
@@ -55,12 +55,21 @@
             {% endfor %}
         </tbody>
     </table>
+
+
+
 </div>
 
 <script>
     $(document).ready(function () {
         $('#roomList').DataTable({
-            dom: '',
+            dom: 'Bfrtip',
+            buttons: [
+                { extend: 'copy', className: 'wb-btn-white text-dark' },
+                { extend: 'excel', className: 'wb-btn-white text-dark' },
+                { extend: 'pdf', className: 'wb-btn-white text-dark' },
+                { extend: 'print', className: 'wb-btn-white text-dark' }
+            ]
         });
     });
 </script>
