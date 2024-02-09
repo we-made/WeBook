@@ -347,14 +347,21 @@
                 this.localModelValue.schedule.inOldStyle.time.end = this.localModelValue.end_time;
                 
                 this.localModelValue.schedule.exploded = window.SeriesUtil.calculate_serie(this.localModelValue.schedule.inOldStyle);
-                
-                /// convert to fullcalendar event
+
+                const formatDate = (date) => {
+                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+                }
+
                 this.localModelValue.schedule.exploded.forEach((ev) => {
                     ev.fc = {
                         title: this.localModelValue.title,
                         start: ev.from,
                         end: ev.to,
-                        classNames: ['serie-event:' + this.localModelValue.uuid],
+                        classNames: [
+                            'serie-event:' + this.localModelValue.uuid, 
+                            'start-date:' + formatDate(ev.from),
+                            'end-date:' + formatDate(ev.to)
+                        ],
                         extendedProps: {
                             parentType: 'serie',
                             parentUuid: this.localModelValue.uuid

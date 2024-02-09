@@ -77,7 +77,6 @@
             </div>
 
             <div class="accordion accordion-flush mt-3" id="accordionFlushExample">
-
                 <div class="accordion-item">
                     <h4 class="accordion-header" id="flush-headingTwo">
                       <button
@@ -149,6 +148,7 @@
                       </div>
                     </div>
                 </div>
+
                 <div class="accordion-item">
                   <h4 class="accordion-header" id="flush-headingOne">
                     <button
@@ -240,8 +240,7 @@
                                 data-mdb-toggle="collapse"
                                 data-mdb-target="#flush-collapseFour"
                                 aria-expanded="false"
-                                aria-controls="flush-collapseFour"
-                            >
+                                aria-controls="flush-collapseFour">
                                 <div class="badge badge-info">
                                     <i class="fas fa-users"></i>
                                 </div>&nbsp;
@@ -346,20 +345,28 @@
                     title: this.localEvent.title,
                     start: new Date(this.localEvent.from_date + 'T' + this.localEvent.from_time),
                     end:   new Date(this.localEvent.to_date + 'T' + this.localEvent.to_time),
-                    classNames: ['event:' + this.localEvent.uuid],
+                    classNames: [
+                        'event:' + this.localEvent.uuid, 
+                        'start-date:' + this.localEvent.from_date,
+                        'end-date:' + this.localEvent.to_date
+                    ],
                     extendedProps: {
                         parentType: 'event',
                         parentUuid: this.localEvent.uuid,
                     }
                 };
+                
                 this.$emit('update:event', this.localEvent);
+
                 this.close();
             }
         },
         watch: {
             event: {
                 handler: function(n, o) {
+                    console.log("Event changed", n, o)
                     this.localEvent = {...n} || {};
+                    console.log("localEvent", this.localEvent);
                 },
                 deep: true,
             }

@@ -290,23 +290,24 @@
             // Attempt to get either the event or serie information from the element
             // Returns an array with [ type, entity ]
             const getCalendarEntityFromElement = (element) => {
-                const extractUuidFromClass = (element, className, separator) => {
+                const extractClassStoredMetadata = (element, className, separator) => {
                     return [...element.classList]
                         .filter((x) => x.startsWith(className))
                         ?.map((x) => x.split(separator).pop())[0];
                 }   
                 
-                const eventUuid = extractUuidFromClass(element, "event", ":");
-                const serieUuid = extractUuidFromClass(element, "serie-event", ":");
+                const eventUuid = extractClassStoredMetadata(element, "event", ":");
+                const serieUuid = extractClassStoredMetadata(element, "serie-event", ":");
+                const startDate = extractClassStoredMetadata(element, "start-date", ":");
+                const endDate   = extractClassStoredMetadata(element, "end-date", ":")
 
                 if (eventUuid) {
-                    console.log("eventUuid", eventUuid)
                     let eventObject = this.arrangement.events.filter(x => x.uuid == eventUuid)[0];
-                    return [ "event", eventObject ];
+                    return [ "event", eventObject, startDate, endDate ];
                 }
                 if (serieUuid) {
                     let serie = this.arrangement.series.filter(x => x.uuid == serieUuid)[0];
-                    return [ "serie", serie ];
+                    return [ "serie", serie, startDate, endDate ];
                 }
 
                 throw new Error("Could not find uuid - no matching class found on element");
@@ -324,7 +325,7 @@
             }
 
             return {
-                buildContextMenu: function ($trigger) {
+                buildContextMenu: ($trigger) => {
                     let options = {
                         callback: function(key, options) {
                             console.log(key, options);
@@ -354,7 +355,7 @@
                         }
                     }
 
-                    const [ type, entity ] = getCalendarEntityFromElement($trigger[0]);
+                    const [ type, entity, startDate, endDate ] = getCalendarEntityFromElement($trigger[0]);
 
                     if (type == "serie") {
                         options.items.title.html = `
@@ -374,12 +375,67 @@
                             name: "<i class='fas fa-arrow-right text-info'></i>&nbsp; Omgjør tidspunktet til unik aktivitet",
                             isHtmlName: true,
                             callback: (key, opt) => {
-                                //TODO: Implement
+                                if (!entity.excludedDates)
+                                    entity.excludedDates = [];
+
+                                entity.excludedDates.push(startDate);
+
+                                const eventUUID = crypto.randomUUID();
+                                this.arrangement.events.push({
+                                    _isNew: true,
+                                    uuid: eventUUID,
+                                    title: entity.title,
+                                    title_en: entity.title_en,
+                                    meeting_place: entity.meeting_place,
+                                    meeting_place_en: entity.meeting_place_en,
+                                    mainPlanner: entity.mainPlanner,
+                                    planners: entity.planners,
+                                    ticket_code: entity.ticket_code,
+                                    expected_visitors: entity.expected_visitors,
+                                    from_date: startDate,
+                                    to_date: endDate,
+                                    from_time: entity.start_time,
+                                    to_time: entity.end_time,
+                                    rooms: entity.rooms,
+                                    audience: entity.audience,
+                                    arrangement_type: entity.arrangement_type,
+                                    status_type: entity.status_type,
+                                    location: entity.location,
+
+                                    // TODO: Rigging must be looked at
+                                    riggingBefore: {
+                                        date: '',
+                                        start_time: '',
+                                        end_time: '',
+                                    },
+                                    riggingAfter: {
+                                        date: '',
+                                        start_time: '',
+                                        end_time: '',
+                                    },
+
+                                    fc: {
+                                        title:  entity.title,
+                                        start:  new Date(startDate + "T" + entity.start_time + ":00"),
+                                        end:    new Date(endDate + "T" + entity.end_time + ":00"),
+                                        classNames: [
+                                            'event:' + eventUUID
+                                        ],
+                                        extendedProps: {
+                                            parentType: 'event',
+                                            parentUuid: eventUUID
+                                        }
+                                    }
+                                });
+
+                                this.regenerateEventSource();
                             }
                         };
                     }
 
                     if (type == "event") {
+                        console.log("entity", entity);
+                        
                         options.items.title.html = `
                             ${options.items.title.html.replace("$TITLE", entity.title)}
                             <div class='fw-light text-muted'>
@@ -517,6 +573,7 @@
 
                 if (event.extendedProps.parentType == "event") {
                     let eventObject = this.arrangement.events.filter(x => x.uuid == event.extendedProps.parentUuid)[0];
+                    console.log("eventObject", eventObject)
                     this.editEvent(eventObject);
                     return;
                 }
@@ -528,28 +585,26 @@
             },
             regenerateEventSource() {
                 let events = [];
-                this.arrangement.series.forEach(serie => {
-                    if (serie.schedule) {
-                        let eventsInSerie = serie.schedule.exploded.map((ev) => ev.fc)
-
-                        if (serie.color) {
-                            eventsInSerie.forEach((e) => {
-                                e.color = serie.color;
-                            });
-                            
-                            events = events.concat(eventsInSerie);
-                            return;
-                        }
-
-                        let color = this.colors[Math.floor(Math.random() * this.colors.length)];
-                        serie.color = color;
-                        eventsInSerie.forEach((e) => {
-                            e.color = color;
-                        });
-
-                        events = events.concat(eventsInSerie);
+                for (const serie of this.arrangement.series) {
+                    if (!serie.schedule) {
+                        continue;
                     }
-                });
+  
+                    if (!serie.color) {
+                        serie.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+                    }
+
+                    for (const ev of serie.schedule.exploded.map((ev) => ev.fc)) {
+                        if (serie.excludedDates 
+                            && serie.excludedDates.includes(`${ev.start.getFullYear()}-${String(ev.start.getMonth() + 1).padStart(2, '0')}-${String(ev.start.getDate()).padStart(2, '0')}`)) {
+                            continue;
+                        }
+                        
+                        ev.color = serie.color;
+                        
+                        events.push(ev);
+                    }
+                }
 
                 let standaloneEvents = this.arrangement.events.filter(x => x.fc);
                 standaloneEvents.forEach((e) => {
@@ -687,6 +742,7 @@
                 })
             },
             focusedEvent: function(newValue) {
+                console.log("focusedEvent changed", newValue);
                 if (newValue) {
                     if (newValue._isNew) {
                         delete newValue._isNew;
