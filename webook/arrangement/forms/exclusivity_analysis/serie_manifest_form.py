@@ -7,7 +7,9 @@ from django.http import JsonResponse
 from django.utils.timezone import make_aware
 from pytz import timezone
 
-from webook.arrangement.facilities.service_ordering import generate_changelog_of_serie_events_in_order
+from webook.arrangement.facilities.service_ordering import (
+    generate_changelog_of_serie_events_in_order,
+)
 from webook.arrangement.models import (
     Arrangement,
     ArrangementType,
@@ -51,6 +53,7 @@ class SerieManifestForm(forms.Form):
     display_layouts = forms.ModelMultipleChoiceField(
         queryset=DisplayLayout.objects.all(), required=False
     )
+    exclusions = forms.MultipleChoiceField(required=False)
     interval = forms.IntegerField(required=False)
     day_of_month = forms.IntegerField(required=False)
     arbitrator = forms.IntegerField(required=False)
@@ -102,6 +105,8 @@ class SerieManifestForm(forms.Form):
         plan_manifest.internal_uuid = self.cleaned_data["internal_uuid"]
 
         plan_manifest.vue_json = self.cleaned_data["vue_json"]
+
+        plan_manifest.exclusions = self.cleaned_data["exclusions"]
 
         plan_manifest.pattern = self.cleaned_data["pattern"]
         plan_manifest.pattern_strategy = self.cleaned_data["patternRoutine"]
@@ -191,6 +196,12 @@ class CreateSerieForm(SerieManifestForm):
         manifest.save()
 
         calculated_serie = calculate_serie(manifest)
+
+        if manifest.exclusions:
+            excluded_dates = map(lambda ex: ex.date, manifest.exclusions.all())
+            calculated_serie = [
+                ev for ev in calculated_serie if ev.start.date() not in excluded_dates
+            ]
 
         for ev in calculated_serie:
             ev.rooms = [int(room.id) for room in manifest.rooms.all()]

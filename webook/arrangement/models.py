@@ -1738,6 +1738,12 @@ class RequisitionRecord(TimeStampedModel, ModelArchiveableMixin):
         if self.type_of_requisition == self.REQUISITION_SERVICES:
             return self.service_requisition
 
+class PlanManifestDateExclusion(TimeStampedModel):
+    """ Represents an exclusion to a serie.
+    This is represented by the start date of the instance in the serie.
+    For instance, every monday every week, except 05.02.2024
+    """
+    date = models.DateField()
 
 class PlanManifest(TimeStampedModel, BufferFieldsMixin):
     """A time manifest is a manifest of the timeplan generation"""
@@ -1761,6 +1767,8 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin):
         choices=CollisionResolutionBehaviour.choices,
         default=CollisionResolutionBehaviour.IGNORE_COLLIDING_ACTIVITIES,
     )
+    
+    exclusions = models.ManyToManyField(to=PlanManifestDateExclusion)
 
     expected_visitors = models.IntegerField(default=0)
     ticket_code = models.CharField(max_length=255, blank=True)
