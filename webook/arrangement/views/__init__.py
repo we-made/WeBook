@@ -1,11 +1,3 @@
-# Arrangement Views
-
-# Example:
-# from .arrangement_views import (
-#   arrangement_create_view
-# )
-
-
 from .analysis_views import *
 from .arrangement_views import *
 from .arrangementtype_views import *
