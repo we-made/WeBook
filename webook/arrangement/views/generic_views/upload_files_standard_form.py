@@ -1,3 +1,4 @@
+from django import forms
 from django.forms import Form
 from django.http import JsonResponse
 
@@ -5,8 +6,9 @@ from webook.arrangement.forms.file_forms import UploadFilesForm
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 
 
+
 class UploadFilesStandardFormView(JsonFormView):
-    """ A re-usable standard json formview that standardizes uploading and saving of file relationships, using UploadFilesForm.
+    """A re-usable standard json formview that standardizes uploading and saving of file relationships, using UploadFilesForm.
     Can handle multiple files.
 
     To use this view you would want a relationship model that inherits from the abstract model BaseFileRelAbstractModel.
@@ -17,6 +19,7 @@ class UploadFilesStandardFormView(JsonFormView):
     1. model (the model object of the instance you are associating a file with, for example an Event)
     2. file_relationship_model (the model object which you have inherited from BaseFileRelAbstractModel)
     """
+
     def __init__(self, **kwargs) -> None:
         self._sanity_check_self()
         return super().__init__(**kwargs)
@@ -35,7 +38,7 @@ class UploadFilesStandardFormView(JsonFormView):
             model=self.model,
             file_relationship_model=self.file_relationship_model,
             uploader=self.request.user.person,
-            files=self.request.FILES.getlist('file_field')
+            files=self.request.FILES.getlist("file_field"),
         )
 
         """
