@@ -377,7 +377,7 @@
                 </div>
 
                 <div>
-                    <button class="btn wb-btn-main" @click="step += 1">
+                    <button class="btn wb-btn-main" @click="progressIfValid()">
                         <i class="fas fa-arrow-right"></i>
                         Neste
                     </button>
@@ -661,6 +661,7 @@
 
                     return options;
                 },
+                isInCollision: false,
                 header: "",
                 step: 1,
                 baseDialogEl: null,
@@ -725,6 +726,19 @@
             }
         },
         methods: {
+            progressIfValid() {
+                if (this.isInCollision && this.step == 2) {
+                    Swal.fire({
+                        title: "Kollisjoner",
+                        text: "Kollisjonene må løses før du kan fortsette. Endre tider, ressurs, eller fjern tidspunkter i konflikt.",
+                        icon: "warning",
+                        confirmButtonColor: "#3085d6",
+                    });
+                    return;
+                }
+            
+                this.step++;
+            },
             close() {
                 this.$emit('close');
             },
@@ -853,6 +867,8 @@
             async regenerateEventSource() {
                 let events = [];
 
+                this.isInCollision = false;
+
                 await this.collisionAnalysis();
 
                 for (const serie of this.arrangement.series) {
@@ -864,7 +880,8 @@
                         serie.color = this.colors[Math.floor(Math.random() * this.colors.length)];
                     }
 
-                    if (serie.collisions) {
+                    if (serie.collisions && serie.collisions.length > 0) {
+                        this.isInCollision = true;
                         serie.collisions.forEach(function (exception) {
                             exception.uuid = crypto.randomUUID();
                             events.push({
@@ -907,7 +924,8 @@
                         return;
                     }
 
-                    if (e.collisions) {
+                    if (e.collisions && e.collisions.length > 0) {
+                        this.isInCollision = true;
                         e.collisions.forEach(function (exception) {
                             exception.uuid = crypto.randomUUID();
                             events.push({
