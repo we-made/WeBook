@@ -2,25 +2,7 @@ from unicodedata import name
 
 from django.urls import path
 
-from webook.arrangement.views import (
-    arrangement_add_planner_form_view,
-    arrangement_cascade_tree_dialog_view,
-    arrangement_cascade_tree_json_view,
-    arrangement_create_json_view,
-    arrangement_create_view,
-    arrangement_delete_file_view,
-    arrangement_delete_view,
-    arrangement_promote_planner_to_main_view,
-    arrangement_recurring_information_json_view,
-    arrangement_remove_planner_form_view,
-    arrangement_search_view,
-    arrangement_update_view,
-    arrangement_upload_files_json_form_view,
-    main_planner_select2_json_view,
-    planners_on_arrangement_table_view,
-    planners_on_arrangement_view,
-    synchronize_events_in_arrangement_view,
-)
+from webook.arrangement.views.arrangement_views import *
 
 arrangement_urls = [
     path(

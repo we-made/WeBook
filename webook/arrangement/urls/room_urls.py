@@ -2,19 +2,7 @@ from unicodedata import name
 
 from django.urls import path
 
-from webook.arrangement.views import (
-    location_room_list_view,
-    room_create_json_view,
-    room_create_view,
-    room_delete_view,
-    room_detail_json_view,
-    room_detail_view,
-    room_list_view,
-    room_update_json_view,
-    room_update_view,
-    search_rooms_ajax_view,
-    rooms_select2_json_view,
-)
+from webook.arrangement.views.room_views import *
 
 room_urls = [
     path(

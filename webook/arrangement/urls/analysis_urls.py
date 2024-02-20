@@ -1,10 +1,6 @@
 from django.urls import path
 
-from webook.arrangement.views import (
-    analyze_arrangement_view,
-    analyze_non_existant_event_view,
-    analyze_non_existent_serie_manifest_view,
-)
+from webook.arrangement.views.analysis_views import *
 
 analysis_urls = [
     path(

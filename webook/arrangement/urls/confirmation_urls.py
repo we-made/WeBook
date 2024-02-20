@@ -1,12 +1,8 @@
 from unicodedata import name
-from django.urls import path
-from webook.arrangement.views import (
-    view_confirmation_request_view,
-    confirmation_request_accept_view,
-    confirmation_request_deny_view,
-    thanks_after_response_view
-)
 
+from django.urls import path
+
+from webook.arrangement.views.confirmation_views import *
 
 confirmation_urls = [
     path(

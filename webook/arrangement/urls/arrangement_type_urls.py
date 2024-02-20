@@ -2,14 +2,7 @@ from unicodedata import name
 
 from django.urls import path
 
-from webook.arrangement.views import (
-    arrangement_type_create_view,
-    arrangement_type_delete_view,
-    arrangement_type_detail_view,
-    arrangement_type_list_view,
-    arrangement_type_tree_json_view,
-    arrangement_type_update_view,
-)
+from webook.arrangement.views.arrangementtype_views import *
 
 arrangement_type_urls = [
     path(

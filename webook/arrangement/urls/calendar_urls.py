@@ -1,20 +1,6 @@
 from django.urls import path
 
-from webook.arrangement.views import (
-    all_locations_resource_source_view,
-    all_people_resource_source_view,
-    all_rooms_resource_source_view,
-    arrangement_calendar_view,
-    calendar_samples_overview,
-    drill_calendar_view,
-    location_event_source_view,
-    my_calendar_events_source_view,
-    rooms_on_location_resource_source_view,
-)
-from webook.arrangement.views.calendar_views import (
-    RoomEventSourceView,
-    get_availability_for_location_view,
-)
+from webook.arrangement.views.calendar_views import *
 
 calendar_urls = [
     path(

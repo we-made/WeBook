@@ -1,14 +1,6 @@
 from django.urls import path
 
-from webook.arrangement.views import (
-    audience_create_view,
-    audience_delete_view,
-    audience_detail_view,
-    audience_list_view,
-    audience_search_view,
-    audience_update_view,
-    audience_tree_json_view,
-)
+from webook.arrangement.views.audience_views import *
 
 audience_urls = [
     path(

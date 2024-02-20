@@ -1,12 +1,6 @@
 from django.urls import path
 
-from webook.arrangement.views import (
-    status_type_create_view,
-    status_type_delete_view,
-    status_type_list_view,
-    status_type_tree_json_view,
-    status_type_update_view,
-)
+from webook.arrangement.views.status_type_views import *
 
 status_type_urls = [
     path(

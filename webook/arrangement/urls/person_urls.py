@@ -1,16 +1,6 @@
 from django.urls import path
 
-from webook.arrangement.views import (
-    associate_person_with_user_form_view,
-    people_calendar_resources_list_view,
-    person_create_view,
-    person_delete_view,
-    person_detail_view,
-    person_list_view,
-    person_search_planners_ajax_view,
-    person_update_view,
-    search_people_ajax_view,
-)
+from webook.arrangement.views.person_views import *
 
 person_urls = [
     path(route="person/list/", view=person_list_view, name="person_list"),

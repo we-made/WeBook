@@ -1,15 +1,6 @@
 from django.urls import path
-from webook.arrangement.views import (
-    organization_list_view,
-    organization_create_view,
-    organization_update_view,
-    organization_detail_view,
-    organization_delete_view,
-    organization_person_member_list_view,
-    organization_services_providable_view,
-    organization_register_service_providable_form_view,
-)
 
+from webook.arrangement.views.organization_views import *
 
 organization_urls = [
     path(

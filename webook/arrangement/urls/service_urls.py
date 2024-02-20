@@ -2,41 +2,7 @@ from unicodedata import name
 
 from django.urls import path
 
-from webook.arrangement.views import (
-    archive_preconfiguration_json_view,
-    cancel_service_order_form_view,
-    confirm_service_order_form_view,
-    create_change_log_note_view,
-    create_preconfiguration_json_view,
-    create_service_template_view,
-    create_service_view,
-    delete_service_email_from_service_view,
-    deny_service_order_form_view,
-    get_change_summary_json_view,
-    get_events_for_resource_in_sopr_json_view,
-    get_personell_available_for_order_json_view,
-    get_preconfigurations_for_service_json_view,
-    get_provisions_json_view,
-    get_service_overview_calendar,
-    get_service_personell_json_view,
-    get_service_responsibles_json_view,
-    open_service_order_for_revisioning_form_view,
-    process_service_request_view,
-    provision_personell_form_view,
-    redirect_to_process_service_request_view,
-    service_detail_view,
-    service_orders_for_service_json_list_view,
-    service_personnell_json_list_view,
-    service_preconfiguration_add_person_view,
-    service_tree_json_view,
-    services_add_email_view,
-    services_add_person_view,
-    services_dashboard_view,
-    services_json_list_view,
-    toggle_service_active_json_view,
-    update_preconfiguration_json_view,
-    update_service_view,
-)
+from webook.arrangement.views.service_views import *
 
 service_urls = [
     path(

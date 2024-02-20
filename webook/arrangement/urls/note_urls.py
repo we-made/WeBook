@@ -2,13 +2,7 @@ from unicodedata import name
 
 from django.urls import path
 
-from webook.arrangement.views import (
-    create_note_view,
-    delete_note_view,
-    get_notes_view,
-    notes_on_entity_view,
-    update_note_view,
-)
+from webook.arrangement.views.note_views import *
 
 note_urls = [
     path(

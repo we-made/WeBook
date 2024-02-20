@@ -1,11 +1,6 @@
 from django.urls import path
 
-from webook.arrangement.views import (
-    archive_notification_view,
-    marK_all_notifications_as_seen_view,
-    mark_notification_as_seen_view,
-    my_notifications_json_list_view,
-)
+from webook.arrangement.views.notification_views import *
 
 notification_urls = [
     path(

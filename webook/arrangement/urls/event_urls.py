@@ -1,24 +1,6 @@
 from django.urls import path
 
-from webook.arrangement.views import (
-    calculate_event_serie_preview_view,
-    calculate_event_serie_view,
-    create_event_json_view,
-    create_event_serie_json_view,
-    delete_event_json_view,
-    delete_event_serie_view,
-    delete_file_from_event_view,
-    event_serie_delete_file_view,
-    event_serie_manifest_view,
-    update_event_buffer_times_view,
-    update_event_json_view,
-    upload_files_to_event_json_form_view,
-    upload_files_to_event_serie_json_form_view,
-)
-from webook.arrangement.views.event_views import (
-    GetEventJsonView,
-    get_event_popover_json_view,
-)
+from webook.arrangement.views.event_views import *
 
 event_urls = [
     path(

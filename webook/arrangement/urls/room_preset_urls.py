@@ -1,16 +1,6 @@
-from unicodedata import name
-
 from django.urls import path
 
-from webook.arrangement import views
-from webook.arrangement.views import (
-    room_preset_create_view,
-    room_preset_delete_view,
-    room_preset_detail_view,
-    room_preset_json_list_view,
-    room_preset_update_view,
-    room_presets_listview,
-)
+from webook.arrangement.views.room_preset_views import *
 
 room_preset_urls = [
     path(

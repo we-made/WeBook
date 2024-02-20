@@ -1,19 +1,6 @@
-from unicodedata import name
 from django.urls import path
-from webook.arrangement import views
-from webook.arrangement.views import (
-    requisition_dashboard_view,
-    requisitions_on_event_component_view,
-    requisitions_on_arrangement_component_view,
-    remove_event_from_requisition_view,
-    delete_requisition_view,
-    requisition_service_form_view,
-    requisition_person_form_view,
-    reset_requisition_form_view,
-    cancel_service_requisition_form_view,
-    delete_service_requisition_view,
-)
 
+from webook.arrangement.views.requisition_views import *
 
 requisition_urls = [
     path(
