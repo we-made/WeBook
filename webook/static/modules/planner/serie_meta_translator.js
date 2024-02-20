@@ -47,7 +47,7 @@ const GENERATION_FUNCTIONS_FOR_PATTERNS_MAP = new Map([
 ])
 
 const GENERATION_FUNCTIONS_FOR_TIME_AREAS_MAP = new Map([
-    ["StopWithin", (serie) => `mellom ${serie.time_area.start_date} og ${serie.time_area.stop_within}`],
+    ["StopWithin", (serie) => `fra ${serie.time_area.start_date.toLocaleString()} til ${serie.time_area.stop_within.toLocaleString()}`],
     ["StopAfterXInstances", (serie) => `etter ${serie.time_area.instances} forekomst(er)`],
     ["NoStopDate", (serie) => `for evig (projiser ${serie.time_area.projectionDistanceInMonths} måned frem i tid)`],
 ])

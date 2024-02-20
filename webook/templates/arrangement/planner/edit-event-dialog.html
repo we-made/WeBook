@@ -353,7 +353,7 @@
             close() {
                 this.$emit('close');
             },
-            save() {
+        save() {
                 this.localEvent.fc = {
                     title: this.localEvent.title,
                     start: new Date(this.localEvent.from_date + 'T' + this.localEvent.from_time),

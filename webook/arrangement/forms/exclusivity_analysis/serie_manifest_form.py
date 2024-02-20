@@ -7,9 +7,8 @@ from django.http import JsonResponse
 from django.utils.timezone import make_aware
 from pytz import timezone
 
-from webook.arrangement.facilities.service_ordering import (
-    generate_changelog_of_serie_events_in_order,
-)
+from webook.arrangement.facilities.service_ordering import generate_changelog_of_serie_events_in_order
+from webook.arrangement.forms.date_list_field import DateListField
 from webook.arrangement.models import (
     Arrangement,
     ArrangementType,
@@ -53,7 +52,7 @@ class SerieManifestForm(forms.Form):
     display_layouts = forms.ModelMultipleChoiceField(
         queryset=DisplayLayout.objects.all(), required=False
     )
-    exclusions = forms.MultipleChoiceField(required=False)
+    exclusions = DateListField(required=False)
     interval = forms.IntegerField(required=False)
     day_of_month = forms.IntegerField(required=False)
     arbitrator = forms.IntegerField(required=False)
@@ -105,8 +104,6 @@ class SerieManifestForm(forms.Form):
         plan_manifest.internal_uuid = self.cleaned_data["internal_uuid"]
 
         plan_manifest.vue_json = self.cleaned_data["vue_json"]
-
-        plan_manifest.exclusions = self.cleaned_data["exclusions"]
 
         plan_manifest.pattern = self.cleaned_data["pattern"]
         plan_manifest.pattern_strategy = self.cleaned_data["patternRoutine"]
@@ -170,6 +167,9 @@ class SerieManifestForm(forms.Form):
         plan_manifest.rooms.set(self.cleaned_data["rooms"])
         plan_manifest.people.set(self.cleaned_data["people"])
         plan_manifest.display_layouts.set(self.cleaned_data["display_layouts"])
+        exclusion_dates: List[datetime.date] = self.cleaned_data["exclusions"]
+        for exclusion_date in exclusion_dates:
+            plan_manifest.exclusions.create(date=exclusion_date)
         plan_manifest.status = self.cleaned_data["status"]
         plan_manifest.audience = self.cleaned_data["audience"]
         plan_manifest.arrangement_type = self.cleaned_data["arrangement_type"]

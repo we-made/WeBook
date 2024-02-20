@@ -5,8 +5,12 @@
 {% include "arrangement/planner/edit-event-dialog.html" %}
 {% include "arrangement/vue/select-main-planner-s2.html" %}
 {% include "arrangement/vue/location-select2.html" %}
+{% include "arrangement/planner/collision-resolution-wizard.html" %}
 
 <template id="vuec-planner-base">
+
+    <collision-resolution-wizard>
+    </collision-resolution-wizard>
 
     <edit-serie-dialog
         v-model="focusedSerie"
@@ -150,9 +154,23 @@
             <div v-show="step == 2">
                 <div class="row">
                     <div class="col-9">
+                        <div class="m-0 rounded-0 alert alert-danger text-dark mb-3" style="border-left: solid 10px #dc3545; background-color: #f4c2c7;" v-if="isInCollision">
+                            <h3 class="mt-2 mb-2">
+                                <i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikter på ressurser
+                            </h3>
+
+                            Det har oppstått kollisjoner. Før du kan opprette dette arrangementet så må disse kollisjonene løses.
+
+                            <div class="mt-2">
+                                <button class="btn wb-btn-secondary">
+                                    <i class="fas fa-question-circle"></i>&nbsp; Løs konfliktene
+                                </button>
+                            </div>
+                        </div>
                         <div>
                             <calendar-component
                                 @date-changed="(date) =>  { header = date.toISOString(); }"
+                                :event-content="buildEventContent"
                                 :build-context-menu="buildContextMenu"
                                 :context-menu-items="contextMenuItems"
                                 :arrow-navigation="true"
@@ -176,79 +194,174 @@
                         </div>
 
                         <hr>
-
-                        <ul class="list-group list-group-light mt-3">
-                            <div>
-                                <h3 class="text-center">
-                                    <i class="fas fa-info-circle"></i>
-                                </h3>
-                                <h4 class="text-center">
-                                    
-                                </h4>
-
-                                <p>Velkommen til arangement designer</p>
-                                <p>
-                                    Opprett en hendelse eller en gjentagende hendelse ved å trykke på knappene over.
-                                    Når du er ferdig med å legge til hendelser kan du trykke på "Lagre" knappen nederst på siden.
-                                </p>
-                            </div>
-
-                            <li class="list-group-item shadow-2 mt-2" v-for="event in arrangement.events">
-                                <div class="d-flex justify-content-between align-items-center">
+                        
+                        <div style="max-height: 800px!important; overflow: scroll;">
+                            <ul class="list-group list-group-light mt-3">
+                                {% comment %} <div>
+                                    <h3 class="text-center">
+                                        <i class="fas fa-info-circle"></i>
+                                    </h3>
+                                    <h4 class="text-center">
+                                        
+                                    </h4>
+    
+                                    <p>Velkommen til arangement designer</p>
+                                    <p>
+                                        Opprett en hendelse eller en gjentagende hendelse ved å trykke på knappene over.
+                                        Når du er ferdig med å legge til hendelser kan du trykke på "Lagre" knappen nederst på siden.
+                                    </p>
+                                </div> {% endcomment %}
+    
+                                <li class="list-group-item shadow-2 mt-2" v-for="event in arrangement.events">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-bold">
+                                                <i class="fas fa-calendar"></i> [[event.title]]
+                                            </div>
+                                        </div>
+    
+                                        <div>
+                                            [[event.color]]
+                                            <i class="fas fa-circle" :style="event.color ? 'color: ' + event.color : ''"></i>
+                                        </div>
+    
+                                    </div>
                                     <div>
-                                        <div class="fw-bold">
-                                            <i class="fas fa-calendar"></i> [[event.title]]
+                                        [[ event.to_date == event.from_date ? event.from_date + '  ' + event.from_time + " - " + event.to_time : 'fra ' + event.from_date + ' ' + event.from_time + ' til ' + event.to_date + ' ' + event.to_time ]]
+                                    </div>
+    
+                                    <div v-if="event.collisions && event.collisions.length > 0">
+                                        <div>
+                                            <i class="fas fa-alert-triangle"></i>
+                                        </div>
+                                        <table class="table table-bordered border border-dark table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="3" style="backgroundColor: #dc3545;" class="text-white fw-bold text-center">
+                                                        <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                                                        Kollisjoner
+                                                        <div>
+                                                            Aktiviteten kolliderer med følgende andre aktiviteter;
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="fw-bold text-center">Tittel</th>
+                                                    <th class="fw-bold text-center">Ressurs</th>
+                                                    <th class="fw-bold text-center">Tid</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="collision in event.collisions">
+                                                    <td>
+                                                        [[collision.event_b_title]]
+                                                    </td>
+                                                    <td>
+                                                        [[collision.contested_resource_name]]
+                                                    </td>
+                                                    <td>
+                                                        <div v-if="collision.event_b_start.split('T')[0] == collision.event_a_start.split('T')[0]">
+                                                            [[ displayDate(new Date(collision.event_b_start)) ]] -- [[ new Date(collision.event_b_end).getHours() + ":" + new Date(collision.event_b_end).getMinutes() ]]
+                                                        </div>
+                                                        <div v-else>
+                                                            [[ displayDate(new Date(collision.event_b_start)) ]] -- [[ displayDate(new Date(collision.event_b_end)) ]]
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="clearfix mt-2">
+                                        <div class="float-end">
+                                            <button class="btn wb-btn-main" @click="removeEvent(event)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="btn wb-btn-main ms-2" @click="editEvent(event)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
                                         </div>
                                     </div>
-
+                                </li>
+    
+                                <li class="list-group-item shadow-2 mt-2" v-for="serie in arrangement.series">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="fw-bold">
+                                            <i class="fas fa-exclamation text-danger me-2" v-if="serie.collisions && serie.collisions.length > 0"></i>
+                                            <i class="fas fa-redo"></i> [[serie.title]]
+                                        </div>
+    
+                                        <div>
+                                            {% comment %} [[serie.color]] {% endcomment %}
+                                            <i class="fas fa-circle" :style="serie.color ? 'color: ' + serie.color : ''"></i>
+                                        </div>
+                                    </div>
+    
                                     <div>
-                                        [[event.color]]
-                                        <i class="fas fa-circle" :style="event.color ? 'color: ' + event.color : ''"></i>
+                                        [[serie.schedule.exploded.length]] instanser forekommer
+                                        <br>
+                                        [[getSerieDescription(serie)]]
                                     </div>
 
-                                </div>
-                                <div>
-                                    [[ event.to_date == event.from_date ? event.from_date + '  ' + event.from_time + " - " + event.to_time : 'fra ' + event.from_date + ' ' + event.from_time + ' til ' + event.to_date + ' ' + event.to_time ]]
-                                </div>
-
-                                <div class="mt-2">
-                                    <button class="btn wb-btn-main" @click="removeEvent(event)">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <button class="btn wb-btn-main ms-2" @click="editEvent(event)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </div>
-                            </li>
-
-                            <li class="list-group-item shadow-2 mt-2" v-for="serie in arrangement.series">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="fw-bold">
-                                        <i class="fas fa-redo"></i> [[serie.title]]
+                                    <div class="" v-if="serie.collisions && serie.collisions.length > 0">
+                                        <div>
+                                            <i class="fas fa-alert-triangle"></i>
+                                        </div>
+    
+                                        <table class="table table-bordered border border-dark table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="2" style="backgroundColor: #dc3545;" class="text-white fw-bold text-center">
+                                                        <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                                                        Kollisjoner
+                                                        <div>
+                                                            Serien kolliderer med følgende andre aktiviteter;
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="fw-bold text-center">Tittel</th>
+                                                    <th class="fw-bold text-center">Tid</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="collision in serie.collisions">
+                                                    <td>
+                                                        [[collision.event_b_title]]
+                                                    </td>
+                                                    <td>
+                                                        <div v-if="collision.event_b_start.split('T')[0] == collision.event_a_start.split('T')[0]">
+                                                            [[ displayDate(new Date(collision.event_b_start)) ]] -- [[ new Date(collision.event_b_end).getHours() + ":" + new Date(collision.event_b_end).getMinutes() ]]
+                                                        </div>
+                                                        <div v-else>
+                                                            [[ displayDate(new Date(collision.event_b_start)) ]] -- [[ displayDate(new Date(collision.event_b_end)) ]]
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-
-                                    <div>
-                                        [[serie.color]]
-                                        <i class="fas fa-circle" :style="serie.color ? 'color: ' + serie.color : ''"></i>
+    
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <div class="float-start">
+                                            <button class="btn wb-btn-secondary" v-if="serie.collisions && serie.collisions.length > 0">
+                                                <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                                                Løs konflikter
+                                            </button>
+                                        </div>
+                                        <div class="float-end">
+                                            <button class="btn wb-btn-main" @click="removeSerie(serie)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="btn wb-btn-main ms-2" @click="editSerie(serie)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
+                                </li>
+                            </ul>
+                        </div>
 
-                                <div>
-                                    [[serie.schedule.exploded.length]] instanser forekommer
-                                    <br>
-                                    [[getSerieDescription(serie)]]
-                                </div>
-
-                                <div class="mt-2">
-                                    <button class="btn wb-btn-main" @click="removeSerie(serie)">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <button class="btn wb-btn-main ms-2" @click="editSerie(serie)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </div>
-                            </li>
-                          </ul>
                     </div>
                 </div>
             </div>
@@ -286,6 +399,26 @@
             }
         },
         emits: ['close'],
+        computed: {
+            isInCollision() {
+                const predicate = (x) => x.collisions && x.collisions.length > 0
+                return this.arrangement.series.some(predicate) || this.arrangement.events.some(predicate)
+            },
+            collisions() {
+                const getCollisions = (arr) => {
+                    if (arr && arr.length > 0) {
+                        return arr.map(x => x.collisions)
+                                  .filter(x => x && x.length > 0)
+                                  .reduce((accumulator, currentValue) => accumulator.concat(currentValue));
+                    }
+
+                    return [];
+                }
+
+                return [].concat(getCollisions(this.arrangement.series))
+                         .concat(getCollisions(this.arrangement.events))
+            }
+        },
         data: function() {
             // Attempt to get either the event or serie information from the element
             // Returns an array with [ type, entity ]
@@ -298,6 +431,8 @@
                 
                 const eventUuid = extractClassStoredMetadata(element, "event", ":");
                 const serieUuid = extractClassStoredMetadata(element, "serie-event", ":");
+                const collisionGhostUuid = extractClassStoredMetadata(element, "collisionGhost", ":")
+
                 const startDate = extractClassStoredMetadata(element, "start-date", ":");
                 const endDate   = extractClassStoredMetadata(element, "end-date", ":")
 
@@ -308,6 +443,10 @@
                 if (serieUuid) {
                     let serie = this.arrangement.series.filter(x => x.uuid == serieUuid)[0];
                     return [ "serie", serie, startDate, endDate ];
+                }
+                if (collisionGhostUuid) {
+                    let collision = this.collisions.filter(x => x.uuid = collisionGhostUuid).pop();
+                    return [ "collisionGhost", collision, startDate, endDate ];
                 }
 
                 throw new Error("Could not find uuid - no matching class found on element");
@@ -321,10 +460,26 @@
                 serie: {
                     "edit": this.editSerie,
                     "delete": this.removeSerie
+                },
+                collisionGhost: {
+                    "edit": null,
+                    "delete": null,
                 }
             }
 
             return {
+                buildEventContent: (arg) => {
+                    let html = arg.event.title;
+
+                    if (arg.event.extendedProps.isCollision) {
+                        html = "<i class='fas fa-exclamation-triangle'></i>&nbsp;" + html;
+                    }
+                    if (arg.event.extendedProps.parentType === "serie") {
+                        html = "<i class='fas fa-redo'></i>&nbsp;" + html;
+                    }
+
+                    return { html: html }
+                },
                 buildContextMenu: ($trigger) => {
                     let options = {
                         callback: function(key, options) {
@@ -357,12 +512,23 @@
 
                     const [ type, entity, startDate, endDate ] = getCalendarEntityFromElement($trigger[0]);
 
+                    if (calendarEntityTypes[type].edit === null) {
+                        delete options.items.edit;
+                    }
+                    if (calendarEntityTypes[type].delete === null) {
+                        delete options.items.delete;
+                    }
+
                     if (type == "serie") {
                         options.items.title.html = `
-                            ${options.items.title.html.replace("$TITLE", entity.title)}
+                            <div class="d-flex justify-content-between mb-2">
+                                <div>
+                                    ${options.items.title.html.replace("$TITLE", "<i class='fas fa-redo'></i>&nbsp;" + entity.title)}
+                                </div>
+                            </div>
                             <div class='fw-light text-muted'>
                                 <div class='fw-bold'>
-                                    <i class='fas fa-clock'></i>&nbsp; ${entity.start_time} - ${entity.end_time}
+                                    ${entity.start_time} -- ${entity.end_time} 
                                 </div>
                                 <div>
                                     ${window.SerieMetaTranslator.generate(entity.schedule.inOldStyle)}, totalt ${entity.schedule.exploded.length} forekomster.
@@ -370,7 +536,6 @@
                             </div>
                             <hr>`;
                         options.items.edit.name = "<i class='fas fa-edit text-success'></i>&nbsp; Rediger Serie";
-                        options.items.delete.name = "<i class='fas fa-trash text-danger'></i>&nbsp; Fjern serie";
                         options.items.breakout = {
                             name: "<i class='fas fa-arrow-right text-info'></i>&nbsp; Omgjør tidspunktet til unik aktivitet",
                             isHtmlName: true,
@@ -379,6 +544,12 @@
                                     entity.excludedDates = [];
 
                                 entity.excludedDates.push(startDate);
+
+                                const y = entity.collisions.filter((collision) => { 
+                                    return collision.event_a_start.split("T")[0] != startDate 
+                                });
+
+                                entity.collisions = y;
 
                                 const eventUUID = crypto.randomUUID();
                                 this.arrangement.events.push({
@@ -431,24 +602,61 @@
                                 this.regenerateEventSource();
                             }
                         };
+                        options.items.delete.name = "<i class='fas fa-trash text-danger'></i>&nbsp; Fjern serie";
+                        options.items.excludeDate = {
+                            name: "<i class='fas fa-times text-danger'></i>&nbsp; Fjern tidspunktet",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+                                if (!entity.excludedDates)
+                                    entity.excludedDates = [];
+                                
+                                entity.excludedDates.push(startDate);
+
+                                this.regenerateEventSource();
+                            }
+                        };
                     }
 
                     if (type == "event") {
-                        console.log("entity", entity);
-                        
                         options.items.title.html = `
                             ${options.items.title.html.replace("$TITLE", entity.title)}
                             <div class='fw-light text-muted'>
                                 <div>
                                     ${entity.from_date == entity.to_date ? entity.from_date : string(entity.from_date) + " " + string(entity.to_date) }
                                 </div>
-                                <div>
-                                    ${entity.from_time} - ${entity.to_time}
+                                <div class="d-flex">
+                                    <div>
+                                        <input type='time' value='${entity.from_time}'>
+                                    </div>
+                                    <div class="ms-1 me-1">
+                                        -
+                                    </div>
+                                    <div>
+                                        <input type='time' value='${entity.to_time}'>
+                                    </div>
                                 </div>
                             </div>
                             <hr>`;
                         options.items.edit.name = "<i class='fas fa-edit text-success'></i>&nbsp; Rediger aktivitet";
                         options.items.delete.name = "<i class='fas fa-trash text-danger'></i>&nbsp; Fjern aktivitet";
+                    }
+
+                    if (type == "collisionGhost") {
+                        options.items.title.html = `
+                            ${options.items.title.html.replace("$TITLE", entity.event_b_title)}
+                            
+                            <div class='alert alert-danger'>
+                                Kollisjon
+                            </div>
+                        `;
+
+                        options.items.resolve = {
+                            name: "<i class='fas fa-hammer'></i>&nbsp; Løs konflikt",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+                                console.log("Add dialog resolution thingy here.")
+                            }
+                        }
                     }
 
                     return options;
@@ -520,17 +728,30 @@
             close() {
                 this.$emit('close');
             },
-            collisionAnalysis() {
+            displayDate(date) {
+                return date.toLocaleString([], {
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit', 
+                    hour: '2-digit', 
+                    minute: '2-digit'
+                });
+            },
+            async collisionAnalysis() {
                 const eventsForAnalysis = this.arrangement.events.map(x => {
                     return {
+                        _originalEvent: x,
                         title: x.title,
-                        fromDate: x.from_date,
-                        toDate: x.to_date,
-                        rooms: x.rooms.join(","),
+                        fromDate: x.from_date + " " + x.from_time,
+                        toDate: x.to_date + " " + x.to_time,
+                        rooms: x.rooms,
+                        startTime: x.from_time,
+                        endTime: x.end_time
                     }
                 });
                 const seriesForAnalysis = this.arrangement.series.map(x => {
                     return {
+                        _originalSerie: x,
                         pattern: x.schedule.pattern,
                         patternRoutine: x.schedule.subpattern,
                         timeAreaMethod: x.schedule.recurrenceMethod,
@@ -549,7 +770,7 @@
                         day_of_week: x.schedule.dayOfWeek,
                         month: x.schedule.month,
                         stopWithin: x.schedule.endDate,
-                        stopAfterXInstances: x.scheddule.noOfInstances,
+                        stopAfterXInstances: x.schedule.noOfInstances,
                         projectionDistanceInMonths: x.schedule.projectHowFarInMonths,  
                         status: x.status,
                         audience: x.audience,
@@ -558,32 +779,55 @@
                         responsible: x.responsible,
                         predecessorSerie: null,
                         meeting_place: x.meeting_place,
-                        meeting_place_en: x.meeting_place_en
+                        meeting_place_en: x.meeting_place_en,
+                        predecessorSerie: 0,
+                        internal_uuid: x.uuid,
+                        exclusions: x.excludedDates
                     }
                 });
 
+                const objToFormData = (obj) => {
+                    const formData = new FormData();
+                    for (const key of Object.keys(obj)) {
+                        if (obj[key] !== undefined) {
+                            const val = obj[key];
+                            if (Array.isArray(val))
+                                for (let i = 0; i < val.length; i++)
+                                    formData.append(key, val[i]);
+                            else
+                                formData.set(key, obj[key]);
+                        }
+                    }
+                    return formData;
+                }
+
+                let knownCollisionEventIdsSet = new Set();
+
                 for (const eventToAnalyze of eventsForAnalysis) {
-                    const results = fetch("/arrangement/analysis/analyzeNonExistentEvent", {
+                    const results = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json",
                             "X-CSRFToken": "{{ csrf_token }}"
                         },
-                        body: JSON.stringify(eventToAnalyze)
+                        body: objToFormData(eventToAnalyze)
                     }).then(response => response.json())
-                      .then(data => "event collision analysis results", data);
+                      .then(data => { 
+                        eventToAnalyze._originalEvent.collisions = data;
+                        knownCollisionEventIdsSet = new Set(data.map(x => x.event_b_id));
+                    });
                 }
 
                 for (const serieToAnalyze of seriesForAnalysis) {
-                    const results = fetch("/arrangement/analysis/analyzeNonExistentSerie", {
+                    const results = await fetch("/arrangement/analysis/analyzeNonExistentSerie", {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json",
                             "X-CSRFToken": "{{ csrf_token }}"
                         },
-                        body: JSON.stringify(serieToAnalyze)
+                        body: objToFormData(serieToAnalyze)
                     }).then(response => response.json())
-                      .then(data => "serie collision results", data);
+                      .then(data => {
+                        serieToAnalyze._originalSerie.collisions = data.filter(x => knownCollisionEventIdsSet.has(x.event_b_id) === false);
+                    });
                 }
             },
             moveCalendarOneUnitForward() {
@@ -597,7 +841,6 @@
 
                 if (event.extendedProps.parentType == "event") {
                     let eventObject = this.arrangement.events.filter(x => x.uuid == event.extendedProps.parentUuid)[0];
-                    console.log("eventObject", eventObject)
                     this.editEvent(eventObject);
                     return;
                 }
@@ -607,8 +850,10 @@
                     return;
                 }
             },
-            regenerateEventSource() {
+            async regenerateEventSource() {
                 let events = [];
+
+                await this.collisionAnalysis();
 
                 for (const serie of this.arrangement.series) {
                     if (!serie.schedule) {
@@ -617,6 +862,30 @@
   
                     if (!serie.color) {
                         serie.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+                    }
+
+                    if (serie.collisions) {
+                        serie.collisions.forEach(function (exception) {
+                            exception.uuid = crypto.randomUUID();
+                            events.push({
+                                title: `<i class='fas fa-triangle'></i>&nbsp; ${exception.event_b_title} - ${exception.contested_resource_name}`,
+                                start: new Date(exception.event_b_start),
+                                end: new Date(exception.event_b_end),
+                                borderColor: "black",
+                                backgroundColor: "#dc3545",
+                                classNames: [
+                                    "collisionGhost:" +  exception.uuid,
+                                    "start-date:" + exception.event_b_start,
+                                    "end-date:" + exception.event_b_end
+                                ],
+                                textColor: "white",
+                                extendedProps: {
+                                    parentType: 'collisionGhost',
+                                    parentUuid: exception.uuid,
+                                    isCollision: true
+                                }
+                            });
+                        });
                     }
 
                     for (const ev of serie.schedule.exploded.map((ev) => ev.fc)) {
@@ -637,6 +906,31 @@
                         e.fc.color = e.color;
                         return;
                     }
+
+                    if (e.collisions) {
+                        e.collisions.forEach(function (exception) {
+                            exception.uuid = crypto.randomUUID();
+                            events.push({
+                                title: `<i class='fas fa-triangle'></i>&nbsp; ${exception.event_b_title}`,
+                                start: new Date(exception.event_b_start),
+                                end: new Date(exception.event_b_end),
+                                borderColor: "black",
+                                backgroundColor: "#dc3545",
+                                textColor: "white",
+                                classNames: [
+                                    "collisionGhost:" +  exception.uuid,
+                                    "start-date:" + exception.event_b_start,
+                                    "end-date:" + exception.event_b_end
+                                ],
+                                extendedProps: {
+                                    parentType: 'collisionGhost',
+                                    parentUuid: exception.uuid,
+                                    isCollision: true
+                                }
+                            });
+                        });
+                    }
+
                     e.color = this.colors[Math.floor(Math.random() * this.colors.length)];
                     e.fc.color = e.color;
                 });
@@ -665,7 +959,7 @@
                     mainPlanner:        this.arrangement.mainPlanner,
                     planners:           this.arrangement.planners,
                     ticket_code:        this.arrangement.ticket_code,
-                    expected_visitors:  this.arrangement.expected_visitors,
+                    expected_visitors:  this.arrangement.expected_visitors || 0,
                     location:           this.arrangement.location,
                 };
             },
@@ -718,8 +1012,9 @@
                     mainPlanner:        this.arrangement.mainPlanner,
                     planners:           this.arrangement.planners,
                     ticket_code:        this.arrangement.ticket_code,
-                    expected_visitors:  this.arrangement.expected_visitors,
+                    expected_visitors:  this.arrangement.expected_visitors || 0,
                     location:           this.arrangement.location,
+                    predecessorSerie: 0,
                 }
             },
             removeSerie(serie) {
@@ -767,7 +1062,6 @@
                 })
             },
             focusedEvent: function(newValue) {
-                console.log("focusedEvent changed", newValue);
                 if (newValue) {
                     if (newValue._isNew) {
                         delete newValue._isNew;
@@ -815,7 +1109,8 @@
             EditEventDialog,
             SelectMainPlannerDialogComponent,
             SelectMainPlannerS2,
-            LocationSelect
+            LocationSelect,
+            CollisionResolutionWizard
         }
     }
 </script>

@@ -14,6 +14,7 @@ class CollisionRecord:
     event_a_title: str
     event_a_start: datetime
     event_a_end: datetime
+    event_b_id: Optional[str]
     event_b_title: str
     event_b_start: datetime
     event_b_end: datetime
@@ -115,6 +116,7 @@ def _analyze_multiple_events(
                             event_a_title=event.title,
                             event_a_start=event.start,
                             event_a_end=event.end,
+                            event_b_id=r_event.id,
                             event_b_title=r_event.title,
                             event_b_start=r_event.start,
                             event_b_end=r_event.end,
@@ -122,9 +124,11 @@ def _analyze_multiple_events(
                             contested_resource_name=room_calendar.room.name,
                             my_serie_position_hash=event.serie_positional_hash,
                             parent_serie_position_hash=event.sph_of_root_event,
-                            is_rigging=event.is_rigging
-                            if hasattr(event, "is_rigging")
-                            else None,
+                            is_rigging=(
+                                event.is_rigging
+                                if hasattr(event, "is_rigging")
+                                else None
+                            ),
                         )
                     )
                     if hasattr(event, "is_collision"):

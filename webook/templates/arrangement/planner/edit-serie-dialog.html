@@ -275,7 +275,7 @@
                         
                             <div class="mt-2 w-25 ">
                                 <label class="d-block">Hovedplanlegger</label>
-                                <select-main-planner-s2 v-model:selected="localModelValue.mainPlanner" />
+                                <select-main-planner-s2 v-model:selected="localModelValue.mainPlanner" class="w-100"/>
                             </div>
 
                             <div class="mt-2 w-25">
@@ -381,7 +381,6 @@
         watch: {
             modelValue: {
                 handler: function (val, oldVal) {
-                    console.log("modelValue changed", val)
                     this.localModelValue = {...val};
                 },
                 deep: true,

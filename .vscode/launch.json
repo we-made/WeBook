@@ -6,9 +6,10 @@
     "configurations": [
         {
             "name": "Python: Django",
-            "type": "python",
+            "type": "debugpy",
+            "cwd": "${workspaceFolder}",
             "request": "launch",
-            "program": "E:\\Blue\\WeBook\\manage.py",
+            "program": "manage.py",
             "args": [
                 "runserver"
             ],

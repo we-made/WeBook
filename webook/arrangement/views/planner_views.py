@@ -19,14 +19,26 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.decorators.http import require_http_methods
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 from django.views.generic.edit import DeleteView, FormView
 
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.facilities.calendar import analysis_strategies
-from webook.arrangement.facilities.service_ordering import remove_provision_from_service_order
+from webook.arrangement.facilities.service_ordering import (
+    remove_provision_from_service_order,
+)
 from webook.arrangement.forms.event_forms import CreateEventForm, UpdateEventForm
-from webook.arrangement.forms.file_forms import UploadFilesToArrangementForm, UploadFilesToEventSerieForm
+from webook.arrangement.forms.file_forms import (
+    UploadFilesToArrangementForm,
+    UploadFilesToEventSerieForm,
+)
 from webook.arrangement.forms.note_forms import CreateNoteForm, UpdateNoteForm
 from webook.arrangement.forms.ordering_forms import (
     LooselyOrderServiceForm,
@@ -37,11 +49,20 @@ from webook.arrangement.forms.ordering_forms import (
     RemovePersonFromEventForm,
     RemoveRoomFromEventForm,
 )
-from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
-from webook.arrangement.forms.planner.planner_plan_serie_form import PlannerPlanSerieForm
-from webook.arrangement.forms.planner.planner_update_arrangement_form import PlannerUpdateArrangementModelForm
+from webook.arrangement.forms.planner.planner_create_arrangement_form import (
+    PlannerCreateArrangementModelForm,
+)
+from webook.arrangement.forms.planner.planner_plan_serie_form import (
+    PlannerPlanSerieForm,
+)
+from webook.arrangement.forms.planner.planner_update_arrangement_form import (
+    PlannerUpdateArrangementModelForm,
+)
 from webook.arrangement.forms.planner_forms import AddPlannersForm, RemovePlannersForm
-from webook.arrangement.forms.service_forms import OrderServiceForm, UpdateServiceOrderForm
+from webook.arrangement.forms.service_forms import (
+    OrderServiceForm,
+    UpdateServiceOrderForm,
+)
 from webook.arrangement.models import (
     Arrangement,
     ArrangementFile,
@@ -60,8 +81,14 @@ from webook.arrangement.models import (
     RoomPreset,
     ServiceOrder,
 )
-from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
-from webook.arrangement.views.generic_views.json_form_view import JsonFormView, JsonModelFormMixin
+from webook.arrangement.views.generic_views.archive_view import (
+    ArchiveView,
+    JsonArchiveView,
+)
+from webook.arrangement.views.generic_views.json_form_view import (
+    JsonFormView,
+    JsonModelFormMixin,
+)
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.json_serial import json_serial
@@ -1091,5 +1118,6 @@ inspect_service_order_dialog_view = InspectServiceOrderDialogView.as_view()
 
 class PlannerCalendarV2(TemplateView):
     template_name = "arrangement/planner/planner_calendar_v2.html"
+
 
 planner_calendar_v2 = PlannerCalendarV2.as_view()

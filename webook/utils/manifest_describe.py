@@ -76,7 +76,7 @@ describe_pattern = {
 
 describe_recurrence = {
     "StopWithin": lambda manifest: _(
-        f"mellom {manifest.start_date.strftime('%d.%m.%Y')} og {manifest.stop_within.strftime('%d.%m.%Y')}"
+        f"fra {manifest.start_date.strftime('%d.%m.%Y')} til {manifest.stop_within.strftime('%d.%m.%Y')}"
     ),
     "StopAfterXInstances": lambda manifest: _(
         f"etter {manifest.stop_after_x_occurences} "

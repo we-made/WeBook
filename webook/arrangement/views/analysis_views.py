@@ -7,12 +7,26 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone as dj_timezone
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView, View
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+    View,
+)
 
 from webook.arrangement.dto.event import EventDTO
-from webook.arrangement.forms.exclusivity_analysis.analyze_arrangement_form import AnalyzeArrangementForm
-from webook.arrangement.forms.exclusivity_analysis.analyze_non_existant_event import AnalyzeNonExistantEventForm
-from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import SerieManifestForm
+from webook.arrangement.forms.exclusivity_analysis.analyze_arrangement_form import (
+    AnalyzeArrangementForm,
+)
+from webook.arrangement.forms.exclusivity_analysis.analyze_non_existant_event import (
+    AnalyzeNonExistantEventForm,
+)
+from webook.arrangement.forms.exclusivity_analysis.serie_manifest_form import (
+    SerieManifestForm,
+)
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.utils.collision_analysis import CollisionRecord, analyze_collisions
@@ -40,7 +54,7 @@ class AnalyzeNonExistentSerieManifest(
         calculated_serie: List[_Event] = calculate_serie(manifest)
 
         if manifest.exclusions:
-            excluded_dates = map(lambda ex: ex.date, manifest.exclusions.all())
+            excluded_dates = list(map(lambda ex: ex.date, manifest.exclusions.all()))
             calculated_serie = [
                 ev for ev in calculated_serie if ev.start.date() not in excluded_dates
             ]
@@ -66,6 +80,9 @@ class AnalyzeNonExistentSerieManifest(
             )
             rigging_events: dict = event_dto.generate_rigging_events()
             events = []
+
+            # TODO: Figure out if this is necessary, or a remotely intelligent way of doing it.
+            # Date should be enough - no?
             event_dto.serie_positional_hash: str = get_serie_positional_hash(
                 manifest.internal_uuid, event_dto.title, event_dto.start, event_dto.end
             )
@@ -99,6 +116,9 @@ class AnalyzeNonExistentSerieManifest(
         records = analyze_collisions(
             converted_events, ignore_serie_pk=pk_of_preceding_event_serie
         )
+
+        records = {r.event_b_id: r for r in records}.values()
+
         return JsonResponse([vars(record) for record in records], safe=False)
 
 

@@ -18,6 +18,14 @@
     --DIALOG-BORDER-COLOR: #DEDFE3;
 }
 
+.wb-btn-main.inactive {
+    background-color: #7b7879;
+}
+
+.wb-btn-main.inactive:hover {
+    background-color: #231f20;
+}
+
 [v-cloak] {
     display: none;
   }
