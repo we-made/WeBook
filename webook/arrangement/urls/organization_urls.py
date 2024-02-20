@@ -1,6 +1,7 @@
 from django.urls import path
 
 from webook.arrangement.views.organization_views import *
+from webook.arrangement.views.person_views import organization_person_member_list_view
 
 organization_urls = [
     path(
