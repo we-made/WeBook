@@ -106,18 +106,16 @@ When room ids come in, the component will check if all the rooms in a preset are
                     .then(response => response.json());
             }
         },
-        mounted: function () {
-            this.getRooms().then(rooms => {
-                this.rooms = rooms;
-            });
-            this.getPresets().then(presets => {
+        mounted: async function () {
+            this.rooms = await this.getRooms();
+            await this.getPresets().then(presets => {
                 let presetsLookup = {};
                 presets.forEach((preset) => {
                     presetsLookup["PRESET-" + preset.id] = preset;
                 });
 
                 this.presetsLookup = presetsLookup;
-            });
+            })
         }
     }
 </script>

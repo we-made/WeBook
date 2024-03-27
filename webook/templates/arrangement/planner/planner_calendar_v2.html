@@ -35,7 +35,7 @@ container-fluid
 
     <event-info-dialog-component 
         @close="isEventDialogOpen = false"
-        :event-id="focusedEventId"
+        :event-id="focusedEventId || 0"
         :is-visible="isEventDialogOpen">
     </event-info-dialog-component>
 

@@ -8,6 +8,11 @@
 <script>
     let Select2 = {
         template: '#select2_component',
+        data: () => { 
+            return { 
+                ignoreNextUpdate: false 
+            }
+        },
         props: {
             options: {
                 type: Array,
@@ -27,13 +32,13 @@
             }
         },
         mounted() {
-            console.log('select2 mounted', this.selected);
             this.$nextTick(() => {
                 $(this.$refs.select)
                     .select2({ width: "100%" })
                     .val(this.selected)
                     .trigger('change')
                     .on('change', e => {
+                        this.ignoreNextUpdate = true; // avoid triggering watcher, causing infinite loop
                         this.$emit('input', $(this.$refs.select).val() || [])
                     });
 
@@ -43,6 +48,9 @@
         emits: ['input'],
         watch: {
             selected(selected) {
+                if (this.ignoreNextUpdate === true)
+                    return;
+                    
                 $(this.$refs.select)
                     .val(selected)
                     .trigger('change')

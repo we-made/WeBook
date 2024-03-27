@@ -23,8 +23,8 @@
         :is-visible="isVisible"
         :start-full-screen="true"
         @close="$emit('close')"
-        use-backdrop="true" 
-        is-draggable="true"
+        :use-backdrop="true" 
+        :is-draggable="true"
         width="100em">
         <template v-slot:header>
             
@@ -238,9 +238,9 @@
                                         </div>
                                     </div>
                                     <div class="col-5">
-                                        <select-main-planner-dialog-component
-                                            v-model="">
-                                        </select-main-planner-dialog-component>
+                                        {% comment %} TODO: {% endcomment %}
+                                        {% comment %} <select-main-planner-dialog-component>
+                                        </select-main-planner-dialog-component> {% endcomment %}
 
             
                                         <div id="jsTreeSelects">

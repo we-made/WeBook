@@ -6,9 +6,9 @@
         :is-visible="true"
         :start-full-screen="true"
         @close="$emit('close')"
-        use-backdrop="true" 
+        :use-backdrop="true" 
         width="50%"
-        is-draggable="true">
+        :is-draggable="true">
 
         <template v-slot:header>
             
@@ -19,10 +19,6 @@
         </template>
 
         <template v-slot:content>
-            
-
-
-
             <div>
                 <button @click="selectIsExpanded = !selectIsExpanded">Clickity click</button>
                 <popover-tree-select

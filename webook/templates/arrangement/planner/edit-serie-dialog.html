@@ -368,7 +368,6 @@
 
 
 <script>
-
     let EditSerieDialog = {
         template: '#editSerieDialog',
         components: { 
@@ -489,15 +488,20 @@
             modelValue: {
                 handler: function (val, oldVal) {
                     console.log("modelValue.watch", val);
-                    this.localModelValue = {...val};
-                    console.log("this.localModelValue", this.localModelValue);
+                    this.localModelValue = {
+                        ...val,
+                        "audience": val.audience || [],
+                        "arrangement_type": val.arrangement_type || [],
+                        "status_type": val.status_type || [],
+                        "schedule": val.schedule || {}
+                    };
                 },
                 deep: true,
             },
         },
         data: function () {
             return {
-                localModelValue: {...this.modelValue} || {},
+                localModelValue: this.modelValue || {},
                 schedule: {},
                 dialog: false,
                 valid: false,
@@ -518,7 +522,7 @@
                 loading: false,
                 error: false,
                 errorMessage: '',
-            }
+            };
         },
     }
 

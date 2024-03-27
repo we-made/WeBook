@@ -131,7 +131,7 @@
                 <div class="row mt-2">
                     <div class="col-4">
                         <label class="fw-bold">Lokasjon</label>
-                        <location-select v-model:selected="arrangement.location"></location-select>v    
+                        <location-select v-model:selected="arrangement.location"></location-select>
                     </div>
                     <div class="col-8">
                         <label class="fw-bold">Rom</label>
@@ -152,12 +152,12 @@
 
                 <div class="mt-3">
                     <div class="row">
-                        <dic class="col-4">
+                        <div class="col-4">
                             <display-layout-select
                                 :text="arrangement.displayLayoutText"
-                                :displayLayouts="arrangement.displayLayouts">
+                                :selected-display-layouts="arrangement.displayLayouts">
                             </display-layout-select>
-                        </dic>
+                        </div>
                         <div class="col-8">
                             <div class="mt-5">
                                 <div>
@@ -198,7 +198,6 @@
                                 @date-changed="(date) =>  { header = date.toISOString(); }"
                                 :event-content="buildEventContent"
                                 :build-context-menu="buildContextMenu"
-                                :context-menu-items="contextMenuItems"
                                 :arrow-navigation="true"
                                 :nav-links="false"
                                 nav-link-day-click="timeGridDay"
@@ -207,7 +206,6 @@
                                 :on-event-click="handleEventClickedInCalendar"
                                 :event-start-editable="true"
                                 :editable="true"
-                                class="w-100 mt-4"
                                 height="50rem"
                                 view="timelineMonth"
                                 ref="calendar">
@@ -581,10 +579,6 @@
         },
         emits: ['close'],
         computed: {
-            isInCollision() {
-                const predicate = (x) => x.collisions && x.collisions.length > 0
-                return this.arrangement.series.some(predicate) || this.arrangement.events.some(predicate)
-            },
             allFcEvents() {
                 let allEvents = this.arrangement.events.map(x => x.fc);
                 for (const serie of this.arrangement.series) {
@@ -674,6 +668,7 @@
 
                     return { html: html }
                 },
+                focusedCollisions: [],
                 exclusiveRoomIds: [],
                 buildContextMenu: ($trigger) => {
                     let options = {
@@ -914,11 +909,11 @@
                 arrangement: {
                     title: '',
                     title_en: '',
-                    audience: [],
-                    status_type: [],
-                    arrangement_type: [],
+                    audience: null,
+                    status_type: null,
+                    arrangement_type: null,
                     rooms: [],
-                    location: {},
+                    location: [],
                     events: [],
                     series: [],
                     serviceOrders: [],

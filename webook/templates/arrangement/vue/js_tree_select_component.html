@@ -56,7 +56,7 @@
             buttonLabel: String,
             icon: String,
             jsonUrl: String,
-            modelValue: Number,
+            modelValue: Number | String | null,
         },
         methods: {
             getNode(id) {
@@ -72,9 +72,10 @@
                     $(this.$refs.jsTreeEl).jstree('select_node', this.modelValue);
 
                     let node = $(this.$refs.jsTreeEl).jstree(true).get_node(this.selected);
-                    this.selectedValues.id = node.id;
-                    this.selectedValues.parent = node.parent;
-                    this.selectedValues.text = node.text;
+                    this.selectedValues = { id: node.id, parent: node.parent, text: node.text };
+                }
+                else {
+                    this.selectedValues = { id: null, parent: null, text: null };
                 }
             },
             async initJsTree() {
@@ -173,11 +174,10 @@
             this.isExpanded = this.isOpen || false;
             this.selectedValues = this.modelValue || { id: null, text: null, parent: null };
 
-            this.$nextTick(() => {
-                this.initJsTree();
+            this.$nextTick(async () => {
+                await this.initJsTree();
+                this.isMounted = true;
             });
-
-            this.isMounted = true;
         },
         delimiters: ["[[", "]]"],
         template: "#vuec-js-tree-select-template"
