@@ -23,6 +23,7 @@ container-fluid
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="{% static 'select2/dist/css/select2.min.css' %}"></link>
+<link rel="stylesheet" href="{% static '@vuepic\vue-datepicker\dist\main.css' %}">
 
 <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
 
@@ -179,16 +180,21 @@ container-fluid
         </div>
     </div>
     
-    <calendar-component
-        view="dayGridMonth"
-        ref="calendar"
-        :event-source="getEventsInPeriod"
-        :context-menu-items="contextMenuItems"
-        :event-content="eventLabelGeneratorFunction"
-        :on-event-click="onEventClick">
-    </calendar-component>
+    <div id="baseCalendar">
+        <calendar-component
+            view="dayGridMonth"
+            ref="calendar"
+            :event-source="getEventsInPeriod"
+            :context-menu-items="contextMenuItems"
+            :event-content="eventLabelGeneratorFunction"
+            :on-event-click="onEventClick">
+        </calendar-component>
+    </div>
 
 </div>
+
+<script src="{% static '@vuepic/vue-datepicker/dist/vue-datepicker.iife.js' %}"></script>
+
 
 <script type="module">
     import { SeriesUtil } from "{% static 'modules/planner/seriesutil.js' %}";
@@ -466,7 +472,7 @@ container-fluid
                         if (arg.view.type === "listWeek") {
                             if (arg.event.extendedProps.isRigging === true ||
                                 arg.event.extendedProps.isSerie === true) {
-                                    
+
                                 let iconsRail = document.createElement('span');
                                 iconsRail.classList.add("me-2");
                                 if (arg.event.extendedProps.isRigging === true) {

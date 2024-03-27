@@ -608,6 +608,12 @@ html, body {
 
 .activeTable tbody tr:hover {
     background-color:rgba(60, 64, 67, 0.15);
+    border-color: var(--MAIN-COLOR);
+}
+
+.activeTable tbody tr.active {
+    background-color:rgba(60, 64, 67, 0.15);
+    border-color: var(--MAIN-COLOR);
 }
 
 .select-card {

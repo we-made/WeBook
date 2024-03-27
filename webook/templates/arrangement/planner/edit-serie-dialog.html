@@ -285,6 +285,67 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="accordion-item" v-if="localModelValue.excludedDates">
+                    <h4 class="accordion-header">
+                        <button
+                            data-mdb-collapse-init
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-mdb-toggle="collapse"
+                            data-mdb-target="#flush-collapseFive"
+                            aria-expanded="false"
+                            aria-controls="flush-collapseFive">
+
+                            <div class="d-flex justify-content-between align-items-center w-100">
+                                <div class="d-flex">
+                                    <div class="badge badge-danger">
+                                        <i class="fas fa-times"></i>
+                                    </div>
+                                    <div class="ms-2">
+                                        Ignorerte datoer
+                                    </div>
+                                </div>
+                                <div class="h6 text-muted d-block ms-5">
+                                    (Info)
+                                </div>
+                            </div>
+                        </button>
+                    </h4>
+
+                    <div id="flush-collapseFive"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="flush-headingFive"
+                        data-mdb-parent="#accordionFlushExample">
+
+                        <div class="accordion-body">
+                            <div class="mt-2">
+
+                                <div class="alert alert-danger">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-2">
+                                            <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                                        </div>
+                                        <div>
+                                            <div>
+                                                Disse datoene er ignorert for denne gjentagende hendelsen, og vil ikke bli booket.
+                                            </div>
+                                            <div>
+                                                Dette kan komme av at man har brutt en aktivitet ut av en serie, enten manuelt eller gjennom en kollisjonsresolusjon.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <ul>
+                                    <li v-for="date in localModelValue.excludedDates">
+                                        [[date]]
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
         <template v-slot:footer>
@@ -340,6 +401,12 @@
                 type: String,
                 default: '',
             },
+            collisionValidationHook: {
+                type: Function,
+                default: function() {
+                    return true;
+                }
+            }
         },
         methods: {
             close() {
@@ -355,11 +422,13 @@
                     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
                 }
 
-                this.localModelValue.schedule.exploded.forEach((ev) => {
+                for (const ev of this.localModelValue.schedule.exploded) {
+                    ev.title = this.localModelValue.title;
                     ev.fc = {
                         title: this.localModelValue.title,
                         start: ev.from,
                         end: ev.to,
+                        resourceIds: this.localModelValue.rooms,
                         classNames: [
                             'serie-event:' + this.localModelValue.uuid, 
                             'start-date:' + formatDate(ev.from),
@@ -370,7 +439,45 @@
                             parentUuid: this.localModelValue.uuid
                         }
                     }
-                });
+
+                    const overbookingValidationResults = this.collisionValidationHook(ev.fc);
+                    if (!overbookingValidationResults.allowed) {
+                        let description = `${overbookingValidationResults.conflicts}`;
+                        let list = "";
+                        for (const conflict of overbookingValidationResults.conflicts) {
+                            list += `
+                            <li>
+                                <strong>${conflict.event.title}</strong> - ${toStartEndDisplayString(conflict.event.start, conflict.event.end)}
+                                <ul>
+                                    ${conflict.exclusiveRoomsUsed.map(room => `<li>${room.name}</li>`).join('')}
+                                </ul>
+                            </li>`;
+                        }
+    
+                        description = `
+                            <div style="text-align:left;">
+                                <div class="alert alert-light">
+                                    Du har allerede satt opp arrangementer i samme tidsrom på en eller flere eksklusive rom.
+                                    På eksklusive rom kan det kun være ett arrangement om gangen.
+                                </div>
+                                <ul>${list}</ul>
+                                <div class="alert alert-light">
+                                    Vennligst endre tidspunkt eller rom for arrangementet.
+                                </div>
+                            </div>`;
+    
+                        Swal.fire({
+                            title: "Overbooking",
+                            html: description,
+                            icon: 'error',
+                            confirmButtonColor: '#231f20',
+                        }).then(() => {
+                            return;
+                        });
+    
+                        return;
+                    }
+                }
 
                 this.$emit('update:modelValue', this.localModelValue);
                 this.close();
@@ -381,7 +488,9 @@
         watch: {
             modelValue: {
                 handler: function (val, oldVal) {
+                    console.log("modelValue.watch", val);
                     this.localModelValue = {...val};
+                    console.log("this.localModelValue", this.localModelValue);
                 },
                 deep: true,
             },

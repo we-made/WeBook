@@ -1,0 +1,317 @@
+<template id="designerOrderServiceDialog">
+    <dialog-component
+        :is-draggable="true"
+        :is-visible="isVisible"
+        :chain-to="chainTo"
+        @close="$emit('close')">
+
+        <template v-slot:header>
+            <h3 class="m-0 fw-bold">
+                Tjenestebestilling
+            </h3>
+        </template>
+
+        <template v-slot:content>
+            <!-- 
+                STEP 0
+                : Select series and/or events to order services for
+            -->
+
+            <div v-show="step == 0">
+                <div class="alert alert-info">
+                    <div class="d-flex">
+                        <div>
+                            <h4>
+                                <i class="fas fa-info-circle"></i>
+                            </h4>
+                        </div>
+
+                        <div class="ms-3">
+                            Velg en eller flere serier og/eller enkelthendelser som du ønsker å bestille tjenester for.
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table activeTable table-bordered">
+                    <tbody>
+                        <tr v-for="serie in series" :class="{ active: serie.selectedForOrder }">
+                            <td @click="serie.selectedForOrder = !serie.selectedForOrder">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            <input type="checkbox" v-model="serie.selectedForOrder">
+                                        </div>
+                                        <div class="ms-4 d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="fw-bold">[[serie.title]]</span>
+                                                <br>
+                                                [[getSerieDescription(serie)]]
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="mb-0">
+                                            <i class="fas fa-redo"></i>
+                                        </h3>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr v-for="event in events" :class="{ active: event.selectedForOrder }">
+                            <td @click="event.selectedForOrder = !event.selectedForOrder">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            <input type="checkbox" v-model="event.selectedForOrder">
+                                        </div>
+                                        <div class="ms-4 d-flex w-100 justify-content-between align-items-center">
+                                            <div>
+                                                <span class="fw-bold">[[event.title]]</span>
+                                                <br>
+                                                [[ event.to_date == event.from_date ? event.from_date + '  ' + event.from_time + " - " + event.to_time : 'fra ' + event.from_date + ' ' + event.from_time + ' til ' + event.to_date + ' ' + event.to_time ]]
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="mb-0">
+                                            <i class="fas fa-calendar"></i>
+                                        </h3>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 
+                STEP 1
+                : Select services to order
+            -->
+            <div v-show="step == 1">
+                <div class="d-flex justify-content-end mb-2">
+                    <button 
+                        :class="['btn', { 'wb-btn-secondary': !hideNotSelectedServices, 'wb-btn-main': hideNotSelectedServices}]" 
+                        @click="hideNotSelectedServices = true">
+                        Vis valgte
+                    </button>
+                    <button 
+                        :class="['btn ms-2', { 'wb-btn-secondary': hideNotSelectedServices, 'wb-btn-main': !hideNotSelectedServices}]" 
+                        @click="hideNotSelectedServices = false">
+                        Vis alle
+                    </button>
+                </div>
+
+                <table class="table table-bordered table-striped interactiveTable">
+                    <tbody>
+                        <tr v-for="service in visibleServices" @click="service.selected = !service.selected">
+                            <td colspan="2">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <input type="checkbox" v-model="service.selected">
+                                    </div>
+                                    <div class="ms-2 fw-bold">
+                                        [[service.name]]
+                                    </div>
+                                </div>
+
+                                <div v-if="service.selected">
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <div>
+                                            <h5 class="mb-0">Kommentar</h5>
+                                        </div>
+
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <span class="fw-bold">
+                                                    <i class="fas fa-cog"></i>
+                                                </span>
+                                            </div>
+
+                                            <div class="ms-2">
+                                                <select v-model="service.preconfiguration" class="form-control" @click.stop :disabled="service.preconfigurations.length == 0"
+                                                    @change="updateServiceComment(service)">
+                                                    <option value="0" selected disabled>Last inn preset</option>
+                                                    <option v-for="preconfiguration in service.preconfigurations" :value="preconfiguration.id">
+                                                        [[preconfiguration.title]]
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <textarea class="form-control mt-2" rows="3" v-model="service.comment" @click.stop>
+
+                                    </textarea>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+
+        <template v-slot:footer>
+            <div class="d-flex justify-content-between">
+                <div>
+                    <button class="btn wb-btn-secondary" @click="close()">
+                        <i class="fas fa-times"></i>&nbsp;
+                        <span>Avbryt</span>
+                    </button>
+                </div>
+                <div>
+                    <button class="btn wb-btn-secondary" @click="step--">
+                        Tilbake
+                    </button>
+                    <button class="btn wb-btn-main ms-2" @click="nextStep()" v-if="step != 1">
+                        Neste
+                    </button>
+                    <button class="btn wb-btn-main ms-2" @click="save()" v-if="step == 1">
+                        Lagre
+                    </button>
+                </div>
+            </div>
+        </template>
+    </dialog-component>
+</template>
+
+<script>
+    let DesignerOrderServiceDialog = {
+        template: '#designerOrderServiceDialog',
+        delimiters: ['[[', ']]'],
+        components: {
+            DialogComponent
+        },
+        data: () => ({
+            services: [],
+            step: 0,
+            hideNotSelectedServices: false,
+        }),
+        computed: {
+            visibleServices() {
+                return this.hideNotSelectedServices ? this.services.filter(service => service.selected) : this.services;
+            }
+        },
+        props: {
+            modelValue: {
+                type: Object,
+                default: false
+            },
+            isVisible: {
+                type: Boolean,
+                default: false
+            },
+            chainTo: {
+                type: String,
+                default: ''
+            },
+            series: {
+                type: Array,
+                default: []
+            },
+            events: {
+                type: Array,
+                default: []
+            }
+        },
+        emits: ['update:modelValue', 'close'],
+        watch: {
+            modelValue(val) {
+                this.step = 0;
+                if (this.services)
+                    this.services.forEach(x => x.selected = false);
+                if (this.series)
+                    this.series.forEach(x => x.selectedForOrder = false);
+                if (this.events)
+                    this.events.forEach(x => x.selectedForOrder = false);
+
+                if (this.modelValue) {
+                    console.log("Populating state");
+                    this.services.forEach(service => {
+                        service.selected = val.services.some(selectedService => selectedService.id == service.id);
+                        service.comment = val.services.find(selectedService => selectedService.id == service.id)?.comment || '';
+                    });
+
+                    this.series.forEach(serie => {
+                        serie.selectedForOrder = val.series.some(selectedSerie => selectedSerie.uuid == serie.uuid);
+                        console.log(serie, val.series.some(selectedSerie => selectedSerie.uuid == serie.uuid));
+                    });
+
+                    this.events.forEach(event => {
+                        event.selectedForOrder = val.events.some(selectedEvent => selectedEvent.uuid == event.uuid);
+                    });
+                }
+            }
+        },
+        methods: {
+            async updateServiceComment(service) {
+                if (service.preconfiguration == 0) {
+                    return;
+                }
+
+                const preconfiguration = service.preconfigurations.find(preconfiguration => preconfiguration.id == service.preconfiguration);
+
+                if (service.comment) {
+                    await Swal.fire({
+                        title: 'Er du sikker?',
+                        text: "Dette vil overskrive eksisterende kommentar",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ja, overskriv'
+                    }).then((result) => {
+                        if (!result.isConfirmed) {
+                            service.preconfiguration = 0;
+                            return;
+                        }
+                    })
+                }
+
+                service.comment = preconfiguration.message;
+                service.preconfiguration = 0;
+            },
+            save() {
+                this.$emit('update:modelValue', {
+                    id: this.modelValue?.id || crypto.randomUUID(),
+                    services: this.services.filter(service => service.selected).map(service => {
+                        return {
+                            id: service.id,
+                            name: service.name,
+                            comment: service.comment
+                        }
+                    }),
+                    series: this.series.filter(serie => serie.selectedForOrder),
+                    events: this.events.filter(event => event.selectedForOrder)
+                });
+                
+                this.$emit('close');
+            },
+            getSerieDescription(serie) {
+                if (serie.schedule)
+                    return window.SerieMetaTranslator.generate(serie.schedule.inOldStyle);
+                
+                throw new Error("No serie description");
+            },
+            async getServices() {
+                return await fetch("/arrangement/service/json/list", {
+                    method: "GET",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                }).then(response => response.json());
+            },
+            nextStep() {
+                this.step++;
+            },
+            close() {
+                this.$emit('close');
+            },
+        },
+        async mounted() {
+            this.services = await this.getServices();
+        }
+    }
+</script>

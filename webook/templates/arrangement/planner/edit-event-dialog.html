@@ -318,6 +318,17 @@
             LocationSelect
         },
         props: {
+            collisionValidationHook: {
+                type: Function,
+                default: () => {
+                    return (event) => {
+                        return {
+                            allowed: true,
+                            conflicts: []
+                        }
+                    }
+                }
+            },
             event: {
                 type: Object,
                 default: () => {
@@ -353,11 +364,12 @@
             close() {
                 this.$emit('close');
             },
-        save() {
+            save() {
                 this.localEvent.fc = {
                     title: this.localEvent.title,
                     start: new Date(this.localEvent.from_date + 'T' + this.localEvent.from_time),
                     end:   new Date(this.localEvent.to_date + 'T' + this.localEvent.to_time),
+                    resourceIds: this.localEvent.rooms,
                     classNames: [
                         'event:' + this.localEvent.uuid, 
                         'start-date:' + this.localEvent.from_date,
@@ -368,6 +380,44 @@
                         parentUuid: this.localEvent.uuid,
                     }
                 };
+
+                const overbookingValidationResults = this.collisionValidationHook(this.localEvent.fc);
+                if (overbookingValidationResults.allowed === false) {
+                    let description = `${overbookingValidationResults.conflicts}`;
+                    let list = "";
+                    for (const conflict of overbookingValidationResults.conflicts) {
+                        list += `
+                        <li>
+                            <strong>${conflict.event.title}</strong> - ${toStartEndDisplayString(conflict.event.start, conflict.event.end)}
+                            <ul>
+                                ${conflict.exclusiveRoomsUsed.map(room => `<li>${room.name}</li>`).join('')}
+                            </ul>
+                        </li>`;
+                    }
+
+                    description = `
+                        <div style="text-align:left;">
+                            <div class="alert alert-light">
+                                Du har allerede satt opp arrangementer i samme tidsrom på en eller flere eksklusive rom.
+                                På eksklusive rom kan det kun være ett arrangement om gangen.
+                            </div>
+                            <ul>${list}</ul>
+                            <div class="alert alert-light">
+                                Vennligst endre tidspunkt eller rom for arrangementet.
+                            </div>
+                        </div>`;
+
+                    Swal.fire({
+                        title: "Overbooking",
+                        html: description,
+                        icon: 'error',
+                        confirmButtonColor: '#231f20',
+                    }).then(() => {
+                        return;
+                    });
+
+                    return;
+                }
                 
                 this.$emit('update:event', this.localEvent);
 

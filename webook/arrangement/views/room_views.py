@@ -87,11 +87,28 @@ class RoomDetailJsonView(LoginRequiredMixin, RoomSectionManifestMixin, DetailVie
                 "has_screen": self.object.has_screen,
             }
         )
-        return HttpResponse(data, content_type="appliwation/json")
+        return HttpResponse(data, content_type="application/json")
 
 
 room_detail_json_view = RoomDetailJsonView.as_view()
 
+class ExclusiveRoomsListJsonView(LoginRequiredMixin, JsonListView):
+    """Returns a list ids of exclusive rooms as json"""
+    model = Room
+    
+    def get_queryset(self):
+        qs = Room.objects.filter(is_exclusive=True)
+        
+        return list(
+            map(lambda r: { "id": r["id"], "name": r["name"] }, qs.values("id", "name"))
+        )
+        
+exclusive_rooms_list_json_view = ExclusiveRoomsListJsonView.as_view()
+
+class RoomDetailPkJsonView(RoomDetailJsonView):
+    pk_url_kwarg = "pk"
+
+room_detail_pk_json_view = RoomDetailPkJsonView.as_view()
 
 class RoomUpdateView(
     LoginRequiredMixin, RoomSectionManifestMixin, MetaMixin, UpdateView

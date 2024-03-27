@@ -210,6 +210,18 @@ class ServicesJsonListView(LoginRequiredMixin, ListView, JSONResponseMixin):
                             state=States.TEMPLATE
                         ).all()
                     ],
+                    "preconfigurations": [
+                        {
+                            "id": p.id,
+                            "title": p.title,
+                            "message": p.message,
+                            "assigned_personell": [
+                                {"id": person.id, "name": person.full_name}
+                                for person in p.assigned_personell.all()
+                            ],
+                        }
+                        for p in service.preconfigurations.all()
+                    ],
                     "resources": [
                         person.full_name for person in service.resources.all()
                     ],

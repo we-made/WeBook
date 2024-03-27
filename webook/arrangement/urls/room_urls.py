@@ -36,6 +36,11 @@ room_urls = [
         name="locationroomlist",
     ),
     path(
+        route="room/exclusive",
+        view=exclusive_rooms_list_json_view,
+        name="exclusive_rooms_list_json_view",
+    ),
+    path(
         route="room/search",
         view=search_rooms_ajax_view,
         name="search_room_ajax_view",
@@ -44,6 +49,11 @@ room_urls = [
         route="room/json/<slug:slug>/",
         view=room_detail_json_view,
         name="room_detail_json_view",
+    ),
+    path(
+        route="room/json_pk/<int:pk>/",
+        view=room_detail_pk_json_view,
+        name="room_detail_pk_json_view",
     ),
     path(
         route="room/create/json/",

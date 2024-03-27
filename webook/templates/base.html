@@ -520,6 +520,8 @@
 
         $(document).ready(function () {
           window.MessagesFacility = new MessagesFacility();
+
+
         });
 
         const notificationsApp = Vue.createApp({
@@ -557,7 +559,7 @@
                 return items;
             },
             visibleItems() {
-              return this.allViewableItems.slice((this.page - 1) * this.pageSize, this.page * this.pageSize );
+              return this.allViewableItems.slice((this.page - 1) * this.pageSize, this.page * this.pageSize);
             },
             totalPages() {
               return Math.ceil(this.allViewableItems.length / this.pageSize);
