@@ -58,7 +58,7 @@
         :is-visible="isVisible"
         :is-draggable="true"
         :start-full-screen="true"
-        width="60rem" 
+        width="60rem"
         id="plannerBaseDialogAA"
         ref="baseDialog">
 
@@ -70,105 +70,127 @@
 
         <template v-slot:content>
             <div v-show="step == 1">
-                <div class="row">
-                    <div class="col-6">
-                        <label>Tittel</label>
-                        <input type="text" class="form-control form-control-lg" v-model="arrangement.title">
-                    </div>
-                    <div class="col-6">
-                        <label>Tittel (Engelsk)</label>
-                        <input type="text" class="form-control form-control-lg" v-model="arrangement.title_en">
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-4">
-                        <tree-select-component 
-                            :is-open="false" 
-                            label="Målgruppe" 
-                            json-url="{% url 'arrangement:audience_tree' %}"
-                            button-label="Velg målgruppe"
-                            icon="fas fa-users"
-                            v-model="arrangement.audience">
-        
-                        </tree-select-component>
-                    </div>
-        
-                    <div class="col-4">
-                        <tree-select-component 
-                            :is-open="false" 
-                            label="Arrangementstype" 
-                            json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
-                            button-label="Velg arrangementstype"
-                            icon="fas fa-cog"
-                            v-model="arrangement.arrangement_type">
-        
-                        </tree-select-component>
-                    </div>
-        
-                    <div class="col-4">
-                        <tree-select-component 
-                            :is-open="false" 
-                            label="Status" 
-                            json-url="{% url 'arrangement:statustype_tree' %}"
-                            button-label="Velg status"
-                            icon="fas fa-cog"
-                            v-model="arrangement.status_type">
-        
-                        </tree-select-component>
-                    </div>
-                </div>
-
-                <div>
-                    <label>Forventet Besøkende</label>
-                    <input type="number" v-model="arrangement.expected_visitors" class="form-control">
-                </div>
-                <div>
-                    <label>Billettkode</label>
-                    <input type="text" v-model="arrangement.ticket_code" class="form-control">
-                </div>
-
-                <div class="row mt-2">
-                    <div class="col-4">
-                        <label class="fw-bold">Lokasjon</label>
-                        <location-select v-model:selected="arrangement.location"></location-select>
-                    </div>
-                    <div class="col-8">
-                        <label class="fw-bold">Rom</label>
-                        <rooms-select v-model:selected="arrangement.rooms"></rooms-select>
-                    </div>
-                </div>
 
                 <div class="row">
-                    <div class="col-4">
-                        <label class="d-block">Hovedplanlegger</label>
-                        <select-main-planner-s2 v-model:selected="arrangement.mainPlanner" />
+                    <div class="col-lg-8 col-md-6 col-sm-12">
+                        <div class="row">
+                            <div class="col-6">
+                                <label>Tittel</label>
+                                <input type="text" class="form-control" v-model="arrangement.title">
+                            </div>
+                            <div class="col-6">
+                                <label>Tittel (Engelsk)</label>
+                                <input type="text" class="form-control" v-model="arrangement.title_en">
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <label>Forventet Besøkende</label>
+                                <input type="number" v-model="arrangement.expected_visitors" class="form-control">
+                            </div>
+                            <div class="col-6">
+                                <label>Billettkode</label>
+                                <input type="text" v-model="arrangement.ticket_code" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label class="d-block">Hovedplanlegger</label>
+                                        <select-main-planner-s2 v-model:selected="arrangement.mainPlanner" />
+                                    </div>
+                                    <div class="col-8">
+                                        <label class="d-block">Medplanleggere</label>
+                                        <select-main-planner-s2 v-model:selected="arrangement.planners" :multiple="true" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="row mt-2">
+                                    <div class="col-4">
+                                        <label>Lokasjon</label>
+                                        <location-select v-model:selected="arrangement.location"></location-select>
+                                    </div>
+                                    <div class="col-8">
+                                        <label>Rom</label>
+                                        <rooms-select v-model:selected="arrangement.rooms"></rooms-select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <display-layout-select
+                            :text="arrangement.displayLayoutText"
+                            :selected-display-layouts="arrangement.displayLayouts">
+                        </display-layout-select>
                     </div>
-                    <div class="col-8">
-                        <label class="d-block">Medplanleggere</label>
-                        <select-main-planner-s2 v-model:selected="arrangement.planners" :multiple="true" />
+
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div>
+                            <tree-select-component
+                                :is-open="false"
+                                label="Målgruppe"
+                                json-url="{% url 'arrangement:audience_tree' %}"
+                                button-label="Velg målgruppe"
+                                icon="fas fa-users"
+                                v-model="arrangement.audience">
+
+                            </tree-select-component>
+                        </div>
+
+                        <div>
+                            <tree-select-component
+                                :is-open="false"
+                                label="Arrangementstype"
+                                json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                button-label="Velg arrangementstype"
+                                icon="fas fa-cog"
+                                v-model="arrangement.arrangement_type">
+
+                            </tree-select-component>
+                        </div>
+
+                        <div>
+                            <tree-select-component
+                                :is-open="false"
+                                label="Status"
+                                json-url="{% url 'arrangement:statustype_tree' %}"
+                                button-label="Velg status"
+                                icon="fas fa-cog"
+                                v-model="arrangement.status_type">
+
+                            </tree-select-component>
+                        </div>
+
+                        <div class="mt-2">
+                            <label for="meeting_place">Møtested (Norsk)</label>
+                            <input type="text" id="meeting_place" v-model="arrangement.meeting_place" class="form-control">
+                        </div>
+
+                        <div class="mt-1">
+                            <label for="meeting_place_en">Møtested (Engelsk)</label>
+                            <input type="text" id="meeting_place_en" v-model="arrangement.meeting_place_en" class="form-control">
+                        </div>
                     </div>
                 </div>
+
+
+
+
+
+
 
                 <div class="mt-3">
                     <div class="row">
                         <div class="col-4">
-                            <display-layout-select
-                                :text="arrangement.displayLayoutText"
-                                :selected-display-layouts="arrangement.displayLayouts">
-                            </display-layout-select>
+
                         </div>
                         <div class="col-8">
                             <div class="mt-5">
-                                <div>
-                                    <label for="meeting_place">Møtested (Norsk)</label>
-                                    <input type="text" id="meeting_place" v-model="arrangement.meeting_place" class="form-control">
-                                </div>
         
-                                <div>
-                                    <label for="meeting_place_en">Møtested (Engelsk)</label>
-                                    <input type="text" id="meeting_place_en" v-model="arrangement.meeting_place_en" class="form-control">
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -277,55 +299,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            {% comment %} <div class="fw-bold border-end border-dark pe-3 d-flex flex-column">
-                                                <div class="h5 mt-2">
-                                                    <i class="fas fa-hash"></i>&nbsp; 
-                                                    [[ index + 1 ]]
-                                                </div>
-                                            </div>
-
-                                            <div class="ms-3">
-                                                <div class="mt-2 fw-bold h5">
-                                                    Bestilling av [[ serviceOrder.services.map(x => x.name).join(", ") ]]
-                                                </div>
-
-                                                <h5>Gjelder for:</h5>
-                                                <ul>
-                                                    <li v-if="serviceOrder.series?.length">
-                                                        <span class="fw-bold">
-                                                            Gjentagende hendelse
-                                                        </span>
-                                                        <ul>
-                                                            <li v-for="serie in serviceOrder.series">
-                                                                [[serie.title]]
-                                                            </li>
-                                                        </ul>
-                                                    </li>
-                                                    <li v-if="serviceOrder.events?.length">
-                                                        <span class="fw-bold">
-                                                            Hendelse
-                                                        </span>
-                                                        <ul>
-                                                            <li v-for="event in serviceOrder.events">
-                                                                [[event.title]]
-                                                            </li>
-                                                        </ul>
-                                                    </li>
-                                                </ul>
-
-                                                <div class="mt-2 mb-2">
-                                                    <div>
-                                                        <button class="btn wb-btn-main">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
-
-                                                        <button class="btn wb-btn-main ms-2">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div> {% endcomment %}
                                         </div>
                                     </div>
                                 </div>
@@ -340,9 +313,9 @@
                                         <i class="fas fa-plus"></i>&nbsp; Legg til gjentagende hendelse
                                     </button>
                                 </div>
-        
+
                                 <hr>
-                                
+
                                 <div style="max-height: 800px!important; overflow: scroll;">
                                     <ul class="list-group list-group-light mt-3">
                                         <li class="list-group-item shadow-2 mt-2" v-for="event in arrangement.events">
@@ -356,7 +329,7 @@
                                                 <div class="fw-bold">
                                                     [[ event.to_date == event.from_date ? event.from_date + '  ' + event.from_time + " - " + event.to_time : 'fra ' + event.from_date + ' ' + event.from_time + ' til ' + event.to_date + ' ' + event.to_time ]]
                                                 </div>
-            
+
                                                 <div>
                                                     <button class="btn wb-btn-main" @click="removeEvent(event)">
                                                         <i class="fas fa-trash"></i>
@@ -366,7 +339,7 @@
                                                     </button>
                                                 </div>
                                             </div>
-            
+
                                             <div v-if="event.collisions && event.collisions.length > 0">
                                                 <div>
                                                     <i class="fas fa-alert-triangle"></i>
@@ -409,30 +382,30 @@
                                                 </table>
                                             </div>
                                         </li>
-            
+
                                         <li class="list-group-item shadow-2 mt-2" v-for="serie in arrangement.series">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div class="fw-bold">
                                                     <i class="fas fa-exclamation text-danger me-2" v-if="serie.collisions && serie.collisions.length > 0"></i>
                                                     <i class="fas fa-redo"></i> [[serie.title]]
                                                 </div>
-            
+
                                                 <div>
                                                     <i class="fas fa-circle" :style="serie.color ? 'color: ' + serie.color : ''"></i>
                                                 </div>
                                             </div>
-            
+
                                             <div>
                                                 [[serie.schedule.exploded.length]] instanser forekommer
                                                 <br>
                                                 [[getSerieDescription(serie)]]
                                             </div>
-        
+
                                             <div v-if="serie.collisions && serie.collisions.length > 0">
                                                 <div>
                                                     <i class="fas fa-alert-triangle"></i>
                                                 </div>
-            
+
                                                 <table class="table table-bordered border border-dark table-sm">
                                                     <thead>
                                                         <tr>
@@ -466,7 +439,7 @@
                                                     </tbody>
                                                 </table>
                                             </div>
-            
+
                                             <div class="d-flex justify-content-between mt-2">
                                                 <div class="float-start">
                                                     <button class="btn wb-btn-secondary" @click="launchCollisionResolutionWizard(serie.collisions)" type="button" v-if="serie.collisions && serie.collisions.length > 0">
@@ -504,7 +477,7 @@
                             </tr>
                         </thead>
 
-                        <tbody> 
+                        <tbody>
                             <tr v-for="event in arrangement.events">
                                 <td>Hendelse</td>
                                 <td>[[event.title]]</td>
@@ -570,7 +543,7 @@
 
     let PlannerBaseDialog = {
         template: "#vuec-planner-base",
-        delimiters: ['[[', ']]'],   
+        delimiters: ['[[', ']]'],
         props: {
             isVisible: {
                 type: Boolean,
@@ -612,8 +585,8 @@
                     return [...element.classList]
                         .filter((x) => x.startsWith(className))
                         ?.map((x) => x.split(separator).pop())[0];
-                }   
-                
+                }
+
                 const eventUuid = extractClassStoredMetadata(element, "event", ":");
                 const serieUuid = extractClassStoredMetadata(element, "serie-event", ":");
                 const collisionGhostUuid = extractClassStoredMetadata(element, "collisionGhost", ":")
@@ -636,7 +609,7 @@
 
                 throw new Error("Could not find uuid - no matching class found on element");
             }
-            
+
             const calendarEntityTypes = {
                 event: {
                     "edit": this.editEvent,
@@ -688,7 +661,7 @@
                                     calendarEntityTypes[type].edit(entity);
                                 }
                             },
-                            
+
                             delete: {
                                 name: "<i class='fas fa-trash'></i>&nbsp; Fjern",
                                 isHtmlName: true,
@@ -718,7 +691,7 @@
                             </div>
                             <div class='fw-light text-muted'>
                                 <div class='fw-bold'>
-                                    ${entity.start_time} -- ${entity.end_time} 
+                                    ${entity.start_time} -- ${entity.end_time}
                                 </div>
                                 <div>
                                     ${window.SerieMetaTranslator.generate(entity.schedule.inOldStyle)}, totalt ${entity.schedule.exploded.length} forekomster.
@@ -735,8 +708,8 @@
 
                                 entity.excludedDates.push(startDate);
 
-                                const y = entity.collisions.filter((collision) => { 
-                                    return collision.event_a_start.split("T")[0] != startDate 
+                                const y = entity.collisions.filter((collision) => {
+                                    return collision.event_a_start.split("T")[0] != startDate
                                 });
 
                                 entity.collisions = y;
@@ -799,7 +772,7 @@
                             callback: (key, opt) => {
                                 if (!entity.excludedDates)
                                     entity.excludedDates = [];
-                                
+
                                 entity.excludedDates.push(startDate);
 
                                 this.regenerateEventSource();
@@ -834,7 +807,7 @@
                     if (type == "collisionGhost") {
                         options.items.title.html = `
                             ${options.items.title.html.replace("$TITLE", entity.event_b_title)}
-                            
+
                             <div class='alert alert-danger'>
                                 konflikt
                             </div>
@@ -935,8 +908,8 @@
                     .map(x => this.exclusiveRooms.filter(y => y.id == x)[0]);
 
                 if (exclusiveRoomsUsed.length == 0) {
-                    return { 
-                        allowed: true, 
+                    return {
+                        allowed: true,
                         proposedFcEvent: proposedFcEvent,
                         exclusiveRoomIds: exclusiveRoomIds
                     }
@@ -1010,7 +983,7 @@
                     });
                     return;
                 }
-            
+
                 this.step++;
             },
             launchCollisionResolutionWizard(collisions) {
@@ -1025,7 +998,7 @@
                     case "event":
                         let event = this.arrangement.events.filter(x => x.uuid == parentId)[0];
                         this.arrangement.events = this.arrangement.events.filter(x => x.uuid != parentId);
-                        this.regenerateEventSource();                    
+                        this.regenerateEventSource();
                         successCallback();
                         break;
                     case "serie":
@@ -1037,7 +1010,7 @@
                         this.regenerateEventSource();
                         successCallback();
                         break;
-                    default: 
+                    default:
                         console.log(changedEvent.extendedProps)
                         throw new Error("Unknown parent type");
                 };
@@ -1057,7 +1030,7 @@
                 switch (changedEvent.extendedProps.parentType) {
                     case "event":
                         let event = this.arrangement.events.filter(x => x.uuid == parentId)[0];
-                        
+
                         event.from_date = changedEvent.start.toISOString().split("T")[0];
                         event.to_date = changedEvent.end.toISOString().split("T")[0];
                         event.from_time = String(changedEvent.start.getHours()).padStart(2, '0') + ":" + String(changedEvent.start.getMinutes()).padStart(2, '0');
@@ -1084,7 +1057,7 @@
                         this.breakoutDateFromSerie(serie, originalStart, changedEvent.start, changedEvent.end);
                         successCallback();
                         break;
-                    default: 
+                    default:
                         throw new Error("Unknown parent type");
                 };
             },
@@ -1157,10 +1130,10 @@
             },
             displayDate(date) {
                 return date.toLocaleString([], {
-                    year: 'numeric', 
-                    month: '2-digit', 
-                    day: '2-digit', 
-                    hour: '2-digit', 
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
                     minute: '2-digit'
                 });
             },
@@ -1197,7 +1170,7 @@
                                             let serie = this.arrangement.series.filter(x => x.uuid == event.extendedProps.parentUuid)[0];
                                             if ("internalCollisions" in serie === false) {
                                                 serie.internalCollisions = [];
-                                            } 
+                                            }
 
                                             serie.internalCollisions.push({
                                                 ourEvent: event,
@@ -1244,7 +1217,7 @@
                         month: x.schedule.month,
                         stopWithin: x.schedule.endDate,
                         stopAfterXInstances: x.schedule.noOfInstances,
-                        projectionDistanceInMonths: x.schedule.projectHowFarInMonths,  
+                        projectionDistanceInMonths: x.schedule.projectHowFarInMonths,
                         status: x.status,
                         audience: x.audience,
                         arrangement_type: x.arrangement_type,
@@ -1299,7 +1272,7 @@
                         },
                         body: objToFormData(eventToAnalyze)
                     }).then(response => response.json())
-                      .then(data => { 
+                      .then(data => {
                         if (!Array.isArray(data))
                             data = [ data ];
 
@@ -1339,7 +1312,7 @@
                             collision.resourceIds = serieToAnalyze._originalSerie.rooms;
                             collision.parentType = "serie";
                             collision.parentId = serieToAnalyze._originalSerie.uuid;
-                            
+
                             // a collision can still appear multiple times
                             // just linked to different events, but never multiple times for the same event.
                             hideCollisionIfAlreadySeen(collision);
@@ -1380,7 +1353,7 @@
                     if (!serie.schedule) {
                         continue;
                     }
-  
+
                     if (!serie.color) {
                         serie.color = this.colors[Math.floor(Math.random() * this.colors.length)];
                     }
@@ -1418,11 +1391,11 @@
                     }
 
                     for (const ev of serie.schedule.exploded.map((ev) => ev.fc)) {
-                        if (serie.excludedDates 
+                        if (serie.excludedDates
                             && serie.excludedDates.includes(`${ev.start.getFullYear()}-${String(ev.start.getMonth() + 1).padStart(2, '0')}-${String(ev.start.getDate()).padStart(2, '0')}`)) {
                             continue;
                         }
-                        
+
                         ev.color = serie.color;
 
                         events.push(ev);
@@ -1508,7 +1481,7 @@
             getSerieDescription(serie) {
                 if (serie.schedule)
                     return window.SerieMetaTranslator.generate(serie.schedule.inOldStyle);
-                
+
                 throw new Error("No serie description");
             },
             editEvent(event) {
@@ -1543,7 +1516,7 @@
 
                 this.focusedSerie = {
                     _isNew: true,
-                    uuid:               crypto.randomUUID(), 
+                    uuid:               crypto.randomUUID(),
                     title:              this.arrangement.title,
                     title_en:           this.arrangement.title_en,
                     meeting_place:      this.arrangement.meeting_place,
@@ -1580,7 +1553,7 @@
                 if (this.arrangement.planners)
                     for (const planner of this.arrangement.planners)
                         arrangementFormData.append("planners", planner);
-                
+
                 arrangementFormData.append("display_text", this.arrangement.displayLayoutText);
                 this.arrangement.displayLayouts.forEach((displayLayout) => {
                     arrangementFormData.append("display_layouts", displayLayout);
@@ -1620,7 +1593,7 @@
                     formData.append("endDate", serie.schedule.endDate);
                     formData.append("internal_uuid", serie.uuid);
                     formData.append("expectedVisitors", serie.expected_visitors);
-                    formData.append("patternRoutine", serie.schedule.subpattern); 
+                    formData.append("patternRoutine", serie.schedule.subpattern);
                     formData.append("timeAreaMethod", serie.schedule.recurrenceMethod);
                     formData.append("pattern", serie.schedule.pattern);
                     formData.append("meeting_place", serie.meeting_place || "");
@@ -1793,20 +1766,20 @@
                 }
             },
             focusedSerie: function(newValue) {
-                if (newValue) {            
+                if (newValue) {
                     if (newValue._isNew) {
                         delete newValue._isNew;
                         return;
                     }
-                    
+
                     this.arrangement.series.forEach((serie, index) => {
                         if (serie.uuid === newValue.uuid) {
                             this.arrangement.series.splice(index, 1);
                         }
                     });
-                    
+
                     this.arrangement.series.push(newValue);
-                    
+
                     this.regenerateEventSource();
                 }
             }
@@ -1820,14 +1793,14 @@
             }).then(response => response.json())
               .then(data => { this.exclusiveRooms = data; });
         },
-        components: { 
-            DialogComponent, 
-            Stepper, 
-            DisplayLayoutSelect, 
-            TreeSelectComponent, 
+        components: {
+            DialogComponent,
+            Stepper,
+            DisplayLayoutSelect,
+            TreeSelectComponent,
             RoomsSelect,
-            CalendarComponent, 
-            EditSerieDialog, 
+            CalendarComponent,
+            EditSerieDialog,
             EditEventDialog,
             SelectMainPlannerDialogComponent,
             SelectMainPlannerS2,
