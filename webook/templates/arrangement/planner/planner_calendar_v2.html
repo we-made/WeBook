@@ -179,6 +179,7 @@ container-fluid
             ref="calendar"
             :event-source="getEventsInPeriod"
             :context-menu-items="contextMenuItems"
+            :build-context-menu="buildContextMenu"
             :event-content="eventLabelGeneratorFunction"
             :on-event-click="onEventClick">
         </calendar-component>
@@ -259,95 +260,6 @@ container-fluid
                     isPlannerDialogOpen: false,
                     isEventDialogOpen: false,
                     isArrangementDialogOpen: false,
-                    contextMenuItems: {
-                        arrangement_inspector: {
-                            name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
-                            isHtmlName: true,
-                            callback: (key, opt) => {
-                                const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);
-
-                                this.isArrangementDialogOpen = true;
-                                this.focuseedArrangementId = arrangementId;
-                            }
-                        },
-                        event_inspector: {
-                            name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
-                            isHtmlName: true,
-                            callback: (key, opt) => {
-                                const eventId = this.getEventIdFromElement(opt.$trigger[0]);
-
-                                this.isEventDialogOpen = true;
-                                this.focusedEventId = eventId;
-                            }
-                        },
-                        sep: "---------",
-                        delete_event: {
-                            name: "<i class='fas fa-trash'></i>&nbsp; Slett tidspunkt",
-                            isHtmlName: true,
-                            callback: (key, opt) => {
-                                const eventId = this.getEventIdFromElement(opt.$trigger[0]);
-
-                                Swal.fire({
-                                    title: "Er du sikker?",
-                                    text: "Dette vil slette tidspunktet fra arrangementet",
-                                    icon: "warning",
-                                    showCancelButton: true,
-                                }).then(response => {
-                                    if (response.isConfirmed) {
-                                        fetch(`/arrangement/planner/delete_event/${eventId}`, {
-                                            method: "DELETE",
-                                            headers: {
-                                                "Content-Type": "application/json",
-                                                "X-CSRFToken": "{{ csrf_token }}"
-                                            }
-                                        }).then(response => {
-                                            if (response.status === 200) {
-                                                Swal.fire({
-                                                    title: "Tidspunktet ble slettet",
-                                                    icon: "success"
-                                                }).then(() => {
-                                                    this.$refs.calendar.calendar.refetchEvents();
-                                                })
-                                            }
-                                        })
-                                    }
-                                })
-                            }
-                        },
-                        delete_arrangement: {
-                            name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
-                            isHtmlName: true,
-                            callback: (key, opt) => {
-                                const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);
-
-                                Swal.fire({
-                                    title: "Er du sikker?",
-                                    text: "Dette vil slette arrangementet",
-                                    icon: "warning",
-                                    showCancelButton: true,
-                                }).then(response => {
-                                    if (response.isConfirmed) {
-                                        fetch(`/arrangement/arrangement/delete/${arrangementId}`, {
-                                            method: "DELETE",
-                                            headers: {
-                                                "Content-Type": "application/json",
-                                                "X-CSRFToken": "{{ csrf_token }}"
-                                            }
-                                        }).then(response => {
-                                            if (response.status === 200) {
-                                                Swal.fire({
-                                                    title: "Arrangementet ble slettet",
-                                                    icon: "success"
-                                                }).then(() => {
-                                                    this.$refs.calendar.calendar.refetchEvents();
-                                                })
-                                            }
-                                        })
-                                    }
-                                })
-                            }
-                        }
-                    },
                     eventLabelGeneratorFunction: (arg) => {
                         const formatTime = function (text) {
                             if (text.length == 1 || text.length == 3)
@@ -357,7 +269,6 @@ container-fluid
                                 
                             return text;
                         }
-    
 
                         let nodes = [];
 
@@ -493,6 +404,100 @@ container-fluid
             },
             delimiters: ["[[", "]]"],
             methods: {
+                buildContextMenu() {
+                    return {
+                        items: {
+                            arrangement_inspector: {
+                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
+                                isHtmlName: true,
+                                callback: (key, opt) => {
+                                    const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);
+    
+                                    this.isArrangementDialogOpen = true;
+                                    this.focuseedArrangementId = arrangementId;
+                                }
+                            },
+                            event_inspector: {
+                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
+                                isHtmlName: true,
+                                callback: (key, opt) => {
+                                    const eventId = this.getEventIdFromElement(opt.$trigger[0]);
+    
+                                    this.isEventDialogOpen = true;
+                                    this.focusedEventId = eventId;
+                                }
+                            },
+                            sep: "---------",
+                            delete_event: {
+                                name: "<i class='fas fa-trash'></i>&nbsp; Slett tidspunkt",
+                                isHtmlName: true,
+                                callback: (key, opt) => {
+                                    const eventId = this.getEventIdFromElement(opt.$trigger[0]);
+    
+                                    Swal.fire({
+                                        title: "Er du sikker?",
+                                        text: "Dette vil slette tidspunktet fra arrangementet",
+                                        icon: "warning",
+                                        showCancelButton: true,
+                                    }).then(response => {
+                                        if (response.isConfirmed) {
+                                            fetch(`/arrangement/planner/delete_event/${eventId}`, {
+                                                method: "DELETE",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                    "X-CSRFToken": "{{ csrf_token }}"
+                                                }
+                                            }).then(response => {
+                                                if (response.status === 200) {
+                                                    Swal.fire({
+                                                        title: "Tidspunktet ble slettet",
+                                                        icon: "success"
+                                                    }).then(() => {
+                                                        this.$refs.calendar.calendar.refetchEvents();
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            },
+                            delete_arrangement: {
+                                name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
+                                isHtmlName: true,
+                                callback: (key, opt) => {
+                                    const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);
+    
+                                    Swal.fire({
+                                        title: "Er du sikker?",
+                                        text: "Dette vil slette arrangementet",
+                                        icon: "warning",
+                                        showCancelButton: true,
+                                    }).then(response => {
+                                        if (response.isConfirmed) {
+                                            fetch(`/arrangement/arrangement/delete/${arrangementId}`, {
+                                                method: "DELETE",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                    "X-CSRFToken": "{{ csrf_token }}"
+                                                }
+                                            }).then(response => {
+                                                if (response.status === 200) {
+                                                    Swal.fire({
+                                                        title: "Arrangementet ble slettet",
+                                                        icon: "success"
+                                                    }).then(() => {
+                                                        this.$refs.calendar.calendar.refetchEvents();
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            }
+                        }
+                    };
+                },
+
                 move(direction) {
                     if (direction === "back") {
                         this.$refs.calendar.calendar.prev();
