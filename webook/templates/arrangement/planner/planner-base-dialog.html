@@ -577,7 +577,7 @@
                 default: false
             }
         },
-        emits: ['close'],
+        emits: ['close', 'arrangementCreated'],
         computed: {
             allFcEvents() {
                 let allEvents = this.arrangement.events.map(x => x.fc);
@@ -1607,12 +1607,8 @@
                         throw new Error("Failed to save arrangement");
                     }
                 });
-                
-                console.log("arrangement", arrangement);
 
                 for (const serie of this.arrangement.series) {
-                    console.log("serie", serie);
-
                     const formData = new FormData();
                     formData.append("timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
                     formData.append("arrangementPk", arrangement.arrangementPk);
@@ -1627,7 +1623,23 @@
                     formData.append("patternRoutine", serie.schedule.subpattern); 
                     formData.append("timeAreaMethod", serie.schedule.recurrenceMethod);
                     formData.append("pattern", serie.schedule.pattern);
-                    
+                    formData.append("meeting_place", serie.meeting_place || "");
+                    formData.append("meeting_place_en", serie.meeting_place_en || "");
+
+                    switch (serie.schedule.recurrenceMethod) {
+                        case "StopWithin":
+                            formData.append("stopWithin", serie.schedule.endDate);
+                            break;
+                        case "StopAfterXInstances":
+                            formData.append("stopAfterXInstances", serie.schedule.noOfInstances);
+                            break;
+                        case "NoStopDate":
+                            formData.append("projectionDistanceInMonths", serie.schedule.projectHowFarInMonths);
+                            break;
+                        default:
+                            throw new Exception("Unknown recurrence method: '" + serie.schedule.recurrenceMethod + "'");
+                            break;
+                    }
 
                     for (const key of Object.keys(serie)) {
                         if (key == "rooms")
@@ -1653,25 +1665,53 @@
                             confirmButtonColor: "#3085d6"
                         });
 
-                        throw new Error("Failed to save serie");
+                        throw new Error("Failed to save serie", serie);
                     });
-
-                    console.log("serieResult", serieResult);
                 }
 
                 for (const event of this.arrangement.events) {
                     const eventFormData = new FormData();
-                    formData.append("timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
-                    formData.append("arrangementPk", arrangement.arrangementPk);
+                    eventFormData.append("timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    eventFormData.append("arrangement", arrangement.arrangementPk);
+                    eventFormData.append("start", event.fc.start.toISOString());
+                    eventFormData.append("end", event.fc.end.toISOString());
+                    eventFormData.append("meeting_place", event.meeting_place || "");
+                    eventFormData.append("meeting_place_en", event.meeting_place_en || "");
 
-                    if (event.rooms)
+                    if (event.rooms && event.rooms.length)
+                        eventFormDataa.append("rooms", event.rooms);
 
                     for (const key of Object.keys(event)) {
                         if (key == "rooms")
                             continue;
                         eventFormData.append(key, event[key]);
                     }
+
+                    const eventResult = await fetch("/arrangement/event/create", {
+                        method: 'POSt',
+                        body: eventFormData,
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    }).then(response => {
+                        if (response.status == 200) {
+                            return response.json();
+                        }
+
+                        Swal.fire({
+                            title: "Noe gikk galt",
+                            text: "Det oppstod en feil under lagring av aktivitet. Vennligst prøv igjen.",
+                            icon: "error",
+                            confirmButtonColor: "#3085d6"
+                        });
+
+                        throw new Error("Failed to save event", event, response);
+                    });
                 }
+
+                this.close();
+                toastr.success("Arrangementet ble opprettet");
+                this.$emit("arrangementCreated", arrangement);
             },
             removeSerie(serie) {
                 Swal.fire({

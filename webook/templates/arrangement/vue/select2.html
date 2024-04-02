@@ -1,8 +1,6 @@
 <template id="select2_component">
-    
     <select ref="select" :multiple="multiple ? true : null" class="w-100">
     </select>
-
 </template>
 
 <script>
@@ -43,7 +41,7 @@
                     });
 
                 $(this.$refs.select).val(this.selected);
-            })
+            });
         },
         emits: ['input'],
         watch: {
@@ -67,7 +65,7 @@
             }
         },
         destroyed() {
-            $(this.$refs.select).off().select2('destroy')
+            $(this.$refs.select).off().select2('destroy');
         }
     }
 </script>

@@ -130,7 +130,7 @@ class BaseEventForm(forms.ModelForm):
 
                         parent_event.save()
 
-        if self.instance.is_buffer_event:
+        if self.instance.pk is not None and self.instance.is_buffer_event:
             if self.instance.before_buffer_for.exists():
                 pre_buffering_event = self.instance.before_buffer_for.get()
 
