@@ -70,13 +70,15 @@
 
         <template v-slot:content>
             <div v-show="step == 1">
-
                 <div class="row">
                     <div class="col-lg-8 col-md-6 col-sm-12">
                         <div class="row">
                             <div class="col-6">
-                                <label>Tittel</label>
+                                <label>Tittel *</label>
                                 <input type="text" class="form-control" v-model="arrangement.title">
+                                <div class="text-danger" v-if="validationRules.stepOne.showFormErrors && !validationRules.stepOne.title.condition()">
+                                    * Tittel er påkrevd
+                                </div>
                             </div>
                             <div class="col-6">
                                 <label>Tittel (Engelsk)</label>
@@ -111,8 +113,13 @@
                             <div class="col-6">
                                 <div class="row mt-2">
                                     <div class="col-4">
-                                        <label>Lokasjon</label>
-                                        <location-select v-model:selected="arrangement.location"></location-select>
+                                        <label>Lokasjon *</label>
+                                        <location-select v-model:selected="arrangement.location" V-IsRequired="true"></location-select>
+
+                                        <div class="text-danger" v-if="validationRules.stepOne.showFormErrors && !validationRules.stepOne.location.condition()">
+                                            * Lokasjon er påkrevd
+                                        </div>
+
                                     </div>
                                     <div class="col-8">
                                         <label>Rom</label>
@@ -132,25 +139,33 @@
                         <div>
                             <tree-select-component
                                 :is-open="false"
-                                label="Målgruppe"
+                                label="Målgruppe *"
                                 json-url="{% url 'arrangement:audience_tree' %}"
                                 button-label="Velg målgruppe"
                                 icon="fas fa-users"
                                 v-model="arrangement.audience">
 
                             </tree-select-component>
+
+                            <div class="text-danger" v-if="validationRules.stepOne.showFormErrors && !validationRules.stepOne.audience.condition()">
+                                * Målgruppe er påkrevd
+                            </div>
                         </div>
 
                         <div>
                             <tree-select-component
                                 :is-open="false"
-                                label="Arrangementstype"
+                                label="Arrangementstype *"
                                 json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
                                 button-label="Velg arrangementstype"
                                 icon="fas fa-cog"
                                 v-model="arrangement.arrangement_type">
 
                             </tree-select-component>
+
+                            <div class="text-danger" v-if="validationRules.stepOne.showFormErrors && !validationRules.stepOne.arrangement_type.condition()">
+                                * Arrangementstype er påkrevd
+                            </div>
                         </div>
 
                         <div>
@@ -173,25 +188,6 @@
                         <div class="mt-1">
                             <label for="meeting_place_en">Møtested (Engelsk)</label>
                             <input type="text" id="meeting_place_en" v-model="arrangement.meeting_place_en" class="form-control">
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-
-
-
-                <div class="mt-3">
-                    <div class="row">
-                        <div class="col-4">
-
-                        </div>
-                        <div class="col-8">
-                            <div class="mt-5">
-        
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -824,6 +820,15 @@
 
                     return options;
                 },
+                validationRules: {
+                    stepOne: {
+                        showFormErrors: false,
+                        title: { friendlyName: "Tittel", condition: () => this.arrangement.title.length > 0 },
+                        location: { friendlyName: "Lokasjon", condition: () => this.arrangement.location.length > 0 },
+                        audience: { friendlyName: "Målgruppe", condition: () => this.arrangement.audience != null },
+                        arrangement_type: { friendlyName: "Arrangementstype", condition: () => this.arrangement.arrangement_type != null }
+                    }
+                },
                 isInCollision: false,
                 header: "",
                 step: 1,
@@ -974,14 +979,44 @@
                 });
             },
             progressIfValid() {
-                if (this.isInCollision && this.step == 2) {
-                    Swal.fire({
-                        title: "Konflikter",
-                        text: "Konfliktene må løses før du kan fortsette. Endre tider, ressurs, eller fjern tidspunkter i konflikt.",
-                        icon: "warning",
-                        confirmButtonColor: "#3085d6",
-                    });
-                    return;
+                if (this.step == 1) {
+                    const validationStepOne = Object.keys(this.validationRules.stepOne)
+                        .map(x => this.validationRules.stepOne[x])
+                        .filter(x => typeof x == "object" && "condition" in x);
+
+                    if (validationStepOne.some(x => x.condition() == false)) {
+                        const listHtml = "<ul>" + validationStepOne.filter(x => x.condition() == false).map(x => "<li>" + x.friendlyName + "</li>").join("") + "</ul>";
+                        Swal.fire({
+                            title: "Validasjonsfeil",
+                            html: "Vennligst fyll ut disse feltene før du går videre.\n" + listHtml,
+                            icon: "warning",
+                            confirmButtonColor: "#3085d6",
+                        });
+                        this.validationRules.stepOne.showFormErrors = true;
+                        return;
+                    }
+                }
+
+                if (this.step == 2) {
+                    if (this.arrangement.events.length == 0 && this.arrangement.series.length == 0) {
+                        Swal.fire({
+                            title: "Ingen aktiviteter",
+                            text: "Du må legge til minst én aktivitet før du kan fortsette.",
+                            icon: "warning",
+                            confirmButtonColor: "#3085d6",
+                        });
+                        return;
+                    }
+
+                    if (this.isInCollision) {
+                        Swal.fire({
+                            title: "Konflikter",
+                            text: "Konfliktene må løses før du kan fortsette. Endre tider, ressurs, eller fjern tidspunkter i konflikt.",
+                            icon: "warning",
+                            confirmButtonColor: "#3085d6",
+                        });
+                        return;
+                    }
                 }
 
                 this.step++;
