@@ -42,6 +42,7 @@ container-fluid
 
     <arrangement-info-dialog
         @close="isArrangementDialogOpen = false"
+        :arrangement-id="focusedArrangementId || 0"
         :is-visible="isArrangementDialogOpen">
     </arrangement-info-dialog>
 
@@ -414,7 +415,7 @@ container-fluid
                                     const arrangementId = this.getArrangementIdFromElement(opt.$trigger[0]);
     
                                     this.isArrangementDialogOpen = true;
-                                    this.focuseedArrangementId = arrangementId;
+                                    this.focusedArrangementId = arrangementId;
                                 }
                             },
                             event_inspector: {
