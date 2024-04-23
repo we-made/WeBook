@@ -569,7 +569,6 @@
 
                 const x = [].concat(getCollisions(this.arrangement.series))
                          .concat(getCollisions(this.arrangement.events))
-                console.log("collisions computed", x);
                 return x;
             }
         },
@@ -1046,7 +1045,6 @@
                         successCallback();
                         break;
                     default:
-                        console.log(changedEvent.extendedProps)
                         throw new Error("Unknown parent type");
                 };
             },
@@ -1059,8 +1057,6 @@
 
                 const parentId = changedEvent.extendedProps.parentId;
                 const parentType = changedEvent.extendedProps.parentType;
-
-                console.log("changedEvent.extenddedProps", changedEvent.extendedProps);
 
                 switch (changedEvent.extendedProps.parentType) {
                     case "event":
@@ -1298,7 +1294,6 @@
 
                 for (const eventToAnalyze of eventsForAnalysis) {
                     eventToAnalyze._originalEvent.collisions = [];
-                    console.log("collisions pre", eventToAnalyze._originalEvent.collisions);
 
                     const results = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
                         method: "POST",
@@ -1438,7 +1433,6 @@
                 }
 
                 let standaloneEvents = this.arrangement.events.filter(x => x.fc);
-                console.log("regenerateEventSource.standaloneEvents", standaloneEvents);
                 standaloneEvents.forEach((e) => {
                     if (e.color) {
                         e.fc.color = e.color;
@@ -1521,7 +1515,6 @@
             },
             editEvent(event) {
                 this.focusedEvent = event;
-                console.log("editEvent triggered, focusedEvent;", this.focusedEvent);
                 this.editEventDialogExpanded = true;
             },
             removeEvent(event) {
@@ -1764,6 +1757,26 @@
                 this.$nextTick(() => {
                     if (this.isVisible) {
                         document.getElementById("baseCalendar").style.display = "none";
+                        this.step = 1;
+                        this.arrangement = {
+                            title: '',
+                            title_en: '',
+                            audience: null,
+                            status_type: null,
+                            arrangement_type: null,
+                            rooms: [],
+                            location: [],
+                            events: [],
+                            series: [],
+                            serviceOrders: [],
+                            displayLayoutText: '',
+                            displayLayouts: []
+                        };
+                        this.focusedCollisions = [];
+                        this.exclusiveRoomIds = [];
+                        this.focusedSerie = null;
+                        this.focusedevent = null;
+                        this.calendarEventsSource = [];
                     }
                     else {
                         document.getElementById("baseCalendar").style.display = "block";
