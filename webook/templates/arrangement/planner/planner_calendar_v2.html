@@ -29,7 +29,7 @@ container-fluid
 
 <div id="vuec-planner-calendar">
     <planner-base-dialog
-        @close="isPlannerDialogOpen = false"
+        @close="isPlannerDialogOpen = false; refreshCalendar();"
         @arrangement-created="refreshCalendar()"
         :is-visible="isPlannerDialogOpen">
     </planner-base-dialog>
