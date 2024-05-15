@@ -24,4 +24,4 @@ httpx
 schedule
 django-crum==0.7.9
 django-anymail==10.3
-psycopg2==2.9.9
+psycopg2-binary==2.9.9
