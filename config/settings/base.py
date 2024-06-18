@@ -5,11 +5,8 @@ Base settings to build other settings files upon.
 from pathlib import Path
 
 import environ
-from django.utils.translation import gettext_lazy as _
 
 # webook/
-import webook.screenshow.apps
-
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = BASE_DIR / "webook"
 
@@ -39,17 +36,12 @@ USE_I18N = True
 USE_L10N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
-
-LANGUAGES = [("en", _("English")), ("nb", _("Norwegian"))]
-
 # https://docs.djangoproject.com/en/dev/ref/settings/#locale-paths
 LOCALE_PATHS = [str(BASE_DIR / "locale")]
 
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-
-
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
@@ -69,27 +61,7 @@ if env.str("DATABASE_PASSWORD", default=None):
     DATABASES["default"]["PASSWORD"] = env.str("DATABASE_PASSWORD")
 if env.str("DATABASE_PORT", default=None):
     DATABASES["default"]["PORT"] = env.str("DATABASE_PORT")
-
-
-# DATABASES = {
-
-#     'default': {
-
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-
-#         'NAME': 'postgres',
-
-#         'USER': 'postgres',
-
-#         'PASSWORD': 'postgres',
-
-#         'HOST': '127.0.0.1',
-
-#         'PORT': '5433',
-
-#     }
-
-# }
+    
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 # URLS
@@ -152,6 +124,7 @@ LOGIN_REDIRECT_URL = "users:redirect"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 LOGIN_URL = "account_login"
 
+
 # PASSWORDS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#password-hashers
@@ -187,7 +160,7 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webook.middleware.timezone_middleware.TimezoneMiddleware",
-    # s"crum.CurrentRequestUserMiddleware",
+    # "crum.CurrentRequestUserMiddleware",
 ]
 
 # STATIC
@@ -254,7 +227,7 @@ TEMPLATE_DIRS = (
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 # http://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
-CRISPY_TEMPLATE_PACK = "form_layout_material"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # FIXTURES
 # ------------------------------------------------------------------------------

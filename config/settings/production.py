@@ -147,6 +147,11 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
+        "file": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "class": "logging.FileHandler",
+            "filename": f"/var/log/django/{APP_TITLE.replace(' ', '_')}_{'debug' if DEBUG else 'info'}.log",
+        },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
     "loggers": {

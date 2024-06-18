@@ -255,15 +255,12 @@ class CreateSerieForm(SerieManifestForm):
 
             create_events.append(event)
 
-        # created_events = Event.objects.bulk_create(create_events)
-        created_events = create_events
-
         room_throughs = []
         people_throughs = []
         display_layout_throughs = []
 
         event: Event
-        for event in created_events:
+        for event in create_events:
             if not (
                 manifest.collision_resolution_behaviour
                 == PlanManifest.CollisionResolutionBehaviour.REMOVE_CONTESTED_RESOURCE
