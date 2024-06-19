@@ -3,7 +3,8 @@ Base settings to build other settings files upon.
 """
 
 from pathlib import Path
-
+from pythonjsonlogger import jsonlogger
+from datetime import datetime
 import environ
 
 # webook/
@@ -61,7 +62,7 @@ if env.str("DATABASE_PASSWORD", default=None):
     DATABASES["default"]["PASSWORD"] = env.str("DATABASE_PASSWORD")
 if env.str("DATABASE_PORT", default=None):
     DATABASES["default"]["PORT"] = env.str("DATABASE_PORT")
-    
+
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 # URLS
@@ -271,6 +272,21 @@ MANAGERS = ADMINS
 # https://docs.djangoproject.com/en/dev/ref/settings/#logging
 # See https://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+
+
+class CustomJsonFormatter(jsonlogger.JsonFormatter):
+    def add_fields(self, log_record, record, message_dict):
+        super().add_fields(log_record, record, message_dict)
+
+        log_record["component"] = getattr(record, "component", "unknown")
+        log_record["service"] = getattr(record, "service", APP_TITLE)
+        log_record["request_id"] = getattr(record, "request_id", None)
+        log_record["trace_id"] = getattr(record, "trace_id", None)
+        log_record["user_id"] = getattr(record, "user_id", None)
+        log_record["timestamp"] = datetime.now().isoformat()
+        log_record["environment"] = "development" if DEBUG else "production"
+
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -278,17 +294,33 @@ LOGGING = {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
             "%(process)d %(thread)d %(message)s"
-        }
+        },
+        "simple": {"format": "[%(levelname)s] [%(module)s] %(message)s"},
     },
     "handlers": {
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        }
+            "formatter": "simple",
+        },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
 }
+
+if env("LOG_TO_FILE", default=False):
+    LOGGING["root"]["handlers"].append("file")
+    LOGGING["handlers"]["file"] = {
+        "level": "INFO",
+        "class": "logging.FileHandler",
+        "filename": env("LOG_FILE", default="webook.log"),
+        "formatter": "json",
+    }
+    LOGGING["formatters"]["json"] = {
+        "()": CustomJsonFormatter,
+        "format": "%(timestamp)s %(levelname)s %(message)s",
+        "datefmt": "%Y-%m-%dT%H:%M:%S.%fZ",
+    }
+
 
 # django-allauth
 # ------------------------------------------------------------------------------
