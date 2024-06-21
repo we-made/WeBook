@@ -248,6 +248,7 @@
             return color;
         }
     }
+    
     let activeDate = new Date();
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -275,21 +276,22 @@
             renderPopovers: true,
             showAdministrativeActionsInContextMenu: {% if user|has_group:"planners" or user.is_superuser %} true{% else %} false{% endif %},
         });
-    let activeCalendar = plannerCalendar;
-    plannerCalendar.renderNavigationButtons();
 
-    document.getElementById('planner__todayButton').addEventListener('click', (event) => {
-        plannerCalendar.getFcCalendar().today();
-        activeDate = plannerCalendar.getFcCalendar().getDate();
+        let activeCalendar = plannerCalendar;
+        plannerCalendar.renderNavigationButtons();
+
+        document.getElementById('planner__todayButton').addEventListener('click', (event) => {
+            plannerCalendar.getFcCalendar().today();
+            activeDate = plannerCalendar.getFcCalendar().getDate();
+        });
+        document.getElementById('planner__moveBackOneIntervalButton').addEventListener('click', (event) => {
+            plannerCalendar.getFcCalendar().prev();
+            activeDate = plannerCalendar.getFcCalendar().getDate();
+        });
+        document.getElementById('planner__moveForwardOneIntervalButton').addEventListener('click', (event) => {
+            plannerCalendar.getFcCalendar().next();
+            activeDate = plannerCalendar.getFcCalendar().getDate();
+        });
     });
-    document.getElementById('planner__moveBackOneIntervalButton').addEventListener('click', (event) => {
-        plannerCalendar.getFcCalendar().prev();
-        activeDate = plannerCalendar.getFcCalendar().getDate();
-    });
-    document.getElementById('planner__moveForwardOneIntervalButton').addEventListener('click', (event) => {
-        plannerCalendar.getFcCalendar().next();
-        activeDate = plannerCalendar.getFcCalendar().getDate();
-    });
-          });
 </script>
 {% endblock inner %}
