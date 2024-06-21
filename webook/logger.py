@@ -7,3 +7,5 @@ def get_logger(component):
         "component": component
     }
     return logging.LoggerAdapter(logger, extra)
+
+logger = get_logger("webook")

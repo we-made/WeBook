@@ -20,6 +20,7 @@ from webook.arrangement.models import (
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
+from webook.logger import logger
 
 
 class SerieManifestForm(forms.Form):
@@ -188,7 +189,7 @@ class CreateSerieForm(SerieManifestForm):
 
         pk_of_preceding_event_serie = form.cleaned_data["predecessorSerie"]
 
-        _ = analyze_collisions(
+        _ = analyze_collisions(  # Will annotate the events in the calculated serie with collision information
             calculated_serie, ignore_serie_pk=pk_of_preceding_event_serie
         )
 
@@ -199,11 +200,23 @@ class CreateSerieForm(SerieManifestForm):
         serie.serie_plan_manifest = manifest
         serie.save()
 
+        logger.info(f"Created event serie with id {serie.id}")
+
         if pk_of_preceding_event_serie:
+            logger.info(
+                f"Archiving predecessor event serie with id {pk_of_preceding_event_serie}"
+            )
             predecessor_event_serie = EventSerie.objects.get(
                 id=pk_of_preceding_event_serie
             )
+
+            for event in predecessor_event_serie.events.all():
+                logger.info(f"Archiving event with id {event.id}")
+
             predecessor_event_serie.archive(kwargs["user"].person)
+            logger.info(
+                f"Archived predecessor event serie with id {pk_of_preceding_event_serie}"
+            )
 
         room_ids = [room.id for room in manifest.rooms.all()]
         people_ids = [person.id for person in manifest.people.all()]
