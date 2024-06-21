@@ -246,6 +246,7 @@
                                     style="width: 40px;" 
                                     :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_x_day_every_y_month'"/> 
                                 måned
+
                             </div>
                             <div>
                                 <input 
@@ -305,6 +306,7 @@
                                     required="true"
                                     :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'yearly__every_x_of_month'">
                                 </month-select-component>
+
                             </div>
     
                             <div>
@@ -352,7 +354,7 @@
                         <label>Startdato</label>
                         <input type="date" id="area_start_date" v-model="serie.recurrence_stratagem.start_date" required>
                     </div>
-                    <div class="col-9" id="area_methods_wrapper">
+                    <div class="col-9" id="area_methods_wrapper">   
                         <div>
                             <input 
                                 v-model="serie.recurrence_stratagem.recurrence_method"
@@ -893,10 +895,23 @@
                             if (patternRouteFieldset.querySelector('.form_alert') !== null) {
                                 patternRouteFieldset.querySelector('.form_alert').remove();
                             }
-                            $patternRouteFieldset.append(alert_div)
-                            this.__watchInputForValidityChange(subpattern_radio);
-        
-                            return false;
+                          
+                            if (!dialog.data.audienceJsTreeSelect.isValid()) {
+                                dialog.data.audienceJsTreeSelect.showInvalidFeedback();
+                                return false;
+                            }
+                            if (!dialog.data.arrangementTypeJsTreeSelect.isValid()) {
+                                dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
+                                return false;
+                            }
+                            if (!dialog.data.statusTypeJsTreeSelect.isValid())
+                            {
+                                dialog.data.statusTypeJsTreeSelect.showInvalidFeedback();
+                                return false;
+                            }
+                            
+                            dialog.$('#invalidTimesStep1Feedback').hide();
+                            return true;
                         }
                     }
         

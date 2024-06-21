@@ -1,5 +1,4 @@
 """refresh_buffers.py
-
 This module contains the refresh_buffers command. This command is used to force a refresh of all buffers in the application.
 Useful when changes have been made to how buffers are created, and want to also update retroactively.
 """

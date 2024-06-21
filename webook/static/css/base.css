@@ -602,6 +602,52 @@ html, body {
     background-color:rgba(60, 64, 67, 0.15);
 }
 
+.fc-daygrid-day-top {
+    flex-wrap: wrap!important;
+    flex-direction: unset!important;
+}
+
+.fc-daygrid-day:not(.fc-day-other) .fc-daygrid-day-number:not(:empty):hover {
+    background-color: var(--MAIN-COLOR);
+    color:white;
+}
+
+.fc-col-header-cell-cushion  {
+    color: black!important;
+}
+
+.fc-daygrid-week-number {
+    width: 100%;
+    color: black!important;
+    position: unset!important;
+}
+
+.fc-daygrid-day:not(.fc-day-other) .fc-daygrid-day-number:not(:empty) {
+    color: black;
+    /* border: solid 1px black; */
+    /* background-color: var(--fc-neutral-bg-color,rgba(208,208,208,.3)); */
+    background-color: #d6d6d6;
+    color:black;
+}
+
+
+.fc-daygrid-day-frame  {
+    height: 100%;
+}
+
+.btn-group button.wb-btn-secondary:hover {
+    background-color: #4C4345;
+    color: white!important;
+}
+
+a.fc-event {
+    color: unset!important;
+}
+
+.dialog-fullscreen {
+    border-radius: 0px!important;
+
+  
 .select-card {
     border: solid 1px var(--BORDER-STANDARD-COLOR);
     border-radius: 0.5em;
@@ -739,4 +785,8 @@ a.fc-daygrid-event  {
 
 .body-container {
     padding-left: 240px;
+}
+
+.dialog-fullscreen {
+    overflow-y: scroll!important;
 }

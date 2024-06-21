@@ -47,7 +47,6 @@ class Command(BaseCommand):
                 continue
 
             for note in filter(lambda x: x.has_personal_information, notes):
-                print(f"Sanitizing note {note.id} in arrangement {arrangement.id}")
-                print(note.content)
-                note.content = "**NY**"
+                print(f"\t() Sanitizing note {note.id} for arrangement {arrangement.id} (past {options['delete_after_n_days']} days)")
+                note.content = "** Notat sanitisert etter endt arrangement grunnet personlig identifiserende informasjon **"
                 note.save()

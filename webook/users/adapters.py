@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.http import HttpRequest, HttpResponse
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 from webook.arrangement.models import Person
 from webook.users.views import SingleSignOnErrorView
@@ -15,6 +16,8 @@ from webook.utils.context_processors import settings_context
 
 class AccountAdapter(DefaultAccountAdapter):
     def is_open_for_signup(self, request: HttpRequest):
+        if request.path.rstrip("/") == reverse("account_signup").rstrip("/"):
+            return False
         return getattr(settings, "ACCOUNT_ALLOW_REGISTRATION", True)
 
 

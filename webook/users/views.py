@@ -2,6 +2,7 @@ import datetime
 from typing import Any, Dict, List, Optional
 
 import pytz
+from allauth.account.views import LoginView, SignupView
 from django import forms as dj_forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -54,6 +55,13 @@ class SingleSignOnErrorView(TemplateView):
 error_sso_view = SingleSignOnErrorView.as_view()
 
 
+
+class LoginView(TemplateView):
+    template_name = "account/login.html"
+
+login_view = LoginView.as_view()
+
+
 class UserDetailJsonView(LoginRequiredMixin, UserAdminAuthorizationMixin, View):
     def get(self, request, *args, **kwargs) -> JsonResponse:
         user: Optional[User] = User.objects.get(slug=kwargs.get("slug"))
@@ -74,7 +82,6 @@ class UserDetailJsonView(LoginRequiredMixin, UserAdminAuthorizationMixin, View):
             },
             safe=False,
         )
-
 
 user_detail_json_view = UserDetailJsonView.as_view()
 

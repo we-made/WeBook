@@ -15,7 +15,8 @@ export class PlannerCalendar extends FullCalendarBased {
         arrangementInspectorUtility,
         eventInspectorUtility,
         eventsSrcUrl, 
-        colorProviders=[], 
+        colorProviders = [],
+        initialView = "dayGridMonth",
         initialColorProvider="",
         csrf_token=undefined, 
         licenseKey=undefined,
@@ -23,112 +24,143 @@ export class PlannerCalendar extends FullCalendarBased {
         calendarFilter=undefined,
         useOnclickEvents=true,
         renderContextMenu = true,
+        height = null,
         showAdministrativeActionsInContextMenu = false,
         renderPopovers=true, } = {},) {
 
         super(navigationHeaderWrapperElement);
+
+        this.initialView = initialView;
+
+        this.height = height;
 
         this.showAdministrativeActionsInContextMenu = showAdministrativeActionsInContextMenu;
         this.useOnclickEvents = useOnclickEvents;
         this.renderContextMenu = renderContextMenu;
         this.renderPopovers = renderPopovers;
 
-        this.viewButtons = new Map([
-            [1, {
-                "key": 1,
-                "title": "Dag",
-                "isParent": true,
-                "view": "timeGridDay",
-                "parent": undefined,
-                "weight": 100,
-            }],
-            [2, {
-                "key": 2,
-                "title": "Måned",
-                "isParent": true,
-                "view": "dayGridMonth",
-                "parent": undefined,
-                "weight": 200,
-            }],
-            [3, {
-                "key": 3,
-                "title": "Tidslinje",
-                "isParent": false,
-                "view": "timelineMonth",
-                "parent": 2,
-                "weight": undefined,
-            }],
-            [4, {
-                "key": 4,
-                "title": "Grid",
-                "isParent": false,
-                "view": "dayGridMonth",
-                "parent": 2,
-                "weight": undefined,
-            }],
-            [5, {
-                "key": 5,
-                "title": "Uke",
-                "isParent": true,
-                "view": "timeGridWeek",
-                "parent": undefined,
-                "weight": 300,
-            }],
-            [8, {
-                "key": '5',
-                "title": "Tidsgrid",
-                "isParent": false,
-                "view": "timeGridWeek",
-                "parent": 5,
-                "weight": undefined,
-            }],
-            [9, {
-                "key": '5',
-                "title": "Dagsgrid",
-                "isParent": false,
-                "view": "dayGridWeek",
-                "parent": 5,
-                "weight": undefined,
-            }],
-            [7, {
-                "key": '5',
-                "title": "Liste",
-                "isParent": false,
-                "view": "listWeek",
-                "parent": 5,
-                "weight": undefined,
-            }],
-            [6, {
-                "key": 6,
-                "title": "År",
-                "isParent": false,
-                "view": "timelineYear",
-                "afterClick": () => {
-                    let target = $('.fc-timelineYear-view th.fc-timeline-slot[data-date=' + this._fcCalendar.getDate().toISOString().split("T")[0] + ']')
-                    if (target.length) {
-                        $(".fc-timelineYear-view div.fc-scroller-liquid-absolute").scrollTo(target);
-                    }
-                },
-                "parent": undefined,
-                "weight": 400,
-            }],
-            [7, {
-                "key": 7,
-                "title": "Liste",
-                "isParent": false,
-                "view": "listDay",
-                "parent": 1,
-                "weight": undefined
-            }],
-            [8, {
-                "key": 8,
-                "title": "Grid",
-                "isParent": false,
-                "view": "timeGridDay",
-                "parent": 1,
-                "weight": 100,
-            }],
-        ]);
+        if (window.isMobile) {
+            this.viewButtons = new Map([
+                [1, {
+                    "key": 1, 
+                    "title": "Dag", 
+                    "isParent": false,
+                    "view": "listDay",
+                }],
+                [2, {
+                    "key": 2,
+                    "title": "Uke",
+                    "isParent": false,
+                    "view": "listWeek",
+                }],
+                [3, {
+                    "key": 3,
+                    "title": "Måned",
+                    "isParent": false,
+                    "view": "listMonth"
+                }]
+            ])
+        }
+        else {
+            this.viewButtons = new Map([
+                [1, {
+                    "key": 1,
+                    "title": "Dag",
+                    "isParent": true,
+                    "view": "timeGridDay",
+                    "parent": undefined,
+                    "weight": 100,
+                }],
+                [2, {
+                    "key": 2,
+                    "title": "Måned",
+                    "isParent": true,
+                    "view": "dayGridMonth",
+                    "parent": undefined,
+                    "weight": 200,
+                }],
+                [3, {
+                    "key": 3,
+                    "title": "Tidslinje",
+                    "isParent": false,
+                    "view": "timelineMonth",
+                    "parent": 2,
+                    "weight": undefined,
+                }],
+                [4, {
+                    "key": 4,
+                    "title": "Grid",
+                    "isParent": false,
+                    "view": "dayGridMonth",
+                    "parent": 2,
+                    "weight": undefined,
+                }],
+                [5, {
+                    "key": 5,
+                    "title": "Uke",
+                    "isParent": true,
+                    "view": "timeGridWeek",
+                    "parent": undefined,
+                    "weight": 300,
+                }],
+                [6, {
+                    "key": 6,
+                    "title": "År",
+                    "isParent": false,
+                    "view": "timelineYear",
+                    "afterClick": () => {
+                        let target = $('.fc-timelineYear-view th.fc-timeline-slot[data-date=' + this._fcCalendar.getDate().toISOString().split("T")[0] + ']')
+                        if (target.length) {
+                            $(".fc-timelineYear-view div.fc-scroller-liquid-absolute").scrollTo(target);
+                        }
+                    },
+                    "parent": undefined,
+                    "weight": 400,
+                }],
+                [7, {
+                    "key": 7,
+                    "title": "Liste",
+                    "isParent": false,
+                    "view": "listWeek",
+                    "parent": 5,
+                    "weight": undefined,
+                }],
+                [8, {
+                    "key": '5',
+                    "title": "Tidsgrid",
+                    "isParent": false,
+                    "view": "timeGridWeek",
+                    "parent": 5,
+                    "weight": undefined,
+                }],
+                [9, {
+                    "key": '5',
+                    "title": "Dagsgrid",
+                    "isParent": false,
+                    "view": "dayGridWeek",
+                    "parent": 5,
+                    "weight": undefined,
+                }],
+    
+    
+                [10, {
+                    "key": 10,
+                    "title": "Liste",
+                    "isParent": false,
+                    "view": "listDay",
+                    "parent": 1,
+                    "weight": undefined
+                }],
+                [8, {
+                    "key": 8,
+                    "title": "Grid",
+                    "isParent": false,
+                    "view": "timeGridDay",
+                    "parent": 1,
+                    "weight": 100,
+                }],
+            ]);
+        }
 
         this.csrf_token = csrf_token;
         this._headerGenerator = new HeaderGenerator(
@@ -157,7 +189,7 @@ export class PlannerCalendar extends FullCalendarBased {
 
         // If user has not supplied an active color provider key we use default color provider as active.
         this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? this._colorProviders.get(initialColorProvider) : this._colorProviders.get("DEFAULT");
-        this._ARRANGEMENT_STORE = new ArrangementStore(this.activeColorProvider);
+        this._ARRANGEMENT_STORE = new ArrangementStore(this.activeColorProvider, this._eventsSrcUrl);
         this._LOCATIONS_STORE = new LocationStore(this);
         this._PEOPLE_STORE = new PersonStore(this);
 
@@ -401,24 +433,39 @@ export class PlannerCalendar extends FullCalendarBased {
         this.init()
     }
 
+    scrollToWeekOfDate(date) {
+        const startDate = new Date(date.getFullYear(), 0, 1);
+        const dayOfYear = Math.ceil((date - startDate) / 86400000);
+        let weekNumber = Math.ceil(dayOfYear / 7);
+
+        if (date.getDay() === 0)
+            weekNumber -= 1;
+
+        const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week') or contains(@class, 'fc-timeline-slot-cushion')][contains(.,'${weekNumber}')]`, document).iterateNext();
+
+        setTimeout(function(){
+            row.scrollIntoView();
+            // scroll up by 100px to account for the header
+            window.scrollBy(0, -100);
+        }, 500);
+    }
+
     /**
      * First-time initialize the calendar
      */
-    async init () {
+    async init() {
         let _this = this;
-
-        let initialView = 'dayGridMonth';
 
         if (this._fcCalendar === undefined) {
             this._fcCalendar = new FullCalendar.Calendar(this._calendarElement, {
                 schedulerLicenseKey: this._fcLicenseKey,
                 stickyFooterToolbar: true,
-                initialView: initialView,
+                initialView: _this.initialView,
                 selectable: true,
                 weekNumbers: true,
                 navLinks: true,
                 minTime: "06:00",
-                themeSystem: 'bootstrap5',
+                height: this.height,
                 maxTime: "23:00",
                 slotEventOverlap: false,
                 locale: 'nb',
@@ -458,6 +505,13 @@ export class PlannerCalendar extends FullCalendarBased {
                             new CustomEvent(this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": "dayGridMonth" } })
                         )
                     }
+                  
+                    if (["dayGridMonth", "timelineYear"].includes(dateInfo.view.type)) {
+                        if (this.lastGoneToDate !== undefined) {
+                            this.scrollToWeekOfDate(this.lastGoneToDate);
+                            delete this.lastGoneToDate;
+                        }
+                    }
 
                     $('#plannerCalendarHeader').text("");
                     $(".popover").popover('hide');
@@ -482,6 +536,15 @@ export class PlannerCalendar extends FullCalendarBased {
                             text += ":00"
                             
                         return text;
+                    }
+
+                    if (arg.backgroundColor === "prussianblue") {
+                        if (arg.view.type == "dayGridMonth" || arg.view.type == "dayGridWeek") {
+                            return { html: `<div><span class='d-block float-end me-3 fw-bold'>${arg.event.title}</strong></div>` };
+                        }
+                        else {
+                            return { html: `<div><span class='d-block fw-bold'>${arg.event.title}</strong></div>` };
+                        }
                     }
 
                     if (arg.view.type === "dayGridMonth" || arg.view.type === "dayGridWeek") {
@@ -644,122 +707,162 @@ export class PlannerCalendar extends FullCalendarBased {
                                         filterSet: this.filter.rooms,
                                     }
                                 ));
-                        },
+                        }
+                    },
+                    {
+                        url: "/static/holidays.json",
+                        color: "prussianblue",
+                        display: "background",
+                        textColor: "white",
                     }
                 ],
 
                 loading: function( isLoading ) {
                     if (isLoading === false) {
                         $(".popover").popover('hide');
+
+                        const setDate = this.currentData.currentDate;
+                        const currentDate = new Date();
+    
+                        if(this.currentData.currentViewType == "dayGridMonth") {
+                            if (setDate.getMonth() === currentDate.getMonth() && setDate.getFullYear() === currentDate.getFullYear()) {
+                                const currentDate = new Date();
+                                const startDate = new Date(currentDate.getFullYear(), 0, 1);
+                                const dayOfYear = Math.ceil((currentDate - startDate) / 86400000);
+                                const weekNum = Math.ceil(dayOfYear / 7);
+    
+                                const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week')][contains(.,'${weekNum}')]`, document).iterateNext();
+    
+                                setTimeout(function(){
+                                    row.scrollIntoView();
+                                    // scroll up by 100px to account for the header
+                                    window.scrollBy(0, -100);
+                                }, 500);
+                            }
+                        }
                     }
+                    else {
+                    }
+
+
                 },
                 eventAfterAllRender: function (view) {
    
                 },
                 eventDidMount: (arg) => {
+                    if (arg.backgroundColor == "prussianblue") {
+                        return;
+                    }
+
                     if (this.renderPopovers === true)
                         this._bindPopover(arg.el);
                     if (this.useOnclickEvents)
                         this._bindInspectorTrigger(arg.el);
-                    if (this.renderContextMenu) {
-                        let items = {
-                            arrangement_inspector: {
-                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
-                                isHtmlName: true,
-                                callback: (key, opt) => {
-                                    let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                                    let arrangement = _this._ARRANGEMENT_STORE.get({
-                                        pk: pk,
-                                        get_as: _NATIVE_ARRANGEMENT
-                                    });
-                            
-                                    this.arrangementInspectorUtility.inspect(arrangement);
-                                }
-                            },
-                            event_inspector: {
-                                name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
-                                isHtmlName: true,
-                                callback: (key, opt) => {
-                                    let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                                    this.eventInspectorUtility.inspect(pk);
-                                }
-                            },
-                        }
-
-                        if (this.showAdministrativeActionsInContextMenu) {
-                            items["section_sep_1"] = "---------";
-                            items["delete_arrangement"] = {
-                                name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
-                                isHtmlName: true,
-                                callback: (key, opt) => {
-                                    Swal.fire({
-                                        title: 'Er du sikker?',
-                                        text: "Arrangementet og underliggende aktiviteter vil bli fjernet, og kan ikke hentes tilbake.",
-                                        icon: 'warning',
-                                        showCancelButton: true,
-                                        confirmButtonColor: '#3085d6',
-                                        cancelButtonColor: '#d33',
-                                        confirmButtonText: 'Ja',
-                                        cancelButtonText: 'Avbryt'
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            let slug = _this._findSlugFromEl(opt.$trigger[0]);
-                                            fetch('/arrangement/arrangement/delete/' + slug, {
-                                                method: 'DELETE',
-                                                headers: {
-                                                    "X-CSRFToken": this.csrf_token
-                                                }
-                                            }).then(_ => {
-                                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
-                                            });
-                                        }
-                                    })
-                                }
-                            };
-                            items["delete_event"] = {
-                                name: "<i class='fas fa-trash'></i>&nbsp; Slett aktivitet",
-                                isHtmlName: true,
-                                callback: (key, opt) => {
-                                    Swal.fire({
-                                        title: 'Er du sikker?',
-                                        text: "Hendelsen kan ikke hentes tilbake.",
-                                        icon: 'warning',
-                                        showCancelButton: true,
-                                        confirmButtonColor: '#3085d6',
-                                        cancelButtonColor: '#d33',
-                                        confirmButtonText: 'Ja',
-                                        cancelButtonText: 'Avbryt'
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-
-                                            let formData = new FormData();
-                                            formData.append("eventIds", String(pk));
-
-                                            fetch('/arrangement/planner/delete_events/', {
-                                                method: 'POST',
-                                                body: formData,
-                                                headers: {
-                                                    "X-CSRFToken": this.csrf_token,
-                                                }
-                                            }).then(_ => { 
-                                                document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
-                                            });
-                                        }
-                                    })
-                                }
-                            }
-                        }
-
-
-                        $.contextMenu({
-                            className: "",
-                            selector: ".fc-event",
-                            items: items
-                        });
-                    }
                 }
             })
+
+            if (this.renderContextMenu) {
+                let items = {
+                    arrangement_inspector: {
+                        name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
+                        isHtmlName: true,
+                        callback: (key, opt) => {
+                            if (!opt.event || opt.event.backgroundColor !== "prussianblue") {
+                                let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                let arrangement = _this._ARRANGEMENT_STORE.get({
+                                    pk: pk,
+                                    get_as: _NATIVE_ARRANGEMENT
+                                });
+                        
+                                this.arrangementInspectorUtility.inspect(arrangement);
+                            }
+
+                        }
+                    },
+                    event_inspector: {
+                        name: "<i class='fas fa-search'></i>&nbsp; Inspiser tidspunkt",
+                        isHtmlName: true,
+                        callback: (key, opt) => {
+                            if (!opt.event || opt.event.backgroundColor !== "prussianblue") {
+                                let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+                                this.eventInspectorUtility.inspect(pk);
+                            }
+                        }
+                    },
+                }
+
+                if (this.showAdministrativeActionsInContextMenu) {
+                    items["section_sep_1"] = "---------";
+                    items["delete_arrangement"] = {
+                        name: "<i class='fas fa-trash'></i>&nbsp; Slett arrangement",
+                        isHtmlName: true,
+                        callback: (key, opt) => {
+                            Swal.fire({
+                                title: 'Er du sikker?',
+                                text: "Arrangementet og underliggende aktiviteter vil bli fjernet, og kan ikke hentes tilbake.",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ja',
+                                cancelButtonText: 'Avbryt'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    let slug = _this._findSlugFromEl(opt.$trigger[0]);
+                                    fetch('/arrangement/arrangement/delete/' + slug, {
+                                        method: 'DELETE',
+                                        headers: {
+                                            "X-CSRFToken": this.csrf_token
+                                        }
+                                    }).then(_ => {
+                                        document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                                    });
+                                }
+                            })
+                        }
+                    };
+                    items["delete_event"] = {
+                        name: "<i class='fas fa-trash'></i>&nbsp; Slett aktivitet",
+                        isHtmlName: true,
+                        callback: (key, opt) => {
+                            Swal.fire({
+                                title: 'Er du sikker?',
+                                text: "Hendelsen kan ikke hentes tilbake.",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ja',
+                                cancelButtonText: 'Avbryt'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    let pk = _this._findEventPkFromEl(opt.$trigger[0]);
+
+                                    let formData = new FormData();
+                                    formData.append("eventIds", String(pk));
+
+                                    fetch('/arrangement/planner/delete_events/', {
+                                        method: 'POST',
+                                        body: formData,
+                                        headers: {
+                                            "X-CSRFToken": this.csrf_token,
+                                        }
+                                    }).then(_ => { 
+                                        document.dispatchEvent(new Event("plannerCalendar.refreshNeeded")); // Tell the planner calendar that it needs to refresh the event set
+                                    });
+                                }
+                            })
+                        }
+                    }
+                }
+
+
+                $.contextMenu({
+                    className: "",
+                    selector: ".fc-event",
+                    items: items
+                });
+            }
         }
         else {
             // initialView = this._fcCalendar.view.type;

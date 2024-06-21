@@ -47,18 +47,18 @@ export class SelectComponent {
 export class MonthSelectComponent extends SelectComponent {
     constructor (element_id) {
         let options = new Map([
-          ["1", '{% trans "january" %}'],
-          ["2", '{% trans "februar" %}'],
-          ["3", '{% trans "march" %}'],
-          ["4", '{% trans "april" %}'],
-          ["5", '{% trans "may" %}'],
-          ["6", '{% trans "june" %}'],
-          ["7", '{% trans "july" %}'],
-          ["8", '{% trans "august" %}'],
-          ["9", '{% trans "september" %}'],
-          ["10", '{% trans "october" %}'],
-          ["11", '{% trans "november" %}'],
-          ["12", '{% trans "december" %}'],
+          ["1", 'Januar'],
+          ["2", 'Februar'],
+          ["3", 'Mars" %}'],
+          ["4", 'April'],
+          ["5", 'Mai'],
+          ["6", 'Juni'],
+          ["7", 'Juli'],
+          ["8", 'August'],
+          ["9", 'September'],
+          ["10", 'Oktober'],
+          ["11", 'November'],
+          ["12", 'Desember'],
         ]);
 
         super(element_id, options)

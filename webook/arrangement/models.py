@@ -12,6 +12,8 @@ from typing import Dict, List, Optional, Tuple
 import pytz
 from autoslug import AutoSlugField
 from colorfield.fields import ColorField
+
+# from crum import get_current_user
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db import models
@@ -48,6 +50,41 @@ class SelfNestedModelMixin(models.Model):
             "children": [child.as_node() for child in self.nested_children.all()],
             "data": {"slug": self.slug},
         }
+
+    class Meta:
+        abstract = True
+
+
+class ModelAuditableMixin(models.Model):
+    created_by = models.ForeignKey(
+        verbose_name=_("Created by"),
+        related_name="%(class)s_created_by",
+        to="Person",
+        null=True,
+        on_delete=models.RESTRICT,
+    )
+
+    updated_by = models.ForeignKey(
+        verbose_name=_("Updated by"),
+        related_name="%(class)s_updated_by",
+        to="Person",
+        null=True,
+        on_delete=models.RESTRICT,
+    )
+
+    def save(self, *args, **kwargs):
+        # user = get_current_user()
+        # person = user.person
+
+        # if person is None:
+        #     raise Exception("User has no person")
+
+        # if self._state.adding:
+        #     self.created_by = person
+        # else:
+        #     self.updated_by = person
+
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
@@ -1181,6 +1218,7 @@ class Event(
     ModelVisitorsMixin,
     ModelArchiveableMixin,
     BufferFieldsMixin,
+    ModelAuditableMixin,
 ):
     """The event model represents an event, or happening that takes place in a set span of time, and which may
     reserve certain resources for use in that span of time (such as a room, or a person etc..).
@@ -1465,6 +1503,7 @@ class Event(
             is_before = False
 
             rigging_event = Event()
+            rigging_event.arrangement_type = self.arrangement_type
             rigging_event.title = _title_generators_per_position[position_key](
                 self.title
             )

@@ -54,6 +54,7 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+
 DATABASES = {
     "default": {
         "ENGINE": env.str(
@@ -67,6 +68,20 @@ DATABASES = {
     if not env.str("DATABASE_URL", default=None)
     else env.db("DATABASE_URL")
 }
+
+if env.str("DATABASE_HOST", default=None):
+    DATABASES["default"]["HOST"] = env.str("DATABASE_HOST")
+if env.str("DATABASE_ENGINE", default=None):
+    DATABASES["default"]["ENGINE"] = env.str("DATABASE_ENGINE")
+if env.str("DATABASE_NAME", default=None):
+    DATABASES["default"]["NAME"] = env.str("DATABASE_NAME")
+if env.str("DATABASE_USER", default=None):
+    DATABASES["default"]["USER"] = env.str("DATABASE_USER")
+if env.str("DATABASE_PASSWORD", default=None):
+    DATABASES["default"]["PASSWORD"] = env.str("DATABASE_PASSWORD")
+if env.str("DATABASE_PORT", default=None):
+    DATABASES["default"]["PORT"] = env.str("DATABASE_PORT")
+
 
 # DATABASES = {
 
@@ -185,6 +200,7 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webook.middleware.timezone_middleware.TimezoneMiddleware",
+    # s"crum.CurrentRequestUserMiddleware",
 ]
 
 # STATIC
@@ -208,6 +224,8 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = str(APPS_DIR / "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
+
+DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
@@ -334,6 +352,20 @@ SOCIALACCOUNT_ADAPTER = "webook.users.adapters.MicrosoftPersonAccountAdapter"
 SOCIALACCOUNT_EMAIL_VERIFICATION = False
 
 SOCIALACCOUNT_PROVIDERS = {}
+if ALLOW_SSO:
+    SOCIALACCOUNT_PROVIDERS["microsoft"] = {
+        "tenant": env("MICROSOFT_TENANT", default="common"),
+        "APP": {
+            "name": env("MICROSOFT_SOCIAL_NAME", default="WeBook"),
+            "client_id": env("MICROSOFT_CLIENT_ID"),
+            "secret": env("MICROSOFT_CLIENT_SECRET"),
+            "sites": env("MICROSOFT_CLIENT_SITES"),
+            "adapter": "webook.users.adapters.MicrosoftPersonAccountAdapter",
+        },
+    }
+
+
+ALLOW_EMAIL_LOGIN = env("ALLOW_EMAIL_LOGIN", default=True)
 
 if ALLOW_SSO:
     SOCIALACCOUNT_PROVIDERS["microsoft"] = {

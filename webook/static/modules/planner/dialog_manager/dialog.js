@@ -43,12 +43,7 @@ class Dialog {
         
         this.oldMessages = window.MessagesFacility.addressedTo(this.dialogId)?._messages;
 
-        this._listenToGlobalBroadcasts();
-
-
         if (this.oldMessages && this.oldMessages.size > 0) {
-            console.log("There are old messages")
-            debugger;
             for (let [key, value] of this.oldMessages)
             {
                 this._handleMessage(key, value);
@@ -56,6 +51,7 @@ class Dialog {
             window.MessagesFacility.addressedTo(this.dialogId)?.clear();
         }
 
+        this._listenToGlobalBroadcasts();
 
         postInit(this);
     }

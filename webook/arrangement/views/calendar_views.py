@@ -19,6 +19,7 @@ from django.views.generic import (
     UpdateView,
 )
 
+from webook.arrangement.event_queries import get_arrangements_in_period_for_person
 from webook.arrangement.exceptions import UserHasNoPersonException
 from webook.arrangement.models import Event, Location, Person, Room
 from webook.utils.meta_utils import SectionCrudlPathMap, SectionManifest, ViewMeta
@@ -164,18 +165,17 @@ class EventSourceViewMixin(ListView):
         return JsonResponse(events, safe=False)
 
 
-class MyCalendarEventsSourceView(EventSourceViewMixin):
+class MyCalendarEventsSourceView(LoginRequiredMixin, ListView):
     model = Event
 
-    def get_queryset(self):
-        user = self.request.user
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        arrangements: List[dict] = get_arrangements_in_period_for_person(
+            start=self.request.GET.get("start", None),
+            end=self.request.GET.get("end", None),
+            person_id=self.request.user.person.id,
+        )
 
-        if user.person is None:
-            raise UserHasNoPersonException(
-                "Can not get events for a user that has no person associated with it!"
-            )
-
-        return user.person.my_events_qs
+        return JsonResponse(arrangements, safe=False)
 
 
 my_calendar_events_source_view = MyCalendarEventsSourceView.as_view()
