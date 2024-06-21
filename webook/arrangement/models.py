@@ -12,7 +12,8 @@ from typing import Dict, List, Optional, Tuple
 import pytz
 from autoslug import AutoSlugField
 from colorfield.fields import ColorField
-from crum import get_current_user
+
+# from crum import get_current_user
 
 from django.conf import settings
 from django.db import models
@@ -72,16 +73,16 @@ class ModelAuditableMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-       # user = get_current_user()
-       # person = user.person
+        # user = get_current_user()
+        # person = user.person
 
-       # if person is None:
-       #     raise Exception("User has no person")
+        # if person is None:
+        #     raise Exception("User has no person")
 
-       # if self._state.adding:
-       #     self.created_by = person
-       # else:
-       #     self.updated_by = person
+        # if self._state.adding:
+        #     self.created_by = person
+        # else:
+        #     self.updated_by = person
 
         super().save(*args, **kwargs)
 
@@ -589,9 +590,11 @@ class Location(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
             "id": self.slug,
             "icon": "fas fa-building",
             "text": self.name,
-            "children": [room.as_tree_node() for room in self.rooms.all()]
-            if populate_children
-            else None,
+            "children": (
+                [room.as_tree_node() for room in self.rooms.all()]
+                if populate_children
+                else None
+            ),
         }
 
     def on_archive(self, person_archiving_this):
