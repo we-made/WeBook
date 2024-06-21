@@ -1,17 +1,39 @@
 from django.urls import path
 
 from webook.arrangement.views import (
+    location_and_rooms_json_list_view,
     location_create_view,
     location_delete_view,
+    location_detail_json_view,
     location_detail_view,
+    location_list_json_view,
     location_list_view,
     location_rooms_json_list_view,
     location_update_view,
     locations_calendar_resources_list_view,
     locations_tree_json_view,
 )
+from webook.arrangement.views.location_views import (
+    location_json_delete_view,
+    update_location_json_view,
+)
 
 location_urls = [
+    path(
+        route="location/detail/json/<slug:slug>",
+        view=location_detail_json_view,
+        name="location_detail_json",
+    ),
+    path(
+        route="location/update/json/<slug:slug>",
+        view=update_location_json_view,
+        name="location_update_json",
+    ),
+    path(
+        route="location/location_list_json/",
+        view=location_list_json_view,
+        name="location_list_json",
+    ),
     path(
         route="location/list/",
         view=location_list_view,
@@ -28,6 +50,11 @@ location_urls = [
         name="location_create",
     ),
     path(
+        route="location/location_and_rooms_json/",
+        view=location_and_rooms_json_list_view,
+        name="location_and_rooms_json",
+    ),
+    path(
         route="location/edit/<slug:slug>",
         view=location_update_view,
         name="location_edit",
@@ -41,6 +68,11 @@ location_urls = [
         route="location/delete/<slug:slug>/",
         view=location_delete_view,
         name="location_delete",
+    ),
+    path(
+        route="location/json/delete/<slug:slug>/",
+        view=location_json_delete_view,
+        name="location_json_delete",
     ),
     path(
         route="location/calendar_resources",

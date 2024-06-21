@@ -155,7 +155,8 @@ export default {
                 <tr
                     @contextmenu.prevent.stop="handleClickUserRow($event, user)"
                     @click="toggleUserCheckState(user)"
-                    v-for="user in visibleUsers.values()">
+                    v-for="user in visibleUsers.values()"
+                    class="align-middle">
 
                     <td> <input type="checkbox" :value="user" v-model="checkedUsers" /> </td>
                     <td>{{user.name}}</td>

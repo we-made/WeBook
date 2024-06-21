@@ -218,7 +218,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-        0
+                            
                             <div class="col-lg-6 col-sm-12">
                                 <label class="form-label">Faktisk antall besøkende:</label>
                                 <input type="number"
@@ -748,6 +748,12 @@
 
         <!-- Service Orders Tabs -->
         <div class="tab-pane fade" id="arrangementInfoDialog_tabs_service_orders" role="tabpanel">
+            {% if ORDERS|length == 0 %}
+                <div class="alert wb-bg-secondary fw-bold text-center">
+                    Ingen tjenesteordre er knyttet til dette arrangementet.
+                </div>
+            {% endif %}
+
             {% for service_order in ORDERS %}
                 <div class="card mb-2">
                     <div class="card-body">

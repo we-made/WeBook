@@ -69,6 +69,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet"> 
 
     <script src="{% static 'vue/dist/vue.global.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vee-validate@latest/dist/vee-validate.js"></script>
 
     <!-- Main Quill library -->
     <script src="//cdn.quilljs.com/1.3.6/quill.js"></script>
@@ -95,7 +96,10 @@
       class="sidenav"
     >
     
-
+      <nav
+      id="sidenav"
+      class="sidenav"
+    >
 
       <a
         class="ripple d-flex justify-content-center py-4 border-0"
@@ -203,6 +207,7 @@
             <span>Organisasjonstyper</span>
           </a>
         </li>
+
         {% endif %}
 
         {% if user.is_superuser or user.is_user_admin or user|has_group:"display_organizer" %}
@@ -234,15 +239,12 @@
         {% if user.is_superuser %}
         <li class="sidenav-item">
           <a class="sidenav-link sidenav-link-danger-subtle" href="{% url 'admin:index' %}">
-            <i class="fas fa-tools fa-fw me-3"></i><span>Django Admin Panel</span></a
-          >
+            <i class="fas fa-tools fa-fw me-3"></i><span>Django Admin Panel</span></a>
         </li>
         {% endif %}
       </ul>
       {% endwith %}
-      
     </nav>
-      
       <div class="w-100 " id="contentWrapper">
         <header>
           <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light shadow-0 border-bottom">
@@ -266,7 +268,7 @@
                 </form> 
               </ul>
               {% if request.user.is_authenticated %}
-
+              <div class="d-none d-md-flex">
                 <div id="notificationsApp" v-cloak>
                   <a
                     href="#" :class="[  noOfUnreadNotifications > 0  ?'bg-warning p-1 rounded-3 shadow-5 text-white' : 'text-dark', 'h4 me-2 ms-4' ]"
@@ -390,7 +392,6 @@
                     </span>
                   </span>
                 </div>
-
                 <div class="btn-group shadow-0">
                   <button
                     type="button"
@@ -413,6 +414,8 @@
                     <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="la la-times-circle"></i>&nbsp; {% trans "Sign Out" %}</a></li>
                   </ul>
                 </div>
+              </div>
+
               {% else %}
                 <a id="log-in-link" class="btn btn-success" href="{% url 'account_login' %}"><i class="la la-lock-open"></i> {% trans "Sign In" %}</a>
                 <a id="sign-up-link" class="btn btn-info ms-2" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
@@ -421,6 +424,8 @@
           </nav>
           <!-- Navbar -->
         </header> 
+      
+      <div class="w-100">
         <div  id="mainBodyContainer" class="{% block container_classes %} container {% endblock %}">
           {% block superheader %}
             <div class="mt-2"></div>
@@ -470,10 +475,16 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     {% block javascript %}
+      <script>
 
+      </script>
       <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script> -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js" integrity="sha512-kvg/Lknti7OoAw0GqMBP8B+7cGHvp4M9O9V6nAYG91FZVDMW3Xkkq5qrdMhrXiawahqU7IZ5CNsY/wWy1PpGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+      <script src="{% static 'js/datastore.js' %}">
+
+      </script>
 
       <!-- Your stuff: Third-party javascript libraries go here -->
       <script src="{{ ASSET_SERVER_URL }}mdb/js/mdb.min.js"></script>

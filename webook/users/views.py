@@ -7,6 +7,7 @@ from django import forms as dj_forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
+from django.forms.forms import BaseForm
 from django.http import HttpResponseRedirect, JsonResponse
 from django.http.response import HttpResponse
 from django.urls import reverse
@@ -24,6 +25,13 @@ from django.views.generic import (
 
 from webook.arrangement.models import Person
 from webook.arrangement.templatetags.custom_tags import has_group
+from webook.arrangement.views.generic_views.json_form_view import (
+    JsonFormView,
+    JsonModelFormMixin,
+)
+from webook.arrangement.views.mixins.form_view_instance_enriched_mixin import (
+    FormViewModelEnrichedMixin,
+)
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.authorization_mixins import UserAdminAuthorizationMixin
 from webook.users.forms import (
@@ -32,6 +40,8 @@ from webook.users.forms import (
     ComplexUserUpdateForm,
     ComplexUserUpdateFormWithRole,
     ToggleUserActiveStateForm,
+    UpdateUserDetailsForm,
+    UpdateUserRoleForm,
 )
 from webook.users.models import User
 
@@ -45,14 +55,40 @@ class SingleSignOnErrorView(TemplateView):
 error_sso_view = SingleSignOnErrorView.as_view()
 
 
+
 class LoginView(TemplateView):
     template_name = "account/login.html"
-
 
 login_view = LoginView.as_view()
 
 
-class UsersJsonListView(LoginRequiredMixin, ListView, JSONResponseMixin):
+class UserDetailJsonView(LoginRequiredMixin, UserAdminAuthorizationMixin, View):
+    def get(self, request, *args, **kwargs) -> JsonResponse:
+        user: Optional[User] = User.objects.get(slug=kwargs.get("slug"))
+        if user is None:
+            return JsonResponse(data={"message": "No user found"}, safe=False)
+
+        return JsonResponse(
+            data={
+                "id": user.id,
+                "name": user.get_representative_name,
+                "email": user.email,
+                "slug": user.slug,
+                "groups": list(user.groups.values_list("name", flat=True)),
+                "last_login": user.last_login,
+                "date_joined": user.date_joined,
+                "is_superuser": user.is_superuser,
+                "is_active": user.is_active,
+            },
+            safe=False,
+        )
+
+user_detail_json_view = UserDetailJsonView.as_view()
+
+
+class UsersJsonListView(
+    LoginRequiredMixin, ListView, UserAdminAuthorizationMixin, JSONResponseMixin
+):
     """JSON data source view for the User Administration list view
     The list (sort-of) view uses Vue and should load its requisite data from this view
     """
@@ -70,11 +106,21 @@ class UsersJsonListView(LoginRequiredMixin, ListView, JSONResponseMixin):
                     "name": user.get_representative_name,
                     "email": user.email,
                     "slug": user.slug,
+                    "profile_picture_url": user.profile_picture.url
+                    if user.profile_picture
+                    else None,
                     "groups": list(user.groups.values_list("name", flat=True)),
                     "last_login": user.last_login,
                     "date_joined": user.date_joined,
                     "is_superuser": user.is_superuser,
                     "is_active": user.is_active,
+                    "is_user_admin": user.is_user_admin,
+                    "social_provider_id": user.person.social_provider_id
+                    if user.person
+                    else None,
+                    "social_provider_email": user.person.social_provider_email
+                    if user.person
+                    else None,
                 }
             )
         return result
@@ -196,6 +242,25 @@ class UserSSODetailView(LoginRequiredMixin, UserAdminAuthorizationMixin, DetailV
 
 
 sso_detail_dialog_view = UserSSODetailView.as_view()
+
+
+class UpdateUserRoleFormView(
+    LoginRequiredMixin,
+    UserAdminAuthorizationMixin,
+    JsonFormView,
+    FormViewModelEnrichedMixin,
+):
+    form_class = UpdateUserRoleForm
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    model = User
+
+    def form_valid(self, form) -> JsonResponse:
+        form.save()
+        return JsonResponse({"success": True})
+
+
+update_user_role_form_view = UpdateUserRoleFormView.as_view()
 
 
 class UserUpdateView(LoginRequiredMixin, FormView):
@@ -383,6 +448,51 @@ class UserDetailView(LoginRequiredMixin, DetailView):
 user_detail_view = UserDetailView.as_view()
 
 
+class ToggleUserActiveStateFormView(UserAdminAuthorizationMixin, JsonFormView):
+    form_class = dj_forms.Form
+
+    def form_valid(self, form) -> JsonResponse:
+        user = User.objects.get(slug=self.kwargs.get("slug"))
+        user.is_active = not user.is_active
+        user.save()
+        return JsonResponse({"success": True})
+
+
+toggle_user_active_state_view = ToggleUserActiveStateFormView.as_view()
+
+
+class ToggleUserAdminStateFormView(UserAdminAuthorizationMixin, JsonFormView):
+    form_class = dj_forms.Form
+
+    def form_valid(self, form) -> JsonResponse:
+        user = User.objects.get(slug=self.kwargs.get("slug"))
+        user.is_user_admin = not user.is_user_admin
+        user.save()
+        return JsonResponse({"success": True})
+
+
+toggle_user_admin_state_form_view = ToggleUserAdminStateFormView.as_view()
+
+
+class UpdateUserDetailsFormView(
+    LoginRequiredMixin,
+    UserAdminAuthorizationMixin,
+    FormViewModelEnrichedMixin,
+    JsonFormView,
+):
+    form_class = UpdateUserDetailsForm
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    model = User
+
+    def form_valid(self, form) -> JsonResponse:
+        form.save()
+        return JsonResponse({"success": True})
+
+
+update_user_details_form_view = UpdateUserDetailsFormView.as_view()
+
+
 class UserRedirectView(LoginRequiredMixin, RedirectView):
     permanent = False
 
@@ -394,3 +504,39 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
 
 
 user_redirect_view = UserRedirectView.as_view()
+
+
+class UpdateProfilePictureView(
+    LoginRequiredMixin, UserAdminAuthorizationMixin, JsonFormView
+):
+    form_class = dj_forms.Form
+
+    def form_valid(self, form) -> JsonResponse:
+        user = User.objects.get(slug=self.kwargs.get("slug"))
+        user.profile_picture = self.request.FILES["profile_picture"]
+        user.save()
+        return JsonResponse({"success": True, "url": user.profile_picture.url})
+
+    def form_invalid(self, form) -> JsonResponse:
+        return JsonResponse({"success": False})
+
+
+update_profile_picture_view = UpdateProfilePictureView.as_view()
+
+
+class ClearProfilePictureView(
+    LoginRequiredMixin, UserAdminAuthorizationMixin, JsonFormView
+):
+    form_class = dj_forms.Form
+
+    def form_valid(self, form) -> JsonResponse:
+        user = User.objects.get(slug=self.kwargs.get("slug"))
+        user.profile_picture = None
+        user.save()
+        return JsonResponse({"success": True})
+
+    def form_invalid(self, form) -> JsonResponse:
+        return JsonResponse({"success": False})
+
+
+clear_profile_picture_view = ClearProfilePictureView.as_view()

@@ -2,6 +2,7 @@ import json
 from typing import Any, Dict, List
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -16,7 +17,11 @@ from django.views.generic import (
 from django.views.generic.edit import DeleteView
 
 from webook.arrangement.models import Location
-from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.generic_views.archive_view import (
+    ArchiveView,
+    JsonArchiveView,
+)
+from webook.arrangement.views.generic_views.json_form_view import JsonModelFormMixin
 from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
@@ -71,6 +76,27 @@ class LocationListView(
 location_list_view = LocationListView.as_view()
 
 
+class LocationListJsonView(LoginRequiredMixin, JsonListView):
+    model = Location
+
+    def get_queryset(self):
+        qs = Location.objects.all()
+
+        return list(
+            map(
+                lambda x: {
+                    "slug": x.slug,
+                    "id": x.id,
+                    "name": x.name,
+                },
+                list(qs),
+            )
+        )
+
+
+location_list_json_view = LocationListJsonView.as_view()
+
+
 class LocationDetailView(
     LoginRequiredMixin,
     PlannerAuthorizationMixin,
@@ -96,6 +122,26 @@ class LocationDetailView(
 
 
 location_detail_view = LocationDetailView.as_view()
+
+
+class LocationDeailJsonView(LoginRequiredMixin, DetailView):
+    model = Location
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+        data = json.dumps(
+            {
+                "id": self.object.id,
+                "slug": self.object.slug,
+                "name": self.object.name,
+            }
+        )
+        return HttpResponse(data, content_type="application/json")
+
+
+location_detail_json_view = LocationDeailJsonView.as_view()
 
 
 class LocationUpdateView(
@@ -161,6 +207,17 @@ class LocationDeleteView(
 location_delete_view = LocationDeleteView.as_view()
 
 
+class LocationJsonDeleteView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, JsonArchiveView
+):
+    model = Location
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+
+
+location_json_delete_view = LocationJsonDeleteView.as_view()
+
+
 class LocationsTreeJsonView(
     LoginRequiredMixin, LocationSectionManifestMixin, JsonListView
 ):
@@ -218,6 +275,47 @@ class LocationsCalendarResourcesListView(LoginRequiredMixin, ListView):
 
 
 locations_calendar_resources_list_view = LocationsCalendarResourcesListView.as_view()
+
+
+class UpdateLocationJsonView(LoginRequiredMixin, UpdateView, JsonModelFormMixin):
+    model = Location
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    fields = ["name"]
+
+
+update_location_json_view = UpdateLocationJsonView.as_view()
+
+
+class LocationsAndRoomsJsonListView(LoginRequiredMixin, JsonListView):
+    model = Location
+
+    def get_queryset(self):
+        locations = Location.objects.all()
+        serializable_locations = []
+
+        for location in locations:
+            l = {
+                "id": location.id,
+                "slug": location.slug,
+                "name": location.name,
+                "rooms": [],
+            }
+
+            for room in location.rooms.all():
+                l["rooms"].append(
+                    {
+                        "id": room.id,
+                        "slug": room.slug,
+                        "name": room.name,
+                    }
+                )
+            serializable_locations.append(l)
+
+        return serializable_locations
+
+
+location_and_rooms_json_list_view = LocationsAndRoomsJsonListView.as_view()
 
 
 class LocationRoomsJsonListView(LoginRequiredMixin, JsonListView):

@@ -28,6 +28,12 @@ class Command(BaseCommand):
                 tz.localize(datetime.now()) - latest_activity.end
             ).days >= options["delete_after_n_days"]
 
+            print(
+                str(latest_activity.end)
+                + " "
+                + str((tz.localize(datetime.now()) - latest_activity.end).days)
+            )
+
             if not is_ready_for_deletion:
                 continue
 

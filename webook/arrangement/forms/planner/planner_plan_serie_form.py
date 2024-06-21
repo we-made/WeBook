@@ -1,7 +1,15 @@
 from django import forms
 from django.forms.widgets import CheckboxSelectMultiple
 
-from webook.arrangement.models import Arrangement, ArrangementType, Audience, Event, Person, RoomPreset, StatusType
+from webook.arrangement.models import (
+    Arrangement,
+    ArrangementType,
+    Audience,
+    Event,
+    Person,
+    RoomPreset,
+    StatusType,
+)
 from webook.screenshow.models import DisplayLayout
 
 
@@ -15,27 +23,24 @@ class PlannerPlanSerieForm(forms.Form):
 
     status = forms.ModelChoiceField(
         queryset=StatusType.objects.all(),
-        widget= forms.Select(attrs={"class": "form-control form-control-lg"}),
-        required=False)
-
-    audience = forms.ModelChoiceField(
-        queryset=Audience.objects.all(),
-        required=False
+        widget=forms.Select(attrs={"class": "form-control form-control-lg"}),
+        required=False,
     )
+
+    audience = forms.ModelChoiceField(queryset=Audience.objects.all(), required=False)
 
     arrangement_type = forms.ModelChoiceField(
-        queryset=ArrangementType.objects.all(),
-        required=False
+        queryset=ArrangementType.objects.all(), required=False
     )
 
-    display_layouts_serie_planner = forms.ModelMultipleChoiceField( 
-        queryset=DisplayLayout.objects.all(),
-        widget=CheckboxSelectMultiple
+    display_layouts_serie_planner = forms.ModelMultipleChoiceField(
+        queryset=DisplayLayout.objects.all(), widget=CheckboxSelectMultiple
     )
 
     responsible = forms.ModelChoiceField(
         queryset=Person.objects.all(),
         required=False,
+        blank=True,
         widget=forms.Select(attrs={"class": "form-control form-control-lg"}),
     )
 

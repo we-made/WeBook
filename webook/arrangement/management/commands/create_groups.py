@@ -4,8 +4,8 @@ This module contains the create_groups command. This command should be used when
 database. The command will populate the database with the groups that are used in the application.
 """
 
-from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import Group
 
 
 class Command(BaseCommand):

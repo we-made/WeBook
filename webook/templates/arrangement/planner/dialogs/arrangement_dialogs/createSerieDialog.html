@@ -1,12 +1,21 @@
 {% load static i18n %}
 {% load crispy_forms_tags %}
 
+{% include "arrangement/vue/js_tree_select_component.html" %}
+{% include "arrangement/vue/day_of_week_select_component.html" %}
+{% include "arrangement/vue/month_select_component.html" %}
+{% include "arrangement/vue/arbitrator_select_component.html" %}
+{% include "arrangement/vue/weekday_select_component.html" %}
+{% include "arrangement/vue/room_and_preset_selector_component.html" %}
+{% include "arrangement/vue/select_main_planner_popover.html" %}
+
 
 <div id="{{dialogId}}" title="Ny tidsplan" class="{{discriminator}}">
 
     <input type="hidden" id="_backingAudienceId" />
     <input type="hidden" id="_backingArrangementTypeId" />
     <input type="hidden" id="_statusTypeId">
+
 
     <div class="clearfix">
         <div class="float-start">
@@ -29,7 +38,7 @@
 
     <div>
         <div id="step-1">
-            <input type="hidden" name="uuid" id="serie_uuid">
+            <input type="hidden" name="uuid" id="serie_uuid" v-model="serie.uuid">
             <form id="headMockForm">
                 <input type="submit" style="display:none;" />
                 <div class="mb-2">
@@ -38,12 +47,12 @@
                             Tittel på norsk
                             <span class="fw-bold">&nbsp;*</span>
                         </label>
-                        <input type="text" id="serie_title" class="form-control form-control-lg" 
+                        <input type="text" v-model="serie.title" id="serie_title" class="form-control form-control-lg" 
                             required/>
                     </div>    
                     <div class="form-group">
                         <label class="form-label" for="serie_title_en">Tittel på engelsk</label>
-                        <input type="text" id="serie_title_en" class="form-control form-control-lg" />
+                        <input type="text" v-model="serie.title_en" id="serie_title_en" class="form-control form-control-lg" />
                     </div>
                 </div>
     
@@ -53,14 +62,22 @@
                             Start
                             <span class="fw-bold">&nbsp;*</span>
                         </label>
-                        <input type="time" class="form-control form-control-lg" id="serie_start" required />
+                        <input 
+                            type="time" 
+                            class="form-control form-control-lg" 
+                            v-model="serie.start_time"
+                            id="serie_start" required />
                     </div>
                     <div class="col-6">
                         <label class="form-label" for="serie_end">
                             Slutt
                             <span class="fw-bold">&nbsp;*</span>
                         </label>
-                        <input type="time" class="form-control form-control-lg" id="serie_end" required />
+                        <input 
+                            type="time" 
+                            class="form-control form-control-lg" 
+                            v-model="serie.end_time"
+                            id="serie_end" required />
                     </div>
                 </div>
 
@@ -71,52 +88,59 @@
 
                 <div class="form-group mb-2">
                     <label class="form-label" for="serie_ticket_code">Billettkode</label>
-                    <input type="text" id="serie_ticket_code" class="form-control form-control-lg" />
+                    <input 
+                        type="text" 
+                        id="serie_ticket_code" 
+                        v-model="serie.ticket_code"
+                        class="form-control form-control-lg" />
                 </div>        
                 <div class="form-group mb-2">
-                    <label class="form-label" for="serie_expected_visitors">Forventet besøkende</label>
-                    <input type="text" id="serie_expected_visitors" class="form-control form-control-lg" min="0" required/>
+                    <label class="form-label" for="serie_expected_visitors">Forventet besøkende *</label>
+                    <input 
+                        type="text" 
+                        id="serie_expected_visitors" 
+                        class="form-control form-control-lg" 
+                        v-model="serie.expected_visitors"
+                        min="0" required/>
                 </div>
 
-                <div class="form-group mb-2">
-                    <label>
-                        <i class="fas fa-users"></i>&nbsp;
-                        Målgruppe
-                    </label>
-                    <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
-                    
-                    {% if raudience.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.audience.errors }}
-                    </div>
-                    {% endif %}
+                <tree-select-component
+                    class="mb-2"
+                    label="Målgruppe *"
+                    json-url="/arrangement/audience/tree"
+                    icon="fas fa-users"
+                    button-label="Velg målgruppe"
+                    :selected="serie.audience"
+                    @input="(id, name) => { serie.audience = id; serie.audienceName = name; }">
+                </tree-select-component>
+                <div class="text-danger" v-if="flags.audienceInvalidFlag">
+                    Vennligst velg en gyldig målgruppe!
                 </div>
 
-                <div class="form-group mb-2">
-                    <label>
-                        <i class="fas fa-cog"></i>&nbsp;
-                        Arrangementstype
-                        <span class="fw-bold">&nbsp;*</span>
-                    </label>
-                    <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
-                    {% if form.arrangement_type.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.arrangement_type.errors }}
-                    </div>
-                    {% endif %}
+                <tree-select-component
+                    class="mb-2"
+                    label="Arrangementstype *"
+                    json-url="/arrangement/arrangementtype/treelist"
+                    icon="fas fa-cog"
+                    button-label="Velg arrangementstype"
+                    :selected="serie.arrangement_type"
+                    @input="(id, name) => { serie.arrangement_type = id; serie.arrangementTypeName = name; }">
+                </tree-select-component>
+                <div class="text-danger" v-if="flags.arrangementTypeInvalidFlag">
+                    Vennlighst velg en gyldig arrangementstype!
                 </div>
 
-                <div class="form-group mb-2">
-                    <label>
-                        <i class="fas fa-cog"></i>&nbsp;
-                        Status
-                    </label>
-                    <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
-                    {% if form.status_type.errors|length > 0 %}
-                    <div class="alert alert-danger">
-                        {{ form.status_type.errors }}
-                    </div>
-                    {% endif %}
+                <tree-select-component
+                    class="mb-2"
+                    label="Status *"
+                    json-url="/arrangement/statustype/tree"
+                    icon="fas fa-cog"
+                    button-label="Velg status"
+                    :selected="serie.status"
+                    @input="(id, name) => { serie.status = id; serie.statusName = name; }">
+                </tree-select-component>
+                <div class="text-danger" v-if="flags.statusInvalidFlag">
+                    Vennligst velg en gyldig status!
                 </div>
             </form>
         </div>
@@ -132,80 +156,189 @@
                         <form id="patternMockForm">
                             <input type="submit" style="display:none;" />
                             <div>
-                                <input type="radio" name="pattern" id="radio_pattern_daily" value="1" checked required/><label>&nbsp; Daglig</label>
+                                <input v-model="serie.recurrence_stratagem.pattern" type="radio" name="pattern" id="radio_pattern_daily" value="daily" checked required/><label>&nbsp; Daglig</label>
                             </div>
                             <div>
-                                <input type="radio" name="pattern" id="radio_pattern_weekly" value="2"/><label>&nbsp; Ukentlig</label>
+                                <input v-model="serie.recurrence_stratagem.pattern" type="radio" name="pattern" id="radio_pattern_weekly" value="weekly"/><label>&nbsp; Ukentlig</label>
                             </div>
                             <div>
-                                <input type="radio" name="pattern" id="radio_pattern_monthly" value="3"/><label>&nbsp; Månedlig</label>
+                                <input v-model="serie.recurrence_stratagem.pattern" type="radio" name="pattern" id="radio_pattern_monthly" value="monthly"/><label>&nbsp; Månedlig</label>
                             </div>
                             <div>
-                                <input type="radio" name="pattern" id="radio_pattern_yearly" value="4"/><label>&nbsp; Årlig</label>
+                                <input v-model="serie.recurrence_stratagem.pattern" type="radio" name="pattern" id="radio_pattern_yearly" value="yearly"/><label>&nbsp; Årlig</label>
                             </div>
                         </form>
                     </div>
                     <div class="col-9">
-                        <div id="patternRoute_daily">
+                        <div id="patternRoute_daily" v-if="serie.recurrence_stratagem.pattern == 'daily'">
                             <div>
-                                <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_x_day_subroute" value="0" required/>
-                                <label>Hver <input type="number" min="1"  id="every_x_day__interval" required /> dag</label>
+                                <input
+                                    v-model="serie.recurrence_stratagem.chosen_subpattern"
+                                    type="radio" 
+                                    name="pattern_daily_subroute" 
+                                    id="radio_pattern_daily_every_x_day_subroute" 
+                                    value="daily__every_x_day"
+                                    required/>
+                                <label>
+                                    Hver 
+                                    <input 
+                                        v-model="serie.recurrence_stratagem.subpattern.daily.interval" 
+                                        type="number" 
+                                        min="1"
+                                        id="every_x_day__interval" 
+                                        required 
+                                        :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'daily__every_x_day'"/> 
+                                        dag
+                                </label>
                             </div>
                             
                             <div>
-                                <input type="radio" name="pattern_daily_subroute" id="radio_pattern_daily_every_weekday_subroute" value="1"/>
+                                <input
+                                    v-model="serie.recurrence_stratagem.chosen_subpattern"
+                                    type="radio" 
+                                    name="pattern_daily_subroute" 
+                                    id="radio_pattern_daily_every_weekday_subroute" 
+                                    value="daily__every_weekday"
+                                    required />
                                 <label>Hver ukedag</label>
                             </div>
                         </div>
-    
-                        <div id="patternRoute_weekly" style="display: none;">
-                            <div><label>Skjer hver <input type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> uke på:</label></div>
+                        <div id="patternRoute_weekly" v-if="serie.recurrence_stratagem.pattern == 'weekly'">
+                            <div><label>Skjer hver <input v-model="serie.recurrence_stratagem.subpattern.weekly.interval" type="number" min="1" id="week_interval" name="repeat_every_x_week" style="width: 40px" required/> uke på:</label></div>
                             <span id="day_checkbox_wrapper">
-                                <input type="checkbox" id="monday"> <label>Mandag</label>
-                                <input type="checkbox" id="tuesday"> <label>Tirsdag</label>
-                                <input type="checkbox" id="wednesday"> <label>Onsdag</label>
-                                <input type="checkbox" id="thursday"> <label>Torsdag</label>
-                                <input type="checkbox" id="friday"> <label>Fredag</label>
-                                <input type="checkbox" id="saturday"> <label>Lørdag</label>
-                                <input type="checkbox" id="sunday"> <label>Søndag</label>
+                                <weekday-select-component v-model="serie.recurrence_stratagem.subpattern.weekly.days">
+                                </weekday-select-component>
+
+                                <div class="alert alert-danger" v-if="showDaysErrorMessage">
+                                    Vennligst huk av for en eller flere dager.
+                                </div>
+
                             </span>
                         </div>
     
-                        <div id="patternRoute_monthly" style="display: none;">
+                        <div id="patternRoute_monthly" v-if="serie.recurrence_stratagem.pattern == 'monthly'">
                             <div>
-                                <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__day_of_month_radio" value="0" required /> 
-                                Dag <input type="number" min="1" max="31" required id="every_x_day_every_y_month__day_of_month" style="width: 40px"> hver <input type="number" required min="1" max="12" id="every_x_day_every_y_month__month_interval" style="width: 40px;"> måned
+                                <input 
+                                    v-model="serie.recurrence_stratagem.chosen_subpattern"
+                                    type="radio" 
+                                    name="pattern_monthly_subroute" 
+                                    id="every_x_day_every_y_month__day_of_month_radio" 
+                                    value="month__every_x_day_every_y_month" 
+                                    required /> 
+                                Dag 
+                                <input 
+                                    v-model="serie.recurrence_stratagem.subpattern.monthly.day_of_month"
+                                    type="number" 
+                                    min="1" 
+                                    max="31"
+                                    required 
+                                    id="every_x_day_every_y_month__day_of_month" 
+                                    style="width: 40px"
+                                    :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_x_day_every_y_month'"/> 
+                                hver 
+                                <input 
+                                    v-model="serie.recurrence_stratagem.subpattern.monthly.interval"
+                                    type="number" 
+                                    required 
+                                    min="1" 
+                                    max="12"
+                                    id="every_x_day_every_y_month__month_interval" 
+                                    style="width: 40px;" 
+                                    :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_x_day_every_y_month'"/> 
+                                måned
+
                             </div>
                             <div>
-                                <input type="radio" name="pattern_monthly_subroute" id="every_x_day_every_y_month__month_interval_radio" value="1" /> Den
-                                <select id="every_dynamic_date_of_month__arbitrator" class="newTimePlanDialog_select" required>
-                                </select>
-                                <select id="every_dynamic_date_of_month__weekday" class="newTimePlanDialog_select" required>
-                                </select>
-                                hver <input type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px"> måned
+                                <input 
+                                    v-model="serie.recurrence_stratagem.chosen_subpattern"
+                                    type="radio" 
+                                    name="pattern_monthly_subroute" 
+                                    id="every_x_day_every_y_month__month_interval_radio" 
+                                    value="month__every_arbitrary_date_of_month" /> 
+                                Den
+                                <arbitrator-select-component
+                                    v-model="serie.recurrence_stratagem.subpattern.monthly.arbitrator"
+                                    id="every_dynamic_date_of_month__arbitrator" 
+                                    class="newTimePlanDialog_select" 
+                                    required="true"
+                                    :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_arbitrary_date_of_month'">
+                                </arbitrator-select-component>
+
+                                <day-of-week-select-component
+                                    v-model="serie.recurrence_stratagem.subpattern.monthly.weekday"
+                                    id="every_dynamic_date_of_month__weekday" 
+                                    class="newTimePlanDialog_select" 
+                                    required="true"
+                                    :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_arbitrary_date_of_month'">
+                                </day-of-week-select-component>
+
+                                hver <input v-model="serie.recurrence_stratagem.subpattern.monthly.interval1" type="number" required min="1" id="every_dynamic_date_of_month__month_interval" style="width:40px" :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'month__every_arbitrary_date_of_month'"> måned
                             </div>
                         </div>
     
-                        <div id="patternRoute_yearly" style="display: none;">
+                        <div id="patternRoute_yearly" v-if="serie.recurrence_stratagem.pattern == 'yearly'">
                             <div>
-                                Skjer hvert <input type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> år
+                                Skjer hvert <input v-model="serie.recurrence_stratagem.subpattern.yearly.interval" type="number" min="1" required id="pattern_yearly_const__year_interval" style="width: 40px" /> år
                             </div>
                             <div>
-                                <input type="radio" name="pattern_yearly_subroute" id="every_x_datemonth_of_year_radio" value="0" required> Dato:
-                                <input type="number" min="1" max="31" required id="every_x_of_month__date" style="width: 40px" />
-                                <select id="every_x_of_month__month" class="newTimePlanDialog_select" required>
-                                </select>
+                                <input 
+                                    v-model="serie.recurrence_stratagem.chosen_subpattern" 
+                                    type="radio" 
+                                    name="pattern_yearly_subroute" 
+                                    id="every_x_datemonth_of_year_radio" 
+                                    value="yearly__every_x_of_month" 
+                                    required>
+                                Dato:
+                                <input
+                                    v-model="serie.recurrence_stratagem.subpattern.yearly.day_of_month"
+                                    type="number" 
+                                    min="1" 
+                                    max="31"
+                                    id="every_x_of_month__date" 
+                                    style="width: 40px" 
+                                    required 
+                                    :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'yearly__every_x_of_month'"/>
+
+                                <month-select-component
+                                    v-model="serie.recurrence_stratagem.subpattern.yearly.month1"
+                                    id="every_x_of_month__month" 
+                                    class="newTimePlanDialog_select" 
+                                    required="true"
+                                    :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'yearly__every_x_of_month'">
+                                </month-select-component>
+
                             </div>
     
                             <div>
-                                <input type="radio" name="pattern_yearly_subroute" id="every_x_dynamic_day_in_month_radio" value="1"> Hver:
-                                <select id="every_arbitrary_weekday_in_month__arbitrator" class="newTimePlanDialog_select" required>
-                                </select>
-                                <select id="every_arbitrary_weekday_in_month__weekday" class="newTimePlanDialog_select" required>
-                                </select>
+                                <input v-model="serie.recurrence_stratagem.chosen_subpattern" 
+                                       type="radio" 
+                                       name="pattern_yearly_subroute" 
+                                       id="every_x_dynamic_day_in_month_radio" 
+                                       value="yearly__every_arbitrary_weekday_in_month"> Hver:
+
+                                <arbitrator-select-component
+                                    v-model="serie.recurrence_stratagem.subpattern.yearly.arbitrator"
+                                    id="every_arbitrary_weekday_in_month__arbitrator" 
+                                    class="newTimePlanDialog_select" 
+                                    required="true"
+                                    :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'yearly__every_arbitrary_weekday_in_month'">
+                                </arbitrator-select-component>
+
+                                <day-of-week-select-component
+                                    v-model="serie.recurrence_stratagem.subpattern.yearly.weekday" 
+                                    id="every_arbitrary_weekday_in_month__weekday" 
+                                    class="newTimePlanDialog_select" 
+                                    required="true"
+                                    :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'yearly__every_arbitrary_weekday_in_month'">
+                                </day-of-week-select-component>
                                 i
-                                <select id="every_arbitrary_weekday_in_month__month" class="newTimePlanDialog_select" required>
-                                </select>
+                                <month-select-component
+                                    v-model="serie.recurrence_stratagem.subpattern.yearly.month2"
+                                    id="every_arbitrary_weekday_in_month__month" 
+                                    class="newTimePlanDialog_select" 
+                                    required="true"
+                                    :disabled="serie.recurrence_stratagem.chosen_subpattern !== 'yearly__every_arbitrary_weekday_in_month'">
+                                </month-select-component>
                             </div>
                         </div>
                     </div>
@@ -219,25 +352,64 @@
                 <div class="row">
                     <div class="col-3">
                         <label>Startdato</label>
-                        <input type="date" id="area_start_date" required>
+                        <input type="date" id="area_start_date" v-model="serie.recurrence_stratagem.start_date" required>
                     </div>
                     <div class="col-9" id="area_methods_wrapper">   
                         <div>
-                            <input type="radio" id="radio_timeAreaMethod_stopWithin" name="timeAreaMethod" value="1">
-                            Stopp innen: <input type="date" id="area_stopWithin" required>
+                            <input 
+                                v-model="serie.recurrence_stratagem.recurrence_method"
+                                type="radio" 
+                                id="radio_timeAreaMethod_stopWithin" 
+                                name="timeAreaMethod" 
+                                value="StopWithin" 
+                                required/>
+                            Stopp innen: 
+                            <input 
+                                v-model="serie.recurrence_stratagem.end_date" 
+                                type="date" 
+                                id="area_stopWithin" 
+                                required
+                                :disabled="serie.recurrence_stratagem.recurrence_method !== 'StopWithin'">
                         </div>
     
                         <div>
-                            <input type="radio" id="radio_timeAreaMethod_stopAfterXInstances" name="timeAreaMethod" value="2">
+                            <input 
+                                v-model="serie.recurrence_stratagem.recurrence_method"
+                                type="radio" 
+                                id="radio_timeAreaMethod_stopAfterXInstances" 
+                                name="timeAreaMethod" 
+                                value="StopAfterXInstances" />
                             <fieldset>
-                                Stopp etter: <input type="number" min="1" id="area_stopAfterXInstances" required /> instanser
+                                Stopp etter: 
+                                <input 
+                                    v-model="serie.recurrence_stratagem.stop_after_x_instances" 
+                                    type="number" 
+                                    min="1" 
+                                    id="area_stopAfterXInstances" 
+                                    required 
+                                    :disabled="serie.recurrence_stratagem.recurrence_method !== 'StopAfterXInstances'"/> 
+                                instanser
                             </fieldset>
                         </div>
     
                         <div>
-                            <input type="radio" id="radio_timeAreaMethod_noStopDate" name="timeAreaMethod" value="3">
+                            <input 
+                                v-model="serie.recurrence_stratagem.recurrence_method"
+                                type="radio" 
+                                id="radio_timeAreaMethod_noStopDate" 
+                                name="timeAreaMethod" 
+                                value="NoStopDate" />
                             Ingen sluttdato
-                            | Projiser <input type="number" min="1" required style="width:50px" id="area_noStop_projectXMonths"> måneder inn i fremtiden
+                            | Projiser 
+                            <input 
+                                v-model="serie.recurrence_stratagem.project_x_months" 
+                                type="number" 
+                                min="1" 
+                                required 
+                                style="width:50px" 
+                                id="area_noStop_projectXMonths"
+                                :disabled="serie.recurrence_stratagem.recurrence_method !== 'NoStopDate'"> 
+                            måneder inn i fremtiden
                         </div>
                     </div>
                 </div>
@@ -245,36 +417,14 @@
         </div>
 
         <div id="step-3">
-            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
-                <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
-
-                <label for="" class="d-block form-label">
-                    <i class="fas fa-star"></i>
-                    Hovedplanlegger
-                </label>
-                <h5 class="mb-2" id="mainPlannerName"></h5>
-                <button class="wb-btn-main"
-                    id="setMainPlannerButton"
-                    type="button"
-                    d-trigger="triggerSetPlanner">
-                    Velg hovedplanlegger
-                </button>
-            </div>
-
-            <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
-                <label for="" class="form-label">
-                    <i class="fas fa-building"></i>&nbsp;
-                    Rom
-                </label>
-                <div>
-                    <button class="wb-btn-main"
-                        type="button"
-                        d-trigger="triggerAddRooms">
-                        Velg rom
-                    </button>
-                </div>
-                <div id="roomChips" class="chipsList"></div>
-            </div>
+            <select-main-planner-popover-component
+                v-model="serie.mainPlanner">
+            </select-main-planner-popover-component>
+            
+            <room-and-preset-selector-component
+                v-model="serie.selectedRooms"
+                dialog-id="{{dialogId}}">
+            </room-and-preset-selector-component>
         </div>
 
         <div id="step-services">
@@ -305,14 +455,26 @@
                 </label>
             </div>
 
-            <!-- <div class="alert alert-warning">
-                Med den konfigurasjonen du har valgt her vil de eksisterende (allerede plasserte) ordre for denne serien bli refreshet.
-                Det vil bety at eksisterende tildelinger vil fjernes, og behandlere må prosessere ordren på nytt.
-                Om du ikke ønsker dette må "Reset eksisterende bestillinger" ikke være avhuket, da vil ingenting bli gjort i relasjon til de eksisterende 
-                bestillingene.
-            </div> -->
-
             <div id="serviceOrders">
+                <div
+                class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' :id="order.key"
+                v-for="order in serie.serviceOrders">
+                
+                <h5>
+                    [[order.service_name]]
+                    <button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' 
+                        :id="order.key" 
+                        @click="serviceOrders.splice(serviceOrders.indexOf(order), 1)"
+                        select-type='serviceOrder' 
+                        d-trigger="removeAssociation">
+                        
+                        <i class='fas fa-times'></i>
+                    </button>
+                </h5>
+                <code>
+                    [[order.freetext_comment]]
+                </code>
+            </div>
             </div>
         </div>
 
@@ -337,14 +499,14 @@
                                 <label for="buffer_before_title" class="form-label">
                                     Tittel
                                 </label>
-                                <input type="text" name="" id="buffer_before_title" class="form-control form-control-lg">
+                                <input type="text" v-model="serie.buffer_before_title" id="buffer_before_title" class="form-control form-control-lg">
                             </div>
 
                             <div class="mt-2">
                                 <label for="buffer_before_date_offset" class="form-label">
                                     Hvor mange dager før? ( 0 for samme dag )
                                 </label>
-                                <input type="number" name="" id="buffer_before_date_offset" class="form-control form-control-lg" min="0">
+                                <input type="number" v-model="serie.buffer_before_date_offset" name="" id="buffer_before_date_offset" class="form-control form-control-lg" min="0">
                             </div>
                         </td>
                     </tr>
@@ -353,13 +515,13 @@
                         <td style="padding-top: 0;">
                             Fra
                             <div>
-                                <input type="time" id="buffer_before_start" class="form-control form-control-lg" />
+                                <input type="time" v-model="serie.buffer_before_start" id="buffer_before_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td style="padding-top: 0;">
                             Til
                             <div>
-                                <input type="time" id="buffer_before_end" class="form-control form-control-lg" />
+                                <input type="time" v-model="serie.buffer_before_end" id="buffer_before_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
@@ -382,13 +544,13 @@
                                 <label for="buffer_after_title" class="form-label">
                                     Tittel
                                 </label>
-                                <input type="text" name="" id="buffer_after_title" class="form-control form-control-lg">
+                                <input type="text" v-model="serie.buffer_after_title" id="buffer_after_title" class="form-control form-control-lg">
                             </div>
                             <div class="mt-2">
                                 <label for="buffer_after_date_offset" class="form-label">
                                     Hvor mange dager etter? ( 0 for samme dag )
                                 </label>
-                                <input type="number" name="" id="buffer_after_date_offset" class="form-control form-control-lg" min="0">
+                                <input type="number" v-model="serie.buffer_after_date_offset" id="buffer_after_date_offset" class="form-control form-control-lg" min="0">
                             </div>
                         </td>
                     </tr>
@@ -398,7 +560,7 @@
                                 Fra
                             </label>
                             <div>
-                                <input type="time" id="buffer_after_start" class="form-control form-control-lg" />
+                                <input type="time" v-model="serie.buffer_after_start" id="buffer_after_start" class="form-control form-control-lg" />
                             </div>
                         </td>
                         <td style="padding-top: 0;">
@@ -406,7 +568,7 @@
                                 Til
                             </label>
                             <div>
-                                <input type="time" id="buffer_after_end" class="form-control form-control-lg" />
+                                <input type="time" v-model="serie.buffer_after_end" id="buffer_after_end" class="form-control form-control-lg" />
                             </div>
                         </td>
                     </tr>
@@ -423,31 +585,42 @@
         </div>
         <div id="step-5">
             <div class="row">
-                <div class="col-lg-4 col-sm-12">
-                    <i class="fas fa-tv"></i>&nbsp; Vises på
-                    {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
-                        <li> 
-                            <input type="checkbox" value="{{choice_id}}" name="display_layouts_serie_planner" id="id_display_layouts_serie_planner_{{choice_id}}" />
-                            <label for="id_display_layouts_serie_planner_{{choice_id}}">{{choice_label}}</label>
-                        </li>
-                    {% endfor %}
+                {% if form.display_layouts_serie_planner.field.choices %}
+                <div class="form-group mt-2">
+                    <label class="d-block form-label"><i class='fas fa-desktop text-muted'></i>&nbsp; {% trans "Vises på:" %}</label>
+                    <ul>
+                        {% for choice_id, choice_label in form.display_layouts_serie_planner.field.choices %}
+                            <li class='your class'> <input type="checkbox" value="{{choice_id}}" name="display_layouts_create_event" id="{{choice_id}}_dlcheck"
+                                v-model="serie.display_layouts" />
+                            <label for="{{choice_id}}_dlcheck">{{choice_label}}</label></li>
+                        {% endfor %}
+                    </ul>
                 </div>
+                {% endif %}
 
                 <div class="col-lg-8 col-sm-12 mt-sm-2">
-                    <div class="form-group" id="display-layout-text-group" style="display: none;">
-                        <div>
-                            {{ form.display_text|as_crispy_field }}
+                    <div class="form-group" id="display-layout-text-group">
+                        <div v-show="showDisplayText">
+                            <input type="text" name="{{form.display_text.name}}"
+                                class="form-control form-control-lg"
+                                id="{{form.display_text.id_for_label}}"
+                                v-model="serie.display_text"
+                                placeholder="Skjermtekst...">
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="form-group mt-2">
-                {{ form.meeting_place | as_crispy_field }}
+                <label for="{{ form.meeting_place.id_for_label }}">{{ form.meeting_place.label }}</label>
+                <input type="text" v-model="serie.meeting_place" name="{{ form.meeting_place.name }}" id="{{ form.meeting_place.id_for_label }}"
+                    class="form-control">
             </div>
 
             <div class="form-group mt-2 mb-2">
-                {{ form.meeting_place_en | as_crispy_field }}
+                <label for="{{ form.meeting_place_en.id_for_label }}">{{ form.meeting_place_en.label }}</label>
+                <input type="text" v-model="serie.meeting_place_en" name="{{ form.meeting_place.name }}" id="{{ form.meeting_place.id_for_label }}"
+                    class="form-control">
             </div>
         </div>
     </div>
@@ -482,303 +655,247 @@
 
 <script type="module">
     import { SeriesUtil } from "{% static 'modules/planner/seriesutil.js' %}";
-    import { SelectComponent, MonthSelectComponent, YearSelectComponent } from "{% static 'modules/planner/selectcomponent.js' %}";
     import { ExtendedTimepicker } from "{% static 'js/timepickerExtended.js' %}";
     import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
+    import { Popover } from "{% static 'js/popover.js' %}";
 
 
-    class DayOfWeekSelectComponent extends SelectComponent {
-        constructor (element_id) {
-            let options = new Map([
-                ["1", 'mandag'],
-                ["2", 'tirsdag'],
-                ["3", 'onsdag'],
-                ["4", 'torsdag'],
-                ["5", 'fredag'],
-                ["6", 'lørdag'],
-                ["7", 'søndag'],
-            ]);
+    $(document).ready(function () {
+        let createSerieDialog = Vue.createApp({
+            components: { 
+                TreeSelectComponent, 
+                DayOfWeekSelectComponent, 
+                ArbitratorSelectComponent, 
+                MonthSelectComponent, 
+                WeekdaySelectComponent,
+                RoomAndPresetSelectorComponent,
+                SelectMainPlannerPopoverComponent
+            },
+            data() {
+                return {
+                    dialog: null,
 
-            super(element_id, options)
+                    days_definition: [
+                        { value: 0, label: "Mandag" },
+                        { value: 1, label: "Tirsdag" },
+                        { value: 2, label: "Onsdag" },
+                        { value: 3, label: "Torsdag" },
+                        { value: 4, label: "Fredag" },
+                        { value: 5, label: "Lørdag" },
+                        { value: 6, label: "Søndag" }
+                    ],
 
-            this.insert_options();
-        }
-    }
-    
-    class ArbitratorSelectComponent extends SelectComponent {
-        constructor (element_id) {
+                    showDaysErrorMessage: false,
 
-            let options = new Map([
-                ["0", 'første'],
-                ["1", 'andre'],
-                ["2", 'tredje'],
-                ["3", 'fjerde'],
-                ["4", 'siste']
-            ]);
+                    flags: {
+                        statusInvalidFlag: false,
+                        audienceInvalidFlag: false,
+                        arrangementTypeInvalidFlag: false
+                    },
 
-            super(element_id, options);
 
-            this.insert_options();
-        }
-    }
+                    serie: {
+                        uuid: crypto.randomUUID(),
+                        title: null,
+                        title_en: '',
+                        rooms: [],
+                        serviceOrders: [],
+                        start_time: null,
+                        end_time: null,
+                        ticket_code: "",
+                        expected_visitors: null,
+                        audience: null,
+                        audienceName: null,
+                        arrangement_type: null,
+                        arrangementTypeName: null,
+                        status: null,
+                        statusName: null,
+                        meeting_place: '',
+                        meeting_place_en: '',
+                        display_layouts: [],
+                        display_text: '',
+                        mainPlanner: { id: null, text: null },
 
-    class ValidatorFunctions {
-        static __watchInputForValidityChange (element) {
-            element.classList.add("border-danger");
+                        selectedRooms: {
+                            'presets': [],
+                            'rooms': []
+                        },
 
-            element.addEventListener("change", (event) => {
-                if (event.target.checkValidity() === true) {
-                    event.target.classList.remove("border-danger");
-                    event.target.classList.add("border-success");
+                        buffer_before_title: null,
+                        buffer_before_date_offset: null,
+                        buffer_before_start: null,
+                        buffer_before_end: null,
 
-                    let alert = document.getElementsByClassName('form_alert')[0];
-                    alert.classList.remove('text-danger');
-                    alert.classList.add("text-success");
-                    alert.innerHTML = "<i class='fas fa-check'></i> " + alert.innerText;
+                        buffer_after_title: null,
+                        buffer_after_date_offset: null,
+                        buffer_after_start: null,
+                        buffer_after_end: null,
 
-                    setTimeout(function () {
-                        event.target.classList.remove("border-success");
-                        alert.remove();
-                    }, 1000);
-                }
-            })
-            }
-
-        /* Validate the "head" component of the form */
-        static validate_head(dialogElement) {
-            let field_elements = [
-                dialogElement.querySelector('#serie_title'),
-                dialogElement.querySelector('#serie_start'),
-                dialogElement.querySelector('#serie_end'),
-                dialogElement.querySelector('#serie_expected_visitors'),
-            ];
-
-            let isInvalid = false;
-
-            for (let i = 0; i < field_elements.length; i++) {
-                if (field_elements[i].checkValidity() === false) {
-                    isInvalid = true;
-                    break;
-                }
-            }
-
-            if (isInvalid) {
-                $(dialogElement).find('#headMockForm :submit').click();
-                return false;
-            }
-
-            return true;
-        }
-
-        static validate_pattern_radio(dialogElement) {
-            let radio = dialogElement.querySelector('input[name="pattern"]');
-
-            if (radio.checkValidity() === false) {
-                $(dialogElement).find('#patternMockForm :submit').click();
-                return false;
-            }
-
-            return true;
-        }
-
-        static validate_pattern_route(pattern, dialogElement) {
-            let is_valid = true;
-
-            let subpattern_radio = dialogElement.querySelector("input[name='" + pattern.sub_routed_by + "']")
-            if (subpattern_radio !== null) {
-                if (subpattern_radio.checkValidity() === false) {
-                    let alert_div = document.createElement('div');
-                    alert_div.innerHTML = "<div class='alert alert-danger form_alert'>Vennligst velg et mønster, ved bruk av avhukningsboksene over.</div>"
-                    pattern.route_fieldset.append(alert_div)
-                    ValidatorFunctions.__watchInputForValidityChange(subpattern_radio);
-
-                    return false;
-                }
-            }
-
-            let active_inputs = pattern.route_fieldset[0].querySelectorAll("input:not(:disabled):not([type='radio']):not([type='submit']), select:not(:disabled)");
-            for(let i = 0; i < active_inputs.length; i++) {
-                let input = active_inputs[i];
-                if (input.checkValidity() === false) {
-                    let alertText = document.createElement('div');
-                    alertText.innerHTML = "<span class='text-danger form_alert'>" + input.validationMessage + "</span>";
-                    ValidatorFunctions.__watchInputForValidityChange(input);
-
-                    input.parentNode.parentNode.appendChild(alertText);
-
-                    return false;
-                }
-            }
-
-            if (pattern.name === "weekly") {
-                let checkedBoxes = dialogElement.querySelectorAll("#day_checkbox_wrapper input[type='checkbox']:checked");
-                if (checkedBoxes.length === 0) {
-                    let alert_div = document.createElement('div');
-                    alert_div.innerHTML = "<div class='alert alert-danger form_alert'>Vennligst huk av for en eller flere dager.</div>"
-                    pattern.route_fieldset.append(alert_div);
-
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        static validate_recurrence_area (dialogElement) {
-            let area_start_date_el = dialogElement.querySelector('#area_start_date');
-
-            if (area_start_date_el.checkValidity() === false) {
-                ValidatorFunctions.__watchInputForValidityChange(area_start_date_el);
-                let alertText = document.createElement('div');
-                alertText.innerHTML = "<span class='text-danger form_alert'>" + area_start_date_el.validationMessage + "</span>";
-                area_start_date_el.parentNode.appendChild(alertText);
-
-                return false;
-            }
-
-            let timearea_method_radio = dialogElement.querySelector("input[name='timeAreaMethod']");
-            if (timearea_method_radio !== null) {
-                if (timearea_method_radio.checkValidity() === false) {
-                    ValidatorFunctions.__watchInputForValidityChange(timearea_method_radio);
-
-                    let alert_div = document.createElement('div');
-                    alert_div.innerHTML = "<div class='alert alert-danger form_alert'>Vennligst velg en metode for regelmessighet</div>"
-                    pattern.route_fieldset.append(alert_div);
-                    timearea_method_radio.parentNode.parentNode.appendChild(alert_div)
-
-                    return false;
-                }
-            }
-
-            let activeInputs = dialogElement.querySelectorAll("#area_methods_wrapper input:not(:disabled):not([type='radio']):not([type='submit']), select:not(:disabled)");
-            for(let i = 0; i < activeInputs.length; i++) {
-                let input = activeInputs[i];
-                if (input.checkValidity() === false) {
-                    let alertText = document.createElement('div');
-                    alertText.innerHTML = "<span class='text-danger form_alert'>" + input.validationMessage + "</span>";
-                    ValidatorFunctions.__watchInputForValidityChange(input);
-
-                    input.parentNode.parentNode.appendChild(alertText);
-
-                    return false;
-                }
-            }
-
-            return true;
-        }
-    }
-
-    new Dialog({
-        dialogId: '{{ dialogId }}',
-        managerName: '{{ managerName }}',
-        discriminator: '{{ discriminator }}',
-        postInit: function (dialog) {
-
-            new mdb.Tooltip(dialog.getElementById('resetTooltip'), {
-                "container": dialog.dialogElement,
-                "template": `<div class="wb-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>`,
-                "html": true,
-            });
-
-            dialog.data.audienceJsTreeSelect = new JSTreeSelect({
-                element: dialog.querySelector('#audience_jstree_select'),
-                treeJsonSrcUrl: "/arrangement/audience/tree",
-                initialSelected: dialog.getElementById('_backingAudienceId').value ? { id: dialog.getElementById('_backingAudienceId').value } : undefined,
-                valueSelectedLabelText: ( selected ) => {
-                    let labelText = '';
-
-                    if (selected.parent && selected.parent.text)
-                        labelText += (selected.parent.text + " | ");
-                    
-                    labelText += selected.text;
-
-                    return labelText;
-                },
-                noneSelectedLabelText: "Ingen målgruppe valgt ennå",
-                selectFirstTimeButtonText: 'Velg målgruppe',
-                changeSelectedValueButtonText: 'Endre målgruppe',
-                popoverSaveChoicesButtonText: 'Lagre valg',
-            });
-
-            dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
-                element: dialog.querySelector('#arrangement_type_jstree_select'),
-                treeJsonSrcUrl: '/arrangement/arrangementtype/treelist',
-                initialSelected: dialog.getElementById('_backingArrangementTypeId').value ? { id: dialog.getElementById('_backingArrangementTypeId').value } : undefined,
-                valueSelectedLabelText: ( selected ) => {
-                    let labelText = '';
-
-                    if (selected.parent && selected.parent.text)
-                        labelText += (selected.parent.text + " | ");
-                    
-                    labelText += selected.text;
-
-                    return labelText;
-                },
-                noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
-                selectFirstTimeButtonText: 'Velg arrangementstype',
-                changeSelectedValueButtonText: 'Endre arrangementstype',
-                popoverSaveChoicesButtonText: 'Lagre valg',
-            });
-
-            dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
-                element: dialog.querySelector('#status_type_jstree_select'),
-                treeJsonSrcUrl: "/arrangement/statustype/tree",
-                initialSelected: dialog.getElementById('_statusTypeId').value ? { id: dialog.getElementById('_statusTypeId').value } : undefined,
-                onValueSet: ( data ) => {
-                    dialog.getElementById('_statusTypeId').value = data.selected[0];
-                },
-                valueSelectedLabelText: ( selected ) => {
-                    let labelText = '';
-
-                    if (selected.parent && selected.parent.text)
-                        labelText += (selected.parent.text + " | ");
-
-                    labelText += selected.text;
-                    
-                    return labelText;
-                },
-                noneSelectedLabelText: "Ingen status valgt ennå",
-                selectFirstTimeButtonText: 'Velg status',
-                changeSelectedValueButtonText: 'Endre status',
-                popoverSaveChoicesButtonText: 'Lagre valg',
-            });
-
-            if (dialog.interior.serie_uuid.value !== undefined) {
-                dialog.getElementById('title').innerText = "Rediger " + dialog.interior.serie_title.value;
-            }
-            
-            new DayOfWeekSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__weekday'));
-            new MonthSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__month'));
-            new MonthSelectComponent(dialog.getElementById('every_x_of_month__month'));
-            new DayOfWeekSelectComponent(dialog.getElementById('every_dynamic_date_of_month__weekday'));
-            new ArbitratorSelectComponent(dialog.getElementById('every_dynamic_date_of_month__arbitrator'));
-            new ArbitratorSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__arbitrator'));
-
-            dialog.getElementById('serie_start').addEventListener('change', (event) => {
-                dialog.$('#buffer_before_end').val(event.target.value);
-            });
-            dialog.getElementById('serie_end').addEventListener('change', (event) => {
-                dialog.$('#buffer_after_start').val(event.target.value);
-            });
-
-            dialog.data.stepper = new DialogStepper({
-                allowRailBasedNavigation: true,
-                railWrapperElement: dialog.getElementById('stepper'),
-                steps: [
-                    {
-                        element: dialog.getElementById('step-1'),
-                        title: 'Detaljer',
-                        stepIn: () => { console.log("1. Step In") },
-                        stepOut: () => {
-                            if (ValidatorFunctions.validate_head(dialog.dialogElement) === false)
-                                return false;
+                        recurrence_stratagem: {
+                            recurrence_method: null,    // StopWithin | StopAfterXInstances | NoStopDate
+                            start_date: null,           // When the series starts - always used
+                            pattern: "daily",           // Daily | Weekly | Monthly | Yearly
                             
-                            debugger;
+                            end_date: null,                 // When the series ends - only used for StopWithin and NoStopDate
+                            stop_after_x_instances: null,   // How many instances the series should run for - only used for StopAfterXInstances
+                            project_x_months: null,         // How many months the series should run for - only used for StopWithin
+                            
+                            chosen_subpattern: null,
 
-                            if (dialog.interior.serie_start.value >= dialog.interior.serie_end.value) {
-                                dialog.$('#invalidTimesStep1Feedback').show();
-                                return false;
+                            subpattern: {
+                                daily: {
+                                    interval: null,                 // How often the pattern repeats - every 2nd day, every 3rd day, etc
+                                },
+                                weekly: {
+                                    interval: null,                 // How often the pattern repeats - every 2nd week, every 3rd month, etc
+                                    days: [],                       // Which days of the week the pattern repeats on
+                                },
+                                monthly: {
+                                    day_of_month: null,
+                                    interval: null,                // How often the pattern repeats - every 2nd month, every 3rd month, etc
+                                    interval1: null,
+                                    weekday: null,                  // Which weekday of the month the pattern repeats on
+                                    arbitrator: null,               // first / second / third / fourth / last
+                                },
+                                yearly: {
+                                    interval: null,
+                                    day_of_month: null,             // Which day of the month the pattern repeats on
+                                    month1: null,                   // Which month of the year the pattern repeats on
+                                    month2: null,                   // Which month of the year the pattern repeats on
+                                    arbitrator: null,               // first / second / third / fourth / last
+                                    weekday: null,                  // Which weekday of the month the pattern repeats on
+                                },
+                            },
+
+                        }
+                    }
+                }
+            },
+            computed: {
+                showDisplayText() {
+                    let displayLayoutsWithRequisiteText = new Map([
+                        {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
+                            [ "{{ display_layout.id }}", true],
+                        {% endfor %}
+                    ]);
+
+                    let showDisplayText = false;
+
+                    this.serie.display_layouts.forEach((displayLayout) => {
+                        if (displayLayoutsWithRequisiteText.has(displayLayout)) {
+                            showDisplayText = true;
+                        }
+                    });
+
+                    return showDisplayText;
+                },
+                selectedDays() {
+                    return this.serie.recurrence_stratagem.subpattern.weekly.days.length;
+                },
+                audience() {
+                    return this.serie.audience;
+                },
+                arrangementType() {
+                    return this.serie.arrangement_type;
+                },
+                status() {
+                    return this.serie.status;
+                }
+            },
+            methods: {
+                __watchInputForValidityChange (element) {
+                    const onInput = (event) => {
+
+                        if (element.checkValidity() === true) {
+                            let alert = document.getElementsByClassName('form_alert')[0];
+
+                            if (alert === undefined)
+                                return;
+
+                            alert.classList.remove('text-danger');
+                            alert.classList.add("text-success");
+                            alert.innerHTML = "<i class='fas fa-check'></i> " + alert.innerText;
+
+                            setTimeout(function () {
+                                element.classList.remove("border-danger");
+                                alert.remove();
+
+                                element.removeEventListener("change", onInput);
+                                element.removeEventListener("input", onInput);
+                            }, 1000);
+                        }
+                    };
+
+                    if (NodeList.prototype.isPrototypeOf(element)) {
+                        this.dialog.$(element).change(onInput);
+                        return;
+                    }
+
+                    element.classList.add("border-danger");
+
+                    if (element.getAttribute("type") === "radio") {
+                        const name = element.getAttribute("name");
+                        this.dialog.$(`input[name="${name}"]`).change(onInput);
+                    }
+                    else {
+                        element.addEventListener("change", onInput);
+                        element.addEventListener("input", onInput);
+                    }
+                },
+                validate_head() {
+                    let field_elements = [
+                        this.dialog.querySelector('#serie_title'),
+                        this.dialog.querySelector('#serie_start'),
+                        this.dialog.querySelector('#serie_end'),
+                        this.dialog.querySelector('#serie_expected_visitors'),
+                    ];
+
+                    let isInvalid = false;
+
+                    for (let i = 0; i < field_elements.length; i++) {
+                        if (field_elements[i].checkValidity() === false) {
+                            isInvalid = true;
+                            break;
+                        }
+                    }
+
+                    if (isInvalid) {
+                        this.dialog.$dialogElement.find('#headMockForm :submit').click();
+                        return false;
+                    }
+
+                    return true;
+                },
+
+                validate_pattern_radio() {
+                    let radio = this.dialog.querySelector('input[name="pattern"]');
+        
+                    if (radio.checkValidity() === false) {
+                        this.dialog.$dialogElement.find('#patternMockForm :submit').click();
+                        return false;
+                    }
+        
+                    return true;
+                },
+                validate_pattern_route(pattern) {
+                    let is_valid = true;
+        
+                    let $patternRouteFieldset = this.dialog.$("#" + pattern.route_fieldset_id);
+                    let patternRouteFieldset = $patternRouteFieldset[0];
+
+                    if (patternRouteFieldset === undefined) {
+                        throw "Pattern route fieldset not found";
+                    }
+
+                    let subpattern_radio = this.dialog.querySelector("input[name='" + pattern.sub_routed_by + "']")
+                    if (subpattern_radio !== null) {
+                        if (subpattern_radio.checkValidity() === false) {
+                            let alert_div = document.createElement('div');
+                            alert_div.innerHTML = "<div class='alert alert-danger form_alert'>Vennligst velg et mønster, ved bruk av avhukningsboksene over.</div>"
+                            if (patternRouteFieldset.querySelector('.form_alert') !== null) {
+                                patternRouteFieldset.querySelector('.form_alert').remove();
                             }
+                          
                             if (!dialog.data.audienceJsTreeSelect.isValid()) {
                                 dialog.data.audienceJsTreeSelect.showInvalidFeedback();
                                 return false;
@@ -796,615 +913,610 @@
                             dialog.$('#invalidTimesStep1Feedback').hide();
                             return true;
                         }
-                    },
-                    {
-                        element: dialog.getElementById('step-2'),
-                        title: 'Mønster & Område',
-                        stepIn: () => {},
-                        stepOut: (isSteppingForwards) => {
-                            if (isSteppingForwards === false)
-                                return true;
-
-                            let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
-
-                            return ValidatorFunctions.validate_pattern_radio(dialog.dialogElement) &&
-                                   ValidatorFunctions.validate_pattern_route(dialog.data.patterns.get(`${active_pattern_key}`), dialog.dialogElement) &&
-                                   ValidatorFunctions.validate_recurrence_area(dialog.dialogElement);
-                        },
-                    },
-                    {
-                        element: dialog.getElementById('step-3'),
-                        title: 'Rom & Personer',
-                        stepIn: () => {},
-                        stepOut: () => {}
-                    },
-                    {
-                        element: dialog.getElementById('step-services'),
-                        title: 'Tjenestebestillinger',
-                        stepIn: () => {},
-                        stepOut: () => {}
-                    },
-                    {
-                        element: dialog.getElementById('step-4'),
-                        title: 'Opp og ned-rigg',
-                        stepIn: () => {},
-                        stepOut: (isSteppingForwards) => {
-                            let isValid = true;
-                            if (dialog.interior.buffer_before_start.value &&
-                                dialog.interior.buffer_before_end.value)
-                                if (dialog.interior.buffer_before_start.value > dialog.interior.buffer_before_end.value) {
-                                    dialog.$('#beforeRiggingTimesInvalidFeedback').show();
-                                    isValid = false;
-                                }
-                                else {
-                                    dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
-                                }
-                            if (dialog.interior.buffer_after_start.value &&
-                                dialog.interior.buffer_after_end.value)
-                                if (dialog.interior.buffer_after_start.value > dialog.interior.buffer_after_end.value) {
-                                    dialog.$('#afterRiggingTimesInvalidFeedback').show();
-                                    isValid = false;
-                                }
-                                else {
-                                    dialog.$('#afterRiggingTimesInvalidFeedback').hide();
-                                }
-                            
-                            if (isValid === true) {
-                                dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
-                                dialog.$('#afterRiggingTimesInvalidFeedback').hide();
+                    }
+        
+                    let active_inputs = patternRouteFieldset.querySelectorAll("input:not(:disabled):not([type='radio']):not([type='submit']), select:not(:disabled)");
+                    for(let i = 0; i < active_inputs.length; i++) {
+                        let input = active_inputs[i];
+                        if (input.checkValidity() === false) {
+                            let alertText = document.createElement('div');
+                            alertText.innerHTML = "<span class='text-danger form_alert'>" + input.validationMessage + "</span>";
+                            this.__watchInputForValidityChange(input);
+        
+                            if (patternRouteFieldset.querySelector('.form_alert') !== null) {
+                                patternRouteFieldset.querySelector('.form_alert').remove();
                             }
 
-                            return isValid;
+                            input.parentNode.parentNode.appendChild(alertText);
+
+                            return false;
                         }
-                    },
-                    {
-                        element: dialog.getElementById('step-5'),
-                        title: 'Skjermer',
-                        stepIn: () => { 
-                            dialog.getElementById('next').style.display = "none";
-                            dialog.getElementById('finish').style.display = "inline-block";
-                        },
-                        stepOut: () => {
-                            dialog.getElementById('finish').style.display = "none";
-                            dialog.getElementById('next').style.display = "inline-block";
+                    }
+        
+                    if (pattern.name === "weekly") {
+                        let checkedBoxes = this.dialog.querySelectorAll("#day_checkbox_wrapper input[type='checkbox']:checked");
+                        if (checkedBoxes.length === 0) {
+                            this.dialog.vueApp.showDaysErrorMessage = true;
+                            return false;
                         }
-                    },
-                ]
-            });
-            dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
-            dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
-
-            /* Pattern: Daily*/
-            dialog.data.patterns.set(
-                "1",
-                {
-                    route_fieldset: dialog.$("#patternRoute_daily"),
-                    name: "daily",
-                    sub_routed_by: 'pattern_daily_subroute',
-                    constant_fields: [],
-                    sub_routes: [
-                        {
-                            strategy_name: "daily__every_x_day",
-                            route: "pattern_daily_sub__every_x_day",
-                            fields: [
-                                { element_id: 'every_x_day__interval', out_prop_name: "interval" },
-                            ]
-                        },
-                        {
-                            strategy_name: "daily__every_weekday",
-                            route: "pattern_daily_sub__every_weekday",
-                            fields: []
-                        }
-                    ]
-                }
-            );
-            /* Pattern: Weekly*/
-            dialog.data.patterns.set(
-                "2",
-                {
-                    strategy_name: "weekly__standard",
-                    route_fieldset: dialog.$("#patternRoute_weekly"),
-                    name: "weekly",
-                }
-            );
-            /* Pattern: Monthly*/
-            dialog.data.patterns.set(
-                "3",
-                {
-                    route_fieldset: dialog.$("#patternRoute_monthly"),
-                    name: "monthly",
-                    sub_routed_by: 'pattern_monthly_subroute',
-                    constant_fields: [],
-                    sub_routes: [
-                        {
-                            strategy_name:"month__every_x_day_every_y_month",
-                            route: "pattern_monthly_sub__every_x_day_every_y_month",
-                            fields: [
-                                { element_id: 'every_x_day_every_y_month__day_of_month', out_prop_name: "day_of_month" },
-                                { element_id: 'every_x_day_every_y_month__month_interval', out_prop_name: "interval" },
-                            ],
-                        },
-                        {
-                            strategy_name: "month__every_arbitrary_date_of_month",
-                            route: "pattern_monthly_sub__every_arbitrary_date_of_month",
-                            fields: [
-                                { element_id: 'every_dynamic_date_of_month__arbitrator', out_prop_name: "arbitrator" },
-                                { element_id: 'every_dynamic_date_of_month__weekday', out_prop_name: "weekday" },
-                                { element_id: 'every_dynamic_date_of_month__month_interval', out_prop_name: "interval" },
-                            ]
-                        }
-                    ]
-                }
-            );
-            /* Pattern: Yearly*/
-            dialog.data.patterns.set(
-                "4",
-                {
-                    route_fieldset: dialog.$("#patternRoute_yearly"),
-                    name: "yearly",
-                    sub_routed_by: 'pattern_yearly_subroute',
-                    constant_fields: [
-                        { element_id: 'pattern_yearly_const__year_interval', out_prop_name: "interval" },
-                    ],
-                    sub_routes: [
-                        {
-                            strategy_name:"yearly__every_x_of_month",
-                            route:"pattern_yearly_sub__every_x_of_month",
-                            fields: [
-                                { element_id: 'every_x_of_month__date', out_prop_name: "day_index" },
-                                { element_id: 'every_x_of_month__month', out_prop_name: "month" },
-                            ]
-                        },
-                        {
-                            strategy_name: "yearly__every_arbitrary_weekday_in_month",
-                            route: "pattern_yearly_sub__every_arbitrary_weekday_in_month",
-                            fields: [
-                                { element_id: 'every_arbitrary_weekday_in_month__arbitrator', out_prop_name: "arbitrator" },
-                                { element_id: 'every_arbitrary_weekday_in_month__weekday', out_prop_name: "weekday" },
-                                { element_id: 'every_arbitrary_weekday_in_month__month', out_prop_name: "month" },
-                            ]
-                        }
-                    ]
-                }
-            );
-
-            let selects = dialog.$(".newTimePlanDialog_select");
-            selects.each(function (index, select) {
-                if (select.hasAttribute("init_value")) {
-                    select.value = select.getAttribute("init_value");
-                }
-            });
-
-            /* Handle user changing active time area method */
-            dialog.$('input:radio[name="timeAreaMethod"]').change(
-                function() {
-                    if ($(this).is(':checked')) {
-                        let method = $(this).val()
-                        dialog.handleTimeAreaRadio({ activeVal: method });
                     }
-                }
-            );
-
-            /* Handle user changing active pattern */
-            dialog.$('input:radio[name="pattern"]').change(
-                function() {
-                    if ($(this).is(':checked')) {
-                        let pattern = dialog.data.patterns.get($(this).val());
-                        dialog.data.patterns.forEach(function (item) {
-                            $(item.route_fieldset).hide()
-                        });
-                        $(pattern.route_fieldset).show();
-                    }
-                }
-            );
-
-            /* Handle user changing active pattern */
-            dialog.$('input:radio[name="pattern"]').click(
-                function() {
-                    if ($(this).is(':checked')) {
-                        let pattern = dialog.data.patterns.get($(this).val());
-                        dialog.data.patterns.forEach(function (item) {
-                            $(item.route_fieldset).hide()
-                        });
-                        $(pattern.route_fieldset).show();
-                    }
-                }
-            );
-            
-            dialog.matchPatternStateToRadio();
-            dialog.matchAreaStateToRadio();
-
-            /* Handle user changing active pattern */
-            dialog.$('#area_stopWithin').attr("disabled", "");
-            dialog.$('#area_stopAfterXInstances').attr("disabled", "");
-            dialog.$('#area_noStop_projectXMonths').attr("disabled", "");
-
-            /* Initialization of state */
-            dialog.data.patterns.forEach(function (pattern) {
-                dialog.$('input:radio[name="' + pattern.sub_routed_by + '"]').change(
-                    function () {
-                        dialog.resetPattern({ pattern: pattern });
-                        let sub = pattern.sub_routes[$(this).val()];
-                        dialog.activatePatternSubroute({ subroute: sub });
-                    }
-                );
-
-                if (pattern.sub_routes !== undefined) {
-                    pattern.sub_routes.forEach(function (sub_route) {
-                        dialog.deactivatePatternSubroute({ subroute: sub_route });
-                    })
-                }
-
-                let already_active_radio = dialog.$('input:radio[name="' + pattern.sub_routed_by + '"]:checked').val();
-                if (already_active_radio !== undefined && already_active_radio !== "") {
-                    dialog.activatePatternSubroute({ subroute: pattern.sub_routes[already_active_radio]} )
-                }
-            });
-        },
-        methods: {
-            close(dialog, {} = {}, triggeredByElement) {
-                dialog.closeMe();
-            },
-            submit(dialog, {} = {}, triggeredByElement) {
-                let old_alerts = dialog.querySelectorAll('.form_alert');
-                old_alerts.forEach(function (elem) {
-                    $(elem).remove();
-                });
-
-                let time = {
-                    title: dialog.interior.serie_title.value,
-                    title_en: dialog.interior.serie_title_en.value,
-                    start: dialog.interior.serie_start.value,
-                    end: dialog.interior.serie_end.value,
-                    ticket_code: dialog.interior.serie_ticket_code.value,
-                    expected_visitors: dialog.interior.serie_expected_visitors.value,
-                    audience: dialog.data.audienceJsTreeSelect.getSelectedValue(),
-                    arrangement_type: dialog.data.arrangementTypeJsTreeSelect.getSelectedValue(),
-                    meeting_place: dialog.interior.id_meeting_place.value,
-                    meeting_place_en: dialog.interior.id_meeting_place_en.value,
-                    responsible: dialog.interior.id_responsible.value,
-                    display_text: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
-                };
-
-                let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
-                console.log(">> statusValue", statusValue)
-                if (statusValue !== undefined)
-                    time.status = statusValue;
-
-                let pattern = {}
-                let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
-                let pattern_obj = dialog.data.patterns.get(`${active_pattern_key}`);
-
-                let headResult = ValidatorFunctions.validate_head( dialog.dialogElement );
-                let patternResult = ValidatorFunctions.validate_pattern_radio( dialog.dialogElement );
-                let patternRouteResult = ValidatorFunctions.validate_pattern_route( pattern_obj, dialog.dialogElement );
-                let areaRecurrenceResult = ValidatorFunctions.validate_recurrence_area( dialog.dialogElement );
-
-                if (headResult === false || patternResult === false || patternRouteResult === false || areaRecurrenceResult === false) {
-                    return;
-                }
-
-                // since weekly doesnt have any subroutings (only one option) we cant use the normal method
-                if (active_pattern_key !== "2") {
-                    if (active_pattern_key == "4") {
-                        pattern["year_interval"] = dialog.$('#pattern_yearly_const__year_interval').val();
-                    }
-
-                    let active_sub_route_key = dialog.$('input:radio[name="' + pattern_obj.sub_routed_by +'"]:checked').val();
-                    let sub_route = pattern_obj.sub_routes[active_sub_route_key];
-                    pattern.pattern_type = pattern_obj.name;
-                    pattern.pattern_routine = sub_route.strategy_name;
-
-                    for (let i = 0; i < sub_route.fields.length; i++) {
-                        let field = sub_route.fields[i];
-                        pattern[field.out_prop_name] = dialog.$("#" + field.element_id).val();
-                    }
-                }
-                else {
-                    pattern["week_interval"] = dialog.$('#week_interval').val();
-                    pattern.pattern_type = pattern_obj.name;
-
-                    let days = new Map([
-                        [0, dialog.$('#sunday').is(':checked')],
-                        [1, dialog.$('#monday').is(':checked')],
-                        [2, dialog.$('#tuesday').is(':checked')],
-                        [3, dialog.$('#wednesday').is(':checked')],
-                        [4, dialog.$('#thursday').is(':checked')],
-                        [5, dialog.$('#friday').is(':checked')],
-                        [6, dialog.$('#saturday').is(':checked')],
-                    ]);
-                    pattern["days"] = days;
-                    pattern["pattern_routine"] = "weekly__standard";
-                }
-
-                let area = {}
-
-                let area_methods = new Map([
-                    [                    
-                        "1", {
-                            name: "StopWithin",
-                            set: function () {
-                                area.stop_within = dialog.$('#area_stopWithin').val();
-                            }
-                        }
-                    ],
-                    [
-                        "2", {
-                            name: "StopAfterXInstances",
-                            set: function () {
-                                area.instances = dialog.$('#area_stopAfterXInstances').val()
-                            }
-                        }
-                    ],
-                    [
-                        "3",
-                        {
-                            name: "NoStopDate",
-                            set: function () {
-                                area.projectionDistanceInMonths = dialog.$('#area_noStop_projectXMonths').val()
-                            }
-                        }
-                    ]
-                ]);
-
-                let active_area_method = area_methods.get(dialog.$('input:radio[name="timeAreaMethod"]:checked').val());
-                active_area_method.set();
-                area.method_name = active_area_method.name;
-                area.start_date = dialog.$('#area_start_date').val();
-
-                let serie = {
-                    time: time,
-                    pattern: pattern,
-                    time_area: area,
-                }
-
-                let display_layouts = [];
-                dialog.querySelectorAll("input[name='display_layouts_serie_planner'][type='checkbox']:checked").forEach(element => {
-                    display_layouts.push(element.value)
-                })
-
-                serie.buffer = {}
-                if ( dialog.$('#buffer_before_start').val() && dialog.$('#buffer_before_end').val() ) {
-                    serie.buffer.before = {
-                        title: dialog.$('#buffer_before_title').val(),
-                        date_offset: dialog.$('#buffer_before_date_offset').val(),
-                        start: dialog.$('#buffer_before_start').val(),
-                        end: dialog.$('#buffer_before_end').val(),
-                    }
-                }
-                if ( dialog.$('#buffer_after_start').val() && dialog.$('#buffer_after_end').val() ) {
-                    serie.buffer.after = {
-                        title: dialog.$('#buffer_after_title').val(),
-                        date_offset: dialog.$('#buffer_after_date_offset').val(),
-                        start: dialog.$('#buffer_after_start').val(),
-                        end: dialog.$('#buffer_after_end').val(),
-                    }
-                }
-
-                serie._uuid = dialog.$('#serie_uuid').val();
-                serie.rooms = Array.from(dialog.data.selectedRoomIds.keys());
-                serie.room_name_map = dialog.data.roomsNameMap;
-                serie.room_payload = dialog.data.roomPayload;
-                serie.planner_payload = dialog.data.mainPlannerPayload;
-                serie.display_layouts = display_layouts.join(",");
-                serie.ordered_services = Array.from(dialog.data.servicePresets.values());
-
-                dialog.raiseSubmitEvent({
-                    serie: serie,
-                    csrf_token: '{{csrf_token}}',
-                });
-            },
-            /* Ensure that the shown pattern matches the selected pattern in the radio menu. This will correct any such mismatches. */
-            matchPatternStateToRadio(dialog, {} = {}, triggeredByElement) {
-                let active_pattern_key = dialog.$('input:radio[name="pattern"]:checked').val();
-
-                // Ensure that if the user closes the modal while working with it, they will
-                // come right back to the same pattern fieldset when re-opening it.
-                if (active_pattern_key !== undefined && active_pattern_key !== "") {
-                    for (let i = 0; i < dialog.data.patterns.length; i++) {
-                        $(patterns[i].route_fieldset).hide();
-                    }
-                    $(dialog.data.patterns.get(active_pattern_key).route_fieldset).show();
-                }
-            },
-            matchAreaStateToRadio(dialog, {} = {}, triggeredByElement) {
-                let activeAreaMethod = dialog.$('input:radio[name="timeAreaMethod"]:checked').val();
-
-                if (activeAreaMethod !== undefined && activeAreaMethod !== "") {
-                    dialog.handleTimeAreaRadio({ activeVal: activeAreaMethod });
-                }
-            },
-            /* Resets a patterns field values, and disables it. This affects all sub-routes of the pattern. */
-            resetPattern(dialog, { pattern } = {}, triggeredByElement) {
-                if (pattern.sub_routes !== undefined) {
-                    pattern.sub_routes.forEach(function (sub_route) {
-                        dialog.deactivatePatternSubroute( { subroute: sub_route });
-                        sub_route.fields.forEach(function (field_obj) {
-                            let field = dialog.$("#" + field_obj.element_id);
-                        })
-                    })
-                }
-            },
-            /* Activate a sub route of a pattern. In practice removes the disabled attribute from the fields of this sub route. */
-            activatePatternSubroute(dialog, { subroute } = {}, triggeredByElement) {
-                for (let i = 0; i < subroute.fields.length; i++) {
-                    let field = dialog.querySelector("#" + subroute.fields[i].element_id);
-                    field.removeAttribute("disabled");
-                }
-            },
-            deactivatePatternSubroute(dialog, { subroute } = {}, triggeredByElement) {
-                for (let i = 0; i < subroute.fields.length; i++) {
-                    let field = dialog.querySelector("#" + subroute.fields[i].element_id);
-                    field.setAttribute("disabled", "true");
-                }
-            },
-            handleTimeAreaRadio(dialog, {activeVal} = {}, triggeredByElement) {
-                dialog.$('#area_stopWithin').attr("disabled", "");
-                dialog.$('#area_stopAfterXInstances').attr("disabled", "");
-                dialog.$('#area_noStop_projectXMonths').attr("disabled", "");
-
-                if (activeVal === "1") {
-                    dialog.$('#area_stopWithin').removeAttr("disabled");
-                }
-                if (activeVal === "2"){
-                    dialog.$('#area_stopAfterXInstances').removeAttr("disabled");
-                }
-                if (activeVal === "3") {
-                    dialog.$('#area_noStop_projectXMonths').removeAttr("disabled");
-                }
-            },
-            triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true });
-            },
-            triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true, multiple: false, data: { whenEventName: "setPlanner" } });
-            },
-            triggerNewServiceOrder(dialog, {} = {}, triggeredByElement) {
-                    dialog.raiseTriggerEvent("{{managerName}}", "orderServiceDialog", { $parent:dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "newServiceOrder"}, entity_type: "serie", entity_id: "0" })
-            },  
-            removeAssociation(dialog, {} = {}, triggeredByElement) {
-                let $triggeredByElement = $(triggeredByElement);
-                const id = $triggeredByElement.attr("id");
-                const selectType = $triggeredByElement.attr("select-type");
-
-                let appropriateIdMap, appropriatePresetMap = null;
-                if (selectType === "serviceOrder") {
-                    debugger;
-                    dialog.data.servicePresets.delete(id);
-                    debugger;
-                    triggeredByElement.parentElement.parentElement.remove();
-                    return;
-                }
-                else {
-                    appropriateIdMap = dialog.data.selectedRoomIds;
-                    appropriatePresetMap = dialog.data.roomPresets;
-                }
-
-                if (id.startsWith("preset_")) {
-                    const preset = appropriatePresetMap.get(id.split("_")[1]);
-                    preset.ids.forEach((id) => appropriateIdMap.delete(id));
-                }
-                else {
-                    appropriateIdMap.delete(id);
-                }
-
-                $(triggeredByElement).remove();
-            },
-        },
-        data: {
-            servicePresets: new Map(),
-            roomPresets: new Map(),
-            personPresets: new Map(),
-            selectedRoomIds: new Map(),
-            patterns: new Map(),
-            stepper: null,
-        },
-        when: [
-            { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
-                // this stuff needs to be rewritten along with the other similar methods
-                // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
-
-                console.log(">> newServiceOrder", payload)
-
-                dialog.data.servicePresets = new Map((payload.concat(
-                    Array.from(dialog.data.servicePresets.values())
-                )).map(x => [crypto.randomUUID(), x]));
-
-                let wrapper = dialog.$('#serviceOrders');
-                wrapper.empty();
-                
-                for (const [key, value] of dialog.data.servicePresets) {
-                    console.log("value", value);
-                    let buttonHtml = value.service_order ? ``
-                                                         : `<button class='btn wb-btn-main-outline border border-dark shadow-0 float-end' id='${key}'' select-type='serviceOrder' d-trigger='removeAssociation'><i class='fas fa-times'></i></button>`
-
-                    let $orderCard = $(`
-                        <div class='card card-body shadow-0 wb-bg-secondary border border-dark mt-2' id="${key}">                        
-                            <div>
-                                ${value.service_name}
-                                ${buttonHtml}
-                            </div>
-
-                            <code>
-                                ${value.freetext_comment}
-                            </code>
-                        </div>`);
-                    if (value.service_order) {
-                        $orderCard.addClass("border-success border")
-                    }
-                    wrapper.append(
-                        $orderCard
-                    );
-                }
-            } },
-            { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
-                let wrapper = dialog.$( '#roomChips' );
-                wrapper.empty();
-                
-                payload.viewables.forEach((room) => {
-                    wrapper.append(
-                        $(`<selected-pill name='${room.text}'
-                                          id='${room.id}'
-                                          select-type='room'
-                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
-                                          d-trigger='removeAssociation'>
-                           </selected-pill>`)  
-                    )
-                });
-
-                dialog.data.selectedRoomIds = new Map();
-                dialog.data.roomPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
-                payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
-
-                dialog.data.roomPayload = payload;
-            } },
-            { eventKnownAs: "setPlanner", do: (dialog, payload) => {
-                if (payload.allSelectedEntityIds.length == 0)
-                    return;
-
-                const person = payload.viewables[0];
-                dialog.data.mainPlannerPayload = payload;
-                
-                dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
-                dialog.getElementById('mainPlannerName').innerText = person.text;
-                dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
-            } },
-            { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
-                if (dialog.data.audienceJsTreeSelect)
-                    dialog.data.audienceJsTreeSelect.setSelected(payload);
-                else
-                    dialog.$('#_backingAudienceId').val(payload);
-            } },
-            { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
-                if (dialog.data.arrangementTypeJsTreeSelect)
-                    dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
-                else
-                    dialog.$('#_backingArrangementTypeId').val(payload);
-            } },
-            { eventKnownAs: "setStatusFromParent", do: (dialog, payload) => {
-                if (dialog.data.statusTypeJsTreeSelect) {
-                    dialog.data.statusTypeJsTreeSelect.setSelected(String(payload));
-                }
-                else {
-                    dialog.$('#_statusTypeId').val(payload);
-                }
-            } }
-        ],
-        plugins: [
-            {
-                name: 'showIfSelected',
-                pluginClass: DialogShowIfSelectedPlugin,
-                args: {
-                    checkboxesSelector: "[name='display_layouts_serie_planner']",
-                    elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
-                    showIfAnyOfTheseValuesMap: new Map([
-                        {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
-                            [ "{{ display_layout.id }}", true],
-                        {% endfor %}
-                    ]),
+        
+                    return true;
                 },
+                validate_recurrence_area () {
+                    let area_start_date_el = this.dialog.querySelector('#area_start_date');
+        
+                    if (area_start_date_el.checkValidity() === false) {
+                        this.__watchInputForValidityChange(area_start_date_el);
+                        let alertText = document.createElement('div');
+                        alertText.innerHTML = "<span class='text-danger form_alert'>" + area_start_date_el.validationMessage + "</span>";
+
+                        if (area_start_date_el.parentNode.querySelector('.form_alert') !== null) {
+                            area_start_date_el.parentNode.querySelector('.form_alert').remove();
+                        }
+
+                        area_start_date_el.parentNode.appendChild(alertText);
+
+                        return false;
+                    }
+        
+                    let timearea_method_radio = this.dialog.querySelector("input[name='timeAreaMethod']");
+                    if (timearea_method_radio !== null) {
+                        if (timearea_method_radio.checkValidity() === false) {
+                            this.__watchInputForValidityChange(timearea_method_radio);
+        
+                            let alert_div = document.createElement('div');
+                            alert_div.innerHTML = "<div class='alert alert-danger form_alert'>Vennligst velg en metode for regelmessighet</div>"
+                            
+                            if (timearea_method_radio.parentNode.parentNode.querySelector('.form_alert') !== null) {
+                                timearea_method_radio.parentNode.parentNode.querySelector('.form_alert').remove();
+                            }
+
+                            timearea_method_radio.parentNode.parentNode.appendChild(alert_div)
+
+                            return false;
+                        }
+                    }
+        
+                    let activeInputs = this.dialog.querySelectorAll("#area_methods_wrapper input:not(:disabled):not([type='radio']):not([type='submit']), select:not(:disabled)");
+                    for(let i = 0; i < activeInputs.length; i++) {
+                        let input = activeInputs[i];
+                        if (input.checkValidity() === false) {
+                            let alertText = document.createElement('div');
+                            alertText.innerHTML = "<span class='text-danger form_alert'>" + input.validationMessage + "</span>";
+                            this.__watchInputForValidityChange(input);
+        
+                            if (input.parentNode.parentNode.querySelector('.form_alert') !== null) {
+                                input.parentNode.parentNode.querySelector('.form_alert').remove();
+                            }
+
+                            input.parentNode.parentNode.appendChild(alertText);
+        
+                            return false;
+                        }
+                    }
+        
+                    return true;
+                }
+            },
+            watch: {
+                selectedDays: function (val) {
+                    if (this.selectedDays > 0) {
+                        this.showDaysErrorMessage = false;
+                    }
+                },
+                audience: function(val) {
+                    if (this.flags.audienceInvalidFlag)
+                        this.flags.audienceInvalidFlag = false;
+                },
+                arrangementType: function(val) {
+                    if (this.flags.arrangementTypeInvalidFlag)
+                        this.flags.arrangementTypeInvalidFlag = false;
+                },
+                status: function(val) {
+                    if (this.flags.statusInvalidFlag)
+                        this.flags.statusInvalidFlag = false;
+                },
+            },
+            delimiters: ["[[", "]]"],
+            mounted() {
+                this.dialog = new Dialog({
+                    vueApp: this,
+                    dialogId: '{{ dialogId }}',
+                    managerName: '{{ managerName }}',
+                    discriminator: '{{ discriminator }}',
+                    postInit: function (dialog) {
+                        new mdb.Tooltip(dialog.getElementById('resetTooltip'), {
+                            "container": dialog.dialogElement,
+                            "template": `<div class="wb-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>`,
+                            "html": true,
+                        });
+
+                        if (dialog.interior.serie_uuid.value !== undefined) {
+                            dialog.getElementById('title').innerText = "Rediger " + dialog.interior.serie_title.value;
+                        }
+            
+                        dialog.getElementById('serie_start').addEventListener('change', (event) => {
+                            dialog.$('#buffer_before_end').val(event.target.value);
+                        });
+                        dialog.getElementById('serie_end').addEventListener('change', (event) => {
+                            dialog.$('#buffer_after_start').val(event.target.value);
+                        });
+            
+                        dialog.data.stepper = new DialogStepper({
+                            allowRailBasedNavigation: true,
+                            railWrapperElement: dialog.getElementById('stepper'),
+                            steps: [
+                                {
+                                    element: dialog.getElementById('step-1'),
+                                    title: 'Detaljer',
+                                    stepIn: () => { console.log("1. Step In") },
+                                    stepOut: () => {
+                                        if (dialog.vueApp.validate_head() === false)
+                                            return false;
+            
+                                        if (dialog.interior.serie_start.value >= dialog.interior.serie_end.value) {
+                                            dialog.$('#invalidTimesStep1Feedback').show();
+                                            return false;
+                                        }
+                                        
+                                        if (dialog.vueApp.serie.audience === null) {
+                                            dialog.vueApp.flags.audienceInvalidFlag = true;
+                                            return false;
+                                        }
+                                        if (dialog.vueApp.serie.arrangement_type === null) {
+                                            dialog.vueApp.flags.arrangementTypeInvalidFlag = true;
+                                            return false;
+                                        }
+                                        if (dialog.vueApp.serie.status === null) {
+                                            dialog.vueApp.flags.statusInvalidFlag = true;
+                                            return false;
+                                        }
+
+                                        dialog.$('#invalidTimesStep1Feedback').hide();
+                                        return true;
+                                    }
+                                },
+                                {
+                                    element: dialog.getElementById('step-2'),
+                                    title: 'Mønster & Område',
+                                    stepIn: () => {},
+                                    stepOut: (isSteppingForwards) => {
+                                        if (isSteppingForwards === false)
+                                            return true;
+            
+                                        return  dialog.vueApp.validate_pattern_radio() &&
+                                                dialog.vueApp.validate_pattern_route(dialog.data.patterns.get(dialog.vueApp.serie.recurrence_stratagem.pattern)) &&
+                                                dialog.vueApp.validate_recurrence_area();
+                                    },
+                                },
+                                {
+                                    element: dialog.getElementById('step-3'),
+                                    title: 'Rom & Personer',
+                                    stepIn: () => {},
+                                    stepOut: () => {}
+                                },
+                                {
+                                    element: dialog.getElementById('step-services'),
+                                    title: 'Tjenestebestillinger',
+                                    stepIn: () => {},
+                                    stepOut: () => {}
+                                },
+                                {
+                                    element: dialog.getElementById('step-4'),
+                                    title: 'Opp og ned-rigg',
+                                    stepIn: () => {},
+                                    stepOut: (isSteppingForwards) => {
+                                        let isValid = true;
+                                        if (dialog.interior.buffer_before_start.value &&
+                                            dialog.interior.buffer_before_end.value)
+                                            if (dialog.interior.buffer_before_start.value > dialog.interior.buffer_before_end.value) {
+                                                dialog.$('#beforeRiggingTimesInvalidFeedback').show();
+                                                isValid = false;
+                                            }
+                                            else {
+                                                dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
+                                            }
+                                        if (dialog.interior.buffer_after_start.value &&
+                                            dialog.interior.buffer_after_end.value)
+                                            if (dialog.interior.buffer_after_start.value > dialog.interior.buffer_after_end.value) {
+                                                dialog.$('#afterRiggingTimesInvalidFeedback').show();
+                                                isValid = false;
+                                            }
+                                            else {
+                                                dialog.$('#afterRiggingTimesInvalidFeedback').hide();
+                                            }
+                                        
+                                        if (isValid === true) {
+                                            dialog.$('#beforeRiggingTimesInvalidFeedback').hide();
+                                            dialog.$('#afterRiggingTimesInvalidFeedback').hide();
+                                        }
+            
+                                        return isValid;
+                                    }
+                                },
+                                {
+                                    element: dialog.getElementById('step-5'),
+                                    title: 'Skjermer',
+                                    stepIn: () => { 
+                                        dialog.getElementById('next').style.display = "none";
+                                        dialog.getElementById('finish').style.display = "inline-block";
+                                    },
+                                    stepOut: () => {
+                                        dialog.getElementById('finish').style.display = "none";
+                                        dialog.getElementById('next').style.display = "inline-block";
+                                    }
+                                },
+                            ]
+                        });
+                        dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
+                        dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
+            
+                        /* Pattern: Daily*/
+                        dialog.data.patterns.set(
+                            "1",
+                            {
+                                route_fieldset_id: "patternRoute_daily",
+                                name: "daily",
+                                sub_routed_by: 'pattern_daily_subroute',
+                                constant_fields: [],
+                                sub_routes: [
+                                    {
+                                        strategy_name: "daily__every_x_day",
+                                        route: "pattern_daily_sub__every_x_day",
+                                        fields: [
+                                            { element_id: 'every_x_day__interval', out_prop_name: "interval" },
+                                        ]
+                                    },
+                                    {
+                                        strategy_name: "daily__every_weekday",
+                                        route: "pattern_daily_sub__every_weekday",
+                                        fields: []
+                                    }
+                                ]
+                            }
+                        );
+                        /* Pattern: Weekly*/
+                        dialog.data.patterns.set(
+                            "2",
+                            {
+                                strategy_name: "weekly__standard",
+                                route_fieldset_id: "patternRoute_weekly",
+                                name: "weekly",
+                            }
+                        );
+                        /* Pattern: Monthly*/
+                        dialog.data.patterns.set(
+                            "3",
+                            {
+                                route_fieldset_id: "patternRoute_monthly",
+                                name: "monthly",
+                                sub_routed_by: 'pattern_monthly_subroute',
+                                constant_fields: [],
+                                sub_routes: [
+                                    {
+                                        strategy_name:"month__every_x_day_every_y_month",
+                                        route: "pattern_monthly_sub__every_x_day_every_y_month",
+                                        fields: [
+                                            { element_id: 'every_x_day_every_y_month__day_of_month', out_prop_name: "day_of_month" },
+                                            { element_id: 'every_x_day_every_y_month__month_interval', out_prop_name: "interval" },
+                                        ],
+                                    },
+                                    {
+                                        strategy_name: "month__every_arbitrary_date_of_month",
+                                        route: "pattern_monthly_sub__every_arbitrary_date_of_month",
+                                        fields: [
+                                            { element_id: 'every_dynamic_date_of_month__arbitrator', out_prop_name: "arbitrator" },
+                                            { element_id: 'every_dynamic_date_of_month__weekday', out_prop_name: "weekday" },
+                                            { element_id: 'every_dynamic_date_of_month__month_interval', out_prop_name: "interval" },
+                                        ]
+                                    }
+                                ]
+                            }
+                        );
+                        /* Pattern: Yearly*/
+                        dialog.data.patterns.set(
+                            "4",
+                            {
+                                route_fieldset_id: "patternRoute_yearly",
+                                name: "yearly",
+                                sub_routed_by: 'pattern_yearly_subroute',
+                                constant_fields: [
+                                    { element_id: 'pattern_yearly_const__year_interval', out_prop_name: "interval" },
+                                ],
+                                sub_routes: [
+                                    {
+                                        strategy_name:"yearly__every_x_of_month",
+                                        route:"pattern_yearly_sub__every_x_of_month",
+                                        fields: [
+                                            { element_id: 'every_x_of_month__date', out_prop_name: "day_index" },
+                                            { element_id: 'every_x_of_month__month', out_prop_name: "month" },
+                                        ]
+                                    },
+                                    {
+                                        strategy_name: "yearly__every_arbitrary_weekday_in_month",
+                                        route: "pattern_yearly_sub__every_arbitrary_weekday_in_month",
+                                        fields: [
+                                            { element_id: 'every_arbitrary_weekday_in_month__arbitrator', out_prop_name: "arbitrator" },
+                                            { element_id: 'every_arbitrary_weekday_in_month__weekday', out_prop_name: "weekday" },
+                                            { element_id: 'every_arbitrary_weekday_in_month__month', out_prop_name: "month" },
+                                        ]
+                                    }
+                                ]
+                            }
+                        );
+
+                        dialog.data.patterns.forEach(function (pattern, key) {
+                            dialog.data.patterns.set(pattern.name, pattern);
+                        });
+
+                    },
+                    methods: {
+                        close(dialog, {} = {}, triggeredByElement) {
+                            dialog.closeMe();
+                        },
+                        submit(dialog, {} = {}, triggeredByElement) {
+                            let old_alerts = dialog.querySelectorAll('.form_alert');
+                            old_alerts.forEach(function (elem) {
+                                $(elem).remove();
+                            });
+
+                            let time = {
+                                ...dialog.vueApp.serie,
+                                responsible: dialog.vueApp.serie.mainPlanner.id,
+                                start: dialog.vueApp.serie.start_time,
+                                end: dialog.vueApp.serie.end_time,
+                            }
+            
+                            let pattern = {}
+                            let pattern_obj = dialog.data.patterns.get(
+                                dialog.vueApp.serie.recurrence_stratagem.pattern
+                            );
+            
+                            let headResult = dialog.vueApp.validate_head( dialog.dialogElement );
+                            let patternResult = dialog.vueApp.validate_pattern_radio( dialog.dialogElement );
+                            let patternRouteResult = dialog.vueApp.validate_pattern_route( pattern_obj, dialog.dialogElement );
+                            let areaRecurrenceResult = dialog.vueApp.validate_recurrence_area( dialog.dialogElement );
+            
+                            if ((headResult && patternResult && patternRouteResult && areaRecurrenceResult) === false) {
+                                return;
+                            }
+
+                            pattern.pattern_type = dialog.vueApp.serie.recurrence_stratagem.pattern;
+            
+                            // since weekly doesnt have any subroutings (only one option) we cant use the normal method
+                            if (pattern.pattern_type !== "weekly") {
+                                if (pattern.pattern_type == "yearly") {
+                                    pattern["year_interval"] = dialog.vueApp.serie.recurrence_stratagem.subpattern.yearly.interval;
+                                    pattern["interval"] = dialog.vueApp.serie.recurrence_stratagem.subpattern.yearly.interval;
+                                    pattern["day_of_week"] = dialog.vueApp.serie.recurrence_stratagem.subpattern.yearly.weekday;
+                                    debugger;
+                                }
+
+                                let active_sub_route_key = dialog.$('input:radio[name="' + pattern_obj.sub_routed_by +'"]:checked').val();
+                                let sub_route = pattern_obj.sub_routes.filter(x => x.strategy_name == active_sub_route_key)[0];
+                                pattern.pattern_routine = sub_route.strategy_name;
+            
+                                for (let i = 0; i < sub_route.fields.length; i++) {
+                                    let field = sub_route.fields[i];
+                                    pattern[field.out_prop_name] = dialog.$("#" + field.element_id).val();
+                                }
+                            }
+                            else {
+                                pattern["week_interval"] = dialog.vueApp.serie.recurrence_stratagem.subpattern.weekly.interval;
+            
+                                let pickedDayIndices = dialog.vueApp.serie.recurrence_stratagem.subpattern.weekly.days;
+                                let days = new Map( 
+                                    pickedDayIndices.map(x => [x, true])
+                                 );
+
+                                pattern["days"] = days;
+                                pattern["pattern_routine"] = "weekly__standard";
+                            }
+            
+                            let area = {}
+            
+                            let area_methods = new Map([
+                                [                    
+                                    "StopWithin", {
+                                        name: "StopWithin",
+                                        set: function () {
+                                            area.stop_within = dialog.$('#area_stopWithin').val();
+                                        }
+                                    }
+                                ],
+                                [
+                                    "StopAfterXInstances", {
+                                        name: "StopAfterXInstances",
+                                        set: function () {
+                                            area.instances = dialog.$('#area_stopAfterXInstances').val()
+                                        }
+                                    }
+                                ],
+                                [
+                                    "NoStopDate",
+                                    {
+                                        name: "NoStopDate",
+                                        set: function () {
+                                            area.projectionDistanceInMonths = dialog.$('#area_noStop_projectXMonths').val()
+                                        }
+                                    }
+                                ]
+                            ]);
+            
+                            let active_area_method = area_methods.get(dialog.vueApp.serie.recurrence_stratagem.recurrence_method);
+
+                            active_area_method.set();
+                            area.method_name = active_area_method.name;
+                            area.start_date = dialog.vueApp.serie.recurrence_stratagem.start_date;
+            
+                            let serie = {
+                                time: time,
+                                pattern: pattern,
+                                time_area: area,
+                                _original: dialog.vueApp.serie,
+                            }
+            
+                            let display_layouts = dialog.vueApp.serie.display_layouts;
+            
+                            serie.buffer = {}
+                            if ( dialog.$('#buffer_before_start').val() && dialog.$('#buffer_before_end').val() ) {
+                                serie.buffer.before = {
+                                    title: dialog.$('#buffer_before_title').val(),
+                                    date_offset: dialog.$('#buffer_before_date_offset').val(),
+                                    start: dialog.$('#buffer_before_start').val(),
+                                    end: dialog.$('#buffer_before_end').val(),
+                                }
+                            }
+                            if ( dialog.$('#buffer_after_start').val() && dialog.$('#buffer_after_end').val() ) {
+                                serie.buffer.after = {
+                                    title: dialog.$('#buffer_after_title').val(),
+                                    date_offset: dialog.$('#buffer_after_date_offset').val(),
+                                    start: dialog.$('#buffer_after_start').val(),
+                                    end: dialog.$('#buffer_after_end').val(),
+                                }
+                            }
+            
+                            serie._uuid = dialog.vueApp.serie.uuid;
+                            serie.rooms = dialog.vueApp.serie.selectedRooms.rooms.map(x => x.id);
+                            serie.room_name_map = dialog.data.roomsNameMap;
+                            serie.room_payload = dialog.data.roomPayload;
+                            serie.planner_payload = dialog.data.mainPlannerPayload;
+                            serie.display_layouts = display_layouts.join(",");
+                            serie.ordered_services = dialog.vueApp.serie.serviceOrders;
+
+                            dialog.raiseSubmitEvent({
+                                serie: serie,
+                                csrf_token: '{{csrf_token}}',
+                            });
+                        },
+                        triggerAddRooms(dialog, {} = {}, triggeredByElement) {
+                            dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true });
+                        },
+                        triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
+                            dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true, multiple: false, data: { whenEventName: "setPlanner" } });
+                        },
+                        triggerNewServiceOrder(dialog, {} = {}, triggeredByElement) {
+                                dialog.raiseTriggerEvent("{{managerName}}", "orderServiceDialog", { $parent:dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "newServiceOrder"}, entity_type: "serie", entity_id: "0" })
+                        },  
+                        removeAssociation(dialog, {} = {}, triggeredByElement) {
+                            let $triggeredByElement = $(triggeredByElement);
+                            const id = $triggeredByElement.attr("id");
+                            const selectType = $triggeredByElement.attr("select-type");
+            
+                            let appropriateIdMap, appropriatePresetMap = null;
+                            if (selectType === "serviceOrder") {
+                                debugger;
+                                dialog.data.servicePresets.delete(id);
+                                debugger;
+                                triggeredByElement.parentElement.parentElement.remove();
+                                return;
+                            }
+                            else {
+                                appropriateIdMap = dialog.data.selectedRoomIds;
+                                appropriatePresetMap = dialog.data.roomPresets;
+                            }
+            
+                            if (id.startsWith("preset_")) {
+                                const preset = appropriatePresetMap.get(id.split("_")[1]);
+                                preset.ids.forEach((id) => appropriateIdMap.delete(id));
+                            }
+                            else {
+                                appropriateIdMap.delete(id);
+                            }
+            
+                            $(triggeredByElement).remove();
+                        },
+                    },
+                    data: {
+                        servicePresets: new Map(),
+                        roomPresets: new Map(),
+                        personPresets: new Map(),
+                        selectedRoomIds: new Map(),
+                        patterns: new Map(),
+                        stepper: null,
+                    },
+                    when: [
+                        { eventKnownAs: "populateDialog", do: (dialog, payload) => {
+                            const setToVue = function (targetAttribute, sourceObj) {
+                                const establishedProperties = Object.entries(targetAttribute).map(x => x[0]);
+
+                                Object.entries(sourceObj).forEach( ([key, value]) => {
+                                    if (value === null || value === undefined) return;
+
+                                    if (establishedProperties.includes(key)) {
+                                        if (typeof value === "object" && !Array.isArray(value)) {
+                                            setToVue(targetAttribute[key], value);
+                                        } else {
+                                            targetAttribute[key] = value;
+                                        }
+                                    }
+                                });
+                            }
+
+                            setToVue(dialog.vueApp.serie, payload);
+                        } },
+                        { eventKnownAs: "newServiceOrder", do: (dialog, payload) => {
+                            // this stuff needs to be rewritten along with the other similar methods
+                            // maybe use vue or a dialog plugin -- because this is not even a remotely good way of doing it
+            
+                            dialog.data.servicePresets = new Map((payload.concat(
+                                Array.from(dialog.data.servicePresets.values())
+                            )).map(x => [crypto.randomUUID(), x]));
+            
+                            dialog.vueApp.serie.serviceOrders = 
+                                Array.from(dialog.data.servicePresets.entries())
+                                .map(x => { return { key: x[0], ...x[1] } });
+                        } },
+                        { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                            dialog.data.selectedRoomIds = new Map();
+                            dialog.data.roomPresets = new Map();
+                            payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                            payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+            
+                            dialog.data.roomPayload = payload;
+
+                            dialog.vueApp.serie.rooms = payload.viewables;
+                        } },
+                        { eventKnownAs: "setPlanner", do: (dialog, payload) => {
+                            if (payload.allSelectedEntityIds.length == 0)
+                                return;
+
+                            const person = payload.viewables[0];
+                            dialog.data.mainPlannerPayload = payload;
+                            dialog.vueApp.serie.mainPlanner = { id: person.id, full_name: person.text };
+                            
+                            dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
+                            dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
+                        } },
+                        { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
+                            if (dialog.data.audienceJsTreeSelect)
+                                dialog.data.audienceJsTreeSelect.setSelected(payload);
+                            else
+                                dialog.$('#_backingAudienceId').val(payload);
+                        } },
+                        { eventKnownAs: "setArrangementTypeFromParent", do: (dialog, payload) => {
+                            if (dialog.data.arrangementTypeJsTreeSelect)
+                                dialog.data.arrangementTypeJsTreeSelect.setSelected(payload);
+                            else
+                                dialog.$('#_backingArrangementTypeId').val(payload);
+                        } },
+                        { eventKnownAs: "setStatusFromParent", do: (dialog, payload) => {
+                            if (dialog.data.statusTypeJsTreeSelect) {
+                                dialog.data.statusTypeJsTreeSelect.setSelected(String(payload));
+                            }
+                            else {
+                                dialog.$('#_statusTypeId').val(payload);
+                            }
+                        } }
+                    ],
+                });
             }
-        ],
+        });
+
+        createSerieDialog.mount(
+            document.getElementsByClassName('{{discriminator}}')[0]
+        );
     });
+
 </script>

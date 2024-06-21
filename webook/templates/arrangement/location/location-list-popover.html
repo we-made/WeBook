@@ -1,0 +1,94 @@
+<template id="vuec-role-select-popover-component">
+    
+    <button class="btn btn-outline-dark btn-floating"
+        @click="isExpanded = !isExpanded"
+        ref="trigger"
+        type="button">
+
+        <i class="fas fa-chevron-down"></i>
+    </button>
+
+    <popover-component
+        :is-visible="isExpanded"
+        :excludes="triggerRef ? [ triggerRef ] : []"
+        @update:is-visible="(value) => isExpanded = value"
+        style="width: 12.5em">
+
+        <h5>
+            Bytt lokasjon
+        </h5>
+
+        <div class="card card-body rounded-3 select-card p-2 ps-3 pe-3 m-0 shadow-0 mt-2" v-for="location in locations" @click="goTo(location.slug)">
+            <div class="d-flex justify-content-between">
+
+                <input type="radio" name="" id="" :checked="location.slug == modelValue">
+
+                <div>
+                    <h6 class="mb-0 text-start">[[ location.name ]]</h6>
+                </div>
+
+                <div></div>
+
+            </div>
+        </div>
+
+    </popover-component>
+
+</template>
+
+<script>
+    let LocationListPopoverComponent = {
+        components: {
+            PopoverComponent
+        },
+        props: {
+            modelValue: String
+        },
+        emits: ["update:modelValue"],
+        data() {
+            return {
+                activeLocation: null,
+                isMounted: false,
+                isExpanded: false,
+                locations: [
+                ]
+            }
+        },
+        watch: {
+            isExpanded(value) {
+                console.log(value);
+                console.log(this.$refs.trigger)
+            }
+        },
+        computed: {
+            triggerRef() {
+                if (!this.isMounted) {
+                    return null;
+                }
+
+                console.log("triggerRef", this.$refs.trigger)
+                return this.$refs.trigger;
+            },
+        },
+        methods: {
+            getLocations() {
+                fetch("/arrangement/location/location_list_json/")
+                    .then(response => response.json())
+                    .then(data => {
+                        this.locations = data;
+                    });
+            },
+            goTo(slug) {
+                window.location.href = "/arrangement/location/" + slug + "/";
+            }
+        },
+        mounted() {
+            this.isMounted = true;
+            this.selectedRole = this.modelValue;
+
+            this.getLocations();
+        },
+        template: "#vuec-role-select-popover-component",
+        delimiters: ['[[', ']]']
+    }
+</script>

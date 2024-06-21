@@ -49,9 +49,11 @@
                             role="tabpanel"
                             aria-labelledby="v-tabs-general-tab">
 
+                            {% if form.profile_picture.url %}
                             <div class=" d-inline">
                                 <img src="{{ form.profile_picture.url }}" class="border border-4 border-light mb-4" style="width:400px">
                             </div>
+                            {% endif %}
                             
                                 {{form.profile_picture|as_crispy_field}}
 
@@ -145,7 +147,7 @@
 
                     <div class="col-4">
                         <div class="card">
-                            <div class="card-body" style="background-color: ghostwhite">
+                            <div class="card-body" >
                                 <h4 class="text-center">SSO</h4>
                                 
                                 <div class="alert alert-light">

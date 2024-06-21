@@ -1,0 +1,160 @@
+{% comment %}
+/**
+ * @file
+ * TableRich component.
+ *
+ * Helper component for enriching a table with pagination and search.
+ * The consumer of this component is responsible for rendering the table and passing the data to this component.
+ *
+ * Props:
+ * - data: Array of objects to display in the table.
+ * - page: Current page number.
+ * - perPage: Number of items per page.
+ * - searchTerm: String to search for in the table.
+ * - filterKey: Key to filter on.
+ *
+ * Emits:
+ * - tableChanged: Event emitted when the table has changed - i.e. when the page or search term has changed.
+ *
+ * Example:
+ * <table-rich
+ *   :data="data"
+ *   :page="page"
+ *   :perPage="perPage"
+ *   :searchTerm="searchTerm"
+ *   :filterKey="filterKey"
+ *   @tableChanged="tableChanged"
+ * >
+ *   <template #default="{ item }">
+ *     <tr>
+ *       <td>{{ item.name }}</td>
+ *       <td>{{ item.email }}</td>
+ *     </tr>
+ *   </template>
+ * </table-rich>
+ *
+ * ToDo:
+ *   * - Add sorting.
+ *   * - Allow searching over multiple columns.
+ *   * - Add Fuse for fuzzy searching.
+ */
+{% endcomment %}
+
+<template id="vuec-table-rich">
+    <div v-show="false">
+        [[visibleData]]
+    </div>
+    <slot>
+    </slot>
+
+    
+    <div class="d-flex justify-content-between">
+        <div>
+            <em>
+                [[totalPages]] sider, [[data.length]] rader
+            </em>
+        </div>
+        <nav aria-label="...">
+            <ul class="pagination">
+                <li :class="['page-item', { disabled: !canPageBack }]" @click="pageBack()">
+                    <a class="page-link">Forrige</a>
+                </li>
+                <li class="page-item" @click="page--"><a class="page-link" href="#" v-if="canPageBack">[[ page - 1 ]]</a></li>
+                <li class="page-item active" aria-current="page">
+                    <a class="page-link" href="#">[[page]] <span class="visually-hidden">(current)</span></a>
+                </li>
+                <li class="page-item"><a class="page-link" @click="page++" href="#" v-if="canPageForward">[[ page + 1 ]]</a></li>
+                <li :class="['page-item', { disabled: !canPageForward }]" @click="pageForward()">
+                    <a class="page-link" href="#">Neste</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</template>
+
+
+<script>
+    let TableRich = {
+        props: {
+            data: {
+                type: Array,
+                required: true
+            },
+            perPage: {
+                type: Number,
+                required: true
+            },
+            searchTerm: {
+                type: String,
+                required: false
+            },
+            filterKey: {
+                type: String,
+                required: false
+            }
+        },
+        data() {
+            return {
+                totalPages: 0,
+                page: 1,
+            }
+        },
+        computed: {
+            canPageForward() {
+                return this.page < this.totalPages;
+            },
+            canPageBack() {
+                return this.page != 1;
+            },
+            visibleData() {
+                let data = this.data;
+                if (this.searchTerm && this.searchTerm.length > 2) {
+                    console.log(this.filterKey);
+                    data = data.filter((item) => {
+                        if (this.filterKey) {
+                            return item[this.filterKey].toLowerCase().includes(this.searchTerm.toLowerCase());
+                        } else {
+                            Object.keys(item).forEach((key) => {
+                                if (String(item[key]).toLowerCase().includes(this.searchTerm.toLowerCase())) {
+                                    return true;
+                                }
+                            });
+                        }
+                    });
+                }
+
+                this.totalPages = Math.ceil(data.length / this.perPage);
+                let start = (this.page - 1) * this.perPage;
+                let end = start + this.perPage;
+
+                let visibleRows =  data.slice(start, end);
+                
+                this.$emit(
+                    'tableChanged', visibleRows
+                );
+
+                return visibleRows;
+            },
+        },
+        methods: {
+            pageForward() {
+                if (this.canPageForward)
+                    this.page++;
+            },
+            pageBack() {
+                if (this.canPageBack)
+                    this.page--;
+            },
+        },
+        watch: {
+            page: function (newPage) {
+                if (newPage > this.totalPages || newPage < 1) {
+                    this.$emit('outOfBounds', this.totalPages);
+                }
+            },
+        },
+        emits: ['tableChanged'],
+        template: '#vuec-table-rich',
+        delimiters: ['[[', ']]']
+    }
+</script>

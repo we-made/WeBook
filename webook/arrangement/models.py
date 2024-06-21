@@ -912,7 +912,11 @@ class Note(TimeStampedModel, ModelArchiveableMixin):
 
     """
 
+    title = models.CharField(
+        verbose_name=_("Title"), max_length=512, null=True, blank=True
+    )
     author = models.ForeignKey(to="Person", on_delete=models.RESTRICT)
+    updated_by = models.ForeignKey(to="Person", on_delete=models.RESTRICT, related_name="updated_notes", null=True, blank=True)
     content = models.TextField(verbose_name=_("Content"), max_length=5000)
     has_personal_information = models.BooleanField(
         verbose_name=_("Has personal information"), default=False
@@ -1520,9 +1524,8 @@ class Event(
                 datetime.datetime.combine(date or offset or self.end, end_time)
             )
 
-            # We can not set rooms or people before the event has been saved -- unfortunately.
             rigging_event._rooms = root_event_rooms.values_list("id", flat=True)
-            # rigging_event._people = root_event_people.values_list("id", flat=True)
+            rigging_event.arrangement_type = self.arrangement_type
 
             rigging_events[position_key] = rigging_event
 

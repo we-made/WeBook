@@ -120,6 +120,10 @@ div.modal-body > .bootbox-close-button {
   padding: 1.5em!important; 
 }
 
+.ui-dialog.fullscreen {
+  border-radius: 0!important;
+}
+
 /* .ui-dialog.ui-widget.ui-widget-content {
   background:none; /* and no special background for the dialog */
 
@@ -223,7 +227,7 @@ sidenav-primary .sidenav-link {
   background: skyblue;
   color: white;
 }
-.ui-dialog { z-index: 100000 !important ;}
+.ui-dialog { z-index: 10000 !important ;}
 .datepicker-modal-container { 
   z-index: 100000000001 !important; 
   border: solid 1px var(--MAIN-COLOR);

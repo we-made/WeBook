@@ -1,0 +1,141 @@
+<template id="vuec-role-select-popover-component">
+    
+    <button class="btn wb-btn-main w-100"
+        @click="isExpanded = !isExpanded"
+        ref="trigger"
+        type="button">
+
+        Endre rolle
+    </button>
+
+    <popover-component
+        :is-visible="isExpanded"
+        :excludes="[ triggerRef ]"
+        @update:is-visible="(value) => isExpanded = value"
+        style="width: 25em">
+
+        <div>
+            <h4 class="text-center"><i class="fas fa-user-shield"></i></h4>
+        </div>
+        <h4 class="text-center mb-0">Roller</h4>
+
+        <div class="d-flex justify-content-between mt-2 align-items-center">
+            <div>
+            </div>
+            <div>
+                <i class="fas fa-info-circle"></i>
+                <em> Trykk på et kort for å velge rollen</em>
+            </div>
+        </div>
+
+        <div class="card card-body select-card m-0" @click=" selectedRole = 'planners' ">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h5>Planlegger</h5>
+                    <p>
+                        Kan opprette og redigere arrangementer
+                    </p>
+                </div>
+                <div>
+                    <input type="radio" name="roleRadio" value="planners" v-model="selectedRole">
+                </div>
+            </div>
+        </div>
+        <div class="card card-body mt-2 select-card m-0" @click="selectedRole = 'readonly'">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h5>Lesetilgang - Nivå 1</h5>
+                    <p>
+                        Kan se arrangementer i kalenderen
+
+                    </p>
+                </div>
+                <div>
+                    <input type="radio" name="roleRadio" value="readonly" v-model="selectedRole">
+                </div>
+            </div>
+        </div>
+        <div class="card card-body mt-2 select-card m-0" @click="selectedRole = 'readonly_level_2'">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h5>Lesetilgang - Nivå 2</h5>
+                    <p>
+                        Kan se arrangementer i kalenderen
+                    </p>
+                </div>
+                <div>
+                    <input type="radio" name="roleRadio" value="readonly_level_2" v-model="selectedRole">
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-2 clearfix">
+            <button class="btn wb-btn-main float-end" @click="updateRole()">
+                Lagre valg
+            </button>
+        </div>
+
+    </popover-component>
+
+</template>
+
+<script>
+    let RoleSelectPopoverComponent = {
+        components: {
+            PopoverComponent
+        },
+        props: {
+            modelValue: String
+        },
+        emits: ["update:modelValue"],
+        data() {
+            return {
+                selectedRole: null,
+                isMounted: false,
+                isExpanded: false,
+            }
+        },
+        computed: {
+            triggerRef() {
+                if (!this.isMounted) {
+                    return null;
+                }
+                return this.$refs.trigger;
+            },
+        },
+        methods: {
+            changeRole(role) {
+                this.$emit("update:modelValue", role);
+                
+            },
+            updateRole(role) {
+                
+                Swal.fire({
+                    title: "Endre rolle?",
+                    text: "Er du sikker på at du vil endre rollen?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ja",
+                    cancelButtonText: "Nei",
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.$emit("update:modelValue", this.selectedRole);
+                        this.isExpanded = false;
+                    }
+                    else {
+                        this.selectedRole = this.modelValue;
+                    }
+                })
+
+            }
+        },
+        mounted() {
+            this.isMounted = true;
+            this.selectedRole = this.modelValue;
+        },
+        template: "#vuec-role-select-popover-component",
+        delimiters: ['[[', ']]']
+    }
+</script>

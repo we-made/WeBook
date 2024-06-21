@@ -30,6 +30,10 @@ class SerieManifestForm(forms.Form):
 
     internal_uuid = forms.CharField(max_length=1024)  # serie position hash base
 
+    vue_json = forms.CharField(
+        max_length=10000, required=False
+    )  # vue json representation
+
     pattern = forms.CharField(max_length=255)
     patternRoutine = forms.CharField(max_length=255)
     timeAreaMethod = forms.CharField(max_length=255)
@@ -96,6 +100,8 @@ class SerieManifestForm(forms.Form):
         plan_manifest = PlanManifest()
 
         plan_manifest.internal_uuid = self.cleaned_data["internal_uuid"]
+
+        plan_manifest.vue_json = self.cleaned_data["vue_json"]
 
         plan_manifest.pattern = self.cleaned_data["pattern"]
         plan_manifest.pattern_strategy = self.cleaned_data["patternRoutine"]
@@ -301,8 +307,6 @@ class CreateSerieForm(SerieManifestForm):
 
         for service_order in manifest.orders.all():
             # Update existing service orders to match the new state of the serie.
-            generate_changelog_of_serie_events_in_order(
-                service_order
-            )
+            generate_changelog_of_serie_events_in_order(service_order)
 
         return serie.pk

@@ -1,7 +1,9 @@
 import { appendArrayToFormData } from "./commonLib.js";
 
 
-export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
+export function serieConvert(serie, formData, keyPrefix = `manifest.`) {
+    formData.append(`${keyPrefix}vue_json`, JSON.stringify(serie._original));
+
     formData.append(`${keyPrefix}internal_uuid`, serie._uuid);
     formData.append(`${keyPrefix}pattern`, serie.pattern.pattern_type);
     formData.append(`${keyPrefix}patternRoutine`, serie.pattern.pattern_routine);
@@ -9,17 +11,18 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}startDate`, serie.time_area.start_date);
     formData.append(`${keyPrefix}startTime`, serie.time.start);
     formData.append(`${keyPrefix}endTime`, serie.time.end);
-    formData.append(`${keyPrefix}ticketCode`, serie.time.ticket_cod );
+    formData.append(`${keyPrefix}ticketCode`, serie.time.ticket_code );
     formData.append(`${keyPrefix}expectedVisitors`, serie.time.expected_visitors);
     formData.append(`${keyPrefix}title`, serie.time.title);
     formData.append(`${keyPrefix}title_en`, serie.time.title_en);
-    if (serie.time.status !== undefined && serie.time.status !== null)
+    if (serie.time.status)
         formData.append(`${keyPrefix}status`, serie.time.status);
     formData.append(`${keyPrefix}audience`, serie.time.audience);
     formData.append(`${keyPrefix}arrangement_type`, serie.time.arrangement_type);
     formData.append(`${keyPrefix}meeting_place`, serie.time.meeting_place);
     formData.append(`${keyPrefix}meeting_place_en`, serie.time.meeting_place_en);
-    formData.append(`${keyPrefix}responsible`, serie.time.responsible);
+    if (serie.time.responsible)
+        formData.append(`${keyPrefix}responsible`, serie.time.responsible);
     formData.append(`${keyPrefix}display_text`, serie.time.display_text);
     if (serie.collision_resolution_behaviour === undefined)
         serie.collision_resolution_behaviour = 0
@@ -27,9 +30,9 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
 
     if (serie.event_serie_pk)
         formData.append(`${keyPrefix}predecessorSerie`, serie.event_serie_pk);
-
+    
     appendArrayToFormData(serie.rooms, formData, `${keyPrefix}rooms`);
-    appendArrayToFormData(serie.display_layouts.split(","), formData, `${keyPrefix}display_layouts`);
+    appendArrayToFormData(serie.time.display_layouts, formData, `${keyPrefix}display_layouts`);
 
     if (serie.buffer) {
         if (serie.buffer.before) {
@@ -56,7 +59,8 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
             formData.append(`${keyPrefix}interval`, serie.pattern.week_interval);
             let count = 0;
             for (const day of ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]) {
-                formData.append(`${keyPrefix}${day}`, serie.pattern.days.get(count));
+                debugger;
+                formData.append(`${keyPrefix}${day}`, serie.pattern.days.has(count));
                 count++;
             }
             break;

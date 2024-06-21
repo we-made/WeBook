@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import pytz
 from django import forms
@@ -8,7 +8,7 @@ from django.utils import timezone as dj_timezone
 
 from webook.arrangement.dto.event import EventDTO
 from webook.arrangement.models import Event, EventSerie, PlanManifest
-from webook.utils.collision_analysis import analyze_collisions
+from webook.utils.collision_analysis import CollisionRecord, analyze_collisions
 from webook.utils.sph_gen import get_serie_positional_hash
 from webook.utils.utc_to_current import utc_to_current
 
@@ -172,7 +172,9 @@ class BaseEventForm(forms.ModelForm):
                     title=self.instance.title,
                     start=self.instance.start,
                     end=self.instance.end,
-                    rooms=self.cleaned_data["rooms"].values_list("id", flat=True),
+                    rooms=self.cleaned_data["rooms"].values_list("id", flat=True)
+                    if "rooms" in self.cleaned_data
+                    else self.instance.rooms.values_list("id", flat=True),
                     before_buffer_title=self.instance.before_buffer_title,
                     before_buffer_date_offset=self.instance.before_buffer_date_offset,
                     before_buffer_start=self.instance.before_buffer_start,
@@ -243,8 +245,10 @@ class BaseEventForm(forms.ModelForm):
             super().save(commit)
 
         self.instance.save()
-        self.instance.display_layouts.set(self.cleaned_data["display_layouts"])
-        self.instance.rooms.set(self.cleaned_data["rooms"])
+        if "display_layouts" in self.cleaned_data:
+            self.instance.display_layouts.set(self.cleaned_data["display_layouts"])
+        if "rooms" in self.cleaned_data:
+            self.instance.rooms.set(self.cleaned_data["rooms"])
 
     class Meta:
         model = Event
@@ -257,6 +261,7 @@ class BaseEventForm(forms.ModelForm):
                 attrs={
                     "id": "display_layouts_create_event",
                     "name": "display_layouts_create_event",
+                    "v-model": "activity.display_layouts",
                 }
             ),
         }
@@ -273,6 +278,17 @@ class UpdateEventForm(BaseEventForm):
         # there's a `fields` property now
         self.fields["responsible"].required = False
 
+        self.fields["expected_visitors"].label = "Forventet antall besøkende"
+        self.fields["actual_visitors"].label = "Faktisk antall besøkende"
+        self.fields["meeting_place"].label = "Møtested"
+        self.fields["meeting_place_en"].label = "Møtested (engelsk)"
+        self.fields["audience"].label = "Målgruppe"
+        self.fields["arrangement_type"].label = "Arrangementstype"
+        self.fields["responsible"].label = "Ansvarlig"
+        self.fields["display_text"].label = "Visningstekst"
+        self.fields["title"].label = "Tittel"
+        self.fields["title_en"].label = "Tittel (engelsk)"
+
     class Meta:
         model = Event
         fields = ("id",) + _ALWAYS_FIELDS
@@ -281,7 +297,25 @@ class UpdateEventForm(BaseEventForm):
                 attrs={
                     "id": "display_layouts_create_event",
                     "name": "display_layouts_create_event",
+                    "v-model": "activity.display_layouts",
                 }
             ),
             "status": forms.Select(attrs={"class": "form-control form-control-lg"}),
         }
+
+
+class UpdateEventBuffersForm(BaseEventForm):
+    class Meta:
+        model = Event
+        fields = (
+            "before_buffer_title",
+            "before_buffer_date",
+            "before_buffer_date_offset",
+            "before_buffer_start",
+            "before_buffer_end",
+            "after_buffer_title",
+            "after_buffer_date",
+            "after_buffer_date_offset",
+            "after_buffer_start",
+            "after_buffer_end",
+        )

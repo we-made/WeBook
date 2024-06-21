@@ -162,8 +162,6 @@ export class PlannerCalendar extends FullCalendarBased {
             ]);
         }
 
-
-
         this.csrf_token = csrf_token;
         this._headerGenerator = new HeaderGenerator(
             { customClassifications: new Map([
@@ -507,6 +505,7 @@ export class PlannerCalendar extends FullCalendarBased {
                             new CustomEvent(this._instanceUUID + "_callForFullCalendarViewRender", { "detail": { "view": "dayGridMonth" } })
                         )
                     }
+                  
                     if (["dayGridMonth", "timelineYear"].includes(dateInfo.view.type)) {
                         if (this.lastGoneToDate !== undefined) {
                             this.scrollToWeekOfDate(this.lastGoneToDate);

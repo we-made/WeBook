@@ -1,0 +1,165 @@
+{% include "arrangement/vue/popover_component.html" %}
+{% include "arrangement/calendar/navigate-component.html" %}
+{% include "arrangement/calendar/calendar.html" %}
+{% include "arrangement/calendar/week-calendar.html" %}
+{% include "arrangement/calendar/month-calendar.html" %}
+
+<template id="room-info-dialog-template">
+    <dialog-component :is-visible="isVisible" 
+                      :use-backdrop="true"
+                      @update:is-visible="(value) => isVisible = value"
+                      :is-draggable="true">
+        <template v-slot:header>
+            <h4>[[ room.name ]]</h4>
+        </template>
+    
+        <template v-slot:content>
+            <div class="d-flex justify-content-end mb-2">
+                <button class="btn border-1 wb-large-btn wb-btn-white" @click="activeCalendar = 'month-calendar-component'">
+                    Måned
+                </button>
+                <button class="btn border-1 wb-large-btn wb-btn-white ms-2" @click="activeCalendar = 'week-calendar-component'">
+                    Uke
+                </button>
+            </div>
+
+            <component :is="activeCalendar" :event-source="eventSource">
+
+            </component>
+
+        
+
+        </template>
+    
+        <template v-slot:footer>
+
+        </template>
+    </dialog-component>
+
+</template>
+
+<script>
+    let RoomInfoDialogComponent = {
+        components: {
+            DialogComponent,
+            CalendarNavigateComponent,
+            CalendarComponent,
+            WeekCalendarComponent,
+            MonthCalendarComponent
+        },
+        props: {
+        },
+        data() {
+            return {
+                activeCalendar: "week-calendar-component",
+                isVisible: false,
+                roomSlug: null,           
+                calendar: null, 
+                events: [],
+                room: {
+                    location: null,
+                    name: null,
+                    name_en: null,
+                    max_capacity: 0,
+                    is_exclusive: null,
+                    has_screen: null
+                }
+            }
+        },
+        computed: {
+
+        },
+        methods: {
+            flush() {
+                this.room = {
+                    location: null,
+                    name: null,
+                    name_en: null,
+                    max_capacity: 0,
+                    is_exclusive: null,
+                    has_screen: null
+                }
+            },
+
+            async eventSource(args, successCallback, failureCallback) {
+                console.log("eventSource", args)
+                await fetch("/arrangement/calendar/room/" + this.roomSlug + "/events?start=" + args.start.toISOString() + "&end=" + args.end.toISOString())
+                    .then(response => response.json())
+                    .then(data => {
+                        let events = data;
+
+                        if (this.colorsByArrangementIdMap) {
+                            events.forEach(event => {
+                                event.backgroundColor = this.colorsByArrangementIdMap[event.arrangement_id];
+                                event.borderColor = this.colorsByArrangementIdMap[event.arrangement_id];
+                            });
+                        }
+                        console.log("getEvents", events)
+
+                        successCallback(events);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            },
+
+            open(roomSlug, startDate, colorsByArrangementIdMap) {
+                this.flush();
+
+                this.colorsByArrangementIdMap = colorsByArrangementIdMap;
+                this.isVisible = true;
+                this.roomSlug = roomSlug;
+
+                if (roomSlug) { 
+                    this.getData();
+                }
+                console.log("roomCalendar", this.$refs.roomCalendar)
+
+
+                /*this.$nextTick(function() {
+                    this.calendar = new FullCalendar.Calendar(this.$refs.roomCalendar, {
+                        schedulerLicenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+                        initialView: 'timeGridWeek',
+                        headerToolbar: false,
+                        initialDate: startDate,
+                        height: 650,
+                        events: async function (args) {
+                            await this.getEvents(args.start, args.end);
+
+                            if (this.colorsByArrangementIdMap) {
+                                this.events.forEach(event => {
+                                    event.backgroundColor = this.colorsByArrangementIdMap[event.arrangement_id];
+                                    event.borderColor = this.colorsByArrangementIdMap[event.arrangement_id];
+                                });
+                            }
+
+                            return this.events;
+                        }.bind(this),
+                    });
+                    this.calendar.render();
+                })*/
+
+            },
+            getData() {
+                fetch("/arrangement/room/json/" + this.roomSlug)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        this.room = data;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            },
+        },
+        watch: {
+        },
+        mounted() {
+            this.$nextTick(function() {
+                console.log("app", this.$refs)
+            })
+        },
+        template: "#room-info-dialog-template",
+        delimiters: ['[[', ']]']
+    }
+</script>

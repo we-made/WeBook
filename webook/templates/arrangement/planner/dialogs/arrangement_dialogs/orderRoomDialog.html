@@ -1,3 +1,7 @@
+{% include "arrangement/vue/table_component.html" %}
+{% include "arrangement/vue/popover_component.html" %}
+
+
 <div id="{{dialogId}}" class="{{discriminator}}">
     <div class="clearfix">
         <div class="float-start">
@@ -10,83 +14,40 @@
     <hr>
     
     <div style="overflow-y: scroll;">
-        {% if mode == "serie" %}
-        <div class="alert alert-danger">
-            <strong>Merk: </strong> du bestiller rom for hele serien.
-        </div>
-        {% endif %}
-
         <div class="mb-5">
-            <h5>Aktiver presets</h5>
+            <div class="d-flex flex-wrap justify-content-center">
+                <div v-for="location in locations" 
+                    @click="focusedLocation = location"
+                    :class="['card wb-bg-white border border-dark shadow-0 m-1', { 'wb-bg-secondary shadow-5': focusedLocation == location }]">
 
-            {% for preset in room_presets %}
-                <a href="#" class="btn wb-btn-secondary shadow-0"
-                    d-arg-preset_key="{{preset.pk}}"
-                    d-trigger="activateRoomIds">
-                    {{preset.name}}
-                </a>
-            {% endfor %}
+                    <div class="card-body p-2">
+                        <h6 class="text-center mb-0">
+                            [[location.name]]
+                        </h6>
+                    </div>
 
-            <h5 class="mt-3">Eller velg rom manuelt</h5>
-            <div class="row">
-                <div class="col-12 mb-2">
-                  <div class="nav flex-column webook-tabs text-center"
-                    id="tabs-tab"
-                    role="tablist"
-                    aria-orientation="vertical">
-
-                    {% for location in locations %}
-                        <a class="nav-link {% if forloop.counter == 1 %} active {% endif %}"
-                        id="tabs-{{location.slug}}-tab"
-                        data-mdb-toggle="tab"
-                        href="#tabs-{{location.slug}}"
-                        role="tab"
-                        aria-controls="v-tabs-home"
-                        aria-selected="true">
-                            {{location.name}}
-                        </a>
-                    {% endfor %}
-                  </div>
-                </div>
-              
-                <div class="col-12">
-                  <div class="tab-content" id="v-tabs-tabContent">
-                      {% for location in locations %}
-                        <div
-                            class="tab-pane {% if forloop.counter == 1 %} show active {% endif %} fade"
-                            id="tabs-{{location.slug}}"
-                            role="tabpanel"
-                            aria-labelledby="tabs-{{location.slug}}-tab">
-
-                            <div class="table-responsive">
-                                <table class="table table-sm table-striped mt-2 rooms-in-location-table" id="{{location.slug}}_roomsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Rom</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for room in location.rooms.all %}
-                                            <tr>
-                                                <td> 
-                                                    {{room.is_selected}}
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" id="{{room.id}}" 
-                                                            room_name="{{room}}" name="orderRoomDialog__checkboxArray" {% if room.is_selected %}checked{% endif %}/>
-                                                        <label class="form-check-label" for="{{room.id}}">{{room}}</label>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                    <div class="card-footer p-1">
+                        <div class="d-flex justify-content-center">
+                            <div class="badge badge-light bg-white border border-1 border-dark text-center m-1">
+                                <span class="h6 mt-0 mb-0">
+                                    [[location.rooms.length]]
+                                </span>
                             </div>
                         </div>
-                      {% endfor %}
-                  </div>
+                    </div>
                 </div>
             </div>
+
+            <hr>
+
+            <table-component
+                v-if="focusedLocation"
+                :data-source="locationDataSourceFunc(focusedLocation.pk)"
+                :can-search="true">
+            </table-component>
+
         </div>
+        
         <div class="clearfix">
             <div class="float-end">
                 <a href="#" class="btn wb-btn-secondary btn-lg"
@@ -95,7 +56,7 @@
                     Avbryt
                 </a>
 
-                <a class="btn wb-btn-main shadow-0" type="button" d-trigger="order">
+                <a class="btn wb-btn-main shadow-0" type="button" @click="submit()">
                     <i class="fas fa-check"></i>&nbsp; Legg til valgte rom
                 </a>
             </div>
@@ -104,79 +65,181 @@
 </div>
 
 <script>
-    new Dialog({
-        dialogId: '{{dialogId}}',
-        managerName: '{{managerName}}',
-        discriminator: '{{discriminator}}',
-        postInit: function (dialog) {
-            dialog.querySelectorAll('.form-outline').forEach((formOutline) => {
-                new mdb.Input(formOutline).init();
-            });
+    $(document).ready(function () {
+        let orderRoomDialogVueApp = Vue.createApp({
+            components: { TableComponent },
+            data() {
+                return {
+                    locations: [
+                        {% for location in locations %}
+                            {
+                                pk: "{{location.pk}}",
+                                name: "{{location.name}}",
+                                slug: "{{location.slug}}",
+                                rooms: [
+                                    {% for room in location.rooms.all %}
+                                        {
+                                            id: "{{room.id}}",
+                                            name: "{{room}}",
+                                            is_selected: {% if room.is_selected %}true{% else %}false{% endif %}
+                                        },
+                                    {% endfor %}
+                                ]
+                            },
+                        {% endfor %}
+                    ],
+                    presets: [
+                        {% for preset in room_presets %}
+                            {
+                                pk: "{{preset.pk}}",
+                                name: "{{preset.name}}",
+                                room_ids: [
+                                    {% for room in preset.rooms.all %}
+                                        "{{room.id}}",
+                                    {% endfor %}
+                                ]
+                            },
+                        {% endfor %}
+                    ],
+                    focusedLocation: null,
+                    disabledRooms: [],
+                }
+            },
+            computed: {
+                totalSelectedRoomsCount() {
+                    return this.locations.map(location => location.rooms).flat().filter(room => room.is_selected).length;
+                },
+            },
+            watch: {
+                totalSelectedRoomsCount: {
+                    handler: function (newVal, oldVal) {
+                        if (typeof this.callback === "function") {
+                            this.callback(
+                                Array.from(this.locations.map(location => location.rooms.filter(room => room.is_selected)).flat())
+                            );
+                        }
+                    },
+                    deep: true,
+                }
+            },
+            methods: {
+                submit() {
 
-            {% for location in locations %}
-            dialog.$('#{{location.slug}}_roomsTable').DataTable().destroy();
-            dialog.$('#{{location.slug}}_roomsTable').DataTable();
-            {% endfor %}
-        },
-        methods: {
-            close(dialog, {} = {}, triggeredByElement) {
-                dialog.closeMe();
-            },
-            /* Uncheck all checkboxes in the order room dialog */
-            uncheckAll(dialog, {} = {}, triggeredByElement) {
-                dialog.plugins.presetSelectManager.uncheckAll();
-            },
-            /* Takes an array of room ids and checks their corresponding checkboxes in the room selector */
-            activateRoomIds(dialog, { presetKey } = {}, triggeredByElement) {
-                dialog.plugins.presetSelectManager.activatePreset(presetKey, triggeredByElement);
-            },
-            order(dialog, {} = {}, triggeredByElement) {
-                let selectedBundle = dialog.plugins.presetSelectManager.getSelected();
-                selectedBundle.eventPk = "{{event.pk}}";
-                
-                dialog.$('#roomsTable').DataTable().destroy();
+                },
+                activatePreset(presetId) {
+                    let preset = this.presets.find(preset => preset.pk == presetId);
+                    let roomIds = preset.room_ids;
 
-                dialog.raiseSubmitEvent({
-                    recipientDialog: "{{recipientDialogId}}",
-                    selectedBundle: selectedBundle,
-                    csrf_token: "{{csrf_token}}",
+                    roomIds.forEach(roomId => {
+                        let room = this.locations.find(
+                                location => location.rooms.find(room => room.id == roomId))
+                                                    .rooms.find(room => room.id == roomId
+                            );
+                        room.is_selected = true;
+                    });
+                },
+                submit() {
+                    let viewables = this.locations.map(l => l.rooms).flat().filter(room => room.is_selected).map(room => {
+                        return {
+                            id: room.id,
+                            text: room.name,
+                        }
+                    });
+
+                    let results = {
+                        allPresets: this.presets,
+                        selectedPresets: [],
+                        allSelectedEntityIds: viewables.map(viewable => viewable.id),
+                        viewables: viewables,
+                        eventPk: 0
+                    };
+
+                    this.dialog.raiseSubmitEvent({
+                        recipientDialog: "{{recipientDialogId}}",
+                        selectedBundle: results,
+                        csrf_token: "{{csrf_token}}",
+                    });
+                },
+                async locationDataSourceFunc(locationPk) {
+                    return {
+                        columns: {
+                            "id": {
+                                isHtml: false,
+                                friendlyName: "Id",
+                                isSearchable: true,
+                            },
+                            "name": {
+                                isHtml: false,
+                                friendlyName: "Romnavn",
+                                isSearchable: true,
+                            },
+                            "is_selected": {
+                                isHtml: false,
+                                friendlyName: "Valgt",
+                                componentName: "checkbox",
+                                isComponent: true,
+                            }
+                        },
+                        actions: {
+                        },
+                        data: this.locations.find(location => location.pk == locationPk).rooms
+                    }
+                },
+            },
+            mounted() {
+                this.focusedLocation = this.locations[0];
+
+                this.dialog = new Dialog({
+                    dialogId: '{{dialogId}}',
+                    vueApp: this,
+                    managerName: '{{managerName}}',
+                    discriminator: '{{discriminator}}',
+                    postInit: function (dialog) {
+                    },
+                    methods: {
+                        close(dialog, {} = {}, triggeredByElement) {
+                            dialog.closeMe();
+                        },
+                        order(dialog, {} = {}, triggeredByElement) {
+                            let selectedBundle = dialog.plugins.presetSelectManager.getSelected();
+                            selectedBundle.eventPk = "{{event.pk}}";
+                            
+                            dialog.$('#roomsTable').DataTable().destroy();
+            
+                            dialog.raiseSubmitEvent({
+                                recipientDialog: "{{recipientDialogId}}",
+                                selectedBundle: selectedBundle,
+                                csrf_token: "{{csrf_token}}",
+                            });
+                        },
+
+                    },
+                    when: [
+                        { eventKnownAs: "setState", do: (dialog, payload) => {
+                            console.log(payload)
+
+                            if ("selectedRooms" in payload) {
+                                this.locations.forEach(location => {
+                                    location.rooms.forEach(room => {
+                                        console.log(room.id, payload.selectedRooms)
+                                        room.is_selected = payload.selectedRooms.includes(parseInt(room.id));
+                                    });
+                                });
+                            }
+                        } },
+                        { eventKnownAs: "registerCallback", do: (dialog, callbackFunction) => {
+                            console.log("Registering callback", callbackFunction)
+                            dialog.vueApp.callback = callbackFunction;
+                        } }
+                    ],
+                    data: {},
                 });
             },
-        },
-        data: {},
-        plugins: [
-            { 
-                name: "presetSelectManager",
-                pluginClass: DialogPresetSelectManager,
-                args: {
-                    checkboxes: document.querySelectorAll("input[type='checkbox'][name='orderRoomDialog__checkboxArray']"),
-                    presets: new Map([
-                        {% for preset in room_presets %}
-                        [ "{{ preset.pk }}",
-                        {
-                            "key": "{{ preset.pk }}",
-                            "name": "{{ preset.name }}",
-                            "ids": [
-                                {% for room in preset.rooms.all %}
-                                    "{{ room.pk }}",
-                                {% endfor %}
-                            ],
-                        }],
-                        {% endfor %}
-                    ]),
-                    checkboxIdPrefix: "roomCheck",
-                    rooms: new Map([
-                        {% for location in locations %}
-                            {% for room in location.rooms.all %}
-                            [
-                                {{ room.pk }}, "{{ room.name }}"
-                            ],
-                            {% endfor %}
-                        {% endfor %}
-                    ]),
-                    datatables: ( dialog ) => { return dialog.querySelectorAll("table.rooms-in-location-table") },
-                }
-            }
-        ],
-    });
+            delimiters: ["[[", "]]"],
+        });
+
+        orderRoomDialogVueApp.mount(
+            document.getElementsByClassName('{{discriminator}}')[0]
+        )
+    })
 </script>

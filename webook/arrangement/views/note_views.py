@@ -19,7 +19,7 @@ from django.views.generic import (
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import DeleteView, FormView
 
-from webook.arrangement.forms.note_forms import CreateNoteForm
+from webook.arrangement.forms.note_forms import CreateNoteForm, UpdateNoteForm
 from webook.arrangement.models import Event, Location, Note
 from webook.arrangement.views.generic_views.archive_view import JsonArchiveView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
@@ -76,7 +76,9 @@ class GetNotesForEntityView(LoginRequiredMixin, PlannerAuthorizationMixin, ListV
 get_notes_view = GetNotesForEntityView.as_view()
 
 
-class PostNoteView(LoginRequiredMixin, PlannerAuthorizationMixin, JsonFormView):
+class CreateNoteView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, CreateView, JsonFormView
+):
     form_class = CreateNoteForm
 
     def form_valid(self, form):
@@ -84,7 +86,22 @@ class PostNoteView(LoginRequiredMixin, PlannerAuthorizationMixin, JsonFormView):
         return super().form_valid(form)
 
 
-post_note_view = PostNoteView.as_view()
+create_note_view = CreateNoteView.as_view()
+
+
+class UpdateNoteView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, UpdateView, JsonFormView
+):
+    model = Note
+    form_class = UpdateNoteForm
+    pk_url_kwarg = "entityPk"
+
+    def form_valid(self, form):
+        form.save(self.request.user.person)
+        return super().form_valid(form)
+
+
+update_note_view = UpdateNoteView.as_view()
 
 
 class DeleteNoteView(LoginRequiredMixin, PlannerAuthorizationMixin, JsonArchiveView):

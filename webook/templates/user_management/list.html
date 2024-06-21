@@ -3,6 +3,9 @@
 {% load custom_tags %}
 
 {% block content %}
+    {% include "arrangement/vue/dialog-component.html" %}
+    {% include "user_management/edit-user-dialog.html" %}
+
     <link rel="stylesheet" href="{% static 'vue-simple-context-menu/dist/vue-simple-context-menu.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -48,6 +51,10 @@
             </em>
         </div>
 
+        <edit-user-dialog-component ref="editUserDialog" >
+
+        </edit-user-dialog-component>
+
         <users-table
             :users="visibleUsers"
 
@@ -76,6 +83,8 @@
                 UserCard,
                 UsersTable,
                 VueSimpleContextMenu,
+                DialogComponent,
+                EditUserDialogComponent
             },
             data() {
                 return {
@@ -86,6 +95,7 @@
                     showReadOnlyUsers: true,
                     showSystemAdministrators: true,
                     showPlanners: true,
+                    userInFocus: null
                 }
             },
             computed: {
@@ -107,10 +117,11 @@
                     return await fetch("{% url 'users:users_json_list' %}").then(response => response.json())
                 },
                 openViewMoreDialog(slug, full_name) {
-                    document.dispatchEvent(new CustomEvent(
-                        'genericManager.user_admin_detail.trigger',
-                        { detail: { url: '/users/administration/' + slug + "/dialogs/user_admin_detail", title: full_name } }  
-                    ));
+                    this.userInFocus = this.allUsers.find( (user) => user.slug === slug );
+                    console.log(this.$refs)
+                    console.log(this.userInFocus);
+
+                    this.$refs.editUserDialog.open(this.userInFocus);
                 },
                 filter( users ) {
                     let matches = users;

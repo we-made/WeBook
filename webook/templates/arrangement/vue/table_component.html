@@ -32,7 +32,6 @@
             </div>
         </div>
     </div>
-    
 
     <table :class="tableClasses ? tableClasses : 'table  align-middle table-sm mt-3 text-center'">
         <thead>
@@ -49,7 +48,7 @@
                 </span>
 
                </th> 
-               <th v-if="actions">
+               <th v-if="actions && actions.length > 0">
                     <i class="fas fa-ellipsis-v"></i>
                </th>
             </tr>
@@ -66,7 +65,7 @@
                         </status-indicator-component>
                         <div class="form-group" v-if="options.componentName == 'checkbox'">
                             <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
-                                v-model="row[columnKey]">
+                                v-model="row[columnKey]" :disabled="'is_disabled' in row && row.is_disabled">
                         </div>
                     </span>
                     <span v-else>
@@ -75,7 +74,7 @@
                     </span>
                 </td>
 
-                <td v-if="actions" style="min-width: 15rem">
+                <td v-if="actions && actions.length > 0" style="min-width: 15rem">
                     <span v-if="Object.keys(actions).length > 2">
                         <div class="dropdown" id="actionDropdown">
                             <button
@@ -125,24 +124,70 @@
         </tbody>
     </table>
 
-    <nav aria-label="" class="d-flex" style="justify-content: space-between; align-items: center;">
-        <div>
+    <nav aria-label="" 
+        :class="['d-flex align-items-center', compactNav ? 'justify-content-center' : 'justify-content-between']"
+        v-if="totalPages > 1">
+
+        <div v-if="!compactNav">
           <em>[[entitiesCount]] resultater</em>
         </div>
         <ul class="pagination">
-            <li class="page-item" :class="{ disabled: page == 1 }"><a class="page-link" href="javascript:void(0)" @click.stop="page--">Forrige</a></li>
+            <li class="page-item me-1" v-if="totalPages > (pageCircumference * 2)">
+                <a href="javascript:void(0)" class="page-link fw-bold" @click.stop="page = 1">
+                    Første                    
+                </a>
+            </li>
+            <li class="page-item" :class="{ disabled: page == 1 }">
+                <a class="page-link" href="javascript:void(0)" @click.stop="page--">
+                    <i class="fas fa-arrow-left"></i> &nbsp;
+                    Forrige
+                </a>
+            </li>
             
-            <span v-for="aPage in totalPages">
-                <li :class="[{ active: aPage == page }, 'page-item']">
-                    <a href="#" class="page-link" @click="page = aPage">
-                        [[ aPage ]]
+            <span
+                v-for="aPage in pageCircumference">
+                <li class="page-item"  v-if="(page - (pageCircumference - aPage) - 1) > 0">
+                    <a href="#" class="page-link" @click="page = page - (pageCircumference - aPage) - 1">
+                        [[ page - (pageCircumference - aPage) - 1 ]]
                     </a>
                 </li>
             </span>
 
-            <li class="page-item" :class="{ disabled: page == totalPages }"><a class="page-link" href="javascript:void(0)" @click.stop="page++">Neste</a></li> 
+            <span>
+                <li class="active page-item">
+                    <a href="#" class="page-link" @click="page = page">
+                        [[ page ]]
+                    </a>
+                </li>
+            </span>
+
+            <span
+                v-for="aPage in pageCircumference">
+                <li class="page-item"  v-if="(aPage + page) <= totalPages ">
+                    <a href="#" class="page-link" @click="page = aPage + page">
+                        [[ aPage + page ]]
+                    </a>
+                </li>
+            </span>
+
+            <li class="page-item" :class="{ disabled: page == totalPages }">
+                <a class="page-link" href="javascript:void(0)" @click.stop="page++">
+                    Neste&nbsp;
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li> 
+
+            <li class="page-item ms-1" v-if="totalPages > (pageCircumference * 2)">
+                <a href="javascript:void(0)" class="page-link fw-bold" @click.stop="page = totalPages">
+                    Siste
+                </a>
+            </li>
         </ul>
     </nav>
+
+    <div v-if="compactNav" class="text-center">
+        <em>[[entitiesCount]] resultater</em>
+    </div>
 
 </template>
 
@@ -199,7 +244,8 @@
             sort: Boolean,
             tableClasses: String,
             columnNames: Object,
-            rerenderToggle: Boolean
+            rerenderToggle: Boolean,
+            compactNav: Boolean
         },
         data() {
             return {
@@ -273,11 +319,11 @@
         watch: {
             itemsPerPage() {
                 if (this.page > this.totalPages)
-                    this.page = this.totalPages;
+                    this.page = this.totalPages || 1;
             },
             totalPages() {
                 if (this.page > this.totalPages)
-                    this.page = this.totalPages;
+                    this.page = this.totalPages || 1;
             },
             rerenderToggle() {
                 console.log("Rerendering table")

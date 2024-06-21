@@ -1,3 +1,4 @@
+
 :root {
     --MAIN-COLOR: #231f20;
     --SECONDARY-COLOR: #f6f6f0 ;
@@ -20,8 +21,11 @@
 [v-cloak] {
     display: none;
   }
-  
-    
+
+.overflow-dialog {
+    overflow: visible!important;
+}
+
 .date-reel-grid-item:hover {
     background-color: #e9e8e8;
     /* border-top: solid 0.2em var(--MAIN-COLOR); */
@@ -478,7 +482,7 @@ html, body {
 }
 
 .context-menu-item:not(.context-menu-separator) {
-    padding: .5em 2em!important;
+    padding: .2em 1.5em !important;
 }
 
 .popover_content {
@@ -642,6 +646,93 @@ a.fc-event {
 
 .dialog-fullscreen {
     border-radius: 0px!important;
+
+  
+.select-card {
+    border: solid 1px var(--BORDER-STANDARD-COLOR);
+    border-radius: 0.5em;
+    padding: 1em;
+    margin: 1em;
+}
+
+.select-card:hover {
+    border: solid 1px var(--MAIN-COLOR);
+}
+
+.select-card.active {
+    background-color: var(--SECONDARY-COLOR);
+    border: solid 1px var(--MAIN-COLOR);
+}
+
+.danger-dotted-bg-pattern {
+    background-color: var(--MAIN-COLOR);
+    /* opacity: 0.9; */
+    background-size: 10px 10px;
+    background-image: repeating-linear-gradient(45deg, red 0, red 1px, white 0, white 50%);
+}
+
+.secondary-dotted-bg-pattern {
+    background-color: var(--MAIN-COLOR);
+    /* opacity: 0.9; */
+    background-size: 10px 10px;
+    background-image: repeating-linear-gradient(45deg, var(--SECONDARY-COLOR) 0, var(--SECONDARY-COLOR) 1px, white 0, white 50%);
+}
+
+
+.draggable {
+    cursor: grab
+}
+
+.draggable:active {
+    cursor: grabbing
+}
+
+.active.page-item .page-link {
+    background-color: var(--MAIN-COLOR)!important;
+}
+
+.success-circle {
+    background-color: #cee9ce;
+    border-radius: 50%;
+    width: 1.5em;
+    height: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.danger-circle {
+    background-color: #f3cbca;
+    border-radius: 50%;
+    width: 1.5em;
+    height: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+a.fc-daygrid-event  {
+    color: black;
+}
+
+.notes-row .note-summary:hover {
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.notes-row .note-summary.active {
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.select2-dropdown--below {
+    z-index: 5000000000000 !important ;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--SECONDARY-COLOR)!important;
+}
+
+.select2-selection__choice__remove {
+    color: var(--MAIN-COLOR)!important;
 }
 
 .sidenav-subheading {

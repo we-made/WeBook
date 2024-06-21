@@ -1,18 +1,27 @@
 from django.urls import path
+
 from webook.arrangement.views import (
-    calendar_samples_overview,
-    arrangement_calendar_view,
-    drill_calendar_view,
-    my_calendar_events_source_view,
     all_locations_resource_source_view,
     all_people_resource_source_view,
     all_rooms_resource_source_view,
-    rooms_on_location_resource_source_view,
+    arrangement_calendar_view,
+    calendar_samples_overview,
+    drill_calendar_view,
     location_event_source_view,
+    my_calendar_events_source_view,
+    rooms_on_location_resource_source_view,
+)
+from webook.arrangement.views.calendar_views import (
+    RoomEventSourceView,
+    get_availability_for_location_view,
 )
 
-
 calendar_urls = [
+    path(
+        route="calendar/room/<slug:slug>/events",
+        view=RoomEventSourceView.as_view(),
+        name="room_events_source",
+    ),
     path(
         route="calendar/sample_overview",
         view=calendar_samples_overview,
@@ -57,5 +66,10 @@ calendar_urls = [
         route="calendar/resources/rooms_on_location",
         view=rooms_on_location_resource_source_view,
         name="rooms_on_location_resource_source",
+    ),
+    path(
+        route="calendar/availability/location",
+        view=get_availability_for_location_view,
+        name="availability_for_location",
     ),
 ]
