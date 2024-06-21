@@ -12,7 +12,8 @@ from typing import Dict, List, Optional, Tuple
 import pytz
 from autoslug import AutoSlugField
 from colorfield.fields import ColorField
-#from crum import get_current_user
+from crum import get_current_user
+
 from django.conf import settings
 from django.db import models
 from django.db.models import FileField

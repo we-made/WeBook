@@ -7,7 +7,7 @@ unidecode==1.1.1 # https://pypi.org/project/Unidecode/
 
 # Django
 # ------------------------------------------------------------------------------
-django==3.1.1  # https://www.djangoproject.com/
+django==3.2.0  # https://www.djangoproject.com/
 django-environ==0.4.5  # https://github.com/joke2k/django-environ
 django-model-utils==4.0.0  # https://github.com/jazzband/django-model-utils
 django-allauth==0.42.0  # https://github.com/pennersr/django-allauth
@@ -22,4 +22,5 @@ python-dateutil
 django-colorfield
 schedule
 django-crum==0.7.9
+#django-storages==1.14.2
 python-json-logger==2.0.7
