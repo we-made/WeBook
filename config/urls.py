@@ -11,7 +11,7 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 
-from webook.api import api
+from webook.api.api import api
 from webook.users.views import LoginView
 
 
