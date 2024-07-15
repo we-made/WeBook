@@ -11,6 +11,7 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 
+from webook.api import api
 from webook.users.views import LoginView
 
 
@@ -47,9 +48,11 @@ urlpatterns = [
         "users/",
         include("webook.users.urls", namespace="users"),
     ),
-    path("accounts/", include("allauth.urls"))
-    if settings.ALLOW_EMAIL_LOGIN
-    else path("accounts/", include("allauth.urls")),
+    (
+        path("accounts/", include("allauth.urls"))
+        if settings.ALLOW_EMAIL_LOGIN
+        else path("accounts/", include("allauth.urls"))
+    ),
     path(
         "arrangement/",
         include("webook.arrangement.urls", namespace="arrangement"),
@@ -58,6 +61,7 @@ urlpatterns = [
         "screenshow/",
         include("webook.screenshow.urls", namespace="screenshow"),
     ),
+    path("api/", api.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
