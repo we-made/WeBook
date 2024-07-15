@@ -12,6 +12,7 @@ class RevokedToken(models.Model):
 
 
 class APIEndpoint(models.Model):
+    disabled = models.BooleanField(default=False)
     operation_id = models.CharField(max_length=255, unique=True)
     path = models.CharField(max_length=255)
 
@@ -36,5 +37,5 @@ class ServiceAccount(AbstractUser):
     def clean(self):
         super().clean()
         raise ValidationError(
-            _("Service accounts cannot be used for login on the default login page.")
+            "Service accounts cannot be used for login on the default login page."
         )
