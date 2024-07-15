@@ -14,11 +14,6 @@ api = NinjaAPI(
     auth=[django_auth, JWTBearer()],
     openapi_extra={"tags": []},
 )
-# Allows setting the description of a tag - not supported by NinjaAPI out of the box on the tag declaration itself.
-api.set_tag_doc = lambda tag, doc: api.openapi_extra["tags"].append(
-    {"name": tag, "description": doc}
-)
-
 api.add_router("/service_accounts", service_account_router)
 
 
