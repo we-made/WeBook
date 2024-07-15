@@ -35,7 +35,7 @@ class ApiConfig(AppConfig):
 
         registered_endpoints = APIEndpoint.objects.filter(disabled=False)
         registered_endpoints_url_map = {
-            x.path: x.operation_id for x in registered_endpoints
+            x.operation_id: x.path for x in registered_endpoints
         }
         registered_operation_ids = set(
             registered_endpoints.values_list("operation_id", flat=True)
