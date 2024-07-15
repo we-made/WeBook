@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 import pytz
 from autoslug import AutoSlugField
 from django.conf import settings
@@ -47,6 +48,43 @@ class CustomUserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
+class RevokedToken(models.Model):
+    token = models.CharField(max_length=255, unique=True)
+    revoked_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.token
+
+
+class APIEndpoint(models.Model):
+    operation_id = models.CharField(max_length=255, unique=True)
+    path = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.operation_id
+
+
+class ServiceAccount(AbstractUser):
+    valid_until = models.DateTimeField(null=True, blank=True)
+    last_seen = models.DateTimeField(null=True, blank=True)
+    allowed_endpoints = models.ManyToManyField(
+        APIEndpoint, related_name="service_accounts"
+    )
+
+    groups = None
+    user_permissions = None
+
+    class Meta:
+        verbose_name = "Service Account"
+        verbose_name_plural = "Service Accounts"
+
+    def clean(self):
+        super().clean()
+        raise ValidationError(
+            _("Service accounts cannot be used for login on the default login page.")
+        )
+
+
 class User(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
@@ -60,7 +98,9 @@ class User(AbstractUser):
     TIMEZONE_CHOICES = zip(pytz.all_timezones, pytz.all_timezones)
     timezone = models.CharField(max_length=255, default=settings.USER_DEFAULT_TIMEZONE)
 
-    is_user_admin = models.BooleanField(verbose_name="User Administrator", default=False)
+    is_user_admin = models.BooleanField(
+        verbose_name="User Administrator", default=False
+    )
 
     objects = CustomUserManager()
 
