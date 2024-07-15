@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import logging
 from ninja.security import HttpBearer
-from webook.users.models import ServiceAccount, RevokedToken
+from webook.api.models import ServiceAccount, RevokedToken
 from django.conf import settings
 from jwt import ExpiredSignatureError, decode, DecodeError, encode
 from ninja.errors import HttpError

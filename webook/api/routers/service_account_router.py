@@ -4,7 +4,7 @@ from ninja import Router
 from ninja.security import django_auth_superuser
 from webook.api.jwt_auth import issue_token
 from webook.api.schemas.base_schema import BaseSchema
-from webook.users.models import ServiceAccount
+from webook.api.models import ServiceAccount
 from django.core.exceptions import PermissionDenied
 from jwt import encode
 from django.conf import settings
