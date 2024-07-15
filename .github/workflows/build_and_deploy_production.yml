@@ -1,0 +1,22 @@
+name: 'Build & Deploy'
+
+on:
+  push:
+    branches:
+      - prod_stable
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the current branch
+      - uses: actions/checkout@v3
+
+      # Build and publish the docker image
+      - name: Publish to DockerHub
+        uses: elgohr/Publish-Docker-Github-Action@v4
+        with:
+          name: wemadefree/webook-nm
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io

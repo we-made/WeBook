@@ -1,0 +1,650 @@
+{% extends "common/meta_base.html" %}
+{% load static i18n %}
+{% load custom_tags %}
+
+{% block container_classes %}
+container-fluid
+{% endblock %}
+
+{% block superheader %}
+
+<div class="sticky-top border-bottom" >
+    <nav class="navbar navbar-expand-lg navbar-light bg-white p-2 pb-0 wb-sub-bar shadow-0">
+        <div class="container-fluid p-0">
+          <div
+            class="collapse navbar-collapse p-0 "
+            id="navbarCenteredExample"
+          >
+            <div class="row calendar-btn-nav" style="flex-basis: 100%;">
+                <div class="col-4">
+                    <div class="btn-group wb-btn-white shadow-0">
+                        <button class="btn border-1 wb-large-btn wb-btn-white shadow-0"
+                            id="planner__moveBackOneIntervalButton">
+                            <h5 class="mb-0"> <i class="fas fa-angle-left"></i> </h5>
+                        </button>
+                        <button class="btn border-1 wb-large-btn wb-btn-white shadow-0"
+                            id="planner__moveForwardOneIntervalButton">
+                            <h5 class="mb-0"> <i class="fas fa-angle-right"></i> </h5>
+                        </button>
+                    </div>
+
+                    <span  style="font-size: large!important;;" class="me-5 ms-5">
+                        <span id="plannerCalendarHeader"></span>
+                    </span>
+
+                    <button class="btn wb-large-btn wb-btn-secondary ms-2 border-0 shadow-0"
+                        id="planner__todayButton">
+                        I dag
+                    </button>
+                    <button class="btn  wb-large-btn  wb-btn-secondary border-0 shadow-0"
+                        type="button"
+                        title="Gå til dato"
+                        data-mdb-toggle="tooltip"
+                        id="planner__goToDateButton">
+                        <i class="fas fa-door"></i>
+                        <i class="fas fa-calendar"></i>
+                    </button>
+                </div>
+                <div class="col-4">
+                    <ul class="nav nav-tabs webook-tabs border-0 justify-content-center" id="sectionNav">
+                        <li class="nav-item" role="presentation">
+                            <a href="#" onclick="$('#overview-tab')[0].click(); setNavActive(this);" class="nav-link active">
+                                <i class="fas fa-theater-masks"></i>&nbsp; 
+                                Arrangementer
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="#" role="presentation" class="nav-link"
+                                onclick="$('#locations-tab')[0].click(); setNavActive(this);">
+                                <i class="fas fa-building"></i>&nbsp; 
+                                Lokasjoner
+                            </a>
+                        </li>
+                        {% if user|has_group:"planners" or user.is_superuser %}
+                        <li class="nav-item" role="presentation">
+                            <a href="#" onclick="$('#people-tab')[0].click(); setNavActive(this);" class="nav-link">
+                                <i class="fas fa-users"></i>&nbsp; 
+                                Personer
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% if user|has_group:"planners" or user.is_superuser %}
+                <div class="col-4">
+                    <button class="btn wb-btn-main float-end" id="newArrangementBtn">
+                        <i class="fas fa-plus"></i>&nbsp; Opprett arrangement
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+          </div>
+        </div>
+    </nav>
+</div>
+{% endblock %}
+
+{% block noheader %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="{% static 'css/planner.css' %}">
+<link rel="stylesheet" href="{% static 'css/loadingHint.css' %}">
+
+<script src="https://dragselect.com/v2/ds.min.js"></script>
+<script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="clearfix">
+            <div class="float-start">
+                <ul class="nav nav-tabs rounded-top mt-4 fc-tabs" style="display: none;" id="navTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active text-center" id="overview-tab" data-mdb-toggle="tab" href="#universeCalendar" role="tab" aria-controls="universe" aria-selected="true">
+                        <span class="mb-0"><i class="fas fa-eye"></i></span>
+                        &nbsp; <span>Arrangementer</span></a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link text-center" id="locations-tab" data-mdb-toggle="tab" href="#locationsCalendar" role="tab" aria-controls="locations" aria-selected="true">
+                        <span class="mb-0"><i class="fas fa-building"></i></span>
+                        &nbsp; <span>Lokasjoner</span></a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="people-tab" data-mdb-toggle="tab" href="#peopleCalendar" role="tab" aria-controls="people" aria-selected="false">
+                        <span class="mb-0"><i class="fas fa-users"></i></span>
+                        &nbsp; <span>Personer</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="clearfix">
+            <div class="float-start">
+                <div id="planner__viewNavigationHeader">
+                </div>
+            </div>
+            <div class="float-end d-inline">
+                <div id="location-and-rooms-popover-filter" class="mb-2 d-inline">
+                    <button class="btn wb-btn-white wb-large-btn btn-lg" id="location-and-rooms-popover-filter-trigger">
+                        <i class="fas fa-building text-dark"></i>&nbsp;
+                        Lokasjoner & Rom
+                    </button>
+                    <span id="location-and-rooms-popover-filter-content">
+                    </span>
+                </div>
+                <div id="audience-popover-filter" class="mb-2  d-inline">
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" id="audience-popover-filter-trigger">
+                        <i class="fas fa-theater-masks text-dark"></i>&nbsp;
+                        Målgruppe
+                        <i class="fas fa-angle-down"></i>
+                    </button>
+                    <span id="audience-popover-filter-content">
+                    </span>
+                </div>
+                <div id="arrangement-type-popover-filter" class="mb-2  d-inline">
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" id="arrangement-type-popover-filter-trigger">
+                        <i class="fas fa-cog text-dark"></i>&nbsp;
+                        Arrangementstyper
+                        <i class="fas fa-angle-down"></i>
+                    </button>
+                    <span id="arrangement-type-popover-filter-content">
+                    </span>
+                </div>
+                <div id="status-type-popover-filter" class="mb-2  d-inline">
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" id="status-type-popover-filter-trigger">
+                        <i class="fas fa-cog text-dark"></i>&nbsp;
+                        Status
+                        <i class="fas fa-angle-down"></i>
+                    </button>
+                    <span id="status-type-popover-filter-content">
+                    </span>
+                </div>
+                <div class="mb-2 d-inline">
+                    <button class="btn wb-btn-white btn-lg wb-large-btn" 
+                            id="clearAllFilters"
+                            data-mdb-toggle="tooltip"
+                            title="Fjern alle filtervalg">
+                        &nbsp;<i class="fas fa-times text-dark"></i>&nbsp;
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="calendars">
+            <div class="tab-pane show active" id="universeCalendar" role="tabpanel" aria-labelledby="universeCalendar-tab">
+                <div id="arrangementPlannerCalendar"></div>
+            </div>
+            <div class="tab-pane" id="locationsCalendar" role="tabpanel" aria-labelledby="locationsCalendar-tab">
+                {% if user|has_group:"planners" or user.is_superuser %}
+                <div class="clearfix">
+                    <div class="float-end">
+                        <div class="btn-group shadow-0">
+                            <a class="btn float-end wb-btn-blank border mt-2"
+                                href="{% url 'arrangement:location_list' %}">
+                                <i class="fas fa-list"></i>&nbsp;
+                                Alle lokasjoner
+                            </a>
+                            <a class="btn float-end wb-btn-blank border mt-2"
+                                href="{% url 'arrangement:location_create' %}">
+                                <i class="fas fa-plus"></i>&nbsp;
+                                Registrer ny lokasjon
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div id="locationsPlannerCalendar"></div>
+            </div>
+            <div class="tab-pane" id="peopleCalendar" role="tabpanel" aria-labelledby="peopleCalendar-tab">
+                {% if user|has_group:"planners" or user.is_superuser %}
+                <div class="clearfix">
+                    <div class="float-end">
+                        <div class="btn-group shadow-0">
+                            <a class="btn float-end wb-btn-blank border mt-2"
+                                href="{% url 'arrangement:person_list' %}">
+
+                                <i class="fas fa-list"></i>&nbsp;
+                                Alle personer
+                            </a>
+                            <a class="btn float-end wb-btn-blank border mt-2"
+                                href="{% url 'arrangement:person_create' %}">
+                                <i class="fas fa-plus"></i>&nbsp;
+                                Registrer ny person
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div id="peoplePlannerCalendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="{% static 'modules/planner/dialog_manager/dialog.js' %}"></script>
+<script src="{% static 'modules/planner/dialog_manager/presetSelectManagerPlugin.js' %}"></script>
+<script src="{% static 'modules/planner/dialog_manager/showIfSelectedPlugin.js' %}"></script>
+<script src="{% static 'modules/planner/dialog_manager/dataSyncToManagerPlugin.js' %}"></script>
+
+<script>
+    function setNavActive(triggeredBy) {
+        document.querySelectorAll('#sectionNav .nav-link').forEach( (el) => el.classList.remove("active") );
+        triggeredBy.classList.add("active");
+    }
+</script>
+
+<script type="module">
+    import { PlannerCalendar } from "{% static 'modules/planner/plannerCalendar.js' %}";
+    import { LocationCalendar } from "{% static 'modules/planner/locationCalendar.js' %}";
+    import { PersonCalendar } from "{% static 'modules/planner/personCalendar.js' %}";
+    import { ArrangementCreator } from "{% static 'modules/planner/arrangementCreator.js' %}";
+    import { AdvancedCategoricalFilter } from "{% static 'js/advancedCategoricalFilter.js' %}";
+    import { AdvancedTreeFilter, NORMAL_CASCADE_BEHAVIOUR, PARENT_INDEPENDENT_CASCADE_BEHAVIOUR } from "{% static 'js/advancedTreeFilter.js' %}";
+    import { CalendarFilter } from "{% static 'modules/planner/commonLib.js' %}";
+    import { EventInspector } from "{% static 'modules/planner/eventInspector.js' %}";
+    import { ArrangementInspector } from "{% static 'modules/planner/arrangementInspector.js' %}";
+
+    let activeCalendar;
+    let calendarFilter = new CalendarFilter( (filter) => { activeCalendar.init(); } );
+    let eventInspector = new EventInspector();
+    let arrangementInspector = new ArrangementInspector();
+
+    function reflectFilterStateOnTriggerElement(filter, countOfSelectedItems=0) {
+        filter.triggerElement.classList.remove("border-dark");
+        filter.triggerElement.querySelectorAll('.count-badge').forEach( (el) => el.remove() );
+
+        if (countOfSelectedItems) {
+            let badge = document.createElement('span');
+            badge.classList.add("badge", "badge-primary", "count-badge");
+            badge.innerHTML = "<i class='fas fa-filter'></i> " + countOfSelectedItems;
+            filter.triggerElement.appendChild(badge);
+
+            filter.triggerElement.classList.add("border-dark");
+        }
+    }
+
+    const statusTypeFilter = new AdvancedTreeFilter({
+        title: 'Status',
+        triggerElement: document.getElementById('status-type-popover-filter-trigger'),
+        wrapperElement: document.getElementById('status-type-popover-filter-content'),
+        onSubmit: function (filter, selectedNodes) {
+            const slugs = selectedNodes.map( (node) => node.data.slug );
+            calendarFilter.filterStatusTypes(slugs);
+
+            reflectFilterStateOnTriggerElement(filter, slugs.length);
+        },
+        treeSrcUrl: "{% url 'arrangement:statustype_tree' %}",
+        cascadeBehaviour: PARENT_INDEPENDENT_CASCADE_BEHAVIOUR,
+        isSearchable: false,
+    });
+
+    const arrangementTypeTreeFilter = new AdvancedTreeFilter({
+        title: 'Arrangementstyper',
+        triggerElement: document.getElementById('arrangement-type-popover-filter-trigger'),
+        wrapperElement: document.getElementById('arrangement-type-popover-filter-content'),
+        onSubmit: function (filter, selectedNodes) {
+            const slugs = selectedNodes.map( (node) => node.data.slug );
+            calendarFilter.filterArrangementTypes(slugs);
+
+            reflectFilterStateOnTriggerElement(filter, slugs.length);
+        },
+        treeSrcUrl: "{% url 'arrangement:arrangement_type_tree_list' %}",
+        cascadeBehaviour: NORMAL_CASCADE_BEHAVIOUR,
+        isSearchable: true,
+    });
+
+    const audienceTreeFilter = new AdvancedTreeFilter({
+        title: 'Målgrupper',
+        triggerElement: document.getElementById('audience-popover-filter-trigger'),
+        wrapperElement: document.getElementById('audience-popover-filter-content'),
+        onSubmit: function (filter, selectedNodes) { 
+            const slugs = selectedNodes.map( (node) => node.data.slug );
+            calendarFilter.filterAudiences(slugs);
+
+            reflectFilterStateOnTriggerElement(filter, slugs.length);
+        },
+        treeSrcUrl: "{% url 'arrangement:audience_tree' %}",
+        isSearchable: true,
+    });
+
+    const locationAndRoomsFilter = new AdvancedTreeFilter({
+        title: 'Lokasjoner & Rom',
+        triggerElement: document.getElementById('location-and-rooms-popover-filter-trigger'),
+        wrapperElement: document.getElementById('location-and-rooms-popover-filter-content'),
+        onSubmit: function (filter, selectedNodes, undeterminedNodes) {
+            let locationSlugs = selectedNodes.filter( x => x.parent === "#" ).map( x => x.id );
+            let roomSlugs = selectedNodes.filter( x => x.parent !== "#" ).map( x => { return { id: x.id }; } );
+
+            reflectFilterStateOnTriggerElement(filter, roomSlugs.length);
+
+            calendarFilter.filterRooms(roomSlugs, false);
+            calendarFilter.filterLocations(locationSlugs);
+        },
+        treeSrcUrl: "{% url 'arrangement:location_tree' %}",
+        cascadeBehaviour: NORMAL_CASCADE_BEHAVIOUR,
+        isSearchable: true,
+    });
+
+    // Temporary until we rewrite to use Vue
+    document.getElementById("clearAllFilters").addEventListener('click', function () {
+        statusTypeFilter.clear();
+        arrangementTypeTreeFilter.clear();
+        audienceTreeFilter.clear();
+        locationAndRoomsFilter.clear();
+    });
+
+    const colorSwatch = [
+        "#63b598", "#ce7d78", "#ea9e70", "#a48a9e", "#c6e1e8", "#648177", "#0d5ac1",
+        "#f205e6", "#1c0365", "#14a9ad", "#4ca2f9", "#a4e43f", "#d298e2", "#6119d0",
+        "#d2737d", "#c0a43c", "#f2510e", "#651be6", "#79806e", "#61da5e", "#cd2f00",
+        "#9348af", "#01ac53", "#c5a4fb", "#996635", "#b11573", "#4bb473", "#75d89e",
+        "#2f3f94", "#2f7b99", "#da967d", "#34891f", "#b0d87b", "#ca4751", "#7e50a8",
+        "#c4d647", "#e0eeb8", "#11dec1", "#289812", "#566ca0", "#ffdbe1", "#2f1179",
+        "#935b6d", "#916988", "#513d98", "#aead3a", "#9e6d71", "#4b5bdc", "#0cd36d",
+        "#250662", "#cb5bea", "#228916", "#ac3e1b", "#df514a", "#539397", "#880977",
+        "#f697c1", "#ba96ce", "#679c9d", "#c6c42c", "#5d2c52", "#48b41b", "#e1cf3b",
+        "#5be4f0", "#57c4d8", "#a4d17a", "#be608b", "#96b00c", "#088baf", "#f158bf",
+        "#e145ba", "#ee91e3", "#05d371", "#5426e0", "#4834d0", "#802234", "#6749e8",
+        "#0971f0", "#8fb413", "#b2b4f0", "#c3c89d", "#c9a941", "#41d158", "#fb21a3",
+        "#51aed9", "#5bb32d", "#21538e", "#89d534", "#d36647", "#7fb411", "#0023b8",
+        "#3b8c2a", "#986b53", "#f50422", "#983f7a", "#ea24a3", "#79352c", "#521250",
+        "#c79ed2", "#d6dd92", "#e33e52", "#b2be57", "#fa06ec", "#1bb699", "#6b2e5f",
+        "#64820f", "#21538e", "#89d534", "#d36647", "#7fb411", "#0023b8", "#3b8c2a",
+        "#986b53", "#f50422", "#983f7a", "#ea24a3", "#79352c", "#521250", "#c79ed2",
+        "#d6dd92", "#e33e52", "#b2be57", "#fa06ec", "#1bb699", "#6b2e5f", "#64820f",
+        "#9cb64a", "#996c48", "#9ab9b7", "#06e052", "#e3a481", "#0eb621", "#fc458e",
+        "#b2db15", "#aa226d", "#792ed8", "#73872a", "#520d3a", "#cefcb8", "#a5b3d9",
+        "#7d1d85", "#c4fd57", "#f1ae16", "#8fe22a", "#ef6e3c", "#243eeb", "#dd93fd",
+        "#3f8473", "#e7dbce", "#421f79", "#7a3d93", "#635f6d", "#93f2d7", "#9b5c2a",
+        "#15b9ee", "#0f5997", "#409188", "#911e20", "#1350ce", "#10e5b1", "#fff4d7",
+        "#cb2582", "#ce00be", "#32d5d6", "#608572", "#c79bc2", "#00f87c", "#77772a",
+        "#6995ba", "#fc6b57", "#f07815", "#8fd883", "#060e27", "#96e591", "#21d52e",
+        "#d00043", "#b47162", "#1ec227", "#4f0f6f", "#1d1d58", "#947002", "#bde052",
+        "#e08c56", "#28fcfd", "#36486a", "#d02e29", "#1ae6db", "#3e464c", "#a84a8f",
+        "#911e7e", "#3f16d9", "#0f525f", "#ac7c0a", "#b4c086", "#c9d730", "#30cc49",
+        "#3d6751", "#fb4c03", "#640fc1", "#62c03e", "#d3493a", "#88aa0b", "#406df9",
+        "#615af0", "#2a3434", "#4a543f", "#79bca0", "#a8b8d4", "#00efd4", "#7ad236",
+        "#7260d8", "#1deaa7", "#06f43a", "#823c59", "#e3d94c", "#dc1c06", "#f53b2a",
+        "#b46238", "#2dfff6", "#a82b89", "#1a8011", "#436a9f", "#1a806a", "#4cf09d",
+        "#c188a2", "#67eb4b", "#b308d3", "#fc7e41", "#af3101", "#71b1f4", "#a2f8a5",
+        "#e23dd0", "#d3486d", "#00f7f9", "#474893", "#3cec35", "#1c65cb", "#5d1d0c",
+        "#2d7d2a", "#ff3420", "#5cdd87", "#a259a4", "#e4ac44", "#1bede6", "#8798a4",
+        "#d7790f", "#b2c24f", "#de73c2", "#d70a9c", "#88e9b8", "#c2b0e2", "#86e98f",
+        "#ae90e2", "#1a806b", "#436a9e", "#0ec0ff", "#f812b3", "#b17fc9", "#8d6c2f",
+        "#d3277a", "#2ca1ae", "#9685eb", "#8a96c6", "#dba2e6", "#76fc1b", "#608fa4",
+        "#20f6ba", "#07d7f6", "#dce77a", "#77ecca"
+    ]
+
+    function _listenToLocationCheckboxes () {
+        let checkboxes = document.querySelectorAll("input[type=checkbox][name=filterLocationsCheckboxArray]");
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                let slugs = Array.from(checkboxes)
+                    .map(i => i.checked + "|" + i.value)
+                document.dispatchEvent(
+                    new CustomEvent("plannerCalendar.filter.updateLocationFilter", { "detail": {
+                        slugs: slugs 
+                    }})
+                )
+            });
+        })
+    }
+
+    class ColorByArrangementProvider {
+        constructor () {
+            this._seenArrangements = new Map();
+            this._pickedColors = new Map();
+        }
+
+        _pickUniqueColor() {
+            for (let i = 0; i < colorSwatch.length; i++) {
+                let color = colorSwatch[i];
+                if (this._pickedColors.has(color) === false) {
+                    this._pickedColors.set(color, true);
+                    return color;
+                }
+            }
+
+            return "green";
+        }
+
+        getColor(arrangement) {
+            if (this._seenArrangements.has(arrangement.slug)) {
+                return this._seenArrangements.get(arrangement.slug);
+            }
+
+            let color = this._pickUniqueColor();
+
+            this._seenArrangements.set(arrangement.slug, color);
+            return color;
+        }
+    }
+
+    class ColorByMainPlannerColorProvider {
+        constructor () {
+            this._seenPlanners = new Map();
+            this._pickedColors = new Map();
+        }
+
+        _pickUniqueColor() {
+            for (let i = 0; i < colorSwatch.length; i++) {
+                let color = colorSwatch[i];
+                if (this._pickedColors.has(color) === false) {
+                    this._pickedColors.set(color, true);
+                    return color;
+                }
+            }
+
+            return "green";
+        }
+
+        getColor(arrangement) {
+            if (this._seenPlanners.has(arrangement.mainPlannerName)) {
+                return this._seenPlanners.get(arrangement.mainPlannerName);
+            }
+
+            let color = this._pickUniqueColor();
+
+            this._seenPlanners.set(arrangement.mainPlannerName, color);
+            return color;
+        }
+    }
+
+    class ColorByAudienceColorProvider {
+        constructor () {
+            this._seenAudiences = new Map();
+            this._pickedColors = new Map();
+        }
+
+        _pickUniqueColor() {
+            for (let i = 0; i < colorSwatch.length; i++) {
+                let color = colorSwatch[i];
+                if (this._pickedColors.has(color) === false) {
+                    this._pickedColors.set(color, true);
+                    return color;
+                }
+            }
+
+            return "green";
+        }
+
+        getColor(arrangement) {
+            if (this._seenAudiences.has(arrangement.audience)) {
+                return this._seenAudiences.get(arrangement.audience);
+            }
+
+            let color = this._pickUniqueColor();
+
+            this._seenAudiences.set(arrangement.audience, color);
+            return color;
+        }
+    }
+
+    let arrangementCreator;
+    let activeDate = new Date();
+
+    document.getElementById('planner__todayButton').addEventListener('click', (event) => {
+        let activeFcCalendar = activeCalendar.getFcCalendar();
+        activeFcCalendar.today();
+        activeDate = activeFcCalendar.getDate();
+    });
+    document.getElementById('planner__moveBackOneIntervalButton').addEventListener('click', (event) => {
+        let activeFcCalendar = activeCalendar.getFcCalendar();
+        activeFcCalendar.prev();
+        activeDate = activeFcCalendar.getDate();
+    });
+    document.getElementById('planner__moveForwardOneIntervalButton').addEventListener('click', (event) => {
+        let activeFcCalendar = activeCalendar.getFcCalendar();
+        activeFcCalendar.next();
+        activeDate = activeFcCalendar.getDate();
+    });
+    document.getElementById('planner__goToDateButton').addEventListener('click', (event) => {
+        Swal.fire({
+            title: 'Gå til dato',
+            html: "<input type='date' id='swalGoToDate' class='form-control'></input>",
+            showCancelButton: true,
+            confirmButtonText: 'Gå til dato',
+            cancelButtonText: 'Avbryt',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let date = new Date(document.getElementById('swalGoToDate').value);
+                activeDate = date;
+                debugger;
+                activeCalendar.lastGoneToDate = date;
+                activeCalendar.getFcCalendar().gotoDate(activeDate);
+            }
+        })
+    });
+    
+
+    document.addEventListener('DOMContentLoaded', function() {
+        arrangementCreator = new ArrangementCreator();
+        _listenToLocationCheckboxes();
+        $('#newArrangementBtn').on('click', () => {
+            arrangementCreator.open();
+        })
+
+        let plannerCalendar = new PlannerCalendar({
+            calendarElement: document.getElementById('arrangementPlannerCalendar'),
+            arrangementInspectorUtility: arrangementInspector,
+            eventInspectorUtility: eventInspector,
+            eventsSrcUrl: "/arrangement/planner/arrangements_in_period",
+            colorProviders: [ 
+                { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
+                { key: "audience", provider: new ColorByAudienceColorProvider() },
+                { key: "arrangement", provider: new ColorByArrangementProvider() },
+            ],
+            initialColorProvider: "arrangement",
+            $locationFilterSelectEl: $("#plannerCalendarFilter_locationFilter"),
+            $arrangementTypeFilterSelectEl: $("#plannerCalendarFilter_arrangementTypes"),
+            $audienceTypeFilterSelectEl: $("#plannerCalendarFilter_audiences"),
+            csrf_token: '{{ csrf_token }}',
+            calendarFilter: calendarFilter,
+            licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+            navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
+            useOnclickEvents: {% if user|has_group:"planners" or user|has_group:"readonly_level_2" or user.is_superuser %}true{% else %}false{% endif %},
+            renderContextMenu: {% if user|has_group:"planners" or user|has_group:"readonly_level_2" or user.is_superuser %}true{% else %}false{% endif %},
+            renderPopovers: true,
+            showAdministrativeActionsInContextMenu: {% if user|has_group:"planners" or user.is_superuser %}true{% else %}false{% endif %},
+        });
+
+        let locationsCalendar = new LocationCalendar({
+            calendarElement: document.getElementById('locationsPlannerCalendar'),
+            arrangementInspector,
+            eventInspector,
+            colorProviders: [ 
+                { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
+                { key: "audience", provider: new ColorByAudienceColorProvider() },
+                { key: "arrangement", provider: new ColorByArrangementProvider() },
+            ],
+            initialColorProvider: "arrangement",
+            useOnclickEvents: {% if user|has_group:"planners" or user|has_group:"readonly_level_2" or user.is_superuser %}true{% else %}false{% endif %},
+            licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+            calendarFilter: calendarFilter,
+            navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
+        });
+
+        {% if user|has_group:"planners" or user.is_superuser %}
+        let peopleCalendar = new PersonCalendar({
+            calendarElement: document.getElementById('peoplePlannerCalendar'),
+            arrangementInspector: arrangementInspector,
+            eventInspector: eventInspector,
+            colorProviders: [ 
+                { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
+                { key: "audience", provider: new ColorByAudienceColorProvider() },
+                { key: "arrangement", provider: new ColorByArrangementProvider() },
+            ],
+            initialColorProvider: "arrangement",
+            calendarFilter: calendarFilter,
+            licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+            navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
+        });
+        {% endif %}
+
+        activeCalendar = plannerCalendar; // default active calendar
+        activeCalendar.renderNavigationButtons();
+
+        let mainCalendarFilterWrapper = $('#plannerCalendarFilter');
+        
+        $('#calendarFocusSelect').on("change", function () {
+            plannerCalendar.setActiveColorProvider(this.value);
+            plannerCalendar.refresh();
+        });
+
+        document.addEventListener('zenmode.activated', (event) => {
+            plannerCalendar.refresh();
+        })
+
+        document.addEventListener('plannerCalendar.calendarChange', function (e) {
+            activeCalendar = e.detail.changeTo;
+            activeCalendar.getFcCalendar().gotoDate(activeDate);
+            activeCalendar.renderNavigationButtons();
+        });
+
+        $('#overview-tab')[0].addEventListener('shown.mdb.tab', (event) => {
+            document.dispatchEvent(new CustomEvent('plannerCalendar.calendarChange', {
+                detail: {
+                    changeTo: plannerCalendar
+                }
+            }));
+
+            mainCalendarFilterWrapper.show();
+            plannerCalendar.refresh();
+        });
+        $('#locations-tab')[0].addEventListener('shown.mdb.tab', (event) => {
+            document.dispatchEvent(new CustomEvent('plannerCalendar.calendarChange', {
+                detail: {
+                    changeTo: locationsCalendar
+                }
+            }));
+
+            mainCalendarFilterWrapper.hide();
+            locationsCalendar.refresh();
+        });
+        {% if user|has_group:"planners" or user.is_superuser %}
+        $('#people-tab')[0].addEventListener('shown.mdb.tab', (event) => {
+            document.dispatchEvent(new CustomEvent('plannerCalendar.calendarChange', {
+                detail: {
+                    changeTo: peopleCalendar
+                }
+            }));
+
+            mainCalendarFilterWrapper.hide();
+            peopleCalendar.refresh();
+        });
+        {% endif %}
+    });
+</script>
+
+{% endblock %}

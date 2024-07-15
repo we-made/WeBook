@@ -89,6 +89,20 @@ python manage.py migrate
 coverage run -m pytest
 ```
 
+### <a name="installing-npm">Installing NPM</a>
+
+
+```bash
+choco install -y --force nodejs
+```
+or use the web-browser to install it. [NodeJS](https://nodejs.org/en/download/)
+
+## <a name="update-assets">Update assets</a>
+
+```
+Please update your APP_LOGO in the .env file. And upload the new logo to the server.
+```
+
 
 ## <a name="troubleshooting">Troubleshooting</a>
 
@@ -133,4 +147,32 @@ dropdb --if-exists webook
 dropuser --if-exists myuser
 ```
 
+## Environment Variables
 
+### APP_TITLE
+The name of the application shown to users. For instance on the log-in screen, sidemenu, and so on.
+
+### APP_LOGO
+Path to the main application logo. Shown on login screen, sidemenu, etc..
+
+### FULLCALENDAR_LICENSEKEY
+The FullCalendar License Key. Needed for rendering FullCalendar. In non-commercial use cases one can use the trial key. But in commercial context you need to use a valid key. WeBook is written with the premium version of FullCalendar in mind, so it is important this is dealt with. If the project is open source, the `'GPL-My-Project-Is-Open-Source'` key can be used instead.
+
+### ASSET_SERVER_URL
+Links to an asset server, that serves assets that can because of license constraints not be included in the repository. The way we run this internally on our environments is to simply use an NGINX server that serves out  or MDBOOTSTRAP assets to our development instances.
+
+### USER_DEFAULT_TIMEZONE
+The default timezone that each user will be assigned on-creation. If none is defined then UTC is used.
+Set the timezone you expect most of your users to be in. This can later be changed on a user to user basis.
+
+## About translations
+To activate another translation you need to compile the .po files into .mo files. We do not store the .mo files
+in git. It can be done very simply:
+
+```bash
+python manage.py compilemessages
+```
+This command will run over all available .po files and create .mo files, which are binary files optimized for
+use by gettext.
+
+Remember to also change the language code.

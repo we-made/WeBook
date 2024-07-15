@@ -1,0 +1,63 @@
+<div id="{{dialogId}}" class="{{discriminator}}" title="Velg planleggere">
+    <div>
+        <div>
+            <select id="addPlannersDialog_plannersSelect" multiple
+                class="form-control">
+                {% for person in people %}
+                    {% if person.is_already_planner == True %}
+                        <option value="{{person.pk}}" disabled>{{person}}</option>
+                    {% else %}
+                        <option value="{{person.pk}}">{{person}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="clearfix">
+            <label class="text-muted small float-end">Føringer i grå er personer som allerede er planleggere.</label>
+        </div>
+        
+        <div class="clearfix mt-2">
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary btn-lg"
+                    d-trigger="close">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+                <a
+                    type="button"
+                    class="btn wb-btn-main float-end btn-lg ms-2"
+                    d-trigger="submit"
+                    d-arg-arrangement_slug="{{arrangement.slug}}">
+                    <i class="fas fa-check"></i>
+                    Legg til valgte planleggere
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        new Dialog({
+            managerName: '{{managerName}}',
+            dialogId: '{{dialogId}}',
+            discriminator: '{{discriminator}}',
+            postInit: function (dialog) {},
+            methods: {
+                close(dialog, {} = {}, triggeredByElement) {
+                    dialog.closeMe();
+                },
+                submit(dialog, { arrangementSlug } = {}, triggeredByElement) {
+                    let planners = dialog.$("#addPlannersDialog_plannersSelect").val().join(","); 
+
+                    dialog.raiseSubmitEvent({
+                        plannerIds: planners, 
+                        arrangementSlug: arrangementSlug, 
+                        csrf_token: '{{csrf_token}}' 
+                    });
+                },
+            },
+            data: {}
+        })
+    })
+</script>

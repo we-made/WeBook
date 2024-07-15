@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block section_title %}
+{% endblock %}
+
+{% block container_classes %}
+container-fluid
+{% endblock %}
+
+{%block noheader%}
+{%endblock%}
+
+{% block superheader %}
+
+{% url "users:detail" request.user.slug as overview_url %}
+{% url "users:update" as my_info_url %}
+{% url "account_email" as emails_url %}
+{% url "account_reset_password" as account_reset_password_url %}
+
+<div>
+  <div class="mt-5 pb-0 mb-0">
+    {% if request.user.profile_picture %}
+    <div class=" d-inline">
+      <img src="{{ request.user.profile_picture.url }}" class="border border-4 border-light mb-4" style="width:400px">
+    </div>
+    {% endif %}
+  
+
+    <h1 class="fw-bold ps-0 pb-1 pt-1 mb-0 header-fonted">
+      Velkommen tilbake, {{ request.user.person.full_name }}
+    </h1>
+    <div class="d-inline-block h5 mb-0">
+    </div>
+
+    <ul class="nav webook-tabs nav-tabs mb-3 mt-0" id="myTab0" role="tablist">
+      <a class="nav-link {% if request.get_full_path == overview_url %}active{% endif %}"
+          id="v-tabs-overview-tab"
+          href="{% url 'users:detail' request.user.slug  %}"
+          aria-controls="v-tabs-overview"
+          aria-selected="{% if request.get_full_path == overview_url %}true{% else %}false{% endif %}">
+          <i class="fas fa-user"></i>&nbsp; 
+          Min side
+      </a>
+      <a
+        class="nav-link {% if request.get_full_path == my_info_url %}active{% endif %}"
+        id="v-tabs-my-info-tab"
+        href="{% url 'users:update' %}"
+        aria-controls="v-tabs-my-info"
+        aria-selected="{% if request.get_full_path == my_info_url %}true{% else %}false{% endif %}">
+        <i class="fas fa-info-circle"></i>&nbsp; 
+        Brukerinformasjon
+      </a>
+      <a
+        class="nav-link {% if request.get_full_path == emails_url %}active{% endif %}"
+        id="v-tabs-email-tab"
+        href="{% url 'account_email' %}"
+        aria-controls="v-tabs-email"
+        aria-selected="{% if request.get_full_path == emails_url %}true{% else %}false{% endif %}">
+        <i class="fas fa-at"></i>&nbsp; 
+        E-Post
+        <a
+        class="nav-link {% if request.get_full_path == account_reset_password_url %}active{% endif %}"
+        id="v-tabs-reset-password-tab"
+        href="{% url 'account_reset_password' %}"
+        aria-controls="v-tabs-reset-password"
+        aria-selected="{% if request.get_full_path == account_reset_password_url %}true{% else %}false{% endif %}">
+        <i class="fas fa-lock"></i>&nbsp; 
+        Endre passord
+      </a>
+    </ul>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+    <div class="">
+      {% block inner %}{% endblock %}
+    </div>
+{% endblock %}

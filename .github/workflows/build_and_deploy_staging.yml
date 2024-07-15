@@ -1,0 +1,33 @@
+name: 'Build & Deploy'
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the current branch
+      - uses: actions/checkout@v3
+
+      # Build and publish the docker image
+      - name: Publish to DockerHub
+        uses: elgohr/Publish-Docker-Github-Action@v4
+        with:
+          name: wemadefree/webook-nm
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+
+      # SSH into the Azure VM and run the deployment script.
+      - name: Redeploy the application on the remote server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.NM_GCP_STAGING_HOST }}
+          username: ${{ secrets.NM_GCP_STAGING_USER }}
+          key: ${{ secrets.NM_GCP_STAGING_SSH }}
+          script: |
+            cd ${{ secrets.NM_GCP_STAGING_PATH }}
+            ./deploy_staging.sh

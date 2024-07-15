@@ -1,0 +1,90 @@
+{% extends "common/meta_base.html" %}
+{% load static i18n %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-sm-12">
+                        <label class="d-block">
+                            {% trans "Name" %}
+                            <i class="fas fa-asterisk text-warning float-end"></i>
+
+                        </label>
+                        <input type="text" class="form-control form-control-lg"
+                            id="{{ form.screen_model.id_for_label }}"
+                            name="{{ form.screen_model.name }}"
+                            value="{{ form.screen_model.value|default:'' }}"
+                            placeholder="{% trans 'Screen Model Name' %}..." />
+
+                        {{ form.screen_model.errors }}
+                    </div>
+
+                </div>
+
+               <div class="row">
+
+
+                  <div class="col-lg-4 col-sm-12 mt-lg-0 mt-sm-2">
+                        <label class="d-block">
+                            {% trans "Quantity" %}
+
+                        </label>
+                        <input type="number" class="form-control form-control-lg"
+                            id="{{ form.quantity.id_for_label }}"
+                            name="{{ form.quantity.name }}"
+                            value="{{ form.quantity.value|default:10 }}"
+                            placeholder="{% trans 'Number of items on screen' %}" />
+                    </div>
+
+
+                </div>
+              <div class="row">
+
+
+                  <div class="col-lg-2 col-sm-12 mt-lg-0 mt-sm-2">
+                        <label class="d-block">
+                            {% trans "Is Room Screen" %}
+
+                        </label>
+                        <input type="checkbox" class="form-check-input"
+                            id="{{ form.is_room_screen.id_for_label }}"
+                            name="{{ form.is_room_screen.name }}"
+                            value="{{ form.is_room_screen.value|default:"true"}}"
+                            placeholder="{% trans 'Is Room Screen' %}"
+                            {% if form.is_room_screen.value %}
+                                checked
+                            {% endif %}
+                        />
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mt-3">
+            <button type="reset" class="btn btn-lg btn-warning">
+                {% trans "Reset Form" %}
+            </button>
+
+            <div class="float-end">
+                <button type="submit" class="btn btn-lg btn-success">
+                    <i class="fas fa-save"></i>&nbsp;
+                    {% trans "Save" %}
+                </button>
+                <a class="btn btn-lg btn-danger" href="{% url 'screenshow:screen_list' %}">
+                    <i class="fas fa-times"></i>&nbsp;
+                    {% trans "Cancel" %}
+                </a>
+            </div>
+
+        </div>
+    </form>
+{% endblock %}

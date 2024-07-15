@@ -1,0 +1,75 @@
+{% load static i18n %}
+
+<div class="table-responsive">
+    <table class="table table-sm" id="roomList">
+        <thead>
+            <tr>
+                <th class="h5">{% trans "Name" %}</th>
+                <th class="h5">{% trans "Maximum Occupants" %}</th>
+                <th class="h5">{% trans "Is Exclusive?" %}</th>
+                <th class="h5">{% trans "Has Screen?" %}</th>
+                <th class="h5">{% trans "Options" %}</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in object_list.all %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.max_capacity }}</td>
+                    <td>
+                        {% if item.is_exclusive %}
+                            <i class="fas fa-check text-success"></i>
+                        {% else %}
+                            <i class="fas fa-times text-danger"></i>
+                        {% endif %}
+                    </td>
+                     <td>
+                        {% if item.has_screen %}
+                            <i class="fas fa-check text-success"></i>
+                        {% else %}
+                            <i class="fas fa-times text-danger"></i>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <!-- <a
+                            class="btn wb-btn-main btn-sm"
+                            href="{% url 'arrangement:room_detail' item.slug %}">
+                            <i class="fas fa-eye"></i>&nbsp;
+                            {% trans "Show" %}
+                        </a> -->
+                        <a
+                            class="btn wb-btn-main btn-sm"
+                            href="">
+                            <i class="fas fa-trash"></i>&nbsp;
+                            {% trans "Delete" %}
+                        </a>
+                        <a
+                            class="btn wb-btn-main btn-sm"
+                            href="{% url 'arrangement:room_edit' item.slug %}">
+                            <i class="fas fa-edit"></i>&nbsp;
+                            {% trans "Edit" %}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#roomList').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                { extend: 'copy', className: 'wb-btn-white text-dark' },
+                { extend: 'excel', className: 'wb-btn-white text-dark' },
+                { extend: 'pdf', className: 'wb-btn-white text-dark' },
+                { extend: 'print', className: 'wb-btn-white text-dark' }
+            ]
+        });
+    });
+</script>

@@ -1,0 +1,182 @@
+<div id="{{dialogId}}" class="{{discriminator}}">
+    <div class="clearfix">
+        <div class="float-start">
+            <h5 class="fw-bold">
+                Velg rom
+            </h5>
+        </div>
+        <div id="rail" class="float-end stepper-rail"></div>
+    </div>
+    <hr>
+    
+    <div style="overflow-y: scroll;">
+        {% if mode == "serie" %}
+        <div class="alert alert-danger">
+            <strong>Merk: </strong> du bestiller rom for hele serien.
+        </div>
+        {% endif %}
+
+        <div class="mb-5">
+            <h5>Aktiver presets</h5>
+
+            {% for preset in room_presets %}
+                <a href="#" class="btn wb-btn-secondary shadow-0"
+                    d-arg-preset_key="{{preset.pk}}"
+                    d-trigger="activateRoomIds">
+                    {{preset.name}}
+                </a>
+            {% endfor %}
+
+            <h5 class="mt-3">Eller velg rom manuelt</h5>
+            <div class="row">
+                <div class="col-12 mb-2">
+                  <div class="nav flex-column webook-tabs text-center"
+                    id="tabs-tab"
+                    role="tablist"
+                    aria-orientation="vertical">
+
+                    {% for location in locations %}
+                        <a class="nav-link {% if forloop.counter == 1 %} active {% endif %}"
+                        id="tabs-{{location.slug}}-tab"
+                        data-mdb-toggle="tab"
+                        href="#tabs-{{location.slug}}"
+                        role="tab"
+                        aria-controls="v-tabs-home"
+                        aria-selected="true">
+                            {{location.name}}
+                        </a>
+                    {% endfor %}
+                  </div>
+                </div>
+              
+                <div class="col-12">
+                  <div class="tab-content" id="v-tabs-tabContent">
+                      {% for location in locations %}
+                        <div
+                            class="tab-pane {% if forloop.counter == 1 %} show active {% endif %} fade"
+                            id="tabs-{{location.slug}}"
+                            role="tabpanel"
+                            aria-labelledby="tabs-{{location.slug}}-tab">
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped mt-2 rooms-in-location-table" id="{{location.slug}}_roomsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Rom</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for room in location.rooms.all %}
+                                            <tr>
+                                                <td> 
+                                                    {{room.is_selected}}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="{{room.id}}" 
+                                                            room_name="{{room}}" name="orderRoomDialog__checkboxArray" {% if room.is_selected %}checked{% endif %}/>
+                                                        <label class="form-check-label" for="{{room.id}}">{{room}}</label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                      {% endfor %}
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix">
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary btn-lg"
+                    d-trigger="close">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+
+                <a class="btn wb-btn-main shadow-0" type="button" d-trigger="order">
+                    <i class="fas fa-check"></i>&nbsp; Legg til valgte rom
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Dialog({
+        dialogId: '{{dialogId}}',
+        managerName: '{{managerName}}',
+        discriminator: '{{discriminator}}',
+        postInit: function (dialog) {
+            dialog.querySelectorAll('.form-outline').forEach((formOutline) => {
+                new mdb.Input(formOutline).init();
+            });
+
+            {% for location in locations %}
+            dialog.$('#{{location.slug}}_roomsTable').DataTable().destroy();
+            dialog.$('#{{location.slug}}_roomsTable').DataTable();
+            {% endfor %}
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            /* Uncheck all checkboxes in the order room dialog */
+            uncheckAll(dialog, {} = {}, triggeredByElement) {
+                dialog.plugins.presetSelectManager.uncheckAll();
+            },
+            /* Takes an array of room ids and checks their corresponding checkboxes in the room selector */
+            activateRoomIds(dialog, { presetKey } = {}, triggeredByElement) {
+                dialog.plugins.presetSelectManager.activatePreset(presetKey, triggeredByElement);
+            },
+            order(dialog, {} = {}, triggeredByElement) {
+                let selectedBundle = dialog.plugins.presetSelectManager.getSelected();
+                selectedBundle.eventPk = "{{event.pk}}";
+                
+                dialog.$('#roomsTable').DataTable().destroy();
+
+                dialog.raiseSubmitEvent({
+                    recipientDialog: "{{recipientDialogId}}",
+                    selectedBundle: selectedBundle,
+                    csrf_token: "{{csrf_token}}",
+                });
+            },
+        },
+        data: {},
+        plugins: [
+            { 
+                name: "presetSelectManager",
+                pluginClass: DialogPresetSelectManager,
+                args: {
+                    checkboxes: document.querySelectorAll("input[type='checkbox'][name='orderRoomDialog__checkboxArray']"),
+                    presets: new Map([
+                        {% for preset in room_presets %}
+                        [ "{{ preset.pk }}",
+                        {
+                            "key": "{{ preset.pk }}",
+                            "name": "{{ preset.name }}",
+                            "ids": [
+                                {% for room in preset.rooms.all %}
+                                    "{{ room.pk }}",
+                                {% endfor %}
+                            ],
+                        }],
+                        {% endfor %}
+                    ]),
+                    checkboxIdPrefix: "roomCheck",
+                    rooms: new Map([
+                        {% for location in locations %}
+                            {% for room in location.rooms.all %}
+                            [
+                                {{ room.pk }}, "{{ room.name }}"
+                            ],
+                            {% endfor %}
+                        {% endfor %}
+                    ]),
+                    datatables: ( dialog ) => { return dialog.querySelectorAll("table.rooms-in-location-table") },
+                }
+            }
+        ],
+    });
+</script>

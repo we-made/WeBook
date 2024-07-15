@@ -69,6 +69,8 @@ ENV/
 
 # For security reasons, the .env file should never be included in git
 .env
+.env.prod
+.env.dev
 
 # Rope project settings
 .ropeproject
@@ -330,3 +332,4 @@ webook/media/
 
 # ignore pycharm meta files
 .idea/
+.azure/

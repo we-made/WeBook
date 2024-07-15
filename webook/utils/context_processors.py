@@ -1,6 +1,20 @@
 from django.conf import settings
+from django.contrib.messages import get_messages
 
 
 def settings_context(_request):
     # Put global template variables here.
-    return {"DEBUG": settings.DEBUG}  # explicit
+
+    messages = []
+    for message in get_messages(_request):
+        messages.append({"tag": message.tags, "message": str(message)})
+
+    return {
+        "DEBUG": settings.DEBUG,
+        "APP_TITLE": settings.APP_TITLE,
+        "APP_LOGO": settings.APP_LOGO,
+        "ASSET_SERVER_URL": settings.ASSET_SERVER_URL,
+        "FULLCALENDAR_LICENSE_KEY": settings.FULLCALENDAR_LICENSE_KEY,
+        "MESSAGES_SERIALIZABLE": messages,
+        "ALLOW_EMAIL_LOGIN": settings.ALLOW_EMAIL_LOGIN,
+    }

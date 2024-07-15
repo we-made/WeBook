@@ -1,0 +1,67 @@
+<div id="{{dialogId}}" class="{{discriminator}}" title="Endre hovedplanlegger">
+    <div class=''>
+        Velg planleggeren som skal være hovedplanlegger for dette arrangement...
+
+        <div>
+            <input type="radio"  data-toggle="tooltip" title="Nåværende hovedplanlegger - kan ikke velges" disabled /> 
+            <label class="text-muted" data-toggle="tooltip" title="Nåværende hovedplanlegger">{{ main_planner }}</label>
+        </div>
+
+        {% for planner in planners %}
+            <div>
+                <input type="radio" name="plannerToPromoteRadio" value="{{planner.pk}}" /> <label>{{planner}}</label>
+            </div>
+        {% endfor %}
+
+        <div class="clearfix mt-3">
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary"
+                    d-trigger="cancel">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+                <a d-trigger="submit"
+                    d-arg-arrangement_id="{{ arrangementPk }}"
+                    class="btn wb-btn-main">
+                    Gjør valgt planlegger til hovedplanlegger
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Dialog({
+        managerName: '{{managerName}}',
+        dialogId: '{{dialogId}}',
+        discriminator: '{{discriminator}}',
+        postInit: function (dialog) {},
+        methods: {
+            cancel(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            submit(dialog, { arrangementId } = {}, triggeredByElement) {
+                dialog.raiseSubmitEvent({
+                    arrangement_id: arrangementId,
+                    promotee: dialog.$("input[name='plannerToPromoteRadio']:checked").val(),
+                    csrf_token: '{{csrf_token}}',
+                });
+            
+                {% comment %} fetch("{% url 'arrangement:arrangement_promote_planner_to_main' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{csrf_token}}'
+                    },
+                    credentials: 'same-origin'
+                }).then(_ => { document.dispatchEvent(
+                        new CustomEvent("arrangementInspector.hasBeenUpdated", { "detail": {
+                            dialog: "promotePlannerDialog",
+                        }})
+                    )}
+                ); {% endcomment %}
+            }
+        },
+        data: {}
+    });
+</script>

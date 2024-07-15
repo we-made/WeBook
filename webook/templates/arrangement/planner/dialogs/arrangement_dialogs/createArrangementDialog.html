@@ -1,0 +1,1016 @@
+{% load static i18n %}
+{% load crispy_forms_tags %}
+
+
+<div id="{{dialogId}}" class="{{discriminator}}" style="overflow-x: visible;">
+    <input type="hidden" name="" id="_audienceId">
+    <input type="hidden" name="" id="_arrangementTypeId">
+    <input type="hidden" name="" id="_statusTypeId">
+
+    <div class="clearfix">
+        <div class="float-start">
+            <h4 class="fw-bold">Planlegg nytt arrangement</h4>
+        </div>
+        <div id="rail" class="float-end stepper-rail"></div>
+    </div>
+
+    <hr>
+
+    <div>
+        <div id="step-1">
+            <form id="arrangementInfoForm">
+                <input type="submit" style="display:none;" />
+
+                <fieldset>
+                    <div class="form-group mb-2">
+                        <label>
+                            Tittel <i>(Norsk)</i>
+                        </label>
+                        <input type="text"
+                            class="form-control form-control-lg mb-2"
+                            id="{{ form.name.id_for_label }}"
+                            value="{{ form.name.value|default:'' }}"
+                            name="{{ form.name.name }}"
+                            autocomplete="off"
+                            required />
+                    </div>
+                    {% if form.name.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.name.errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group mb-2">
+                        <label>
+                            Tittel <i>(Engelsk)</i>
+                        </label>
+                        <input type="text"
+                            class="form-control form-control-lg"
+                            id="{{ form.name_en.id_for_label }}"
+                            value="{{ form.name_en.value|default:'' }}"
+                            name="{{ form.name_en.name }}"
+                            autocomplete="off"
+                            />
+                    </div>
+                    {% if form.name_en.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.name_en.errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-2">
+                        <label>
+                            <i class="fas fa-users"></i>&nbsp;
+                            Målgruppe
+                        </label>
+                        <div id="audience_jstree_select" class="dialog-popover-left-fix"></div>
+
+                        {% if form.audience.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.audience.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-2">
+                        <label>
+                            <i class="fas fa-cog"></i>&nbsp;
+                            Arrangementstype
+                        </label>
+                        <div id="arrangement_type_jstree_select" class="dialog-popover-left-fix"></div>
+                        {% if form.arrangement_type.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.arrangement_type.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-2">
+                        <label>
+                            Status
+                        </label>
+
+                        <div id="status_type_jstree_select" class="dialog-popover-left-fix"></div>
+                        {% if form.status_type.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.status_type.errors }}
+                        </div>
+                        {% endif %}
+
+                        {% comment %} {{ form.status }}
+
+                        {% if form.status.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.status.errors }}
+                        </div>
+                        {% endif %} {% endcomment %}
+                    </div>
+
+                    <div class="mb-2">
+                        <label>
+                            <i class="fas fa-map-marker-alt"></i>&nbsp;
+                            Lokasjon
+                        </label>
+                        {{ form.location }}
+                    </div>
+                    {% if form.location.errors|length > 0 %}
+                        <div class="alert alert-danger">
+                            {{ form.location.errors }}
+                        </div>
+                    {% endif %}
+                </fieldset>
+            </form>
+        </div>
+        <div id="step-2">
+            <form id="arrangementDetailsForm">
+                <input type="submit" value="" style="display: none;">
+
+                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+                    <input type="hidden" name="{{ form.responsible.name }}" id="{{ form.responsible.id_for_label }}">
+
+                    <label for="" class="d-block form-label">
+                        <i class="fas fa-star"></i>
+                        Hovedplanlegger
+                    </label>
+
+                    <div class="text-danger" style="display: none;"
+                        id="mainPlanner_validationText">
+                        Vennligst velg en hovedplanlegger
+                    </div>
+
+                    <h5 class="mb-2" id="mainPlannerName"></h5>
+                    <button class="wb-btn-main"
+                        id="setMainPlannerButton"
+                        type="button"
+                        d-trigger="triggerSetPlanner">
+                        Velg hovedplanlegger
+                    </button>
+                </div>
+
+                <div class="border rounded box-shadow-2 wb-bg-secondary p-4">
+                    <label for="{{form.responsible.id_for_label}}" class="form-label">
+                        <i class="fas fa-users"></i>&nbsp;
+                        Personer
+                    </label>
+                    <div>
+                        <button class="wb-btn-main"
+                                type="button"
+                                d-trigger="triggerAddPeople">
+                            Velg personer
+                        </button>
+                    </div>
+                    <div id="peopleChips" class="chipsList"></div>
+                </div>
+
+                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
+                    <label for="" class="form-label">
+                        <i class="fas fa-building"></i>&nbsp;
+                        Rom
+                    </label>
+                    <div>
+                        <button class="wb-btn-main"
+                            type="button"
+                            d-trigger="triggerAddRooms">
+                            Velg rom
+                        </button>
+                    </div>
+                    <div id="roomChips" class="chipsList"></div>
+                </div>
+
+                <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mt-4">
+                    <label for="" class="form-label">
+                        <i class="fas fa-users-cog"></i>&nbsp;
+                        Planleggere
+                    </label>
+                    <div>
+                        <button class="wb-btn-main"
+                            type="button"
+                            d-trigger="triggerAddPlanners">
+                            Velg planleggere
+                        </button>
+                    </div>
+                    <div id="plannerChips" class="chipsList"></div>
+                </div>
+
+                <div class="mb-2 mt-4 form-group">
+                    <label>
+                        <i class="fas fa-receipt"></i>&nbsp;
+                        Billetkode
+                    </label>
+                    <input type="text"
+                        class="form-control form-control-lg"
+                        id="{{ form.ticket_code.id_for_label }}"
+                        value="{{ form.ticket_code.value|default:'' }}"
+                        name="{{ form.ticket_code.name }}"
+                        placeholder="Billetkode..."/>
+                </div>
+                {% if form.ticket_code.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        {{ form.ticket_code.errors }}
+                    </div>
+                {% endif %}
+
+                <div class="mb-2 form-group">
+                    <label>
+                        Forventet besøkende
+                    </label>
+                    <input type="number"
+                        min="0"
+                        class="form-control form-control-lg"
+                        id="{{ form.expected_visitors.id_for_label }}"
+                        value="{{ form.expected_visitors.value|default:'0' }}"
+                        name="{{ form.expected_visitors.name }}"
+                        required />
+                </div>
+                {% if form.expected_visitors.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        {{ form.expected_visitors.errors }}
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+        <div id="step-3">
+            <div class="row">
+                <div class="col-lg-4 col-sm-12">
+                    <h5 class="header-fonted">
+                        <i class="fas fa-tv"></i>
+                        Skjerm
+                    </h5>
+                    <label class="d-block">&nbsp; {% trans "Vises på skjerm:" %}</label>
+                    {{form.display_layouts}}
+                </div>
+
+                <div class="col-lg-8 col-sm-12 mt-sm-2">
+                    <div
+                        class="form-group"
+                        id="display-layout-text-group"
+                        style="display: none;">
+
+                        <div>
+                            {{ form.display_text|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+
+                <div class="mt-2 form-group">
+                <label>
+                    <i class="fas fa-door-open"></i>&nbsp;
+                    Møtested <i>(Norsk)</i>
+                </label>
+                <input type="text"
+                    class="form-control form-control-lg"
+                    id="{{ form.meeting_place.id_for_label }}"
+                    value="{{ form.meeting_place.value|default:'' }}"
+                    name="{{ form.meeting_place.name }}"
+                    placeholder="{% trans 'Møtested' %}..."/>
+                <div class="form-helper text-end">
+                    <i class="fas fa-info-circle"></i>&nbsp;
+                    Vil overskrive sted/rom vist på skjerm
+                </div>
+            </div>
+            {% if form.meeting_place.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.meeting_place.errors }}
+                </div>
+            {% endif %}
+
+            <div class="mt-2 form-group">
+                <label>
+                    <i class="fas fa-door-open"></i>&nbsp;
+                    Møtested <i>(Engelsk)</i>
+                </label>
+                <input type="text"
+                    class="form-control form-control-lg"
+                    id="{{ form.meeting_place_en.id_for_label }}"
+                    value="{{ form.meeting_place_en.value|default:'' }}"
+                    name="{{ form.meeting_place_en.name }}"
+                    placeholder="{% trans 'Møtested' %}..."/>
+                <div class="form-helper text-end">
+                    <i class="fas fa-info-circle"></i>&nbsp;
+                    Vil overskrive sted/rom vist på skjerm
+                </div>
+            </div>
+            {% if form.meeting_place.errors|length > 0 %}
+                <div class="alert alert-danger">
+                    {{ form.meeting_place.errors }}
+                </div>
+            {% endif %}
+        </div>
+        <div id="step-4">
+            <div class="row">
+                <div class="col-6">
+                    <a class="btn btn-lg btn-outline-dark btn-block shadow-0 mb-2 p-2"
+                        style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                        d-trigger="createSerie">
+                        <i class="fas fa-calendar-plus"></i>&nbsp;
+                        Ny gjentagende aktivitet
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a class="btn btn-lg btn-outline-dark shadow-0 btn-block mb-2 p-2"
+                        style="text-transform: none; font-size: larger; border-width: 0.7px;"
+                        d-trigger="createSimpleActivity">
+                        <i class="fas fa-calendar-plus"></i>&nbsp;
+                        Ny enkel aktivitet
+                    </a>
+                </div>
+            </div>
+
+            <hr class="mt-0">
+
+            <div id="eventsBody"></div>
+            <div id="timeplansBody"></div>
+        </div>
+    </div>
+
+    <div class="navigationButtons clearfix pt-2">
+        <div class="float-start">
+            <button class="btn wb-btn-blank btn-lg text-muted"
+                    d-trigger="close">
+                <i class="fas fa-times"></i>&nbsp;
+                Avbryt
+            </button>
+        </div>
+        <div class="float-end">
+            <button class="btn wb-btn-secondary btn-lg" id="back" type="button">Tilbake</button>
+            <a class="btn wb-btn-main btn-lg" id="next" href="#"> Neste</a>
+            <button class="btn wb-btn-main btn-lg" type="button" id="finish" d-trigger="submit" style="display: none;">
+                Opprett arrangement
+            </button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { JSTreeSelect } from "{% static 'js/jsTreeSelect.js' %}";
+
+    new Dialog({
+        managerName: '{{managerName}}',
+        dialogId: '{{dialogId}}',
+        discriminator: '{{discriminator}}',
+        postInit: function (dialog) {
+            dialog.querySelectorAll('.form-outline').forEach((formOutline) => {
+                new mdb.Input(formOutline).init();
+            });
+            
+            [
+                {
+                    element: dialog.querySelector('#{{ form.location.id_for_label }}'),
+                    invalidFeedback: "Vennligst velg en lokasjon",
+                },
+                {% comment %} {
+                    element: dialog.querySelector('#{{ form.responsible.id_for_label }}'),
+                    invalidFeedback: "Vennligst velg en hovedplanlegger",
+                }, {% endcomment %}
+                {% comment %} {
+                    element: dialog.querySelector('#{{ form.status.id_for_label }}'),
+                    invalidFeedback: 'Vennligst velg en status',
+                }, {% endcomment %}
+            ].forEach((select) => {
+                const mdbSelect = new mdb.Select(select.element, {
+                    {% comment %} filter: true, {% endcomment %}
+                    {% comment %} container: "[class='{{discriminator}}']", {% endcomment %}
+                    validation: true,
+                    noResultText: "Ingen resultater",
+                    invalidFeedback: select.invalidFeedback,
+                });
+                mdbSelect._input.classList.add("form-control-lg", "dialog-select-hack");
+
+                select.element.addEventListener("change", (event) => {
+                    $(mdbSelect._wrapper).find(".invalid-feedback").hide();
+                });
+            });
+
+            dialog.data.audienceJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#audience_jstree_select'),
+                treeJsonSrcUrl: "/arrangement/audience/tree",
+                onValueSet: ( data ) => {
+                    dialog.getElementById('_audienceId').value = data.selected[0];
+                },
+                valueSelectedLabelText: ( selected) => {
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+
+                    labelText += selected.text;
+
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen målgruppe valgt ennå",
+                selectFirstTimeButtonText: 'Velg målgruppe',
+                changeSelectedValueButtonText: 'Endre målgruppe',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
+            dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#arrangement_type_jstree_select'),
+                treeJsonSrcUrl: "/arrangement/arrangementtype/treelist",
+                onValueSet: ( data ) => {
+                    dialog.getElementById('_arrangementTypeId').value = data.selected[0];
+                },
+                valueSelectedLabelText: ( selected ) => {
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+
+                    labelText += selected.text;
+
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen arrangementstype valgt ennå",
+                selectFirstTimeButtonText: 'Velg arrangementstype',
+                changeSelectedValueButtonText: 'Endre arrangementstype',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
+            dialog.data.statusTypeJsTreeSelect = new JSTreeSelect({
+                element: dialog.querySelector('#status_type_jstree_select'),
+                treeJsonSrcUrl: "/arrangement/statustype/tree",
+                onValueSet: ( data ) => {
+                    dialog.getElementById('_statusTypeId').value = data.selected[0];
+                },
+                valueSelectedLabelText: ( selected ) => {
+                    let labelText = '';
+
+                    if (selected.parent && selected.parent.text)
+                        labelText += (selected.parent.text + " | ");
+
+                    labelText += selected.text;
+                    
+                    return labelText;
+                },
+                noneSelectedLabelText: "Ingen status valgt ennå",
+                selectFirstTimeButtonText: 'Velg status',
+                changeSelectedValueButtonText: 'Endre status',
+                popoverSaveChoicesButtonText: 'Lagre valg',
+            });
+
+            document.addEventListener("{{managerName}}.contextUpdated", (e) => {
+                if (e.detail.context.series !== undefined) {
+                    dialog.setSeries( { series: e.detail.context.series });
+                }
+                if (e.detail.context.events !== undefined) {
+                    dialog.setEvents( {events: e.detail.context.events });
+                }
+            });
+
+            dialog.data.stepper = new DialogStepper({
+                allowRailBasedNavigation: true,
+                steps: [
+                {
+                    element: dialog.getElementById('step-1'),
+                    title: 'Generelt',
+                    stepIn: () => {},
+                    stepOut: () => {
+                        debugger;
+
+                        let field_elements = dialog.$('#step-1').find("input, select");
+                        [
+                            mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
+                        ].forEach(mdbSelect => {
+                            if (mdbSelect.hasSelection?.label === "---------" ) {
+                                $(mdbSelect._wrapper).find(".invalid-feedback").show();
+                            }
+                        })
+
+                        for (let i = 0; i < field_elements.length; i++) {
+                            if (field_elements[i].checkValidity() === false) {
+                                dialog.$('#arrangementInfoForm').find(':submit').click();
+                                return false;
+                            }
+                        }
+
+                        if (!dialog.data.audienceJsTreeSelect.isValid()) {
+                            dialog.data.audienceJsTreeSelect.showInvalidFeedback();
+                            return false;
+                        }
+                        if (!dialog.data.arrangementTypeJsTreeSelect.isValid()) {
+                            dialog.data.arrangementTypeJsTreeSelect.showInvalidFeedback();
+                            return false;
+                        }
+
+                        if (!dialog.data.statusTypeJsTreeSelect.isValid())
+                        {
+                            dialog.data.statusTypeJsTreeSelect.showInvalidFeedback();
+                            return false;
+                        }
+
+                        return true;
+                    }
+                },
+                {
+                    element: dialog.getElementById('step-2'),
+                    title: 'Detaljer',
+                    stepIn: () => {},
+                    stepOut: () => {
+                        dialog.$('#step-2').find("input, select").each((index, $el) => {
+                            if ($el.checkValidity() === false) {
+                                dialog.$("#arrangementDetailsForm").find(':submit').click();
+                            }
+                        });
+
+                        {% comment %} const selectedMainPlanner = dialog.getElementById('{{form.responsible.id_for_label}}').value;
+                        if (!!selectedMainPlanner === false) {
+                            dialog.$("#mainPlanner_validationText").show();
+                            return false;
+                        }
+                        else {
+                            dialog.$("#mainPlanner_validationText").hide();
+                        } {% endcomment %}
+
+                        return true;
+                    }
+                },
+                {
+                    element: dialog.getElementById('step-3'),
+                    title: 'Skjermvisning',
+                    stepIn: () => {},
+                    stepOut: () => {},
+                },
+                {
+                    element: dialog.getElementById('step-4'),
+                    title: 'Tidsplaner & Aktiviteter',
+                    stepIn: () => {
+                        dialog.getElementById('next').style.display = "none";
+                        dialog.getElementById('finish').style.display = "inline-block";
+                    },
+                    stepOut: () => {
+                        dialog.getElementById('finish').style.display = "none";
+                        dialog.getElementById('next').style.display = "inline-block";
+                    }
+                },
+            ]
+            });
+
+            dialog.getElementById('next').onclick = () => dialog.data.stepper.next();
+            dialog.getElementById('back').onclick = () => dialog.data.stepper.back();
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeAllDialogsInThisManagerGroup();
+            },
+            validate(dialog, {} = {}, triggeredByElement) {
+                let field_elements = dialog.$('#arrangementInfoForm').find("input, select");
+
+                for (let i = 0; i < field_elements.length; i++) {
+                    if (field_elements[i].checkValidity() === false) {
+                        dialog.$('#arrangementInfoForm').find(':submit').click();
+                        return false;
+                    }
+                }
+
+                return true;
+            },
+            has_plans(dialog, {} = {}, triggeredByElement) {
+                return dialog.data.seriesMap !== undefined && dialog.data.seriesMap.size > 0 ||
+                    dialog.data.eventsMap !== undefined && dialog.data.eventsMap.size > 0;
+            },
+            hasUnresolvedCollisions(dialog, {} = {}, triggeredByElement) {
+                const $collisionCountersPresentInDialog = dialog.$('.collisions-counter').toArray();
+
+                for(let i = 0; i < $collisionCountersPresentInDialog.length; i++) {
+                    let $collisionCounter = $collisionCountersPresentInDialog[i];
+                    try {
+                        if (parseInt($collisionCounter.innerText) > 0)
+                            return true;
+                    }
+                    catch (error) {
+                        console.warn(`Could not parse ${$collisionCounter.innerText} to integer for collision counter check.`)
+                    }
+                }
+            },
+            triggerAddRooms(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}' });
+            },
+            triggerAddPeople(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "peopleSelected" } });
+            },
+            triggerAddPlanners(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "plannersSelected" } });
+            },
+            triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
+            },
+            submit(dialog, {} = {}, triggeredByElement) {
+                if (dialog.validate() === false) {
+                    return;
+                }
+                if (dialog.has_plans() === false) {
+                    toastr.warning("Plan(er) må opprettes før vi kan opprette arragementet - du må sette tider.");
+                    return;
+                }
+
+                const save = (resolution_behaviour=0) => {
+                    let formData = new FormData();
+                    formData.append("name",             dialog.interior.id_name.value);
+                    formData.append("name_en",          dialog.interior.id_name_en.value);
+                    formData.append("audience",         dialog.data.audienceJsTreeSelect.getSelectedValue());
+                    formData.append("location",         dialog.interior.id_location.value);
+                    formData.append("arrangement_type", dialog.data.arrangementTypeJsTreeSelect.getSelectedValue());
+                    formData.append("responsible",      dialog.interior.id_responsible.value);
+                    formData.append("ticket_code",      dialog.interior.id_ticket_code.value);
+                    formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
+                    formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
+                    formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
+                    if (dialog.data.selectedPlannerIds)
+                        Array.from(dialog.data.selectedPlannerIds.keys())
+                            .forEach( ( id ) => formData.append("planners", id) )
+
+                    let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
+                    if (statusValue !== undefined)
+                        formData.append("status", statusValue);
+                    formData.append("display_text",     dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '');
+                    formData.append("collision_resolution_behaviour", resolution_behaviour);
+    
+                    let displayLayouts = [];
+                    dialog.querySelectorAll("input[name='display_layouts'][type='checkbox']:checked").forEach(element => {
+                        formData.append("display_layouts", element.value);
+                    })  
+    
+                    formData.append("csrf_token",       "{{csrf_token}}");
+    
+                    let seriesArray = dialog.data.seriesMap !== undefined ? Array.from(dialog.data.seriesMap.values()) : [];
+                    seriesArray.forEach((serie) => { serie.collision_resolution_behaviour = resolution_behaviour });
+
+                    let eventsArray = dialog.data.eventsMap !== undefined ? Array.from(dialog.data.eventsMap.values()) : [];
+    
+                    document.dispatchEvent(
+                        new CustomEvent("{{managerName}}.submit", { "detail": {
+                            dialog: "createArrangementDialog",
+                            formData: formData,
+                            series: seriesArray,
+                            events: eventsArray,
+                        }})
+                    );
+                }
+
+                if (dialog.hasUnresolvedCollisions()) {
+                    const result = Swal.fire({
+                        title: 'Uoppklarte kollisjoner',
+                        html: "Det er registrert kollisjoner på en eller flere serier som ikke har blitt oppklart ennå.<br><br>" +
+                              "Vi kan løse dette på to måter:<br>" +
+                              "<ul>" +
+                                "<li>Ignorere disse aktivitetene</li>" +
+                                "<li>Opprette de uten rom</li>" +
+                              "</ul><br>" +
+                              "Hva gjør vi?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        showCloseButton: true,
+                        showCancelButton: true,
+                        showDenyButton: true,
+                        denyButtonText: "Opprett kollisjoner uten rom",
+                        confirmButtonText: 'Ignorer kolliderende aktiviteter'
+                    }).then((result) => {
+                        console.log("SWAL RESULT", result)
+                        if (result.isConfirmed === true) {
+                            save(0); // 0 designates behaviour ignore colliding activities (dont create them)
+                        }
+                        if (result.isDenied === true) {
+                            // We use the isDenied button for "create without rooms", adding custom buttons to SWAL is a bit tedious,
+                            // so we just override an existing one to fit our purpose.
+                            save(1); // 1 designates behaviour remove contested resources
+                        }
+                    });
+                }
+                else {
+                    save();
+                }
+            },
+            setEvents(dialog, { events } = {}, triggeredByElement) {
+                dialog.data.eventsMap = events;
+                let tbody = dialog.$('#eventsBody');
+                tbody.html("");
+
+                events.forEach(element => {
+                    tbody.append(
+                        $(`
+                        <div class="border border-2 rounded-2 p-3" id='${element._uuid}'  style="background-color: #f6f6f0;">
+                            <h3>
+                                ${element.title}
+                            </h3>
+
+                            <h5>
+                                Fra <span class='fw-bold'>${element.start.toLocaleString()}</span> til <span class='fw-bold'>${element.end.toLocaleString()}</span>
+                            </h5>
+
+                            <div class="">
+                                <a href="#" class="btn wb-btn-blank"
+                                    data-toggle='tooltip' title='{% trans "Edit this serie" %}'
+                                    d-trigger='editSimpleActivity'
+                                    d-arg-uuid='${element._uuid}'>
+                                    Rediger
+                                </a>
+                                <a href="#" class="btn wb-btn-secondary ms-2"
+                                    data-toggle='tooltip' title='{% trans "Remove this serie from the arrangement to be" %}'
+                                    d-trigger='removeSimpleActivity'
+                                    d-arg-uuid='${element._uuid}'>
+                                    Slett
+                                </a>
+                            </div>
+                        </div>
+                        `)
+                    )
+                })
+            },
+            setSeries(dialog, { series } = {}, triggeredByElement) {
+                dialog.data.seriesMap = series;
+
+                console.log(dialog.data.seriesMap);
+
+                let tbody = dialog.$('#timeplansBody');
+                tbody.html("")
+
+                series.forEach(element => {
+                    let collisions_html = "";
+                    console.log("collisions", element.collisions);
+                    if (element.collisions !== undefined && element.collisions.length > 0) {
+                        let collisionsCounter = 0;
+                        element.collisions.forEach(collisionRecord => {
+                            let riggingHtml = "";
+                            if (collisionRecord.is_rigging === true) {
+                                riggingHtml = "<i class='fas fa-hammer'></i>&nbsp;Riggehendelse";
+                            }
+
+                            collisions_html += `
+                            <div class="bg-dark border p-2 border-2 border-warning text-white p-3 shadow-3 conflict_summary_${collisionsCounter}"
+                                style='background-color: #f6f6f0'>
+                                <h5><i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikt på ${collisionRecord.contested_resource_name}</h5>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <div class="">
+                                            <div class="fw-bolder">${collisionRecord.event_a_title}</div>
+                                            <h6>${collisionRecord.event_a_start} - ${collisionRecord.event_a_end}</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <h3 class=" text-center"><i class="fas fa-arrow-right"></i></h3>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="">
+                                            <div class="fw-bolder">${collisionRecord.event_b_title}</div>
+                                            <h6>${collisionRecord.event_b_start} - ${collisionRecord.event_b_end}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix">
+                                    <a href="#" class="btn wb-btn-secondary shadow-0"
+                                        d-trigger="breakOutEvent" d-arg-serie_uuid="${element._uuid}" d-arg-collision_index="${collisionsCounter}"><i class='fas fa-code-branch'></i>&nbsp; Løs konflikt
+                                    </a>
+                                </div>
+                                <br>
+                                ${riggingHtml}
+                            </div>
+                            `;
+                            collisionsCounter++;
+                        })
+                    }
+
+                    tbody.append(
+                        $(`
+                                <div class="rounded-2 border border-2 p-3 ps-4 pe-4" id='${element._uuid}' style="background-color: #f6f6f0;">
+                                    <h5 class="mb-0 text-muted">${element.time.title}</h5>
+                                    <h6 class="mb-0"><i class="fas fa-clock"></i> ${element.time.start} - ${element.time.end} </h6>
+                                    <h6><i class="fas fa-sync"></i> ${element.friendlyDesc}</h6>
+
+                                    <div class="mb-2">
+                                        <a href="#" class="btn wb-btn-secondary"
+                                            data-toggle='tooltip' title='{% trans "Edit this recurring activity" %}'
+                                            d-trigger='editSerie'
+                                            d-arg-uuid='${element._uuid}'>
+                                            Rediger tidsplan
+                                        </a>
+
+                                        <a href="#" class="btn wb-btn-blank"
+                                            data-toggle='tooltip' title='{% trans "Remove this recurring activity from the arrangement to be" %}'
+                                            d-trigger='removeSerie'
+                                            d-arg-uuid='${element._uuid}'>
+                                            Slett
+                                        </a>
+                                    </div>
+
+                                    <div class="accordion" id="accordion_series_${element._uuid}">
+                                        <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingOne">
+                                            <a
+                                            class="accordion-button text-muted collapsed"
+                                            type="button"
+                                            data-mdb-toggle="collapse"
+                                            data-mdb-target="#collisionsCollapse_${element._uuid}"
+                                            aria-expanded="true"
+                                            aria-controls="collisionsCollapse_${element._uuid}"
+                                            >
+                                            <span class="bg-danger rounded-pill text-white p-1 collisions-counter" id='${element._uuid}_collisionCounter'>${element.collisions.length}</span>
+                                            <i class="fas fa-exclamation-triangle ms-2"></i>&nbsp; Kollisjoner
+                                        </a>
+                                        </h2>
+                                        <div id="collisionsCollapse_${element._uuid}" class="accordion-collapse collapse" aria-labelledby="headingOne" data-mdb-parent="#accordion_series_${element._uuid}">
+                                            <div class="accordion-body" style="max-height: 35em; overflow: scroll;">
+                                                <div class="alert alert-danger small">
+                                                    <strong>OBS: </strong> kollisjoner som ikke blir <abbr title="Bryt ut kollisjoner til enkle aktiviteter og løs kollisjonen">brutt ut</abbr> og løst vil ikke bli opprettet
+                                                    når arrangementet opprettes.
+                                                </div>
+                                                ${collisions_html}
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        `)
+                    )
+                });
+            },
+            removeAssociation(dialog, {} = {}, triggeredByElement) {
+                const itemId = triggeredByElement.id;
+                const type = triggeredByElement.getAttribute("select-type");
+
+                let mapOfSelectedItemIds = null;
+                let appropriatePresetMap = null;
+
+                if (type === "room") {
+                    mapOfSelectedItemIds = dialog.data.selectedRoomIds;
+                    appropriatePresetMap = dialog.data.roomPresets;
+                }
+                else if (type === "person") {
+                    mapOfSelectedItemIds = dialog.data.selectedPeopleIds;
+                    appropriatePresetMap = dialog.data.personPresets;
+                }
+                else {
+                    throw Error("Type not recognized")
+                }
+
+                if (itemId.startsWith("preset_")) {
+                    const preset = appropriatePresetMap.get(id.split("_")[1]);
+                    preset.ids.forEach((id) => mapOfSelectedItemIds.delete(id));
+                }
+                else {
+                    mapOfSelectedItemIds.delete(itemId);
+                }
+                
+                triggeredByElement.remove();
+            },
+            removeSerie(dialog, { uuid } = {}, triggeredByElement) {
+                dialog.$(`#${uuid}`).remove();
+                dialog.data.seriesMap.delete(uuid);
+            },
+            removeSimpleActivity(dialog, { uuid } = {}, triggeredByElement) {
+                dialog.$(`#${uuid}`).remove();
+                dialog.data.eventsMap.delete(uuid);
+            },
+            editSimpleActivity(dialog, { uuid } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementCreator", "newSimpleActivityDialog", { event_uuid: uuid, $parent: dialog.dialogElement });
+            },
+            createSimpleActivity(dialog, {} = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(
+                    "arrangementCreator", 
+                    "newSimpleActivityDialog", 
+                    { 
+                        preselectedMainPlanner: dialog.data.mainPlannerPayload,
+                        preselectedRooms: dialog.data.roomPayload, 
+                        preselectedPeople: dialog.data.peoplePayload, 
+                        $parent: dialog.dialogElement,
+                    }
+                )
+            },
+            breakOutEvent(dialog, { serieUuid, collisionIndex } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent("arrangementCreator", "breakOutActivityDialog", {
+                    serie: dialog.data.seriesMap.get(serieUuid),
+                    collision_index: collisionIndex,
+                });
+            },
+            editSerie(dialog, { uuid } = {}, triggeredByElement) {
+                dialog.raiseTriggerEvent(
+                    "arrangementCreator", 
+                    "newTimePlanDialog", 
+                    { 
+                        serie_uuid: uuid, 
+                        $parent: dialog.dialogElement 
+                    }
+                );
+            },
+            createSerie(dialog, {}={}, triggeredByElement) {
+                dialog.raiseTriggerEvent(
+                    "arrangementCreator", 
+                    "newTimePlanDialog", 
+                    { 
+                        preselectedMainPlanner: dialog.data.mainPlannerPayload,
+                        preselectedRooms: dialog.data.roomPayload, 
+                        preselectedPeople: dialog.data.peoplePayload,
+                        $parent: dialog.dialogElement 
+                    }
+                );
+            },
+        },
+        when: [
+        { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                let wrapper = dialog.$( '#roomChips' );
+                wrapper.empty();
+                
+                payload.viewables.forEach((room) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${room.text}'
+                                          id='${room.id}'
+                                          select-type='room'
+                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)  
+                    )
+                });
+
+                dialog.data.selectedRoomIds = new Map();
+                dialog.data.roomPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
+
+                dialog.data.roomPayload = payload;
+            } },
+            { eventKnownAs: "peopleSelected", do: (dialog, payload) => { 
+                let wrapper = dialog.$( '#peopleChips' );
+                wrapper.empty();
+                
+                payload.viewables.forEach((person) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${person.text}'
+                                          id='${person.id}'
+                                          select-type='person'
+                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)
+                    )
+                });
+
+                dialog.data.selectedPeopleIds = new Map();
+                dialog.data.personPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
+
+                dialog.data.peoplePayload = payload;
+            } },
+            { eventKnownAs: "plannersSelected", do: (dialog, payload) => {
+                let wrapper = dialog.$( '#plannerChips' );
+                wrapper.empty();
+                
+                payload.viewables.forEach((person) => {
+                    wrapper.append(
+                        $(`<selected-pill name='${person.text}'
+                                          id='${person.id}'
+                                          select-type='person'
+                                          class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
+                                          d-trigger='removeAssociation'>
+                           </selected-pill>`)
+                    )
+                });
+
+                dialog.data.selectedPlannerIds = new Map();
+                dialog.data.plannerPresets = new Map();
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPlannerIds.set(x.id, true) );
+                payload.selectedPresets.forEach( (presetId) => dialog.data.plannerPresets.set(presetId, payload.allPresets.get(presetId)));
+
+                dialog.data.plannerPayload = payload;
+            } },
+            { eventKnownAs: "setPlanner", do: (dialog, payload) => {
+                if (payload.allSelectedEntityIds.length == 0)
+                    return;
+
+                dialog.$("#mainPlanner_validationText").hide();
+
+                // save the payload so that it can be re-used / re-applied to child activities / series
+                dialog.data.mainPlannerPayload = payload;
+
+                const person = payload.viewables[0];
+                
+                dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
+                dialog.getElementById('mainPlannerName').innerText = person.text;
+                dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
+            } }
+        ],
+        data: {
+            roomPresets: new Map(),
+            personPresets: new Map(),
+            selectedRoomIds: new Map(),
+            selectedPeopleIds: new Map(),
+            seriesMap: new Map(),
+            eventsMap: new Map(),
+            stepper: null,
+        },
+        plugins: [
+            {
+                name: 'showIfSelected',
+                pluginClass: DialogShowIfSelectedPlugin,
+                args: {
+                    checkboxesSelector: "[name='display_layouts']",
+                    elementToShowOrHide: ( dialog ) => { return dialog.getElementById('display-layout-text-group'); },
+                    showIfAnyOfTheseValuesMap: new Map([
+                        {% for display_layout in DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT %}
+                            [ "{{ display_layout.id }}", true],
+                        {% endfor %}
+                    ]),
+                },
+            }
+        ],
+    });
+</script>

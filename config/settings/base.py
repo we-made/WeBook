@@ -3,7 +3,8 @@ Base settings to build other settings files upon.
 """
 
 from pathlib import Path
-
+from pythonjsonlogger import jsonlogger
+from datetime import datetime
 import environ
 
 # webook/
@@ -48,6 +49,20 @@ DATABASES = {
         default=f"sqlite:///{str(BASE_DIR / 'webook.db')}",
     )
 }
+
+if env.str("DATABASE_HOST", default=None):
+    DATABASES["default"]["HOST"] = env.str("DATABASE_HOST")
+if env.str("DATABASE_ENGINE", default=None):
+    DATABASES["default"]["ENGINE"] = env.str("DATABASE_ENGINE")
+if env.str("DATABASE_NAME", default=None):
+    DATABASES["default"]["NAME"] = env.str("DATABASE_NAME")
+if env.str("DATABASE_USER", default=None):
+    DATABASES["default"]["USER"] = env.str("DATABASE_USER")
+if env.str("DATABASE_PASSWORD", default=None):
+    DATABASES["default"]["PASSWORD"] = env.str("DATABASE_PASSWORD")
+if env.str("DATABASE_PORT", default=None):
+    DATABASES["default"]["PORT"] = env.str("DATABASE_PORT")
+
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 # URLS
@@ -75,12 +90,16 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.microsoft",
+    "colorfield",
 ]
 
 LOCAL_APPS = [
     "webook.users.apps.UsersConfig",
     # Your stuff: custom apps go here
-    "webook.arrangement.apps.ArrangementConfig"
+    "webook.arrangement.apps.ArrangementConfig",
+    "webook.crumbinator.apps.CrumbinatorConfig",
+    "webook.screenshow.apps.ScreenshowConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -88,9 +107,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {
-    "sites": "webook.contrib.sites.migrations"
-}
+MIGRATION_MODULES = {"sites": "webook.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -101,10 +118,13 @@ AUTHENTICATION_BACKENDS = [
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
+# To comply with AllAuth
+USER_MODEL_USERNAME_FIELD = "email"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
 LOGIN_REDIRECT_URL = "users:redirect"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 LOGIN_URL = "account_login"
+
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
@@ -121,15 +141,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 # MIDDLEWARE
@@ -146,6 +160,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "webook.middleware.timezone_middleware.TimezoneMiddleware",
+    # "crum.CurrentRequestUserMiddleware",
 ]
 
 # STATIC
@@ -160,6 +176,7 @@ STATICFILES_DIRS = [str(APPS_DIR / "static")]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "npm.finders.NpmFinder",
 ]
 
 # MEDIA
@@ -168,6 +185,8 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = str(APPS_DIR / "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
+
+# DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
@@ -201,6 +220,10 @@ TEMPLATES = [
     }
 ]
 
+TEMPLATE_DIRS = (
+    BASE_DIR / "templates",  # app-shared project templates (is this anti-pattern?)
+)
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
@@ -232,6 +255,8 @@ EMAIL_BACKEND = env(
 )
 # https://docs.djangoproject.com/en/2.2/ref/settings/#email-timeout
 EMAIL_TIMEOUT = 5
+DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="webook@webook.no")
+SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
 # ADMIN
 # ------------------------------------------------------------------------------
@@ -247,6 +272,21 @@ MANAGERS = ADMINS
 # https://docs.djangoproject.com/en/dev/ref/settings/#logging
 # See https://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+
+
+class CustomJsonFormatter(jsonlogger.JsonFormatter):
+    def add_fields(self, log_record, record, message_dict):
+        super().add_fields(log_record, record, message_dict)
+
+        log_record["component"] = getattr(record, "component", "unknown")
+        log_record["service"] = getattr(record, "service", APP_TITLE)
+        log_record["request_id"] = getattr(record, "request_id", None)
+        log_record["trace_id"] = getattr(record, "trace_id", None)
+        log_record["user_id"] = getattr(record, "user_id", None)
+        log_record["timestamp"] = datetime.now().isoformat()
+        log_record["environment"] = "development" if DEBUG else "production"
+
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -254,35 +294,89 @@ LOGGING = {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
             "%(process)d %(thread)d %(message)s"
-        }
+        },
+        "simple": {"format": "[%(levelname)s] [%(module)s] %(message)s"},
     },
     "handlers": {
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        }
+            "formatter": "simple",
+        },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
 }
 
+if env("LOG_TO_FILE", default=False):
+    LOGGING["root"]["handlers"].append("file")
+    LOGGING["handlers"]["file"] = {
+        "level": "INFO",
+        "class": "logging.FileHandler",
+        "filename": env("LOG_FILE", default="webook.log"),
+        "formatter": "json",
+    }
+    LOGGING["formatters"]["json"] = {
+        "()": CustomJsonFormatter,
+        "format": "%(timestamp)s %(levelname)s %(message)s",
+        "datefmt": "%Y-%m-%dT%H:%M:%S.%fZ",
+    }
+
+
 # django-allauth
 # ------------------------------------------------------------------------------
-ACCOUNT_ALLOW_REGISTRATION = env.bool(
-    "DJANGO_ACCOUNT_ALLOW_REGISTRATION", True
-)
+ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", False)
+ALLOW_SSO = env.bool("ALLOW_SSO", False)
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_ADAPTER = "webook.users.adapters.AccountAdapter"
+ACCOUNT_FORMS = {"signup": "webook.users.forms.UserCreationForm"}
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = (
-    "webook.users.adapters.SocialAccountAdapter"
-)
+SOCIALACCOUNT_ADAPTER = "webook.users.adapters.MicrosoftPersonAccountAdapter"
+
+SOCIALACCOUNT_EMAIL_VERIFICATION = False
+
+SOCIALACCOUNT_PROVIDERS = {}
+if ALLOW_SSO:
+    SOCIALACCOUNT_PROVIDERS["microsoft"] = {
+        "tenant": env("MICROSOFT_TENANT", default="common"),
+        "APP": {
+            "name": env("MICROSOFT_SOCIAL_NAME", default="WeBook"),
+            "client_id": env("MICROSOFT_CLIENT_ID"),
+            "secret": env("MICROSOFT_CLIENT_SECRET"),
+            "sites": env("MICROSOFT_CLIENT_SITES"),
+            "adapter": "webook.users.adapters.MicrosoftPersonAccountAdapter",
+        },
+    }
+
+ALLOW_EMAIL_LOGIN = env("ALLOW_EMAIL_LOGIN", default=True)
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+APP_LOGO = env("APP_LOGO", default="static/images/wemade_logo.jpg")
+
+APP_TITLE = env("APP_TITLE", default="WeBook")
+
+# Remember to override this with a valid key if project is commercial.
+FULLCALENDAR_LICENSE_KEY = env(
+    "FULLCALENDAR_LICENSE_KEY", default="CC-Attribution-NonCommercial-NoDerivatives"
+)
+
+ASSET_SERVER_URL = env("ASSET_SERVER_URL", default="localhost/static")
+
+# The default timezone that will be assigned to new users
+USER_DEFAULT_TIMEZONE = env(
+    "USER_DEFAULT_TIMEZONE",
+    default=TIME_ZONE,
+)
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+
+DISPLAY_SSO_ERROR_REASONING = env("DISPLAY_SSO_ERROR_REASONING", default=False)

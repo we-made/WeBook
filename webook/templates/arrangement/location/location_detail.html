@@ -1,0 +1,195 @@
+{% extends "common/meta_base.html" %}
+{% load static i18n %}
+
+{% block section_title_block %}
+    {{ object.name }}
+{% endblock %}
+
+{% block beneath_breadcrumbs_block %}
+    <a class="btn wb-btn-main"
+        href="{% url 'arrangement:location_delete' object.slug %}">
+        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
+    </a>
+    <a class="btn wb-btn-main"
+        href="{% url 'arrangement:location_edit' object.slug %}">
+        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
+    </a>
+{% endblock %}
+
+{% block content %}
+
+<ul class="nav nav-tabs webook-tabs">
+    <!-- Information/General -->
+    <li class="nav-item" role="presentation">
+        <a  href="#tab-calendar"
+            class="nav-link active"
+            role="tab"
+            data-mdb-toggle="tab">
+            <i class="fas fa-calendar"></i>
+            Kalender
+        </a>
+    </li>
+    <!-- Rooms -->
+    <li class="nav-item" role="presentation">
+        <a href="#tab-rooms"
+            class="nav-link"
+            role="tab"
+            data-mdb-toggle="tab">
+            <i class="fas fa-table"></i>
+            Rom
+        </a>
+    </li>
+</ul>
+
+<div class="tab-content pt-4">
+    <div class="tab-pane fade show active" id="tab-calendar" role="tabpanel">
+        <div id="location_calendar" class="mb-4"></div>
+    </div>
+    <div class="tab-pane fade" id="tab-rooms" role="tabpanel">
+        <div class="clearfix">
+            <button class="btn btn-lg btn-webook mb-2"
+            data-mdb-toggle="modal"
+            data-mdb-target="#createRoomModal">
+                <i class="fa fa-plus"></i>&nbsp; Nytt Rom
+            </button>
+        </div>
+        
+        <span id="roomsTableLoaderWrapper">
+        </span>
+    </div>
+</div>
+
+
+<div
+  class="modal fade"
+  id="createRoomModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+    >
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+            <span class="badge badge-success">
+                <i class="fas fa-plus"></i>
+            </span>
+            {% trans "New room" %}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-mdb-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="createNewRoomDialogForm">
+            <input type="hidden" name="location" value="{{ object.id }}" />
+            <div class="form-group">
+                <label>{% trans "Location" %}</label>
+                <input type="text" class="form-control" value="{{ object.name }}" disabled/>
+            </div>
+
+            <div class="form-group mt-3">
+                <label>{% trans "Maximum Occupancy" %}</label>
+                <input type="number" name="max_capacity" class="form-control" value="0" />
+            </div>
+
+            <div class="form-group mt-3">
+                <label>{% trans "Room Name" %}</label>
+                <input type="text" class="form-control" name="name" id="roomNameInput"/>
+            </div>
+
+            <div class="form-group mt-3">
+                <label>{% trans "Room Name (English)" %}</label>
+                <input type="text" class="form-control" name="name_en" id="roomNameEnInput">
+            </div>
+
+            <div class="form-group mt-3">
+                <div class="form-check form-switch">
+                    <label>Is Exclusive?</label>
+                    <input class="form-check-input" name="is_exclusive" type="checkbox" role="switch" id="roomIsExclusive" />
+                </div>
+            </div>
+            <div class="form-group mt-3">
+                <div class="form-check form-switch">
+                    <label>Has Screen?</label>
+                    <input class="form-check-input" name="has_screen" type="checkbox" role="switch" id="roomHasScreen" />
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn wb-btn-secondary" data-mdb-dismiss="modal">
+            <i class="fas fa-times"></i>&nbsp; 
+            {% trans "Cancel" %}
+        </button>
+        <button type="button" class="btn wb-btn-main" onclick="createNewRoom()"><i class="fas fa-check"></i>&nbsp; {% trans "Create room" %}</button>
+        <button type="button" class="btn wb-btn-main" onclick="createNewRoom(false /* dont close after save*/)">{% trans "Create and new" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('location_calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            schedulerLicenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+            initialView: 'resourceTimelineWeek',
+            height: 600,
+            navLinks:true,
+            locale: 'nb',
+
+            events: async function () {
+                return await fetch('{% url "arrangement:events_on_location_source" %}?location={{ object.slug }}')
+                    .then(response => response.json())
+            },
+
+            resources: async function () {
+                return await fetch('{% url "arrangement:rooms_on_location_resource_source" %}?location={{ object.slug }}')
+                    .then(response => response.json())
+            }
+        });
+        calendar.render();
+        loadRoomsTableForLocation()
+    });
+
+    function loadRoomsTableForLocation () {
+        $('#roomsTableLoaderWrapper').load('{% url "arrangement:locationroomlist" object.id %}?location={{object.id }}')
+    }
+
+    async function createNewRoom (closeModalOnDone=true) {
+        let dataForm = new FormData(document.getElementById("createNewRoomDialogForm"))
+        let url = "{% url 'arrangement:room_create' %}"
+
+        dataForm.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+        fetch(url, {
+            method: 'POST',
+            body: dataForm,
+            headers: {
+                'X-CSRFToken': '{% csrf_token %}'
+            }
+        }).then(function(response) {
+            if (response.ok) {
+                loadRoomsTableForLocation() // refresh rooms table to include our newly created room
+            }
+            else {
+                throw "Response not OK."
+            }
+        }).catch(function(err) {
+            console.log(err)
+        }).then(function(response) {
+            if (closeModalOnDone) {
+                $('#createRoomModal').modal('hide');
+            }
+            else {
+                // if we don't want to close the modal, we know we want to empty the form
+                $('#createNewRoomDialogForm').trigger("reset");
+            }
+        })
+    }
+</script>
+{% endblock %}

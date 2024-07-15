@@ -1,0 +1,212 @@
+{% load static i18n %}
+{% load custom_tags %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div id="user_admin_detail">
+    <h4>{{USER.email}}</h4>
+
+    {% if USER.is_superuser %}
+    <div class="badge badge-danger">
+        <i class="fas fa-user-shield"></i> System Administrator
+    </div>
+    {% elif USER|has_group:"planners" %}
+        <div class="badge badge-primary">
+            <i class="fas fa-calendar"></i> Planlegger
+        </div>
+    {% elif USER|has_group:"readonly_level_2" %}
+        <div class="badge badge-secondary">
+            Lesetilgang - Nivå 2
+        </div>
+    {% else %}
+        <div class="badge badge-light">
+            <i class="fas fa-eye"></i> Lesetilgang
+        </div>
+    {% endif %}
+    <!-- Sidebar -->
+    <form method="post">
+        <div class="row">
+            <div>
+                <div class="row w-100">
+                    <div class="col-12">
+                    <!-- Tab navs -->
+                    <div
+                        class="nav flex-row nav-tabs text-dark"
+                        id="v-tabs-tab"
+                        role="tablist"
+                        aria-orientation="vertical"
+                    >
+                    </div>
+                    <!-- Tab navs -->
+                    </div>
+                
+                    <div class="col-8">
+                    <!-- Tab content -->
+                    <div class="tab-content mt-3" id="v-tabs-tabContent">
+                        <div
+                            class="tab-pane fade show active"
+                            id="v-tabs-general"
+                            role="tabpanel"
+                            aria-labelledby="v-tabs-general-tab">
+
+                            <div class=" d-inline">
+                                <img src="{{ form.profile_picture.url }}" class="border border-4 border-light mb-4" style="width:400px">
+                            </div>
+                            
+                                {{form.profile_picture|as_crispy_field}}
+
+                                <div class="d-flex mt-2" style="justify-content: space-between;">
+                                    <div>
+                                        {{form.first_name|as_crispy_field}}
+                                    </div>
+        
+                                    <div>
+                                        {{form.middle_name|as_crispy_field}}
+                                    </div>
+        
+                                    <div>
+                                        {{form.last_name|as_crispy_field}}
+                                    </div>
+                                </div>
+        
+                                <div class="mt-2">
+                                    {{ form.birth_date|as_crispy_field }}
+                                </div>
+        
+                                <div class="mt-2">
+                                    {{ form.timezone|as_crispy_field }}
+                                </div>
+
+                                <div class="mt-3">
+                                    <h4><i class="fas fa-lock"></i>&nbsp; Tilgangsnivå</h4>
+                                    {{form.user_role|as_crispy_field}}
+
+                                    <h5 class="mt-3">Brukeradministrator</h5>
+                                    {{ form.is_user_admin|as_crispy_field }}
+                                </div>
+                        </div>
+                        <div
+                            class="tab-pane fade"
+                            id="v-tabs-sso"
+                            role="tabpanel"
+                            aria-labelledby="v-tabs-sso-tab">
+                            
+                            <div class="d-flex">
+                                <div class="alert alert-light wb-bg-secondary">
+                                    <h3 class="text-center">
+                                        {% if USER.person.is_synced %}
+                                            <i class="fas fa-check text-success"></i>
+                                        {% else %}
+                                            <i class="fas fa-times text-danger"></i>
+                                        {% endif %}
+                                    </h3>
+                                    <h5>Er synkronisert</h5>
+                                </div>
+
+                                <div class="alert alert-light wb-bg-secondary ms-2">
+                                    <h3 class="text-center">
+                                        {% if USER.person.is_sso_capable %}
+                                            <i class="fas fa-check text-success"></i>
+                                        {% else %}
+                                            <i class="fas fa-times text-danger"></i>
+                                        {% endif %}
+                                    </h3>
+                                    <h5>Kan logge inn med SSO</h5>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <h5>ObjectId</h5>
+                                {{ USER.person.social_provider_id }}
+                            </div>
+
+                            <div class="form-group mt-2">
+                                <h5>Social Provider Email</h5>
+                                {{ USER.person.social_provider_email }}
+                            </div>
+                        </div>
+                        <div
+                            class="tab-pane fade"
+                            id="v-tabs-email-password"
+                            role="tabpanel"
+                            aria-labelledby="v-tabs-email-password-tab">
+                            Email & Password content
+                        </div>
+                        <div
+                            class="tab-pane fade"
+                            id="v-tabs-roles"
+                            role="tabpanel"
+                            aria-labelledby="v-tabs-roles-tab">
+                            Roles content
+                        </div>
+                    </div>
+                    <!-- Tab content -->
+                    </div>
+
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-body" style="background-color: ghostwhite">
+                                <h4 class="text-center">SSO</h4>
+                                
+                                <div class="alert alert-light">
+                                    {% if USER.person.is_sso_capable %}
+                                        <i class="fas fa-check text-success d-block h4 text-center"></i> <small>Denne brukeren kan logge inn med SSO</small>
+                                    {% else %}
+                                        <i class="fas fa-times text-danger d-block h4 text-center"></i> <small>Denne brukeren kan ikke logge inn med SSO</small>
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <th class="fw-bold">Er synkronisert:</th>
+                                                <td>
+                                                    {% if USER.person.is_synced %}
+                                                        <i class="fas fa-check text-success"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-times text-danger"></i>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="fw-bold">Objekt ID:</th>
+                                                <td>
+                                                    {{ USER.person.social_provider_id }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="fw-bold">E-Post:</th>
+                                                <td>
+                                                    {{ USER.person.social_provider_email }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    
+                <button class="wb-btn-main btn mt-2 float-end clearfix" type="submit">
+                    Lagre forandringer
+                </button>
+                <button class="wb-btn-secondary btn mt-2 float-end clearfix cancel-button" type="button">
+                    Avbryt
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#user_admin_detail').find('.form-control-lg').each((index, element) => {
+            element.classList.remove("form-control-lg");
+        })
+    })
+</script>
+{% endblock %}

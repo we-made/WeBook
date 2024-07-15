@@ -1,0 +1,94 @@
+{% extends "common/meta_base.html" %}
+{% load static i18n %}
+
+
+{% block beneath_breadcrumbs_block %}
+    <a class="btn btn-danger">
+        <i class="fa fa-trash"></i>&nbsp; {% trans "Delete" %}
+    </a>
+    <a class="btn btn-success"
+        href="{% url 'screenshow:layout_edit' object.slug %}">
+        <i class="fa fa-edit"></i>&nbsp; {% trans "Edit" %}
+    </a>
+{% endblock %}
+
+{% block content %}
+<section>
+    <div class="row">
+        <div class="col-6 ps-5">
+            <div>
+                <h5>
+                    {% trans "Layout Name:" %}
+                  <span>{{ object.name }}</span>
+                </h5>
+            </div>
+            <div class="mt-4">
+                <h5>
+                    {% trans "Layout Description:" %}
+                   <span>{{ object.description }}</span>
+                </h5>
+            </div>
+            <div class="mt-5">
+                <h5>
+                    {% trans "Number of items showing: " %}
+                   <span>{{ object.quantity }}</span>
+                </h5>
+            </div>
+           <div class="mt-4">
+                <h5>
+                    {% trans "Is Room screen based: " %}
+                  <span>{{ object.is_room_based }}</span>
+                </h5>
+            </div>
+           <div class="mt-4">
+                <h5>
+                    {% trans "Showing all events: " %}
+                  <span>{{ object.all_events }}</span>
+                </h5>
+            </div>
+           <div class="mt-4">
+                <h5>
+                    {% trans "Is Active: " %}
+                  <span>{{ object.is_active }}</span>
+                </h5>
+            </div>
+        </div>
+        <div class="col-6">
+            <h4 class="mb-4">
+                <i class="fa fa-television"></i>&nbsp;
+                {% trans "Screen and Groups" %}
+            </h4>
+
+            {% if object.screens.all|length or object.groups.all|length%}
+                <em>{% trans "This display layout is showing on folowing screens" %}</em>
+                {% for screen in object.screens.all %}
+                    <ul class="mt-3">
+                        <li>
+                            <a href="{% url 'screenshow:screen_detail' screen.slug %}">
+                                <i class="fa fa-link"></i>
+                                {{screen.name }}
+                            </a>
+                        </li>
+                    </ul>
+                {% endfor %}
+                {% for group in object.groups.all %}
+                    <ul class="mt-3">
+                        <li>
+                            <a href="{% url 'screenshow:screen_group_detail' group.slug %}">
+                                <i class="fa fa-link"></i>
+                                {{group.group_name }}
+                              {% trans " (group)" %}
+                            </a>
+                        </li>
+                    </ul>
+                {% endfor %}
+
+            {% else %}
+                <div class="alert alert-warning">
+                    {% trans "This display layout is not showing on any screen" %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,110 @@
+<div id="{{dialogId}}" class="{{discriminator}}"
+    title="{% if mode == 'serie' %}Bestill person{% else %}Bestill person for '{{event.title}}'{% endif %}">
+    
+    <div class="clearfix">
+        <div class="float-start">
+            <h5 class="fw-bold">
+                {% if multiple %}Velg personer{% else %}Velg person{% endif %}
+            </h5>
+        </div>
+        <div id="rail" class="float-end stepper-rail"></div>
+    </div>
+    <hr>
+
+    <div>
+        {% if mode == 'serie' %}
+        <div class="alert alert-danger">
+            <strong>Merk: </strong> du bestiller personer for hele serien.
+        </div>
+        {% endif %}
+
+        <table class="table table-sm " id="orderPersonDialog__table">
+            <thead>
+                <tr>
+                    <th>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for person in people %}
+                    <tr>
+                        <td>
+                            {% if person.is_selected %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="{% if multiple %}checkbox{% else %}radio{% endif %}" person_name="{{person.full_name}}" id="{{person.pk}}" 
+                                    name="orderPersonDialog__checkboxArray" checked/>
+                                <label class="form-check-label" for="{{person.pk}}">{{person}}</label>
+                            </div>
+                            {% else %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="{% if multiple %}checkbox{% else %}radio{% endif %}"  person_name="{{person.full_name}}" id="{{person.pk}}" 
+                                    name="orderPersonDialog__checkboxArray"/>
+                                <label class="form-check-label" for="{{person.pk}}">{{person}}</label>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="small text-right">
+            {{people|length}} elementer
+        </div>
+
+        <div class="clearfix">
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary btn-lg"
+                    d-trigger="close">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+
+                <a class="btn wb-btn-main shadow-0 float-end" d-trigger="order">
+                    <i class="fas fa-check"></i>&nbsp; Legg til {% if multiple %}valgte personer{% else %}valgt person{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Dialog({
+        dialogId: '{{dialogId}}',
+        managerName: '{{managerName}}',
+        discriminator: '{{discriminator}}',
+        postInit: function (dialog) {
+            dialog.$('#orderPersonDialog__table').DataTable().destroy();
+            dialog.$("#orderPersonDialog__table").DataTable();
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            order(dialog, {} = {}, triggeredByElement) {
+                let selectedBundle = dialog.plugins.presetSelectManager.getSelected();
+
+                dialog.raiseSubmitEvent({
+                    recipientDialog: "{{recipientDialogId}}",
+                    selectedBundle: selectedBundle,
+                    csrf_token: "{{csrf_token}}",
+                });
+            }
+        },
+        data: {},
+        plugins: [
+            {
+                name: "presetSelectManager",
+                pluginClass: DialogPresetSelectManager,
+                args: {
+                    {% if multiple %}
+                    checkboxes: document.querySelectorAll("input[type='checkbox'][name='orderPersonDialog__checkboxArray']"),
+                    {% else %}
+                    checkboxes: document.querySelectorAll("input[type='radio'][name='orderPersonDialog__checkboxArray']"),
+                    {% endif%}
+                    presets: new Map(),
+                    checkboxIdPrefix: "personCheck",
+                }
+            }
+        ]
+    });
+</script>

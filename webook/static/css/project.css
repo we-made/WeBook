@@ -1,5 +1,12 @@
 /* These styles are generated from project.scss. */
 
+@import url("base.css");
+@import url("fullcalendar_custom.css");
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
 .alert-debug {
   color: black;
   background-color: white;
@@ -10,4 +17,238 @@
   color: #b94a48;
   background-color: #f2dede;
   border-color: #eed3d7;
+}
+
+.ui-dialog-titlebar-close {
+  background-color: white;
+  border: none;
+}
+
+.alert-simple-info {
+  background-color: white;
+  border-radius: 0;
+  border-left: deepskyblue 4px solid;
+}
+
+/*
+  Fix close button existing on the left side of the modal due to inconsistencies
+  between mdbootstrap and bootbox.js. The button can exist in two states - one with a title present, and one
+  without. The issue with placement only occur when title is not present (hence div.modal-body >, if a title is
+  used then bootbox-close-button will be placed in modal-header wrapper along with the title.
+*/
+div.modal-body > .bootbox-close-button {
+  display: block!important;
+  width: 100%;
+  text-align: right;
+}
+
+/*
+  Needed to resolve the same issue as above (div.modal-body > .bootbox-close-button).
+  This ensures that in alerts with 'X' close buttons, that they will be positioned correctly to the right.
+ */
+.close {
+  float:right;
+}
+
+.btn-weak {
+  background-color: #6A5DB8 ;
+}
+
+.status_overlay {
+  background-color: ghostwhite;
+  text-align: center;
+  /* color:white; */
+  position: absolute !important;; 
+  padding: 10px;
+  width: 500px;
+  border-left: solid 3px black;
+  border-top: solid 3px black;
+  bottom:0; 
+  right:0; 
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+}
+
+.btn-wemade {
+  background-color: #5f7f99;
+  color:white
+}
+
+.btn-wemade:hover {
+  background-color: #386080;
+  color: white;
+}
+
+.application-title {
+  font-family: 'Akshar', sans-serif!important;
+}
+
+.list-group-light > .list-group-item.active {
+  background-color: whitesmoke;
+  color:black;
+}
+.list-group > .list-group-item {
+  border-radius: 0.6em;
+}
+.list-group > .list-group-item{
+  margin: 0.1em;
+}
+
+.light-tabs .nav-link.active {
+  background-color: #4b6f8c;
+  border: none;
+  color:white;
+}
+
+.swal2-container {
+  z-index: 100000000000!important;
+}
+
+.noBoxShadow {
+  box-shadow: none;
+}
+
+.dialogBodyWrapper {
+  background-color: white;
+}
+
+.ui-dialog {
+  background-color: white;
+  box-shadow: 0 1px 20px 1px  var(--MAIN-COLOR);
+  /* border: solid 2.5px var(--MAIN-COLOR)!important; */
+  border-radius: 15px;
+  padding: 1.5em!important; 
+}
+
+/* .ui-dialog.ui-widget.ui-widget-content {
+  background:none; /* and no special background for the dialog */
+
+.ui-widget-overlay.ui-front {
+  opacity:.75;
+}
+
+.ui-widget-overlay {
+  opacity: .50 !important; /* Make sure to change both of these, as IE only sees the second one */
+  filter: Alpha(Opacity=50) !important;
+
+  background: rgb(50, 50, 50) !important; /* This will make it darker */
+}
+
+.ui-widget.ui-widget-content {
+  /* border: 0 1px 15px 1px rgba(62,57,107,.07)!important; */
+}
+.ui-widget-content {
+  /* border: 0 1px 15px 1px rgba(62,57,107,.07)!important; */
+}
+
+.playfulButton {
+  width: 100%;
+  border: 0.2rem dotted;
+  border-radius: 0.6rem;
+  /* background-color: rgb(255, 236, 128); */
+  padding: 0.7rem;
+  text-align: center;
+}
+
+.playfulButton-green {
+  background-color: #CAEEC2;
+}
+
+.playfulButton-green:hover{
+  background-color: #90EE91;
+}
+
+.ui-dialog-title {
+  font-size: 28px;
+  font-weight: normal;
+}
+
+.ui-widget-header {
+  background: white!important;
+  color:black!important;
+  border: none!important;
+}
+
+sidenav-primary .sidenav-link {
+  font-size: 18px!important;
+}
+
+
+.sidenav-primary .sidenav-link#hover {
+  color:#5f7f99;
+  background-color: #4b6f8c;
+}
+
+.fc-tabs {
+  border-radius: 10px!important;
+}
+
+.fc-tabs .nav-link {
+  background-color: #2C3E50;
+  border:none;
+  color:white;
+}
+
+.fc-tabs .nav-link:hover {
+  background-color: #1e2b37;
+  border:none;
+  color:white;
+}
+
+.fc-tabs .nav-link.active {
+  background-color: #1e2b37;
+  border:none;
+  color:white;
+}
+
+.dayCircle {
+  border-radius: 50%;
+  padding: 10px;
+  color: #666;
+  text-align: center;
+  font: 16px 'Lato', sans-serif;
+}
+
+.dayCircle:hover {
+  background: skyblue;
+  color: white;
+}
+
+.dayCircle.active:hover {
+  border: red;
+  color:#666;
+}
+
+.dayCircle.active {
+  background: skyblue;
+  color: white;
+}
+.ui-dialog { z-index: 100000000000 !important ;}
+.datepicker-modal-container { 
+  z-index: 100000000001 !important; 
+  border: solid 1px var(--MAIN-COLOR);
+}
+.timepicker-container {
+  z-index: 100000000002 !important; 
+  border: solid 1px var(--MAIN-COLOR);
+}
+.timepicker-wrapper {
+  z-index: 100000000002 !important;
+}
+/* .context-menu-root {
+  background-color: #386080!important;
+}
+
+.context-menu-item {
+  background-color: #5f7f99!important;
+  color: white!important;
+} */
+
+
+/* 
+Z-Index modification to the timepicker-modal class (as used by MDBOOTSTRAP timepicker) so that they can appear
+over the JQUERY dialogs.
+*/
+.timepicker-modal {
+  z-index: 100000000001 !important ;
 }

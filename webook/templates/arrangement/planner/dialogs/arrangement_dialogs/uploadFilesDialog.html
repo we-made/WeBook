@@ -1,0 +1,69 @@
+{% load static i18n %}
+
+
+<div id="{{ dialogId }}" class="{{discriminator}}">
+    <div class="clearfix">
+        <div class="float-start">
+            <h5 class="fw-bold">
+                <i class="fas fa-upload"></i>&nbsp; Last opp filer
+            </h5>
+        </div>
+        <div id="rail" class="float-end stepper-rail"></div>
+    </div>
+    <hr>
+
+    <form action="" enctype="application/x-www-form-urlencoded" id="uploadFilesDialogForm">
+        <div class="file-upload-wrapper">
+            <input type="file"
+                id="input-file-now"
+                name="file_field"
+                class="file-upload-input"
+                multiple="true"
+                data-mdb-file-upload="file-upload" />
+        </div>
+
+        {% csrf_token %}
+
+        <div class="clearfix mt-2">
+            <div class="float-end">
+                <a href="#" class="btn wb-btn-secondary btn-lg"
+                    d-trigger="close">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </a>
+                <button class="btn btn-sm wb-btn-main shadow-0"
+                    d-trigger="submit"
+                    type="button">
+                    <i class="fa fa-upload"></i>
+                    {% trans "Upload" %}
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script>
+    new Dialog({
+        dialogId: '{{ dialogId }}',
+        managerName: '{{ managerName }}',
+        discriminator: '{{ discriminator }}',
+        postInit: function (dialog) {
+            new FileUpload(dialog.querySelector("#input-file-now"));
+        },
+        methods: {
+            close(dialog, {} = {}, triggeredByElement) {
+                dialog.closeMe();
+            },
+            submit(dialog, {} = {}, triggeredByElement) {
+                let formData = new FormData(dialog.$("#uploadFilesDialogForm")[0]);
+
+                dialog.raiseSubmitEvent({
+                    formData: formData,
+                    csrf_token: '{% csrf_token %}'
+                });
+            }
+        },
+        data: {},
+    });
+</script>

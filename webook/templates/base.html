@@ -1,9 +1,17 @@
-{% load static i18n %}<!DOCTYPE html>
+{% load static i18n %}
+{% load crumbinator_filters %}
+{% load custom_tags %}
+
+
+{{ MESSAGES_SERIALIZABLE | json_script:"queuedMessages" }}
+
+
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %}WeBook{% endblock title %}</title>
+    <title>{% block title %} {{ APP_TITLE }} {% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -17,69 +25,327 @@
 
     {% block css %}
     <!-- Third-party CSS libraries go here -->
-    <link href="{% static 'css/mdb.min.css' %}" rel="stylesheet">
+    <!-- <link href="{% static 'css/mdb.min.css' %}" rel="stylesheet"> -->
+    <link href="{{ ASSET_SERVER_URL }}mdb/css/mdb.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/color-picker.min.css">
+    <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/wysiwyg.min.css">
+    <link rel="stylesheet" href="{% static 'vis-timeline/styles/vis-timeline-graph2d.min.css' %}" />
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'fullcalendar-scheduler/main.min.css' %}">
+    <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/base/jquery.fonticonpicker.min.css' %}">
+    <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/themes/bootstrap-theme/jquery.fonticonpicker.bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default-dark/style.min.css" integrity="sha512-G2U+dh7e2qpH9e1PZdGb7Hp+/uoiPbbEt3dGdU3G+eX+j3ZdnTSRL7s6jgXu94SeQBV1lOUr50kGQ99j2Vj3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- This file stores project-specific CSS -->
+    <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/file-upload.min.css">
+    <!-- <link rel="stylesheet" href="{% static 'jquery-treetable/css/jquery.treetable.css' %}" />
+     -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-treetable/3.2.0/css/jquery.treetable.css" integrity="sha512-l1bJ1VnsPD+m5ZYhfcl9PrJgbCQixXtQ/zs423QYu0w1xDGXJOSC0TmorOocaYY8md5+YMRcxZ/UgjyOSIlTYw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+     <link rel="stylesheet" href="{% static 'css/jquery.treetable.theme.webook.css' %}">
+     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-treetable/3.2.0/css/jquery.treetable.theme.default.css" integrity="sha512-S0Z8qdW2IlHsTsra73PQ9cTRAFIugG853UK9hkv6CZ/H6MemHuZokEQKhjtvQEQ1NpQuaheq1wcGcrY46PK9og==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
+    <link href="{% static 'css/nasj_style.css' %}" rel="stylesheet">
+
+
+    <script
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+
+    <script src="{% static 'js/mdbSelectExt.js' %}"></script>
+    <script src="{% static 'vis-timeline/standalone/umd/vis-timeline-graph2d.js' %}"></script>
+    <script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Akshar:wght@600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&family=Lato:ital,wght@1,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet"> 
+
+    <script src="{% static 'vue/dist/vue.global.js' %}"></script>
+
+    <!-- Main Quill library -->
+    <script src="//cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <!-- Theme included stylesheets -->
+    <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+
+
+
     {% endblock %}
 
   </head>
 
   <body>
+      <style>
+        .header-padded-in {
+          padding-left: 240px;
+        }
 
-    <div class="mb-4">
-      <nav class="navbar navbar-expand-md navbar-light bg-light container-fluid">
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
+        .container-sidebar-padded-in {
+          padding-left: 280px;
+        }
+
+        INPUT:-webkit-autofill,SELECT:-webkit-autofill,TEXTAREA:-webkit-autofill{animation-name:onautofillstart}INPUT:not(:-webkit-autofill),SELECT:not(:-webkit-autofill),TEXTAREA:not(:-webkit-autofill){animation-name:onautofillcancel}@keyframes onautofillstart{from{}}@keyframes onautofillcancel{from{}}
+      </style>
+      <nav
+      id="sidenav"
+      class="sidenav"
+    >
+    
+
+
+      <a
+        class="ripple d-flex justify-content-center py-4 border-0"
+        style="border-bottom: 2px solid #f5f5f5"
+        href="#!"
+        data-mdb-ripple-color="primary"
+      >
+        <img id="app-logo" src="/{{ APP_LOGO }}" alt="App Logo" width="40px" draggable="false">
+
+      </a>
+
+      {% with request.resolver_match.url_name as url_name %}
+      <div class="text-center mb-2">
+        <h5 class="fw-bold">
+          Hei, {{ request.user.person.first_name }}
+        </h5>
+        <a class="btn wb-btn-main" href="{% url 'account_logout' %}">
+          Logg ut
+        </a>
+      </div>
+
+      <div class="d-flex justify-content-center" >
+        <button class="btn wb-btn-white wb-large-btn btn-lg ripple-surface" style="min-width: 400px"
+          onclick="toggleSidebar()">
+          <i class="fas fa-angle-double-left"></i>
         </button>
-        <a class="navbar-brand" href="{% url 'home' %}">WeBook</a>
+      </div>
+    
+      <ul class="sidenav-menu">
+        <li class="sidenav-item {% if url_name == 'detail' %}active{% endif %}">
+          <a  href="{% url 'users:detail' request.user.slug %}" 
+              class="sidenav-link">
+            <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Min Side</span></a
+          >
+        </li>
+    
+        <li class="sidenav-item {% if url_name == 'planner_calendar' %}active{% endif %}">
+          <a  href="{% url 'arrangement:planner_calendar' %}" 
+              class="sidenav-link">
+            <i class="fas fa-calendar-plus fa-fw me-3"></i><span>Planleggingskalender</span></a
+          >
+        </li>
+        {% if user|has_group:"planners" %}
+        <li class="sidenav-item pt-3">
+          <span class="sidenav-subheading text-muted fw-bold">
+            <i class="fas fa-cubes"></i>&nbsp;
+            Ressurser
+          </span>
+          
+          <hr>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'about' %}">About</a>
-            </li>
-            {% if request.user.is_authenticated %}
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a class="nav-link" href="{% url 'users:detail' request.user.username  %}">{% trans "My Profile" %}</a>
-              </li>
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Sign Out" %}</a>
-              </li>
-            {% else %}
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a id="sign-up-link" class="nav-link" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
-              </li>
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% trans "Sign In" %}</a>
-              </li>
-            {% endif %}
-          </ul>
-        </div>
-      </nav>
+          <li class="sidenav-item {% if url_name == 'location_list' %}active{% endif %}">
+            <a  href="{% url 'arrangement:location_list' %}" 
+            class="sidenav-link">
+              <i class="fas fa-building fa-fw me-3"></i><span>Lokasjoner</span></a
+            >
+          </li>
+          <li class="sidenav-item {% if url_name == 'person_list' %}active{% endif %}">
+            <a  href="{% url 'arrangement:person_list' %}" 
+                class="sidenav-link">
+              <i class="fas fa-users fa-fw me-3"></i><span>Personer</span></a
+            >
+          </li>
+          <li class="sidenav-item {% if url_name == 'organization_list' %}active{% endif %}">
+            <a  href="{% url 'arrangement:organization_list' %}"
+                class="sidenav-link">
+              <i class="fas fa-dollar-sign fa-fw me-3"></i><span>Kunder</span>
+            </a>
+          </li>
+          
+        </li>
 
+        <li class="sidenav-item pt-3">
+          <span class="sidenav-subheading text-muted fw-bold"><i class="fas fa-cogs"></i>&nbsp; Typer</span>
+          <hr>
+
+        </li>
+        <li class="sidenav-item {% if url_name == 'audience_list' %}active{% endif %}">
+          <a  href="{% url 'arrangement:audience_list' %}"
+              class="sidenav-link">
+            <span>Målgrupper</span>
+            </a>
+        </li>
+        <li class="sidenav-item {% if url_name == 'statustype_list' %}active{% endif %}">
+          <a  href="{% url 'arrangement:statustype_list' %}"
+              class="sidenav-link">
+            <span>Status</span></a
+          >
+        </li>
+        <li class="sidenav-item {% if url_name == 'arrangement_type_list' %}active{% endif %}">
+          <a  href="{% url 'arrangement:arrangement_type_list' %}" 
+              class="sidenav-link">
+            <span>Arrangement</span>
+          </a>
+        </li>
+        <li class="sidenav-item {% if url_name == "servicetype_list" %}active{% endif %}">
+          <a  href="{% url 'arrangement:servicetype_list' %}" 
+              class="sidenav-link">
+            <span>Tjenestetyper</span>
+            </a>
+        </li>
+        <li class="sidenav-item {% if url_name == "organizationtype_list" %}active{% endif %}">
+          <a  href="{% url 'arrangement:organizationtype_list' %}"
+              class="sidenav-link">
+            <span>Organisasjonstyper</span>
+          </a>
+        </li>
+        {% endif %}
+
+        {% if user.is_superuser or user.is_user_admin or user|has_group:"display_organizer" %}
+        <li class="sidenav-item mb-1 pt-3">
+          <span class="sidenav-subheading text-muted fw-bold">
+            <i class="fas fa-tools"></i>&nbsp;
+            Administrasjon
+          </span>
+          <hr>
+        </li>
+        {% endif %}
+
+        {% if user.is_superuser or user.is_user_admin %}
+        <li class="sidenav-item {% if url_name == 'user_list' %}active{% endif %} mb-1">
+          <a  href="{% url 'users:user_admin_list' %}"
+              class="sidenav-link sidenav-link-success-subtle">
+            <i class="fas fa-user-shield fa-fw me-3"></i><span>Brukere</span></a
+          >
+        </li>
+        {% endif %}
+        {% if user.is_superuser or user|has_group:"display_organizer" %}
+        <li class="sidenav-item {% if url_name == 'screen_list' %}active{% endif %} mb-1">
+          <a  href="{% url 'screenshow:screen_list' %}"
+              class="sidenav-link sidenav-link-info-subtle">
+            <i class="fas fa-tv fa-fw me-3"></i><span>Skjermvisning</span></a
+          >
+        </li>
+        {% endif %}
+        {% if user.is_superuser %}
+        <li class="sidenav-item">
+          <a class="sidenav-link sidenav-link-danger-subtle" href="{% url 'admin:index' %}">
+            <i class="fas fa-tools fa-fw me-3"></i><span>Django Admin Panel</span></a
+          >
+        </li>
+        {% endif %}
+      </ul>
+      {% endwith %}
+      
+    </nav>
+      
+      <div class="w-100 " id="contentWrapper">
+        <header>
+          <nav id="top-navbar" class="navbar navbar-expand-lg navbar-light shadow-0 border-bottom">
+            <div class="container-fluid d-flex">
+              <button
+                onclick="toggleSidebar()"
+                class="btn wb-btn-white wb-large-btn btn-lg"
+                aria-controls="#sidenav"
+                aria-haspopup="true"
+              >
+                <i class="fas fa-bars"></i>
+              </button>
+              <h2 class="mb-0 ms-2 wb-text-main text-uppercase">
+                {{APP_TITLE}}
+              </h2>
+
+              <ul class="navbar-nav ms-auto d-flex flex-row">
+                <form class="d-none d-md-flex input-group input-group-lg w-auto my-auto">
+                  <input autocomplete="off" type="search" class="form-control rounded" placeholder="{% blocktrans %}Search (ctrl + &quot;/&quot; to focus){% endblocktrans %}" style="min-width: 225px">
+                  <span class="input-group-text border-0"><i class="fas fa-search" aria-hidden="true"></i></span>
+                </form> 
+              </ul>
+              {% if request.user.is_authenticated %}
+                <div class="btn-group shadow-0 d-none d-md-flex">
+                  <button
+                    type="button"
+                    class="btn btn-lg ms-3 btn-webook text-white fw-bolJd dropdown-toggle"
+                    data-mdb-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                  <i class="fa fa-user"></i>&nbsp;
+                    {% if request.user.person and request.user.person.first_name %}
+                      Hei, {{ request.user.person.first_name }}
+                    {% else %}
+                      Hei, (ingen person)
+                    {% endif %}
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'users:detail' slug=request.user.slug %}"><i class="la la-user"></i>&nbsp; {% trans "My Profile" %}</a></li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="la la-times-circle"></i>&nbsp; {% trans "Sign Out" %}</a></li>
+                  </ul>
+                </div>
+              {% else %}
+                <a id="log-in-link" class="btn btn-success" href="{% url 'account_login' %}"><i class="la la-lock-open"></i> {% trans "Sign In" %}</a>
+                <a id="sign-up-link" class="btn btn-info ms-2" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
+              {% endif %}
+            </div>
+          </nav>
+          <!-- Navbar -->
+        </header> 
+        <div  id="mainBodyContainer" class="{% block container_classes %} container {% endblock %}">
+          {% block superheader %}
+            <div class="mt-2"></div>
+          {% endblock %}
+          {% block noheader %}
+          <section>
+            <h1 class="h1 mb-0 text-muted h2 header-fonted">
+              <i class="{% block section_icon_class %}{% endblock %}"></i>
+              {% block section_title_block %}
+              
+              {% block section_title %}
+              {% endblock section_title%}
+
+              {% comment %} <span class="header-fonted">
+
+              {% comment %} </span> {% endcomment %}
+              {% comment %} <small class="text-muted h4">{% block section_subtitle %}{% endblock %}</small> {% endcomment %}
+              {% endblock section_title_block %}
+            </h1>
+            
+            <div class="crumbs-without-margin-bottom">
+              {% if CRUMBS  %}
+                {{ CRUMBS|crumbinator }}
+              {% endif %}
+            </div>
+            <div class="mt-3">
+              {% block beneath_breadcrumbs_block %}
+              {% endblock %}
+            </div>
+          </section>
+          {% endblock %}
+        </section>
+    
+    
+        <div class="mb-4"></div>
+    
+        {% block content %}
+        {% endblock %}
+    
+        </div> <!-- /container -->
+      </div>
     </div>
-
-    <div class="container">
-
-      {% if messages %}
-          {% for message in messages %}
-              <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
-          {% endfor %}
-      {% endif %}
-
-      {% block content %}
-        <p>Flexible booking and event management solution. This text is inherited on other pages!</p>
-      {% endblock content %}
-
-    </div> <!-- /container -->
 
     {% block modal %}{% endblock modal %}
 
@@ -88,15 +354,141 @@
     <!-- Placed at the end of the document so the pages load faster -->
     {% block javascript %}
 
-      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+      <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script> -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js" integrity="sha512-kvg/Lknti7OoAw0GqMBP8B+7cGHvp4M9O9V6nAYG91FZVDMW3Xkkq5qrdMhrXiawahqU7IZ5CNsY/wWy1PpGTQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 
       <!-- Your stuff: Third-party javascript libraries go here -->
-      <script src="{% static 'js/mdb.min.js' %}"></script>
+      <script src="{{ ASSET_SERVER_URL }}mdb/js/mdb.min.js"></script>
+      
+      <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/color-picker.min.js"></script>
+      <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/transfer.min.js"></script>
 
+      <script src="{% static 'js/bootbox.min.js' %}"></script>
+      <script src="{% static 'js/bootbox.locales.min.js' %}"></script>
+      
+      <script src="{% static 'js/luxon.js' %}"></script>
+      <script src="{% static 'fullcalendar-scheduler/main.min.js' %}"></script>
+      <script src="{% static 'fullcalendar-scheduler/locales-all.min.js' %}"></script>
       <!-- place project specific Javascript in this file -->
       <script src="{% static 'js/project.js' %}"></script>
+      <script src="{% static 'js/components.js' %}"></script>
+      <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+      <script src="{% static '@fonticonpicker/fonticonpicker/dist/js/jquery.fonticonpicker.min.js' %}"></script>
+      <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/file-upload.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+      <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.11.5/af-2.3.7/b-2.2.2/b-colvis-2.2.2/b-html5-2.2.2/b-print-2.2.2/cr-1.5.5/date-1.1.2/fc-4.0.2/fh-3.2.2/kt-2.6.4/r-2.2.9/rg-1.1.4/rr-1.2.8/sc-2.0.5/sb-1.3.2/sp-2.0.0/sl-1.3.4/sr-1.1.0/datatables.min.js"></script>
+      <script src="{% static 'js/sweetalert2.js' %}"></script>
+
+      <!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js" integrity="sha512-TGClBy3S4qrWJtzel4qMtXsmM0Y9cap6QwRm3zo1MpVjvIURa90YYz5weeh6nvDGKZf/x3hrl1zzHW/uygftKg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      <script src="{% static 'colorjs.io/dist/color.js' %}"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-treetable/3.2.0/jquery.treetable.min.js" integrity="sha512-2pYVakljd2zLnVvVC264Ib+XGvOvu3iFyKCIwLzn77mfbjuVi1dGJUxGjDAI8MjgPgTfSIM/vZirW04LCQmY2Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      <script type="module">
+        import dialogApi from "{% static 'modules/planner/dialog_manager/dialogApi.js' %}";
+        import { Popover } from "{% static 'js/popover.js' %}";
+        import { MessagesFacility } from "{% static 'modules/planner/broadcast.js' %}";
+
+        $(document).ready(function () {
+          window.MessagesFacility = new MessagesFacility();
+        });
+
+        const othersPopover = new Popover({
+            triggerElement: document.getElementById('toggleOthersPopover'),
+            wrapperElement: document.getElementById('othersPopover'),
+        });
+
+        {% if user.is_superuser or user|has_group:"display_organizer" %}
+        const displayLayoutsPopover = new Popover({
+          triggerElement: document.getElementById('toggleDisplayLayoutsPopover'),
+          wrapperElement: document.getElementById('displayLayoutsPopover'),
+        });
+        {% endif %}
+
+        window.dialogApi = dialogApi;
+      </script>
+
+      <script>
+        window.sharedUrls = {
+          mdb: "{{ ASSET_SERVER_URL }}mdb/css/mdb.min.css",
+          base: "/static/css/base.css",
+          fontAwesome: 'https://kit.fontawesome.com/db5ee7e46d.js'
+        }
+
+        window.isMobile = window.innerWidth < 768;
+        let isHidden = true;
+
+        const sidenavInstance = new mdb.Sidenav(document.getElementById('sidenav'), {
+          hide: false,
+          hidden: true,
+          mode: 'side',
+          transitionDuration: 0
+        })
+        if(!window.isMobile) {
+          toggleSidebar();
+        }
+
+        function toggleSidebar() {
+          sidenavInstance.toggle();
+          isHidden = !isHidden;
+
+          if (isHidden) {
+            $("#contentWrapper").removeClass("body-container");
+          } else {
+            $("#contentWrapper").addClass("body-container");
+          }
+        }
+
+        $(document).ready(function() {
+          let queuedMessages = JSON.parse(document.getElementById('queuedMessages').textContent);
+          tagToToastrFuncMap = new Map([
+            [
+              "success",
+              toastr.success
+            ],
+            [
+              "info",
+              toastr.info
+            ],
+            [
+              "warning",
+              toastr.warning
+            ],
+            [
+              "danger",
+              toastr.danger
+            ]
+          ])
+          queuedMessages.forEach(element => {
+            var toastrFunc = toastr.info;
+            if (tagToToastrFuncMap.has(element.tag)) {
+              toastrFunc = tagToToastrFuncMap.get(element.tag);
+            }
+
+            toastrFunc(element.message);
+          });
+        })
+
+        toastr.options = {
+          "closeButton": false,
+          "debug": false,
+          "newestOnTop": false,
+          "progressBar": false,
+          "positionClass": "toast-bottom-right",
+          "preventDuplicates": false,
+          "onclick": null,
+          "showDuration": "300",
+          "hideDuration": "1000",
+          "timeOut": "5000",
+          "extendedTimeOut": "1000",
+          "showEasing": "swing",
+          "hideEasing": "linear",
+          "showMethod": "fadeIn",
+          "hideMethod": "fadeOut"
+        }
+      </script>
     {% endblock javascript %}
   </body>
 </html>
-

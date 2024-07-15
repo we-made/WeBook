@@ -1,9 +1,8 @@
 from django.contrib import admin
-from .models import (Arrangement, Location, Room, Person, Event, Organization, OrganizationType, Article, Audience,
-                     BusinessHour, TimelineEvent, ServiceProvider, ServiceType, Calendar, Note, ConfirmationReceipt,)
+from django.contrib.auth.models import Group
 
-
-admin.site.register([
+from webook.arrangement.forms.group_admin import GroupAdminForm
+from .models import (
     Arrangement,
     Location,
     Room,
@@ -15,9 +14,46 @@ admin.site.register([
     Audience,
     BusinessHour,
     TimelineEvent,
-    ServiceProvider,
+    ServiceProvidable,
     ServiceType,
     Calendar,
     Note,
-    ConfirmationReceipt
-])
+    ConfirmationReceipt,
+    ArrangementType,
+)
+
+admin.site.register(
+    [
+        Arrangement,
+        Location,
+        Room,
+        Person,
+        Event,
+        Organization,
+        OrganizationType,
+        Article,
+        Audience,
+        BusinessHour,
+        TimelineEvent,
+        ServiceProvidable,
+        ServiceType,
+        Calendar,
+        Note,
+        ConfirmationReceipt,
+        ArrangementType,
+    ]
+)
+
+# Unregister the original Group admin.
+admin.site.unregister(Group)
+
+# Create a new Group admin.
+class GroupAdmin(admin.ModelAdmin):
+    # Use our custom form.
+    form = GroupAdminForm
+    # Filter permissions horizontal as well.
+    filter_horizontal = ["permissions"]
+
+
+# Register the new Group ModelAdmin.
+admin.site.register(Group, GroupAdmin)
