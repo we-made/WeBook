@@ -101,6 +101,7 @@ LOCAL_APPS = [
     "webook.crumbinator.apps.CrumbinatorConfig",
     "webook.screenshow.apps.ScreenshowConfig",
     "webook.api.apps.ApiConfig",
+    "webook.onlinebooking.apps.OnlinebookingConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
