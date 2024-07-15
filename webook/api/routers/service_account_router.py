@@ -4,21 +4,25 @@ from ninja import Router
 from ninja.security import django_auth_superuser
 from webook.api.jwt_auth import issue_token
 from webook.api.schemas.base_schema import BaseSchema
-from webook.api.models import ServiceAccount
+from webook.api.models import ServiceAccount, APIEndpoint
 from django.core.exceptions import PermissionDenied
 from jwt import encode
 from django.conf import settings
 from datetime import datetime, timedelta
 
-service_account_router = Router(tags=["Service Account"], auth=django_auth_superuser)
+service_account_router = Router(tags=["Service Account"])
+
+
+class APIEndpointSchema(BaseSchema):
+    operation_id: str
 
 
 class ServiceAccountSchema(BaseSchema):
     id: int
     username: str
     is_active: bool
-    allowed_endpoints: list
-    last_seen: Optional[str] = None
+    allowed_endpoints: List[APIEndpointSchema]
+    last_seen: Optional[datetime] = None
 
 
 class CreateServiceAccountSchema(BaseSchema):
@@ -49,12 +53,16 @@ def login_service_account(request, payload: ServiceAccountLoginSchema) -> str:
     return issue_token(service_account)
 
 
-@service_account_router.get("/", response=List[ServiceAccountSchema])
+@service_account_router.get(
+    "/", response=List[ServiceAccountSchema], auth=django_auth_superuser
+)
 def list_service_accounts(request) -> List[ServiceAccountSchema]:
     return ServiceAccount.objects.all()
 
 
-@service_account_router.post("/", response=ServiceAccountSchema)
+@service_account_router.post(
+    "/", response=ServiceAccountSchema, auth=django_auth_superuser
+)
 def create_service_account(
     request, payload: CreateServiceAccountSchema
 ) -> ServiceAccountSchema:
@@ -66,12 +74,19 @@ def create_service_account(
     return service_account
 
 
+@service_account_router.get("/ep", response=List[str])
+def get_endpoint_choices(request):
+    return list(APIEndpoint.objects.values_list("operation_id", flat=True))
+
+
 @service_account_router.get("/{service_account_id}", response=ServiceAccountSchema)
 def get_service_account(request, service_account_id: int):
     return get_object_or_404(ServiceAccount, pk=service_account_id)
 
 
-@service_account_router.put("/{service_account_id}", response=ServiceAccountSchema)
+@service_account_router.put(
+    "update/{service_account_id}", response=ServiceAccountSchema
+)
 def update_service_account(
     request, service_account_id: int, payload: UpdateServiceAccountSchema
 ) -> ServiceAccountSchema:
@@ -81,7 +96,7 @@ def update_service_account(
         service_account.is_active = payload.is_active
     if payload.allowed_endpoints is not None:
         service_account.allowed_endpoints.set(
-            ServiceAccount.objects.filter(pk__in=payload.allowed_endpoints)
+            APIEndpoint.objects.filter(operation_id__in=payload.allowed_endpoints)
         )
 
     service_account.save()
