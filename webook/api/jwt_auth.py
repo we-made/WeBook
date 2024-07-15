@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta, timezone
 import logging
 from ninja.security import HttpBearer
-from webook.api.models import ServiceAccount, RevokedToken
+from webook.api.models import ServiceAccount, RevokedToken, APIEndpoint
 from django.conf import settings
 from jwt import ExpiredSignatureError, decode, DecodeError, encode
 from ninja.errors import HttpError
+
+ALWAYS_ALLOWED_ENDPOINTS = []
 
 
 class JWTBearer(HttpBearer):
@@ -38,6 +40,19 @@ class JWTBearer(HttpBearer):
 
             service_account.last_seen = datetime.now(timezone.utc)
             service_account.save()
+
+            operation_id = request.resolver_match.url_name
+
+            if operation_id not in ALWAYS_ALLOWED_ENDPOINTS:
+                if not APIEndpoint.objects.filter(
+                    operation_id=operation_id, service_accounts=service_account
+                ).exists():
+                    logging.info(
+                        f"User {service_account_id} tried to access {operation_id} without permission"
+                    )
+                    raise HttpError(
+                        403, "You do not have permission to access this endpoint"
+                    )
 
             return service_account
         except ServiceAccount.DoesNotExist:
