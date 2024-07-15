@@ -55,7 +55,7 @@ class ApiConfig(AppConfig):
         to_delete = registered_operation_ids - present_urls_opset
         intersect = registered_operation_ids.intersection(present_urls_opset)
 
-        if not new and not to_delete:
+        if not new and not to_delete and not intersect:
             print("No changes in API Endpoints")
             return
 
