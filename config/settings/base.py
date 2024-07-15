@@ -100,6 +100,7 @@ LOCAL_APPS = [
     "webook.arrangement.apps.ArrangementConfig",
     "webook.crumbinator.apps.CrumbinatorConfig",
     "webook.screenshow.apps.ScreenshowConfig",
+    "webook.api.apps.ApiConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -380,3 +381,5 @@ USER_DEFAULT_TIMEZONE = env(
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
 DISPLAY_SSO_ERROR_REASONING = env("DISPLAY_SSO_ERROR_REASONING", default=False)
+
+JWT_TOKEN_LIFETIME_MINUTES = env("JWT_TOKEN_LIFETIME_MINUTES", default=20)

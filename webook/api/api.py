@@ -1,22 +1,20 @@
 from django.conf import settings
 from ninja import NinjaAPI, Swagger
 
+from webook.api.jwt_auth import JWTBearer
 from webook.api.session_auth import AuthAgent
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from webook.api.routers.service_account_router import service_account_router
+from ninja.security import django_auth
 
 api = NinjaAPI(
     title="WeBook V1 API",
     docs=Swagger() if settings.DEBUG else None,
     description="WeBook API",
-    auth=AuthAgent(
-        authorize_hook=lambda user: True
-    ),  # Will only pass if user is authenticated, which we want.
+    auth=[django_auth, JWTBearer()],
     openapi_extra={"tags": []},
 )
-# Allows setting the description of a tag - not supported by NinjaAPI out of the box on the tag declaration itself.
-api.set_tag_doc = lambda tag, doc: api.openapi_extra["tags"].append(
-    {"name": tag, "description": doc}
-)
+api.add_router("/service_accounts", service_account_router)
 
 
 @api.exception_handler(ObjectDoesNotExist)
