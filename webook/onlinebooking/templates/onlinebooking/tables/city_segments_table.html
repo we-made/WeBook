@@ -1,0 +1,139 @@
+{% include "onlinebooking/modals/segment_edit_modal.html" %}
+
+<template id="vuec-city-segments-table">
+    <city-segment-edit-modal-component
+        @close="citySegmentEditModalVisible = false"
+        @has-changed="$refs.citySegmentsTable.refresh()"
+        :is-visible="citySegmentEditModalVisible"
+        :segment-id="citySegmentEditModalCitySegmentId"
+        :backdrop="true">
+    </city-segment-edit-modal-component>
+    
+    <table-component
+        :data-source="dataSource"
+        :columns="columns"
+        :can-search="true"
+        @show="(data) => show(data.id)"
+        @edit="(data) => edit(data.id)"
+        @archive="(data) => archive(data.id)"
+        :submit-handler="submitHandler"
+        :can-insert="true"
+        ref="citySegmentsTable">
+    </table-component>
+</template>
+
+<script>
+    const CitySegmentsTableComponent = {
+        template: '#vuec-city-segments-table',
+        delimiters: ['[[', ']]'],
+        components: {
+            TableComponent,
+            CitySegmentEditModalComponent,
+        },
+        methods: {
+            submitHandler: async function (data) {
+                data.countyId = this.countyId;
+                console.log("submitHandler.data", data, this.countyId);
+                const response = await fetch("/api/onlinebooking/city_segment/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                return [200, 201].includes(response.status);
+            },
+            show: function (id) {
+                location.href = `/onlinebooking/city_segment/${id}/`;
+            },
+            archive: async function (id) {
+                const responseData = await this.citySegmentAPIRepository.archive(id, '{{csrf_token}}');
+                    if (responseData !== null)
+                        this.$refs.citySegmentsTable.refresh();
+            },
+            edit: function (id) {
+                this.citySegmentEditModalVisible = true;
+                this.citySegmentEditModalCitySegmentId = id;
+            },
+            refresh: function () {
+                this.$refs.citySegmentsTable.refresh();
+            }
+        },
+        computed: {
+            dataSource: function () {
+                const builder = new URLSearchParams();
+                if (this.countyId) {
+                    builder.append('county_id', this.countyId);
+                }
+                if (this.schoolId) {
+                    builder.append('school_id', this.schoolId);
+                }
+
+                const url = `/api/onlinebooking/city_segment/list?` + builder.toString();
+
+                let columnsDefinition = {
+                    "name": {
+                        friendlyName: "Navn",
+                        field: "name",
+                        sortable: true,
+                        isHidden: false,
+                        input: "text",
+                        isHtml: true,
+                        isSearchable: true,
+                        validator: (value) => {
+                            return {
+                                isValid: value.length > 0,
+                                message: "Navn må fylles ut"
+                            }
+                        },
+                    },
+                }
+
+                this.hiddenColumns.forEach(column => {
+                    columnsDefinition[column].isHidden = true;
+                });
+
+                return new APITableDataSource(
+                    url,
+                    columnsDefinition,
+                    {
+                        "show": { type: 'main', content: "<i class='fas fa-eye'></i>&nbsp; Åpne", isContentHtml: true },
+                        "edit": { type: 'main', content: "<i class='fas fa-edit'></i>&nbsp; Rediger", isContentHtml: true },
+                        "archive": { type: 'main', content: "<i class='fas fa-archive'></i>&nbsp; Arkiver", isContentHtml: true },
+                    },
+                    'name',
+                    'asc',
+                    true,
+                    (data) => {
+                        console.log("CitySegments", data);
+                        return data;
+                    }
+                );
+            }
+        },
+        props: {
+            hiddenColumns: {
+                type: Array,
+                required: false,
+                default: () => []
+            },
+            countyId: {
+                type: Number,
+                required: false
+            },
+            schoolId: {
+                type: Number,
+                required: false
+            },
+        },
+        data: () => {
+            return {
+                citySegmentAPIRepository: new CitySegmentAPIRepository(),
+                citySegmentEditModalVisible: false,
+                citySegmentEditModalCitySegmentId: null,
+            }
+        },
+    }
+</script>
