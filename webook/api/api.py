@@ -6,6 +6,14 @@ from webook.api.session_auth import AuthAgent
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from webook.api.routers.service_account_router import service_account_router
 from ninja.security import django_auth
+from webook.arrangement.api import audience_router
+
+from webook.onlinebooking.api import (
+    county_router,
+    city_segment_router,
+    school_router,
+    online_booking_router,
+)
 
 api = NinjaAPI(
     title="WeBook V1 API",
@@ -15,7 +23,11 @@ api = NinjaAPI(
     openapi_extra={"tags": []},
 )
 api.add_router("/service_accounts", service_account_router)
-
+api.add_router("/onlinebooking/county", county_router)
+api.add_router("/onlinebooking/city_segment", city_segment_router)
+api.add_router("/onlinebooking/school", school_router)
+api.add_router("/onlinebooking/online_booking", online_booking_router)
+api.add_router("/arrangement/audience", audience_router)    
 
 @api.exception_handler(ObjectDoesNotExist)
 def handle_does_not_exist(request, exc):
