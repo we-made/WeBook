@@ -1,0 +1,149 @@
+{% include "onlinebooking/modals/school_edit_modal.html" %}
+
+<template id="vuec-schools-table">
+    <school-edit-modal-component
+        @close="schoolEditModalVisible = false"
+        @has-changed="$refs.schoolsTable.refresh()"
+        :is-visible="schoolEditModalVisible"
+        :school-id="schoolEditModalSchoolId"
+        :backdrop="true">
+    </school-edit-modal-component>
+
+    <table-component
+        :data-source="dataSource"
+        :columns="columns"
+        :can-search="true"
+        @show="(data) => show(data.id)"
+        @edit="(data) => edit(data.id)"
+        @archive="(data) => archive(data.id)"
+        ref="schoolsTable">
+    </table-component>
+</template>
+
+<script>
+    const SchoolsTableComponent = {
+        template: '#vuec-schools-table',
+        delimiters: ['[[', ']]'],
+        components: {
+            TableComponent,
+            SchoolEditModalComponent,
+        },
+        methods: {
+            show: function (id) {
+                location.href = `/onlinebooking/school/${id}/`;
+            },
+            archive: async function (id) {
+                const responseData = await this.schoolAPIRepository.archive(id, '{{csrf_token}}');
+                    if (responseData !== null)
+                        this.$refs.schoolsTable.refresh();
+            },
+            edit: function (id) {
+                this.schoolEditModalVisible = true;
+                this.schoolEditModalSchoolId = id;
+            },
+            refresh: function () {
+                this.$refs.schoolsTable.refresh();
+            }
+        },
+        computed: {
+            dataSource: function () {
+                const builder = new URLSearchParams();
+                if (this.countyId) {
+                    builder.append('county_id', this.countyId);
+                }
+                if (this.citySegmentId) {
+                    builder.append('city_segment_id', this.citySegmentId);
+                }
+
+                const url = `/api/onlinebooking/school/list?` + builder.toString();
+
+                let columnsDefinition = {
+                    "name": {
+                        friendlyName: "Skole",
+                        field: "name",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true
+                    },
+                    "county": {
+                        friendlyName: "Fylke",
+                        field: "county",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                        formatter: (obj, value) => {
+                            return obj.county?.name || "Ingen";
+                        }
+                    },
+                    "audience": {
+                        friendlyName: "Målgruppe",
+                        field: "audience",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                        formatter: (obj, value) => {
+                            return obj.audience?.name || "";
+                        }
+                    },
+                    "segment": {
+                        friendlyName: "Bydel",
+                        field: "citySegment",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                        formatter: (obj, value) => {
+                            return obj.citySegment?.name || "";
+                        }
+                    },
+                }
+
+                this.hiddenColumns.forEach(column => {
+                    columnsDefinition[column].isHidden = true;
+                });
+
+                return new APITableDataSource(
+                    url,
+                    columnsDefinition,
+                    {
+                        "show": { type: 'main', content: "<i class='fas fa-eye'></i>&nbsp; Åpne", isContentHtml: true },
+                        "edit": { type: 'main', content: "<i class='fas fa-edit'></i>&nbsp; Rediger", isContentHtml: true },
+                        "archive": { type: 'main', content: "<i class='fas fa-archive'></i>&nbsp; Arkiver", isContentHtml: true },
+                    },
+                    'name',
+                    'asc',
+                    true,
+                    (data) => {
+                        console.log("Schools", data);
+                        return data;
+                    }
+                );
+            }
+        },
+        props: {
+            hiddenColumns: {
+                type: Array,
+                required: false,
+                default: () => []
+            },
+            countyId: {
+                type: Number,
+                required: false
+            },
+            citySegmentId: {
+                type: Number,
+                required: false
+            },
+        },
+        data: () => {
+            return {
+                schoolAPIRepository: new SchoolAPIRepository(),
+                schoolEditModalVisible: false,
+                schoolEditModalSchoolId: null,
+            }
+        },
+    }
+</script>
