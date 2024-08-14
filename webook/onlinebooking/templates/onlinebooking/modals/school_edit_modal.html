@@ -134,7 +134,7 @@
             async loadSchool() {
                 if (this.schoolId === null) {
                     this.form.name = null;
-                    this.form.county = [];
+                    this.form.county = this.preSelectedCountyId ? [ this.preSelectedCountyId ] : [];
                     this.form.citySegment = null;
                 }
                 else {
@@ -222,6 +222,11 @@
         props: {
             schoolId: {
                 title: 'School ID',
+                type: Number,
+                default: null
+            },
+            preSelectedCountyId: {
+                title: 'Pre-selected County ID',
                 type: Number,
                 default: null
             },

@@ -1,9 +1,19 @@
 {% include "onlinebooking/modals/school_edit_modal.html" %}
 
 <template id="vuec-schools-table">
+    <div v-if="allowCreate" class="clearfix">
+        <div class="float-end">
+            <button class="btn wb-btn-main btn-sm mb-2 ms-2" @click="edit(null)">
+                <i class="fas fa-plus"></i>
+                Registrer ny skole
+            </button>
+        </div>
+    </div>
+
     <school-edit-modal-component
         @close="schoolEditModalVisible = false"
         @has-changed="$refs.schoolsTable.refresh()"
+        :pre-selected-county-id="countyId"
         :is-visible="schoolEditModalVisible"
         :school-id="schoolEditModalSchoolId"
         :backdrop="true">
@@ -117,13 +127,17 @@
                     'asc',
                     true,
                     (data) => {
-                        console.log("Schools", data);
                         return data;
                     }
                 );
             }
         },
         props: {
+            allowCreate: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
             hiddenColumns: {
                 type: Array,
                 required: false,

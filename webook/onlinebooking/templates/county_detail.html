@@ -115,6 +115,7 @@ container
         <div class="tab-content p-0 pt-2">
             <div class="tab-pane fade show active" role="tabpanel" id="schoolsTab">
                 <schools-table-component
+                    :allow-create="true"
                     :county-id="{{ object.id }}"
                     :hidden-columns="['county'{% if not county.city_segment_enabled %}, 'segment'{% endif %}]"
                     ref="schoolsTableComponent">
