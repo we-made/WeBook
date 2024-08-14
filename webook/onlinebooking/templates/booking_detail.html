@@ -1,0 +1,155 @@
+{% extends "onlinebooking/base.html" %}
+{% load static i18n %}
+{% load custom_tags %}
+
+
+{% block title %}
+    Booking #{{ object.pk }} - {{ object.school.name }}
+{% endblock %}
+
+{% block section_title %}
+{% endblock %}
+{% block section_subtitle %}
+    Online Booking
+{% endblock %}
+{% block section_crumb_url %}
+    
+{% endblock %}
+{% block section_icon_class %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block section_crumb_icon %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block container_classes %}
+container
+{% endblock %}
+
+{% block content %}
+    <div class="p-5  rounded-4 bg-body-tertiary mb-0 ps-0">
+        <h1 class=""><i class="fas fa-calendar"></i> <span class="text-muted">#{{ object.pk }}</span> - {{object.school.name}} </h1>
+        <nav class="d-flex justify-content-between">
+            <div>
+                <h6 class="mb-0">
+                    <a href="{% url 'onlinebooking:dashboard' %}" class="text-reset">Online Booking</a>
+                    <span>&nbsp;/&nbsp;</span>
+                    <a href="{% url 'onlinebooking:booking_detail' object.pk %}" class="text-reset active"><u>Boooking #{{ object.pk }}</u></a>
+                </h6>
+            </div>
+        </nav>
+
+        <button class="btn wb-btn-secondary mt-2" onclick="history.back();">
+            <i class="fas fa-arrow-left"></i>
+            Tilbake
+        </button>
+
+        <button class="btn wb-btn-main ms-2 mt-2" onclick="archiveBooking();">
+            <i class="fas fa-archive"></i>
+            Arkiver
+        </button>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="">
+
+                <div class="">
+                    <h5 class="card-title wb-bg-main text-white p-3 mb-0">Booking</h5>
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <th class="fw-bold">Skole</th>
+                                <td>
+                                    <a href="{% url 'onlinebooking:school_detail' object.school.id %}">
+                                        {{ object.school.name }}
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="fw-bold">Fylke</th>
+                                <td>
+                                    <a href="{% url 'onlinebooking:county_detail' object.school.county.id %}">
+                                        {{ object.school.county }}
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="fw-bold">Bydel</th>
+                                <td>
+                                    {% if object.segment %}
+                                        <a href="{% url 'onlinebooking:city_segment_detail' object.segment.id %}">
+                                            {{ object.segment }}
+                                        </a>
+                                    {% elif object.segment_text %}
+                                        {{ object.segment_text }} <em>(fritekst)</em>
+                                    {% else %}
+                                        <span class="text-danger">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            Ikke satt
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="fw-bold">Plassert</th>
+                                <td>
+                                    {{ object.created }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="fw-bold">Antall Besøkende</th>
+                                <td>
+                                    {{ object.visitors_count }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="fw-bold">Provisjonert Tid</th>
+                                <td>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div>
+                <h5 class="card-title wb-bg-main text-white p-3 mb-0">Teknisk Informasjon</h5>
+
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th class="fw-bold">IP</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th class="fw-bold">Agent</th>
+                            <td>{{ object.user_agent }}</td>
+                        </tr>
+                        <tr>
+                            <th class="fw-bold">Opprettet</th>
+                            <td>
+                                {{ object.created }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="fw-bold">Tjenestekonto</th>
+                            <td>
+                                {{ object.service_account }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function archiveBooking() {
+            const isSuccess = await new OnlineBookingAPIRepository().archive("{{ object.id }}", "{{ csrf_token }}");
+            if (isSuccess)
+                location.href = "{% url 'onlinebooking:dashboard' %}";
+        }
+    </script>
+{% endblock %}
