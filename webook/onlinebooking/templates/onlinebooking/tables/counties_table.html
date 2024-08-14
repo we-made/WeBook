@@ -1,0 +1,110 @@
+{% include "onlinebooking/modals/county_edit_modal.html" %}
+
+<template id="vuec-county-table">
+    <county-edit-modal-component
+        @close="countyEditModalVisible = false"
+        @has-changed="$refs.countiesTable.refresh()"
+        :is-visible="countyEditModalVisible"
+        :county-id="countyEditModalCountyId"
+        :backdrop="true">
+
+    </county-edit-modal-component>
+
+    <table-component v-if="dataSource"
+        :data-source="dataSource"
+        :can-search="true"
+        @show="(data) => show(data.id)"
+        @edit="(data) => edit(data.id)"
+        @archive="(data) => archive(data.id)"
+        ref="countiesTable">
+    </table-component>
+</template>
+
+<script>
+    const CountiesTableComponent = {
+        template: '#vuec-county-table',
+        delimiters: ['[[', ']]'],
+        components: {
+            TableComponent,
+            CountyEditModalComponent
+        },
+        methods: {
+            show: function (id) {
+                location.href = `/onlinebooking/county/${id}/`;
+            },
+            archive: async function (id) {
+                const responseData = await this.countyAPIRepository.archive(id, '{{csrf_token}}');
+                if (responseData !== null)
+                    this.$refs.countiesTable.refresh();
+            },
+            edit: function (id) {
+                this.countyEditModalVisible = true;
+                this.countyEditModalCountyId = id;
+            },
+            refresh: function () {
+                this.$refs.countiesTable.refresh();
+            }
+        },
+        computed: {
+            dataSource: function () {
+                const url = `/api/onlinebooking/county/list?`;
+
+                let columnsDefinition = {
+                    "name": {
+                        friendlyName: "Fylke",
+                        field: "name",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true
+                    },
+                    "citySegmentEnabled": {
+                        friendlyName: "Bydeler",
+                        field: "citySegmentEnabled",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                        formatter: (obj, value) => {
+                            return value ? "<i class='fas fa-check-circle text-success'></i>" : ""
+                        }
+                    }
+                }
+
+                this.hiddenColumns.forEach(column => {
+                    columnsDefinition[column].isHidden = true;
+                });
+
+                return new APITableDataSource(
+                    url,
+                    columnsDefinition,
+                    {
+                        "show": { type: 'main', content: "<i class='fas fa-eye'></i>&nbsp; Åpne", isContentHtml: true },
+                        "edit": { type: 'main', content: "<i class='fas fa-edit'></i>&nbsp; Rediger", isContentHtml: true },
+                        "archive": { type: 'main', content: "<i class='fas fa-archive'></i>&nbsp; Arkiver", isContentHtml: true },
+                    },
+                    'name',
+                    'asc',
+                    true,
+                    (data) => {
+                        return data;
+                    }
+                );
+            }
+        },
+        props: {
+            hiddenColumns: {
+                type: Array,
+                required: false,
+                default: () => []
+            }
+        },
+        data: () => {
+            return {
+                countyAPIRepository: new CountyAPIRepository(),
+                countyEditModalVisible: false,
+                countyEditModalCountyId: null,
+            }
+        }
+    }
+</script>
