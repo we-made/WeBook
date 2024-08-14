@@ -33,19 +33,3 @@ class CitySegmentDetailView(DetailView):
     model = CitySegment
     template_name = "city_segment_detail.html"
     context_object_name = "city_segment"
-
-
-class SchoolCreateView(CreateView):
-    fields = ["name", "county", "city_segment"]
-    model = School
-    template_name = "school_form.html"
-
-    success_url = reverse_lazy("onlinebooking:dashboard")
-
-
-class SchoolUpdateView(UpdateView):
-    fields = ["name", "county", "city_segment"]
-    model = School
-    template_name = "school_form.html"
-
-    success_url = reverse_lazy("onlinebooking:dashboard")

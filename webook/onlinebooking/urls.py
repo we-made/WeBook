@@ -5,7 +5,6 @@ from webook.onlinebooking.views import (
     CountyDetailView,
     DashboardView,
     OnlineBookingDetailView,
-    SchoolCreateView,
     SchoolDetailView,
 )
 
@@ -27,11 +26,6 @@ urlpatterns = [
         "school/<int:pk>/",
         view=SchoolDetailView.as_view(),
         name="school_detail",
-    ),
-    path(
-        "school/create/",
-        view=SchoolCreateView.as_view(),
-        name="school_create",
     ),
     path(
         "city_segment/<int:pk>/",
