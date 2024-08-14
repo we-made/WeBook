@@ -2,6 +2,7 @@
 Base settings to build other settings files upon.
 """
 
+import logging
 from pathlib import Path
 from pythonjsonlogger import jsonlogger
 from datetime import datetime
@@ -224,6 +225,7 @@ TEMPLATES = [
 
 TEMPLATE_DIRS = (
     BASE_DIR / "templates",  # app-shared project templates (is this anti-pattern?)
+    APPS_DIR / "onlinebooking/templates",  # app-specific templates
 )
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
@@ -287,7 +289,6 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         log_record["user_id"] = getattr(record, "user_id", None)
         log_record["timestamp"] = datetime.now().isoformat()
         log_record["environment"] = "development" if DEBUG else "production"
-
 
 LOGGING = {
     "version": 1,
@@ -384,3 +385,5 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 DISPLAY_SSO_ERROR_REASONING = env("DISPLAY_SSO_ERROR_REASONING", default=False)
 
 JWT_TOKEN_LIFETIME_MINUTES = env("JWT_TOKEN_LIFETIME_MINUTES", default=20)
+
+PDF_TMP_DIR = env("PDF_TMP_DIR", default="./webook/media/tmpfiles/")
