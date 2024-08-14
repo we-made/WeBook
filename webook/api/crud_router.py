@@ -200,8 +200,9 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
         self.patch_schema = self.update_schema
         # make all fields optional in patch schema
-        for field in self.patch_schema.__annotations__.keys():
-            setattr(self.patch_schema, field, Optional[self.patch_schema.__annotations__[field]])
+        if self.patch_schema is not None:
+            for field in self.patch_schema.__annotations__.keys():
+                setattr(self.patch_schema, field, Optional[self.patch_schema.__annotations__[field]])
 
         self.pre_create_hook = pre_create_hook
         self.pre_update_hook = pre_update_hook
@@ -557,7 +558,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                     prop_qs = qs.filter(id__in=[o.id for o in objects])
 
                 if normal_fields:
-                    qs = self.model.objects.filter(
+                    qs = qs.filter(
                         reduce(
                             lambda x, y: x | y,
                             [
