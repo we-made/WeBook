@@ -50,6 +50,14 @@
                 const url = `/api/onlinebooking/county/list?`;
 
                 let columnsDefinition = {
+                    "countyNumber": {
+                        friendlyName: "Fylkesnummer",
+                        field: "countyNumber",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true,
+                    },
                     "name": {
                         friendlyName: "Fylke",
                         field: "name",
