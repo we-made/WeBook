@@ -1,0 +1,867 @@
+<template id="vuec-table-component-template">
+
+    <div class="d-flex justify-content-between">
+        <div class="input-group w-50" v-if="canSearch">
+            <span class="input-group-text border-end-0">
+                <i class="fas fa-search"></i>
+            </span>
+
+            <input type="text" class="form-control form-control-lg border-start-0" placeholder="Søk..."
+                v-model="searchTerm">
+        </div>
+
+        <div class="d-flex">
+            <slot></slot>
+
+            <div class="d-flex align-items-center">
+                <div class="input-group w-auto ms-3">
+                    <div class="input-group-text">
+                        <i class="fas fa-table"></i>
+                    </div>
+                    <select class="form-control" v-model="itemsPerPage">
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="75">75</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix">
+        <div class="float-end">
+            
+            <div>
+                <button class="btn btn-sm wb-btn-main mt-2" @click="addCreateRow()" v-if="canInsert">
+                    <i class="fas fa-plus"></i>
+                    Legg til ny oppføring
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <table :class="tableClasses ? tableClasses : 'table  align-middle mt-3 text-center'">
+        <thead ref="thead">
+            <tr>
+                <th v-for="( options, columnKey ) in visibleColumns" @click="sortBy(columnKey)">
+                    <strong>[[ options.friendlyName ]]</strong>
+
+                    <span v-if="sortedBy == columnKey" class="ms-3">
+                        <small>
+                            <i class="fas fa-sort-down" v-if="sortDirection == 'desc'"></i>
+                            <i class="fas fa-sort-up" v-if="sortDirection == 'asc'"></i>
+                        </small>
+                    </span>
+                </th>
+                <th v-if="actions && Object.keys(actions).length">
+                    <i class="fas fa-ellipsis-v"></i>
+                </th>
+            </tr>
+        </thead>
+        <tbody ref="tbody">
+            <tr v-for="(row, index) in itemsOnPage" class="secondary-hover" @click="onRowClicked($event, row)">
+                <td v-for="( options, columnKey ) in visibleColumns">
+                    <span v-if="options.isComponent">
+                        <status-indicator-component v-if="options.componentName == 'statusIndicator'"
+                            :type="row[columnKey].type" :icon-class="row[columnKey].iconClass"
+                            :tooltip="row[columnKey].tooltip">
+                        </status-indicator-component>
+                        <div v-else-if="options.componentName == 'color'">
+                            <span class="badge rounded-pill border border-dark"
+                                :style="'background-color: ' + row[columnKey] + '; color: black'">
+                                &nbsp;
+                            </span>
+                        </div>
+                        <div class="form-group" v-if="options.componentName == 'checkbox'">
+                            <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
+                                v-model="row[columnKey]" :disabled="'is_disabled' in row && row.is_disabled">
+                        </div>
+                    </span>
+                    <span v-else>
+                        <span v-if="!options.isHtml">[[ options.formatter ? options.formatter(row, row[columnKey]) : format(options.type, row[columnKey]) ]]</span>
+                        <span v-else v-html="options.formatter ? options.formatter(row, row[columnKey]) : row[columnKey]"></span>
+                    </span>
+                </td>
+
+                <td v-if="actions && Object.keys(actions).length" style="min-width: 15rem">
+                    <span v-if="Object.keys(actions).length > 2">
+                        <div class="dropdown" id="actionDropdown">
+                            <button class="btn wb-btn-main-outline shadow-0 border border-dark wb-sm" type="button"
+                                id="actionsDropdownMenuButton" data-mdb-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="actionsDropdownMenu">
+                                <span v-for="(actionData, actionName, index) in actions">
+                                    <li v-if="'_actions' in row == false || '-' + actionName in row._actions == false">
+                                        <button class="dropdown-item"
+                                            @click.native="emitActionClickedEvent(actionName, row)">
+                                            <span v-if="actionData.isContentHtml" v-html="actionData.content"></span>
+                                            <span v-else>[[actionData.content]]</span>
+                                        </button>
+                                    </li>
+                                </span>
+
+                                <span
+                                    v-if="'_actions' in row && Object.keys(row._actions).filter(x => x[0] !== '-').length > 0">
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+                                    <span v-for="(action, actionName) in row._actions">
+                                        <li v-if="actionName[0] !== '-'">
+                                            <button class="dropdown-item"
+                                                @click.native="emitActionClickedEvent(actionName, row)">
+                                                <span v-if="action.isContentHtml" v-html="action.content"></span>
+                                                <span v-else>[[action.content]]</span>
+                                            </button>
+                                        </li>
+                                    </span>
+                                </span>
+                            </ul>
+                        </div>
+                    </span>
+                    <span v-else>
+                        <button v-for="(actionData, actionName, index) in actions"
+                            :class="[ actionData.type == 'main' ? 'wb-btn-main' : 'wb-btn-secondary', 'btn wb-sm', { 'ms-2': index > 0 } ]"
+                            @click.stop="emitActionClickedEvent(actionName, row)">
+
+                            <span v-if="actionData.isContentHtml" v-html="actionData.content"></span>
+                            <span v-else>[[actionData.content]]</span>
+                        </button>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <nav aria-label=""
+        :class="['d-flex align-items-center', compactNav ? 'justify-content-center' : 'justify-content-between']"
+        v-if="totalPages > 1">
+
+        <div v-if="!compactNav">
+            <em>[[entitiesCount]] resultater, totalt [[totalPages]] sider </em>
+        </div>
+        <ul class="pagination">
+            <li class="page-item me-1" v-if="totalPages > (pageCircumference * 2)">
+                <a href="javascript:void(0)" class="page-link fw-bold" @click.stop="page = 1">
+                    Første
+                </a>
+            </li>
+            <li class="page-item" :class="{ disabled: page == 1 }">
+                <a class="page-link" href="javascript:void(0)" @click.stop="page--">
+                    <i class="fas fa-arrow-left"></i> &nbsp;
+                    Forrige
+                </a>
+            </li>
+
+            <span v-for="aPage in pageCircumference">
+                <li class="page-item" v-if="(page - (pageCircumference - aPage) - 1) > 0">
+                    <a href="#" class="page-link" @click="page = page - (pageCircumference - aPage) - 1">
+                        [[ page - (pageCircumference - aPage) - 1 ]]
+                    </a>
+                </li>
+            </span>
+
+            <span>
+                <li class="active page-item">
+                    <a href="#" class="page-link" @click="page = page">
+                        [[ page ]]
+                    </a>
+                </li>
+            </span>
+
+            <span v-for="aPage in pageCircumference">
+                <li class="page-item" v-if="(aPage + page) <= totalPages ">
+                    <a href="#" class="page-link" @click="page = aPage + page">
+                        [[ aPage + page ]]
+                    </a>
+                </li>
+            </span>
+
+            <li class="page-item" :class="{ disabled: page == totalPages }">
+                <a class="page-link" href="javascript:void(0)" @click.stop="page++">
+                    Neste&nbsp;
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li>
+
+            <li class="page-item ms-1" v-if="totalPages > (pageCircumference * 2)">
+                <a href="javascript:void(0)" class="page-link fw-bold" @click.stop="page = totalPages">
+                    Siste
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div v-if="compactNav" class="text-center">
+        <em>[[entitiesCount]] resultater</em>
+    </div>
+
+</template>
+
+<template id="vuec-status-indicator-component">
+    <div>
+        <a :class="[ 'btn btn-sm text-white btn-floating shadow-0', 'backgroundClass' in stylingData ? stylingData.backgroundClass : '' ]"
+            :style="'backgroundColor' in stylingData ? 'backgroundColor: ' + stylingData.backgroundColor : ''" href="#!"
+            role="button" data-mdb-toggle='tooltip' :title='tooltip'>
+            <i :class="['fas fa-check fa-1x', iconClass]" v-if="iconClass"></i>
+        </a>
+    </div>
+</template>
+
+<script>
+    class StandardInputs {
+        TextInput = new HTMLTextInputFabricator();
+        NumberInput = new HTMLNumberInputFabricator();
+        CheckboxInput = new HTMLCheckBoxInputFabricator();   
+    }
+
+
+    class HTMLInputFabricator {
+        constructor() {}
+
+        fabricatorFunction(columnKey, columnData) {
+            let input = document.createElement("input");
+            input.type = "text";
+            input.classList.add("form-control");
+            return input;
+        }
+
+        getValue(node) {
+            return node.value;
+        }
+    }
+
+    class HTMLTextInputFabricator extends HTMLInputFabricator {
+        constructor () {
+            super();
+        }
+
+        fabricatorFunction(columnKey, columnData) {
+            let input = super.fabricatorFunction();
+            input.type = "text";
+            return input;
+        }
+
+        getValue(tdNode) {
+            return tdNode.querySelectorAll("input")[0].value;
+        }
+    }
+
+    class HTMLNumberInputFabricator extends HTMLInputFabricator {
+        constructor () {
+            super();
+        }
+
+        fabricatorFunction(columnKey, columnData) {
+            let input = super.fabricatorFunction();
+            input.type = "number";
+            return input;
+        }
+
+        getValue(node) {
+            return parseInt(node.value);
+        }
+    }
+
+    class HTMLCheckBoxInputFabricator extends HTMLInputFabricator {
+        constructor () {
+            super();
+        }
+
+        fabricatorFunction(columnKey, columnData) {
+            let input = super.fabricatorFunction();
+            input.type = "checkbox";
+            return input;
+        }
+
+        getValue(node) {
+            return node.checked;
+        }
+    }
+
+    class SelectInputFabricator extends HTMLInputFabricator {
+        constructor() {
+            super();
+        }
+
+        fabricatorFunction(columnKey, columnData) {
+            let select = document.createElement("select");
+            select.classList.add("form-select");
+            return select;
+        }
+
+        getValue(node) {
+            return node.value;
+        }
+    }
+
+
+
+    /**
+     * A class that represents a table data source. This class is meant to be extended by other classes that
+     * implement the actual data source. The class provides a common interface for sorting, searching and pagination.
+     * 
+     * There will be times when the default data source options are not enough, and you will need to use this class
+     * This is primarily when you are working with the list endpoints of the API. In these instances you would not favor
+     * the defaults as far as searching, sorting and pagination goes (since list endpoint is paginated you would only hold
+     * a subset of the data in memory at any given time, and you would not be able to search or sort on the entire dataset,
+     * which would be pretty much useless).
+     */
+    class APITableDataSource {
+        /**
+         * Initialize a new TableDataSource
+         * @param {Object} columns 
+         * @param {Boolean} isPaginated 
+         */
+        constructor(
+            endpoint,
+            columns,
+            actions,
+            defaultSortedBy = null,
+            defaultSortDirection = "asc",
+            isPaginated = false,
+            transformerHook = null) {
+
+            this.endpoint = endpoint;
+            this.columns = columns;
+            this.actions = actions;
+
+            this.isPaginated = isPaginated;
+            this.defaultSortedBy = defaultSortedBy;
+            this.defaultSortDirection = defaultSortDirection;
+
+            this.pagesInTotal = 0;
+            this.resultsInTotal = 0;
+            this.currentPage = 1;
+            this.itemsPerPage = 10;
+
+            this.transformerHook = transformerHook;
+
+            this.lastSearchTerm = null;
+            this.lastSortBy = null;
+            this.lastSortDirection = null;
+        }
+
+        /**
+         * Refresh the data source
+         * It will fetch the data from the API again, and update the internal state of the data source.
+         * It does not refresh the table - for that use refresh() on the table component.
+         * @returns 
+         */
+        async refresh() {
+            console.log("Refresh triggered.")
+            return await this.get(
+                this.currentPage, 
+                this.itemsPerPage,
+                this.lastSearchTerm,
+                this.lastSortBy,
+                this.lastSortDirection
+            );
+        }
+
+        /**
+         * Fetch data from the API
+         * @param {Number} page - The page to fetch
+         * @param {Number} pageSize - The number of items to fetch
+         * @param {String} searchTerm - The search term
+         * @param {String} sortBy  - The column to sort by
+         * @param {String} sortDirection - "asc" or "desc"
+         * @returns 
+         */
+        async get(page, pageSize, searchTerm = null, sortBy = null, sortDirection = null) {
+            this.lastSearchTerm = searchTerm;
+            this.lastSortBy = sortBy;
+            this.lastSortDirection = sortDirection;
+
+            console.log("get", page, pageSize, searchTerm, sortBy, sortDirection);
+
+            let extraQueryParams = {};
+            if (this.isPaginated) {
+                if (searchTerm) {
+                    extraQueryParams["search"] = searchTerm;
+                    extraQueryParams["fields_to_search"] = Object.keys(this.columns).filter(x => "isSearchable" in this.columns[x] && this.columns[x].isSearchable).join(",");
+                }
+                if (sortBy) {
+                    extraQueryParams["sort_by"] = sortBy;
+                    extraQueryParams["sort_desc"] = sortDirection == "desc";
+                }
+            }
+
+            if (this.endpoint.includes("?") == false)
+                this.endpoint += "?";
+            else if (this.endpoint.endsWith("&") == false)
+                this.endpoint += "&"
+            let url = this.endpoint + "page=" + page + "&limit=" + pageSize;
+
+            if (extraQueryParams)
+                url += "&" + new URLSearchParams(extraQueryParams).toString();
+
+            return await fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (this.transformerHook)
+                        data = this.transformerHook(data);
+
+                    this.resultsInTotal = data.summary.total;
+                    this.pagesInTotal = data.summary.total_pages;
+                    this.currentPage = data.summary.page;
+                    this.itemsPerPage = data.summary.limit;
+
+                    console.log("Data fetched", data);
+                    console.log("Data fetched", this.resultsInTotal, this.pagesInTotal, this.currentPage, this.itemsPerPage);
+
+                    return data;
+                })
+                .catch(error => console.error(error));
+        }
+    }
+
+    const StatusIndicatorComponent = {
+        props: {
+            type: String,
+            iconClass: String,
+            tooltip: String,
+        },
+        data() {
+            return {
+                statusTypes: {
+                    "success": { backgroundClass: "bg-success" },
+                    "danger": { backgroundClass: "bg-danger" },
+                    "warning": { backgroundClass: "bg-warning" },
+                    "dark": { backgroundClass: "bg-dark text-white" },
+                    "info": { backgroundClass: "bg-info" },
+                    "secondary": { backgroundClass: "bg-secondary" }
+                },
+            }
+        },
+        computed: {
+            stylingData() {
+                if (this.type in this.statusTypes === false)
+                    throw new Error("Status type not recognized, '" + this.type + "'");
+
+                return this.statusTypes[this.type];
+            }
+        },
+        template: "#vuec-status-indicator-component",
+        delimiters: ["[[", "]]"]
+    }
+
+    const TableComponent = {
+        components: {
+            StatusIndicatorComponent,
+        },
+        props: {
+            dataSource: Function,
+            csrfString: String,
+            canSearch: Boolean,
+            canInsert: Boolean,
+            submitHandler: Function,
+            sort: Boolean,
+            tableClasses: String,
+            columnNames: Object,
+            rerenderToggle: Boolean,
+            compactNav: Boolean
+        },
+        data() {
+            return {
+                data: [],
+                editorRows: new Map(),
+                totalPages: 0,
+                page: 1,
+                pageCircumference: 3,
+                itemsPerPage: 10,
+                columns: [],
+                actions: [],
+                sortedBy: null,
+                sortDirection: null,
+                searchTerm: "",
+                isApiDataSource: false,
+                format: (type, val) => {
+                    switch (val) {
+                        case Date:
+                            return new Date(val).toLocaleDateString();
+                        default:
+                            return val;
+                    }
+                }
+            }
+        },
+        emits: ["rowClicked", "checkboxClicked"],
+        computed: {
+            data() {
+                console.log("data changed")
+            },
+            entitiesCount() {
+                if (this.dataSource instanceof APITableDataSource)
+                    return this.dataSource.resultsInTotal;
+
+                return this.visibleItems.length;
+            },
+            visibleItems() {
+                let items = this.data;
+                console.log("computed.visibleItems", items);
+
+                if (this.isApiDataSource)
+                    return items || []; // Do not filter on API data sources. It's handled by backend.
+
+                if (this.canSearch && this.searchTerm) {
+                    let columnsToSearch = []
+
+                    for (const [columnKey, columnData] of Object.entries(this.columns)) {
+                        if ("isSearchable" in columnData && columnData.isSearchable) {
+                            columnsToSearch.push(columnKey);
+                        }
+                    }
+
+                    let filteredItems = [];
+                    items.forEach((row) => {
+                        let isMatch = false; 
+
+                        for (let i = 0; i < columnsToSearch.length; i++) {
+                            const key = columnsToSearch[i];
+                            if (String(row[key]).toLowerCase().includes(this.searchTerm.toLowerCase())) {
+                                isMatch = true
+                                break;
+                            }
+                        }
+
+                        if (isMatch)
+                            filteredItems.push(row);
+                    });
+
+                    items = filteredItems;
+                }
+
+                return items;
+            },
+            itemsOnPage() {
+                if (this.dataSource instanceof APITableDataSource)
+                    return this.visibleItems;
+                else if (this.dataSource instanceof Array)
+                    return this.visibleItems.slice((this.page - 1) * this.itemsPerPage, this.page * this.itemsPerPage);
+                else if (this.dataSource instanceof Function)
+                    return this.visibleItems.slice((this.page - 1) * this.itemsPerPage, this.page * this.itemsPerPage);
+
+                throw new Error("Data source is not an array, and is not an instance of APITableDataSource");
+            },
+            visibleColumns() {
+                let columns = {};
+
+                for (const column in this.columns) {
+                    if ("isHidden" in this.columns[column] && this.columns[column].isHidden === true)
+                        continue;
+
+                    columns[column] = this.columns[column];
+                }
+
+                return columns;
+            }
+        },
+        watch: {
+            searchTerm() {
+                if (this.dataSource instanceof APITableDataSource) {
+                    this.refresh();
+                    return;
+                }
+            },
+            page() {
+                if (this.dataSource instanceof APITableDataSource) {
+                    console.log("Initiating table refresh")
+                    this.refresh();
+                }
+            },
+            itemsPerPage() {
+                if (this.page > this.totalPages)
+                    this.page = this.totalPages || 1;
+
+                if (this.dataSource instanceof APITableDataSource) {
+                    this.refresh();
+                    return;
+                }
+            },
+            totalPages() {
+                if (this.page > this.totalPages)
+                    this.page = this.totalPages || 1;
+            },
+            rerenderToggle() {
+                console.log("Rerendering table")
+                this.refresh();
+            },
+            async dataSource() {
+                await this.refresh();
+            }
+        },
+        async created() {
+        },
+        async mounted() {
+            await this.refresh();
+
+            if (this.canInsert) {
+                this.colFabs = Object.fromEntries((Object.entries(this.columns)  
+                    .map( ([columnKey, columnData], i) => {
+                        let fab = new HTMLTextInputFabricator();
+
+                        if ("input" in columnData && columnData.input instanceof HTMLInputFabricator) {
+                            fab = columnData.input;
+                        }
+                        else if (columnData.input instanceof String) {
+                            switch (columnData.input) {
+                                case "text":
+                                    fab = new HTMLTextInputFabricator();
+                                case "number":
+                                    fab = new HTMLNumberInputFabricator();
+                                case "checkbox":
+                                    fab = new HTMLCheckBoxInputFabricator();
+                                case "select":
+                                    fab = new SelectInputFabricator();
+                            }
+                        }
+                        else {
+                            console.warn("No input type specified for column. Default will be used. " + 
+                                        "Specify predefined by text, or define your own subclass of HTMLInputFabricator.", columnKey);
+                        }
+
+                        return [columnKey, fab];
+                    })
+                ));
+            }
+        },
+        methods: {
+            onRowClicked(event, item) {
+                this.$emit("rowClicked", event, item);
+
+                const checkboxColumns = Object.entries(this.visibleColumns)
+                    .filter(x => x[1].componentName == "checkbox");
+
+                if (checkboxColumns.length != 1)
+                    return
+
+                const [columnKey, columnData] = checkboxColumns[0];
+
+                item[columnKey] = !item[columnKey];
+                this.emitCheckboxClickedEvent(item, columnKey);
+            },
+            emitActionClickedEvent(actionName, item) {
+                this.$emit(actionName, item);
+            },
+            emitCheckboxClickedEvent(row, columnKey) {
+                this.$emit("checkboxClicked", { row, columnKey });
+            },
+            sortBy(columnKey) {
+                console.log("sortBy", columnKey);
+
+                const column = this.columns[columnKey];
+
+                if (this.dataSource instanceof APITableDataSource) {
+                    this.sortedBy = columnKey;
+                    this.sortDirection = this.sortDirection == "asc" ? "desc" : "asc";
+                    this.refresh();
+                    return;
+                }
+
+                if ("isSortable" in column == false || !column.isSortable)
+                    return;
+
+                if (this.sortedBy == columnKey) {
+                    this.sortDirection = this.sortDirection == "asc" ? "desc" : "asc";
+                }
+                else {
+                    this.sortedBy = columnKey;
+                    this.sortDirection = "desc";
+                }
+
+                let sortPropKey = columnKey + "_sort" in this.data[0] ? columnKey + "_sort" : columnKey;
+
+                this.data.sort(
+                    (a, b) => {
+                        let val = a[sortPropKey] < b[sortPropKey] ? -1 : 1
+
+                        if (this.sortDirection == "desc")
+                            val = val * -1
+
+                        return val;
+                    }
+                )
+            },       
+            /**
+             * Add a new row to the top of the table, used for creating new entities
+             * Looks at the columns and generates a new row with the correct inputs and empty values
+             * Once submission is done it is sent to submitHandler defined in the dataSource, where the onus of
+             * sending the data further to the backend is placed.
+             */
+            async addCreateRow() {
+                const rowId = Math.random().toString(36).substring(7);
+                const btnSpan = document.createElement("span");
+                const saveButton = document.createElement("button");
+                saveButton.classList.add("btn", "wb-btn-main");
+                saveButton.innerHTML = "<i class='fas fa-save'></i>&nbsp; Lagre";
+                saveButton.addEventListener("click", async () => {
+                    let newRow = {};
+                    const editorRow = this.editorRows.get(rowId);
+                    const tds = editorRow.node.querySelectorAll("td");
+                    
+                    newRow = Object.fromEntries(Object.entries(this.colFabs).map(
+                        ([columnKey, fab], i) => {
+                            return [ columnKey, fab.getValue(tds[i]) ];
+                        }
+                    ));
+
+                    for (const [columnKey, value] of Object.entries(newRow)) {
+                        const validationResults = this.columns[columnKey].validator(value);
+
+                        if (validationResults.isValid === false) {
+                            toastr.error(validationResults.message);
+                            return;
+                        }
+                    }
+
+                    console.log("New row", newRow);
+                    const isSuccess = await this.submitHandler(newRow);
+                    console.log("isSuccess", isSuccess)
+
+                    if (isSuccess) {
+                        const editorRow = this.editorRows.get(rowId);
+                        editorRow.node.remove();
+                        this.editorRows.delete(rowId);
+                        this.refresh();
+                        toastr.success("Element lagret");
+                    }
+                    else {
+                        toastr.error("Noe gikk galt under lagring av data");
+                    }
+                });
+
+                const cancelButton = document.createElement("button");
+                cancelButton.classList.add("btn", "wb-btn-secondary", "border", "border-dark", "ms-2");
+                cancelButton.innerHTML = "<i class='fas fa-times'></i>&nbsp; Avbryt"
+                cancelButton.addEventListener("click", () => {
+                    let editorRow = this.editorRows.get(rowId);
+                    editorRow.node.remove();
+                    this.editorRow = null;
+                });
+
+                btnSpan.appendChild(saveButton);
+                btnSpan.appendChild(cancelButton);
+
+                const rowElement = Object.entries(this.columns).map(
+                    ([columnKey, columnData], i) => {
+                        const fabricator = Object.values(this.colFabs)[i];
+                        return [ columnKey, fabricator.fabricatorFunction(columnKey, columnData) ];
+                    }
+                )
+
+                rowElement.push(btnSpan);
+
+                let rowNode = document.createElement("tr");
+                rowNode.classList.add("wb-bg-secondary")
+                const nodeToInsert = rowElement.reduce((acc, val) => {
+                    let td = document.createElement("td");
+                    if (Array.isArray(val)) {
+                        td.appendChild(val[1]);
+                    }
+                    else {
+                        td.appendChild(val);
+                    }
+                    acc.appendChild(td)
+                    return acc;
+                }, rowNode);
+                
+                this.$refs.tbody.insertBefore(nodeToInsert, this.$refs.tbody.firstChild);
+                this.editorRows.set(rowId,{
+                    node: nodeToInsert,
+                });
+            },
+            async refresh() {
+                const data = await this.resolveDataSource();
+
+                this.columns = data.columns;
+                this.data = data.data;
+                this.actions = data.actions;
+
+                this.totalPages = this.dataSource instanceof APITableDataSource ?
+                    this.dataSource.pagesInTotal || 1 :
+                    Math.ceil(this.visibleItems.length / this.itemsPerPage);
+            },
+            /* Attempt to resolve the given property dataSource, which serves as the backing data feed.
+            A data source may be either an array, or a function that returns an array. If it is the latter
+            this function can be used to refresh the data in-place (depending on the nature of the  function, of course). 
+            
+            Look into:
+                Make the DataSource an object
+                The object should have;
+                    1. functionFlags: {}
+                    2. data: []
+ 
+                functionFlags should be an object with function:true/false props indicating if the datasource supports a given action or not
+                like lazy loading, and so on. at that point we can dynamically switch on different functionality, depending on the support of the 
+                source.
+            */
+            async resolveDataSource() {
+                console.log(".resolveDataSource")
+                if (this.dataSource instanceof APITableDataSource) {
+                    console.log("dataSource is an instance of APITableDataSource", this.dataSource)
+                    console.log("Fetching data from API")
+                    let data = await this.dataSource.get(
+                        this.page,
+                        this.itemsPerPage,
+                        this.searchTerm,
+                        this.sortedBy,
+                        this.sortDirection);
+                    console.log("data data data", data)
+                    this.isApiDataSource = true;
+
+                    return {
+                        columns: this.dataSource.columns,
+                        data: data.data,
+                        actions: this.dataSource.actions
+                    }
+                }    
+
+                if (this.dataSource instanceof Function) {
+                    const result = await this.dataSource();
+                    if (!result instanceof Object)
+                        throw new Error("DataSource is callable, but did not return an array");
+
+                    return result;
+                }
+
+                if (this.dataSource instanceof Object)
+                    return this.dataSource;
+
+                if (this.dataSource instanceof String) {
+                    // Presume that dataSource is an URL
+                    if (!this.csrfString) {
+                        throw new Error("It appears you are using an URL based datasource, but have not set the CSRF token. Please set the CSRF token.");
+                    }
+
+                    return await fetch(this.dataSource, {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRFToken': this.csrfString
+                        }
+                    }).then(async response => {
+                        if (response.status != 200) {
+                            console.warn("Fetch request on dataSource failed");
+                            throw new Error(response.statusText);
+                        }
+
+                        const result = await response.json();
+
+                        if (!result instanceof Object)
+                            throw new Error("Returned data from endpoint is not in a valid structure");
+
+                        return result
+                    });
+                }
+
+                throw new Error("DataSource is invalid. Supply either an array of objects, or a function that returns an array of objects");
+            }
+        },
+        template: "#vuec-table-component-template",
+        delimiters: ["[[", "]]"]
+    };
+</script>
