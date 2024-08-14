@@ -18,6 +18,7 @@ class CitySegmentGetSchema(ModelBaseSchema, CitySegmentCreateSchema):
 
 class CountyCreateSchema(BaseSchema):
     name: str
+    county_number: int
     city_segment_enabled: bool
 
 
