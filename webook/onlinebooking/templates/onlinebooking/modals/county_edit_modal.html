@@ -142,7 +142,7 @@
                 this.$emit('close');
             },
             save: async function () {
-                const isValid = validateFormState(this.validationState, (nodeRefName) => this.$refs[nodeRefName]);
+                const isValid = validateFormState(await this.validationState, (nodeRefName) => this.$refs[nodeRefName]);
                 if (!isValid) {
                     return;
                 }
