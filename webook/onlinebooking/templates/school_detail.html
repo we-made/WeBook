@@ -1,0 +1,131 @@
+{% extends "onlinebooking/base.html" %}
+{% load static i18n %}
+{% load custom_tags %}
+
+
+{% block title %}
+    Skole {{ school.name }}
+{% endblock %}
+
+{% block section_title %}
+{% endblock %}
+{% block section_subtitle %}
+    Online Booking
+{% endblock %}
+{% block section_crumb_url %}
+    
+{% endblock %}
+{% block section_icon_class %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block section_crumb_icon %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block container_classes %}
+container
+{% endblock %}
+
+{% block content %}
+    {% include "arrangement/vue/table_component.html" %}
+    {% include "onlinebooking/modals/school_edit_modal.html" %}
+    {% include "onlinebooking/tables/booking_table.html" %}
+
+    <div id="schoolDetailVueApp">
+        <school-edit-modal-component
+            @close="schoolFormModalVisible = false"
+            @has-changed="onEdited"
+            :is-visible="schoolFormModalVisible"
+            :school-id="{{ school.id }}"
+            :backdrop="true">
+
+        </school-edit-modal-component>
+
+        <div class="p-5  rounded-4 bg-body-tertiary mb-0 ps-0">
+            <h1 class="">
+                <i class="fas fa-school"></i>
+                {% if school.audience %}
+                <div class="badge badge-success ms-2">
+                    {{ school.audience.name }}
+                </div>
+                {% endif %}
+                {{ school.name }}
+            </h1>
+
+
+            <nav class="d-flex justify-content-between">
+                <div>
+                    <h6 class="mb-0">
+                        <a href="{% url 'onlinebooking:dashboard' %}" class="text-reset">Online Booking</a>
+                        <span>&nbsp;/&nbsp;</span>
+                        <a href="{% url 'onlinebooking:county_detail' school.county.id %}" class="text-reset">Fylke {{ school.county.name }}</a>
+                        <span>&nbsp;/&nbsp;</span>
+                        <a href="#" class="text-reset"><u>Skole {{ school.name }}</u></a>
+                    </h6>
+            
+                    <div class="mt-2">
+                        <button class="btn wb-btn-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i>
+                            Tilbake
+                        </button>
+                        <button class="btn wb-btn-main ms-2" @click="archiveSchool()">
+                            <i class="fas fa-archive"></i>&nbsp;
+                            Arkiver
+                        </button>
+                        <button class="btn wb-btn-main ms-1" @click="edit()">
+                            <i class="fas fa-edit"></i>&nbsp;
+                            Rediger
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    
+        
+
+        <h4 class="fw-bold mt-0">
+            Bookinger
+        </h4>
+        <hr>
+
+        <booking-table-component ref="bookingTableComponent" :school-id="{{school.id}}">
+        </booking-table-component>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            const schoolDetailVueApp = Vue.createApp({
+                components: {
+                    TableComponent,
+                    SchoolEditModalComponent,
+                    BookingTableComponent,
+                },
+                delimiters: ['[[', ']]'],
+                methods: {
+                    async archiveSchool() {
+                        const responseData = await this.schoolAPIRepository.archive("{{school.id}}", '{{csrf_token}}');
+                        if (responseData !== null)
+                            location.href = "{% url 'onlinebooking:dashboard' %}";
+                    },
+                    edit: function () {
+                        this.schoolFormModalVisible = true;
+                    },
+                    onEdited: function () {
+                        this.schoolFormModalVisible = false;
+                        location.reload();
+                    },
+                    show: function (id) {
+                        location.href = `/onlinebooking/booking/${id}/`;
+                    }
+                },
+                data: () => ({
+                    submitHandler: async (data) => {
+                    },
+                    schoolAPIRepository: new SchoolAPIRepository(),
+                    schoolFormModalVisible: false,
+                })
+            });
+            schoolDetailVueApp.mount('#schoolDetailVueApp');
+        })
+
+    </script>
+{% endblock %}
