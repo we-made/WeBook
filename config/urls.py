@@ -61,6 +61,10 @@ urlpatterns = [
         "screenshow/",
         include("webook.screenshow.urls", namespace="screenshow"),
     ),
+    path(
+        "onlinebooking/",
+        include("webook.onlinebooking.urls", namespace="onlinebooking"),
+    ),
     path("api/", api.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
