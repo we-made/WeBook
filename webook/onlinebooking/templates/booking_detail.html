@@ -66,6 +66,12 @@ container
                                 </td>
                             </tr>
                             <tr>
+                                <th class="fw-bold">Målgruppe</th>
+                                <td>
+                                    {{ object.audience_type }}
+                                </td>
+                            </tr>
+                            <tr>
                                 <th class="fw-bold">Fylke</th>
                                 <td>
                                     <a href="{% url 'onlinebooking:county_detail' object.school.county.id %}">
