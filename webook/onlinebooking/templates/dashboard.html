@@ -216,6 +216,54 @@ container
             </div>
 
             <h4 class="mt-4 mb-2">
+                Lokasjon
+            </h4>
+            
+            <div class="form-group">
+                <select class="form-control" v-model="onlineBookingSettings.location_id">
+                    {% for location in locations %}
+                        <option value="{{location.id}}">{{location.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h4 class="mt-4 mb-2">
+                Hovedplanlegger
+            </h4>
+
+            <div class="form-group">
+                <select class="form-control" v-model="onlineBookingSettings.main_planner_id">
+                    {% for planner in eligible_planners %}
+                        <option value="{{planner.id}}">{{planner.person.full_name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h4 class="mt-4 mb-2">
+                Status
+            </h4>
+
+            <div class="form-group">
+                <select class="form-control" v-model="onlineBookingSettings.status_type_id">
+                    {% for status_type in status_types %}
+                        <option value="{{status_type.id}}">{{status_type.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h4 class="mt-4 mb-2">
+                Arrangementstype
+            </h4>
+
+            <div class="form-group">
+                <select class="form-control" v-model="onlineBookingSettings.arrangement_type_id">
+                    {% for arrangement_type in arrangement_types %}
+                        <option value="{{arrangement_type.id}}">{{arrangement_type.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h4 class="mt-4 mb-2">
                 Offset
             </h4>
 
@@ -316,6 +364,7 @@ container
                     location.href = `/onlinebooking/school/${data.id}/`;
                 },
                 async saveSettings() {
+                    console.log("Saving settings", this.onlineBookingSettings);
                     await fetch("/api/onlinebooking/online_booking/settings/update", {
                         method: 'PUT',
                         headers: {

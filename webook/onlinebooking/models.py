@@ -1,8 +1,15 @@
 from datetime import datetime
 from typing import Optional
 from django.db import models
+from webook.arrangement.forms.group_admin import User
 from webook.arrangement.managers import ArchivedManager
-from webook.arrangement.models import Audience, Person
+from webook.arrangement.models import (
+    ArrangementType,
+    Audience,
+    Location,
+    Person,
+    StatusType,
+)
 from django_extensions.db.models import TimeStampedModel
 from webook.api.models import ServiceAccount
 
@@ -45,13 +52,36 @@ class OnlineBookingSettings(models.Model):
 
     allowed_audiences = models.ManyToManyField(Audience)
 
+    location = models.ForeignKey(
+        "arrangement.Location",
+        on_delete=models.RESTRICT,
+        null=True,
+        default=Location.objects.first().id,
+    )
+
+    main_planner = models.ForeignKey(
+        User, on_delete=models.RESTRICT, null=True, related_name="main_planner"
+    )
+
+    status_type = models.ForeignKey(
+        "arrangement.StatusType",
+        on_delete=models.RESTRICT,
+        null=True,
+        default=StatusType.objects.first().id,
+    )
+
+    arrangement_type = models.ForeignKey(
+        "arrangement.ArrangementType",
+        on_delete=models.RESTRICT,
+        null=True,
+        default=ArrangementType.objects.first().id,
+    )
+
     class Unit(models.TextChoices):
-        MINUTES = "minutes", "Minutes" 
+        MINUTES = "minutes", "Minutes"
         HOURS = "hours", "Hours"
         DAYS = "days", "Days"
         WEEKS = "weeks", "Weeks"
-        MONTHS = "months", "Months"
-        YEARS = "years", "Years"
 
     offset_unit = models.CharField(
         max_length=10, choices=Unit.choices, default=Unit.MINUTES
@@ -83,6 +113,13 @@ class OnlineBooking(TimeStampedModel, ArchiveableMixin):
     # The service account that was used to make the booking
     service_account = models.ForeignKey(
         ServiceAccount, on_delete=models.RESTRICT, null=True
+    )
+
+    arrangement = models.ForeignKey(
+        "arrangement.Arrangement",
+        on_delete=models.RESTRICT,
+        null=True,
+        related_name="onlinebooking",
     )
 
 

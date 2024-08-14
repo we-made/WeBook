@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import List, Optional
 from webook.api.routers.service_account_router import ServiceAccountSchema
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
-from webook.arrangement.api.schemas import AudienceGetSchema
+from webook.arrangement.api.schemas import AudienceGetSchema, LocationGetSchema
 from webook.onlinebooking.models import OnlineBookingSettings
 
 
@@ -61,6 +61,14 @@ class OnlineBookingGetSchema(ModelBaseSchema, OnlineBookingCreateSchema):
 class OnlineBookingSettingsGetSchema(BaseSchema):
     title_format: str
     allowed_audiences: List[AudienceGetSchema]
+
+    location: Optional[LocationGetSchema]
+    location_id: Optional[int]
+
+    main_planner_id: Optional[int]
+    status_type_id: Optional[int]
+    arrangement_type_id: Optional[int]
+
     offset_unit: OnlineBookingSettings.Unit
     offset: int
     duration_unit: OnlineBookingSettings.Unit
@@ -70,6 +78,10 @@ class OnlineBookingSettingsGetSchema(BaseSchema):
 class OnlineBookingSettingsUpdateSchema(BaseSchema):
     title_format: Optional[str]
     allowed_audiences: Optional[List[int]]
+    location_id: Optional[int]
+    main_planner_id: Optional[int]
+    status_type_id: Optional[int]
+    arrangement_type_id: Optional[int]
     offset_unit: Optional[OnlineBookingSettings.Unit]
     offset: Optional[int]
     duration_unit: Optional[OnlineBookingSettings.Unit]
