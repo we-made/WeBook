@@ -445,12 +445,15 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             return instance
 
         post_func.__annotations__ = { "payload": self.create_schema, "response": self.model }
+        post_func.__name__ = f"create_{self.model_name_singular.lower()}"
 
         return post_func
 
     def get_retrieve_func(self):
         def retrieve_func(request, id: int) -> self.get_schema:
             return get_object_or_404(self.model, id=id)
+
+        retrieve_func.__name__ = f"get_{self.model_name_singular.lower()}"
 
         return retrieve_func
 
@@ -595,6 +598,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
             return response
 
+        list_func.__name__ = f"list_{self.model_name_plural.lower()}"
+
         return list_func
 
     def get_put_func(self):
@@ -615,6 +620,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 message=f"{self.model_name_singular.lower()} updated successfully",
                 data=instance,
             )
+
+        update_func.__name__ = f"update_{self.model_name_singular.lower()}"
 
         return update_func
     
@@ -637,6 +644,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 data=instance,
             )
         
+        patch_func.__name__ = f"patch_{self.model_name_singular.lower()}"
+        
         return patch_func
 
     def get_delete_func(self):
@@ -656,5 +665,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 message=f"{self.model_name_singular.lower()} deleted successfully",
                 data=instance,
             )
+        
+        delete_func.__name__ = f"delete_{self.model_name_singular.lower()}"
 
         return delete_func
