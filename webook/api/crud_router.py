@@ -481,7 +481,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         return d
 
     def get_queryset(self):
-        return self.model.objects.all().defer(
+        manager = self.model.all_objects if hasattr(self.model, "all_objects") else self.model.objects
+        return manager.all().defer(
             *self._deferred_fields.keys()
         )        
 
