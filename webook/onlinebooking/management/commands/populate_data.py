@@ -1,12 +1,8 @@
+from typing import Dict, List
 from django.core.management.base import BaseCommand
 from requests import get
 from webook.arrangement.models import Audience
-from webook.onlinebooking.models import School, County
-
-# NSR = Nasjonalt Skoleregister (National School Register)
-# Registry containing information about all schools in Norway
-# https://data-nsr.udir.no/swagger/index.html
-NSR_API_URL = "https://data-nsr.udir.no/v4/"
+from webook.onlinebooking.models import CitySegment, School, County
 
 # Kartverket - Administrative enheter (Administrative units)
 # Registry containing information about all municipalities in Norway
@@ -20,31 +16,6 @@ class Command(BaseCommand):
         response = get(f"{GEO_AU_API_URL}fylker")
         response.raise_for_status()
         return response.json()
-
-    def __get_schools(self):
-        schools = []
-        page_num = 1
-        while True:
-            response = get(
-                f"{NSR_API_URL}enheter",
-                params={"sidenummer": page_num, "antallperside": 1000},
-            )
-            response.raise_for_status()
-            data = response.json()
-            schools += data["EnhetListe"]
-
-            print(response, len(data["EnhetListe"]), page_num)
-
-            if len(data["EnhetListe"]) < 1000:
-                break
-
-            page_num += 1
-
-        return [
-            x
-            for x in schools
-            if x["ErAktiv"] and x["ErSkole"] and x["ErOffentligSkole"]
-        ]
 
     def handle(self, *args, **options):
         our_counties = County.objects.all()
@@ -60,44 +31,39 @@ class Command(BaseCommand):
                     self.style.SUCCESS(f"Created county {county['fylkesnavn']}")
                 )
 
-        our_schools = School.objects.all()
-        schools_in_nsr = self.__get_schools()
+        oslo_schools_data: List[Dict[str, str]] = []
+        with open("oslo_schools_initialization.csv") as f:
+            oslo_schools_data = [
+                {"School": x[0], "CitySegment": x[1]}
+                for x in [n.split(",") for n in f.readlines()]
+            ]
 
-        print(len(schools_in_nsr))
+        if not County.objects.filter(name="Oslo").exists():
+            County.objects.create(name="Oslo", city_segment_enabled=True)
+            self.stdout.write(self.style.SUCCESS(f"Created county Oslo"))
 
-        for school in schools_in_nsr:
-            self.stdout.write(f"School: {school['Navn']}")
-
-            if not our_schools.filter(name=school["Navn"]).exists():
-                print(school["Fylkesnummer"])
-                try:
-                    county = County.objects.get(county_number=school["Fylkesnummer"])
-                except County.DoesNotExist:
-                    self.stdout.write(
-                        self.style.WARNING(
-                            f"County with number {school['Fylkesnummer']} not found"
-                        )
-                    )
-                    continue
-
-                audience = None
-
-                if "voksenopplæring" in school["Navn"].lower():
-                    audience = Audience.objects.get(name="Voksenopplæring")
-                elif school["ErGrunnskole"]:
-                    if (
-                        "ungdomsskole" in school["Navn"].lower()
-                        or "ungdomsskule" in school["Navn"].lower()
-                    ):
-                        audience = Audience.objects.get(name="Ungdomskole")
-                    else:
-                        audience = Audience.objects.get(name="Mellomtrinn")
-                elif school["ErVideregaaendeSkole"]:
-                    audience = Audience.objects.get(name="Videregående")
-
-                School.objects.create(
-                    name=school["Navn"], county=county, audience=audience
+        for school_data in oslo_schools_data:
+            segment = school_data["CitySegment"]
+            if not CitySegment.objects.filter(name=segment).exists():
+                CitySegment.objects.create(
+                    name=segment, county=County.objects.get(name="Oslo")
                 )
                 self.stdout.write(
-                    self.style.SUCCESS(f"Created school {school['Navn']}")
+                    self.style.SUCCESS(
+                        f"Created city segment {school_data['CitySegment']}"
+                    )
+                )
+
+            if not School.objects.filter(name=school_data["School"]).exists():
+                School.objects.create(
+                    name=school_data["School"],
+                    county=County.objects.get(name="Oslo"),
+                    city_segment=CitySegment.objects.get(name=segment),
+                )
+                self.stdout.write(
+                    self.style.SUCCESS(f"Created school {school_data['School']}")
+                )
+            else:
+                self.stdout.write(
+                    self.style.WARNING(f"School {school_data['School']} already exists")
                 )
