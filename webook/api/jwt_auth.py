@@ -11,7 +11,7 @@ ALWAYS_ALLOWED_ENDPOINTS = []
 
 class JWTBearer(HttpBearer):
     def authenticate(self, request, token):
-        token = token.split(" ")[1]
+        token = token.split(" ")[1] if " " in token else token
         if RevokedToken.objects.filter(token=token).exists():
             raise HttpError(403, "Token has been revoked")
 
