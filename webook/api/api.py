@@ -19,7 +19,10 @@ api = NinjaAPI(
     title="WeBook V1 API",
     docs=Swagger() if settings.DEBUG else None,
     description="WeBook API",
-    auth=[django_auth, JWTBearer()],
+    # JWTBearer() needs to be the first to be attempted
+    # If django_auth goes first, CSRF will be checked. This messes up if you're using the onlinebooking
+    # app.
+    auth=[JWTBearer(), django_auth], 
     openapi_extra={"tags": []},
 )
 api.add_router("/service_accounts", service_account_router)
@@ -27,7 +30,8 @@ api.add_router("/onlinebooking/county", county_router)
 api.add_router("/onlinebooking/city_segment", city_segment_router)
 api.add_router("/onlinebooking/school", school_router)
 api.add_router("/onlinebooking/online_booking", online_booking_router)
-api.add_router("/arrangement/audience", audience_router)    
+api.add_router("/arrangement/audience", audience_router)
+
 
 @api.exception_handler(ObjectDoesNotExist)
 def handle_does_not_exist(request, exc):
