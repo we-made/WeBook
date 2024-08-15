@@ -35,7 +35,7 @@ class Command(BaseCommand):
         with open("oslo_schools_initialization.csv") as f:
             oslo_schools_data = [
                 {"School": x[0], "CitySegment": x[1]}
-                for x in [n.split(",") for n in f.readlines()]
+                for x in [n.split(",") for n in f.readlines()[1::]]
             ]
 
         if not County.objects.filter(name="Oslo").exists():
