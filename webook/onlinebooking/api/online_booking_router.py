@@ -138,6 +138,12 @@ def create_online_booking(
             ob.school.city_segment.name if ob.school.city_segment.name else "",
         )
 
+    ob_meta = {
+        "school": ob.school,
+        "city_segment": ob.school.city_segment if ob.school else None,
+        "booking_selected_audience": ob.audience_type,
+    }
+
     arrangement = Arrangement.objects.create(
         name=title,
         audience=ob.audience_type,
@@ -145,6 +151,8 @@ def create_online_booking(
         arrangement_type=settings.arrangement_type,
         status=settings.status_type,
         responsible=settings.main_planner.person if settings.main_planner else None,
+        county=ob.county,
+        **ob_meta,
     )
 
     arrangement.save()
@@ -162,6 +170,7 @@ def create_online_booking(
         responsible=settings.main_planner.person if settings.main_planner else None,
         end=end_time,
         audience=ob.audience_type,
+        **ob_meta,
     )
 
     event.save()
