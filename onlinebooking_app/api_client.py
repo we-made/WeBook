@@ -83,5 +83,5 @@ class WeBookApiClient(httpx.Client):
         super().__init__(
             base_url=API_URL,
             auth=WeBookApiAuth(SERVICE_ACCOUNT_USERNAME, SERVICE_ACCOUNT_PASSWORD),
-            transport=RetryTransport(),
+            # transport=RetryTransport(),
         )
