@@ -290,6 +290,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         log_record["timestamp"] = datetime.now().isoformat()
         log_record["environment"] = "development" if DEBUG else "production"
 
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -387,3 +388,7 @@ DISPLAY_SSO_ERROR_REASONING = env("DISPLAY_SSO_ERROR_REASONING", default=False)
 JWT_TOKEN_LIFETIME_MINUTES = env("JWT_TOKEN_LIFETIME_MINUTES", default=20)
 
 PDF_TMP_DIR = env("PDF_TMP_DIR", default="./webook/media/tmpfiles/")
+
+URL_TO_ONLINE_BOOKING_APP = env(
+    "URL_TO_ONLINE_BOOKING_APP", default="http://localhost:5000"
+)
