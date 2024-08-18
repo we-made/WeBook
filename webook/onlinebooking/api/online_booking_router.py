@@ -65,7 +65,11 @@ online_booking_router = OnlineBookingRouter(
 )
 
 
-@online_booking_router.post("/create", response=OnlineBookingGetSchema)
+@online_booking_router.post(
+    "/create",
+    response=OnlineBookingGetSchema,
+    auth=[JWTBearer(), SessionGroupAuth("planners")],
+)
 def create_online_booking(
     request, payload: OnlineBookingCreateSchema
 ) -> OnlineBookingGetSchema:
