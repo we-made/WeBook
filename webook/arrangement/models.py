@@ -62,11 +62,23 @@ class CalendarEntitySchoolMixin(models.Model):
     When online booking is performed county will always be populated.
     """
 
+    @property
+    def is_school_related(self):
+        if not hasattr(self, "audience"):
+            return False
+
+        from webook.onlinebooking.models import OnlineBookingSettings
+
+        school_audiences = OnlineBookingSettings.objects.first().allowed_audiences.all()
+
+        return self.audience in school_audiences
+
     county = models.ForeignKey(
         to="onlinebooking.County",
         verbose_name=_("County"),
         on_delete=models.RESTRICT,
         null=True,
+        blank=True,
         related_name="%(class)s_county",
     )
     booking_selected_audience = models.ForeignKey(
@@ -74,6 +86,7 @@ class CalendarEntitySchoolMixin(models.Model):
         verbose_name=_("Selected Audience"),
         on_delete=models.RESTRICT,
         null=True,
+        blank=True,
         related_name="%(class)s_booking_selected_audience",
     )
     school = models.ForeignKey(
@@ -81,6 +94,7 @@ class CalendarEntitySchoolMixin(models.Model):
         verbose_name=_("School"),
         on_delete=models.RESTRICT,
         null=True,
+        blank=True,
         related_name="%(class)s_school",
     )
     city_segment = models.ForeignKey(
@@ -88,6 +102,7 @@ class CalendarEntitySchoolMixin(models.Model):
         verbose_name=_("City Segment"),
         on_delete=models.RESTRICT,
         null=True,
+        blank=True,
         related_name="%(class)s_city_segment",
     )
 
