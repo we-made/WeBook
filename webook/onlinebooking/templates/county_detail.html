@@ -86,18 +86,27 @@ container
         {% if county.city_segment_enabled %}
         <div class="alert alert-light wb-bg-secondary">
             <i class="fas fa-exclamation-triangle"></i>
-            Bydeler vil vises som valg når en huker av for dette fylket ved booking.
+            Bydeler er aktivert for dette fylket. Bydeler vil vises som valg når en huker av for dette fylket ved booking.
 
-            For å endre denne oppførselen kan du redigere fylket.
+            Bydeler skal også settes på skoler i dette fylket.
+        </div>
+        {% endif %}
+
+        {% if county.school_enabled %}
+        <div class="alert alert-light wb-bg-secondary">
+            <i class="fas fa-exclamation-triangle"></i>
+            Skoler er aktivert for dette fylket. Skoler vil vises som valg når en huker av for dette fylket ved booking.
         </div>
         {% endif %}
 
         <ul class="nav webook-tabs nav-tabs rounded-top" id="navTabs" role="tablist">
+            {% if county.school_enabled %}
             <li class="nav-item" role="presentation">
               <button class="nav-link active text-center" id="schools-tab" data-mdb-toggle="tab" href="#schoolsTab" role="tab" aria-controls="schoolsTab" aria-selected="true">
                 <span class="h6 mb-0"><i class="fas fa-school"></i></span>
                 &nbsp; <span class="h6">Skoler</span></button>
             </li>
+            {% endif %}
             {% if county.city_segment_enabled %}
             <li class="nav-item" role="presentation">
               <button class="nav-link text-center" id="segments-tab" data-mdb-toggle="tab" href="#segmentsTab" role="tab" aria-controls="segmentsTab" aria-selected="true">
@@ -113,6 +122,7 @@ container
         </ul>
 
         <div class="tab-content p-0 pt-2">
+            {% if county.school_enabled %}
             <div class="tab-pane fade show active" role="tabpanel" id="schoolsTab">
                 <schools-table-component
                     :allow-create="true"
@@ -121,6 +131,7 @@ container
                     ref="schoolsTableComponent">
                 </schools-table-component>
             </div>
+            {% endif %}
 
             {% if county.city_segment_enabled %}
             <div class="tab-pane fade" role="tabpanel" id="segmentsTab">

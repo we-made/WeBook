@@ -17,6 +17,11 @@
         @edit="(data) => edit(data.id)"
         @archive="(data) => archive(data.id)"
         ref="countiesTable">
+        
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="showArchivedCountiesCheckbox" v-model="showArchivedCounties" />
+            <label class="form-check-label" for="showArchivedCountiesCheckbox">Vis arkiverte fylker</label>
+        </div>
     </table-component>
 </template>
 
@@ -47,7 +52,11 @@
         },
         computed: {
             dataSource: function () {
-                const url = `/api/onlinebooking/county/list?`;
+                let url = `/api/onlinebooking/county/list?`;
+
+                if (this.showArchivedCounties) {
+                    url += "include_archived=true&";
+                }
 
                 let columnsDefinition = {
                     "countyNumber": {
@@ -74,7 +83,32 @@
                         isHtml: true,
                         isSearchable: false,
                         formatter: (obj, value) => {
-                            return value ? "<i class='fas fa-check-circle text-success'></i>" : ""
+                            return value ? "<i class='fas fa-check-circle text-success'></i>" : "-"
+                        }
+                    },
+                    "schoolEnabled": {
+                        friendlyName: "Skole skal registreres",
+                        field: "schoolEnabled",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                        formatter: (obj, value) => {
+                            return value ? "<i class='fas fa-check-circle text-success'></i>" : "-"
+                        }
+                    }
+                }
+
+                if (this.showArchivedCounties) {
+                    columnsDefinition["isArchived"] = {
+                        friendlyName: "Arkivert",
+                        field: "isArchived",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                        formatter: (obj, value) => {
+                            return value ? "<i class='fas fa-check-circle text-danger'></i>" : ""
                         }
                     }
                 }
@@ -112,6 +146,7 @@
                 countyAPIRepository: new CountyAPIRepository(),
                 countyEditModalVisible: false,
                 countyEditModalCountyId: null,
+                showArchivedCounties: false
             }
         }
     }

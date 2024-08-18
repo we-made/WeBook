@@ -23,6 +23,7 @@ from django.shortcuts import get_object_or_404
 
 from webook.onlinebooking.models import (
     CitySegment,
+    County,
     OnlineBooking,
     OnlineBookingSettings,
     School,
@@ -68,21 +69,27 @@ def create_online_booking(
     request, payload: OnlineBookingCreateSchema
 ) -> OnlineBookingGetSchema:
     ob = OnlineBooking()
-    try:
-        ob.school = School.objects.get(id=payload.school_id)
-    except School.DoesNotExist:
-        return {"message": "School not found."}
+    if payload.school_id:
+        try:
+            ob.school = School.objects.get(id=payload.school_id)
+        except School.DoesNotExist:
+            return {"message": "School not found."}
 
-    if ob.school.county.city_segment_enabled:
-        if not payload.segment_id and not payload.segment_text:
-            return {"message": "City segment is required for this school."}
-        if payload.segment_id:
-            try:
-                ob.segment = ob.school.county.city_segments.get(id=payload.segment_id)
-            except CitySegment.DoesNotExist:
-                return {"message": "City segment not found."}
-        else:
-            ob.segment_text = payload.segment_text
+    # if ob.school.county.city_segment_enabled:
+    #     if not payload.segment_id and not payload.segment_text:
+    #         return {"message": "City segment is required for this school."}
+    #     if payload.segment_id:
+    #         try:
+    #             ob.segment = ob.school.county.city_segments.get(id=payload.segment_id)
+    #         except CitySegment.DoesNotExist:
+    #             return {"message": "City segment not found."}
+    #     else:
+    #         ob.segment_text = payload.segment_text
+
+    try:
+        ob.county = County.objects.get(id=payload.county_id)
+    except County.DoesNotExist:
+        return {"message": "County not found."}
 
     try:
         ob.audience_type = Audience.objects.get(id=payload.audience_type_id)
@@ -119,12 +126,17 @@ def create_online_booking(
     # Settings title_format has %Variable% placeholders
     title = settings.title_format
     title = title.replace("%BookingNr%", str(ob.id))
-    title = title.replace("%Skolenavn%", ob.school.name)
-    title = title.replace("%Fylkenavn%", ob.school.county.name)
+    if ob.school:
+        title = title.replace("%Skolenavn%", ob.school.name)
+    title = title.replace("%Fylkenavn%", ob.county.name)
     title = title.replace("%StartTid%", start_time.strftime("%H:%M"))
     title = title.replace("%SluttTid%", end_time.strftime("%H:%M"))
     title = title.replace("%Dato%", start_time.strftime("%d.%m.%Y"))
-    title = title.replace("%Bydel%", ob.segment.name if ob.segment else "")
+    if ob.school and ob.school.city_segment:
+        title = title.replace(
+            "%Bydel%",
+            ob.school.city_segment.name if ob.school.city_segment.name else "",
+        )
 
     arrangement = Arrangement.objects.create(
         name=title,

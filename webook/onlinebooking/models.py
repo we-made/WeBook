@@ -94,13 +94,13 @@ class OnlineBookingSettings(models.Model):
 
 
 class OnlineBooking(TimeStampedModel, ArchiveableMixin):
-    school = models.ForeignKey(
-        "School", on_delete=models.RESTRICT, related_name="bookings"
+    county = models.ForeignKey(
+        "County", on_delete=models.RESTRICT, related_name="bookings"
     )
 
-    # Segment is only set if the county that the school is in has city_segment_enabled
-    segment = models.ForeignKey("CitySegment", on_delete=models.RESTRICT, null=True)
-    segment_text = models.CharField(max_length=255, null=True)
+    school = models.ForeignKey(
+        "School", on_delete=models.RESTRICT, related_name="bookings", null=True
+    )
 
     audience_type = models.ForeignKey(Audience, on_delete=models.RESTRICT)
 
@@ -128,13 +128,6 @@ class School(TimeStampedModel, ArchiveableMixin):
     county = models.ForeignKey(
         "County", on_delete=models.RESTRICT, related_name="schools_in_county"
     )
-    audience = models.ForeignKey(
-        Audience,
-        on_delete=models.RESTRICT,
-        related_name="schools",
-        blank=True,
-        null=True,
-    )
     city_segment = models.ForeignKey(
         "CitySegment",
         on_delete=models.RESTRICT,
@@ -157,6 +150,9 @@ class County(TimeStampedModel, ArchiveableMixin):
     )
     name = models.CharField(max_length=255)
     city_segment_enabled = models.BooleanField(default=False)
+
+    # Designates whether schools in this county are enabled for online booking
+    school_enabled = models.BooleanField(default=False)
 
     def on_archive(self, person_archiving_this):
         # Archive all schools in this county

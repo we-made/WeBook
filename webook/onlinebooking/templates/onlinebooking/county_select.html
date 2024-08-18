@@ -25,16 +25,16 @@
                     return;
                 }
 
-                const data = await response.json();
+                let data = (await response.json()).data.filter(x => x.schoolEnabled);
 
-                this.countiesOptions = data.data.map(x => {
+                this.countiesOptions = data.map(x => {
                     return {
                         id: x.id,
                         text: x.name
                     }
                 });
 
-                this.countiesLookup = data.data.reduce((acc, x) => {
+                this.countiesLookup = data.reduce((acc, x) => {
                     acc[x.id] = x;
                     return acc;
                 }, {});

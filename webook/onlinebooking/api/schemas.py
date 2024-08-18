@@ -20,6 +20,7 @@ class CountyCreateSchema(BaseSchema):
     name: str
     county_number: int
     city_segment_enabled: bool
+    school_enabled: bool
 
 
 class CountyGetSchema(ModelBaseSchema, CountyCreateSchema):
@@ -29,28 +30,24 @@ class CountyGetSchema(ModelBaseSchema, CountyCreateSchema):
 class SchoolCreateSchema(BaseSchema):
     name: str
     county_id: int
-    audience_id: Optional[int]
     city_segment_id: Optional[int]
 
 
 class SchoolGetSchema(ModelBaseSchema, SchoolCreateSchema):
-    county: CountyGetSchema
-    audience: Optional[AudienceGetSchema]
-    city_segment: Optional[CitySegmentGetSchema]
+    pass
+    # county: CountyGetSchema
+    # city_segment: Optional[CitySegmentGetSchema]
 
 
 class OnlineBookingCreateSchema(BaseSchema):
-    school_id: int
-
-    segment_id: Optional[int] = None
-    segment_text: Optional[str] = None
-
+    county_id: int
+    school_id: Optional[int]
     visitors_count: int
     audience_type_id: int
 
 
 class OnlineBookingGetSchema(ModelBaseSchema, OnlineBookingCreateSchema):
-    school: SchoolGetSchema
+    school: Optional[SchoolGetSchema] = None
     segment: Optional[CitySegmentGetSchema] = None
     audience_type: AudienceGetSchema
     ip_address: Optional[str] = None
