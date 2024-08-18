@@ -3,6 +3,7 @@ from typing import Optional
 from ninja import Router
 
 from webook.api.crud_router import CrudRouter, QueryFilter, Views
+from webook.api.dj_group_auth import SessionGroupAuth
 from webook.api.jwt_auth import JWTBearer
 from webook.arrangement.forms.group_admin import User
 from webook.arrangement.models import (
@@ -74,17 +75,6 @@ def create_online_booking(
             ob.school = School.objects.get(id=payload.school_id)
         except School.DoesNotExist:
             return {"message": "School not found."}
-
-    # if ob.school.county.city_segment_enabled:
-    #     if not payload.segment_id and not payload.segment_text:
-    #         return {"message": "City segment is required for this school."}
-    #     if payload.segment_id:
-    #         try:
-    #             ob.segment = ob.school.county.city_segments.get(id=payload.segment_id)
-    #         except CitySegment.DoesNotExist:
-    #             return {"message": "City segment not found."}
-    #     else:
-    #         ob.segment_text = payload.segment_text
 
     try:
         ob.county = County.objects.get(id=payload.county_id)
@@ -188,7 +178,11 @@ def get_online_booking_settings(request) -> OnlineBookingSettingsGetSchema:
     return settings
 
 
-@online_booking_router.put("/settings/update", response=OnlineBookingSettingsGetSchema)
+@online_booking_router.put(
+    "/settings/update",
+    response=OnlineBookingSettingsGetSchema,
+    auth=[JWTBearer(), SessionGroupAuth("planners")],
+)
 def update_online_booking_settings(
     request, payload: OnlineBookingSettingsUpdateSchema
 ) -> OnlineBookingGetSchema:

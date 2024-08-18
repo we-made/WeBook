@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.constants import NOT_SET
 import pandas as pd
+from webook.api.dj_group_auth import SessionGroupAuth
+from webook.api.jwt_auth import JWTBearer
 from webook.api.paginate import paginate_queryset
 
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
@@ -151,6 +153,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         update_auth=None,
         get_auth=None,
         list_auth=None,
+        delete_auth=None,
         create_schema=None,
         update_schema=None,
         get_schema=None,
@@ -191,6 +194,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         self.update_auth = update_auth
         self.get_auth = get_auth
         self.list_auth = list_auth
+        self.delete_auth = None
 
         self.create_schema = create_schema 
         self.update_schema = update_schema
@@ -219,7 +223,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="/",
                 methods=["POST"],
-                auth=self.auth or NOT_SET,
+                auth=self.create_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_post_func(),
                 response=self.response_schema,
                 summary=f"Create {self.model_name_singular}",
@@ -232,7 +236,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="update",
                 methods=["PUT"],
-                auth=self.update_auth or self.auth or NOT_SET,
+                auth=self.update_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_put_func(),
                 response=OperationResultSchema[self.get_schema],
                 summary=f"Update {self.model_name_singular}",
@@ -244,7 +248,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="patch",
                 methods=["PATCH"],
-                auth=self.update_auth or self.auth or NOT_SET,
+                auth=self.update_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_put_func(),
                 response=OperationResultSchema[self.get_schema],
                 summary=f"Patch {self.model_name_singular}",
@@ -362,7 +366,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="delete",
                 methods=["DELETE"],
-                auth=self.auth or NOT_SET,
+                auth=self.delete_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_delete_func(),
                 response=OperationResultSchema,
                 summary=f"Delete {self.model_name_singular}",
