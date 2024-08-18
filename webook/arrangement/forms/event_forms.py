@@ -46,6 +46,10 @@ _ALWAYS_FIELDS = (
     "start_before_collision_resolution",
     "end_before_collision_resolution",
     "title_before_collision_resolution",
+    "county",
+    "booking_selected_audience",
+    "school",
+    "city_segment",
 )
 
 
