@@ -17,4 +17,5 @@ def settings_context(_request):
         "FULLCALENDAR_LICENSE_KEY": settings.FULLCALENDAR_LICENSE_KEY,
         "MESSAGES_SERIALIZABLE": messages,
         "ALLOW_EMAIL_LOGIN": settings.ALLOW_EMAIL_LOGIN,
+        "URL_TO_ONLINE_BOOKING_APP": settings.URL_TO_ONLINE_BOOKING_APP,
     }
