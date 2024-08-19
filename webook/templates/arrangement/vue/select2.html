@@ -1,0 +1,75 @@
+<template id="select2_component">
+    <select ref="select" :multiple="multiple ? true : null" class="w-100">
+    </select>
+</template>
+
+<script>
+    let Select2 = {
+        template: '#select2_component',
+        delimiters: ['[[', ']]'],
+        data: () => {
+            return {
+                ignoreNextUpdate: false
+            }
+        },
+        props: {
+            options: {
+                type: Array,
+                required: true
+            },
+            selected: { // Array of selected values - int ids
+                type: Array,
+                default: () => []
+            },
+            placeholder: {
+                type: String,
+                default: 'Select'
+            },
+            multiple: {
+                type: Boolean,
+                default: false
+            }
+        },
+        mounted() {
+            this.$nextTick(() => {
+                $(this.$refs.select)
+                    .select2({ width: "100%", placeholder: this.placeholder})
+                    .val(this.selected)
+                    .trigger('change')
+                    .on('change', e => {
+                        this.ignoreNextUpdate = true; // avoid triggering watcher, causing infinite loop
+                        this.$emit('input', $(this.$refs.select).val() || [])
+                    });
+
+                $(this.$refs.select).val(this.selected);
+            });
+        },
+        emits: ['input'],
+        watch: {
+            selected(selected) {
+                if (this.ignoreNextUpdate === true) {
+                    console.log("ignoring", selected);
+                    this.ignoreNextUpdate = false;
+                    return;
+                }
+
+                $(this.$refs.select)
+                    .val(selected)
+                    .trigger('change')
+            },
+            options(options) {
+                $(this.$refs.select)
+                    .empty()
+                    .select2({
+                        placeholder: this.placeholder,
+                        data: options
+                    })
+                    .val(this.selected)
+                    .trigger('change');
+            }
+        },
+        destroyed() {
+            $(this.$refs.select).off().select2('destroy');
+        }
+    }
+</script>

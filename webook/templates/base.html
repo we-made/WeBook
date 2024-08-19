@@ -11,7 +11,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %} {{ APP_TITLE }} {% endblock title %}</title>
+    <title>{% block title %} {{ APP_TITLE }} {% endblock title %} - {{ APP_TITLE }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -35,7 +35,8 @@
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/base/jquery.fonticonpicker.min.css' %}">
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/themes/bootstrap-theme/jquery.fonticonpicker.bootstrap.min.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default-dark/style.min.css" integrity="sha512-G2U+dh7e2qpH9e1PZdGb7Hp+/uoiPbbEt3dGdU3G+eX+j3ZdnTSRL7s6jgXu94SeQBV1lOUr50kGQ99j2Vj3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <link rel="stylesheet" href="{% static 'select2/dist/css/select2.min.css' %}"></link>
+  
     <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/file-upload.min.css">
     <!-- <link rel="stylesheet" href="{% static 'jquery-treetable/css/jquery.treetable.css' %}" />
      -->
@@ -144,6 +145,13 @@
           <a  href="{% url 'arrangement:planner_calendar' %}" 
               class="sidenav-link">
             <i class="fas fa-calendar-plus fa-fw me-3"></i><span>Planleggingskalender</span></a
+          >
+        </li>
+
+        <li class="sidenav-item {% if url_name == 'dashboard' %}active{% endif %}">
+          <a  href="{% url 'onlinebooking:dashboard' %}" 
+              class="sidenav-link">
+            <i class="fas fa-calendar-alt fa-fw me-3"></i><span>Online Booking</span></a
           >
         </li>
         {% if user|has_group:"planners" %}
@@ -380,6 +388,7 @@
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
       <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.11.5/af-2.3.7/b-2.2.2/b-colvis-2.2.2/b-html5-2.2.2/b-print-2.2.2/cr-1.5.5/date-1.1.2/fc-4.0.2/fh-3.2.2/kt-2.6.4/r-2.2.9/rg-1.1.4/rr-1.2.8/sc-2.0.5/sb-1.3.2/sp-2.0.0/sl-1.3.4/sr-1.1.0/datatables.min.js"></script>
       <script src="{% static 'js/sweetalert2.js' %}"></script>
+      <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
 
       <!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
@@ -390,6 +399,8 @@
         import dialogApi from "{% static 'modules/planner/dialog_manager/dialogApi.js' %}";
         import { Popover } from "{% static 'js/popover.js' %}";
         import { MessagesFacility } from "{% static 'modules/planner/broadcast.js' %}";
+
+        // $.fn.modal.Constructor.prototype.enforceFocus = function() {};
 
         $(document).ready(function () {
           window.MessagesFacility = new MessagesFacility();
@@ -490,5 +501,8 @@
         }
       </script>
     {% endblock javascript %}
+
+    {% block extrascripts %}
+    {% endblock extrascripts %}
   </body>
 </html>

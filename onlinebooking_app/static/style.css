@@ -1,0 +1,54 @@
+:root {
+    --MAIN-COLOR: #231f20;
+    --SECONDARY-COLOR: #f6f6f0 ;
+    --MAIN-HOVER: white;
+    --SECONDARY-HOVER: var(--MAIN-COLOR);
+    
+    --CONTEXT-MENU-BACKGROUND-COLOR: var(--MAIN-COLOR);
+    --CONTEXT-MENU-HOVER-COLOR: var(--MAIN-COLOR);
+    --CONTEXT-MENU-TEXT-COLOR: white;
+    --CONTEXT-MENU-HOVER-COLOR: #4C4345;
+
+    --WEAK-TEXT-COLOR: #BBBAB6;
+    --ACTIVE-TEXT-COLOR: #231F20;
+    --BORDER-STANDARD-COLOR: gainsboro;
+    --FC-TEXT-COLOR: #292929;
+    
+    --DIALOG-BORDER-COLOR: #DEDFE3;
+}
+
+.secondary-hover:hover {
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.box {
+    border: 1px solid var(--BORDER-STANDARD-COLOR);
+    box-shadow: unset;
+}
+
+.box-success {
+    border-color: #28a745;
+}
+
+.box:hover {
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    background-color: var(--SECONDARY-COLOR);
+}
+
+.box.active {
+    background-color: var(--MAIN-COLOR);
+    color: white;
+}
+
+.header {
+    background-color: var(--MAIN-COLOR);
+    color: white;
+}
+
+.text-white {
+    color: white;
+}
+
+.text-success {
+    color: #28a745;
+}

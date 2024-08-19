@@ -1,0 +1,126 @@
+{% include "arrangement/vue/select2.html" %}
+
+<template id="vuec-school-select">
+    <select2
+        style="width: 100%;"
+        @input="(value) => selected = value"
+        :options="schoolOptions"
+        :selected="selected"
+        :placeholder="multiple ? 'Velg skoler' : 'Velg skole'"
+        :multiple="multiple">
+
+    </select2>
+</template>
+
+<script>
+    const SchoolSelectComponent = {
+        template: '#vuec-school-select',
+        delimiters: ['[[', ']]'],
+        methods: {
+            getSchools: async function () {
+                let url = '/api/onlinebooking/school/list';
+                let builder = new URLSearchParams(url);
+            
+                if (this.countyId) {
+                    builder.append('county_id', this.countyId);
+                }
+
+                return fetch(url + '?' + builder.toString())
+                    .then(response => {
+                        if (response.status !== 200) {
+                            console.error('Failed to fetch schools');
+                            console.error(response);
+                            return;
+                        }
+
+                        return response.json();
+                    }).then(data => {
+                        this.schoolOptions = data.data.map(x => {
+                            return {
+                                id: x.id,
+                                text: x.name
+                            }
+                        });
+
+                        this.schoolsLookup = data.data.reduce((acc, x) => {
+                            acc[x.id] = x;
+                            return acc;
+                        }, {});
+
+                        return data;
+                    });
+            }
+        },
+        data: () => {
+            return {
+                schoolOptions: [],
+                schoolsLookup: [],
+                selected: [],
+                hasInit: false
+            }
+        },
+        components: {
+            Select2
+        },
+        watch: {
+            countyId: async function (newValue) {
+                await this.getSchools();
+            },
+            selected: function (newValue) {
+                if (!this.hasInit) {
+                    return;
+                }
+
+                if (!Array.isArray(newValue)) {
+                    newValue = [ newValue ];
+                }
+
+                this.$emit('update:modelValue', newValue);
+            },
+            modelValue: function (newValue) {
+                if (!this.hasInit) {
+                    return;
+                }
+
+                if (newValue instanceof Number) {
+                    this.selected = [ newValue ];
+                }
+                else if (Array.isArray(newValue)) {
+                    this.selected = newValue;
+                }
+                else {
+                    this.selected = [];
+                }
+            }
+        },
+        props: {
+            multiple: {
+                type: Boolean,
+                default: false
+            },
+            modelValue: {
+                type: Array,
+                default: null
+            },
+            countyId: {
+                type: Number,
+                default: null
+            }
+        },
+        async mounted() {
+            await this.getSchools();
+
+            if (this.modelValue instanceof Number) {
+                this.selected = [ this.modelValue ];
+            }
+            else if (Array.isArray(this.modelValue)) {
+                this.selected = this.modelValue;
+            }
+            else {
+                this.selected = [];
+            }
+
+            this.hasInit = true;
+        },
+    }
+</script>

@@ -1,0 +1,194 @@
+{% extends "onlinebooking/base.html" %}
+{% load static i18n %}
+{% load custom_tags %}
+
+{% block title %}
+    Fylke {{ county.name }}
+{% endblock %}
+
+{% block section_title %}
+{% endblock %}
+{% block section_subtitle %}
+    Online Booking
+{% endblock %}
+{% block section_crumb_url %}
+    
+{% endblock %}
+{% block section_icon_class %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block section_crumb_icon %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block container_classes %}
+container
+{% endblock %}
+
+{% block content %}
+    {% include "arrangement/vue/table_component.html" %}
+    {% include "onlinebooking/modals/county_edit_modal.html" %}
+    {% include "onlinebooking/tables/schools_table.html" %}
+    {% include "onlinebooking/tables/booking_table.html" %}
+    {% include "onlinebooking/tables/city_segments_table.html" %}
+
+    <div id="countyDetailVueApp">
+        <county-edit-modal-component
+            @close="countyFormModalVisible = false"
+            @has-changed="onEdited"
+            :is-visible="countyFormModalVisible"
+            :county-id="{{ county.id }}"
+            :backdrop="true">
+
+        </county-edit-modal-component>
+
+        <div class="p-5  rounded-4 bg-body-tertiary mb-0 ps-0">
+            <div class="d-flex justify-content-between align-content-end">
+                <h1 class="">
+                    <i class="fas fa-map-marked"></i>
+                    {{ county.name }}
+                </h1>
+                <div class="badge badge-info align-self-end">
+                    <strong>Fylkesnummer: </strong> {{ county.county_number }}
+                </div>
+            </div>
+
+
+            <nav class="d-flex justify-content-between">
+                <div>
+                    <h6 class="mb-0">
+                        <a href="{% url 'onlinebooking:dashboard' %}" class="text-reset">Online Booking</a>
+                        <span>&nbsp;/&nbsp;</span>
+                        <a href="{% url 'onlinebooking:county_detail' county.id %}" class="text-reset">Fylke {{ county.name }}</a>
+                    </h6>
+            
+                    <div class="mt-2">
+                        <button class="btn wb-btn-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i>
+                            Tilbake
+                        </button>
+                        <button class="btn wb-btn-main ms-2" @click="archiveCounty()">
+                            <i class="fas fa-archive"></i>&nbsp;
+                            Arkiver
+                        </button>
+                        <button class="btn wb-btn-main ms-1" @click="edit()">
+                            <i class="fas fa-edit"></i>&nbsp;
+                            Rediger
+                        </button>
+                    </div>
+                </div>
+    
+                <div>
+   
+                </div>
+            </nav>
+        </div>
+
+        {% if county.city_segment_enabled %}
+        <div class="alert alert-light wb-bg-secondary">
+            <i class="fas fa-exclamation-triangle"></i>
+            Bydeler er aktivert for dette fylket. Bydeler vil vises som valg når en huker av for dette fylket ved booking.
+
+            Bydeler skal også settes på skoler i dette fylket.
+        </div>
+        {% endif %}
+
+        {% if county.school_enabled %}
+        <div class="alert alert-light wb-bg-secondary">
+            <i class="fas fa-exclamation-triangle"></i>
+            Skoler er aktivert for dette fylket. Skoler vil vises som valg når en huker av for dette fylket ved booking.
+        </div>
+        {% endif %}
+
+        <ul class="nav webook-tabs nav-tabs rounded-top" id="navTabs" role="tablist">
+            {% if county.school_enabled %}
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active text-center" id="schools-tab" data-mdb-toggle="tab" href="#schoolsTab" role="tab" aria-controls="schoolsTab" aria-selected="true">
+                <span class="h6 mb-0"><i class="fas fa-school"></i></span>
+                &nbsp; <span class="h6">Skoler</span></button>
+            </li>
+            {% endif %}
+            {% if county.city_segment_enabled %}
+            <li class="nav-item" role="presentation">
+              <button class="nav-link text-center" id="segments-tab" data-mdb-toggle="tab" href="#segmentsTab" role="tab" aria-controls="segmentsTab" aria-selected="true">
+                <span class="h6 mb-0"><i class="fas fa-map-marker-alt"></i></span>
+                &nbsp; <span class="h6">Bydeler</span></button>
+            </li>
+            {% endif %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-center" id="bookings-tab" data-mdb-toggle="tab" href="#bookingsTab" role="tab" aria-controls="bookingsTab" aria-selected="true">
+                  <span class="h6 mb-0"><i class="fas fa-calendar"></i></span>
+                  &nbsp; <span class="h6">Bookinger</span></button>
+              </li>
+        </ul>
+
+        <div class="tab-content p-0 pt-2">
+            {% if county.school_enabled %}
+            <div class="tab-pane fade show active" role="tabpanel" id="schoolsTab">
+                <schools-table-component
+                    :allow-create="true"
+                    :county-id="{{ object.id }}"
+                    :hidden-columns="['county'{% if not county.city_segment_enabled %}, 'segment'{% endif %}]"
+                    ref="schoolsTableComponent">
+                </schools-table-component>
+            </div>
+            {% endif %}
+
+            {% if county.city_segment_enabled %}
+            <div class="tab-pane fade" role="tabpanel" id="segmentsTab">
+                <city-segments-table-component
+                    :county-id="{{ object.id }}">
+                </city-segments-table-component>
+            </div>
+            {% endif %}
+
+            <div class="tab-pane fade" role="tabpanel" id="bookingsTab">
+                <booking-table-component
+                    :county-id="{{ object.id }}">
+                </booking-table-component>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            const countyDetailVueApp = Vue.createApp({
+                components: {
+                    TableComponent,
+                    CountyEditModalComponent,
+                    SchoolsTableComponent,
+                    BookingTableComponent,
+                    CitySegmentsTableComponent
+                },
+                delimiters: ['[[', ']]'],
+                methods: {
+                    async archiveCounty() {
+                        const responseData = await this.countyAPIRepository.archive("{{county.id}}", "{{csrf_token}}");
+                        if (responseData !== null)
+                            location.href = "{% url 'onlinebooking:dashboard' %}";
+                    },
+                    showSchool(data) {
+                        location.href = `/onlinebooking/school/${data.id}/`;
+                    },
+                    showCitySegment(data) {
+                        location.href = `/onlinebooking/city_segment/${data.id}/`;
+                    },
+                    showOnlineBooking(data) {
+                        location.href = `/onlinebooking/booking/${data.id}/`;
+                    },
+                    edit: function () {
+                        this.countyFormModalVisible = true;
+                    },
+                    onEdited: function () {
+                        this.countyFormModalVisible = false;
+                        location.reload();
+                    }
+                },
+                data: () => ({
+                    countyFormModalVisible: false,
+                    countyAPIRepository: new CountyAPIRepository(),
+                })
+            });
+            countyDetailVueApp.mount('#countyDetailVueApp');
+        });
+    </script>
+{% endblock %}
