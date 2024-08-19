@@ -1,0 +1,105 @@
+{% include "arrangement/vue/select2.html" %}
+
+<template id="vuec-city-segment-select">
+    <select2 style="width: 100%;"
+        @input="(value) => selected = value"
+        :options="citySegmentOptions"
+        :selected="selected"
+        :placeholder="multiple ? 'Velg bydeler' : 'Velg bydel'"
+        :multiple="multiple">
+
+    </select2>
+</template>
+
+<script>
+    const CitySegmentSelectComponent = {
+        template: '#vuec-city-segment-select',
+        delimiters: ['[[', ']]'],
+        methods: {
+            getCitySegments: async function () {
+                let url = '/api/onlinebooking/city_segment/list';
+                let builder = new URLSearchParams(url);
+            
+                if (this.countyId) {
+                    builder.append('county_id', this.countyId);
+                }
+                if (this.schoolId) {
+                    builder.append('school_id', this.schoolId);
+                }
+
+                const response = await fetch(url + '?' + builder.toString());
+                
+                if (response.status !== 200) {
+                    console.error('Failed to fetch counties');
+                    return;
+                }
+
+                const data = await response.json();
+
+                this.citySegmentOptions = data.data.map(x => {
+                    return {
+                        id: x.id,
+                        text: x.name
+                    }
+                });
+            }
+        },
+        data: () => {
+            return {
+                citySegmentOptions: [],
+                selected: [],
+            }
+        },
+        watch: {
+            selected: function (newValue) {
+                if (!this.hasInit) {
+                    return;
+                }
+
+                if (!Array.isArray(newValue)) {
+                    newValue = [ newValue ];
+                }
+
+                console.log("EMITTING", newValue);
+
+                this.$emit('update:modelValue', newValue);
+            }
+        },
+        components: {
+            Select2
+        },
+        props: {
+            multiple: {
+                type: Boolean,
+                default: false
+            },
+            countyId: {
+                type: Number,
+                default: null
+            },
+            schoolId: {
+                type: Number,
+                default: null
+            },
+            modelValue: {
+                type: Array,
+                default: null
+            },
+        },
+        async mounted() {
+            await this.getCitySegments();
+
+            if (this.modelValue instanceof Number) {
+                this.selected = [ this.modelValue ];
+            }
+            else if (this.modelValue instanceof Array) {
+                this.selected = this.modelValue;
+            }
+            else {
+                this.selected = [];
+            }
+
+            this.hasInit = true;
+        },
+    }
+</script>

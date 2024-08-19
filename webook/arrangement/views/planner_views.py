@@ -509,6 +509,25 @@ class PlannerEventInspectorDialogView(LoginRequiredMixin, DialogView, UpdateView
         context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(
             triggers_display_layout_text=True
         )
+
+        obj = self.get_object()
+        if obj.is_school_related:
+            from webook.onlinebooking.models import (
+                County,
+                OnlineBookingSettings,
+            )
+
+            context["school_audiences"] = (
+                OnlineBookingSettings.objects.first().allowed_audiences.all()
+            )
+            context["counties"] = County.objects.all()
+            context["city_segments"] = (
+                obj.county.city_segments.all() if obj.county else []
+            )
+            context["schools"] = (
+                obj.county.schools_in_county.all() if obj.county else []
+            )
+
         return context
 
 
@@ -548,6 +567,27 @@ class PlannerArrangementInformationDialogView(
 
         context["sets"] = sets.values()
         context["arrangement"] = arrangement_in_focus
+
+        if arrangement_in_focus.is_school_related:
+            from webook.onlinebooking.models import (
+                County,
+                OnlineBookingSettings,
+            )
+
+            context["school_audiences"] = (
+                OnlineBookingSettings.objects.first().allowed_audiences.all()
+            )
+            context["counties"] = County.objects.all()
+            context["city_segments"] = (
+                arrangement_in_focus.county.city_segments.all()
+                if arrangement_in_focus.county
+                else []
+            )
+            context["schools"] = (
+                arrangement_in_focus.county.schools_in_county.all()
+                if arrangement_in_focus.county
+                else []
+            )
 
         return context
 

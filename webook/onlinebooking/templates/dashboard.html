@@ -1,0 +1,433 @@
+{% extends "onlinebooking/base.html" %}
+{% load static i18n %}
+{% load custom_tags %}
+
+{% block title %}
+    Online Booking
+{% endblock %}
+
+
+{% block section_title %}
+{% endblock %}
+{% block section_subtitle %}
+    Online Booking
+{% endblock %}
+{% block section_crumb_url %}
+    
+{% endblock %}
+{% block section_icon_class %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block section_crumb_icon %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block container_classes %}
+container
+{% endblock %}
+
+
+
+{% block content %}
+
+{% include "arrangement/vue/js_tree_select_component.html" %}
+{% include "arrangement/vue/table_component.html" %}
+{% include "onlinebooking/modals/school_edit_modal.html" %}
+{% include "onlinebooking/modals/county_edit_modal.html" %}
+{% include "onlinebooking/modals/test_booking_modal.html" %}
+{% include "onlinebooking/tables/booking_table.html" %}
+{% include "onlinebooking/tables/schools_table.html" %}
+{% include "onlinebooking/tables/counties_table.html" %}
+
+
+<div id="onlineBookingVueApp">
+
+    <div class="p-5  rounded-4 bg-body-tertiary mb-0 ps-0">
+        <nav class="d-flex justify-content-between align-items-center">
+
+
+            <div class="d-flex align-items-center">
+                <div>
+                    <h1>
+                    </h1>
+                </div>
+                <div >
+                    <h1 class="">
+                        <i class="fas fa-calendar-alt"></i>
+                        Online Booking</h1>
+                    <h6 class="mb-0">
+                        <a href="{% url 'onlinebooking:dashboard' %}" class="text-reset">Online Booking</a>
+                        <span>&nbsp;/&nbsp;</span>
+                        <a href="{% url 'onlinebooking:dashboard' %}" class="text-reset active"><u>Dashboard</u></a>
+                    </h6>
+                </div>
+
+            </div>
+        </nav>
+    </div>
+
+    <a class="btn wb-btn-main" href="{{ URL_TO_ONLINE_BOOKING_APP }}">
+        <i class="fas fa-external-link-alt"></i>&nbsp;
+        Gå til online booking app
+    </a>
+
+
+    <school-edit-modal-component
+        @close="schoolFormModalVisible = false"
+        @has-changed="$refs.schoolsTableComponent.refresh()"
+        :is-visible="schoolFormModalVisible"
+        :school-id="focusedSchoolId"
+        :backdrop="true">
+
+    </school-edit-modal-component>
+
+    <county-edit-modal-component
+        @close="countyFormModalVisible = false"
+        @has-changed="$refs.countiesTableComponent.refresh()"
+        :is-visible="countyFormModalVisible"
+        :county-id="focusedCountyId"
+        :backdrop="true">
+
+    </county-edit-modal-component>
+
+    <test-booking-modal-component
+        @close="testBookingModalVisible = false"
+        @has-changed="$refs.bookingTableComponent.refresh()"
+        :is-visible="testBookingModalVisible"
+        :backdrop="true">
+    </test-booking-modal-component>
+
+    <ul class="nav webook-tabs nav-tabs rounded-top" id="navTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active text-center" id="bookings-tab" data-mdb-toggle="tab" href="#bookingsTab" role="tab" aria-controls="bookingsTab" aria-selected="true">
+            <span class="h5 mb-0"><i class="fas fa-calendar"></i></span>
+            &nbsp; <span class="h5">Bookingregister</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link  text-center" id="counties-tab" data-mdb-toggle="tab" href="#countiesTab" role="tab" aria-controls="countiesTab" aria-selected="true">
+            <span class="h5 mb-0"><i class="fas fa-map-marked"></i></span>
+            &nbsp; <span class="h5">Fylkeregister</span></button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="schools-tab" data-mdb-toggle="tab" href="#schoolsTab" role="tab" aria-controls="plannersTab" aria-selected="false">
+            <span class="h5 mb-0"><i class="fas fa-school"></i></span>
+            &nbsp; <span class="h5">Skoleregister</span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="settings-tab" data-mdb-toggle="tab" href="#settingsTab" role="tab" aria-controls="settingsTab" aria-selected="false">
+              <span class="h5 mb-0"><i class="fas fa-cogs"></i></span>
+              &nbsp; <span class="h5">Innstillinger</span>
+            </button>
+          </li>
+    </ul>
+
+    <div class="tab-content pt-4">
+        <div class="tab-pane fade show active"
+             id="bookingsTab"
+             tole="tabpanel">
+
+             <div class="d-flex justify-content-between">
+                <h2>
+                    Booking Historikk
+                </h2>
+
+                <div>
+                    <button class="btn wb-btn-main" @click="testBookingModalVisible = !testBookingModalVisible">
+                        <i class="fas fa-flask"></i>&nbsp;
+                        Test Booking
+                    </button>
+                </div>
+            </div>
+
+             <div class="row">
+                <div class="col-12">
+                    <booking-table-component ref="bookingTableComponent"></booking-table-component>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" role="tabpanel" id="countiesTab">
+
+            <div class="d-flex justify-content-between">
+                <h2>
+                    Fylker
+                </h2>
+
+                <div>
+                    <button class="btn wb-btn-main btn-sm mb-2 ms-2" @click="editCounty(null)">
+                        <i class="fas fa-plus"></i>
+                        Registrer nytt fylke
+                    </button>
+                </div>
+            </div>
+
+            <counties-table-component ref="countiesTableComponent"></counties-table-component>
+        </div>
+
+        <div class="tab-pane fade" role="tabpanel" id="schoolsTab">
+            <div class="d-flex justify-content-between">
+                <h2 class="">
+                    Skoler
+                </h2>
+
+                <div>
+                    <button class="btn wb-btn-main btn-sm mb-2 ms-2" @click="editSchool(null)">
+                        <i class="fas fa-plus"></i>
+                        Registrer ny skole
+                    </button>
+                </div>
+            </div>
+
+            <schools-table-component ref="schoolsTableComponent"></schools-table-component>
+        </div>
+
+        <div class="tab-pane fade" role="tabpanel" id="settingsTab">
+            <div class="d-flex justify-content-between">
+                <h2>
+                    Innstillinger
+                </h2>
+
+            </div>
+
+            <h4 class="mt-3 mb-2">
+                Tittelformat
+            </h4>
+
+            <div class="alert alert-light border-start border-2 rounded-0 pt-2 pb-2 mb-0 mt-2 mb-2 wb-bg-secondary">
+                Tittelen på arrangement og aktivitet vil genereres basert på formatet som er satt her. 
+                <div>
+                    Du kan bruke variablene som vist under tekstboksen.
+                    Du kan også legge inn fritekst som ikke er variabler. 
+                </div>
+                <div>
+                    Alle variabler må skrives med % (prosenttegn) foran og bak.
+                    Trykk på en variabel og den vil legges inn i tekstboksen.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" name="" id=""
+                    placeholder="%Skolenavn% %StartTid% %SluttTid% %Dato%"
+                    v-model="onlineBookingSettings.title_format">
+
+                <div class="d-flex justify-content-between">
+                    <div>
+                        Forhåndsvisning: <span class="fw-bold">Skolenavn - StartTid - SluttTid - Dato</span>
+                    </div>
+                    <div class="text-muted">
+                        Tilgjengelige valg; <a href="#" title="Unikt nr som identifiserer bookingen">BookingNr</a>, <a href="#" title="Navnet på skolen">Skolenavn</a>, <a href="#" title="Navnet på fylket skolen tilhører">Fylkenavn</a>, <a href="#" title="Starttid på selvse bookingen">StartTid</a>, <a href="#" title="Sluttid på bookingen">SluttTid</a>, <a href="#" title="Datoen bookingen forekom">Dato</a>, <a href="#" title="Bydelen skolen tilhører, kan være blank">Bydel</a>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="mt-4 mb-2">
+                Lokasjon
+            </h4>
+            
+            <div class="form-group">
+                <select class="form-control" v-model="onlineBookingSettings.location_id">
+                    {% for location in locations %}
+                        <option value="{{location.id}}">{{location.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h4 class="mt-4 mb-2">
+                Hovedplanlegger
+            </h4>
+
+            <div class="form-group">
+                <select class="form-control" v-model="onlineBookingSettings.main_planner_id">
+                    {% for planner in eligible_planners %}
+                        <option value="{{planner.id}}">{{planner.person.full_name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h4 class="mt-4 mb-2">
+                Status
+            </h4>
+
+            <div class="form-group">
+                <select class="form-control" v-model="onlineBookingSettings.status_type_id">
+                    {% for status_type in status_types %}
+                        <option value="{{status_type.id}}">{{status_type.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h4 class="mt-4 mb-2">
+                Arrangementstype
+            </h4>
+
+            <div class="form-group">
+                <select class="form-control" v-model="onlineBookingSettings.arrangement_type_id">
+                    {% for arrangement_type in arrangement_types %}
+                        <option value="{{arrangement_type.id}}">{{arrangement_type.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h4 class="mt-4 mb-2">
+                Offset
+            </h4>
+
+            <div class="alert mb-2 alert-light border-start border-2 rounded-0 wb-bg-secondary pt-2 pb-2 mb-0 mt-2">
+                Eksempelvis, om en booking plasseres kl 12:00 og det er satt til 30 minutter, vil bookingen starte kl 12:30.
+            </div>
+
+            <div class="form-group">
+                Start booking 
+                <input type="number" class="form-control d-inline w-auto" name="" id="" min="0" max="5000" v-model="onlineBookingSettings.offset">
+                <select name="unit" class="form-control d-inline w-auto" v-model="onlineBookingSettings.offset_unit">
+                    <option value="minutes">minutter</option>
+                    <option value="hours">timer</option>
+                </select>
+                fra når bookingen er plassert
+            </div>
+
+            <h4 class="mt-4">
+                Varighet
+            </h4>
+            <div class="form-group">
+                Bookinger skal vare i totalt <input type="number" class="form-control d-inline w-auto" name="" id="" min="0" max="5000" v-model="onlineBookingSettings.duration_amount">
+                <select name="unit" class="form-control d-inline w-auto" v-model="onlineBookingSettings.duration_unit">
+                    <option value="minutes">minutter</option>
+                    <option value="hours">timer</option>
+                </select>
+            </div>
+
+            <h4 class="mt-4">
+                Velgbare Målgrupper
+            </h4>
+            <div class="form-group">
+                <div class="alert alert-light border-start border-2 rounded-0 wb-bg-secondary pt-2 pb-2 mb-2 mt-2">
+                    På tablet kan bruker velge mellom målgrupper. De vil få en liste med valg basert på de målgruppene som er valgt her. Når bookinger plasseres vil
+                    målgruppen automatisk føres inn på arrangement / aktivitet entitetene.
+                </div>
+
+                <tree-select-component :is-open="false" label="Målgruppe"
+                    json-url="{% url 'arrangement:audience_tree' %}"
+                    button-label="Velg målgruppe" icon="fas fa-users"
+                    v-model="onlineBookingSettings.allowed_audiences" :use-popover="false" :show-label="false" :show-search="false" :multi-select="true">
+                </tree-select-component>
+            </div>
+
+            <div class="mt-3 mb-3">
+                <button class="btn wb-btn-main float-end" @click="saveSettings()">
+                    <i class="fas fa-save"></i>&nbsp;
+                    Lagre
+                </button>
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function() {
+        const onlineBookingVueApp = Vue.createApp({
+            components: {
+                TreeSelectComponent,
+                TableComponent,
+                SchoolEditModalComponent,
+                CountyEditModalComponent,
+                TestBookingModalComponent,
+                BookingTableComponent,
+                SchoolsTableComponent,
+                CountiesTableComponent
+            },
+            delimiters: ['[[', ']]'],
+            methods: {
+                async archiveCounty(countyId) {
+                    const responseData = await this.countyAPIRepository.archive(countyId, '{{csrf_token}}');
+                    if (responseData !== null)
+                        this.$refs.countiesTable.refresh();
+                },
+                async archiveSchool(schoolId) {
+                    const responseData = await this.schoolAPIRepository.archive(schoolId, '{{csrf_token}}');
+                    if (responseData !== null)
+                        this.$refs.schoolsTable.refresh();
+                },
+                editSchool(schoolId) {
+                    this.focusedSchoolId = schoolId;
+                    this.schoolFormModalVisible = true;
+                },
+                editCounty(countyId) {
+                    this.focusedCountyId = countyId;
+                    this.countyFormModalVisible = true;
+                },
+                showBooking(data) {
+                    location.href = `/onlinebooking/booking/${data.id}/`;
+                },
+                showCounty(data) {
+                    location.href = `/onlinebooking/county/${data.id}/`;
+                },
+                showSchool(data) {
+                    location.href = `/onlinebooking/school/${data.id}/`;
+                },
+                async saveSettings() {
+                    console.log("Saving settings", this.onlineBookingSettings);
+                    await fetch("/api/onlinebooking/online_booking/settings/update", {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(this.onlineBookingSettings)
+                    }).then(response => {
+                        if (response.status !== 200) {
+                            toastr.error("Kunne ikke lagre innstillinger for online booking");
+                            throw new Error("Failed to save settings for online booking.", response);
+                        }
+
+                        return response.json();
+                    }).then(data => {
+                        toastr.success("Innstillinger for online booking lagret");
+                    })
+                },
+                async loadOnlineBookingSettings() {
+                    await fetch("/api/onlinebooking/online_booking/settings")
+                        .then(response => {
+                            if (response.status !== 200) {
+                                toastr.error("Kunne ikke laste innstillinger for online booking");
+                                throw new Error("Failed to get settings for online booking.", response);
+                            }
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("Settings", data);
+                            this.onlineBookingSettings = data;
+                        });
+                }
+            },
+            mounted() {
+                this.loadOnlineBookingSettings();
+            },
+            data: () => ({
+                audience: null,
+                focusedSchoolId: null,
+                focusedCountyId: null,
+                schoolFormModalVisible: false,
+                countyFormModalVisible: false,
+                testBookingModalVisible: false,
+                schoolAPIRepository: new SchoolAPIRepository(),
+                countyAPIRepository: new CountyAPIRepository(),
+                onlineBookingSettings: {
+                    title_format: "%Skolenavn% %StartTid% %SluttTid% %Dato%",
+                    offset: 0,
+                    offset_unit: "minutes",
+                    duration_amount: 30,
+                    duration_unit: "minutes",
+                    allowed_audiences: []
+                },
+            })
+        });
+        onlineBookingVueApp.mount('#onlineBookingVueApp');
+    })
+</script>
+
+{% endblock %}

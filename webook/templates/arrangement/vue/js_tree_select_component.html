@@ -1,0 +1,227 @@
+{% include "arrangement/vue/popover_component.html" %}
+
+
+<template id="vuec-js-tree-select-template">
+    <label v-if="showLabel">
+        <i :class="icon"></i>&nbsp;
+        [[ label ]]
+    </label>
+    <div class="mb-2 border rounded-4 p-2 ps-4 pe-4" v-if="usePopover">
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <label v-if="buttonPosition === 'right'">
+                [[selectedText]]
+            </label>
+            <div>
+                <div>
+                    <button class="btn wb-btn-secondary" @click="this.isExpanded = !this.isExpanded;" type="button" ref="trigger">
+                        [[buttonLabel]]
+                    </button>
+    
+                    <popover-component
+                        :is-visible="isExpanded"
+                        :excludes="[ triggerRef ]"
+                        @update:is-visible="(value) => isExpanded = value">
+    
+                        <h5>[[label]]</h5>
+    
+                        <input type="search" class="form-control mb-1" placeholder="Søk....">
+    
+                        <div ref="jsTreeEl">
+                        </div>
+    
+                    </popover-component>
+                </div>
+    
+                <label v-if="buttonPosition === 'left'">
+                    [[selectedText]]
+                </label>
+            </div>
+        </div>
+    </div>
+    <div v-else>
+        <input type="search" class="form-control mb-1" placeholder="Søk...." v-if="showSearch">
+
+        <div ref="jsTreeEl">
+        </div>
+    </div>
+
+</template>
+
+<script>
+    let TreeSelectComponent = {
+        components: {
+            PopoverComponent
+        },
+        props: {
+            buttonPosition: {
+                type: String,
+                default: "right"
+            },
+            isOpen: Boolean,
+            label: String,
+            buttonLabel: String,
+            icon: String,
+            jsonUrl: String,
+            modelValue: Number | String | Array | null,
+            usePopover: {
+                type: Boolean,
+                default: true
+            },
+            showLabel: {
+                type: Boolean,
+                default: true
+            },
+            showSearch: {
+                type: Boolean,
+                default: true
+            },
+            multiSelect: {
+                type: Boolean,
+                default: false
+            }
+        },
+        methods: {
+            getNode(id) {
+                return $(this.$refs.jsTreeEl).jstree(true).get_node(id);
+            },
+            async loadJson() {
+                let response = await fetch(this.jsonUrl);
+                let json = await response.json();
+                return json;
+            },
+            setSelected() {
+                if (this.modelValue && this.hasInit) {
+                    $(this.$refs.jsTreeEl).jstree('select_node', this.modelValue);
+
+                    let node = $(this.$refs.jsTreeEl).jstree(true).get_node(this.selected);
+                    this.selectedValues = { id: node.id, parent: node.parent, text: node.text };
+                }
+                else {
+                    this.selectedValues = { id: null, parent: null, text: null };
+                }
+            },
+            async initJsTree() {
+                this.$nextTick(async () => {
+                    await this.loadJson()
+                        .then(treeValidObj => {
+                            if ($.jstree == undefined) {
+                                // Happens occasionally - maybe one could solve this in a more elegant way
+                                console.log("jstree not loaded yet, retrying in 1 second");
+                                setTimeout(() => {
+                                    this.initJsTree();
+                                }, 1000);
+                                return;
+                            }
+
+                            $(this.$refs.jsTreeEl).jstree({
+                                'checkbox': {
+                                    "three_state": false,
+                                    "cascade": "up+undetermined",
+                                },
+                                'plugins': [ 'checkbox',  'search',], 
+                                'core': {
+                                    'data': treeValidObj,
+                                    'multiple': this.multiSelect,
+                                }
+                            });
+
+                            $(this.$refs.jsTreeEl).on('loaded.jstree', () => {
+                                this.hasInit = true;
+                                this.setSelected();
+                            });
+
+                            $(this.$refs.jsTreeEl).on('changed.jstree', (e, data) => {
+                                const selected = $(this.$refs.jsTreeEl).jstree("get_selected", true);
+
+                                let values = [];
+
+                                selected.forEach(node => {
+                                    if (node.parent !== "#") {
+                                        let parentNode = $(this.$refs.jsTreeEl).jstree(true).get_node(node.parent);
+                                        this.selectedValues.parent = parentNode.text;
+                                    }
+                                    else {
+                                        this.selectedValues.parent = null;
+                                    }
+
+                                    values.push({ id: node.id, text: node.text });
+                                });
+
+                                this.selectedValues = values;
+                                this.isExpanded = false;
+                                this.skipUpdate = true;
+                                this.$emit('update:modelValue', this.selectedValues.map(x => x.id));
+                            });
+                        });
+                });          
+            },
+            toggleVisibility() {
+                this.isExpanded = !this.isExpanded;
+            }
+        },
+        watch: {
+            selected: function (newVal, oldVal) {
+                if (this.skipUpdate) {
+                    this.skipUpdate = false;
+                    return;
+                }
+                this.setSelected();
+            },
+            modelValue: function (newVal, oldVal) {
+                if (this.skipUpdate) {
+                    this.skipUpdate = false;
+                    return;
+                }
+                this.setSelected();
+            }
+        },
+        emits: ['update:modelValue'],
+        computed: {
+            triggerRef() {
+                if (!this.isMounted) {
+                    return null;
+                }
+                return this.$refs.trigger;
+            },
+            selectedText() {
+                let text = this.selectedValues.text;
+
+                if (text === null) {
+                    text = "Velg " + this.label.toLowerCase();
+                }
+                else if (this.selectedValues.parent && this.selectedValues.parent !== "#") {
+                    const parentNode = this.getNode(this.selectedValues.parent);
+
+                    text = parentNode.text + " - " + text;
+                }
+
+                return text;
+            }
+        },
+        data() {
+            return {
+                isExpanded: false,
+                selectedValues: {
+                    id: null,
+                    text: null,
+                    parent: null,
+                },
+                hasInit: false,
+                isMounted: false,
+                skipUpdate: false,
+            }
+        },
+        mounted() {
+            this.isExpanded = this.isOpen || false;
+            this.selectedValues = this.modelValue || { id: null, text: null, parent: null };
+
+            this.$nextTick(async () => {
+                await this.initJsTree();
+                this.isMounted = true;
+            });
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec-js-tree-select-template"
+    }
+</script>

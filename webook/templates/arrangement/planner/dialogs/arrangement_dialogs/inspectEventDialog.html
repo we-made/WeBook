@@ -4,7 +4,6 @@
 
 <div id="{{dialogId}}"
     class="{{discriminator}}">
-
     <div class="clearfix">
         <div class="float-start">
             <h3 class="fw-bold">
@@ -120,6 +119,20 @@
                 >Opprigg & Nedrigg
             </a>
         </li>
+        {% if object.is_school_related %}
+        <li class="nav-item" role="presentation">
+            <a
+                class="nav-link"
+                id="ex1-tab-5"
+                data-mdb-toggle="tab"
+                href="#ex1-tabs-5"
+                role="tab"
+                aria-controls="ex1-tabs-5"
+                aria-selected="false"
+                >Skole
+            </a>
+        </li>
+        {% endif %}
     </ul>
 
     <div class="tab-content" id="ex1-content">
@@ -714,6 +727,79 @@
             </div>
             {% endif %}
         </div>
+
+        {% if object.is_school_related %}
+        <div class="tab-pane fade" id="ex1-tabs-5" role="tabpanel">
+            <div class="form-group">
+                <label for="countySelect">Fylke</label>
+                <select name="" id="countySelect" class="form-control">
+                    <option value="" disabled
+                        {% if object.school is None %}selected{% endif %}>
+                        Ingen valgt
+                    </option>
+
+                    {% for county in counties %}
+                        <option value="{{county.id}}"
+                            {% if object.county is not None and object.county.id == county.id %}selected{% endif %}>
+                            {{county.name}}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="schoolSelect">Skole</label>
+                <select name="" id="schoolSelect" class="form-control">
+                    <option value="" disabled
+                        {% if object.school is None %}selected{% endif %}>
+                        Ingen valgt
+                    </option>
+
+
+                    {% for school in schools %}
+                        <option value="{{school.id}}"
+                                {% if object.school is not None and object.school.id == school.id %}selected{% endif %}>
+                            {{school.name}}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="schoolAudienceSelect">Trinn / Gruppe</label>
+                <select name="" id="schoolAudienceSelect" class="form-control" value="">
+                    <option value="" disabled
+                        {% if object.booking_selected_audience is None %}selected{% endif %}>
+                        Ingen valgt
+                    </option>
+
+                    {% for audience in school_audiences %}
+                        <option value="{{audience.id}}"
+                                {% if object.booking_selected_audience is not None and object.booking_selected_audience.id == audience.id %}selected{% endif %}>
+                            {{audience.name}}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="citySegmentSelect">Bydel</label>
+                <select name="" id="citySegmentSelect" class="form-control">
+                    <option value="" disabled
+                        {% if object.city_segment is None %}selected{% endif %}>
+                        Ingen valgt
+                    </option>
+
+                    {% for city_segment in city_segments %}
+                        <option value="{{city_segment.id}}"
+                                {% if object.city_segment is not None and object.city_segment.id == city_segment.id %}selected{% endif %}>
+                            {{city_segment.name}}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     {% if user|has_group:"planners" or user.is_superuser %}
@@ -751,6 +837,36 @@
                 dialog.querySelectorAll("input,select").forEach( (inputElement) => inputElement.setAttribute("disabled", "") );
             {% endif %}
 
+            {% if object.is_school_related %}
+
+            dialog.getElementById("countySelect").addEventListener("change", (e) => {
+                fetch("/api/onlinebooking/school/list?county_id=" + e.target.value)
+                    .then(a => a.json())
+                    .then(a => {
+                        dialog.getElementById("schoolSelect").innerHTML = '';
+                        a.data.forEach( (school) => {
+                            let option = document.createElement("option");
+                            option.value = school.id;
+                            option.innerText = school.name;
+                            dialog.getElementById("schoolSelect").appendChild(option);
+                        });
+                    });
+                
+                fetch("/api/onlinebooking/city_segment/list?county_id=" + e.target.value)
+                    .then(a => a.json())
+                    .then(a => {
+                        dialog.getElementById("citySegmentSelect").innerHTML = '';
+                        a.data.forEach( (citySegment) => {
+                            let option = document.createElement("option");
+                            option.value = citySegment.id;
+                            option.innerText = citySegment.name;
+                            dialog.getElementById("citySegmentSelect").appendChild(option);
+                        });
+                    });
+            });
+
+            {% endif %}
+            
             dialog.querySelectorAll("a[data-mdb-toggle='tab']")
                 .forEach( (element) => {
                     element.addEventListener('click', (event) => {
@@ -1055,6 +1171,13 @@
                     display_text:           dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
                 };
 
+                {% if object.is_school_related %}
+                qualifiedEvent.county = dialog.getElementById("countySelect").value || "";
+                qualifiedEvent.school = dialog.getElementById("schoolSelect").value || "";
+                qualifiedEvent.booking_selected_audience = dialog.getElementById("schoolAudienceSelect").value || "";
+                qualifiedEvent.city_segment = dialog.getElementById("citySegmentSelect").value || "";
+                {% endif %}
+                
                 dialog.raiseSubmitEvent({
                     event: qualifiedEvent,
                     csrf_token: '{{ csrf_token }}',

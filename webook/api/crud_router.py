@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.constants import NOT_SET
 import pandas as pd
+from webook.api.dj_group_auth import SessionGroupAuth
+from webook.api.jwt_auth import JWTBearer
 from webook.api.paginate import paginate_queryset
 
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
@@ -151,6 +153,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         update_auth=None,
         get_auth=None,
         list_auth=None,
+        delete_auth=None,
         create_schema=None,
         update_schema=None,
         get_schema=None,
@@ -191,6 +194,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         self.update_auth = update_auth
         self.get_auth = get_auth
         self.list_auth = list_auth
+        self.delete_auth = None
 
         self.create_schema = create_schema 
         self.update_schema = update_schema
@@ -200,8 +204,9 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
         self.patch_schema = self.update_schema
         # make all fields optional in patch schema
-        for field in self.patch_schema.__annotations__.keys():
-            setattr(self.patch_schema, field, Optional[self.patch_schema.__annotations__[field]])
+        if self.patch_schema is not None:
+            for field in self.patch_schema.__annotations__.keys():
+                setattr(self.patch_schema, field, Optional[self.patch_schema.__annotations__[field]])
 
         self.pre_create_hook = pre_create_hook
         self.pre_update_hook = pre_update_hook
@@ -218,7 +223,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="/",
                 methods=["POST"],
-                auth=self.auth or NOT_SET,
+                auth=self.create_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_post_func(),
                 response=self.response_schema,
                 summary=f"Create {self.model_name_singular}",
@@ -231,7 +236,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="update",
                 methods=["PUT"],
-                auth=self.update_auth or self.auth or NOT_SET,
+                auth=self.update_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_put_func(),
                 response=OperationResultSchema[self.get_schema],
                 summary=f"Update {self.model_name_singular}",
@@ -243,7 +248,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="patch",
                 methods=["PATCH"],
-                auth=self.update_auth or self.auth or NOT_SET,
+                auth=self.update_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_put_func(),
                 response=OperationResultSchema[self.get_schema],
                 summary=f"Patch {self.model_name_singular}",
@@ -361,7 +366,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="delete",
                 methods=["DELETE"],
-                auth=self.auth or NOT_SET,
+                auth=self.delete_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_delete_func(),
                 response=OperationResultSchema,
                 summary=f"Delete {self.model_name_singular}",
@@ -444,12 +449,15 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             return instance
 
         post_func.__annotations__ = { "payload": self.create_schema, "response": self.model }
+        post_func.__name__ = f"create_{self.model_name_singular.lower()}"
 
         return post_func
 
     def get_retrieve_func(self):
         def retrieve_func(request, id: int) -> self.get_schema:
             return get_object_or_404(self.model, id=id)
+
+        retrieve_func.__name__ = f"get_{self.model_name_singular.lower()}"
 
         return retrieve_func
 
@@ -477,7 +485,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         return d
 
     def get_queryset(self):
-        return self.model.objects.all().defer(
+        manager = self.model.all_objects if hasattr(self.model, "all_objects") else self.model.objects
+        return manager.all().defer(
             *self._deferred_fields.keys()
         )        
 
@@ -557,7 +566,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                     prop_qs = qs.filter(id__in=[o.id for o in objects])
 
                 if normal_fields:
-                    qs = self.model.objects.filter(
+                    qs = qs.filter(
                         reduce(
                             lambda x, y: x | y,
                             [
@@ -594,6 +603,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
             return response
 
+        list_func.__name__ = f"list_{self.model_name_plural.lower()}"
+
         return list_func
 
     def get_put_func(self):
@@ -614,6 +625,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 message=f"{self.model_name_singular.lower()} updated successfully",
                 data=instance,
             )
+
+        update_func.__name__ = f"update_{self.model_name_singular.lower()}"
 
         return update_func
     
@@ -636,6 +649,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 data=instance,
             )
         
+        patch_func.__name__ = f"patch_{self.model_name_singular.lower()}"
+        
         return patch_func
 
     def get_delete_func(self):
@@ -655,5 +670,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 message=f"{self.model_name_singular.lower()} deleted successfully",
                 data=instance,
             )
+        
+        delete_func.__name__ = f"delete_{self.model_name_singular.lower()}"
 
         return delete_func

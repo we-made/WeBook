@@ -1,0 +1,223 @@
+{% include "arrangement/vue/modal_component.html" %}
+{% include "onlinebooking/county_select.html" %}
+{% include "onlinebooking/city_segment_select.html" %}
+
+<template id="vuec-school-edit-model">
+    <mdb-modal-component
+        @close="$emit('close')"
+        ref="modal"
+        :is-visible="isVisible"
+        :backdrop="backdrop"
+        title="Rediger skole">
+        
+        <template v-slot:modal-body>
+            <div class="form-group">
+                <label class="form-label">Navn</label>
+                <input type="text" class="form-control" v-model="form.name" ref="schoolNameInput">
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Fylke</label>
+                
+                <county-select-component v-model="form.county" :multiple="false" ref="countySelect">
+                </county-select-component>
+            </div>
+
+            <div class="form-group mt-2" v-if="isSegmentedCounty">
+                <label class="form-label">Bydel</label>
+                <city-segment-select-component v-model="form.citySegment" :county-id="countyId"  :multiple="false" ref="citySegmentSelect">
+                </city-segment-select-compoent>
+
+                <div class="alert alert-primary mt-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Om bydel ikke settes, vil brukere måtte velge en bydel ved booking.
+                </div>
+            </div>
+        </template>
+
+        <template v-slot:modal-footer>
+            <button class="btn wb-btn-secondary" @click="close()">
+                Avbryt
+            </button>
+            <button class="btn wb-btn-main" v-if="this.schoolId === null" @click="save(false)">
+                Lagre, og ny
+            </button>
+            <button class="btn wb-btn-main" @click="save(true)">
+                Lagre
+            </button>
+        </template>
+
+    </mdb-modal-component>
+</template>
+
+<script>
+    const SchoolEditModalComponent = {
+        template: '#vuec-school-edit-model',
+        delimiters: ['[[', ']]'],
+        components: {
+            MdbModalComponent,
+            CountySelectComponent,
+            CitySegmentSelectComponent
+        },
+        methods: {
+            close: function () {
+                this.$refs.modal.hide();
+            },
+            save: async function (closeAfterwards = false) {
+                const isValid = validateFormState(this.validationState, (nodeRefName) => this.$refs[nodeRefName]);
+                if (!isValid) {
+                    return;
+                }
+
+                const isCreate = this.schoolId === null;
+                const url = isCreate ? "/api/onlinebooking/school/" : "/api/onlinebooking/school/update?id=" + this.schoolId;
+
+                const response = await fetch(url, {
+                    method: isCreate ? "POST" : "PUT",
+                    body: JSON.stringify({
+                        name: this.form.name,
+                        countyId: this.countyId,
+                        citySegmentId: this.citySegmentId,
+                    }),
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                }); 
+
+                if (response.status === 200 || response.status === 201) {
+                    toastr.success("Skolen ble lagret");
+
+                    this.$emit('has-changed');
+
+                    this.form.name = null;
+                    this.form.county = [];
+                    this.form.citySegment = [];
+
+                    if (closeAfterwards || !isCreate) {
+                        this.$refs.modal.hide();
+                    }
+                }
+                else {
+                    toastr.error("Noe gikk galt under lagringen av skolen");
+                    console.error("Failed to save school", response);
+                }
+            },
+            async loadSettings() {
+                await fetch("/api/onlinebooking/online_booking/settings")
+                    .then(response => response.json())
+                    .then(data => {
+                        this.settings = data;
+                    });
+            },
+            async loadSchool() {
+                if (this.schoolId === null) {
+                    this.form.name = null;
+                    this.form.county = this.preSelectedCountyId ? [ this.preSelectedCountyId ] : [];
+                    this.form.citySegment = null;
+                }
+                else {
+                    await fetch("/api/onlinebooking/school/get?id=" + this.schoolId)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("school", data);
+                            this.form.name = data.name;
+                            this.form.county = [data.county.id];
+                            this.form.citySegment = data.citySegment ? [ data.citySegment.id ] : [];
+                        });
+                }
+            }
+        },
+        data: function () {
+            return {
+                dropdownParent: null,
+                county: [],
+                settings: null,
+                form: {
+                    name: null,
+                    county: [],
+                    citySegment: null
+                }
+            }
+        },
+        emits: ['close', 'has-changed'],
+        watch: {
+            schoolId: async function (newValue) {
+                await this.loadSchool();
+            },
+            isVisible: async function (newValue) {
+                if (newValue) {
+                    await this.loadSchool();
+                    await this.loadSettings();
+                }
+            }
+        },
+        computed: {
+            isSegmentedCounty: function () {
+                if (this.form.county.length > 0) {
+                    return !!this.$refs.countySelect.countiesLookup[parseInt(this.form.county[0])].citySegmentEnabled;
+                }
+
+                return false;
+            },
+            countyId: function () {
+                if (this.form.county.length > 0) {
+                    return parseInt(this.form.county[0]);
+                }
+
+                return null;
+            },
+            citySegmentId: function () {
+                if (this.form.citySegment) {
+                    return parseInt(this.form.citySegment);
+                }
+
+                return null;
+            },
+            validationState: function () {
+                return {
+                    schoolName: {
+                        considerIf: true,
+                        valid: this.form.name && this.form.name.length > 0,
+                        messageIfInvalid: "Skolen må være navngitt.",
+                        inputNodeRefName: "schoolNameInput"
+                    },
+                    county: {
+                        considerIf: true,
+                        valid: this.form.county && this.form.county.length > 0,
+                        messageIfInvalid: "Du må velge et fylke.",
+                        inputNodeRefName: "countySelect"
+                    },
+                    citySegment: {
+                        considerIf: this.isSegmentedCounty,
+                        valid: this.form.citySegment && this.form.citySegment.length > 0,
+                        messageIfInvalid: "Fylket du har valgt er konfigurert til å bruke bydeler. Vennligst velg en.",
+                        inputNodeRefName: "citySegmentSelect",
+                    },
+                }
+            },
+        },
+        props: {
+            schoolId: {
+                title: 'School ID',
+                type: Number,
+                default: null
+            },
+            preSelectedCountyId: {
+                title: 'Pre-selected County ID',
+                type: Number,
+                default: null
+            },
+            isVisible: {
+                title: 'Visible',
+                type: Boolean,
+                default: false
+            },
+            backdrop: {
+                title: 'Backdrop',
+                type: Boolean,
+                default: true
+            },
+        },
+    }
+</script>

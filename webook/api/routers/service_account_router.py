@@ -79,13 +79,17 @@ def get_endpoint_choices(request):
     return list(APIEndpoint.objects.values_list("operation_id", flat=True))
 
 
-@service_account_router.get("/{service_account_id}", response=ServiceAccountSchema)
+@service_account_router.get(
+    "/{service_account_id}", response=ServiceAccountSchema, auth=django_auth_superuser
+)
 def get_service_account(request, service_account_id: int):
     return get_object_or_404(ServiceAccount, pk=service_account_id)
 
 
 @service_account_router.put(
-    "update/{service_account_id}", response=ServiceAccountSchema
+    "update/{service_account_id}",
+    response=ServiceAccountSchema,
+    auth=django_auth_superuser,
 )
 def update_service_account(
     request, service_account_id: int, payload: UpdateServiceAccountSchema

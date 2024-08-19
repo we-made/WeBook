@@ -1,0 +1,86 @@
+{% extends "common/meta_base.html" %}
+{% load static i18n %}
+{% load custom_tags %}
+
+{% block section_title %}
+{% endblock %}
+{% block section_subtitle %}
+    Online Booking
+{% endblock %}
+{% block section_crumb_url %}
+    
+{% endblock %}
+{% block section_icon_class %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block section_crumb_icon %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block container_classes %}
+container
+{% endblock %}
+
+
+{% block content %}
+{% endblock %}
+
+{% block extrascripts %}
+
+<script src="/static/js/apiRepositories.js"></script>
+
+<script>
+    function validateFormState(formStateObj, refGetter) {
+        let anyInvalid = false;
+        for (const key in formStateObj) {
+            const state = formStateObj[key];
+
+            if (!state.considerIf)
+                continue;
+
+            let inputNode = refGetter(state.inputNodeRefName);
+
+            if (inputNode === undefined || inputNode === null) {
+                console.error("Input node not found", state.inputNodeRefName);
+                anyInvalid = true;
+                continue;
+            }
+
+            if (inputNode instanceof HTMLElement === false) {
+                inputNode = inputNode.$el;
+            }
+            
+            if (state.valid) {
+                inputNode.classList.remove("is-invalid");
+                inputNode.classList.add("is-valid");
+
+                const messageP = inputNode.parentNode.querySelector("p.text-danger");
+                if (messageP) {
+                    messageP.remove();
+                }
+            }
+            else {
+                if (inputNode.classList.contains("is-invalid")) {
+                    anyInvalid = true;
+                    continue;
+                }
+
+                inputNode.classList.add("is-invalid");
+
+                const messageP = document.createElement("p");
+                messageP.classList.add("text-danger");
+                messageP.innerText = state.messageIfInvalid;
+                inputNode.parentNode.appendChild(messageP);
+                anyInvalid = true;
+            }
+        }
+
+        if (anyInvalid) {
+            toastr.error("Skjemaet inneholder feil. Vennligst fyll ut alle feltene korrekt.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,205 @@
+{% include "arrangement/vue/modal_component.html" %}
+
+<template id="vuec-county-edit-modal">
+    <mdb-modal-component
+        @close="$emit('close')"
+        ref="modal"
+        :is-visible="isVisible"
+        :backdrop="backdrop"
+        title="Rediger fylke">
+
+        <template v-slot:modal-body>
+            
+            <div class="form-group">
+                <label>Fylkesnummer</label>
+                <input type="number" class="form-control" v-model="form.countyNumber" ref="countyNumberInput" />
+            </div>
+
+            <div class="form-group mt-2">
+                <label>Navn</label>
+                <input type="text" class="form-control" v-model="form.name" ref="countyNameInput">
+            </div>
+
+            <div class="form-group mt-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="isSegmentEnabledSwitch" v-model="form.citySegmentEnabled" />
+                    <label class="form-check-label" for="isSegmentEnabledSwitch">
+                        Bydeler skal settes på skoler i dette fylket
+                    </label>
+                </div>
+
+                <div class="alert alert-light wb-bg-secondary mt-2">
+                    <i class="fas fa-exclamation-triangle d-block"></i>
+                    Om man velger å inkludere bydeler for skoler i dette fylket vil man få mulighet til å definere bydeler i fylket,
+                    og kunne annotere skole med bydel. Informasjon ved booking vil da måtte inkludere bydel. Om en bydel ikke er satt på en skole
+                    så vil brukeren få mulighet til å skrive inn fritekst. Om en bydel er satt vil den bli automatisk valgt. Foretrekk å sette bydel på skolene.
+                </div>
+            </div>
+
+            <div class="form-group mt-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="isSchoolEnabledSwitch" v-model="form.schoolEnabled" />
+                    <label class="form-check-label" for="isSchoolEnabledSwitch">
+                        Skoler skal registreres og velges når besøkende booker
+                    </label>
+                </div>
+
+                <div class="alert alert-light wb-bg-secondary mt-2">
+                    <i class="fas fa-exclamation-triangle d-block"></i>
+                    Huk av om skoler i dette fylket skal:
+
+                    <ul>
+                        <li>Registreres i systemet</li>
+                        <li>Velges av besøkende når de booker</li>
+                    </ul>
+
+                    Om dette ikke er huket av vil man ikke kunne registrere skoler i dette fylket, og besøkende vil ikke bli bedt om å oppgi
+                    hvilken skole de kommer fra.
+                </div>
+            </div>
+
+        </template>
+
+        <template v-slot:modal-footer>
+            <button class="btn wb-btn-secondary" @click="close()">
+                Avbryt
+            </button>
+            <button class="btn wb-btn-main" @click="save()">
+                Lagre
+            </button>
+        </template>
+
+    </mdb-modal-component> 
+</template>
+
+<script>
+    const CountyEditModalComponent = {
+        template: '#vuec-county-edit-modal',
+        delimiters: ['[[', ']]'],
+        components: {
+            MdbModalComponent
+        },
+        data: function () {
+            return {
+                form: {
+                    name: '',
+                    citySegmentEnabled: false,
+                    schoolEnabled: false,
+                }
+            }
+        },
+        watch: {
+            isVisible: function (val) {
+                if (val && this.countyId !== null) {
+                    this.loadCounty();
+                }
+            },
+            countyId: async function (val) {
+                await this.loadCounty();
+            }
+        },
+        computed: {
+            validationState: async function () {
+                let state = {
+                    countyNumberInput: {
+                        considerIf: true,
+                        valid: this.form.countyNumber && this.form.countyNumber > 0,
+                        messageIfInvalid: "Fylkesnummer må være satt.",
+                        inputNodeRefName: "countyNumberInput"
+                    },
+                    countyNameInput: {
+                        considerIf: true,
+                        valid: this.form.name && this.form.name.length > 0,
+                        messageIfInvalid: "Fylket må være navngitt.",
+                        inputNodeRefName: "countyNameInput"
+                    },
+                }
+
+                if (state.countyNumberInput.valid && this.countyId === null) {
+                    await fetch("/api/onlinebooking/county/number/" + this.form.countyNumber)
+                        .then(response => {
+                            if (response.status === 200) {
+                                state.countyNumberInput.valid = false;
+                                state.countyNumberInput.messageIfInvalid = "Fylkesnummeret er allerede i bruk.";
+                            }
+                        });
+                }
+
+                return state;
+            },
+        },
+        props: {
+            isVisible: {
+                title: 'Visible',
+                type: Boolean,
+                default: false
+            },
+            backdrop: {
+                title: 'Backdrop',
+                type: Boolean,
+                default: true
+            },
+            countyId: {
+                title: 'County ID',
+                type: Number,
+                default: null
+            }
+        },
+        methods: {
+            async loadCounty() {
+                if (this.countyId === null) {
+                    this.form.name = '';
+                    this.form.citySegmentEnabled = false;
+                }
+                else {
+                    await fetch("/api/onlinebooking/county/get?id=" + this.countyId)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.form.name = data.name;
+                            this.form.citySegmentEnabled = data.citySegmentEnabled;
+                            this.form.countyNumber = data.countyNumber;
+                            this.form.schoolEnabled = data.schoolEnabled;
+                        });
+                }
+            },
+            close: function () {
+                this.$emit('close');
+            },
+            save: async function () {
+                const isValid = validateFormState(await this.validationState, (nodeRefName) => this.$refs[nodeRefName]);
+                if (!isValid) {
+                    return;
+                }
+
+                const isCreate = this.countyId === null;
+                const url = isCreate ? '/api/onlinebooking/county/' : '/api/onlinebooking/county/update?id=' + this.countyId;
+
+                const response = await fetch(url, {
+                    method: isCreate ? 'POST' : 'PUT',
+                    body: JSON.stringify(this.form),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
+
+                if (response.status === 200 || response.status === 201) {
+                    toastr.success('Fylket ble lagret');
+
+                    this.$emit('has-changed');
+
+                    this.form.name = '';
+                    this.form.citySegmentEnabled = false;
+                    this.form.countyNumber = null;
+
+                    this.$refs.modal.hide();
+                }
+                else {
+                    toastr.error('Noe gikk galt under lagring av fylke');
+                    console.error("Failed to save county", response);
+                }
+            }
+        },
+        emits: ['close', 'has-changed']
+    }
+</script>
