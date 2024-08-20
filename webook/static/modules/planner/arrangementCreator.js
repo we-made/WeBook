@@ -131,6 +131,8 @@ export class ArrangementCreator {
                                 }
 
                                 [
+                                    { from: '#countySelect', to: '#countySelect' },
+                                    { from: '#schoolSelect', to: '#initialSchoolValue' },
                                     { from: '#id_ticket_code', to: '#serie_ticket_code' },
                                     { from: '#id_name', to: '#serie_title' },
                                     { from: '#id_name_en', to: '#serie_title_en' },
@@ -334,6 +336,8 @@ export class ArrangementCreator {
                                 }
 
                                 [
+                                    { from: '#countySelect', to: '#countySelect' },
+                                    { from: '#schoolSelect', to: '#initialSchoolValue' },
                                     { from: '#id_ticket_code', to: '#ticket_code' },
                                     { from: '#id_name', to: '#title' },
                                     { from: '#id_name_en', to: '#title_en' },
@@ -345,6 +349,7 @@ export class ArrangementCreator {
                                     { from: '#_arrangementTypeId', to: '#_backingArrangementTypeId'},
                                     { from: '#_statusTypeId', to: '#_statusTypeId' },
                                 ].forEach( (mapping) => { 
+                                    console.log(mapping, $mainDialog.find( mapping.from )[0].value);
                                     $simpleActivityDialog.find( mapping.to ).val( $mainDialog.find( mapping.from )[0].value );
                                 });
 

@@ -1777,7 +1777,7 @@ class RequisitionRecord(TimeStampedModel, ModelArchiveableMixin):
             return self.service_requisition
 
 
-class PlanManifest(TimeStampedModel, BufferFieldsMixin):
+class PlanManifest(TimeStampedModel, BufferFieldsMixin, CalendarEntitySchoolMixin):
     """A time manifest is a manifest of the timeplan generation"""
 
     # Internal UUID used in the creation process to produce hashes of events in the serie

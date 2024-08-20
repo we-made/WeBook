@@ -17,6 +17,7 @@ from webook.arrangement.models import (
     Room,
     StatusType,
 )
+from webook.onlinebooking.models import County, School
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
@@ -89,6 +90,9 @@ class SerieManifestForm(forms.Form):
     after_buffer_start = forms.TimeField(required=False)
     after_buffer_end = forms.TimeField(required=False)
 
+    county = forms.ModelChoiceField(queryset=County.objects.all(), required=False)
+    school = forms.ModelChoiceField(queryset=School.objects.all(), required=False)
+
     def as_plan_manifest(self):
         """Convert the SerieManifestForm to a valid PlanManifest"""
         plan_manifest = PlanManifest()
@@ -105,6 +109,9 @@ class SerieManifestForm(forms.Form):
         plan_manifest.expected_visitors = self.cleaned_data["expectedVisitors"]
         plan_manifest.title = self.cleaned_data["title"]
         plan_manifest.title_en = self.cleaned_data["title_en"]
+
+        plan_manifest.county = self.cleaned_data["county"]
+        plan_manifest.school = self.cleaned_data["school"]
 
         plan_manifest.collision_resolution_behaviour = (
             self.cleaned_data["collision_resolution_behaviour"]
@@ -242,6 +249,10 @@ class CreateSerieForm(SerieManifestForm):
             event.serie = serie
             event.start = ev.start
             event.end = ev.end
+
+            if manifest.is_school_related:
+                event.county = manifest.county
+                event.school = manifest.school
 
             event.status = manifest.status
             event.audience = manifest.audience

@@ -3,6 +3,7 @@
 
 <div id="{{dialogId}}" class="{{discriminator}}" >
 
+    <input type="hidden" name="_backingCountyId" />
     <input type="hidden" id="_backingAudienceId" />
     <input type="hidden" id="_backingArrangementTypeId" />
     <input type="hidden" id="_statusTypeId" />
@@ -57,6 +58,31 @@
                         {{ form.audience.errors }}
                     </div>
                     {% endif %}
+
+                    <div id="school_options" style="display: none;">
+                        <div class="form-group mt-2">
+                            <label>
+                                Fylke
+                            </label>
+                            <select name="" id="countySelect" class="form-control">
+                                <option value="">Velg fylke</option>
+                                {% for county in counties %}
+                                    <option value="{{county.id}}">{{county.name}}</option>
+                                {% endfor %}
+                            </select>    
+                        </div>
+
+                        <div class="form-group mt-2">
+                            <label>
+                                Skole
+                            </label>
+
+                            <input type="hidden" name="" id="initialSchoolValue">
+                            <select name="" id="schoolSelect" class="form-control">
+                                <option value="">Velg skole</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group mb-2">
@@ -382,10 +408,73 @@
                 dialog.interior.buffer_after_date.value = e.target.value;
             });
 
+            dialog.data.schoolAudiences = new Map([
+                {% for audience in schoolAudiences %}
+                    [{{audience.id}}, { id: {{audience.id}}, text: "{{audience.name}}" }],
+                {% endfor %}
+            ]);
+
+            dialog.data.countyOptions = [
+                {% for county in counties %}
+                    {
+                        id: {{county.id}},
+                        text: "{{county.name}}",
+                        schools: [
+                            {% for school in county.schools %}
+                                {
+                                    id: {{school.id}},
+                                    text: "{{school}}",
+                                    parent: {{school.parent_id|default:0}},
+                                },
+                            {% endfor %}
+                        ],
+                    },
+                {% endfor %}
+            ];
+
+            dialog.data.onCountyChange = function () {
+
+                const selectedCountyId = dialog.getElementById("countySelect").value;
+                const schoolSelect = dialog.getElementById("schoolSelect");
+                schoolSelect.innerHTML = "<option value=''>Velg skole</option>";
+
+                dialog.data.countyOptions.forEach((county) => {
+                    if (county.id == selectedCountyId) {
+                        county.schools.forEach((school) => {
+                            const option = document.createElement("option");
+                            option.value = school.id;
+                            option.text = school.text;
+                            schoolSelect.add(option);
+                        });
+
+                        const initialValue = dialog.getElementById("initialSchoolValue").value;
+                        if (initialValue) {
+                            schoolSelect.value = initialValue;
+                        }
+                    }
+                });
+            }
+
+            dialog.getElementById("countySelect").addEventListener("change", () => {
+                dialog.data.onCountyChange();
+            });
+
+            if (dialog.getElementById("countySelect").value) {
+                dialog.data.onCountyChange();
+            }
+
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
                 initialSelected: dialog.getElementById('_backingAudienceId').value ? { id: dialog.getElementById('_backingAudienceId').value } : undefined,
+                onValueSet: ( data ) => {
+                    if (dialog.data.schoolAudiences.get(parseInt(data.selected[0])) !== undefined) {
+                        dialog.getElementById('school_options').style.display = "block";
+                    }
+                    else {
+                        dialog.getElementById('school_options').style.display = "none";
+                    }
+                },
                 valueSelectedLabelText: ( selected ) => {
                     let labelText = '';
 
@@ -622,6 +711,9 @@
                     start_before_collision_resolution: dialog.interior.start_before_collision_resolution.value,
                     end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
                     title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
+
+                    school:                    dialog.getElementById("schoolSelect").value || "",
+                    county:                   dialog.getElementById("countySelect").value || "",
                 };
 
                 let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
@@ -753,6 +845,17 @@
                 dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                 dialog.getElementById('mainPlannerName').innerText = person.text;
                 dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";
+            } },
+            { eventKnownAs: "setCountyFromParent", do: (dialog, payload) => {
+                console.log("Setting county from parent", payload);
+                dialog.$('#countySelect').val(payload);
+                // dialog.$('#countySelect').trigger('change');
+                if (dialog.data.onCountyChange)
+                    dialog.data.onCountyChange();
+            } },
+            { eventKnownAs: "setSchoolFromParent", do: (dialog, payload) => {
+                console.log("Setting school from parent", payload);
+                dialog.$('#schoolSelect').val(payload);
             } },
             { eventKnownAs: "setAudienceFromParent", do: (dialog, payload) => {
                 if (dialog.data.audienceJsTreeSelect)

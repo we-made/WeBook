@@ -280,6 +280,8 @@ export class ArrangementInspector {
 
                             let $newTimePlanDialog = this.dialogManager.$getDialogElement("newTimePlanDialog");
                             [
+                                { targetSelector: '#countySelect', value: info.county },
+                                { targetSelector: '#initialSchoolValue', value: info.school },
                                 { targetSelector: '#serie_title', value: info.title },
                                 { targetSelector: '#serie_title_en', value: info.title_en },
                                 { targetSelector: '#serie_ticket_code', value: info.ticket_code },
@@ -300,6 +302,8 @@ export class ArrangementInspector {
                             window.MessagesFacility.send("newTimePlanDialog", info.audience_id, "setAudienceFromParent");
                             window.MessagesFacility.send("newTimePlanDialog", info.status_id, "setStatusFromParent");
                             window.MessagesFacility.send("newTimePlanDialog", info.responsible, "setPlanner");
+                            window.MessagesFacility.send("newTimePlanDialog", info.school, "setSchoolFromParent");
+                            window.MessagesFacility.send("newTimePlanDialog", info.county, "setCountyFromParent");
 
                             info.display_layouts.forEach(display_layout => {
                                 $newTimePlanDialog.find('#id_display_layouts_serie_planner_' + ( display_layout - 1))
@@ -488,6 +492,8 @@ export class ArrangementInspector {
                             let $newSimpleActivityDialog = this.dialogManager.$getDialogElement("newSimpleActivityDialog");
 
                             [
+                                { targetSelector: '#countySelect', value: info.county },
+                                { targetSelector: '#initialSchoolValue', value: info.school },
                                 { targetSelector: '#title', value: info.title },
                                 { targetSelector: '#title_en', value: info.title_en },
                                 { targetSelector: '#ticket_code', value: info.ticket_code },
@@ -500,6 +506,7 @@ export class ArrangementInspector {
                                 { targetSelector: '#_statusTypeId', value: info.status_id },
                                 { targetSelector: '#_backingAudienceId', value: info.audience_id },
                                 { targetSelector: '#_backingArrangementTypeId', value: info.arrangement_type_id },
+
                             ].forEach( (mapping) => {
                                 $newSimpleActivityDialog.find( mapping.targetSelector ).val( mapping.value );
                             } );
@@ -507,7 +514,9 @@ export class ArrangementInspector {
                             window.MessagesFacility.send(dialogId, info.arrangement_type_id, "setArrangementTypeFromParent")
                             window.MessagesFacility.send(dialogId, info.audience_id, "setAudienceFromParent");
                             window.MessagesFacility.send(dialogId, info.status_id, "setStatusFromParent");
-                            window.MessagesFacility.send(dialogId, info.responsible, "setPlanner")
+                            window.MessagesFacility.send(dialogId, info.responsible, "setPlanner");
+                            window.MessagesFacility.send(dialogId, info.county, "setCountyFromParent");
+                            window.MessagesFacility.send(dialogId, info.school, "setSchoolFromParent");
 
                             info.display_layouts.forEach(display_layout => {
                                 $newSimpleActivityDialog.find('#' + display_layout + "_dlcheck")
