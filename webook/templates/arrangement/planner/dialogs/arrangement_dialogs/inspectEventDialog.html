@@ -759,41 +759,7 @@
                     {% for school in schools %}
                         <option value="{{school.id}}"
                                 {% if object.school is not None and object.school.id == school.id %}selected{% endif %}>
-                            {{school.name}}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group mt-2">
-                <label for="schoolAudienceSelect">Trinn / Gruppe</label>
-                <select name="" id="schoolAudienceSelect" class="form-control" value="">
-                    <option value="" disabled
-                        {% if object.booking_selected_audience is None %}selected{% endif %}>
-                        Ingen valgt
-                    </option>
-
-                    {% for audience in school_audiences %}
-                        <option value="{{audience.id}}"
-                                {% if object.booking_selected_audience is not None and object.booking_selected_audience.id == audience.id %}selected{% endif %}>
-                            {{audience.name}}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group mt-2">
-                <label for="citySegmentSelect">Bydel</label>
-                <select name="" id="citySegmentSelect" class="form-control">
-                    <option value="" disabled
-                        {% if object.city_segment is None %}selected{% endif %}>
-                        Ingen valgt
-                    </option>
-
-                    {% for city_segment in city_segments %}
-                        <option value="{{city_segment.id}}"
-                                {% if object.city_segment is not None and object.city_segment.id == city_segment.id %}selected{% endif %}>
-                            {{city_segment.name}}
+                            {{school.name}} {% if school.city_segment %} - {{school.city_segment.name}} {% endif %}
                         </option>
                     {% endfor %}
                 </select>
@@ -838,29 +804,27 @@
             {% endif %}
 
             {% if object.is_school_related %}
-
             dialog.getElementById("countySelect").addEventListener("change", (e) => {
-                fetch("/api/onlinebooking/school/list?county_id=" + e.target.value)
-                    .then(a => a.json())
-                    .then(a => {
-                        dialog.getElementById("schoolSelect").innerHTML = '';
-                        a.data.forEach( (school) => {
-                            let option = document.createElement("option");
-                            option.value = school.id;
-                            option.innerText = school.name;
-                            dialog.getElementById("schoolSelect").appendChild(option);
-                        });
-                    });
-                
                 fetch("/api/onlinebooking/city_segment/list?county_id=" + e.target.value)
                     .then(a => a.json())
                     .then(a => {
-                        dialog.getElementById("citySegmentSelect").innerHTML = '';
-                        a.data.forEach( (citySegment) => {
-                            let option = document.createElement("option");
-                            option.value = citySegment.id;
-                            option.innerText = citySegment.name;
-                            dialog.getElementById("citySegmentSelect").appendChild(option);
+                        dialog.data.citySegmentMap = new Map(
+                            a.data.map( (citySegment) => [citySegment.id, citySegment] )
+                        );
+                    }).then( () => {
+                        fetch("/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name")
+                        .then(a => a.json())
+                        .then(a => {
+                            dialog.getElementById("schoolSelect").innerHTML = '';
+                            a.data.forEach( (school) => {
+                                let option = document.createElement("option");
+                                option.value = school.id;
+                                option.innerText = school.name;
+                                if (school.citySegmentId)
+                                    option.innerText += " - " + dialog.data.citySegmentMap.get(school.citySegmentId).name;
+
+                                dialog.getElementById("schoolSelect").appendChild(option);
+                            });
                         });
                     });
             });
@@ -1174,8 +1138,8 @@
                 {% if object.is_school_related %}
                 qualifiedEvent.county = dialog.getElementById("countySelect").value || "";
                 qualifiedEvent.school = dialog.getElementById("schoolSelect").value || "";
-                qualifiedEvent.booking_selected_audience = dialog.getElementById("schoolAudienceSelect").value || "";
-                qualifiedEvent.city_segment = dialog.getElementById("citySegmentSelect").value || "";
+                // qualifiedEvent.booking_selected_audience = dialog.getElementById("schoolAudienceSelect").value || "";
+                // qualifiedEvent.city_segment = dialog.getElementById("citySegmentSelect").value || "";
                 {% endif %}
                 
                 dialog.raiseSubmitEvent({
