@@ -374,10 +374,12 @@ class EventSerieManifestView(
             "meeting_place_en": manifest.meeting_place_en,
             "status": manifest.status.pk if manifest.status else None,
             "audience": manifest.audience.pk if manifest.audience else None,
-            "arrangement_type": manifest.arrangement_type.pk
-            if manifest.arrangement_type
-            else None,
+            "arrangement_type": (
+                manifest.arrangement_type.pk if manifest.arrangement_type else None
+            ),
             "responsible": responsible,
+            "county": manifest.county.pk if manifest.county else None,
+            "school": manifest.school.pk if manifest.school else None,
         }
 
 

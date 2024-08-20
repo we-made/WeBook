@@ -6,6 +6,8 @@ export function PopulateCreateSerieDialogFromSerie(serie, $dialogElement, dialog
     }
 
     [
+        { target: '#countySelect', value: serie.time.county },
+        { target: '#initialSchoolValue', value: serie.time.school },
         { target: '#serie_uuid', value: serie._uuid },
         { target: '#serie_title', value: serie.time.title },
         { target: '#serie_title_en', value: serie.time.title_en },
@@ -174,11 +176,15 @@ export function PopulateCreateSerieDialogFromManifest(manifest, serie_uuid, $dia
         { to: '#buffer_after_date_offset', value: manifest.after_buffer_date_offset },
         { to: '#buffer_after_start', value: manifest.after_buffer_start },
         { to: '#buffer_after_end', value: manifest.after_buffer_end },
+        { to: "#countySelect", value: manifest.county },
+        { to: "#initialSchoolValue", value: manifest.school },
     ].forEach( (mapping) => { $dialogElement.find(mapping.to).val(mapping.value ).trigger('change'); } );
 
     console.log("MANIFEST!", manifest)
 
     window.MessagesFacility.send(dialogId, manifest.audience, "setAudienceFromParent");
+    window.MessagesFacility.send(dialogId, manifest.county, "setCountyFromParent");
+    window.MessagesFacility.send(dialogId, manifest.school, "setSchoolFromParent");
     window.MessagesFacility.send(dialogId, manifest.arrangement_type, "setArrangementTypeFromParent");
     window.MessagesFacility.send(dialogId, manifest.status, "setStatusFromParent");
 
@@ -369,6 +375,8 @@ export function PopulateCreateEventDialog(event, $dialogElement, dialogId) {
     let [toDate, toTime]        = parseDateOrStringToArtifacts(event.end);
 
     [
+        { target: '#countySelect', value: event.county },
+        { target: '#initialSchoolValue', value: event.school },
         { target: "#event_uuid", value: event._uuid },
         { target: "#title", value: event.title },
         { target: "#title_en", value: event.title_en },

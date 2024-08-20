@@ -141,7 +141,10 @@ class School(TimeStampedModel, ArchiveableMixin):
             booking.archive(person_archiving_this)
 
     def __str__(self):
-        return self.name
+        name = self.name
+        if self.city_segment:
+            name += f" - {self.city_segment.name}"
+        return name.replace("\n", "")
 
 
 class County(TimeStampedModel, ArchiveableMixin):
