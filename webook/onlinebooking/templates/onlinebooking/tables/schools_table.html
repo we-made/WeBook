@@ -60,6 +60,21 @@
                 this.$refs.schoolsTable.refresh();
             }
         },
+        mounted: async function () {
+            let counties = await fetch('/api/onlinebooking/county/list')
+                    .then(response => response.json())
+                    .then(data => {
+                        return data;
+                    });
+            this.countiesMap = new Map(counties.data.map(county => [county.id, county]));
+
+            let citySegments = await fetch('/api/onlinebooking/city_segment/list')
+                .then(response => response.json())
+                .then(data => {
+                    return data;
+                });
+            this.citySegmentsMap = new Map(citySegments.data.map(citySegment => [citySegment.id, citySegment]));
+        },
         computed: {
             dataSource: function () {
                 const builder = new URLSearchParams();
@@ -72,7 +87,7 @@
                 if (this.showArchivedSchools) {
                     builder.append('include_archived', true);
                 }
-                
+
                 const url = `/api/onlinebooking/school/list?` + builder.toString();
 
                 let columnsDefinition = {
@@ -92,7 +107,8 @@
                         isHtml: true,
                         isSearchable: false,
                         formatter: (obj, value) => {
-                            return obj.county?.name || "Ingen";
+                            console.log("countiesMap", this.countiesMap);
+                            return this.countiesMap.get(obj.countyId)?.name || "Ingen";
                         }
                     },
                     "segment": {
@@ -103,7 +119,7 @@
                         isHtml: true,
                         isSearchable: false,
                         formatter: (obj, value) => {
-                            return obj.citySegment?.name || "";
+                            return this.citySegmentsMap.get(obj.citySegmentId)?.name || "Ingen";
                         }
                     },
                 }
@@ -168,7 +184,9 @@
                 schoolAPIRepository: new SchoolAPIRepository(),
                 schoolEditModalVisible: false,
                 schoolEditModalSchoolId: null,
-                showArchivedSchools: false
+                showArchivedSchools: false,
+                countiesMap: new Map(),
+                citySegmentsMap: new Map(),
             }
         },
     }
