@@ -520,12 +520,14 @@ class PlannerEventInspectorDialogView(LoginRequiredMixin, DialogView, UpdateView
             context["school_audiences"] = (
                 OnlineBookingSettings.objects.first().allowed_audiences.all()
             )
-            context["counties"] = County.objects.all()
+            context["counties"] = County.objects.all().order_by("name")
             context["city_segments"] = (
-                obj.county.city_segments.all() if obj.county else []
+                obj.county.city_segments.all().order_by("name") if obj.county else []
             )
             context["schools"] = (
-                obj.county.schools_in_county.all() if obj.county else []
+                obj.county.schools_in_county.all().order_by("name")
+                if obj.county
+                else []
             )
 
         return context
@@ -577,14 +579,14 @@ class PlannerArrangementInformationDialogView(
             context["school_audiences"] = (
                 OnlineBookingSettings.objects.first().allowed_audiences.all()
             )
-            context["counties"] = County.objects.all()
+            context["counties"] = County.objects.all().order_by("name")
             context["city_segments"] = (
-                arrangement_in_focus.county.city_segments.all()
+                arrangement_in_focus.county.city_segments.all().order_by("name")
                 if arrangement_in_focus.county
                 else []
             )
             context["schools"] = (
-                arrangement_in_focus.county.schools_in_county.all()
+                arrangement_in_focus.county.schools_in_county.all().order_by("name")
                 if arrangement_in_focus.county
                 else []
             )
