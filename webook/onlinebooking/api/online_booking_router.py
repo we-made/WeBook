@@ -164,6 +164,7 @@ def create_online_booking(
         responsible=settings.main_planner.person if settings.main_planner else None,
         end=end_time,
         audience=ob.audience_type,
+        county=ob.county,
         **ob_meta,
     )
 
