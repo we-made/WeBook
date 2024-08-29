@@ -97,18 +97,18 @@ container
     </test-booking-modal-component>
 
     <ul class="nav webook-tabs nav-tabs rounded-top" id="navTabs" role="tablist">
-        <li class="nav-item" role="presentation">
+        <!-- <li class="nav-item" role="presentation">
           <button class="nav-link active text-center" id="bookings-tab" data-mdb-toggle="tab" href="#bookingsTab" role="tab" aria-controls="bookingsTab" aria-selected="true">
             <span class="h5 mb-0"><i class="fas fa-calendar"></i></span>
             &nbsp; <span class="h5">Bookingregister</span></button>
-        </li>
+        </li> -->
         <li class="nav-item" role="presentation">
           <button class="nav-link  text-center" id="counties-tab" data-mdb-toggle="tab" href="#countiesTab" role="tab" aria-controls="countiesTab" aria-selected="true">
             <span class="h5 mb-0"><i class="fas fa-map-marked"></i></span>
             &nbsp; <span class="h5">Fylkeregister</span></button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="schools-tab" data-mdb-toggle="tab" href="#schoolsTab" role="tab" aria-controls="plannersTab" aria-selected="false">
+          <button class="nav-link active text-center" id="schools-tab" data-mdb-toggle="tab" href="#schoolsTab" role="tab" aria-controls="plannersTab" aria-selected="false">
             <span class="h5 mb-0"><i class="fas fa-school"></i></span>
             &nbsp; <span class="h5">Skoleregister</span>
           </button>
@@ -122,7 +122,7 @@ container
     </ul>
 
     <div class="tab-content pt-4">
-        <div class="tab-pane fade show active"
+        <!-- <div class="tab-pane fade show active"
              id="bookingsTab"
              tole="tabpanel">
 
@@ -130,13 +130,6 @@ container
                 <h2>
                     Booking Historikk
                 </h2>
-
-                <!-- <div>
-                    <button class="btn wb-btn-main" @click="testBookingModalVisible = !testBookingModalVisible">
-                        <i class="fas fa-flask"></i>&nbsp;
-                        Test Booking
-                    </button>
-                </div> -->
             </div>
 
              <div class="row">
@@ -144,7 +137,7 @@ container
                     <booking-table-component ref="bookingTableComponent"></booking-table-component>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <div class="tab-pane fade" role="tabpanel" id="countiesTab">
 
@@ -164,7 +157,7 @@ container
             <counties-table-component ref="countiesTableComponent"></counties-table-component>
         </div>
 
-        <div class="tab-pane fade" role="tabpanel" id="schoolsTab">
+        <div class="tab-pane fade show active" role="tabpanel" id="schoolsTab">
             <div class="d-flex justify-content-between">
                 <h2 class="">
                     Skoler
