@@ -835,7 +835,7 @@
                             a.data.map( (citySegment) => [citySegment.id, citySegment] )
                         );
                     }).then( () => {
-                        fetch("/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name")
+                        fetch("/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name&limit=1000")
                         .then(a => a.json())
                         .then(a => {
                             dialog.getElementById("schoolSelect").innerHTML = '';
