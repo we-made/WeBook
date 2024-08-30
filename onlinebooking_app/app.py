@@ -8,7 +8,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 api_client = WeBookApiClient()
 
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route("/")
