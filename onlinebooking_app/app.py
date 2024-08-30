@@ -3,9 +3,12 @@ from flask import Flask, url_for, render_template, request
 from api_client import WeBookApiClient
 import httpx
 import config
+from flask_cors import CORS
 
 app = Flask(__name__)
 api_client = WeBookApiClient()
+
+CORS(app)
 
 
 @app.route("/")
