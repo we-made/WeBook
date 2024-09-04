@@ -759,7 +759,7 @@
             <div class="form-group">
                 <label for="countySelect">Fylke</label>
                 <select name="" id="countySelect" class="form-control">
-                    <option value="" disabled
+                    <option value=""
                         {% if object.county is None %}selected{% endif %}>
                         Ingen valgt
                     </option>
@@ -776,7 +776,7 @@
             <div class="form-group mt-2">
                 <label for="schoolSelect">Skole</label>
                 <select name="" id="schoolSelect" class="form-control">
-                    <option value="" disabled
+                    <option value=""
                         {% if object.school is None %}selected{% endif %}>
                         Ingen valgt
                     </option>
@@ -839,8 +839,15 @@
                         .then(a => a.json())
                         .then(a => {
                             dialog.getElementById("schoolSelect").innerHTML = '';
+                            
+                            let optionDefault = document.createElement("option");
+                            optionDefault.value = "";
+                            optionDefault.innerText = "Ingen valgt";
+                            dialog.getElementById("schoolSelect").appendChild(optionDefault);
+                            
                             a.data.forEach( (school) => {
                                 let option = document.createElement("option");
+
                                 option.value = school.id;
                                 option.innerText = school.name;
                                 if (school.citySegmentId)
