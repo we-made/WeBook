@@ -135,6 +135,8 @@ class School(TimeStampedModel, ArchiveableMixin):
         null=True,
     )
 
+    audiences = models.ManyToManyField(Audience)
+
     def on_archive(self, person_archiving_this):
         # Archive all bookings for this school
         for booking in self.bookings.all():
