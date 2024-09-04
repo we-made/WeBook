@@ -92,6 +92,7 @@
             },
             setSelected() {
                 if (this.modelValue && this.hasInit) {
+                    $(this.$refs.jsTreeEl).jstree('deselect_all');
                     $(this.$refs.jsTreeEl).jstree('select_node', this.modelValue);
 
                     let node = $(this.$refs.jsTreeEl).jstree(true).get_node(this.selected);
@@ -151,6 +152,9 @@
                                 this.selectedValues = values;
                                 this.isExpanded = false;
                                 this.skipUpdate = true;
+
+                                console.log("selectedValues", this.selectedValues);
+
                                 this.$emit('update:modelValue', this.selectedValues.map(x => x.id));
                             });
                         });
@@ -169,10 +173,14 @@
                 this.setSelected();
             },
             modelValue: function (newVal, oldVal) {
+                console.log("modelValue.changed", newVal, oldVal);
                 if (this.skipUpdate) {
+                    console.log("skipUpdate", this.skipUpdate);
                     this.skipUpdate = false;
                     return;
                 }
+                
+                console.log("enacting");
                 this.setSelected();
             }
         },

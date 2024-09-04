@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Union
 from webook.api.routers.service_account_router import ServiceAccountSchema
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.arrangement.api.schemas import AudienceGetSchema, LocationGetSchema
@@ -31,12 +31,11 @@ class SchoolCreateSchema(BaseSchema):
     name: str
     county_id: int
     city_segment_id: Optional[int]
+    audiences: List[int] = []
 
 
 class SchoolGetSchema(ModelBaseSchema, SchoolCreateSchema):
-    pass
-    # county: CountyGetSchema
-    # city_segment: Optional[CitySegmentGetSchema]
+    audiences: List[AudienceGetSchema] = []
 
 
 class OnlineBookingCreateSchema(BaseSchema):

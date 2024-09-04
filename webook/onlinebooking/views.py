@@ -2,10 +2,19 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView, CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from webook.arrangement.forms.group_admin import User
-from webook.arrangement.models import ArrangementType, Location, StatusType
-from webook.onlinebooking.models import CitySegment, County, OnlineBooking, School
+from webook.arrangement.models import ArrangementType, Audience, Location, StatusType
+from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
+from webook.authorization_mixins import PlannerAuthorizationMixin
+from webook.onlinebooking.models import (
+    CitySegment,
+    County,
+    OnlineBooking,
+    OnlineBookingSettings,
+    School,
+)
 
 
 class DashboardView(View):
@@ -22,25 +31,36 @@ class DashboardView(View):
         )
 
 
-class OnlineBookingDetailView(DetailView):
+class OnlineBookingDetailView(LoginRequiredMixin, DetailView):
     model = OnlineBooking
     template_name = "booking_detail.html"
     context_object_name = "booking"
 
 
-class CountyDetailView(DetailView):
+class CountyDetailView(LoginRequiredMixin, DetailView):
     model = County
     template_name = "county_detail.html"
     context_object_name = "county"
 
 
-class SchoolDetailView(DetailView):
+class SchoolDetailView(LoginRequiredMixin, DetailView):
     model = School
     template_name = "school_detail.html"
     context_object_name = "school"
 
 
-class CitySegmentDetailView(DetailView):
+class CitySegmentDetailView(LoginRequiredMixin, DetailView):
     model = CitySegment
     template_name = "city_segment_detail.html"
     context_object_name = "city_segment"
+
+
+class AllowedAudiencesTreeJsonView(LoginRequiredMixin, JSTreeListView):
+    inject_resolved_crudl_urls_into_nodes = True
+    model = Audience
+
+    def get_queryset(self):
+        return [
+            item.as_node()
+            for item in OnlineBookingSettings.objects.get().allowed_audiences.all()
+        ]

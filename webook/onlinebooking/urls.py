@@ -1,6 +1,7 @@
 from django.urls import path
 
 from webook.onlinebooking.views import (
+    AllowedAudiencesTreeJsonView,
     CitySegmentDetailView,
     CountyDetailView,
     DashboardView,
@@ -31,5 +32,10 @@ urlpatterns = [
         "city_segment/<int:pk>/",
         view=CitySegmentDetailView.as_view(),
         name="city_segment_detail",
+    ),
+    path(
+        "audience_tree_json/",
+        view=AllowedAudiencesTreeJsonView.as_view(),
+        name="allowed_audience_tree_json",
     ),
 ]
