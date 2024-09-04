@@ -749,7 +749,10 @@
 
             <div class="form-group mt-2">
                 <label for="schoolSelect">Skole</label>
-                <select name="" id="schoolSelect" class="form-control">
+
+
+
+                <select name="" id="schoolSelect" class="form-control w-100" style="width: 100%">
                     <option value=""
                         {% if object.school is None %}selected{% endif %}>
                         Ingen valgt
@@ -804,6 +807,29 @@
             {% endif %}
 
             {% if object.is_school_related %}
+
+            dialog.data.countyOptions = [
+                {% for county in counties %}
+                    {
+                        id: {{county.id}},
+                        text: "{{county.name}}",
+                        schools: [
+                            {% for school in county.schools %}
+                                {
+                                    id: {{school.id}},
+                                    text: "{{school}}",
+                                    parent: {{school.parent_id|default:0}},
+                                },
+                            {% endfor %}
+                        ],
+                    },
+                {% endfor %}
+            ];
+
+            $('#schoolSelect').select2({
+                dropdownParent: dialog.$dialogElement
+            });
+
             dialog.getElementById("countySelect").addEventListener("change", (e) => {
                 fetch("/api/onlinebooking/city_segment/list?county_id=" + e.target.value)
                     .then(a => a.json())
@@ -813,25 +839,38 @@
                         );
                     }).then( () => {
                         fetch("/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name&limit=1000")
-                        .then(a => a.json())
-                        .then(a => {
-                            dialog.getElementById("schoolSelect").innerHTML = '';
+                            .then(a => a.json())
+                            .then(a => {
+                                if ($("#schoolSelect").data("select2")) {
+                                    $("#schoolSelect").select2("destroy");
+                                    $("#schoolSelect").empty();
+                                }
 
-                            let optionDefault = document.createElement("option");
-                            optionDefault.value = "";
-                            optionDefault.innerText = "Ingen valgt";
-                            dialog.getElementById("schoolSelect").appendChild(optionDefault);
+                                let schoolOptions = [
+                                    {
+                                        id: "",
+                                        text: "Ingen valgt",
+                                    },
+                                    ...a.data.map((school) => {
+                                        let segment = dialog.data.citySegmentMap.get(school.citySegmentId);
+                                        return {
+                                            id: school.id,
+                                            text: segment ? school.name + " - " + segment.name : school.name
+                                        }
+                                    })
+                                ]; 
 
-                            a.data.forEach( (school) => {
-                                let option = document.createElement("option");
-                                option.value = school.id;
-                                option.innerText = school.name;
-                                if (school.citySegmentId)
-                                    option.innerText += " - " + dialog.data.citySegmentMap.get(school.citySegmentId).name;
+                                setTimeout(function (){ // Has to be delayed to ensure select2 is destroyed. Hrmmph.
+                                    $('#schoolSelect').select2({
+                                        dropdownParent: dialog.$dialogElement,
+                                        data: schoolOptions
+                                    });
 
-                                dialog.getElementById("schoolSelect").appendChild(option);
+                                    let $containerEl = $($('#schoolSelect').next(".select2-container"));
+                                    $containerEl.css("width", "100%");
+                                    $containerEl.css("display", "block");
+                                }, 50);
                             });
-                        });
                     });
             });
 

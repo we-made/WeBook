@@ -432,27 +432,40 @@
                 {% endfor %}
             ];
 
+            dialog.$('#schoolSelect').select2({
+                dropdownParent: dialog.$dialogElement
+            });
+
             dialog.data.onCountyChange = function () {
-
                 const selectedCountyId = dialog.getElementById("countySelect").value;
-                const schoolSelect = dialog.getElementById("schoolSelect");
-                schoolSelect.innerHTML = "<option value=''>Velg skole</option>";
 
+                if (dialog.$("#schoolSelect").data("select2")) {
+                    dialog.$("#schoolSelect").select2("destroy");
+                    dialog.$("#schoolSelect").empty();
+                }
+
+                let schoolOptions = [];
                 dialog.data.countyOptions.forEach((county) => {
                     if (county.id == selectedCountyId) {
                         county.schools.forEach((school) => {
-                            const option = document.createElement("option");
-                            option.value = school.id;
-                            option.text = school.text;
-                            schoolSelect.add(option);
+                            schoolOptions.push({
+                                id: school.id,
+                                text: school.text,
+                            })
                         });
-
-                        const initialValue = dialog.getElementById("initialSchoolValue").value;
-                        if (initialValue) {
-                            schoolSelect.value = initialValue;
-                        }
                     }
                 });
+
+                setTimeout(function (){ // Has to be delayed to ensure select2 is destroyed. Hrmmph.
+                    dialog.$('#schoolSelect').select2({
+                        data: schoolOptions,
+                        dropdownParent: dialog.$dialogElement
+                    });
+
+                    let $containerEl = dialog.$('#schoolSelect').next(".select2-container");
+                    $containerEl.css("width", "100%");
+                    $containerEl.css("display", "block");
+                }, 50);
             }
 
             dialog.getElementById("countySelect").addEventListener("change", () => {
