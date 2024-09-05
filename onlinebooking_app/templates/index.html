@@ -292,9 +292,6 @@
                     </div>
     
                     <div v-if="step == 5" class="mt-6 has-text-centered">
-                        <!-- <p class="title is-2">
-                            <i class="fas fa-clipboard check-circle text-success"></i>
-                        </p> -->
                         <p class="title is-3">
                             Nesten ferdig!
                         </p>
@@ -340,6 +337,7 @@
                     showCitySegmentPrompt: false,
                     showAudiencePrompt: false,
                     message: 'Hello Vue 3!',
+                    noSchoolsFound: false,
                     onlineBookingSettings: null,
                     showAudienceNotSelectedFeedback: false,
                     showCountyNotSelectedFeedback: false,
@@ -382,13 +380,15 @@
                     }
 
                     if (this.step == 3) {
-                        if (this.selectedSchool) {
-                            this.showSchoolNotSelectedFeedback = false;
-                        } else {
-                            this.showSchoolNotSelectedFeedback = true;
-                            return;
+                        if (!this.noSchoolsFound) {
+                            if (this.selectedSchool) {
+                                this.showSchoolNotSelectedFeedback = false;
+                            } else {
+                                this.showSchoolNotSelectedFeedback = true;
+                                return;
+                            }
                         }
-
+                            
                         this.step = targetStep || 4;
                         return;
                     }
@@ -434,11 +434,17 @@
                     if (this.timeToRefresh == 0) {
                         location.reload();
                     }
+                },
+                noSchoolsFound: function () {
+                    if (this.noSchoolsFound) {
+                        this.selectedCounty.schoolEnabled = false;
+                        this.advanceStep(4);
+                    }
                 }
             },
             computed: {
                 schoolsDataSource: function () {
-                    let url = `/schools/${this.selectedCounty.id}?limit=20`
+                    let url = `/schools/${this.selectedCounty.id}?limit=20&audience_id=${this.selectedAudience.id}`;
                     
                     let columnsDefinition = {
                         "isSelected": {
@@ -469,6 +475,10 @@
                         'asc',
                         true,
                         (data) => {
+                            if (data.data.length == 0) {
+                                this.noSchoolsFound = true;
+                            }
+
                             return data;
                         }
                     );
