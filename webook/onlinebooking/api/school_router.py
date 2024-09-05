@@ -21,6 +21,12 @@ class SchoolRouter(CrudRouter):
                 default=None,
                 annotation=Optional[int],
             ),
+            QueryFilter(
+                param="audience_id",
+                query_by="audiences__id",
+                default=None,
+                annotation=Optional[int],
+            ),
         ]
 
         super().__init__(*args, **kwargs)
