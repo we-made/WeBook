@@ -195,6 +195,7 @@ def update_online_booking_settings(
     if not settings:
         return {"message": "No settings found."}
 
+    settings.allowed_audiences.clear()
     for audience_id in payload.allowed_audiences:
         try:
             settings.allowed_audiences.add(Audience.objects.get(id=audience_id))
