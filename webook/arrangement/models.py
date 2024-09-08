@@ -69,7 +69,11 @@ class CalendarEntitySchoolMixin(models.Model):
 
         from webook.onlinebooking.models import OnlineBookingSettings
 
-        school_audiences = OnlineBookingSettings.objects.first().allowed_audiences.all()
+        ob_settings = OnlineBookingSettings.objects.first()
+        school_audiences = [
+            *[x for x in ob_settings.allowed_audiences.all()],
+            ob_settings.audience_group,
+        ]
 
         return self.audience in school_audiences
 
