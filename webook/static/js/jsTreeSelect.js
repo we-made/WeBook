@@ -89,6 +89,9 @@ export class JSTreeSelect {
         this.selected = { id: id, text: node.text, parent: $(this._jsTreeElement).jstree(true).get_node(node.parent) };
         this._labelElement.innerHTML = this._generateLabelElement().innerHTML;
         this._hideInvalidFeedback();
+
+        const event = new Event("change");
+        this.element.dispatchEvent(event);
     }
 
     /**
