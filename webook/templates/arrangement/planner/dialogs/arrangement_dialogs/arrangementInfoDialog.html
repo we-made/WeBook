@@ -774,7 +774,7 @@
             </div>
 
             <div class="form-group mt-2">
-                <label for="schoolSelect">Skole</label>
+                <label for="schoolSelect">Skole <em>(Målgruppe: {{ object.audience.name }})</em></label>
                 <select name="" id="schoolSelect" class="form-control" style="width: 100%">
                     <option value=""
                         {% if object.school is None %}selected{% endif %}>
@@ -838,10 +838,17 @@
                             a.data.map( (citySegment) => [citySegment.id, citySegment] )
                         );
                     }).then( () => {
-                        fetch("/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name&limit=1000")
+                        let audience_id = dialog.data.audienceJsTreeSelect.getSelectedValue() || 0;
+
+                        let url = "/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name&limit=1000";
+                        if (parseInt(audience_id) != {{ audienceGroupId }}) {
+                            url += "&audience_id=" + audience_id;
+                        }
+
+                        fetch(url)
                         .then(a => a.json())
                         .then(a => {
-                            if ($("#schoolSelect").data("select2")) {
+                            if ($("#schoolSelect").data("select2")) {   
                                 $("#schoolSelect").select2("destroy");
                                 $("#schoolSelect").empty();
                             }
@@ -962,7 +969,6 @@
             {% if user|has_group:"readonly_level_2" and user.is_superuser == False %}
                 document.querySelectorAll("#jsTreeSelects button").forEach( (buttonElement) => buttonElement.remove() );
             {% endif %}
-            dialog.querySelectorAll("#jsTreeSelects button").forEach( (buttonElement) => buttonElement.remove() );
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {

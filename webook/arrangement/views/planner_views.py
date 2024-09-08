@@ -518,18 +518,24 @@ class PlannerEventInspectorDialogView(LoginRequiredMixin, DialogView, UpdateView
                 OnlineBookingSettings,
             )
 
+            online_booking_settings = OnlineBookingSettings.objects.first()
             context["school_audiences"] = (
-                OnlineBookingSettings.objects.first().allowed_audiences.all()
+                *online_booking_settings.allowed_audiences.all(),
+                online_booking_settings.audience_group,
             )
+            context["audienceGroupId"] = online_booking_settings.audience_group.id
             context["counties"] = County.objects.all().order_by("name")
             context["city_segments"] = (
                 obj.county.city_segments.all().order_by("name") if obj.county else []
             )
-            context["schools"] = (
-                obj.county.schools_in_county.all().order_by("name")
-                if obj.county
-                else []
-            )
+            if obj.county:
+                context["schools"] = obj.county.schools_in_county.all().order_by("name")
+                if obj.audience != online_booking_settings.audience_group:
+                    context["schools"] = context["schools"].filter(
+                        audiences__in=[obj.audience]
+                    )
+            else:
+                context["schools"] = []
 
         return context
 
@@ -577,21 +583,32 @@ class PlannerArrangementInformationDialogView(
                 OnlineBookingSettings,
             )
 
+            online_booking_settings = OnlineBookingSettings.objects.first()
+
             context["school_audiences"] = (
-                OnlineBookingSettings.objects.first().allowed_audiences.all()
+                *online_booking_settings.allowed_audiences.all(),
+                online_booking_settings.audience_group,
             )
+            context["audienceGroupId"] = online_booking_settings.audience_group.id
             context["counties"] = County.objects.all().order_by("name")
             context["city_segments"] = (
                 arrangement_in_focus.county.city_segments.all().order_by("name")
                 if arrangement_in_focus.county
                 else []
             )
-            context["schools"] = (
-                arrangement_in_focus.county.schools_in_county.all().order_by("name")
-                if arrangement_in_focus.county
-                else []
-            )
-
+            if arrangement_in_focus.county:
+                context["schools"] = (
+                    arrangement_in_focus.county.schools_in_county.all().order_by("name")
+                )
+                if (
+                    arrangement_in_focus.audience
+                    != online_booking_settings.audience_group
+                ):
+                    context["schools"] = context["schools"].filter(
+                        audiences__in=[arrangement_in_focus.audience]
+                    )
+            else:
+                context["schools"] = []
         return context
 
     def get_success_url(self) -> str:
@@ -634,7 +651,11 @@ class PlannerCreateArrangementInformatioDialogView(
         for county in counties:
             county.schools = School.objects.filter(county=county).order_by("name")
 
-        context["schoolAudiences"] = settings.allowed_audiences.all()
+        context["schoolAudiences"] = [
+            *settings.allowed_audiences.all(),
+            settings.audience_group,
+        ]
+        context["audienceGroupId"] = settings.audience_group.id
         context["counties"] = counties
 
         return context
@@ -702,7 +723,11 @@ class PlannerArrangementCreateSimpleEventDialogView(
         for county in counties:
             county.schools = School.objects.filter(county=county).order_by("name")
 
-        context["schoolAudiences"] = settings.allowed_audiences.all()
+        context["schoolAudiences"] = [
+            *settings.allowed_audiences.all(),
+            settings.audience_group,
+        ]
+        context["audienceGroupId"] = settings.audience_group.id
         context["counties"] = counties
 
         return context
@@ -1103,7 +1128,11 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
         for county in counties:
             county.schools = School.objects.filter(county=county).order_by("name")
 
-        context["schoolAudiences"] = settings.allowed_audiences.all()
+        context["schoolAudiences"] = [
+            *settings.allowed_audiences.all(),
+            settings.audience_group,
+        ]
+        context["audienceGroupId"] = settings.audience_group.id
         context["counties"] = counties
 
         return context

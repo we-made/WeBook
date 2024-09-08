@@ -129,7 +129,7 @@
                 role="tab"
                 aria-controls="ex1-tabs-5"
                 aria-selected="false"
-                >Skole
+                >Skoler
             </a>
         </li>
         {% endif %}
@@ -748,10 +748,8 @@
             </div>
 
             <div class="form-group mt-2">
-                <label for="schoolSelect">Skole</label>
-
-
-
+                <label for="schoolSelect">Skole <em>(Målgruppe: {{ object.audience.name }})</em></label>
+                
                 <select name="" id="schoolSelect" class="form-control w-100" style="width: 100%">
                     <option value=""
                         {% if object.school is None %}selected{% endif %}>
@@ -838,7 +836,14 @@
                             a.data.map( (citySegment) => [citySegment.id, citySegment] )
                         );
                     }).then( () => {
-                        fetch("/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name&limit=1000")
+                        let audience_id = dialog.data.audienceJsTreeSelect.getSelectedValue() || 0;
+
+                        let url = "/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name&limit=1000";
+                        if (parseInt(audience_id) != {{ audienceGroupId }}) {
+                            url += "&audience_id=" + audience_id;
+                        }
+
+                        fetch(url)
                             .then(a => a.json())
                             .then(a => {
                                 if ($("#schoolSelect").data("select2")) {
