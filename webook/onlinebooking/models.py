@@ -50,6 +50,12 @@ class ArchiveableMixin(models.Model):
 class OnlineBookingSettings(models.Model):
     title_format = models.CharField(max_length=255)
 
+    audience_group = models.OneToOneField(
+        to=Audience,
+        on_delete=models.RESTRICT,
+        related_name="online_booking_settings",
+        null=True,
+    )
     allowed_audiences = models.ManyToManyField(Audience)
 
     location = models.ForeignKey(
