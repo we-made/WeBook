@@ -291,8 +291,22 @@ container
             </div>
 
             <h4 class="mt-4">
-                Velgbare Målgrupper
+                Målgrupper
             </h4>
+            <h5 class="mt-2">
+                Overgruppe
+            </h5>
+            <div class="form-group">
+                <select name="" id="" class="form-control" v-model="onlineBookingSettings.audience_group_id">
+                    {% for overgroup_audience in audience_group_choices %}
+                        <option value="{{overgroup_audience.id}}">{{overgroup_audience.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h5 class="mt-4">
+                Velgbare Målgrupper
+            </h5>
             <div class="form-group">
                 <div class="alert alert-light border-start border-2 rounded-0 wb-bg-secondary pt-2 pb-2 mb-2 mt-2">
                     På tablet kan bruker velge mellom målgrupper. De vil få en liste med valg basert på de målgruppene som er valgt her. Når bookinger plasseres vil
@@ -300,7 +314,7 @@ container
                 </div>
 
                 <tree-select-component :is-open="false" label="Målgruppe"
-                    json-url="{% url 'arrangement:audience_tree' %}"
+                    :json-url="audienceUrl"
                     button-label="Velg målgruppe" icon="fas fa-users"
                     v-model="onlineBookingSettings.allowed_audiences" :use-popover="false" :show-label="false" :show-search="false" :multi-select="true">
                 </tree-select-component>
@@ -333,6 +347,13 @@ container
                 CountiesTableComponent
             },
             delimiters: ['[[', ']]'],
+            watch: {
+                'onlineBookingSettings.audience_group_id': function (val) {
+                    if (val > 0) {
+                        this.audienceUrl = "/api/arrangement/audience/tree?audience_id=" + val;
+                    }
+                },
+            },
             methods: {
                 async archiveCounty(countyId) {
                     const responseData = await this.countyAPIRepository.archive(countyId, '{{csrf_token}}');
@@ -407,11 +428,14 @@ container
                 schoolFormModalVisible: false,
                 countyFormModalVisible: false,
                 testBookingModalVisible: false,
+                audienceUrl: "/api/arrangement/audience/tree?audience_id={{ settings.audience_group_id }}",
                 schoolAPIRepository: new SchoolAPIRepository(),
                 countyAPIRepository: new CountyAPIRepository(),
                 onlineBookingSettings: {
                     title_format: "%Skolenavn% %StartTid% %SluttTid% %Dato%",
                     offset: 0,
+                    main_planner_id: 0,
+                    audience_group_id: 0,
                     offset_unit: "minutes",
                     duration_amount: 30,
                     duration_unit: "minutes",
