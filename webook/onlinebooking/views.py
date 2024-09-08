@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from webook.arrangement.forms.group_admin import User
 from webook.arrangement.models import ArrangementType, Audience, Location, StatusType
+from webook.arrangement.views.audience_views import AudienceSectionManifestMixin
 from webook.arrangement.views.generic_views.jstree_list_view import JSTreeListView
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.onlinebooking.models import (
@@ -27,6 +28,8 @@ class DashboardView(View):
                 "status_types": StatusType.objects.all(),
                 "arrangement_types": ArrangementType.objects.all(),
                 "eligible_planners": User.objects.filter(groups__name="planners"),
+                "audience_group_choices": Audience.objects.filter(parent=None),
+                "settings": OnlineBookingSettings.objects.first(),
             },
         )
 
@@ -60,7 +63,9 @@ class AllowedAudiencesTreeJsonView(LoginRequiredMixin, JSTreeListView):
     model = Audience
 
     def get_queryset(self):
-        return [
-            item.as_node()
-            for item in OnlineBookingSettings.objects.get().allowed_audiences.all()
-        ]
+        settings = OnlineBookingSettings.objects.first()
+        if settings is None:
+            settings = OnlineBookingSettings.objects.create()
+            settings.save()
+
+        return [item.as_node() for item in settings.allowed_audiences.all()]
