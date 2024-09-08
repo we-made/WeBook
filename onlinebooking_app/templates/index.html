@@ -237,7 +237,7 @@
     
     
                     <div v-if="step == 4" class="mt-6">
-                        <p class="title is-3">[[selectedCounty.schoolEnabled ? 4 : 3]]. Hvor mange er dere?</p>
+                        <p class="title is-3">[[selectedCounty.schoolEnabled && selectedSchool ? 4 : 3]]. Hvor mange er dere?</p>
     
                         <input type="number" class="input is-medium" name="visitors" v-model="visitors" value="0" min="0" max="1000"/>
                         
@@ -253,7 +253,6 @@
                         </article>
     
                         <div class="is-clearfix">
-                            <button class="button is-black mt-3 is-medium is-pulled-right" @click="step = 5" v-if="hasCycledFully">Bekreft </button>
                             <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()" v-else>Neste</button>
                         </div>
                     </div>
@@ -290,8 +289,66 @@
                             </div>
                         </div>
                     </div>
+
+                    <div v-if="step == 5" class="mt-6">
+                        <p class="title is-3">
+                            Kontaktinformasjon
+                        </p>
+
+                        <p class="subtitle is-4">
+                            Vennligst oppgi kontaktinformasjon for kontaktpersonen.
+
+                            Disse dataene vil fjernes 30 dager etter besøket har funnet sted.
+                        </p>
+
+                        <input type="text" class="input is-medium" name="name" ref="contactNameInput" v-model="contactName" placeholder="Navn på kontaktperson"/>
+                        <input type="phone" class="input is-medium mt-2" name="phone" ref="contactNamePhone" v-model="contactPhoneNumber" placeholder="Telefon nummer til kontaktperson"/>
+                        
+                        <div class="message is-danger mt-2" v-if="showContactInfoNotSelectedFeedback">
+                            Inntastet informasjon er ugyldig. Vennligst fyll ut begge feltene.
+                        </div>
+
+                        <div class="is-clearfix">
+                            <button class="button is-black mt-3 is-medium is-pulled-right" @click="step = 6" v-if="hasCycledFully">Bekreft </button>
+                            <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()" v-else>Neste</button>
+                        </div>
+                    </div>
+                    <div v-else-if="step != 5 && (contactName || contactPhoneNumber)">
+                        <div class="box mt-2" @click="step = 5">
+                            <div class="is-flex is-align-content-center is-justify-content-space-between">
+                                <div class="is-flex is-align-items-center">
+                                    <div>
+                                        <p class="title is-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="title ml-4 is-3">
+                                            [[ selectedCounty.schoolEnabled && selectedSchool ? 5 : 4 ]].
+                                        </p>
+                                    </div>
     
-                    <div v-if="step == 5" class="mt-6 has-text-centered">
+                                    <div class="ml-4">
+                                        <p class="title is-3">
+                                            Kontaktinformasjon:
+                                        </p>
+                                        <p class="subtitle is-4">
+                                            [[contactName]]<br>
+                                            [[contactPhoneNumber]]
+                                        </p>
+                                    </div>
+                                </div>
+    
+                                <div>
+                                    <p class="subtitle is-6">
+                                        (Trykk for å endre valg)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div v-if="step == 6" class="mt-6 has-text-centered">
                         <p class="title is-3">
                             Nesten ferdig!
                         </p>
@@ -343,6 +400,7 @@
                     showCountyNotSelectedFeedback: false,
                     showSchoolNotSelectedFeedback: false,
                     showVisitorsNotSelectedFeedback: false,
+                    showContactInfoNotSelectedFeedback: false,
                 }
             },
             components: { TableComponent },
@@ -368,6 +426,7 @@
                             return;
                         }                        
 
+                        console.log("selectedCounty", this.selectedCounty)
                         if (this.selectedCounty.schoolEnabled) {
                             this.step = targetStep || 3;
                         }
@@ -398,8 +457,14 @@
                         return;
                     }
 
-                    if (this.step == 4)
+                    if (this.step == 5) {
+                        if (!this.contactName || !this.contactPhoneNumber || this.contactName.length < 2) {
+                            this.showContactInfoNotSelectedFeedback = true;
+                            return;
+                        }
+
                         this.hasCycledFully = true;
+                    }
 
                     this.step = targetStep || this.step + 1;
                 },
@@ -413,7 +478,9 @@
                             county_id: this.selectedCounty?.id,
                             school_id: this.selectedSchool?.id,
                             visitors_count: this.visitors,
-                            audience_type_id: this.selectedAudience.id
+                            audience_type_id: this.selectedAudience.id,
+                            contactName: this.contactName,
+                            contactPhoneNumber: this.contactPhoneNumber
                         })
                     })
                     .then(response => response.json())
@@ -439,6 +506,10 @@
                     if (this.noSchoolsFound) {
                         this.selectedCounty.schoolEnabled = false;
                         this.advanceStep(4);
+                    }
+                    else {
+                        this.selectedCounty.schoolEnabled = true;
+                        this.advanceStep(3);
                     }
                 }
             },
@@ -477,6 +548,9 @@
                         (data) => {
                             if (data.data.length == 0) {
                                 this.noSchoolsFound = true;
+                            }
+                            else {
+                                this.noSchoolsFound = false;
                             }
 
                             return data;

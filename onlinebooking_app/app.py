@@ -51,26 +51,26 @@ def schools(county_id: int):
     return response.json()
 
 
-@app.route("/schools_v1/<county_id>")
-def schools(county_id: int):
-    limit = request.args.get("limit", 10)
-    page = request.args.get("page", 0)
-    search = request.args.get("search", "")
-    sort_by = request.args.get("sort_by", "name")
+# @app.route("/schools_v1/<county_id>")
+# def schools(county_id: int):
+#     limit = request.args.get("limit", 10)
+#     page = request.args.get("page", 0)
+#     search = request.args.get("search", "")
+#     sort_by = request.args.get("sort_by", "name")
 
-    response: httpx.Response = api_client.get(
-        f"/onlinebooking/school/list",
-        params={
-            "county_id": county_id,
-            "limit": limit,
-            "page": page,
-            "fields_to_search": "name" if search else "",
-            "search": search if search else "",
-            "sort_by": sort_by,
-            "sort_order": "desc",
-        },
-    )
-    return response.json()
+#     response: httpx.Response = api_client.get(
+#         f"/onlinebooking/school/list",
+#         params={
+#             "county_id": county_id,
+#             "limit": limit,
+#             "page": page,
+#             "fields_to_search": "name" if search else "",
+#             "search": search if search else "",
+#             "sort_by": sort_by,
+#             "sort_order": "desc",
+#         },
+#     )
+#     return response.json()
 
 
 @app.route("/city_segments/<county_id>")
