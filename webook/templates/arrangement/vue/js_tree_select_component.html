@@ -160,11 +160,22 @@
                         });
                 });          
             },
+            destroyJsTree() {
+                $(this.$refs.jsTreeEl).jstree('destroy');
+
+                this.hasInit = false;
+                $(this.$refs.jsTreeEl).off('changed.jstree');
+                $(this.$refs.jsTreeEl).off('loaded.jstree');
+            },
             toggleVisibility() {
                 this.isExpanded = !this.isExpanded;
             }
         },
         watch: {
+            jsonUrl: function (newVal, oldVal) {
+                this.destroyJsTree();
+                this.initJsTree();
+            },
             selected: function (newVal, oldVal) {
                 if (this.skipUpdate) {
                     this.skipUpdate = false;
