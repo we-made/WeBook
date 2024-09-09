@@ -1129,8 +1129,8 @@
                     meeting_place_en: dialog.interior.id_meeting_place_en.value,
                     responsible: dialog.interior.id_responsible.value,
                     display_text: dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
-                    county: dialog.interior.countySelect.value == 0 ? null : dialog.interior.countySelect.value,
-                    school: dialog.interior.schoolSelect.value == 0 ? null : dialog.interior.schoolSelect.value,
+                    county: dialog.interior.countySelect.value == 0 ? "" : dialog.interior.countySelect.value,
+                    school: dialog.interior.schoolSelect.value == 0 ? "" : dialog.interior.schoolSelect.value,
                 };
 
                 let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
