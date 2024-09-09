@@ -170,7 +170,7 @@ class ArrangementCreateJSONView(
 
     def form_invalid(self, form):
         print(form.errors)
-        return super().form_invalid(form)
+        return JsonResponse({"errors": form.errors}, status=400)
 
     def form_valid(self, form):
         arrangement = form.save()
