@@ -4,7 +4,6 @@
 
 <div id="{{dialogId}}"
     class="{{discriminator}}">
-
     <div class="clearfix">
         <div class="float-start">
             <h3 class="fw-bold">
@@ -120,6 +119,20 @@
                 >Opprigg & Nedrigg
             </a>
         </li>
+        {% if object.is_school_related %}
+        <li class="nav-item" role="presentation">
+            <a
+                class="nav-link"
+                id="ex1-tab-5"
+                data-mdb-toggle="tab"
+                href="#ex1-tabs-5"
+                role="tab"
+                aria-controls="ex1-tabs-5"
+                aria-selected="false"
+                >Skoler
+            </a>
+        </li>
+        {% endif %}
     </ul>
 
     <div class="tab-content" id="ex1-content">
@@ -714,6 +727,46 @@
             </div>
             {% endif %}
         </div>
+
+        {% if object.is_school_related %}
+        <div class="tab-pane fade" id="ex1-tabs-5" role="tabpanel">
+            <div class="form-group">
+                <label for="countySelect">Fylke</label>
+                <select name="" id="countySelect" class="form-control">
+                    <option value=""
+                        {% if object.school is None %}selected{% endif %}>
+                        Ingen valgt
+                    </option>
+
+                    {% for county in counties %}
+                        <option value="{{county.id}}"
+                            {% if object.county is not None and object.county.id == county.id %}selected{% endif %}>
+                            {{county.name}}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="schoolSelect">Skole <em>(Målgruppe: {{ object.audience.name }})</em></label>
+                
+                <select name="" id="schoolSelect" class="form-control w-100" style="width: 100%">
+                    <option value=""
+                        {% if object.school is None %}selected{% endif %}>
+                        Ingen valgt
+                    </option>
+
+
+                    {% for school in schools %}
+                        <option value="{{school.id}}"
+                                {% if object.school is not None and object.school.id == school.id %}selected{% endif %}>
+                            {{school.name}} {% if school.city_segment %} - {{school.city_segment.name}} {% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     {% if user|has_group:"planners" or user.is_superuser %}
@@ -728,7 +781,7 @@
             <a href="#" class="btn wb-btn-secondary btn-lg"
                 d-trigger="close">
                 <i class="fas fa-times"></i>
-                Avbryt
+                Avbryt / Lukk
             </a>
             <a class="btn btn-lg wb-btn-main" type="button" d-trigger="save">
                 <i class="fas fa-save"></i>&nbsp; Lagre
@@ -751,6 +804,83 @@
                 dialog.querySelectorAll("input,select").forEach( (inputElement) => inputElement.setAttribute("disabled", "") );
             {% endif %}
 
+            {% if object.is_school_related %}
+
+            dialog.data.countyOptions = [
+                {% for county in counties %}
+                    {
+                        id: {{county.id}},
+                        text: "{{county.name}}",
+                        schools: [
+                            {% for school in county.schools %}
+                                {
+                                    id: {{school.id}},
+                                    text: "{{school}}",
+                                    parent: {{school.parent_id|default:0}},
+                                },
+                            {% endfor %}
+                        ],
+                    },
+                {% endfor %}
+            ];
+
+            $('#schoolSelect').select2({
+                dropdownParent: dialog.$dialogElement
+            });
+
+            dialog.getElementById("countySelect").addEventListener("change", (e) => {
+                fetch("/api/onlinebooking/city_segment/list?county_id=" + e.target.value)
+                    .then(a => a.json())
+                    .then(a => {
+                        dialog.data.citySegmentMap = new Map(
+                            a.data.map( (citySegment) => [citySegment.id, citySegment] )
+                        );
+                    }).then( () => {
+                        let audience_id = dialog.data.audienceJsTreeSelect.getSelectedValue() || 0;
+
+                        let url = "/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name&limit=1000";
+                        if (parseInt(audience_id) != {{ audienceGroupId }}) {
+                            url += "&audience_id=" + audience_id;
+                        }
+
+                        fetch(url)
+                            .then(a => a.json())
+                            .then(a => {
+                                if ($("#schoolSelect").data("select2")) {
+                                    $("#schoolSelect").select2("destroy");
+                                    $("#schoolSelect").empty();
+                                }
+
+                                let schoolOptions = [
+                                    {
+                                        id: "",
+                                        text: "Ingen valgt",
+                                    },
+                                    ...a.data.map((school) => {
+                                        let segment = dialog.data.citySegmentMap.get(school.citySegmentId);
+                                        return {
+                                            id: school.id,
+                                            text: segment ? school.name + " - " + segment.name : school.name
+                                        }
+                                    })
+                                ]; 
+
+                                setTimeout(function (){ // Has to be delayed to ensure select2 is destroyed. Hrmmph.
+                                    $('#schoolSelect').select2({
+                                        dropdownParent: dialog.$dialogElement,
+                                        data: schoolOptions
+                                    });
+
+                                    let $containerEl = $($('#schoolSelect').next(".select2-container"));
+                                    $containerEl.css("width", "100%");
+                                    $containerEl.css("display", "block");
+                                }, 50);
+                            });
+                    });
+            });
+
+            {% endif %}
+            
             dialog.querySelectorAll("a[data-mdb-toggle='tab']")
                 .forEach( (element) => {
                     element.addEventListener('click', (event) => {
@@ -1055,6 +1185,13 @@
                     display_text:           dialog.plugins.showIfSelected.isInShowState() ? dialog.interior.id_display_text.value : '',
                 };
 
+                {% if object.is_school_related %}
+                qualifiedEvent.county = dialog.getElementById("countySelect").value || "";
+                qualifiedEvent.school = dialog.getElementById("schoolSelect").value || "";
+                // qualifiedEvent.booking_selected_audience = dialog.getElementById("schoolAudienceSelect").value || "";
+                // qualifiedEvent.city_segment = dialog.getElementById("citySegmentSelect").value || "";
+                {% endif %}
+                
                 dialog.raiseSubmitEvent({
                     event: qualifiedEvent,
                     csrf_token: '{{ csrf_token }}',

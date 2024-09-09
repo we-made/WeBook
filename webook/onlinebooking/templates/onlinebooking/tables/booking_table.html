@@ -1,0 +1,155 @@
+<template id="vuec-booking-table">
+    <table-component v-if="dataSource"
+        :data-source="dataSource"
+        :columns="columns"
+        :can-search="true"
+        @show="(data) => show(data.id)"
+        @archive="(data) => archive(data.id)"
+        ref="onlineBookingsTable">
+    </table-component>
+</template>
+
+<script>
+    const BookingTableComponent = {
+        template: '#vuec-booking-table',
+        delimiters: ['[[', ']]'],
+        components: {
+            TableComponent,
+        },
+        methods: {
+            show: function (id) {
+                location.href = `/onlinebooking/booking/${id}/`;
+            },
+            archive: async function (id) {
+                const isSuccess = await onlineBookingAPIRepository.archive(id, '{{csrf_token}}');
+                if (isSuccess)
+                    this.$refs.onlineBookingsTable.refresh();
+            },
+            refresh: function () {
+                this.$refs.onlineBookingsTable.refresh();
+            }
+        },
+        computed: {
+            dataSource: function () {
+                const builder = new URLSearchParams();
+                if (this.citySegmentId) {
+                    builder.append('city_segment_id', this.citySegmentId);
+                }
+                if (this.countyId) {
+                    builder.append('county_id', this.countyId);
+                }
+                if (this.schoolId) {
+                    builder.append('school_id', this.schoolId);
+                }
+
+                const url = `/api/onlinebooking/online_booking/list?` + builder.toString();
+
+                let columnsDefinition = {
+                    "id": {
+                        friendlyName: "Nr.",
+                        field: "id",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true,
+                        formatter: (obj, value) => {
+                            return obj.id;
+                        }
+                    },
+                    "times": {
+                        friendlyName: "Tider"
+                    },
+                    "county": {
+                        friendlyName: "Fylke",
+                        field: "county",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true,
+                        formatter: (obj, value) => {
+                            return obj.school?.county?.name || "Ingen";
+                        }
+                    },
+                    "school": {
+                        friendlyName: "Skole",
+                        field: "school",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true,
+                        formatter: (obj, value) => {
+                            if (value) {
+                                return value.name;
+                            }
+                        }
+                    },
+                    "audienceType": {
+                        friendlyName: "Målgruppe",
+                        field: "audienceType",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true,
+                        formatter: (obj, value) => {
+                            if (value) {
+                                return value.name;
+                            }
+                        }
+                    },
+                    "visitorsCount": {
+                        friendlyName: "Antall Besøkende",
+                        field: "visitorsCount",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true,
+                        formatter: (obj, value) => {
+                            return value;
+                        }
+                    },
+                }
+
+                this.hiddenColumns.forEach(column => {
+                    columnsDefinition[column].isHidden = true;
+                });
+
+                return new APITableDataSource(
+                    url,
+                    columnsDefinition,
+                    {
+                        "show": { type: 'main', content: 'Åpne', isContentHtml: true },
+                        "archive": { type: 'main', content: 'Arkiver', isContentHtml: true }
+                    },
+                    'title',
+                    'asc',
+                    true,
+                    (data) => {
+                        return data;
+                    }
+                );
+            }
+        },
+        props: {
+            citySegmentId: {
+                type: Number,
+                required: false
+            },
+            countyId: {
+                type: Number,
+                required: false
+            },
+            schoolId: {
+                type: Number,
+                required: false
+            },
+            hiddenColumns: {
+                type: Array,
+                required: false,
+                default: () => []
+            }
+        },
+        data: function () {
+            onlineBookingAPIRepository = new OnlineBookingAPIRepository();
+        }
+    }
+</script>

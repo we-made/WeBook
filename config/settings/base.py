@@ -2,6 +2,7 @@
 Base settings to build other settings files upon.
 """
 
+import logging
 from pathlib import Path
 from pythonjsonlogger import jsonlogger
 from datetime import datetime
@@ -100,6 +101,8 @@ LOCAL_APPS = [
     "webook.arrangement.apps.ArrangementConfig",
     "webook.crumbinator.apps.CrumbinatorConfig",
     "webook.screenshow.apps.ScreenshowConfig",
+    "webook.api.apps.ApiConfig",
+    "webook.onlinebooking.apps.OnlinebookingConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -222,6 +225,7 @@ TEMPLATES = [
 
 TEMPLATE_DIRS = (
     BASE_DIR / "templates",  # app-shared project templates (is this anti-pattern?)
+    APPS_DIR / "onlinebooking/templates",  # app-specific templates
 )
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
@@ -380,3 +384,11 @@ USER_DEFAULT_TIMEZONE = env(
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
 DISPLAY_SSO_ERROR_REASONING = env("DISPLAY_SSO_ERROR_REASONING", default=False)
+
+JWT_TOKEN_LIFETIME_MINUTES = env("JWT_TOKEN_LIFETIME_MINUTES", default=20)
+
+PDF_TMP_DIR = env("PDF_TMP_DIR", default="./webook/media/tmpfiles/")
+
+URL_TO_ONLINE_BOOKING_APP = env(
+    "URL_TO_ONLINE_BOOKING_APP", default="http://localhost:5000"
+)

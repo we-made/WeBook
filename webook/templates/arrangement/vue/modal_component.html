@@ -1,0 +1,112 @@
+<template id="vuec-mdb-modal-component-template">
+
+    <div class="modal"  style="padding-left: 0;" ref="modal" aria-labelledby="modal" aria-hidden="false">
+        <div :class="[ 'modal-dialog modal-dialog-centered modal-lg', fullScreen ? 'modal-fullscreen' : '' ]">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal">
+                        <slot name="modal-title">
+                            [[ title ]] 
+                        </slot>
+                    </h5>
+                    <button type="button" class="btn-close" @click="hide()"></button>
+                </div>
+
+                <div class="modal-body">
+                    <slot name="modal-body"></slot>
+                </div>
+
+                <div class="modal-footer">
+                    <slot name="modal-footer">
+                        <button class="btn wb-btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Lukk
+                        </button>
+                    </slot>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</template>
+
+<script>
+    let MdbModalComponent = {
+        props: {
+            isVisible: {
+                title: 'Visible',
+                type: Boolean,
+                default: false
+            },
+            backdrop: {
+                title: 'Backdrop',
+                type: Boolean,
+                default: true
+            },
+            fullScreen: {
+                title: 'Full screen',
+                type: Boolean,
+                default: false
+            },
+            title: {
+                title: 'Title',
+                type: String,
+                default: 'Modal'
+            },
+        },
+        data: function () {
+            return {
+                modal: null
+            }
+        },
+        watch: {
+            isVisible: function (val) {
+                val ? this.show() : this.hide();
+            }
+        },
+        methods: {
+            show() {
+                this.modal.show();
+                this.$emit('show');
+            },
+            hide() {
+                this.$emit('close');
+                this.modal.hide();
+            }
+        },
+        emits: ['close', 'show'],
+        delimiters: ['[[', ']]'],
+        template: '#vuec-mdb-modal-component-template',
+        mounted() {
+            this.$nextTick(() => {
+                this.modal = new mdb.Modal(this.$refs.modal);
+
+                if (this.isVisible) {
+                    this.show();
+                }
+            });
+
+            // Listen to 'esc' and ensure that consumer knows that the modal is hidden
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.hide();
+                }
+            });
+
+            this.$refs.modal.addEventListener('hidden.bs.modal', () => {
+                this.$emit('close');
+            });
+        },
+        unmounted() {
+            document.removeEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.hide();
+                }
+            });
+
+            this.$refs.modal.removeEventListener('hidden.bs.modal', () => {
+                this.$emit('close');
+            });
+        }
+    }
+</script>

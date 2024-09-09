@@ -21,6 +21,11 @@ html, body {
     height: 100%!important;
 }
 
+.select2-dropdown--below {
+    z-index: 5000000000000 !important;
+}
+
+
 .wb-dialog {
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px!important;
 }
@@ -628,4 +633,8 @@ a.fc-event {
 
 .dialog-fullscreen {
     overflow-y: scroll!important;
+}
+
+.dropdown-search-result-entry:hover {
+    background-color: var(--SECONDARY-COLOR);
 }

@@ -1,0 +1,150 @@
+{% include "arrangement/vue/modal_component.html" %}
+{% include "onlinebooking/county_select.html" %}
+
+<template id="vuec-city-segment-edit-modal">
+    <mdb-modal-component
+        @close="$emit('close')"
+        ref="modal"
+        :is-visible="isVisible"
+        :backdrop="backdrop"
+        title="Rediger bydel">
+
+        <template v-slot:modal-body>
+            <div class="form-group">
+                <label>Navn</label>
+                <input type="text" class="form-control" v-model="name" ref="segmentNameInput">
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Fylke</label>
+                <county-select-component v-model="form.county" :multiple="false" ref="countySelect">
+                </county-select-component>
+            </div>
+
+            <div class="alert alert-light wb-bg-secondary mt-2">
+                <i class="fas fa-exclamation-triangle"></i>
+
+                Endrer du fylket for en bydel så vil også alle skoler som har denne bydelen endre fylke.
+                <br>
+                <strong>Merk: </strong> Flytter du en bydel til et fylke som ikke har bydeler aktivert, vil skoler og bydel fortsatt bli flyttet.
+                Bydelen vil være tilgjengelig i bakgrunn, men vil ikke være synlig eller ha en effekt på booking, inntil fylket har bydeler aktivert.
+            </div>
+
+        </template>
+
+        <template v-slot:modal-footer>
+            <button class="btn wb-btn-secondary" @click="close()">
+                Avbryt / Lukk
+            </button>
+            <button class="btn wb-btn-main" @click="save()">
+                Lagre
+            </button>
+        </template>
+
+    </mdb-modal-component> 
+</template>
+
+<script>
+    const CitySegmentEditModalComponent = {
+        template: '#vuec-city-segment-edit-modal',
+        delimiters: ['[[', ']]'],
+        components: {
+            MdbModalComponent,
+            CountySelectComponent
+        },
+        data: function () {
+            return {
+                name: '',
+                form: {
+                    county: []
+                }
+            }
+        },
+        watch: {
+            isVisible: function (val) {
+                if (val && this.countyId !== null) {
+                    this.loadSegment();
+                }
+            }
+        },
+        props: {
+            isVisible: {
+                title: 'Visible',
+                type: Boolean,
+                default: false
+            },
+            backdrop: {
+                title: 'Backdrop',
+                type: Boolean,
+                default: true
+            },
+            segmentId: {
+                title: 'Segment ID',
+                type: Number,
+                default: null
+            }
+        },
+        computed: {
+            validationState: function () {
+                return {
+                    school: {
+                        considerIf: true,
+                        valid: this.name && this.name.length > 0,
+                        messageIfInvalid: "En bydel må ha et navn.",
+                        inputNodeRefName: "segmentNameInput"
+                    },
+                    county: {
+                        considerIf: true,
+                        valid: this.form.county && this.form.county.length > 0,
+                        messageIfInvalid: "Du må velge et fylke.",
+                        inputNodeRefName: "countySelect"
+                    },
+                }
+            },
+        },
+        methods: {
+            close: function () {
+                this.$emit('close');
+            },
+            loadSegment: async function () {
+                await fetch("/api/onlinebooking/city_segment/get?id=" + this.segmentId)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("segment", data);
+                        this.name = data.name;
+                        this.form.county = [data.countyId];
+                    });
+            },
+            save: async function () {
+                const isValid = validateFormState(this.validationState, (nodeRefName) => this.$refs[nodeRefName]);
+                if (!isValid) {
+                    return;
+                }
+
+                await fetch("/api/onlinebooking/city_segment/update?id=" + this.segmentId, {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        name: this.name,
+                        countyId: this.form.county[0]
+                    }),
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                }).then(response => {
+                    if (response.status === 200 || response.status === 201) {
+                        toastr.success("Segmentet ble lagret");
+                        this.$emit('has-changed');
+                        this.name = "";
+                        this.$refs.modal.hide();
+                    }
+                    else {
+                        toastr.error("Noe gikk galt under lagringen av segmentet");
+                        console.error("Failed to save segment", response);
+                    }
+                })
+            }
+        },
+        emits: ['close', 'has-changed']
+    }
+</script>

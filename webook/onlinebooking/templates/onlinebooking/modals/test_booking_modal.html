@@ -1,0 +1,240 @@
+{% include "arrangement/vue/modal_component.html" %}
+{% include "onlinebooking/county_select.html" %}
+{% include "onlinebooking/city_segment_select.html" %}
+{% include "onlinebooking/school_select.html" %}
+
+<template id="vuec-test-booking-modal">
+    <mdb-modal-component
+        @close="$emit('close')"
+        ref="modal"
+        :is-visible="isVisible"
+        :backdrop="backdrop">
+        
+        <template v-slot:modal-title>
+            <i class="fas fa-flask"></i>&nbsp; Test Booking
+        </template>
+
+        <template v-slot:modal-body>
+            <div class="alert alert-light wb-bg-secondary">
+                <span>
+                    Du kan opprette en booking, med tilnærmet lik flyt som brukere vil oppleve, for å teste at alt fungerer som forventet.
+                    Bookingen vil bli plassert. Om du ikke ønsker dette så kan du bruke arkiveringsfunksjonaliteten etterpå,
+                    da vil aktivitetene forsvinne fra kalenderen, og bookingen bli fjernet.
+                </span>
+            </div>
+
+            <div class="form-group mt-1">
+                <h4>Fylke</h4>
+                <county-select-component v-model="form.county" :multiple="false" ref="countySelect">
+                </county-select-component>
+            </div>
+
+            <div v-if="form.county && form.county.length > 0">
+                <div class="form-group mt-4">
+                    <h4>Skole</h4>
+                    <school-select-component v-model="form.school" :county-id="fullSelectedCounty.id" :multiple="false" ref="schoolSelect">
+                    </school-select-component>
+                </div>
+                
+                <div class="form-group mt-4" v-if="isSegmentedCounty && form.school && form.school.length > 0">
+                    <h4>Bydel</h4>
+                    <p v-if="activeSegment">
+                        [[ activeSegment.name ]]
+                    </p>
+                    <div v-else>
+                        <input type="text" class="form-control" v-model="form.textCitySegment" ref="textCitySegmentInput" placeholder="Bydel...">
+                        <div class="alert alert-danger mt-2">
+                            <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                            Det er ingen bydel tilknyttet denne skolen. Bruker vil måtte oppgi dette selv.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-4">
+                <h4>Målgruppe</h4>
+                <div ref="audienceSelectWrapper">
+                    <div v-for="audience in audienceTypes">
+                        <input type="radio" v-model="form.selectedAudience" :value="audience.id" :id="'audience-radio-' + audience.id">
+                        <label :for="'audience-radio-' + audience.id">
+                            &nbsp;[[ audience.name ]]
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-4">
+                <h4>Antall besøkende</h4>
+                <input type="number" class="form-control" v-model="form.visitors" ref="visitorsInput" min="0" max="1000">
+            </div>
+        </template>
+
+        <template v-slot:modal-footer>
+            <button class="btn wb-btn-secondary" @click="close()">
+                Avbryt / Lukk
+            </button>
+
+            <button class="btn wb-btn-main" @click="save()">
+                Lagre
+            </button>
+        </template>
+
+    </mdb-modal-component>
+</template>
+
+
+<script>
+    const TestBookingModalComponent = {
+        components: {
+            MdbModalComponent,
+            CountySelectComponent,
+            CitySegmentSelectComponent,
+            SchoolSelectComponent
+        },  
+        template: '#vuec-test-booking-modal',
+        delimiters: ['[[', ']]'],
+        props: {
+            isVisible: {
+                title: 'Visible',
+                type: Boolean,
+                default: false
+            },
+            backdrop: {
+                title: 'Backdrop',
+                type: Boolean,
+                default: true
+            },
+            fullScreen: {
+                title: 'Full screen',
+                type: Boolean,
+                default: false
+            },
+            title: {
+                title: 'Title',
+                type: String,
+                default: 'Modal'
+            }
+        },
+        computed: {
+            validationState: function () {
+                return {
+                    school: {
+                        considerIf: true,
+                        valid: this.form.school && this.form.school.length > 0,
+                        messageIfInvalid: "Du må velge en skole.",
+                        inputNodeRefName: "schoolSelect"
+                    },
+                    county: {
+                        considerIf: true,
+                        valid: this.form.county && this.form.county.length > 0,
+                        messageIfInvalid: "Du må velge et fylke.",
+                        inputNodeRefName: "countySelect"
+                    },
+                    citySegmentText: {
+                        considerIf: this.isSegmentedCounty && !this.activeSegment,
+                        valid: this.form.textCitySegment && this.form.textCitySegment.length > 0,
+                        messageIfInvalid: "Du må oppgi en bydel.",
+                        inputNodeRefName: "textCitySegmentInput",
+                    },
+                    visitors: {
+                        considerIf: true,
+                        valid: this.form.visitors > 0,
+                        messageIfInvalid: "Du må oppgi antall besøkende.",
+                        inputNodeRefName: "visitorsInput"
+                    },
+                    audience: {
+                        considerIf: true,
+                        valid: this.form.selectedAudience !== null,
+                        messageIfInvalid: "Du må velge en målgruppe.",
+                        inputNodeRefName: "audienceSelectWrapper"
+                    }
+                }
+            },
+            isSegmentedCounty: function () {
+                return this.fullSelectedCounty && this.fullSelectedCounty.citySegmentEnabled;
+            },
+            activeSegment: function () {
+                if (this.fullSelectedSchool && this.isSegmentedCounty) {
+                    const citySegmentId = this.fullSelectedSchool.citySegmentId;
+                    return this.fullSelectedCounty.citySegments.find(segment => segment.id === citySegmentId);
+                }
+            },
+        },
+        watch: {
+            "form.county": function (val) {
+                if (val && val.length > 0) {
+                    this.fullSelectedCounty = this.$refs.countySelect.countiesLookup[parseInt(this.form.county[0])];
+                }
+            },
+            "form.school": function (val) {
+                if (val && val.length > 0) {
+                    this.fullSelectedSchool = this.$refs.schoolSelect.schoolsLookup[parseInt(this.form.school[0])];
+                }
+
+                if (this.fullSelectedSchool.audience) {
+                    this.form.selectedAudience = this.fullSelectedSchool.audience.id;
+                }
+            }
+        },  
+        data: function () {
+            return {
+                fullSelectedCounty: null,
+                fullSelectedSchool: null,
+                form: {
+                    school: null,
+                    county: null,
+                    citySegment: null,
+                    visitors: 0,
+                    textCitySegment: null,
+                }
+            }
+        },
+        mounted: function () {
+            this.getSelectableAudienceTypes();
+        },
+        methods: {
+            close: function () {
+                this.$refs.modal.hide();
+            },
+            async getSelectableAudienceTypes() {
+                await fetch("/api/onlinebooking/online_booking/settings", {
+                    method: "GET",
+                }).then(response => response.json())
+                    .then(data => {
+                        this.audienceTypes = data.allowed_audiences;
+                    });
+            },  
+            async save() {
+                const isValid = validateFormState(this.validationState, (nodeRefName) => this.$refs[nodeRefName]);
+                if (!isValid) {
+                    return;
+                }
+
+                const response = await fetch("/api/onlinebooking/online_booking/create", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        "schoolId": this.fullSelectedSchool.id,
+                        "segmentId": this.activeSegment ? this.activeSegment.id : null,
+                        "segmentText": this.form.textCitySegment || null,
+                        "visitorsCount": this.form.visitors,
+                        "audienceTypeId": this.form.selectedAudience
+                    }),
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                });
+
+                if (response.status === 200 || response.status === 201) {
+                    toastr.success("Test booking ble opprettet");
+                    this.$emit("has-changed");
+                    this.$refs.modal.hide();
+                }
+                else {
+                    toastr.error("Noe gikk galt under oppretting av test booking");
+                    console.error("Failed to create test booking", response);
+                }
+            }
+        }
+    }
+</script>

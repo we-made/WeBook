@@ -70,6 +70,30 @@
                             {{ form.audience.errors }}
                         </div>
                         {% endif %}
+
+                        <div id="school_options" style="display: none;">
+                            <div class="form-group mt-2">
+                                <label>
+                                    Fylke
+                                </label>
+                                <select name="" id="countySelect" class="form-control">
+                                    <option value="0">Ingen fylke valgt</option>
+                                    {% for county in counties %}
+                                        <option value="{{county.id}}">{{county.name}}</option>
+                                    {% endfor %}
+                                </select>    
+                            </div>
+
+                            <div class="form-group mt-2">
+                                <label>
+                                    Skole
+                                </label>
+
+                                <select name="" id="schoolSelect" class="form-control">
+                                    <option value="0">Ingen skole valgt</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mb-2">
@@ -254,7 +278,7 @@
             </div>
         
 
-                <div class="mt-2 form-group">
+            <div class="mt-2 form-group">
                 <label>
                     <i class="fas fa-door-open"></i>&nbsp;
                     Møtested <i>(Norsk)</i>
@@ -330,7 +354,7 @@
             <button class="btn wb-btn-blank btn-lg text-muted"
                     d-trigger="close">
                 <i class="fas fa-times"></i>&nbsp;
-                Avbryt
+                Avbryt / Lukk
             </button>
         </div>
         <div class="float-end">
@@ -355,6 +379,77 @@
                 new mdb.Input(formOutline).init();
             });
             
+            dialog.data.schoolAudiences = new Map([
+                {% for audience in schoolAudiences %}
+                    [{{audience.id}}, { id: {{audience.id}}, text: "{{audience.name}}" }],
+                {% endfor %}
+            ]);
+
+            dialog.data.countyOptions = [
+                {% for county in counties %}
+                    {
+                        id: {{county.id}},
+                        text: "{{county.name}}",
+                        schools: [
+                            {% for school in county.schools %}
+                                {
+                                    id: {{school.id}},
+                                    text: "{{school}}",
+                                    parent: {{school.parent_id|default:0}},
+                                    audiences: [
+                                        {% for audience in school.audiences.all %}
+                                            {{audience.id}},
+                                        {% endfor %}
+                                    ],
+                                },
+                            {% endfor %}
+                        ]
+                    },
+                {% endfor %}
+            ];
+
+            function refreshSchoolSelect() {
+                const selectedCountyId = dialog.getElementById("countySelect").value;
+
+                if (dialog.$("#schoolSelect").data("select2")) {
+                    dialog.$("#schoolSelect").select2("destroy");
+                    dialog.$("#schoolSelect").empty();
+                }
+
+                let selectedAudienceId = parseInt(dialog.data.audienceJsTreeSelect.getSelectedValue()); 
+                let schoolOptions = [{
+                    id: 0,
+                    text: "Ingen skole valgt",
+                }];
+
+                dialog.data.countyOptions.forEach((county) => {
+                    if (county.id == selectedCountyId) {
+                        county.schools.forEach((school) => {
+                            if (school.audiences.includes(selectedAudienceId) || selectedAudienceId == {{ audienceGroupId }}) {
+                                schoolOptions.push({
+                                     id: school.id,
+                                    text: school.text,
+                                })
+                            }
+                        });
+                    }
+                });
+
+                setTimeout(function (){ // Has to be delayed to ensure select2 is destroyed. Hrmmph.
+                    dialog.$('#schoolSelect').select2({
+                        data: schoolOptions,
+                        dropdownParent: dialog.$dialogElement
+                    });
+
+                    let $containerEl = $(dialog.$('#schoolSelect').next(".select2-container"));
+                    $containerEl.css("width", "100%");
+                    $containerEl.css("display", "block");
+                }, 50);
+            }
+
+            dialog.getElementById("countySelect").addEventListener("change", refreshSchoolSelect);
+            dialog.getElementById("audience_jstree_select").addEventListener("change", refreshSchoolSelect);
+
             [
                 {
                     element: dialog.querySelector('#{{ form.location.id_for_label }}'),
@@ -387,7 +482,15 @@
                 element: dialog.querySelector('#audience_jstree_select'),
                 treeJsonSrcUrl: "/arrangement/audience/tree",
                 onValueSet: ( data ) => {
+                    console.log("audience selected", data);
                     dialog.getElementById('_audienceId').value = data.selected[0];
+
+                    if (dialog.data.schoolAudiences.get(parseInt(data.selected[0])) !== undefined) {
+                        dialog.getElementById('school_options').style.display = "block";
+                    }
+                    else {
+                        dialog.getElementById('school_options').style.display = "none";
+                    }
                 },
                 valueSelectedLabelText: ( selected) => {
                     let labelText = '';
@@ -464,8 +567,6 @@
                     title: 'Generelt',
                     stepIn: () => {},
                     stepOut: () => {
-                        debugger;
-
                         let field_elements = dialog.$('#step-1').find("input, select");
                         [
                             mdb.Select.getInstance(dialog.querySelector('#{{ form.location.id_for_label }}')),
@@ -614,6 +715,9 @@
                     formData.append("meeting_place",    dialog.interior.id_meeting_place.value);
                     formData.append("meeting_place_en", dialog.interior.id_meeting_place_en.value);
                     formData.append("expected_visitors",dialog.interior.id_expected_visitors.value);
+                    formData.append("county",           dialog.getElementById("countySelect").value);
+                    formData.append("school",           dialog.getElementById("schoolSelect").value);
+
                     if (dialog.data.selectedPlannerIds)
                         Array.from(dialog.data.selectedPlannerIds.keys())
                             .forEach( ( id ) => formData.append("planners", id) )
@@ -871,7 +975,7 @@
                     { 
                         preselectedMainPlanner: dialog.data.mainPlannerPayload,
                         preselectedRooms: dialog.data.roomPayload, 
-                        preselectedPeople: dialog.data.peoplePayload, 
+                        preselectedPeople: dialog.data.peoplePayload,
                         $parent: dialog.dialogElement,
                     }
                 )
