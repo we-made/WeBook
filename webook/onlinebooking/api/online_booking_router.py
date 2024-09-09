@@ -12,6 +12,8 @@ from webook.arrangement.models import (
     Audience,
     Event,
     Location,
+    Note,
+    Person,
     StatusType,
 )
 from webook.onlinebooking.api.schemas import (
@@ -169,6 +171,27 @@ def create_online_booking(
     )
 
     event.save()
+    try:
+        ob_placeholder_person = Person.objects.get(
+            first_name="Online",
+            last_name="Booking",
+        )
+    except Person.DoesNotExist:
+        ob_placeholder_person = Person.objects.create(
+            first_name="Online",
+            last_name="Booking",
+        )
+
+    note = Note.objects.create(
+        author=ob_placeholder_person,
+        content=f"Navn: {payload.contact_name}\nTelefon: {payload.contact_phone_number}",
+        has_personal_information=True,
+    )
+
+    note.save()
+
+    arrangement.notes.add(note)
+    arrangement.save()
 
     return ob
 
@@ -195,6 +218,9 @@ def update_online_booking_settings(
     if not settings:
         return {"message": "No settings found."}
 
+    settings.audience_group = Audience.objects.get(id=payload.audience_group_id)
+
+    settings.allowed_audiences.clear()
     for audience_id in payload.allowed_audiences:
         try:
             settings.allowed_audiences.add(Audience.objects.get(id=audience_id))

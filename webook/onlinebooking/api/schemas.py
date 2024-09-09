@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Union
 from webook.api.routers.service_account_router import ServiceAccountSchema
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.arrangement.api.schemas import AudienceGetSchema, LocationGetSchema
@@ -31,22 +31,26 @@ class SchoolCreateSchema(BaseSchema):
     name: str
     county_id: int
     city_segment_id: Optional[int]
+    audiences: List[int] = []
 
 
 class SchoolGetSchema(ModelBaseSchema, SchoolCreateSchema):
-    pass
-    # county: CountyGetSchema
-    # city_segment: Optional[CitySegmentGetSchema]
+    audiences: List[AudienceGetSchema] = []
 
 
-class OnlineBookingCreateSchema(BaseSchema):
+class OnlineBookingBaseSchema(BaseSchema):
     county_id: int
     school_id: Optional[int]
     visitors_count: int
     audience_type_id: int
 
 
-class OnlineBookingGetSchema(ModelBaseSchema, OnlineBookingCreateSchema):
+class OnlineBookingCreateSchema(OnlineBookingBaseSchema):
+    contact_name: str
+    contact_phone_number: str
+
+
+class OnlineBookingGetSchema(ModelBaseSchema, OnlineBookingBaseSchema):
     school: Optional[SchoolGetSchema] = None
     segment: Optional[CitySegmentGetSchema] = None
     audience_type: AudienceGetSchema
@@ -57,6 +61,9 @@ class OnlineBookingGetSchema(ModelBaseSchema, OnlineBookingCreateSchema):
 
 class OnlineBookingSettingsGetSchema(BaseSchema):
     title_format: str
+
+    audience_group_id: int
+    audience_group: Optional[AudienceGetSchema]
     allowed_audiences: List[AudienceGetSchema]
 
     location: Optional[LocationGetSchema]
@@ -74,6 +81,7 @@ class OnlineBookingSettingsGetSchema(BaseSchema):
 
 class OnlineBookingSettingsUpdateSchema(BaseSchema):
     title_format: Optional[str]
+    audience_group_id: int
     allowed_audiences: Optional[List[int]]
     location_id: Optional[int]
     main_planner_id: Optional[int]

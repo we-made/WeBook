@@ -88,7 +88,7 @@
                                 Fylke
                             </label>
                             <select name="" id="countySelect" class="form-control">
-                                <option value="">Velg fylke</option>
+                                <option value="0">Ingen fylke valgt</option>
                                 {% for county in counties %}
                                     <option value="{{county.id}}">{{county.name}}</option>
                                 {% endfor %}
@@ -101,7 +101,7 @@
                             </label>
 
                             <input type="hidden" name="" id="initialSchoolValue">
-                            <select name="" id="schoolSelect" class="form-control">
+                            <select name="" id="schoolSelect" class="form-control" style="width: 100%;">
                                 <option value="">Velg skole</option>
                             </select>
                         </div>
@@ -443,7 +443,7 @@
                     id="cancel"
                     d-trigger="close">
                 <i class="fas fa-times"></i>&nbsp;
-                Avbryt
+                Avbryt / Lukk
             </button>
         </div>
 
@@ -676,43 +676,17 @@
                                     id: {{school.id}},
                                     text: "{{school}}",
                                     parent: {{school.parent_id|default:0}},
+                                    audiences: [
+                                        {% for audience in school.audiences.all %}
+                                            {{audience.id}},
+                                        {% endfor %}
+                                    ],
                                 },
                             {% endfor %}
                         ],
                     },
                 {% endfor %}
             ];
-
-            const onCountyChange = function () {
-                const selectedCountyId = dialog.getElementById("countySelect").value;
-                const schoolSelect = dialog.getElementById("schoolSelect");
-                schoolSelect.innerHTML = "<option value=''>Velg skole</option>";
-
-                dialog.data.countyOptions.forEach((county) => {
-                    if (county.id == selectedCountyId) {
-                        county.schools.forEach((school) => {
-                            const option = document.createElement("option");
-                            option.value = school.id;
-                            option.text = school.text;
-                            schoolSelect.add(option);
-                        });
-
-                        const initialValue = dialog.getElementById("initialSchoolValue").value;
-                        if (initialValue) {
-                            schoolSelect.value = initialValue;
-                        }
-                    }
-                });
-            }
-
-            dialog.getElementById("countySelect").addEventListener("change", () => {
-                onCountyChange();
-            });
-
-            if (dialog.getElementById("countySelect").value) {
-                onCountyChange();
-            }
-            
 
             dialog.data.audienceJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#audience_jstree_select'),
@@ -741,6 +715,59 @@
                 changeSelectedValueButtonText: 'Endre målgruppe',
                 popoverSaveChoicesButtonText: 'Lagre valg',
             });
+
+            dialog.$('#schoolSelect').select2({
+                dropdownParent: dialog.$dialogElement
+            });
+
+            const onCountyChange = function () {
+                const selectedCountyId = dialog.getElementById("countySelect").value;
+
+                if (dialog.$("#schoolSelect").data("select2")) {
+                    dialog.$("#schoolSelect").select2("destroy");
+                    dialog.$("#schoolSelect").empty();
+                }
+
+                let selectedAudienceId = parseInt(dialog.data.audienceJsTreeSelect.getSelectedValue()); 
+                let schoolOptions = [{
+                    id: 0,
+                    text: "Ingen skole valgt",
+                }];
+                dialog.data.countyOptions.forEach((county) => {
+                    if (county.id == selectedCountyId) {
+                        county.schools.forEach((school) => {
+                            if (school.audiences.includes(selectedAudienceId) || selectedAudienceId == {{ audienceGroupId }}) {
+                                schoolOptions.push({
+                                     id: school.id,
+                                    text: school.text,
+                                })
+                            }
+                        });
+                    }
+                });
+
+                setTimeout(function (){ // Has to be delayed to ensure select2 is destroyed. Hrmmph.
+                    dialog.$('#schoolSelect').select2({
+                        data: schoolOptions,
+                        dropdownParent: dialog.$dialogElement
+                    });
+
+                    let $containerEl = $($('#schoolSelect').next(".select2-container"));
+                    $containerEl.css("width", "100%");
+                    $containerEl.css("display", "block");
+                }, 50);
+            }
+
+            dialog.getElementById("countySelect").addEventListener("change", () => {
+                onCountyChange();
+            });
+            dialog.getElementById("audience_jstree_select").addEventListener("change", () => {
+                onCountyChange();
+            });
+
+            if (dialog.getElementById("countySelect").value) {
+                onCountyChange();
+            }
 
             dialog.data.arrangementTypeJsTreeSelect = new JSTreeSelect({
                 element: dialog.querySelector('#arrangement_type_jstree_select'),

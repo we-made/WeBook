@@ -41,7 +41,7 @@ class TreeNodeSchema(BaseSchema):
     icon: str
     text: str
     children: Optional[List["TreeNodeSchema"]] = []
-    data: TreeNodeExtraDataSchema
+    data: Optional[TreeNodeExtraDataSchema] = None
 
 
 def validate_save(
@@ -68,8 +68,15 @@ audience_router = AudienceRouter(
 
 
 @audience_router.get("/tree", response=List[TreeNodeSchema], by_alias=True)
-def get_tree(request):
+def get_tree(request, audience_id: Optional[int] = None) -> List[TreeNodeSchema]:
     """Get all audiences as tree"""
-    return Audience.tree_dump(
-        Audience.objects.all(),
-    )
+    if audience_id:
+        if not Audience.objects.filter(id=audience_id).exists():
+            return HttpResponseBadRequest("Audience not found")
+
+        parent_audience = (
+            get_object_or_404(Audience, id=audience_id) if audience_id else None
+        )
+        return [x.as_node() for x in parent_audience.nested_children.all()]
+
+    return [x.as_node() for x in Audience.objects.filter(parent=None)]

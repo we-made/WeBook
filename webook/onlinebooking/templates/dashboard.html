@@ -97,18 +97,18 @@ container
     </test-booking-modal-component>
 
     <ul class="nav webook-tabs nav-tabs rounded-top" id="navTabs" role="tablist">
-        <li class="nav-item" role="presentation">
+        <!-- <li class="nav-item" role="presentation">
           <button class="nav-link active text-center" id="bookings-tab" data-mdb-toggle="tab" href="#bookingsTab" role="tab" aria-controls="bookingsTab" aria-selected="true">
             <span class="h5 mb-0"><i class="fas fa-calendar"></i></span>
             &nbsp; <span class="h5">Bookingregister</span></button>
-        </li>
+        </li> -->
         <li class="nav-item" role="presentation">
           <button class="nav-link  text-center" id="counties-tab" data-mdb-toggle="tab" href="#countiesTab" role="tab" aria-controls="countiesTab" aria-selected="true">
             <span class="h5 mb-0"><i class="fas fa-map-marked"></i></span>
             &nbsp; <span class="h5">Fylkeregister</span></button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="schools-tab" data-mdb-toggle="tab" href="#schoolsTab" role="tab" aria-controls="plannersTab" aria-selected="false">
+          <button class="nav-link active text-center" id="schools-tab" data-mdb-toggle="tab" href="#schoolsTab" role="tab" aria-controls="plannersTab" aria-selected="false">
             <span class="h5 mb-0"><i class="fas fa-school"></i></span>
             &nbsp; <span class="h5">Skoleregister</span>
           </button>
@@ -122,7 +122,7 @@ container
     </ul>
 
     <div class="tab-content pt-4">
-        <div class="tab-pane fade show active"
+        <!-- <div class="tab-pane fade show active"
              id="bookingsTab"
              tole="tabpanel">
 
@@ -130,13 +130,6 @@ container
                 <h2>
                     Booking Historikk
                 </h2>
-
-                <!-- <div>
-                    <button class="btn wb-btn-main" @click="testBookingModalVisible = !testBookingModalVisible">
-                        <i class="fas fa-flask"></i>&nbsp;
-                        Test Booking
-                    </button>
-                </div> -->
             </div>
 
              <div class="row">
@@ -144,7 +137,7 @@ container
                     <booking-table-component ref="bookingTableComponent"></booking-table-component>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <div class="tab-pane fade" role="tabpanel" id="countiesTab">
 
@@ -164,7 +157,7 @@ container
             <counties-table-component ref="countiesTableComponent"></counties-table-component>
         </div>
 
-        <div class="tab-pane fade" role="tabpanel" id="schoolsTab">
+        <div class="tab-pane fade show active" role="tabpanel" id="schoolsTab">
             <div class="d-flex justify-content-between">
                 <h2 class="">
                     Skoler
@@ -298,8 +291,22 @@ container
             </div>
 
             <h4 class="mt-4">
-                Velgbare Målgrupper
+                Målgrupper
             </h4>
+            <h5 class="mt-2">
+                Overgruppe
+            </h5>
+            <div class="form-group">
+                <select name="" id="" class="form-control" v-model="onlineBookingSettings.audience_group_id">
+                    {% for overgroup_audience in audience_group_choices %}
+                        <option value="{{overgroup_audience.id}}">{{overgroup_audience.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h5 class="mt-4">
+                Velgbare Målgrupper
+            </h5>
             <div class="form-group">
                 <div class="alert alert-light border-start border-2 rounded-0 wb-bg-secondary pt-2 pb-2 mb-2 mt-2">
                     På tablet kan bruker velge mellom målgrupper. De vil få en liste med valg basert på de målgruppene som er valgt her. Når bookinger plasseres vil
@@ -307,7 +314,7 @@ container
                 </div>
 
                 <tree-select-component :is-open="false" label="Målgruppe"
-                    json-url="{% url 'arrangement:audience_tree' %}"
+                    :json-url="audienceUrl"
                     button-label="Velg målgruppe" icon="fas fa-users"
                     v-model="onlineBookingSettings.allowed_audiences" :use-popover="false" :show-label="false" :show-search="false" :multi-select="true">
                 </tree-select-component>
@@ -340,6 +347,13 @@ container
                 CountiesTableComponent
             },
             delimiters: ['[[', ']]'],
+            watch: {
+                'onlineBookingSettings.audience_group_id': function (val) {
+                    if (val > 0) {
+                        this.audienceUrl = "/api/arrangement/audience/tree?audience_id=" + val;
+                    }
+                },
+            },
             methods: {
                 async archiveCounty(countyId) {
                     const responseData = await this.countyAPIRepository.archive(countyId, '{{csrf_token}}');
@@ -414,11 +428,14 @@ container
                 schoolFormModalVisible: false,
                 countyFormModalVisible: false,
                 testBookingModalVisible: false,
+                audienceUrl: "/api/arrangement/audience/tree?audience_id={{ settings.audience_group_id }}",
                 schoolAPIRepository: new SchoolAPIRepository(),
                 countyAPIRepository: new CountyAPIRepository(),
                 onlineBookingSettings: {
                     title_format: "%Skolenavn% %StartTid% %SluttTid% %Dato%",
                     offset: 0,
+                    main_planner_id: 0,
+                    audience_group_id: 0,
                     offset_unit: "minutes",
                     duration_amount: 30,
                     duration_unit: "minutes",

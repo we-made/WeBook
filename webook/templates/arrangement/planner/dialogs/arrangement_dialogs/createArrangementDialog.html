@@ -77,7 +77,7 @@
                                     Fylke
                                 </label>
                                 <select name="" id="countySelect" class="form-control">
-                                    <option value="">Velg fylke</option>
+                                    <option value="0">Ingen fylke valgt</option>
                                     {% for county in counties %}
                                         <option value="{{county.id}}">{{county.name}}</option>
                                     {% endfor %}
@@ -90,7 +90,7 @@
                                 </label>
 
                                 <select name="" id="schoolSelect" class="form-control">
-                                    <option value="">Velg skole</option>
+                                    <option value="0">Ingen skole valgt</option>
                                 </select>
                             </div>
                         </div>
@@ -278,7 +278,7 @@
             </div>
         
 
-                <div class="mt-2 form-group">
+            <div class="mt-2 form-group">
                 <label>
                     <i class="fas fa-door-open"></i>&nbsp;
                     Møtested <i>(Norsk)</i>
@@ -354,7 +354,7 @@
             <button class="btn wb-btn-blank btn-lg text-muted"
                     d-trigger="close">
                 <i class="fas fa-times"></i>&nbsp;
-                Avbryt
+                Avbryt / Lukk
             </button>
         </div>
         <div class="float-end">
@@ -396,29 +396,59 @@
                                     id: {{school.id}},
                                     text: "{{school}}",
                                     parent: {{school.parent_id|default:0}},
+                                    audiences: [
+                                        {% for audience in school.audiences.all %}
+                                            {{audience.id}},
+                                        {% endfor %}
+                                    ],
                                 },
                             {% endfor %}
-                        ],
+                        ]
                     },
                 {% endfor %}
             ];
 
-            dialog.getElementById("countySelect").addEventListener("change", () => {
+            function refreshSchoolSelect() {
                 const selectedCountyId = dialog.getElementById("countySelect").value;
-                const schoolSelect = dialog.getElementById("schoolSelect");
-                schoolSelect.innerHTML = "<option value=''>Velg skole</option>";
+
+                if (dialog.$("#schoolSelect").data("select2")) {
+                    dialog.$("#schoolSelect").select2("destroy");
+                    dialog.$("#schoolSelect").empty();
+                }
+
+                let selectedAudienceId = parseInt(dialog.data.audienceJsTreeSelect.getSelectedValue()); 
+                let schoolOptions = [{
+                    id: 0,
+                    text: "Ingen skole valgt",
+                }];
 
                 dialog.data.countyOptions.forEach((county) => {
                     if (county.id == selectedCountyId) {
                         county.schools.forEach((school) => {
-                            const option = document.createElement("option");
-                            option.value = school.id;
-                            option.text = school.text;
-                            schoolSelect.add(option);
+                            if (school.audiences.includes(selectedAudienceId) || selectedAudienceId == {{ audienceGroupId }}) {
+                                schoolOptions.push({
+                                     id: school.id,
+                                    text: school.text,
+                                })
+                            }
                         });
                     }
                 });
-            });
+
+                setTimeout(function (){ // Has to be delayed to ensure select2 is destroyed. Hrmmph.
+                    dialog.$('#schoolSelect').select2({
+                        data: schoolOptions,
+                        dropdownParent: dialog.$dialogElement
+                    });
+
+                    let $containerEl = $(dialog.$('#schoolSelect').next(".select2-container"));
+                    $containerEl.css("width", "100%");
+                    $containerEl.css("display", "block");
+                }, 50);
+            }
+
+            dialog.getElementById("countySelect").addEventListener("change", refreshSchoolSelect);
+            dialog.getElementById("audience_jstree_select").addEventListener("change", refreshSchoolSelect);
 
             [
                 {

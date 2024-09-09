@@ -616,7 +616,12 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
             for key, value in dict(payload).items():
                 if value is not NOT_SET:
-                    setattr(instance, key, value)
+                    if type(value) == list:
+                        related_field = getattr(instance, key)
+                        related_field.set(value)
+                    else:
+                        setattr(instance, key, value)
+                        
             instance.save()
 
             return OperationResultSchema[self.get_schema](

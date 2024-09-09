@@ -33,11 +33,24 @@
                     Om bydel ikke settes, vil brukere måtte velge en bydel ved booking.
                 </div>
             </div>
+
+            <div class="form-group mt-2">
+                <label for="" class="form-label">Trinn</label>
+                <tree-select-component :is-open="true" label="Målgruppe"
+                    json-url="{% url 'onlinebooking:allowed_audience_tree_json' %}"
+                    button-label="Velg målgruppe" icon="fas fa-users"
+                    v-model="audiences" 
+                    :use-popover="false" 
+                    :show-label="false" 
+                    :show-search="false" 
+                    :multi-select="true">
+                </tree-select-component>
+            </div>
         </template>
 
         <template v-slot:modal-footer>
             <button class="btn wb-btn-secondary" @click="close()">
-                Avbryt
+                Avbryt / Lukk
             </button>
             <button class="btn wb-btn-main" v-if="this.schoolId === null" @click="save(false)">
                 Lagre, og ny
@@ -55,6 +68,7 @@
         template: '#vuec-school-edit-model',
         delimiters: ['[[', ']]'],
         components: {
+            TreeSelectComponent,
             MdbModalComponent,
             CountySelectComponent,
             CitySegmentSelectComponent
@@ -78,6 +92,7 @@
                         name: this.form.name,
                         countyId: this.countyId,
                         citySegmentId: this.citySegmentId,
+                        audiences: this.audiences
                     }),
                     headers: {
                         "Content-Type": "application/json",
@@ -120,16 +135,17 @@
                     await fetch("/api/onlinebooking/school/get?id=" + this.schoolId)
                         .then(response => response.json())
                         .then(data => {
-                            console.log("school", data);
                             this.form.name = data.name;
-                            this.form.county = [data.county.id];
-                            this.form.citySegment = data.citySegment ? [ data.citySegment.id ] : [];
+                            this.form.county = [data.countyId];
+                            this.audiences = data.audiences.map(x => x.id);
+                            this.form.citySegment = data.citySegmentId ? [ data.citySegmentId ] : [];
                         });
                 }
             }
         },
         data: function () {
             return {
+                audiences: [],
                 dropdownParent: null,
                 county: [],
                 settings: null,

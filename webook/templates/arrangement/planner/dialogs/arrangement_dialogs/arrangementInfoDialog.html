@@ -354,7 +354,7 @@
                     <a href="#" class="btn wb-btn-secondary btn-lg"
                         d-trigger="close">
                         <i class="fas fa-times"></i>
-                        Avbryt
+                        Avbryt / Lukk
                     </a>
                     
                     <a class="btn shadow-0 wb-btn-main" href="#"
@@ -759,7 +759,7 @@
             <div class="form-group">
                 <label for="countySelect">Fylke</label>
                 <select name="" id="countySelect" class="form-control">
-                    <option value="" disabled
+                    <option value=""
                         {% if object.county is None %}selected{% endif %}>
                         Ingen valgt
                     </option>
@@ -774,9 +774,9 @@
             </div>
 
             <div class="form-group mt-2">
-                <label for="schoolSelect">Skole</label>
-                <select name="" id="schoolSelect" class="form-control">
-                    <option value="" disabled
+                <label for="schoolSelect">Skole <em>(Målgruppe: {{ object.audience.name }})</em></label>
+                <select name="" id="schoolSelect" class="form-control" style="width: 100%">
+                    <option value=""
                         {% if object.school is None %}selected{% endif %}>
                         Ingen valgt
                     </option>
@@ -796,7 +796,7 @@
                     <a href="#" class="btn wb-btn-secondary btn-lg"
                         d-trigger="close">
                         <i class="fas fa-times"></i>
-                        Avbryt
+                        Avbryt / Lukk
                     </a>
                     
                     <a class="btn shadow-0 wb-btn-main" href="#"
@@ -827,6 +827,9 @@
             {% endif %}
 
             {% if object.is_school_related %}
+            $('#schoolSelect').select2({
+                dropdownParent: dialog.$dialogElement
+            });
             dialog.getElementById("countySelect").addEventListener("change", (e) => {
                 fetch("/api/onlinebooking/city_segment/list?county_id=" + e.target.value)
                     .then(a => a.json())
@@ -835,19 +838,45 @@
                             a.data.map( (citySegment) => [citySegment.id, citySegment] )
                         );
                     }).then( () => {
-                        fetch("/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name")
+                        let audience_id = dialog.data.audienceJsTreeSelect.getSelectedValue() || 0;
+
+                        let url = "/api/onlinebooking/school/list?county_id=" + e.target.value + "&sort_by=name&limit=1000";
+                        if (parseInt(audience_id) != {{ audienceGroupId }}) {
+                            url += "&audience_id=" + audience_id;
+                        }
+
+                        fetch(url)
                         .then(a => a.json())
                         .then(a => {
-                            dialog.getElementById("schoolSelect").innerHTML = '';
-                            a.data.forEach( (school) => {
-                                let option = document.createElement("option");
-                                option.value = school.id;
-                                option.innerText = school.name;
-                                if (school.citySegmentId)
-                                    option.innerText += " - " + dialog.data.citySegmentMap.get(school.citySegmentId).name;
+                            if ($("#schoolSelect").data("select2")) {   
+                                $("#schoolSelect").select2("destroy");
+                                $("#schoolSelect").empty();
+                            }
 
-                                dialog.getElementById("schoolSelect").appendChild(option);
-                            });
+                            let schoolOptions = [
+                                {
+                                    id: "",
+                                    text: "Ingen valgt",
+                                },
+                                ...a.data.map((school) => {
+                                    let segment = dialog.data.citySegmentMap.get(school.citySegmentId);
+                                    return {
+                                        id: school.id,
+                                        text: segment ? school.name + " - " + segment.name : school.name
+                                    }
+                                })
+                            ]; 
+
+                            setTimeout(function (){ // Has to be delayed to ensure select2 is destroyed. Hrmmph.
+                                $('#schoolSelect').select2({
+                                    dropdownParent: dialog.$dialogElement,
+                                    data: schoolOptions
+                                });
+
+                                let $containerEl = $($('#schoolSelect').next(".select2-container"));
+                                $containerEl.css("width", "100%");
+                                $containerEl.css("display", "block");
+                            }, 50);
                         });
                     });
             });
@@ -940,7 +969,6 @@
             {% if user|has_group:"readonly_level_2" and user.is_superuser == False %}
                 document.querySelectorAll("#jsTreeSelects button").forEach( (buttonElement) => buttonElement.remove() );
             {% endif %}
-            dialog.querySelectorAll("#jsTreeSelects button").forEach( (buttonElement) => buttonElement.remove() );
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {
