@@ -10,6 +10,7 @@ from django.core import exceptions, serializers
 from django.db import connection
 from django.db.models import query
 from django.db.models.query import QuerySet
+from django.forms import BaseModelForm
 from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBadRequest, JsonResponse
@@ -670,6 +671,11 @@ class PlannerCreateArrangementInformatioDialogView(
                 "dialogId": context["dialogId"],
             },
         )
+
+    def form_invalid(self, form: BaseModelForm) -> HttpResponse:
+        print(">> PlannerCreateArrangementInformatioDialogView | Form Invalid")
+        print(form.errors)
+        return super().form_invalid(form)
 
 
 create_arrangement_dialog_view = PlannerCreateArrangementInformatioDialogView.as_view()
