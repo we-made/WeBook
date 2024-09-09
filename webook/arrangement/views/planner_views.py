@@ -662,6 +662,7 @@ class PlannerCreateArrangementInformatioDialogView(
         return context
 
     def get_success_url(self) -> str:
+        print(">> PlannerCreateArrangementInformatioDialogView | Get Success URL")
         context = self.get_context_data()
         return reverse_with_params(
             "arrangement:arrangement_dialog",
