@@ -739,8 +739,8 @@
                     end_before_collision_resolution: dialog.interior.end_before_collision_resolution.value,
                     title_before_collision_resolution: dialog.interior.title_before_collision_resolution.value,
 
-                    school:                    dialog.getElementById("schoolSelect").value || "",
-                    county:                   dialog.getElementById("countySelect").value || "",
+                    school:                    dialog.getElementById("schoolSelect").value == 0 ? null : dialog.getElementById("schoolSelect").value,
+                    county:                   dialog.getElementById("countySelect").value == 0 ? null : dialog.getElementById("countySelect").value,
                 };
 
                 let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
