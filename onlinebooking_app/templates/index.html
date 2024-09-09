@@ -135,6 +135,9 @@
                         </article>
     
                         <div class="is-clearfix">
+                            <button class="button is-light mt-3 is-medium is-pulled-left" @click="advanceStep(1)">
+                                Tilbake
+                            </button>
                             <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()">Neste</button>
                         </div>
                     </div>
@@ -196,7 +199,10 @@
                         </article>
     
                         <div class="is-clearfix">
-                            <button class="button is-black mt-3 is-medium is-pulled-right" @click="step = 5" v-if="hasCycledFully">Bekreft </button>
+                            <button class="button is-light mt-3 is-medium is-pulled-left" @click="advanceStep(2)">
+                                Tilbake
+                            </button>
+                            <!-- <button class="button is-black mt-3 is-medium is-pulled-right" @click="step = 5" v-if="hasCycledFully">Bekreft </button> -->
                             <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()" v-else>Neste</button>
                         </div>
                     </div>
@@ -253,6 +259,9 @@
                         </article>
     
                         <div class="is-clearfix">
+                            <button class="button is-light mt-3 is-medium is-pulled-left" @click="advanceStep(selectedCounty.schoolEnabled && selectedSchool ? 3 : 2)">
+                                Tilbake
+                            </button>
                             <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()" v-else>Neste</button>
                         </div>
                     </div>
@@ -309,6 +318,9 @@
                         </div>
 
                         <div class="is-clearfix">
+                            <button class="button is-light mt-3 is-medium is-pulled-left" @click="advanceStep(4)">
+                                Tilbake
+                            </button>
                             <button class="button is-black mt-3 is-medium is-pulled-right" @click="step = 6" v-if="hasCycledFully">Bekreft </button>
                             <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()" v-else>Neste</button>
                         </div>
@@ -409,6 +421,12 @@
                     location.reload();
                 },
                 advanceStep(targetStep=null) {
+                    if (targetStep && targetStep < this.step) {
+                        console.log("Going back to step", targetStep, "from", this.step);
+                        this.step = targetStep;
+                        return;
+                    }
+
                     if (this.step == 1) {
                         if (!this.selectedAudience) {
                             this.showAudienceNotSelectedFeedback = true;
@@ -426,7 +444,7 @@
                             return;
                         }                        
 
-                        console.log("selectedCounty", this.selectedCounty)
+                        console.log("Selected county", this.selectedCounty);
                         if (this.selectedCounty.schoolEnabled) {
                             this.step = targetStep || 3;
                         }
@@ -497,12 +515,23 @@
                 }
             },
             watch: {
+                selectedAudience: function () {
+                    this.selectedCounty.schoolEnabled = this.selectedCounty.originalSchoolEnabled;
+                },
+                selectedCounty: function () {
+                    this.selectedSchool = null;
+                    if (this.selectedCounty.originalSchoolEnabled)
+                        this.selectedCounty.schoolEnabled = this.selectedCounty.originalSchoolEnabled;
+                },
                 timeToRefresh: function () {
                     if (this.timeToRefresh == 0) {
                         location.reload();
                     }
                 },
                 noSchoolsFound: function () {
+                    if (!this.selectedCounty.originalSchoolEnabled)
+                        this.selectedCounty.originalSchoolEnabled = this.selectedCounty.schoolEnabled;
+
                     if (this.noSchoolsFound) {
                         this.selectedCounty.schoolEnabled = false;
                         this.advanceStep(4);
@@ -546,6 +575,7 @@
                         'asc',
                         true,
                         (data) => {
+                            console.log("table DATA")
                             if (data.data.length == 0) {
                                 this.noSchoolsFound = true;
                             }
