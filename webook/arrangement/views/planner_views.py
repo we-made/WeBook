@@ -10,6 +10,7 @@ from django.core import exceptions, serializers
 from django.db import connection
 from django.db.models import query
 from django.db.models.query import QuerySet
+from django.forms import BaseModelForm
 from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBadRequest, JsonResponse
@@ -661,6 +662,7 @@ class PlannerCreateArrangementInformatioDialogView(
         return context
 
     def get_success_url(self) -> str:
+        print(">> PlannerCreateArrangementInformatioDialogView | Get Success URL")
         context = self.get_context_data()
         return reverse_with_params(
             "arrangement:arrangement_dialog",
@@ -669,6 +671,15 @@ class PlannerCreateArrangementInformatioDialogView(
                 "managerName": context["managerName"],
                 "dialogId": context["dialogId"],
             },
+        )
+
+    def form_invalid(self, form: BaseModelForm) -> HttpResponse:
+        print(">> PlannerCreateArrangementInformatioDialogView | Form Invalid")
+        print(form.errors)
+        return JsonResponse(
+            {
+                "errors": form.errors,
+            }
         )
 
 
