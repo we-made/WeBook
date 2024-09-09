@@ -675,7 +675,11 @@ class PlannerCreateArrangementInformatioDialogView(
     def form_invalid(self, form: BaseModelForm) -> HttpResponse:
         print(">> PlannerCreateArrangementInformatioDialogView | Form Invalid")
         print(form.errors)
-        return super().form_invalid(form)
+        return JsonResponse(
+            {
+                "errors": form.errors,
+            }
+        )
 
 
 create_arrangement_dialog_view = PlannerCreateArrangementInformatioDialogView.as_view()
