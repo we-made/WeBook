@@ -31,3 +31,4 @@ reportlab==4.2.2
 pyjwt==2.8.0
 
 python-json-logger==2.0.7
+sentry-sdk==2.14.0
