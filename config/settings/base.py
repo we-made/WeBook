@@ -275,6 +275,28 @@ EMAIL_TIMEOUT = 5
 DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="webook@webook.no")
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
+USE_REDIS = env.bool("USE_REDIS", default=False)
+
+# CACHING
+if USE_REDIS:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": env("REDIS_URL", default="redis://localhost:6379"),
+        }
+    }
+
+    # UpdateCacheMiddleware should be first in the list
+    # FetchFromCacheMiddleware should be last in the list
+    # MIDDLEWARE.insert(0, "django.middleware.cache.UpdateCacheMiddleware")
+    # MIDDLEWARE.append("django.middleware.cache.FetchFromCacheMiddleware")
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "",
+        }
+    }
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL.
