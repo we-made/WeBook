@@ -1,0 +1,107 @@
+{% include "arrangement/vue/select2.html" %}
+
+<template id="vuec-county-select">
+    <select2
+        style="width: 100%;"
+        @input="(value) => selected = value"
+        :options="countiesOptions"
+        :selected="selected"
+        :placeholder="multiple ? 'Velg fylker' : 'Velg fylke'"
+        :multiple="multiple">
+
+    </select2>
+</template>
+
+<script>
+    const CountySelectComponent = {
+        template: '#vuec-county-select',
+        delimiters: ['[[', ']]'],
+        methods: {
+            getCounties: async function () {
+                const response = await fetch('/api/onlinebooking/county/list');
+                if (response.status !== 200) {
+                    console.error('Failed to fetch counties');
+                    console.error(response);
+                    return;
+                }
+
+                let data = (await response.json()).data.filter(x => x.schoolEnabled);
+
+                this.countiesOptions = data.map(x => {
+                    return {
+                        id: x.id,
+                        text: x.name
+                    }
+                });
+
+                this.countiesLookup = data.reduce((acc, x) => {
+                    acc[x.id] = x;
+                    return acc;
+                }, {});
+            }
+        },
+        data: () => {
+            return {
+                countiesOptions: [],
+                selected: [],
+                hasInit: false
+            }
+        },
+        components: {
+            Select2
+        },
+        watch: {
+            selected: function (newValue) {
+                if (!this.hasInit) {
+                    return;
+                }
+
+                if (!Array.isArray(newValue)) {
+                    newValue = [ newValue ];
+                }
+
+                this.$emit('update:modelValue', newValue);
+            },
+            modelValue: function (newValue) {
+                if (!this.hasInit) {
+                    return;
+                }
+
+                if (newValue instanceof Number) {
+                    this.selected = [ newValue ];
+                }
+                else if (Array.isArray(newValue)) {
+                    this.selected = newValue;
+                }
+                else {
+                    this.selected = [];
+                }
+            }
+        },
+        props: {
+            multiple: {
+                type: Boolean,
+                default: false
+            },
+            modelValue: {
+                type: Array,
+                default: null
+            }
+        },
+        async mounted() {
+            await this.getCounties();
+
+            if (this.modelValue instanceof Number) {
+                this.selected = [ this.modelValue ];
+            }
+            else if (Array.isArray(this.modelValue)) {
+                this.selected = this.modelValue;
+            }
+            else {
+                this.selected = [];
+            }
+
+            this.hasInit = true;
+        },
+    }
+</script>

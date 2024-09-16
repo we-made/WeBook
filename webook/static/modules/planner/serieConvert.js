@@ -21,6 +21,8 @@ export function serieConvert(serie, formData, keyPrefix=`manifest.`) {
     formData.append(`${keyPrefix}meeting_place_en`, serie.time.meeting_place_en);
     formData.append(`${keyPrefix}responsible`, serie.time.responsible);
     formData.append(`${keyPrefix}display_text`, serie.time.display_text);
+    formData.append(`${keyPrefix}county`, serie.time.county || "");
+    formData.append(`${keyPrefix}school`, serie.time.school || "");
     if (serie.collision_resolution_behaviour === undefined)
         serie.collision_resolution_behaviour = 0
     formData.append(`${keyPrefix}collision_resolution_behaviour`, serie.collision_resolution_behaviour);

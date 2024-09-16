@@ -1,0 +1,141 @@
+{% extends "onlinebooking/base.html" %}
+{% load static i18n %}
+{% load custom_tags %}
+
+{% block title %}
+    Bydel {{ city_segment.name }}
+{% endblock %}
+
+{% block section_title %}
+{% endblock %}
+{% block section_subtitle %}
+    Online Booking
+{% endblock %}
+{% block section_crumb_url %}
+    
+{% endblock %}
+{% block section_icon_class %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block section_crumb_icon %}
+    <i class='fas fa-calendar'></i>
+{% endblock %}
+{% block container_classes %}
+container
+{% endblock %}
+
+{% block content %}
+    {% include "arrangement/vue/table_component.html" %}
+    {% include "onlinebooking/modals/segment_edit_modal.html" %}
+    {% include "onlinebooking/tables/schools_table.html" %}
+    {% include "onlinebooking/tables/booking_table.html" %}
+
+    <div id="citySegmentDetailVueApp">  
+        <city-segment-edit-modal-component
+            @close="editSegmentModalIsVisible = false"
+            @has-changed="onEdited"
+            :is-visible="editSegmentModalIsVisible"
+            :segment-id="{{ city_segment.id }}"
+            :backdrop="true">
+        </city-segment-edit-modal-component>
+
+        <div class="p-5  rounded-4 bg-body-tertiary mb-0 ps-0">
+            <h1 class="">
+                <i class="fas fa-map-marker-alt"></i>
+                {{ city_segment.name }}
+            </h1>
+            
+            <nav class="d-flex justify-content-between">
+                <div>
+                    <h6 class="mb-0">
+                        <a href="{% url 'onlinebooking:dashboard' %}" class="text-reset">Online Booking</a>
+                        <span>&nbsp;/&nbsp;</span>
+                        <a href="{% url 'onlinebooking:county_detail' city_segment.county.id %}" class="text-reset">{{ city_segment.county.name }}</a>
+                        <span>&nbsp;/&nbsp;</span>
+                        <a href="#" class="text-reset"><u>{{ city_segment.name }}</u></a>
+                    </h6>
+            
+                    <div class="mt-2">
+                        <button class="btn wb-btn-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i>
+                            Tilbake
+                        </button>
+                        <button class="btn wb-btn-main ms-2">
+                            <i class="fas fa-archive"></i>&nbsp;
+                            Arkiver
+                        </button>
+                        <button class="btn wb-btn-main ms-1" @click="editSegmentModalIsVisible = true">
+                            <i class="fas fa-edit"></i>&nbsp;
+                            Rediger
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        
+        <ul class="nav webook-tabs nav-tabs rounded-top" id="navTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active text-center" id="schools-tab" data-mdb-toggle="tab" href="#schoolsTab" role="tab" aria-controls="schoolsTab" aria-selected="true">
+                    <span class="h5 mb-0"><i class="fas fa-school"></i></span>
+                    &nbsp; <span class="h5">Skoler</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-center" id="bookings-tab" data-mdb-toggle="tab" href="#bookingsTab" role="tab" aria-controls="bookingsTab" aria-selected="true">
+                    <span class="h5 mb-0"><i class="fas fa-calendar"></i></span>
+                    &nbsp; <span class="h5">Bookinger</span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content p-4">
+            <div class="tab-pane fade show active" id ="schoolsTab" role="tabpanel">
+                <schools-table-component
+                    :city-segment-id="{{object.id}}"
+                    :hidden-columns="[ 'county', 'segment' ]">
+                </schools-table-component>
+            </div>
+
+            <div class="tab-pane fade" id="bookingsTab" role="tabpanel">
+                <booking-table-component
+                    :city-segment-id="{{object.id}}"
+                    :hidden-columns="['county']">
+
+                </booking-table-component>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            const citySegmentDetailVueApp = Vue.createApp({
+                components: {
+                    TableComponent,
+                    CitySegmentEditModalComponent,
+                    SchoolsTableComponent,
+                    BookingTableComponent
+                },
+                delimiters: ['[[', ']]'],
+                methods: {
+                    show: function (id) {
+                        location.href = `/onlinebooking/booking/${id}/`;
+                    },
+                    archive: async function () {
+                        const responseData = await this.citySegmentAPIRepository.archive("{{ city_segment.id }}", '{{csrf_token}}');
+                        if (responseData !== null)
+                            location.href = "{% url 'onlinebooking:dashboard' %}";
+                    },
+                    onEdited: function () {
+                        location.reload();
+                    }
+                },
+                data: () => ({
+                    editSegmentModalIsVisible: false,
+                    citySegmentAPIRepository: new CitySegmentAPIRepository()
+                })
+            });
+            citySegmentDetailVueApp.mount('#citySegmentDetailVueApp');
+        })
+    </script>
+{% endblock %}

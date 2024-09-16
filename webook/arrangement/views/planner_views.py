@@ -10,6 +10,7 @@ from django.core import exceptions, serializers
 from django.db import connection
 from django.db.models import query
 from django.db.models.query import QuerySet
+from django.forms import BaseModelForm
 from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBadRequest, JsonResponse
@@ -82,6 +83,7 @@ from webook.arrangement.views.generic_views.json_form_view import (
     JsonModelFormMixin,
 )
 from webook.authorization_mixins import PlannerAuthorizationMixin
+from webook.onlinebooking.models import County, OnlineBookingSettings, School
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.json_serial import json_serial
@@ -509,6 +511,33 @@ class PlannerEventInspectorDialogView(LoginRequiredMixin, DialogView, UpdateView
         context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(
             triggers_display_layout_text=True
         )
+
+        obj = self.get_object()
+        if obj.is_school_related:
+            from webook.onlinebooking.models import (
+                County,
+                OnlineBookingSettings,
+            )
+
+            online_booking_settings = OnlineBookingSettings.objects.first()
+            context["school_audiences"] = (
+                *online_booking_settings.allowed_audiences.all(),
+                online_booking_settings.audience_group,
+            )
+            context["audienceGroupId"] = online_booking_settings.audience_group.id
+            context["counties"] = County.objects.all().order_by("name")
+            context["city_segments"] = (
+                obj.county.city_segments.all().order_by("name") if obj.county else []
+            )
+            if obj.county:
+                context["schools"] = obj.county.schools_in_county.all().order_by("name")
+                if obj.audience != online_booking_settings.audience_group:
+                    context["schools"] = context["schools"].filter(
+                        audiences__in=[obj.audience]
+                    )
+            else:
+                context["schools"] = []
+
         return context
 
 
@@ -549,6 +578,38 @@ class PlannerArrangementInformationDialogView(
         context["sets"] = sets.values()
         context["arrangement"] = arrangement_in_focus
 
+        if arrangement_in_focus.is_school_related:
+            from webook.onlinebooking.models import (
+                County,
+                OnlineBookingSettings,
+            )
+
+            online_booking_settings = OnlineBookingSettings.objects.first()
+
+            context["school_audiences"] = (
+                *online_booking_settings.allowed_audiences.all(),
+                online_booking_settings.audience_group,
+            )
+            context["audienceGroupId"] = online_booking_settings.audience_group.id
+            context["counties"] = County.objects.all().order_by("name")
+            context["city_segments"] = (
+                arrangement_in_focus.county.city_segments.all().order_by("name")
+                if arrangement_in_focus.county
+                else []
+            )
+            if arrangement_in_focus.county:
+                context["schools"] = (
+                    arrangement_in_focus.county.schools_in_county.all().order_by("name")
+                )
+                if (
+                    arrangement_in_focus.audience
+                    != online_booking_settings.audience_group
+                ):
+                    context["schools"] = context["schools"].filter(
+                        audiences__in=[arrangement_in_focus.audience]
+                    )
+            else:
+                context["schools"] = []
         return context
 
     def get_success_url(self) -> str:
@@ -584,9 +645,24 @@ class PlannerCreateArrangementInformatioDialogView(
         )
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
+
+        settings = OnlineBookingSettings.objects.first()
+        counties = County.objects.all().order_by("name")
+
+        for county in counties:
+            county.schools = School.objects.filter(county=county).order_by("name")
+
+        context["schoolAudiences"] = [
+            *settings.allowed_audiences.all(),
+            settings.audience_group,
+        ]
+        context["audienceGroupId"] = settings.audience_group.id
+        context["counties"] = counties
+
         return context
 
     def get_success_url(self) -> str:
+        print(">> PlannerCreateArrangementInformatioDialogView | Get Success URL")
         context = self.get_context_data()
         return reverse_with_params(
             "arrangement:arrangement_dialog",
@@ -595,6 +671,15 @@ class PlannerCreateArrangementInformatioDialogView(
                 "managerName": context["managerName"],
                 "dialogId": context["dialogId"],
             },
+        )
+
+    def form_invalid(self, form: BaseModelForm) -> HttpResponse:
+        print(">> PlannerCreateArrangementInformatioDialogView | Form Invalid")
+        print(form.errors)
+        return JsonResponse(
+            {
+                "errors": form.errors,
+            }
         )
 
 
@@ -642,6 +727,20 @@ class PlannerArrangementCreateSimpleEventDialogView(
         if not isinstance(hide_rigging, bool):
             hide_rigging = hide_rigging == "true"
         context["HIDE_RIGGING"] = hide_rigging
+
+        settings = OnlineBookingSettings.objects.first()
+        counties = County.objects.all().order_by("name")
+
+        for county in counties:
+            county.schools = School.objects.filter(county=county).order_by("name")
+
+        context["schoolAudiences"] = [
+            *settings.allowed_audiences.all(),
+            settings.audience_group,
+        ]
+        context["audienceGroupId"] = settings.audience_group.id
+        context["counties"] = counties
+
         return context
 
 
@@ -1033,6 +1132,19 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
 
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
+
+        settings = OnlineBookingSettings.objects.first()
+        counties = County.objects.all().order_by("name")
+
+        for county in counties:
+            county.schools = School.objects.filter(county=county).order_by("name")
+
+        context["schoolAudiences"] = [
+            *settings.allowed_audiences.all(),
+            settings.audience_group,
+        ]
+        context["audienceGroupId"] = settings.audience_group.id
+        context["counties"] = counties
 
         return context
 

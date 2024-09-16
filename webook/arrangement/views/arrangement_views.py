@@ -7,19 +7,46 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, TemplateView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 from django.views.generic.edit import DeleteView, FormView
 from requests import delete
 
-from webook.arrangement.forms.delete_arrangement_file_form import DeleteArrangementFileForm
-from webook.arrangement.forms.planner.planner_create_arrangement_form import PlannerCreateArrangementModelForm
-from webook.arrangement.forms.planner_forms import AddPlannerForm, PromotePlannerToMainForm, RemovePlannerForm
-from webook.arrangement.models import Arrangement, ArrangementFile, Event, EventSerie, Person, PlanManifest
-from webook.arrangement.views.generic_views.archive_view import ArchiveView, JsonArchiveView
+from webook.arrangement.forms.delete_arrangement_file_form import (
+    DeleteArrangementFileForm,
+)
+from webook.arrangement.forms.planner.planner_create_arrangement_form import (
+    PlannerCreateArrangementModelForm,
+)
+from webook.arrangement.forms.planner_forms import (
+    AddPlannerForm,
+    PromotePlannerToMainForm,
+    RemovePlannerForm,
+)
+from webook.arrangement.models import (
+    Arrangement,
+    ArrangementFile,
+    Event,
+    EventSerie,
+    Person,
+    PlanManifest,
+)
+from webook.arrangement.views.generic_views.archive_view import (
+    ArchiveView,
+    JsonArchiveView,
+)
 from webook.arrangement.views.generic_views.dialog_views import DialogView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
 from webook.arrangement.views.generic_views.search_view import SearchView
-from webook.arrangement.views.generic_views.upload_files_standard_form import UploadFilesStandardFormView
+from webook.arrangement.views.generic_views.upload_files_standard_form import (
+    UploadFilesStandardFormView,
+)
 from webook.arrangement.views.mixins.json_response_mixin import JSONResponseMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
@@ -88,19 +115,21 @@ class ArrangementRecurringInformationJsonView(
             ],
             "audience_id": arrangement.audience.pk,
             "arrangement_type_id": arrangement.arrangement_type.pk,
-            "display_text": arrangement.display_text
-            if arrangement.display_text
-            else "",
-            "display_text_en": arrangement.display_text_en
-            if arrangement.display_text_en
-            else "",
+            "display_text": (
+                arrangement.display_text if arrangement.display_text else ""
+            ),
+            "display_text_en": (
+                arrangement.display_text_en if arrangement.display_text_en else ""
+            ),
             "status_id": arrangement.status.pk if arrangement.status else "",
-            "responsible_id": arrangement.responsible.pk
-            if arrangement.responsible
-            else "",
+            "responsible_id": (
+                arrangement.responsible.pk if arrangement.responsible else ""
+            ),
             "responsible": responsible,
             "meeting_place": arrangement.meeting_place,
             "meeting_place_en": arrangement.meeting_place_en,
+            "county": arrangement.county.id if arrangement.county else "",
+            "school": arrangement.school.id if arrangement.school else "",
         }
 
 
@@ -141,7 +170,7 @@ class ArrangementCreateJSONView(
 
     def form_invalid(self, form):
         print(form.errors)
-        return super().form_invalid(form)
+        return JsonResponse({"errors": form.errors}, status=400)
 
     def form_valid(self, form):
         arrangement = form.save()
@@ -376,9 +405,9 @@ class ArrangementCascadeJsonTreeView(
                         "id": str(event.pk) + "_" + attr,
                         "icon": "fas fa-check" if is_equal else "fas fa-times",
                         "li_attr": {
-                            "class": "node-success-icon"
-                            if is_equal
-                            else "node-danger-icon"
+                            "class": (
+                                "node-success-icon" if is_equal else "node-danger-icon"
+                            )
                         },
                         "data": {
                             "fieldname": _ARRANGEMENT_TO_EVENT_TRANSLATION_MAP.get(attr)

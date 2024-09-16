@@ -55,6 +55,65 @@ class SelfNestedModelMixin(models.Model):
         abstract = True
 
 
+class CalendarEntitySchoolMixin(models.Model):
+    """Mixin for school related information that may pertain to certain activities/arrangements/repetitive events should their
+    audience be school related (configured and defined through the onlinebooking app).
+    A school may be associated with a county and a citysegment. When online booking is placed these values are populated with the correct values.
+    When online booking is performed county will always be populated.
+    """
+
+    @property
+    def is_school_related(self):
+        if not hasattr(self, "audience"):
+            return False
+
+        from webook.onlinebooking.models import OnlineBookingSettings
+
+        ob_settings = OnlineBookingSettings.objects.first()
+        school_audiences = [
+            *[x for x in ob_settings.allowed_audiences.all()],
+            ob_settings.audience_group,
+        ]
+
+        return self.audience in school_audiences
+
+    county = models.ForeignKey(
+        to="onlinebooking.County",
+        verbose_name=_("County"),
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="%(class)s_county",
+    )
+    booking_selected_audience = models.ForeignKey(
+        to="Audience",
+        verbose_name=_("Selected Audience"),
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="%(class)s_booking_selected_audience",
+    )
+    school = models.ForeignKey(
+        to="onlinebooking.School",
+        verbose_name=_("School"),
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="%(class)s_school",
+    )
+    city_segment = models.ForeignKey(
+        to="onlinebooking.CitySegment",
+        verbose_name=_("City Segment"),
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name="%(class)s_city_segment",
+    )
+
+    class Meta:
+        abstract = True
+
+
 class ModelAuditableMixin(models.Model):
     created_by = models.ForeignKey(
         verbose_name=_("Created by"),
@@ -358,6 +417,7 @@ class Arrangement(
     ModelTicketCodeMixin,
     ModelVisitorsMixin,
     ModelArchiveableMixin,
+    CalendarEntitySchoolMixin,
 ):
     """Arrangements are in practice a sequence of events, or an arrangement of events. Arrangements have events
     that happen in a concerted nature, and share the same purpose and or context. A realistic example of an arrangement
@@ -1186,6 +1246,7 @@ class Event(
     ModelArchiveableMixin,
     BufferFieldsMixin,
     ModelAuditableMixin,
+    CalendarEntitySchoolMixin,
 ):
     """The event model represents an event, or happening that takes place in a set span of time, and which may
     reserve certain resources for use in that span of time (such as a room, or a person etc..).
@@ -1720,7 +1781,7 @@ class RequisitionRecord(TimeStampedModel, ModelArchiveableMixin):
             return self.service_requisition
 
 
-class PlanManifest(TimeStampedModel, BufferFieldsMixin):
+class PlanManifest(TimeStampedModel, BufferFieldsMixin, CalendarEntitySchoolMixin):
     """A time manifest is a manifest of the timeplan generation"""
 
     # Internal UUID used in the creation process to produce hashes of events in the serie

@@ -43,14 +43,17 @@ export class EventInspector {
                         },
                         dialogOptions: { width: "80%", height: "100%", dialogClass: 'no-titlebar', modal:true, },
                         onUpdatedCallback: () => {
-                            this.dialogManager.closeDialog("inspectEventDialog");
+                            // this.dialogManager.closeDialog("inspectEventDialog");
+                            toastr.success("Endringer er lagret");
                         },
                         onSubmit: async (context, details) => {
                             const responses = await QueryStore.UpdateEvents( [details.event], details.csrf_token );
                             const response = responses[0];
-
+                            
                             if (response.success === true) {
                                 document.dispatchEvent(new Event("plannerCalendar.refreshNeeded"));
+                                this.dialogManager.reloadDialog("inspectEventDialog");
+                                
                                 return true;
                             }
 

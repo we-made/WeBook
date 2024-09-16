@@ -1,0 +1,617 @@
+<html class="theme-light">
+    <head>
+        <title>Online Booking</title>
+    
+        <link rel="stylesheet" href="/static/bulma.min.css">
+        <link rel="stylesheet" href="/static/style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    </head>
+    
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+        } 
+    </style>
+    
+    <body>
+        <div id="app">
+            <div class="header has-text-centered pt-2 pb-2">
+                <p class="title is-1 text-white">
+                    {{app_title}} 
+                </p>
+                <p class="subtitle is-3 text-white">
+                    Online Booking
+                </p>
+            </div>
+
+            <div v-if="isComplete">
+                <div class="container mt-6">
+                    <div class="has-text-centered">
+                        <p class="title is-1">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </p>
+
+                        <p class="title is-3">Takk for din booking!</p>
+                        <p class="subtitle is-4">Din booking er nå registrert.</p>
+
+                        <p class="mt-4 subtitle is-5">
+                            Skjemaet vil lastes på nytt om <span class="text-danger">[[timeToRefresh]] sekunder</span>.
+                        </p>
+
+                        <button class="button is-success is-large text-white" @click="reload()">
+                            <i class="fas fa-sync-alt"></i>&nbsp;
+                            Oppdater nå
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div v-else>
+                <div class="container mt-6">
+                    <div v-if="step == 1">
+                        <p class="title is-3">1. Hvilket trinn er dere?</p>
+                        <div class="fixed-grid">
+                            <div class="grid">
+                                <label v-for="audience in audiences" :class="['radio box mb-0', selectedAudience == audience ? 'active' : '']">
+                                    <input type="radio" name="audience" v-model="selectedAudience" :value="audience">
+                                    [[audience.name]]
+                                </label>
+                            </div>
+                        </div>
+    
+                        <article class="message is-danger" v-if="showAudienceNotSelectedFeedback">
+                            <div class="message-header">
+                              <i class="fas fa-exclamation-triangle"></i>
+                              <p>Velg et trinn!</p>
+                              <button class="delete" aria-label="delete" @click="showAudienceNotSelectedFeedback=false"></button>
+                            </div>
+                            <div class="message-body">
+                                Du må velge et trinn for å gå videre.
+                            </div>
+                        </article>
+    
+                        <div class="is-clearfix" @click="">
+                            <button class="button is-dark mt-3 is-medium is-pulled-right"
+                                    @click="step = 5" v-if="hasCycledFully">
+                                Bekreft
+                            </button>
+                            <button class="button is-dark mt-3 is-medium is-pulled-right"
+                                    @click="advanceStep()" v-else>
+                                Neste
+                            </button>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="box" @click="step = 1">
+                            <div class="is-flex is-align-content-center is-justify-content-space-between">
+                                <div class="is-flex is-align-items-center">
+                                    <div>
+                                        <p class="title is-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="title ml-4 is-3">
+                                            1.
+                                        </p>
+                                    </div>
+    
+                                    <div class="ml-4">
+                                        <p class="title is-3">Trinn</p>
+                                        <p class="subtitle is-4">
+                                            [[selectedAudience.name]]
+                                        </p>
+                                    </div>
+                                </div>
+    
+                                <div>
+                                    <p class="subtitle is-6">
+                                        (Trykk for å endre valg)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div v-if="step == 2" class="mt-6">
+                        <p class="title is-3">2. Hvilket fylke kommer dere fra?</p>
+                        <div class="fixed-grid">
+                            <div class="grid">
+                                <label v-for="county in counties.data" :class="['box radio mb-0', selectedCounty == county ? 'active' : '']">
+                                    <input type="radio" name="county" v-model="selectedCounty" :value="county">
+                                    [[county.name]]
+                                </label>
+                            </div>
+                        </div>
+    
+                        <article class="message is-danger" v-if="showCountyNotSelectedFeedback">
+                            <div class="message-header">
+                              <i class="fas fa-exclamation-triangle"></i>
+                              <p>Velg fylke!</p>
+                              <button class="delete" aria-label="delete" @click="showCountyNotSelectedFeedback=false"></button>
+                            </div>
+                            <div class="message-body">
+                                Du må velge et fylke for å gå videre.
+                            </div>
+                        </article>
+    
+                        <div class="is-clearfix">
+                            <button class="button is-light mt-3 is-medium is-pulled-left" @click="advanceStep(1)">
+                                Tilbake
+                            </button>
+                            <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()">Neste</button>
+                        </div>
+                    </div>
+                    <div v-else-if="selectedCounty" class="mt-2">
+                        <div class="box" @click="step = 2">
+                            <div class="is-flex is-align-content-center is-justify-content-space-between">
+                                <div class="is-flex is-align-items-center">
+                                    <div>
+                                        <p class="title is-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="title ml-4 is-3">
+                                            2.
+                                        </p>
+                                    </div>
+    
+                                    <div class="ml-4">
+                                        <p class="title is-3">
+                                            Fylke
+                                        </p>
+                                        <p class="subtitle is-4">
+                                            [[selectedCounty.name]]
+                                        </p>
+                                    </div>
+                                </div>
+    
+                                <div>
+                                    <p class="subtitle is-6">
+                                        (Trykk for å endre valg)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div v-if="step == 3" class="mt-6">
+                        <p class="title is-3">3. Hvilken skole kommer dere fra?</p>
+                        <div v-if="schoolsDataSource">
+                            <table-component
+                                @checkbox-clicked="selectedSchool = $event.row"
+                                :data-source="schoolsDataSource"
+                                :columns="columns"
+                                :can-search="true"
+                                ref="schoolsTable">
+                            </table-component>
+                        </div>
+    
+                        <article class="message is-danger mt-2" v-if="showSchoolNotSelectedFeedback">
+                            <div class="message-header">
+                              <i class="fas fa-exclamation-triangle"></i>
+                              <p>Velg skole!</p>
+                              <button class="delete" aria-label="delete" @click="showSchoolNotSelectedFeedback=false"></button>
+                            </div>
+                            <div class="message-body">
+                                Du må velge en skole for å gå videre.
+                            </div>
+                        </article>
+    
+                        <div class="is-clearfix">
+                            <button class="button is-light mt-3 is-medium is-pulled-left" @click="advanceStep(2)">
+                                Tilbake
+                            </button>
+                            <!-- <button class="button is-black mt-3 is-medium is-pulled-right" @click="step = 5" v-if="hasCycledFully">Bekreft </button> -->
+                            <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()" v-else>Neste</button>
+                        </div>
+                    </div>
+                    <div v-else-if="step != 3 && selectedSchool">
+                        <div class="box mt-2" @click="step = 3">
+                            <div class="is-flex is-align-content-center is-justify-content-space-between">
+                                <div class="is-flex is-align-items-center">
+                                    <div>
+                                        <p class="title is-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </p>
+                                    </div>
+    
+                                    <div>
+                                        <p class="title ml-4 is-3">
+                                            3.
+                                        </p>
+                                    </div>
+    
+                                    <div class="ml-4">
+                                        <p class="title is-3">
+                                            Skole
+                                        </p>
+                                        <p class="subtitle is-4">
+                                            [[selectedSchool?.name]]
+                                        </p>
+                                    </div>
+                                </div>
+    
+                                <div>
+                                    <p class="subtitle is-6">
+                                        (Trykk for å endre valg)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+    
+                    <div v-if="step == 4" class="mt-6">
+                        <p class="title is-3">[[selectedCounty.schoolEnabled && selectedSchool ? 4 : 3]]. Hvor mange er dere?</p>
+    
+                        <input type="number" class="input is-medium" name="visitors" v-model="visitors" value="0" min="0" max="1000"/>
+                        
+                        <article class="message is-danger mt-2" v-if="showVisitorsNotSelectedFeedback">
+                            <div class="message-header">
+                              <i class="fas fa-exclamation-triangle"></i>
+                              <p>Velg skole!</p>
+                              <button class="delete" aria-label="delete" @click="showVisitorsNotSelectedFeedback=false"></button>
+                            </div>
+                            <div class="message-body">
+                                Vennligst oppgi en verdi mellom 1 og 1000.
+                            </div>
+                        </article>
+    
+                        <div class="is-clearfix">
+                            <button class="button is-light mt-3 is-medium is-pulled-left" @click="advanceStep(selectedCounty.schoolEnabled && selectedSchool ? 3 : 2)">
+                                Tilbake
+                            </button>
+                            <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()" v-else>Neste</button>
+                        </div>
+                    </div>
+                    <div v-else-if="step != 4 && visitors">
+                        <div class="box mt-2" @click="step = 4">
+                            <div class="is-flex is-align-content-center is-justify-content-space-between">
+                                <div class="is-flex is-align-items-center">
+                                    <div>
+                                        <p class="title is-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="title ml-4 is-3">
+                                            [[ selectedCounty.schoolEnabled ? 4 : 3 ]].
+                                        </p>
+                                    </div>
+    
+                                    <div class="ml-4">
+                                        <p class="title is-3">
+                                            Besøkende
+                                        </p>
+                                        <p class="subtitle is-4">
+                                            [[visitors]]
+                                        </p>
+                                    </div>
+                                </div>
+    
+                                <div>
+                                    <p class="subtitle is-6">
+                                        (Trykk for å endre valg)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="step == 5" class="mt-6">
+                        <p class="title is-3">
+                            Kontaktinformasjon
+                        </p>
+
+                        <p class="subtitle is-4">
+                            Vennligst oppgi kontaktinformasjon for kontaktpersonen.
+
+                            Disse dataene vil fjernes 30 dager etter besøket har funnet sted.
+                        </p>
+
+                        <input type="text" class="input is-medium" name="name" ref="contactNameInput" v-model="contactName" placeholder="Navn på kontaktperson"/>
+                        <input type="phone" class="input is-medium mt-2" name="phone" ref="contactNamePhone" v-model="contactPhoneNumber" placeholder="Telefon nummer til kontaktperson"/>
+                        
+                        <div class="message is-danger mt-2" v-if="showContactInfoNotSelectedFeedback">
+                            Inntastet informasjon er ugyldig. Vennligst fyll ut begge feltene.
+                        </div>
+
+                        <div class="is-clearfix">
+                            <button class="button is-light mt-3 is-medium is-pulled-left" @click="advanceStep(4)">
+                                Tilbake
+                            </button>
+                            <button class="button is-black mt-3 is-medium is-pulled-right" @click="step = 6" v-if="hasCycledFully">Bekreft </button>
+                            <button class="button is-black mt-3 is-medium is-pulled-right" @click="advanceStep()" v-else>Neste</button>
+                        </div>
+                    </div>
+                    <div v-else-if="step != 5 && (contactName || contactPhoneNumber)">
+                        <div class="box mt-2" @click="step = 5">
+                            <div class="is-flex is-align-content-center is-justify-content-space-between">
+                                <div class="is-flex is-align-items-center">
+                                    <div>
+                                        <p class="title is-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="title ml-4 is-3">
+                                            [[ selectedCounty.schoolEnabled && selectedSchool ? 5 : 4 ]].
+                                        </p>
+                                    </div>
+    
+                                    <div class="ml-4">
+                                        <p class="title is-3">
+                                            Kontaktinformasjon:
+                                        </p>
+                                        <p class="subtitle is-4">
+                                            [[contactName]]<br>
+                                            [[contactPhoneNumber]]
+                                        </p>
+                                    </div>
+                                </div>
+    
+                                <div>
+                                    <p class="subtitle is-6">
+                                        (Trykk for å endre valg)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div v-if="step == 6" class="mt-6 has-text-centered">
+                        <p class="title is-3">
+                            Nesten ferdig!
+                        </p>
+                        <p class="subtitle is-4">
+                            Vennligst sjekk at informasjonen over stemmer før du bekrefter.
+                        </p>
+    
+                        <button class="button is-black mt-4 is-large" @click="submit()">
+                            <i class="fas fa-check"></i>&nbsp;
+                            Bekreft
+                        </button>
+                    </div>
+    
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event){
+        const app = Vue.createApp({
+            delimiters: ['[[', ']]'],
+            data() {
+                return {
+                    timeToRefresh: null,
+                    completedWhen: null,
+                    isComplete: false,
+                    hasCycledFully: false,
+                    step: 1,
+                    schools: [],
+                    counties: [],
+                    selectedCounty: null,
+                    selectedSchool: null,
+                    citySegments: [],
+                    citySegmentId: null,
+                    audiences: [],
+                    selectedAudience: null,
+                    visitors: 0,
+                    showCitySegmentPrompt: false,
+                    showAudiencePrompt: false,
+                    message: 'Hello Vue 3!',
+                    noSchoolsFound: false,
+                    onlineBookingSettings: null,
+                    showAudienceNotSelectedFeedback: false,
+                    showCountyNotSelectedFeedback: false,
+                    showSchoolNotSelectedFeedback: false,
+                    showVisitorsNotSelectedFeedback: false,
+                    showContactInfoNotSelectedFeedback: false,
+                }
+            },
+            components: { TableComponent },
+            methods: {
+                reload() {
+                    location.reload();
+                },
+                advanceStep(targetStep=null) {
+                    if (targetStep && targetStep < this.step) {
+                        console.log("Going back to step", targetStep, "from", this.step);
+                        this.step = targetStep;
+                        return;
+                    }
+
+                    if (this.step == 1) {
+                        if (!this.selectedAudience) {
+                            this.showAudienceNotSelectedFeedback = true;
+                            return;
+                        }
+
+                        this.showAudienceNotSelectedFeedback = false;
+                    }
+
+                    if (this.step == 2) {
+                        if(this.selectedCounty) {
+                            this.showCountyNotSelectedFeedback = false;
+                        } else {
+                            this.showCountyNotSelectedFeedback = true;
+                            return;
+                        }                        
+
+                        console.log("Selected county", this.selectedCounty);
+                        if (this.selectedCounty.schoolEnabled) {
+                            this.step = targetStep || 3;
+                        }
+                        else {
+                            this.selectedSchool = null;
+                            this.step = targetStep || 4;
+                        }
+
+                        return;
+                    }
+
+                    if (this.step == 3) {
+                        if (!this.noSchoolsFound) {
+                            if (this.selectedSchool) {
+                                this.showSchoolNotSelectedFeedback = false;
+                            } else {
+                                this.showSchoolNotSelectedFeedback = true;
+                                return;
+                            }
+                        }
+                            
+                        this.step = targetStep || 4;
+                        return;
+                    }
+
+                    if (this.step == 4 && this.visitors == 0 || this.visitors > 1000) {
+                        this.showVisitorsNotSelectedFeedback = true;
+                        return;
+                    }
+
+                    if (this.step == 5) {
+                        if (!this.contactName || !this.contactPhoneNumber || this.contactName.length < 2) {
+                            this.showContactInfoNotSelectedFeedback = true;
+                            return;
+                        }
+
+                        this.hasCycledFully = true;
+                    }
+
+                    this.step = targetStep || this.step + 1;
+                },
+                async submit() {
+                    await fetch(`/online_booking`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            county_id: this.selectedCounty?.id,
+                            school_id: this.selectedSchool?.id,
+                            visitors_count: this.visitors,
+                            audience_type_id: this.selectedAudience.id,
+                            contactName: this.contactName,
+                            contactPhoneNumber: this.contactPhoneNumber
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.isComplete = true;
+                        this.startCountdownToRefresh();
+                    });
+                },
+                startCountdownToRefresh() {
+                    this.timeToRefresh = 15;
+                    setInterval(() => {
+                        this.timeToRefresh -= 1;
+                    }, 1000)
+                }
+            },
+            watch: {
+                selectedAudience: function () {
+                    this.selectedCounty.schoolEnabled = this.selectedCounty.originalSchoolEnabled;
+                },
+                selectedCounty: function () {
+                    this.selectedSchool = null;
+                    if (this.selectedCounty.originalSchoolEnabled)
+                        this.selectedCounty.schoolEnabled = this.selectedCounty.originalSchoolEnabled;
+                },
+                timeToRefresh: function () {
+                    if (this.timeToRefresh == 0) {
+                        location.reload();
+                    }
+                },
+                noSchoolsFound: function () {
+                    if (!this.selectedCounty.originalSchoolEnabled)
+                        this.selectedCounty.originalSchoolEnabled = this.selectedCounty.schoolEnabled;
+
+                    if (this.noSchoolsFound) {
+                        this.selectedCounty.schoolEnabled = false;
+                        this.advanceStep(4);
+                    }
+                    else {
+                        this.selectedCounty.schoolEnabled = true;
+                        this.advanceStep(3);
+                    }
+                }
+            },
+            computed: {
+                schoolsDataSource: function () {
+                    let url = `/schools/${this.selectedCounty.id}?limit=20&audience_id=${this.selectedAudience.id}`;
+                    
+                    let columnsDefinition = {
+                        "isSelected": {
+                            friendlyName: "Velg",
+                            field: "isSelected",
+                            isSortable: false,
+                            isHidden: false,
+                            isHtml: true,
+                            isSearchable: false,
+                            componentName: "checkbox",
+                            isComponent: true
+                        },
+                        "name": {
+                            friendlyName: "Skole",
+                            field: "name",
+                            isSortable: false,
+                            isHidden: false,
+                            isHtml: true,
+                            isSearchable: true
+                        },
+                    }
+
+                    return new APITableDataSource(
+                        url,
+                        columnsDefinition,
+                        {},
+                        'name',
+                        'asc',
+                        true,
+                        (data) => {
+                            console.log("table DATA")
+                            if (data.data.length == 0) {
+                                this.noSchoolsFound = true;
+                            }
+                            else {
+                                this.noSchoolsFound = false;
+                            }
+
+                            return data;
+                        }
+                    );
+                }
+            },
+            async mounted() {
+                await fetch("/counties", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }).then(response => response.json())
+                .then(data => {
+                    this.counties = data;
+                })
+
+                this.onlineBookingSettings = await fetch("/online_booking_settings", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }).then(response => response.json())
+
+                console.log("Settings", this.onlineBookingSettings) 
+
+                this.audiences = this.onlineBookingSettings.allowed_audiences;
+            }
+        })
+
+        app.mount('#app')
+    });
+</script>
