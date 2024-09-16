@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.contrib import messages
 
 
@@ -12,9 +12,9 @@ from django.contrib import messages
 class MultiRedirectMixin(object):
     """
     A mixin that supports submit-specific success redirection.
-     Either specify one success_url, or provide dict with names of 
+     Either specify one success_url, or provide dict with names of
      submit actions given in template as keys
-     Example: 
+     Example:
        In template:
          <input type="submit" name="create_new" value="Create"/>
          <input type="submit" name="delete" value="Delete"/>
@@ -23,12 +23,12 @@ class MultiRedirectMixin(object):
              success_urls = {"create_new": reverse_lazy('create'),
                                "delete": reverse_lazy('delete')}
     """
+
     success_urls_and_messages = {}
 
     def form_valid(self, form):
-        """ Form is valid: Pick the url and redirect.
-        """
-    
+        """Form is valid: Pick the url and redirect."""
+
         for name in self.success_urls_and_messages:
             if name in form.data:
                 url_dict = self.success_urls_and_messages[name]
@@ -50,8 +50,9 @@ class MultiRedirectMixin(object):
         """
         if self.success_url:
             # Forcing possible reverse_lazy evaluation
-            url = force_text(self.success_url)
+            url = force_str(self.success_url)
         else:
             raise ImproperlyConfigured(
-                _("No URL to redirect to. Provide a success_url."))
+                _("No URL to redirect to. Provide a success_url.")
+            )
         return url
