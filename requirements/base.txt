@@ -32,3 +32,6 @@ pyjwt==2.8.0
 
 python-json-logger==2.0.7
 sentry-sdk==2.14.0
+
+redis==5.0.8
+hiredis==3.0.0
