@@ -7,6 +7,7 @@ from pathlib import Path
 from pythonjsonlogger import jsonlogger
 from datetime import datetime
 import environ
+import sentry_sdk
 
 # webook/
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
@@ -50,6 +51,18 @@ DATABASES = {
         default=f"sqlite:///{str(BASE_DIR / 'webook.db')}",
     )
 }
+
+
+sentry_sdk.init(
+    dsn=env.str("SENTRY_DSN", default=None),
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for tracing.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 if env.str("DATABASE_HOST", default=None):
     DATABASES["default"]["HOST"] = env.str("DATABASE_HOST")
@@ -154,6 +167,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -262,6 +276,28 @@ EMAIL_TIMEOUT = 5
 DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="webook@webook.no")
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
+USE_REDIS = env.bool("USE_REDIS", default=False)
+
+# CACHING
+if USE_REDIS:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": env("REDIS_URL", default="redis://localhost:6379"),
+        }
+    }
+
+    # UpdateCacheMiddleware should be first in the list
+    # FetchFromCacheMiddleware should be last in the list
+    # MIDDLEWARE.insert(0, "django.middleware.cache.UpdateCacheMiddleware")
+    # MIDDLEWARE.append("django.middleware.cache.FetchFromCacheMiddleware")
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "",
+        }
+    }
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL.
