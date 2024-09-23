@@ -303,7 +303,7 @@ else:
 # Django Admin URL.
 ADMIN_URL = "admin/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [("Eivind Teig", "eivind.teig@gmail.com")]
+ADMINS = [("Magnus", "magnus@wemade")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
 
