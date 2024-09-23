@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Iterable, Optional
 from django.db import models
 from webook.arrangement.forms.group_admin import User
 from webook.arrangement.managers import ArchivedManager
@@ -10,6 +10,8 @@ from webook.arrangement.models import (
     Person,
     StatusType,
 )
+from django.core.cache import cache
+from django.conf import settings
 from django_extensions.db.models import TimeStampedModel
 from webook.api.models import ServiceAccount
 
@@ -97,6 +99,14 @@ class OnlineBookingSettings(models.Model):
         max_length=10, choices=Unit.choices, default=Unit.MINUTES
     )
     duration_amount = models.PositiveIntegerField(default=15)
+
+    def save(self, *args, **kwargs) -> None:
+        if settings.USE_REDIS:
+            for key in cache.keys("school_related:*"):
+                cache.delete(key)
+            cache.delete("school_audiences")
+
+        return super().save(*args, **kwargs)
 
 
 class OnlineBooking(TimeStampedModel, ArchiveableMixin):
