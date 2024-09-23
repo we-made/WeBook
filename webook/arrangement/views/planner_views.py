@@ -1,6 +1,7 @@
 import json
 import uuid
 from datetime import date, datetime, timedelta
+import time
 from distutils.util import strtobool
 from typing import Any, Dict
 
@@ -507,6 +508,8 @@ class PlannerEventInspectorDialogView(LoginRequiredMixin, DialogView, UpdateView
     )
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        start = time.time()
+
         context = super().get_context_data(**kwargs)
         context["DISPLAY_LAYOUTS_WITH_REQUISITE_TEXT"] = DisplayLayout.objects.filter(
             triggers_display_layout_text=True
@@ -520,10 +523,7 @@ class PlannerEventInspectorDialogView(LoginRequiredMixin, DialogView, UpdateView
             )
 
             online_booking_settings = OnlineBookingSettings.objects.first()
-            context["school_audiences"] = (
-                *online_booking_settings.allowed_audiences.all(),
-                online_booking_settings.audience_group,
-            )
+
             context["audienceGroupId"] = online_booking_settings.audience_group.id
             context["counties"] = County.objects.all().order_by("name")
             context["city_segments"] = (
@@ -537,6 +537,10 @@ class PlannerEventInspectorDialogView(LoginRequiredMixin, DialogView, UpdateView
                     )
             else:
                 context["schools"] = []
+
+        end = time.time()
+
+        print(f"Time taken get_context_data: {end - start}")
 
         return context
 
@@ -586,10 +590,6 @@ class PlannerArrangementInformationDialogView(
 
             online_booking_settings = OnlineBookingSettings.objects.first()
 
-            context["school_audiences"] = (
-                *online_booking_settings.allowed_audiences.all(),
-                online_booking_settings.audience_group,
-            )
             context["audienceGroupId"] = online_booking_settings.audience_group.id
             context["counties"] = County.objects.all().order_by("name")
             context["city_segments"] = (

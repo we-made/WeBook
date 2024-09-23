@@ -18,6 +18,6 @@ def has_group(user, group_name):
     has_group = group in user.groups.all()
 
     if settings.USE_REDIS:
-        cache.set(cache_key, has_group, 120)
+        cache.set(cache_key, has_group, 500)
 
     return has_group
