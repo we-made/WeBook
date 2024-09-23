@@ -8,6 +8,8 @@ from email.policy import default
 from enum import Enum
 from tabnanny import verbose
 from typing import Dict, List, Optional, Tuple
+from django.utils.functional import cached_property
+from django.core.cache import cache
 
 import pytz
 from autoslug import AutoSlugField
@@ -41,6 +43,47 @@ class SelfNestedModelMixin(models.Model):
         blank=True,
     )
 
+    @classmethod
+    def node_list(cls):
+        if settings.USE_REDIS:
+            cache_key = f"node_list:{cls.__name__}"
+            result = cache.get(cache_key)
+            if result is not None:
+                return result
+
+        root_items = list(cls.objects.filter(parent__isnull=True).order_by("id"))
+        child_items = list(cls.objects.filter(parent__isnull=False).order_by("id"))
+
+        def populate_children(parent):
+            p = {
+                "id": parent.pk,
+                "icon": parent.icon_class if hasattr(parent, "icon_class") else "",
+                "text": (
+                    parent.resolved_name
+                    if hasattr(parent, "resolved_name")
+                    else "Unknown"
+                ),
+                "children": [],
+                "data": {"slug": parent.slug},
+            }
+            for child in child_items:
+                if child.parent == parent:
+                    p["children"].append(populate_children(child))
+            return p
+
+        n_list = [populate_children(root) for root in root_items]
+
+        if settings.USE_REDIS:
+            cache.set(cache_key, n_list, 12000)
+
+        return n_list
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if settings.USE_REDIS:
+            cache.delete(f"node_list:{self.__class__.__name__}")
+
     def as_node(self) -> Dict:
         """Convert this instance, and its nested children into a tree node"""
         return {
@@ -67,15 +110,36 @@ class CalendarEntitySchoolMixin(models.Model):
         if not hasattr(self, "audience"):
             return False
 
+        if settings.USE_REDIS:
+            cache_key = f"school_related:{type(self).__name__}:{self.id}"
+            result = cache.get(cache_key)
+            if result is not None:
+                return result
+
         from webook.onlinebooking.models import OnlineBookingSettings
 
         ob_settings = OnlineBookingSettings.objects.first()
-        school_audiences = [
-            *[x for x in ob_settings.allowed_audiences.all()],
-            ob_settings.audience_group,
-        ]
 
-        return self.audience in school_audiences
+        if settings.USE_REDIS:
+            school_audiences = cache.get("school_audiences")
+            if school_audiences is None:
+                school_audiences = [
+                    *[x for x in ob_settings.allowed_audiences.all()],
+                    ob_settings.audience_group,
+                ]
+                cache.set("school_audiences", school_audiences, 120)
+        else:
+            school_audiences = [
+                *[x for x in ob_settings.allowed_audiences.all()],
+                ob_settings.audience_group,
+            ]
+
+        is_school_rel = self.audience in school_audiences
+
+        if settings.USE_REDIS:
+            cache.set(cache_key, is_school_rel, 120)
+
+        return is_school_rel
 
     county = models.ForeignKey(
         to="onlinebooking.County",
