@@ -1,0 +1,20 @@
+{% load allauth %}
+{% load i18n %}
+
+<div>
+    Videresender deg til Microsoft for å logge inn...
+
+    {% element form method="post" no_visible_fields=True %}
+        {% slot actions %}
+            {% csrf_token %}
+            {% element button type="submit" id="button" style="display:none" %}
+                <!-- {% trans "Continue" %} -->
+            {% endelement %}
+        {% endslot %}
+    {% endelement %}
+</div>
+
+<script>
+    document.getElementById('button').style.display = 'none';
+    document.getElementById('button').click();
+</script>
