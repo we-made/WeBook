@@ -29,7 +29,6 @@
     <link href="{{ ASSET_SERVER_URL }}mdb/css/mdb.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/color-picker.min.css">
     <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/wysiwyg.min.css">
-    <link rel="stylesheet" href="{% static 'vis-timeline/styles/vis-timeline-graph2d.min.css' %}" />
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     <link rel="stylesheet" href="{% static 'fullcalendar-scheduler/main.min.css' %}">
     <link rel="stylesheet" href="{% static '@fonticonpicker/fonticonpicker/dist/css/base/jquery.fonticonpicker.min.css' %}">
@@ -38,23 +37,18 @@
     <link rel="stylesheet" href="{% static 'select2/dist/css/select2.min.css' %}"></link>
   
     <link rel="stylesheet" href="{{ ASSET_SERVER_URL }}mdb/plugins/css/file-upload.min.css">
-    <!-- <link rel="stylesheet" href="{% static 'jquery-treetable/css/jquery.treetable.css' %}" />
-     -->
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-treetable/3.2.0/css/jquery.treetable.css" integrity="sha512-l1bJ1VnsPD+m5ZYhfcl9PrJgbCQixXtQ/zs423QYu0w1xDGXJOSC0TmorOocaYY8md5+YMRcxZ/UgjyOSIlTYw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-     <link rel="stylesheet" href="{% static 'css/jquery.treetable.theme.webook.css' %}">
-     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-treetable/3.2.0/css/jquery.treetable.theme.default.css" integrity="sha512-S0Z8qdW2IlHsTsra73PQ9cTRAFIugG853UK9hkv6CZ/H6MemHuZokEQKhjtvQEQ1NpQuaheq1wcGcrY46PK9og==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
-    <link href="{% static 'css/nasj_style.css' %}" rel="stylesheet">
 
 
     <script
-    src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-    crossorigin="anonymous"></script>
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous">
+    </script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
 
     <script src="{% static 'js/mdbSelectExt.js' %}"></script>
-    <script src="{% static 'vis-timeline/standalone/umd/vis-timeline-graph2d.js' %}"></script>
     <script src="https://kit.fontawesome.com/db5ee7e46d.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -72,14 +66,10 @@
     <script src="{% static 'vue/dist/vue.global.js' %}"></script>
 
     <!-- Main Quill library -->
-    <script src="//cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
-
-    <!-- Theme included stylesheets -->
     <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
 
 
 
@@ -372,15 +362,11 @@
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/color-picker.min.js"></script>
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/transfer.min.js"></script>
 
-      <script src="{% static 'js/bootbox.min.js' %}"></script>
-      <script src="{% static 'js/bootbox.locales.min.js' %}"></script>
-      
       <script src="{% static 'fullcalendar-scheduler/main.min.js' %}"></script>
       <script src="{% static 'fullcalendar-scheduler/locales-all.min.js' %}"></script>
       <!-- place project specific Javascript in this file -->
       <script src="{% static 'js/project.js' %}"></script>
       <script src="{% static 'js/components.js' %}"></script>
-      <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
       <script src="{% static '@fonticonpicker/fonticonpicker/dist/js/jquery.fonticonpicker.min.js' %}"></script>
       <script src="{{ ASSET_SERVER_URL }}mdb/plugins/js/file-upload.min.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
@@ -388,11 +374,7 @@
       <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.11.5/af-2.3.7/b-2.2.2/b-colvis-2.2.2/b-html5-2.2.2/b-print-2.2.2/cr-1.5.5/date-1.1.2/fc-4.0.2/fh-3.2.2/kt-2.6.4/r-2.2.9/rg-1.1.4/rr-1.2.8/sc-2.0.5/sb-1.3.2/sp-2.0.0/sl-1.3.4/sr-1.1.0/datatables.min.js"></script>
       <script src="{% static 'js/sweetalert2.js' %}"></script>
       <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
-
-      <!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js" integrity="sha512-TGClBy3S4qrWJtzel4qMtXsmM0Y9cap6QwRm3zo1MpVjvIURa90YYz5weeh6nvDGKZf/x3hrl1zzHW/uygftKg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-      <script src="{% static 'colorjs.io/dist/color.js' %}"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-treetable/3.2.0/jquery.treetable.min.js" integrity="sha512-2pYVakljd2zLnVvVC264Ib+XGvOvu3iFyKCIwLzn77mfbjuVi1dGJUxGjDAI8MjgPgTfSIM/vZirW04LCQmY2Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
       <script type="module">
         import dialogApi from "{% static 'modules/planner/dialog_manager/dialogApi.js' %}";
