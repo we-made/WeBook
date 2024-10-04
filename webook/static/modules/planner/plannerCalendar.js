@@ -192,8 +192,8 @@ export class PlannerCalendar extends FullCalendarBased {
         // If user has not supplied an active color provider key we use default color provider as active.
         this.activeColorProvider = initialColorProvider !== undefined && this._colorProviders.has(initialColorProvider) ? this._colorProviders.get(initialColorProvider) : this._colorProviders.get("DEFAULT");
         this._ARRANGEMENT_STORE = new ArrangementStore(this.activeColorProvider, this._eventsSrcUrl);
-        this._LOCATIONS_STORE = new LocationStore(this);
-        this._PEOPLE_STORE = new PersonStore(this);
+        // this._LOCATIONS_STORE = new LocationStore(this);
+        // this._PEOPLE_STORE = new PersonStore(this);
 
         this.filter = calendarFilter ?? new CalendarFilter( /* OnFilterUpdated: */ (filter) => this.init() );
 
@@ -255,7 +255,8 @@ export class PlannerCalendar extends FullCalendarBased {
      * @param {*} elementToBindWith 
      */
     _bindPopover (elementToBindWith) {
-        let pk = this._findEventPkFromEl(elementToBindWith);        
+        let pk = this._findEventPkFromEl(elementToBindWith);
+        
         let arrangement = this._ARRANGEMENT_STORE.get({
             pk: pk,
             get_as: _NATIVE_ARRANGEMENT
@@ -330,8 +331,8 @@ export class PlannerCalendar extends FullCalendarBased {
                 statusForegroundTextColor = "white";
         }
 
-        new mdb.Popover(elementToBindWith, {
-            trigger: "hover",
+        const popover = new mdb.Popover(elementToBindWith, {
+            trigger: "manual",
             allowList: {
                 '*': ['class', 'dir', 'id', 'lang', 'role', ARIA_ATTRIBUTE_PATTERN],
                 a: ['target', 'href', 'title', 'rel'],
@@ -420,6 +421,10 @@ export class PlannerCalendar extends FullCalendarBased {
                 `,
             html: true,
         })
+
+        popover.show();
+
+        console.log("Bound popover to element", popover);
     }
 
     _bindInspectorTrigger (elementToBindWith) {
@@ -465,6 +470,7 @@ export class PlannerCalendar extends FullCalendarBased {
                 initialView: _this.initialView,
                 selectable: true,
                 weekNumbers: true,
+                lazyFetching: true,
                 navLinks: true,
                 minTime: "06:00",
                 height: this.height,
@@ -562,13 +568,10 @@ export class PlannerCalendar extends FullCalendarBased {
                         if (eventIsSameDay === true)
                             nodes.push(colorDot);
 
-                        let timeText = document.createElement('strong');
-                        timeText.style="font-family: 'Roboto Mono';"
+                        let timeText = document.createElement('span');
+                        timeText.classList.add('fc-event-time-text');
                         timeText.innerText = `${formatTime(arg.timeText)}`;
                         nodes.push(timeText);
-
-                        let iconsRail = document.createElement('span');
-                        nodes.push(iconsRail);
 
                         let hasIcon = false;
 
@@ -695,6 +698,8 @@ export class PlannerCalendar extends FullCalendarBased {
                 eventSources: [
                     {
                         events: async (start, end, startStr, endStr, timezone) => {
+                            console.log("Events requested from " + startStr + " to " + endStr);
+
                             return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
                                 .then(_ => _this._ARRANGEMENT_STORE.get_all(
                                     { 
@@ -718,6 +723,9 @@ export class PlannerCalendar extends FullCalendarBased {
 
                 loading: function( isLoading ) {
                     if (isLoading === false) {
+                        console.log("Events loaded");
+
+
                         $(".popover").popover('hide');
 
                         const setDate = this.currentData.currentDate;
@@ -741,22 +749,29 @@ export class PlannerCalendar extends FullCalendarBased {
                         }
                     }
                     else {
+                        console.log("Loading events");
+                        $('.fc-event').on('mouseover', function() {
+                            console.log("Mouseover event");
+                        });
                     }
 
 
                 },
                 eventAfterAllRender: function (view) {
-   
+                    $('.fc-event').on('mouseover', function() {
+                        console.log("Mouseover event");
+                    });
+                    console.log("All events rendered");
                 },
                 eventDidMount: (arg) => {
                     if (arg.backgroundColor == "prussianblue") {
                         return;
                     }
 
-                    if (this.renderPopovers === true)
-                        this._bindPopover(arg.el);
-                    if (this.useOnclickEvents)
-                        this._bindInspectorTrigger(arg.el);
+                    // if (this.renderPopovers === true)
+                    //     this._bindPopover(arg.el);
+                    // if (this.useOnclickEvents)
+                    //     this._bindInspectorTrigger(arg.el);
                 }
             })
 
@@ -855,7 +870,6 @@ export class PlannerCalendar extends FullCalendarBased {
                     }
                 }
 
-
                 $.contextMenu({
                     className: "",
                     selector: ".fc-event",
@@ -867,6 +881,47 @@ export class PlannerCalendar extends FullCalendarBased {
             // initialView = this._fcCalendar.view.type;
             this._fcCalendar.refetchEvents();
         }
+
+        let focusedElement = null;
+        let isBound = false;
+        let hoveringStart = null;
+        $('body').on('mouseover', '.fc-event', function(event, context) {
+            hoveringStart = new Date();
+            focusedElement = event.currentTarget;
+            setTimeout(() => {
+                if (focusedElement !== event.currentTarget || isBound) {
+                    return;
+                }
+                
+                if (hoveringStart && new Date().getTime() - hoveringStart.getTime()) {
+                    $('.popover').remove();
+                    console.log("Mouseover event");
+                    _this._bindPopover(event.currentTarget);
+                    isBound = true;
+                }
+            }, 200);
+        });
+
+        $('body').on('mouseout', '.fc-event', function(event) {
+            hoveringStart = null;
+            if (isBound) {
+                $('.popover').remove();
+                isBound = false;
+            }
+            focusedElement = null;
+        });
+
+        $('body').on('click', '.fc-event', function(event) {
+            if (isBound) {
+                $('.popover').remove();
+                isBound = false;
+            }
+
+            console.log("Event clicked.")
+
+            let pk = _this._findEventPkFromEl(event.currentTarget);
+            _this.eventInspectorUtility.inspect(pk);
+        });
 
         this._fcCalendar.render();
     }

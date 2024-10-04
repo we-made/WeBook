@@ -559,36 +559,46 @@ container-fluid
             showAdministrativeActionsInContextMenu: {% if user|has_group:"planners" or user.is_superuser %}true{% else %}false{% endif %},
         });
 
-        let locationsCalendar = new LocationCalendar({
-            calendarElement: document.getElementById('locationsPlannerCalendar'),
-            arrangementInspector,
-            eventInspector,
-            colorProviders: [ 
-                { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
-                { key: "audience", provider: new ColorByAudienceColorProvider() },
-                { key: "arrangement", provider: new ColorByArrangementProvider() },
-            ],
-            initialColorProvider: "arrangement",
-            useOnclickEvents: {% if user|has_group:"planners" or user|has_group:"readonly_level_2" or user.is_superuser %}true{% else %}false{% endif %},
-            licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
-            calendarFilter: calendarFilter,
-            navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
+        let locationsCalendar = null;
+        $('#locations-tab').click(function () {
+            if (locationsCalendar === null) {
+                locationsCalendar = new LocationCalendar({
+                    calendarElement: document.getElementById('locationsPlannerCalendar'),
+                    arrangementInspector,
+                    eventInspector,
+                    colorProviders: [ 
+                        { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
+                        { key: "audience", provider: new ColorByAudienceColorProvider() },
+                        { key: "arrangement", provider: new ColorByArrangementProvider() },
+                    ],
+                    initialColorProvider: "arrangement",
+                    useOnclickEvents: {% if user|has_group:"planners" or user|has_group:"readonly_level_2" or user.is_superuser %}true{% else %}false{% endif %},
+                    licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+                    calendarFilter: calendarFilter,
+                    navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
+                });
+            }
         });
 
         {% if user|has_group:"planners" or user.is_superuser %}
-        let peopleCalendar = new PersonCalendar({
-            calendarElement: document.getElementById('peoplePlannerCalendar'),
-            arrangementInspector: arrangementInspector,
-            eventInspector: eventInspector,
-            colorProviders: [ 
-                { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
-                { key: "audience", provider: new ColorByAudienceColorProvider() },
-                { key: "arrangement", provider: new ColorByArrangementProvider() },
-            ],
-            initialColorProvider: "arrangement",
-            calendarFilter: calendarFilter,
-            licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
-            navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
+        let peopleCalendar = null;
+        $('#people-tab').click(function () {
+            if (peopleCalendar === null) {
+                peopleCalendar = new PersonCalendar({
+                    calendarElement: document.getElementById('peoplePlannerCalendar'),
+                    arrangementInspector: arrangementInspector,
+                    eventInspector: eventInspector,
+                    colorProviders: [ 
+                        { key: "planner", provider: new ColorByMainPlannerColorProvider() }, 
+                        { key: "audience", provider: new ColorByAudienceColorProvider() },
+                        { key: "arrangement", provider: new ColorByArrangementProvider() },
+                    ],
+                    initialColorProvider: "arrangement",
+                    calendarFilter: calendarFilter,
+                    licenseKey: '{{ FULLCALENDAR_LICENSE_KEY }}',
+                    navigationHeaderWrapperElement: $('#planner__viewNavigationHeader'),
+                });
+            }
         });
         {% endif %}
 

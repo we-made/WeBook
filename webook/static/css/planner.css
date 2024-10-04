@@ -118,3 +118,9 @@
     padding: 0.8rem;
     /* border: initial; */
   }
+
+
+  .fc-event-time-text {
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+  }
