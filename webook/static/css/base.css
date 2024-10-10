@@ -620,7 +620,7 @@ a.fc-event {
 
 .sidenav-link:hover {
     border: solid 1px;
-    background-color: darkblue!important;
+    background-color: white!important;
 }
 
 .sidenav-item.active {
