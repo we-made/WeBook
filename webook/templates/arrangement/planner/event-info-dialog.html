@@ -1,0 +1,621 @@
+{% load static i18n %}
+
+{% load custom_tags %}
+
+{% include "arrangement/vue/js_tree_select_component_v2.html" %}
+{% include "arrangement/vue/room_presets_component.html" %}
+
+{% include "arrangement/vue/dialog-component.html" %}
+{% include "arrangement/vue/dialogs/order_room_dialog.html" %}
+{% include "arrangement/vue/files-list.html" %}
+
+{% include "arrangement/vue/room_and_preset_selector_component.html" %}
+{% include "arrangement/vue/select_main_planner_dialog.html" %}
+{% include "arrangement/vue/notes/note-list.html" %}
+{% include "arrangement/vue/rigging-form.html" %}
+
+{% include "arrangement/vue/rooms-select.html" %}
+
+<link rel="stylesheet" href="{% static '@vuepic\vue-datepicker\dist\main.css' %}">
+
+<template id="vuec-event-info-dialog">
+    <dialog-component 
+        :is-visible="isVisible"
+        :start-full-screen="true"
+        @close="$emit('close')"
+        :use-backdrop="true" 
+        :is-draggable="true"
+        width="100em">
+        <template v-slot:header>
+            
+            <h3 class="mb-0 fw-bold">
+                [[ event.title ]]
+                <small class="fw-light" v-if="event.is_part_of_serie">
+                    <em>(repeterende)</em>
+                </small>
+            </h3>
+            <h5>
+                [[ event.start_date ]] <strong> til </strong> [[ event.end_date ]]
+            </h5>
+        </template>
+
+        <template v-slot:content>
+            {{ event }}
+
+            <div class="clearfix">
+                <small class="float-end">Opprettet [[event.created]] <strong>|</strong> Sist oppdatert [[event.modified]]</small>
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <div class="alert col-auto mb-4 mt-2 wb-bg-secondary">
+                        <div class="clearfix">
+                            <div class="float-start">
+                                <h6 class="mb-0 d-inline fw-lighter">Tilhører arrangement:</h4>
+                                <h4 class="mb-0">[[ event.arrangement.name ]]</h6>
+                                
+                                <small>
+                                    <div><strong><i class="fas fa-building"></i></strong> [[ event.arrangement.location_name ]]</div>
+                                    <div><strong><i class="fas fa-star"></i></strong> [[ event.arrangement.responsible ]]</div>
+                                    <div><strong><i class="fas fa-calendar"></i></strong> [[ event.arrangement.created ]]</div>
+                                </small>
+                            </div>
+                            <button class="btn wb-btn-blank float-end shadow-0"
+                                    type="button"
+                                    d-trigger="openInspectArrangementDialog"
+                                    d-arg-slug="{{ object.arrangement.slug }}"
+                                    d-arg-event_pk="{{ object.pk }}">
+                                Gå til arrangement
+                            </button>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="col-8">
+                    <div class="alert mb-4 mt-2" style="background-color:  #f6f6f0 !important;" v-if="event.is_part_of_serie">
+                            <div>
+                                <h4 class="mb-0"><span class="h3"><i class="fas fa-sync"></i></span>&nbsp;&nbsp; [[ event.manifest_schedule_description ]]</h4>
+                                <small><i class="fas fa-info-circle"></i>&nbsp; Ved redigering vil denne aktiviteten brytes ut av serien, og vil ikke lenger bli ansett som en del av denne serien</small>
+                                <small class="d-block">Du kan redigere selve serien fra arrangementsvisningen, gå til tidspunkter og rediger der</small>
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs webook-tabs mb-3" id="ex1" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a
+                        class="nav-link active"
+                        id="ex1-tab-1"
+                        data-mdb-toggle="tab"
+                        href="#ex1-tabs-1"
+                        role="tab"
+                        aria-controls="ex1-tabs-1"
+                        aria-selected="true">
+                    Aktivitet
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a
+                        class="nav-link"
+                        id="files-tab-link"
+                        data-mdb-toggle="tab"
+                        href="#files-tab"
+                        role="tab"
+                        aria-controls="ex1-tabs-2"
+                        aria-selected="false">
+                        Filer
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a
+                        class="nav-link"
+                        id="notes-tab-link"
+                        data-mdb-toggle="tab"
+                        href="#notes-tab"
+                        role="tab"
+                        aria-controls="ex1-tabs-3"
+                        aria-selected="false">
+                        Notater
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a href="#tab-details" role="tab" data-mdb-toggle="tab" class="nav-link" id="tab-detailss">
+                        Detaljer
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a
+                        class="nav-link"
+                        id="ex1-tab-4"
+                        data-mdb-toggle="tab"
+                        href="#rigging-tab"
+                        role="tab"
+                        aria-controls="ex1-tabs-4"
+                        aria-selected="false"
+                        >Opprigg & Nedrigg
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a 
+                        href="#service-orders-tab"
+                        id="service-orders-tab-link" 
+                        role="tab"
+                        data-mdb-toggle="tab"
+                        aria-controls="service-orders-tab"
+                        aria-selected="false"
+                        class="nav-link">
+                        Tjenester
+                        <!-- <i class="fas fa-envelope fa-1x"></i>
+                        <span class="badge rounded-pill badge-notification bg-danger">99</span> -->
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content w-100" id="ex1-content">
+                <div
+                    class="tab-pane fade show active"
+                    id="ex1-tabs-1"
+                    role="tabpanel"
+                    aria-labelledby="ex1-tab-1">
+
+                    <form id="inspectEventForm" class="mt-3">
+                        <input type="submit" style="display:none;" />
+                        <div>
+                            <div>
+                                <div class="row mb-2">
+                                    {% comment %} <div class="col-12">
+                                        <label for="{{form.responsible.id_for_label}}" class="form-label">
+                                            <i class="fas fa-star"></i>&nbsp;
+                                            Ansvarlig
+                                        </label>
+                                        {{form.responsible}}
+                                    </div> {% endcomment %}
+                                    <div class="col-7">
+                                        
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <label>Tittel</label>
+                                                    <input type="text" class="form-control form-control-lg" v-model="event.title"
+                                                        placeholder="Tittel">
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <label>Tittel (engelsk)</label>
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control form-control-lg" v-model="event.title_en"
+                                                        placeholder="Tittel (engelsk)">
+                                                </div>
+                                            </div>
+                                            <div class="col-6 mt-3">
+                                                <label>Startdato og tid</label>
+                                                <vue-date-picker v-model="event.start_date" locale="nb-no" :format="dateFormatter"></vue-date-picker>
+                                            </div>
+                                            <div class="col-6 mt-3">
+                                                <label>Sluttdato og tid</label>
+                                                <vue-date-picker v-model="event.end_date"  locale="nb-no" :format="dateFormatter"></vue-date-picker>
+                                            </div>
+                                            <div class="col-6 mt-2">
+                                                <div class="form-group mb-3">
+                                                    <label>Forventet antall besøkende</label>
+                                                    <input type="number" class="form-control" v-model="event.expected_visitors" min="0">
+                                                </div>
+                                            </div>
+                                            <div class="col-6 mt-2">
+                                                <div class="form-group mb-3">
+                                                    <label>Faktisk antall besøkende</label>
+                                                    <input type="number" class="form-control" v-model="event.actual_visitors" min="0">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <h4>Rom</h4>
+                                                <div class="d-flex">
+                                                    <rooms-select v-model:selected="event.rooms">
+                                                    </rooms-select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-2">
+                                            <div class="col-6">
+                                                <label>Møtested</label>
+                                                <input type="text" v-model="event.meeting_place" class="form-control">
+                                            </div>
+                    
+                                            <div class="col-6">
+                                                <label>Møtested (engelsk)</label>
+                                                <input type="text" v-model="event.meeting_place_en" class="form-control">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <display-layout-select 
+                                                v-model:selected-display-layouts="event.display_layouts"
+                                                v-model:text="event.display_text">
+                                            </display-layout-select>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        {% comment %} TODO: {% endcomment %}
+                                        {% comment %} <select-main-planner-dialog-component>
+                                        </select-main-planner-dialog-component> {% endcomment %}
+
+            
+                                        <div id="jsTreeSelects">
+                                            <div class="mt-3">
+                                                <tree-select-component 
+                                                    :is-open="false" 
+                                                    label="Målgruppe" 
+                                                    json-url="{% url 'arrangement:audience_tree' %}"
+                                                    button-label="Velg målgruppe"
+                                                    icon="fas fa-users"
+                                                    v-model="event.audience">
+
+                                                </tree-select-component>
+                                            </div>
+                
+                                            <div class="mt-3">
+                                                <tree-select-component 
+                                                    :is-open="false" 
+                                                    label="Arrangementstype" 
+                                                    json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                                    button-label="Velg arrangementstype"
+                                                    icon="fas fa-cog"
+                                                    v-model="event.arrangement_type">
+
+                                                </tree-select-component>
+                                            </div>
+                
+                                            <div class="mt-3">
+                                                <tree-select-component 
+                                                    :is-open="false" 
+                                                    label="Status" 
+                                                    json-url="{% url 'arrangement:statustype_tree' %}"
+                                                    button-label="Velg status"
+                                                    icon="fas fa-cog"
+                                                    v-model="event.status_type">
+
+                                                </tree-select-component>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div
+                    class="tab-pane fade"
+                    id="files-tab"
+                    role="tabpanel"
+                    aria-labelledby="ex1-tab-2">
+            
+                    <files-list-component
+                        :is-upload-enabled="user.is_planner || user.is_superuser"
+                        :files="event.files"
+                        @upload="(files) => uploadFiles(files)"
+                        @delete="(id) => deleteFile(id)">
+                    </files-list-component>
+                </div>
+
+                <div
+                    class="tab-pane fade"
+                    id="notes-tab"
+                    role="tabpanel"
+                    aria-labelledby="ex1-tab-3">
+            
+                    <notes-list-component
+                        :notes="event.notes"
+                        :are-notes-editable="user.is_planner || user.is_superuser"
+                        @save="(id, title, content, hasPii) => saveNote(id, title, content, hasPii)"
+                        @delete="(id) => deleteNote(id)">
+
+                    </notes-list-component>
+                </div>
+
+                <div class="tab-pane fade"
+                    id="rigging-tab"
+                    role="tabpanel"
+                    aria-labelledby="ex1-tab-4">
+
+                    <h2>Opprigging</h2>
+                    <p>
+                        Definer tidspunkt for opprigging av arrangementet.
+                    </p>
+                    
+                    <rigging-form v-model="event.riggingBefore"></rigging-form>
+                
+                    <h2 class="mt-3">Nedrigging</h2>
+                    <p>
+                        Definer tidspunkt for nedrigging av arrangementet
+                    </p>
+
+                    <rigging-form v-model="event.riggingAfter">                        
+                    </rigging-form>
+                
+                    <hr>
+                
+                    <button class="btn wb-btn-main" @click="updateBuffers()">
+                        Lagre endringer
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <template v-slot:footer>
+            {% comment %} <div class="d-flex justify-content-end">
+                <button type="button" class="btn wb-btn-secondary me-2" @click="isVisible = false">Lukk</button>
+                <button type="button" class="btn wb-btn-main" @click="isVisible = false">Lagre</button>
+            </div> {% endcomment %}
+        </template>
+    </dialog-component>
+</template>
+
+<script src="{% static '@vuepic/vue-datepicker/dist/vue-datepicker.iife.js' %}"></script>
+
+<script>
+    let EventInfoDialogComponent = {
+        props: {
+            eventId: {
+                type: Number,
+                required: true
+            },
+            isVisible: {
+                type: Boolean,
+                required: true
+            }
+        },
+        data: function() {
+            return {
+                hasMounted: false,
+                dateFormatter: (date) => {
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+                    return `${day}.${month}.${year} ${hours}:${minutes}`;
+                },
+                user: {
+                    is_superuser: false,
+                    is_staff: false,
+                    is_planner: true,
+                },
+                event: {
+                    title: null,
+                    description: null,
+                    start_date: null,
+                    end_date: null,
+                    files: [],
+                    rooms: [],
+                    display_layouts: [],
+                    display_text: null,
+                    notes: [],
+                    status_type: null,
+                    audience: null,
+                    arrangement_type: null,
+                    riggingBefore: {
+                        title: null,
+                        date: null,
+                        start_time: null,
+                        end_time: null,
+                    },
+                    riggingAfter: {
+                        title: null,
+                        date: null,
+                        start_time: null,
+                        end_time: null,
+                    },
+                    arrangement: {
+                        id: null,
+                        name: null,
+                        responsible: null,
+                        created: null,
+                        modified: null,
+                        location_name: null,
+                    },
+                    room: null,
+                    is_part_of_serie: null,
+                    created: null,
+                    modified: null,
+                }
+            }
+        },
+        computed: {
+            startTime() {
+                return this.event.start.split(" ")[1];
+            },
+            endTime() {
+                return this.event.end.split(" ")[1];
+            },
+            expandFilesUploadButtonRef() {
+                if (this.hasMounted)
+                    return this.$refs.expandFilesUploadButton;
+                
+                return null;
+            }
+        },
+        methods: {
+            updateBuffers() {
+                let url = "/arrangement/event/" + this.event.id + "/update_buffers";
+
+                const formData = new FormData();
+                formData.append("before_buffer_title", this.event.riggingBefore.title);
+                formData.append("before_buffer_date", this.event.riggingBefore.date);
+                formData.append("before_buffer_start", this.event.riggingBefore.start_time);
+                formData.append("before_buffer_end", this.event.riggingBefore.end_time);
+
+                formData.append("after_buffer_title", this.event.riggingAfter.title);
+                formData.append("after_buffer_date", this.event.riggingAfter.date);
+                formData.append("after_buffer_start", this.event.riggingAfter.start_time);
+                formData.append("after_buffer_end", this.event.riggingAfter.end_time);
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": '{{ csrf_token }}'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        toastr.success("Opprigg og nedrigg ble oppdatert");
+                    }
+                    else {
+                        console.error("Failed updating buffers", response);
+                        toastr.error("Kunne ikke oppdatere opprigg og nedrigg");
+                    }
+                })
+            },
+            saveNote(id, title, content, hasPii) {
+                let url = "/arrangement/note/" + id;
+                
+                const formData = new FormData();
+                formData.append("id", id ? id : 0);
+                formData.append("title", title);
+                formData.append("content", content);
+                formData.append("has_personal_information", hasPii);
+
+                if (!id) {
+                    formData.append("entityPk", this.event.id)
+                    formData.append("entityType", "event");
+                    url = "/arrangement/note/create";
+                }
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData, 
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        toastr.success("Notatet ble lagret");
+                        this.getData();
+                    }
+                    else {
+                        toastr.error("Kunne ikke lagre notatet");
+                    }
+                });
+            },
+            deleteNote(id) {
+                Swal.fire({
+                    title: 'Er du sikker?',
+                    text: "Notatet vil bli slettet for alltid",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Slett',
+                    cancelButtonText: 'Avbryt'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        fetch("/arrangement/note/delete/" + id, {
+                            method: 'DELETE',
+                            headers: {
+                                "X-CSRFToken": '{{ csrf_token }}'
+                            }
+                        }).then(response => {
+                            if (response.ok) {
+                                this.getData();
+                                toastr.success("Notatet ble slettet");
+                            }
+                            else {
+                                console.error("Failed deleting note", response);
+                                toastr.error("Kunne ikke slette notatet")
+                            }
+                        })
+                    }
+                })
+            },
+            uploadFiles(files) {
+                let url = "/arrangement/event/" + this.event.id + "/upload";
+
+                const formData = new FormData();
+                // file_field is the name of the field the backend expects
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    formData.append("file_field", file);
+                }
+
+                formData.append("pk", this.event.id);
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                }).then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    this.getData();
+                })
+            },
+            deleteFile(id) {
+                let url = `/arrangement/event/${this.event.id}/files/${id}/delete`;
+
+                fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        "X-CSRFToken": '{{ csrf_token }}'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        this.getData();
+                        toastr.success("Filen ble slettet");
+                    }
+                    else {
+                        console.error("Failed deleting file", response);
+                        toastr.error("Kunne ikke slette filen")
+                    }
+                });
+            },
+            getData() {
+                fetch("/arrangement/event/" + this.eventId + "/json")
+                    .then(response => response.json())
+                    .then(data => {
+                        this.event = data;
+                    })
+            }
+        },
+        emits: ["close"],
+        async mounted() {
+            this.hasMounted = true;
+        },
+        watch: {
+            isVisible: function(val) {
+                if (val) {
+                    this.getData();
+
+                    this.$nextTick(() => {
+                        document.querySelectorAll('.form-outline').forEach((formOutline) => {
+                            new mdb.Input(formOutline).init();
+                        });
+                    })
+                }
+            }
+        },
+        components: {
+            DialogComponent, 
+            VueDatePicker,
+            TreeSelectComponent, 
+            RoomPresetSelectComponent, 
+            DialogComponent, 
+            OrderRoomDialogComponent, 
+            RoomAndPresetSelectorComponent,
+            SelectMainPlannerDialogComponent,
+            FilesListComponent,
+            NotesListComponent,
+            RoomsSelect,
+            RiggingForm,
+            DisplayLayoutSelect
+        },
+        template: "#vuec-event-info-dialog",
+        delimiters: ["[[", "]]"],
+    }
+</script>

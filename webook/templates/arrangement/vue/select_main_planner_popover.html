@@ -1,0 +1,87 @@
+{% include "arrangement/vue/popover_component.html" %}
+{% include "arrangement/vue/select_main_planner_base.html" %}
+
+<template id="vuec-select-main-planner-popover-component-template">
+
+    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+        <div class="d-flex">
+            <div>
+                <label class="d-block form-label">
+                    <i class="fas fa-star"></i>
+                    Hovedplanlegger
+                </label>
+        
+                <div>
+                    [[ modelValue?.full_name || 'Ingen valgt' ]]
+                </div>
+        
+                <button class="wb-btn-main"
+                    @click="isExpanded = !isExpanded"
+                    ref="trigger"
+                    type="button">
+        
+                    Velg hovedplanlegger
+                </button>
+            </div>
+            <div>
+                <popover-component
+                    :is-visible="isExpanded"
+                    :excludes="[ triggerRef ]"
+                    @update:is-visible="(value) => isExpanded = value"
+                    style="width: 50em">
+                    
+                    <base-select-main-planner-component
+                        v-model="modelValueCopy">
+                    </base-select-main-planner-component>
+
+                </popover-component>
+            </div>
+        </div>
+
+
+
+    </div>
+</template>
+
+<script>
+    let SelectMainPlannerPopoverComponent = {
+            components: {
+                PopoverComponent,
+                BaseSelectMainPlannerComponent
+            },
+            props: {
+                modelValue: Object,
+            },
+            emits: ["update:modelValue"],
+            data() {
+                return {
+                    modelValueCopy: null,
+                    isMounted: false,
+                    isExpanded: false,
+                    mainPlannerSearchTerm: null,
+                    mainPlannerSearchResults: [],
+                }
+            },
+            computed: {
+                triggerRef() {
+                    if (!this.isMounted) {
+                        return null;
+                    }
+                    return this.$refs.trigger;
+                },
+            },
+            watch: {
+                modelValueCopy: function (val) {
+                    this.modelValueCopy = val;
+                    this.$emit("update:modelValue", val);
+                },
+            },
+            mounted() {
+                this.mainPlannerSearchTerm = "";
+                this.isMounted = true;
+                this.modelValueCopy = this.modelValue;
+            },
+            delimiters: ["[[", "]]"],
+            template: "#vuec-select-main-planner-popover-component-template"
+    }
+</script>

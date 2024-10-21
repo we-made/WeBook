@@ -45,6 +45,7 @@ from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.screenshow.models import DisplayLayout
 from webook.utils.collision_analysis import analyze_collisions
 from webook.utils.serie_calculator import calculate_serie
+from webook.utils.utc_to_current import utc_to_current
 
 
 class CreateEventSerieJsonFormView(
@@ -231,6 +232,89 @@ class CalculateEventSeriePreviewView(
 
 calculate_event_serie_preview_view = CalculateEventSeriePreviewView.as_view()
 
+class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView):
+    """View for getting detailed information of a single event in JSON"""
+
+    model = Event
+    pk_url_kwarg = "pk"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+
+        transformed = {
+            "id": self.object.id,
+            "title": self.object.title,
+            "title_en": self.object.title_en,
+            "location_name": self.object.arrangement.location.name,
+            "arrangement_type": self.object.arrangement_type.name
+            if self.object.arrangement_type
+            else None,
+            "status": self.object.status.name if self.object.status else None,
+            "audience": self.object.audience.name if self.object.audience else None,
+            "start_date": self.object.start.strftime("%Y-%m-%d %H:%M:%S"),
+            "end_date": self.object.end.strftime("%Y-%m-%d %H:%M:%S"),
+            "responsible_name": self.object.responsible.full_name
+            if self.object.responsible
+            else None,
+            "is_part_of_serie": self.object.serie is not None,
+            "manifest_schedule_description": self.object.serie.serie_plan_manifest.schedule_description
+            if self.object.serie
+            else None,
+            "arrangement": {
+                "id": self.object.arrangement.id,
+                "name": self.object.arrangement.name,
+                "responsible": self.object.arrangement.responsible.full_name
+                if self.object.arrangement.responsible
+                else "Ingen",
+                "created": self.object.arrangement.created,
+                "modified": self.object.arrangement.modified,
+                "location_name": self.object.arrangement.location.name,
+            },
+            "created": self.object.created.strftime("%Y-%m-%d %H:%M"),
+            "modified": self.object.modified.strftime("%Y-%m-%d %H:%M"),
+            "expected_visitors": self.object.expected_visitors,
+            "actual_visitors": self.object.actual_visitors,
+            "meeting_place": self.object.meeting_place,
+            "meeting_place_en": self.object.meeting_place_en,
+            "riggingBefore": {
+                "title": self.object.before_buffer_title,
+                "date": self.object.before_buffer_date,
+                "start_time": self.object.before_buffer_start,
+                "end_time": self.object.before_buffer_end,
+            },
+            "riggingAfter": {
+                "title": self.object.after_buffer_title,
+                "date": self.object.after_buffer_date,
+                "start_time": self.object.after_buffer_start,
+                "end_time": self.object.after_buffer_end,
+            },
+            "display_layouts": [dl.id for dl in self.object.display_layouts.all()],
+            "display_text": self.object.display_text,
+            "rooms": [r.id for r in self.object.rooms.all()],
+            "notes": list(  # ToDo: Consider separating this out into a separate view
+                map(
+                    lambda n: {
+                        "id": n.id,
+                        "title": n.title,
+                        "text": n.content,
+                        "created": utc_to_current(n.created).strftime("%Y-%m-%d %H:%M"),
+                        "author": n.author.full_name,
+                        "has_personal_information": n.has_personal_information,
+                        "updated_by": n.updated_by.full_name if n.updated_by else None,
+                        "updated": utc_to_current(n.modified).strftime(
+                            "%Y-%m-%d %H:%M"
+                        ),
+                    },
+                    self.object.notes.all(),
+                )
+            ),
+            "files": [
+                {"path": file.file.name, "filename": file.filename, "id": file.id}
+                for file in self.object.files.all()
+            ],
+        }
+
+        return JsonResponse(transformed, safe=False)
 
 class EventSerieManifestView(
     LoginRequiredMixin, PlannerAuthorizationMixin, DetailView, JSONResponseMixin

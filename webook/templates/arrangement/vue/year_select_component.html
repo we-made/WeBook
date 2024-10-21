@@ -1,0 +1,40 @@
+<template id="vuec_year_select_component_template">
+    <select 
+        :value="modelValue" 
+        :name="name" 
+        :id="id" 
+        :class="classes"
+        :required="required || false"
+        @change="$emit('update:modelValue', $event.target.value)">
+
+        <option v-for="x in 100" :selected="modelValue === parseInt(x)">
+            [[x + 2000]]
+        </option>
+
+        <option v-for="option in options" :value="option.id">
+            [[ option.label ]]
+        </option>
+    </select>
+</template>
+
+
+<script>
+    let YearSelectComponent = {
+        props: {
+            modelValue: String,
+            id: String,
+            name: String,
+            required: Boolean,
+            classes: Array
+        },
+        emits: ["update:modelValue"],
+        data() {
+            return {
+                startYear: 2020,
+                endYear: 2100,
+            }
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec_year_select_component_template"
+    }
+</script>

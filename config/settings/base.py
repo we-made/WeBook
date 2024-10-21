@@ -284,6 +284,7 @@ if USE_REDIS:
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": env("REDIS_URL", default="redis://localhost:6379"),
+            "KEY_PREFIX": env("REDIS_KEY_PREFIX", default="webook"),
         }
     }
 

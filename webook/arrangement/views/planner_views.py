@@ -507,6 +507,36 @@ class PlannerEventInspectorDialogView(LoginRequiredMixin, DialogView, UpdateView
         "arrangement/planner/dialogs/arrangement_dialogs/inspectEventDialog.html"
     )
 
+    def get_object(self) -> any:
+        qs = Event.objects.prefetch_related("files")
+        qs = qs.prefetch_related("people")
+        qs = qs.select_related("responsible")
+        qs = qs.select_related("audience")
+        qs = qs.select_related("serie")
+        qs = qs.select_related("county")
+        qs = qs.prefetch_related("county__city_segments")
+        qs = qs.prefetch_related("county__schools_in_county")
+        qs = qs.select_related("serie__serie_plan_manifest")
+        qs = qs.select_related("status")
+        qs = qs.prefetch_related("rooms")
+        qs = qs.select_related("school")
+        qs = qs.select_related("updated_by")
+        qs = qs.select_related("associated_serie")
+        qs = qs.select_related("buffer_after_event")
+        qs = qs.select_related("buffer_before_event")
+        qs = qs.select_related("arrangement_type")
+        qs = qs.prefetch_related("display_layouts")
+        qs = qs.prefetch_related("notes")
+        qs = qs.select_related("arrangement")
+        qs = qs.select_related("arrangement__location")
+        qs = qs.prefetch_related("arrangement__notes")
+        qs = qs.prefetch_related("arrangement__files")
+        qs = qs.select_related("arrangement__responsible")
+        qs = qs.select_related("arrangement__audience")
+        obj = super().get_object(queryset=qs)
+
+        return obj
+
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         start = time.time()
 
@@ -558,6 +588,36 @@ class PlannerArrangementInformationDialogView(
     template_name = (
         "arrangement/planner/dialogs/arrangement_dialogs/arrangementInfoDialog.html"
     )
+
+    def get_object(self) -> any:
+        qs = Arrangement.objects.prefetch_related("files")
+        qs = qs.prefetch_related("planners")
+        qs = qs.prefetch_related("notes")
+
+        # qs = qs.prefetch_related("series")
+        # # qs = qs.select_related("series__serie_plan_manifest")
+        # qs = qs.prefetch_related("series__serie_plan_manifest__rooms")
+        # qs = qs.prefetch_related("series__serie_plan_manifest__people")
+        # qs = qs.prefetch_related("series__files")
+        # qs = qs.prefetch_related("series__events")
+
+        # qs = qs.select_related("series__serie_plan_manifest__responsible")
+        # qs = qs.select_related("series__serie_plan_manifest__arrangement_type")
+        # qs = qs.select_related("series__serie_plan_manifest__status")
+
+        qs = qs.select_related("responsible")
+        qs = qs.select_related("audience")
+        qs = qs.select_related("county")
+        qs = qs.select_related("arrangement_type")
+        qs = qs.select_related("school")
+        qs = qs.prefetch_related("county__city_segments")
+        qs = qs.prefetch_related("county__schools_in_county")
+        qs = qs.select_related("location")
+        qs = qs.select_related("status")
+        qs = qs.prefetch_related("display_layouts")
+        # qs = qs.prefetch_related("event_set")
+
+        return super().get_object(qs)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -650,7 +710,10 @@ class PlannerCreateArrangementInformatioDialogView(
         counties = County.objects.all().order_by("name")
 
         for county in counties:
-            county.schools = School.objects.filter(county=county).order_by("name")
+            qs = School.objects.filter(county=county)
+            qs = qs.prefetch_related("audiences")
+            qs = qs.order_by("name")
+            county.schools = qs.all()
 
         context["schoolAudiences"] = [
             *settings.allowed_audiences.all(),
@@ -1150,3 +1213,10 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
 
 
 arrangement_create_serie_dialog_view = PlanSerieForm.as_view()
+
+
+class PlannerCalendarV2(TemplateView):
+    template_name = "arrangement/planner/planner_calendar_v2.html"
+
+
+planner_calendar_v2 = PlannerCalendarV2.as_view()

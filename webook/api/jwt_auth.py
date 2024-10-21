@@ -5,14 +5,15 @@ from webook.api.models import ServiceAccount, RevokedToken, APIEndpoint
 from django.conf import settings
 from jwt import ExpiredSignatureError, decode, DecodeError, encode
 from ninja.errors import HttpError
+from asgiref.sync import sync_to_async
 
 ALWAYS_ALLOWED_ENDPOINTS = []
 
 
 class JWTBearer(HttpBearer):
-    def authenticate(self, request, token):
+    async def authenticate(self, request, token):
         token = token.split(" ")[1] if " " in token else token
-        if RevokedToken.objects.filter(token=token).exists():
+        if await sync_to_async(list)(RevokedToken.objects.filter(token=token)):
             raise HttpError(403, "Token has been revoked")
 
         try:
@@ -31,7 +32,7 @@ class JWTBearer(HttpBearer):
             raise HttpError(403, "Invalid")
 
         try:
-            service_account = ServiceAccount.objects.get(pk=service_account_id)
+            service_account = await ServiceAccount.objects.aget(pk=service_account_id)
             if not service_account.is_active:
                 logging.critical(
                     f"Deactivated user tried to authenticate: {service_account_id}"
@@ -39,14 +40,14 @@ class JWTBearer(HttpBearer):
                 raise HttpError(403, "This user is deactivated.")
 
             service_account.last_seen = datetime.now(timezone.utc)
-            service_account.save()
+            await service_account.asave()
 
             operation_id = request.resolver_match.url_name
 
             if operation_id not in ALWAYS_ALLOWED_ENDPOINTS:
-                if not APIEndpoint.objects.filter(
-                    operation_id=operation_id, service_accounts=service_account
-                ).exists():
+                ep = await APIEndpoint.objects.aget(operation_id=operation_id)
+
+                if not ep:
                     logging.info(
                         f"User {service_account_id} tried to access {operation_id} without permission"
                     )

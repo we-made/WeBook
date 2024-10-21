@@ -1,0 +1,42 @@
+<template id="selectMainPlannerS2">
+
+    <select2 class="w-100"
+        @input="(val) => $emit('update:selected', val)"
+        :options="options"
+        :selected="selected"
+        :multiple="false">
+    </select2>
+
+</template>
+
+<script>
+    let SelectMainPlannerS2 = {
+        template: "#selectMainPlannerS2",
+        props: {
+            selected: { 
+                type: Array, 
+                default: [] 
+            }
+        },
+        emits: ["update:selected"],
+        data() {
+            return {
+                options: [],
+            }
+        },
+        methods: {
+            async getMainPlannerOptions() {    
+                this.options = await fetch("{% url 'arrangement:arrangement_main_planner_select2' %}", {
+                    method: "GET",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                }).then(response => response.json());
+            },
+        },
+        mounted() {
+            this.getMainPlannerOptions();
+        },
+        components: { Select2 },
+    }
+</script>

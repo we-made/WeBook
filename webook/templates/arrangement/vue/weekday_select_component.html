@@ -1,0 +1,62 @@
+<template id="vuec_weekday_select_component_template">
+    <span class="m-1 badge p-1 bg-white border border-dark secondary-hover text-dark" 
+        v-for="day in options" 
+        :key="day.value"
+        @click="toggleValue(day.value)">
+        
+        <input v-model="values" :id="day.value" type="checkbox" :value="day.value">
+        &nbsp;[[ day.label ]]
+    </span>
+</template>
+
+
+<script>
+    /*
+        Component for selecting one or more weekdays from a list of checkboxes.
+    */
+    let WeekdaySelectComponent = {
+        props: {
+            modelValue: Array,
+            id: String,
+            name: String,
+            required: Boolean
+        },
+        emits: ["update:modelValue"],
+        data() {
+            return {
+                options: [
+                    { value: 1, label: "Mandag" },
+                    { value: 2, label: "Tirsdag" },
+                    { value: 3, label: "Onsdag" },
+                    { value: 4, label: "Torsdag" },
+                    { value: 5, label: "Fredag" },
+                    { value: 6, label: "Lørdag" },
+                    { value: 7, label: "Søndag" }
+                ],
+                values: [] 
+            }
+        },
+        methods: {
+            toggleValue(value) {
+                if (this.values.includes(value)) {
+                    this.values = this.values.filter(v => v !== value);
+                } else {
+                    this.values.push(value);
+                }
+            }
+        },
+        watch: {
+            values: {
+                handler() {
+                    this.$emit("update:modelValue", this.values);
+                },
+                deep: true
+            }
+        },
+        mounted() {
+            this.values = this.modelValue || [];
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec_weekday_select_component_template"
+    }
+</script>

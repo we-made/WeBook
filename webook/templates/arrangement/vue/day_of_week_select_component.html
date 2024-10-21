@@ -1,0 +1,41 @@
+<template id="vuec_day_of_week_select_component_template">
+    <select 
+        :value="modelValue" 
+        :name="name" 
+        :id="id" 
+        :required="required || false"
+        @change="$emit('update:modelValue', $event.target.value)">
+
+        <option v-for="option in options" :value="option.value">
+            [[ option.label ]]
+        </option>
+    </select>
+</template>
+
+
+<script>
+    let DayOfWeekSelectComponent = {
+        props: {
+            modelValue: Number,
+            id: String,
+            name: String,
+            required: Boolean
+        },
+        emits: ["update:modelValue"],
+        data() {
+            return {
+                options: [
+                    { value: 1, label: "Mandag" },
+                    { value: 2, label: "Tirsdag" },
+                    { value: 3, label: "Onsdag" },
+                    { value: 4, label: "Torsdag" },
+                    { value: 5, label: "Fredag" },
+                    { value: 6, label: "Lørdag" },
+                    { value: 7, label: "Søndag" }
+                ]
+            }
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec_day_of_week_select_component_template"
+    }
+</script>

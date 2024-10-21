@@ -8,6 +8,7 @@ from webook.arrangement.views import (
     room_delete_view,
     location_room_list_view,
     search_rooms_ajax_view,
+    rooms_select2_json_view,
 )
 
 
@@ -39,12 +40,17 @@ room_urls = [
     ),
     path(
         route="room/locationrooms?location=<str:location>",
-        view=location_room_list_view, 
-        name="locationroomlist"
+        view=location_room_list_view,
+        name="locationroomlist",
     ),
     path(
         route="room/search",
         view=search_rooms_ajax_view,
         name="search_room_ajax_view",
+    ),
+    path(
+        route="room/select2/json/",
+        view=rooms_select2_json_view,
+        name="rooms_select2_json_view",
     ),
 ]

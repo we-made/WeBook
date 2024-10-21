@@ -1,0 +1,226 @@
+<template
+    id="vuec_service_responsibles_component">
+
+    <div class="clearfix">
+        <div class="float-end">
+            <button class="btn wb-btn-secondary wb-sm"
+                    @click="openAddNewResponsibleModal">
+                <i class="fas fa-plus"></i>&nbsp; Legg til ny ansvarlig
+            </button>
+        </div>
+    </div>
+
+    <table-component v-if="renderTable"
+        :data-source="responsiblesDataSourceFunc"
+        @remove-responsible="removeResponsible"
+        :can-search="false">
+    </table-component>
+
+    <div class="modal fade" id="vuec_service_responsibles_component_newResponsibleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus"></i>&nbsp; Legg til ny ansvarlig</h5>
+                    <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <span class="text-danger ms-1" v-if="showAlreadyRegisteredErrorText">
+                        <i class="fas fa-exclamation-triangle"></i>&nbsp; Denne e-posten er allerede registrert som en ansvarlig på denne tjenesten.
+                    </span>
+
+                    <span v-if="emailIsValid">
+                        <div class="alert d-flex  align-items-center mt-3 alert-success" v-if="emailIsAssociatedWithUser">
+                            <h3 class="mb-0">
+                                <i class="fas fa-user-check"></i>
+                            </h3>
+
+                            <span class="ms-4">
+                                En bruker med denne e-posten er registrert i systemet
+                            </span>
+                        </div>
+                        <div class="alert d-flex align-items-center mt-3 alert-warning" v-else>
+                            <h3 class="mb-0">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </h3>
+
+                            <span class="ms-4">
+                                Det fins ingen brukere med denne e-posten i arrangementsplanleggeren. Du kan fortsatt legge til denne e-posten, men vedkommende vil ikke kunne gå inn og administrere tjenesten via planleggeren. De vil fortsatt få e-post på nye bestillinger, og vil kunne behandle de.
+                            </span>
+                        </div>
+                    </span>
+
+                    <div class="input-group input-group-lg border">
+                        <span :class="['input-group-text fw-bold', highlightClass]">
+                            E-Post
+                        </span>
+                        <input type="email" name="" :class="['form-control', highlightClass]"  id="" v-model="emailInput">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn wb-btn-secondary" data-mdb-dismiss="modal">Avbryt</button>
+                    <button type="button" class="btn wb-btn-main" @click="addEmail">Legg til</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    const ServiceResponsiblesComponent = {
+        components: {
+            TableComponent
+        },
+        props: {
+            serviceId: Number
+        },
+        data() {
+            return {
+                addNewResponsibleModal: null,
+                emailInput: "",
+                emailIsAssociatedWithUser: false,
+                highlightEmailInput: false,
+                renderTable: true,
+                showAlreadyRegisteredErrorText: false,
+            }
+        },
+        computed: {
+            emailIsValid() {
+                return this.validateEmail(this.emailInput);
+            },
+            highlightClass() {
+                if (this.highlightEmailInput)
+                    return this.emailIsValid ? "border-success" : "border-danger";
+            }
+        },
+        watch: {
+            async emailInput(v) {
+                this.emailIsAssociatedWithUser = this.emailIsValid && await this.checkIfUserByEmailExists(this.emailInput);
+                this.showAlreadyRegisteredErrorText = false;
+            }
+        },
+        created() { console.log("Service Responsibles Component created()") },
+        methods: {
+            async rerenderTable() {
+                this.renderTable = false;
+                await this.$nextTick();
+                this.renderTable = true;
+            },
+            async responsiblesDataSourceFunc() {
+                let data = await fetch("/arrangement/service/" + this.serviceId + "/responsibles")
+                    .then(response => response.json());
+
+                return {
+                    columns: {
+                        "email": {
+                            isHtml: false,
+                            friendlyName: "E-Post",
+                            isSortable: true
+                        },
+                        "user": {
+                            isHtml: false,
+                            friendlyName: "Bruker",
+                            isSortable: true
+                        }
+                    },
+                    actions: {
+                        "removeResponsible": { type: 'main', content: "<i class='fas fa-trash'></i>&nbsp; Slett", isContentHtml: true }
+                    },
+                    data: data
+                }
+            },
+            async checkIfUserByEmailExists(email) {
+                return await fetch("/users/exists?email=" + email)
+                    .then(async response => { 
+                        const responseData = await response.json() 
+
+                        console.log(responseData);
+
+                        if ("exists" in responseData) {
+                            return responseData.exists;
+                        }
+                        else if ("message" in responseData)
+                            throw Error(responseData.message);
+                    });
+            },
+            validateEmail (email) {
+                return String(email)
+                  .toLowerCase()
+                  .match(
+                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                  );
+            },
+            async addEmail() {
+                console.log(this.emailIsValid);
+                if (!this.emailIsValid) {
+                    console.log("activating field highlight")
+                    this.highlightEmailInput = true;
+                    return;
+                }
+
+                let formData = new FormData();
+                formData.append("service_id", this.serviceId);
+                formData.append("email", this.emailInput);
+
+                await fetch("/arrangement/service/add_email/" + this.serviceId, {
+                    method: 'POST',
+                    headers: {
+                        "X-CSRFToken": "{{csrf_token}}"
+                    },
+                    body: formData
+                }).then(async response => {
+                    if (response.status === 200) {
+
+                        let responseData = await response.json();
+                        console.log(responseData)
+                        if ("message" in responseData && responseData.message == "Email already exists") {
+                            this.showAlreadyRegisteredErrorText = true;
+                            return;
+                        }
+
+                        await this.rerenderTable();
+                        this.addNewResponsibleModal.hide();
+                        return;
+                    }
+                    console.log(response);
+                })
+            },
+            async removeResponsible(row) {
+                Swal.fire({
+                    title: 'Er du sikker på at du vil fjerne ansvarlig med e-post ' + row.email + ' fra denne tjenesten?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: "Avbryt",
+                    confirmButtonText: 'Fjern ' + row.email
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        let formData = new FormData();
+                        formData.append("service_id", this.serviceId);
+                        formData.append("email", row.email);
+    
+                        fetch("/arrangement/service/delete_email", {
+                            method: 'POST',
+                            headers: {
+                                "X-CSRFToken": "{{csrf_token}}"
+                            },
+                            body: formData
+                        }).then(async response => {
+                            if (response.status == 200) {
+                                toastr.success("Ansvarlig med e-post " + row.email + " har blitt fjernet");
+                                await this.rerenderTable();
+                            }
+                        });
+                    }
+                })
+            },
+            openAddNewResponsibleModal() {
+                if (!this.addNewResponsibleModal)
+                    this.addNewResponsibleModal = new mdb.Modal(document.getElementById('vuec_service_responsibles_component_newResponsibleModal'))
+                this.addNewResponsibleModal.show();
+            }
+        },
+        template: "#vuec_service_responsibles_component",
+        delimiters: [ "[[", "]]"]
+    }
+</script>
