@@ -1,8 +1,9 @@
 import json
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.contrib.auth.models import Group
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -43,6 +44,7 @@ from webook.arrangement.views.generic_views.archive_view import (
 )
 from webook.arrangement.views.generic_views.dialog_views import DialogView
 from webook.arrangement.views.generic_views.json_form_view import JsonFormView
+from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.generic_views.search_view import SearchView
 from webook.arrangement.views.generic_views.upload_files_standard_form import (
     UploadFilesStandardFormView,
@@ -504,3 +506,29 @@ class SynchronizeEventsInArrangementView(
 
 
 synchronize_events_in_arrangement_view = SynchronizeEventsInArrangementView.as_view()
+
+
+class MainPlannerSelect2JsonView(
+    LoginRequiredMixin, PlannerAuthorizationMixin, JsonListView
+):
+    """A view that serves the JSON for the main planner select2"""
+
+    model = Person
+
+    def get_queryset(self) -> List[Dict[str, Dict[str, Union[int, str]]]]:
+        valid_persons: List[Person] = [
+            x.person for x in Group.objects.get(name="planners").user_set.all()
+        ]
+
+        data: List[Dict[str, Dict[str, Any]]] = [
+            {
+                "id": person.id,
+                "text": person.full_name,
+            }
+            for person in valid_persons
+        ]
+
+        return data
+
+
+main_planner_select2_json_view = MainPlannerSelect2JsonView.as_view()

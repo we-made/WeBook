@@ -1,0 +1,76 @@
+<template id="vuec-mdb-modal-component-template">
+    
+    <div class="modal" ref="modal" tabindex="-1" aria-labelledby="modal" aria-hidden="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal">[[ title ]]</h5>
+                    <button type="button" class="btn-close" @click="hide()"></button>
+                </div>
+    
+                <div class="modal-body">
+                    <slot name="modal-body"></slot>
+                </div>
+
+                <div class="modal-footer">
+                    <slot name="modal-footer"></slot>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</template>
+
+<script>
+    let MdbModalComponent = {
+        props: {
+            isVisible: {
+                title: 'Visible',
+                type: Boolean,
+                default: false
+            },
+            title: {
+                title: 'Title',
+                type: String,
+                default: 'Modal'
+            }
+        },
+        data: function () {
+            return {
+                modal: null
+            }
+        },
+        watch: {
+            isVisible: function (val) {
+                val ? this.show() : this.close();
+            }
+        },
+        methods: {
+            show() {
+                this.modal.show();
+                this.$emit('show');
+            },
+            hide() {
+                this.$emit('close');
+                this.modal.hide();
+            }
+        },
+        emits: ['close', 'show'],
+        delimiters: ['[[', ']]'],
+        template: '#vuec-mdb-modal-component-template',
+        mounted() {
+            this.$nextTick(() => {
+                console.log("mdb", mdb)
+                this.modal = new mdb.Modal(this.$refs.modal);
+
+                this.$refs.modal.addEventListener('hidden.bs.modal', () => {
+                    this.isVisible = false;
+                });
+                
+                if (this.isVisible) {
+                    this.show();
+                }
+            });
+        }
+    }
+</script>

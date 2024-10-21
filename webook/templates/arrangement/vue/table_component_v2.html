@@ -1,0 +1,454 @@
+<template
+    id="vuec-table-component-template">
+    
+    <div class="d-flex justify-content-between">
+        <div class="input-group w-50" v-if="canSearch">
+            <span class="input-group-text border-end-0">
+                <i class="fas fa-search"></i>
+            </span>
+            
+            <input type="text" 
+                class="form-control form-control-lg border-start-0"
+                placeholder="Søk..."
+                v-model="searchTerm">
+        </div>
+        
+        <div class="d-flex">
+            <slot></slot>
+            <div class="d-flex align-items-center">
+                <div class="input-group w-auto ms-3">
+                    <div class="input-group-text">
+                        <i class="fas fa-table"></i>
+                    </div>
+                    <select class="form-control" v-model="itemsPerPage">
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="75">75</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table :class="tableClasses ? tableClasses : 'table  align-middle table-sm mt-3 text-center'">
+        <thead>
+            <tr>
+               <th v-for="( options, columnKey ) in visibleColumns"
+                    @click="sortBy(columnKey)">
+                <strong>[[ options.friendlyName ]]</strong>
+
+                <span v-if="sortedBy == columnKey" class="ms-3">
+                    <small>
+                        <i class="fas fa-sort-down" v-if="sortDirection == 'desc'"></i>
+                        <i class="fas fa-sort-up" v-if="sortDirection == 'asc'"></i>
+                    </small>
+                </span>
+
+               </th> 
+               <th v-if="actions && actions.length > 0">
+                    <i class="fas fa-ellipsis-v"></i>
+               </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(row, index) in itemsOnPage" class="secondary-hover" @click="onRowClicked($event, row)">
+                <td v-for="( options, columnKey ) in visibleColumns">
+                    <span v-if="options.isComponent">
+                        <status-indicator-component 
+                            v-if="options.componentName == 'statusIndicator'"
+                            :type="row[columnKey].type"
+                            :icon-class="row[columnKey].iconClass"
+                            :tooltip="row[columnKey].tooltip">
+                        </status-indicator-component>
+                        <div class="form-group" v-if="options.componentName == 'checkbox'">
+                            <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
+                                v-model="row[columnKey]" :disabled="'is_disabled' in row && row.is_disabled">
+                        </div>
+                    </span>
+                    <span v-else>
+                        <span v-if="!options.isHtml">[[ row[columnKey] ]]</span>
+                        <span v-else v-html="row[columnKey]"></span>
+                    </span>
+                </td>
+
+                <td v-if="actions && actions.length > 0" style="min-width: 15rem">
+                    <span v-if="Object.keys(actions).length > 2">
+                        <div class="dropdown" id="actionDropdown">
+                            <button
+                              class="btn wb-btn-main-outline shadow-0 border border-dark wb-sm"
+                              type="button"
+                              id="actionsDropdownMenuButton"
+                              data-mdb-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                                <i class="fas fa-chevron-down"></i>
+                            </button> 
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="actionsDropdownMenu">
+                                <span v-for="(actionData, actionName, index) in actions">
+                                    <li v-if="'_actions' in row == false || '-' + actionName in row._actions == false">
+                                        <button class="dropdown-item" @click.native="emitActionClickedEvent(actionName, row)">
+                                            <span v-if="actionData.isContentHtml" v-html="actionData.content"></span>
+                                            <span v-else>[[actionData.content]]</span>
+                                        </button>
+                                      </li>
+                                </span>
+                              
+                              <span v-if="'_actions' in row && Object.keys(row._actions).filter(x => x[0] !== '-').length > 0">
+                                <li><hr class="dropdown-divider" /></li>
+                                <span v-for="(action, actionName) in row._actions">
+                                    <li v-if="actionName[0] !== '-'">
+                                        <button class="dropdown-item" @click.native="emitActionClickedEvent(actionName, row)">
+                                            <span v-if="action.isContentHtml" v-html="action.content"></span>
+                                            <span v-else>[[action.content]]</span>
+                                        </button>
+                                    </li>
+                                </span>
+                              </span>
+                            </ul>
+                          </div>
+                    </span>
+                    <span v-else>
+                        <button v-for="(actionData, actionName, index) in actions"
+                            :class="[ actionData.type == 'main' ? 'wb-btn-main' : 'wb-btn-secondary', 'btn wb-sm', { 'ms-2': index > 0 } ]"
+                            @click.stop="emitActionClickedEvent(actionName, row)">
+
+                            <span v-if="actionData.isContentHtml" v-html="actionData.content"></span>
+                            <span v-else>[[actionData.content]]</span>
+                        </button>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <nav aria-label="" 
+        :class="['d-flex align-items-center', compactNav ? 'justify-content-center' : 'justify-content-between']"
+        v-if="totalPages > 1">
+
+        <div v-if="!compactNav">
+          <em>[[entitiesCount]] resultater</em>
+        </div>
+        <ul class="pagination">
+            <li class="page-item me-1" v-if="totalPages > (pageCircumference * 2)">
+                <a href="javascript:void(0)" class="page-link fw-bold" @click.stop="page = 1">
+                    Første                    
+                </a>
+            </li>
+            <li class="page-item" :class="{ disabled: page == 1 }">
+                <a class="page-link" href="javascript:void(0)" @click.stop="page--">
+                    <i class="fas fa-arrow-left"></i> &nbsp;
+                    Forrige
+                </a>
+            </li>
+            
+            <span
+                v-for="aPage in pageCircumference">
+                <li class="page-item"  v-if="(page - (pageCircumference - aPage) - 1) > 0">
+                    <a href="#" class="page-link" @click="page = page - (pageCircumference - aPage) - 1">
+                        [[ page - (pageCircumference - aPage) - 1 ]]
+                    </a>
+                </li>
+            </span>
+
+            <span>
+                <li class="active page-item">
+                    <a href="#" class="page-link" @click="page = page">
+                        [[ page ]]
+                    </a>
+                </li>
+            </span>
+
+            <span
+                v-for="aPage in pageCircumference">
+                <li class="page-item"  v-if="(aPage + page) <= totalPages ">
+                    <a href="#" class="page-link" @click="page = aPage + page">
+                        [[ aPage + page ]]
+                    </a>
+                </li>
+            </span>
+
+            <li class="page-item" :class="{ disabled: page == totalPages }">
+                <a class="page-link" href="javascript:void(0)" @click.stop="page++">
+                    Neste&nbsp;
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li> 
+
+            <li class="page-item ms-1" v-if="totalPages > (pageCircumference * 2)">
+                <a href="javascript:void(0)" class="page-link fw-bold" @click.stop="page = totalPages">
+                    Siste
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div v-if="compactNav" class="text-center">
+        <em>[[entitiesCount]] resultater</em>
+    </div>
+
+</template>
+
+<template id="vuec-status-indicator-component">
+    <div>
+        <a 
+            :class="[ 'btn btn-sm text-white btn-floating shadow-0', 'backgroundClass' in stylingData ? stylingData.backgroundClass : '' ]" 
+            :style="'backgroundColor' in stylingData ? 'backgroundColor: ' + stylingData.backgroundColor : ''" href="#!" role="button"
+            data-mdb-toggle='tooltip' :title='tooltip'>
+            <i :class="['fas fa-check fa-1x', iconClass]" v-if="iconClass"></i>
+        </a>
+    </div>
+</template>
+
+<script>
+    const StatusIndicatorComponent = {
+        props: {
+            type: String,
+            iconClass: String,
+            tooltip: String,
+        },
+        data() {
+            return {
+                statusTypes: {
+                    "success": { backgroundClass: "bg-success" },
+                    "danger": { backgroundClass: "bg-danger" },
+                    "warning": { backgroundClass: "bg-warning" },
+                    "dark": { backgroundClass: "bg-dark text-white" },
+                    "info": { backgroundClass: "bg-info" },
+                    "secondary": { backgroundClass: "bg-secondary" }
+                }
+            }
+        },
+        computed: {
+            stylingData() {
+                if (this.type in this.statusTypes === false)
+                    throw new Error("Status type not recognized, '" + this.type +"'");
+
+                return this.statusTypes[this.type];
+            }
+        },
+        template: "#vuec-status-indicator-component",
+        delimiters: [ "[[", "]]"]
+    }
+
+    const TableComponent = {
+        components: {
+            StatusIndicatorComponent,
+        },
+        props: {
+            dataSource: Function,
+            csrfString: String,
+            canSearch: Boolean,
+            sort: Boolean,
+            tableClasses: String,
+            columnNames: Object,
+            rerenderToggle: Boolean,
+            compactNav: Boolean
+        },
+        data() {
+            return {
+                data: [],
+                page: 1,
+                pageCircumference: 3,
+                itemsPerPage: 10,
+                columns: [],
+                actions: [],
+                sortedBy: null,
+                sortDirection: null,
+                searchTerm: "",
+            }
+        },
+        computed: {
+            entitiesCount() {
+                return this.visibleItems.length;
+            },
+            visibleItems() {
+                let items = this.data;
+                
+                if (this.canSearch && this.searchTerm) {
+                    let columnsToSearch = []
+
+                    for (const [columnKey, columnData] of Object.entries(this.columns)) {
+                        if ("isSearchable" in columnData && columnData.isSearchable) {
+                            columnsToSearch.push(columnKey);
+                        }
+                    }
+
+                    let filteredItems = [];
+                    items.forEach((row) => {
+                        let isMatch = false;
+
+                        for (let i = 0; i < columnsToSearch.length; i++) {
+                            const key = columnsToSearch[i];
+                            if (String(row[key]).toLowerCase().includes(this.searchTerm.toLowerCase())) {
+                                isMatch = true
+                                break;
+                            }
+                        }
+
+                        if (isMatch)
+                            filteredItems.push(row);
+                    });
+                    
+                    items = filteredItems;
+                }
+
+                return items;
+            },
+            totalPages() {
+                return Math.ceil(this.visibleItems.length / this.itemsPerPage)
+            },
+            itemsOnPage() {
+                return this.visibleItems.slice((this.page - 1) * this.itemsPerPage, this.page * this.itemsPerPage );
+            },
+            visibleColumns() {
+                let columns = {};
+
+                for (const column in this.columns) {
+                    if ("isHidden" in this.columns[column] && this.columns[column].isHidden === true)
+                        continue;
+
+                    columns[column] = this.columns[column];
+                }
+
+                return columns;
+            }
+        },
+        watch: {
+            itemsPerPage() {
+                if (this.page > this.totalPages)
+                    this.page = this.totalPages || 1;
+            },
+            totalPages() {
+                if (this.page > this.totalPages)
+                    this.page = this.totalPages || 1;
+            },
+            rerenderToggle() {
+                console.log("Rerendering table")
+                this.refresh();
+            },
+            async dataSource() {
+                await this.refresh();
+            }
+        },
+        async created() {
+        },
+        async mounted() {
+            await this.refresh();
+        },
+        methods: {
+            onRowClicked(event, item) {
+                this.$emit("rowClicked", event, item);
+
+                const checkboxColumns = Object.entries(this.visibleColumns)
+                                            .filter(x => x[1].componentName == "checkbox");
+
+                if (checkboxColumns.length != 1)
+                    return
+
+                const [ columnKey, columnData ] = checkboxColumns[0];
+
+                item[columnKey] = !item[columnKey];
+                this.emitCheckboxClickedEvent(item, columnKey);
+            },
+            emitActionClickedEvent(actionName, item) {
+                this.$emit(actionName, item);
+            },
+            emitCheckboxClickedEvent(row, columnKey) {
+                this.$emit("checkboxClicked", { row, columnKey });
+            },
+            sortBy(columnKey) {
+                const column = this.columns[columnKey];
+
+                if ("isSortable" in column == false || !column.isSortable)
+                    return;
+
+                if (this.sortedBy == columnKey) {
+                    this.sortDirection = this.sortDirection == "asc" ? "desc" : "asc";
+                }
+                else {
+                    this.sortedBy = columnKey;
+                    this.sortDirection = "desc";
+                }
+
+                let sortPropKey = columnKey + "_sort" in this.data[0] ? columnKey + "_sort" : columnKey;
+
+                this.data.sort(
+                    (a, b) => { 
+                        let val = a[sortPropKey] < b[sortPropKey] ? -1 : 1
+
+                        if (this.sortDirection == "desc")
+                            val = val * -1
+
+                        return val;
+                    }
+                )
+            },
+            async refresh() {
+                const data = await this.resolveDataSource();
+
+                this.columns = data.columns;
+                this.data = data.data;
+                this.actions = data.actions;
+            },
+            /* Attempt to resolve the given property dataSource, which serves as the backing data feed.
+            A data source may be either an array, or a function that returns an array. If it is the latter
+            this function can be used to refresh the data in-place (depending on the nature of the  function, of course). 
+            
+            Look into:
+                Make the DataSource an object
+                The object should have;
+                    1. functionFlags: {}
+                    2. data: []
+
+                functionFlags should be an object with function:true/false props indicating if the datasource supports a given action or not
+                like lazy loading, and so on. at that point we can dynamically switch on different functionality, depending on the support of the 
+                source.
+            */
+            async resolveDataSource() {
+                if (this.dataSource instanceof Function) {
+                    const result = await this.dataSource();
+                    if (!result instanceof Object)
+                        throw new Error("DataSource is callable, but did not return an array");
+
+                    return result;
+                }
+
+                if (this.dataSource instanceof Object)
+                    return this.dataSource;
+
+                if (this.dataSource instanceof String) {
+                    // Presume that dataSource is an URL
+                    if (!this.csrfString) {
+                        throw new Error("It appears you are using an URL based datasource, but have not set the CSRF token. Please set the CSRF token.");
+                    }
+                    
+                    return await fetch(this.dataSource, {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRFToken': this.csrfString
+                        }
+                    }).then(async response => {
+                        if (response.status != 200) {
+                            console.warn("Fetch request on dataSource failed");
+                            throw new Error(response.statusText);
+                        }
+
+                        const result = await response.json();
+
+                        if (!result instanceof Object)
+                            throw new Error("Returned data from endpoint is not in a valid structure");
+
+                        return result
+                    });
+                }
+
+                throw new Error("DataSource is invalid. Supply either an array of objects, or a function that returns an array of objects");
+            }
+        },
+        template: "#vuec-table-component-template",
+        delimiters: [ "[[", "]]"]
+      };
+</script>

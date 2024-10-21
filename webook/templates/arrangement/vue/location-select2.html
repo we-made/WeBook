@@ -1,0 +1,42 @@
+<template id="locationSelect2">
+    <select2
+        @input="(val) => $emit('update:selected', val)"
+        :options="locations"
+        :selected="selected">
+    </select2>
+</template>
+
+<script>
+    let LocationSelect = {
+        template: '#locationSelect2',
+        delimiters: ['[[', ']]'],
+        props: {
+            selected: {
+                type: Array,
+                default: []
+            }
+        },
+        emits: ['update:selected'],
+        data() {
+            return {
+                locations: [],
+                selectedLocations: this.selected
+            }
+        },
+        methods: {
+            getLocations() {
+                fetch("/arrangement/location/select2_json/")
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("data", data);
+                        this.locations = data;
+                    })
+                    .catch(error => console.log(error));
+            }
+        },
+        mounted() {
+            this.getLocations();
+        },
+        components: { Select2 },
+    }
+</script>

@@ -1,0 +1,361 @@
+{% comment %}
+/**
+* @file dialog-component.html
+* @brief Turbo-boosted Vue component for jQuery UI dialog
+* @details This component is a wrapper for jQuery UI dialog. It is used to render a dialog with a header, content and footer.
+{% endcomment %}
+
+<template id="vuec-dialog-component-template">
+    
+    <div class="w-dialog" ref="dialogRoot" title="" v-if="isVisible" style="overflow: scroll;">
+        <div :class="['w-dialog__grille d-flex justify-content-between align-items-center', { 'draggable': isDraggable }]" 
+             ref="grille">
+            <div class="w-dialog__header">
+                <slot name="header"></slot>
+            </div>
+
+            <div class="w-dialog__options d-flex">  
+                <button class="btn btn-white shadow-0" type="button" v-if="!chainTo"
+                    @click="toggleFullScreen()">
+                    <i class="fas fa-cogs"></i>
+                </button>
+                <button class="btn btn-white shadow-0" type="button" v-if="!chainTo"
+                    @click="toggleFullScreen()">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="btn btn-white shadow-0" type="button" @click="close()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <slot name="subheader"></slot>
+
+        <hr>
+
+        <div class="w-dialog__content" ref="content" style="overflow: visible;">
+            <slot name="content" style="height: 100%;"></slot>
+        </div>
+
+        <div class="w-dialog__footer">
+            <hr>
+            <slot name="footer" class="me-3"></slot>
+        </div>
+    </div>
+
+</template>
+
+<script>
+    let DialogComponent = {
+        props: {
+            excludes: Array,
+            width: String,
+            startFullScreen: Boolean,
+            isVisible: Boolean,
+            isDraggable: Boolean,
+            isResizable: Boolean,
+            useBackdrop: Boolean,
+            chainTo: Element | String,
+            position: Object,
+        },
+        data() {
+            return {
+                queuedToggleFullScreen: false,
+                isMounted: false,
+                isFullScreen: false,
+            }
+        },
+        methods: {
+            handleOverlay() {
+                // If we have multiple dialogs open at once with backdrops, we must make sure that the overlay
+                // is on top of other previously triggered dialogs
+
+                // Get all overlays in document. We'll use this to find the highest z-index
+                let overlays = document.querySelectorAll(".ui-widget-overlay");
+
+                // Find the highest z-index
+                let highestZIndex = 0;
+                for (let i = 0; i < overlays.length; i++) {
+                    let zIndex = parseInt($(overlays[i]).css("z-index"));
+                    if (zIndex > highestZIndex)
+                        highestZIndex = zIndex;
+                }
+
+                // Set the z-index of the overlay to the highest z-index + 2 (supercedes the previous overlay + the previous dialog)
+                $(this.$refs.dialogRoot)
+                    .parent()
+                    .next(".ui-widget-overlay")
+                    .attr("style", "z-index: " + (highestZIndex + 2) + " !important");
+
+                // Move the current dialog +1 of the overlay
+                $(this.$refs.dialogRoot)
+                    .parent()
+                    .attr("style", "z-index: " + (highestZIndex + 3) + " !important");
+
+                
+
+                
+                let pos = this.position || { my: "center", at: "center", of: window };
+                if (this.isFullScreen)
+                    pos = { my: "left top", at: "right top", of: this.chainToEl, collision: "none" };
+                pos.of = $(this.$refs.dialogRoot).parent().next(".ui-widget-overlay");
+
+                $(this.$refs.dialogRoot).dialog("option", "position", pos);
+            },
+            toggleFullScreen() {
+                if (this.isFullScreen) {
+                    $(this.$refs.dialogRoot).dialog("option", "width", this.width || "40rem");
+                    $(this.$refs.dialogRoot).dialog( "option", "height", "auto" );
+
+                    // remove fullscreen class from dialog
+                    $(this.$refs.dialogRoot).parent().removeClass("fullscreen");
+                    
+                    this.$refs.dialogRoot.dispatchEvent(new Event("dialogfullscreenexit"));
+
+                    this.isFullScreen = false;
+
+                    this.$emit("fullscreenexit");
+                }
+                else {
+                    $(this.$refs.dialogRoot).dialog("option", "width", "100%");
+                    $(this.$refs.dialogRoot).dialog("option", "height", window.innerHeight + "px");
+
+                    $(this.$refs.dialogRoot).dialog("option", "position", {
+                        my: "top", 
+                        at: "center top",
+                        of: window
+                    });
+
+                    // add fullscreen class to dialog
+                    $(this.$refs.dialogRoot).parent().addClass("fullscreen");
+                    $(this.$refs.dialogRoot).parent().css("height", window.innerHeight + "px")
+                    $(this.$refs.dialogRoot).css("height", window.innerHeight + "px")
+
+                    // deactivate window scroll
+                    $("body").css("overflow", "hidden");
+
+                    this.$refs.dialogRoot.dispatchEvent(new Event("dialogfullscreenenter"));
+
+                    this.isFullScreen = true;
+
+                    this.$emit("fullscreenenter");
+                }
+            },
+            show() {
+                this.$nextTick(function () {
+                    console.log("showing dialog", this.$refs.dialogRoot)
+                    console.log("width", this.width );
+                    $(this.$refs.dialogRoot).dialog({
+                        width: this.width,
+                        resizable: this.isResizable,
+                        maxHeight: window.innerHeight,
+                        modal: this.useBackdrop,
+                        position: this.position || { my: "center", at: "center", of: window },
+                        draggable: false // We must deactivate the native jQuery UI draggable, because we want to use our own
+                    })
+                    
+                    
+                    // Figure out if we more dialogs exist along us
+                    // This matters due to z-indexing. If we are not alone, we must coordinate the z-index to the last dialog rendered.
+                    // This applies wether we are using a backdrop or not - consider if we are triggering a dialog from a dialog with a backdrop,
+                    // if we let things be the new dialog will be rendered beneath the backdrop of the parent dialog, which ultimately is nonsense
+                    // and not what you would expect.
+
+
+                    $(document).keyup(function (e) {
+                        if (e.keyCode == 27) {
+                            this.close();
+                        }
+                    }.bind(this));
+
+                    window.parent = this.$parent;
+
+                    if (this.isDraggable) {
+                        $(this.$refs.dialogRoot).parent().draggable({
+                            handle: this.$refs.grille,
+                            drag: () => { 
+                                if (this.isFullScreen || this.chainTo)
+                                    return false;
+
+                                this.$refs.dialogRoot.dispatchEvent(new Event("dialogdrag")) 
+                            },
+                            stop: () => { this.$refs.dialogRoot.dispatchEvent(new Event("dialogdragstop")) },
+                            start: () => { this.$refs.dialogRoot.dispatchEvent(new Event("dialogdragstart")) },
+                        });
+                    }
+
+                    // Remove the native jQuery UI titlebar - we will use our own
+                    $(this.$refs.dialogRoot).parent().find(".ui-dialog-titlebar").remove();
+                    
+                    if (this.useBackdrop) {
+                        this.handleOverlay();
+                    }
+                    else {
+                        if ($(".ui-dialog").not(this.$refs.dialogRoot).length > 0) {
+                            // Get the last dialog rendered
+                            let lastDialog = $(".ui-dialog").not(this.$refs.dialogRoot.parentElement).last();
+                            
+                            // Get the z-index of the last dialog
+                            let zIndex = parseInt($(lastDialog).css("z-index"));
+
+                            // Set the z-index of the current dialog to the last dialog
+                            $(this.$refs.dialogRoot).parent().attr("style", "z-index: " + (zIndex + 1) + " !important");
+                            // reset width
+                            $(this.$refs.dialogRoot).dialog("option", "width", this.width || "40rem");
+                        }
+                    }
+
+                    if (this.chainTo) {
+                        let chainToEl = this.chainTo;
+                        if (typeof this.chainTo === "string") {
+                            this.chainToEl = document.querySelector(this.chainTo)
+                            if (!this.chainToEl)
+                                throw new Error("Could not find element with selector " + this.chainTo
+                                    + " to chain dialog to");
+                            
+                            // If the element is child of a dialog, we must chain to the parent dialog element
+                            // Lest we chain to the content of the dialog which would cause
+                            // the dialog to be overlapping the parent dialog
+                            if ($(this.chainToEl).closest(".ui-dialog").length > 0) {
+                                this.chainToEl = $(this.chainToEl).closest(".ui-dialog")[0];
+                            }
+                        }
+
+                        const reposition = () => {
+                            $(this.$refs.dialogRoot).dialog("option", "position", {
+                                my: "left top", 
+                                at: "right top",
+                                of: this.chainToEl,
+                                collision: "none",
+                                classes: {
+                                    "ui-dialog": "overflow-dialog ui-corner-all"
+                                }
+                            });
+                        }
+
+                        const adjustToFullScreen = () => {
+                            $(this.$refs.dialogRoot).parent().addClass("fullscreen");
+                            
+                            const parentWidth = $(this.chainTo).dialog("option", "width");
+                            const ourWidth = $(this.$refs.dialogRoot).dialog("option", "width");
+                            
+                            //reposition parent dialog
+                            $(this.chainTo).dialog("option", "width", "70%");
+                            $(this.chainTo).dialog("option", "height", window.innerHeight);
+                            // drag the parent dialog to the left
+                            $(this.chainTo).dialog("option", "position", {
+                                my: "left top", 
+                                at: "left top",
+                                of: window,
+                                collision: "none",
+                                classes: {
+                                    "ui-dialog": "overflow-dialog ui-corner-all"
+                                }
+                            });
+
+                            //reposition our dialog
+                            $(this.$refs.dialogRoot).dialog("option", "width", "30%");
+                            $(this.$refs.dialogRoot).dialog("option", "height", window.innerHeight);
+
+                            $(this.$refs.dialogRoot).dialog("option", "position", {
+                                my: "left top", 
+                                at: "right top",
+                                of: this.chainToEl,
+                                collision: "none",
+                                classes: {
+                                    "ui-dialog": "overflow-dialog ui-corner-all"
+                                }
+                            });
+
+                            $(this.$refs.dialogRoot).on("dialogclose", () => { 
+                                // reset parent dialog when the chained dialog is closed
+                                if($(this.chainTo).parent().hasClass("fullscreen")) {
+                                    $(this.chainTo).dialog("option", "width", "100%");
+                                }
+                            });
+                        }
+
+                        $(this.$refs.dialogRoot).dialog("option", "height", this.chainToEl.clientHeight);
+
+                        $(this.chainTo).on("dialogdrag", reposition);
+                        $(this.chainTo).on("dialogdragstop", reposition);
+                        $(this.chainTo).on("dialogdragstart", reposition);
+                        $(this.chainto).on("dialogclose", () => { this.close() });
+                        $('#plannerBaseDialogAA').on("dialogfullscreenenter", () => { console.log("full screen"); adjustToFullScreen(); })
+                        $(this.chainto).on("dialogfullscreenexit",() => {  
+                            $(this.$refs.dialogRoot).parent().removeClass("fullscreen");
+                            reposition(); 
+                        });
+
+                        if($(this.chainTo).parent().hasClass("fullscreen"))
+                            adjustToFullScreen();
+
+                        $(this.$refs.dialogRoot).dialog("option", "position", {
+                            my: "left top", 
+                            at: "right top",
+                            of: this.chainToEl,
+                            collision: "none",
+                            classes: {
+                                "ui-dialog": "overflow-dialog ui-corner-all"
+                            }
+                        });
+
+                        return;
+                    }
+
+                    if (this.queuedToggleFullScreen) {
+                        this.toggleFullScreen();
+                    }
+                })
+            },
+            close() {
+                if ($(this.$refs.dialogRoot).dialog("isOpen"))
+                        $(this.$refs.dialogRoot).dialog("close");
+
+                if (this.isFullScreen)
+                    this.toggleFullScreen();
+
+                this.$refs.dialogRoot.dispatchEvent(new Event("dialogclose"));
+
+                this.$emit("close");
+            }
+        },
+        watch: {
+            isVisible() {
+                this.isVisible ? this.show() : this.close();
+            },
+            width() {
+                if (this.isMounted)
+                    $(this.$refs.dialogRoot).dialog("option", "width", this.width || "40rem");
+            },
+        },
+        computed: {
+        },
+        mounted() {
+            console.log("width", this.width)
+            $(this.$refs.dialogRoot).dialog({
+                width: this.width || "40rem",
+            });
+
+            this.queuedToggleFullScreen = this.startFullScreen || null;
+
+            this.isMounted = true;
+
+            this.$nextTick(function () {
+                this.$emit("rendered");
+
+                if (this.isVisible)
+                {
+                    this.close();
+                    this.show();
+                }
+            });
+        },
+        emits: ["close", "rendered", "fullscreenenter", "fullscreenexit"],
+        unmounted() {
+            $(this.$refs.dialogRoot).dialog("destroy");
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec-dialog-component-template"
+    }
+</script>

@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.views.generic.edit import DeleteView
 
+from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.screenshow.forms import DisplayLayoutForm
 from webook.screenshow.models import DisplayLayout, ScreenGroup, ScreenResource
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
@@ -22,7 +23,7 @@ def get_section_manifest():
             create_url="screenshow:layout_create",
             edit_url="screenshow:layout_edit",
             delete_url="screenshow:layout_delete",
-        )
+        ),
     )
 
 
@@ -32,7 +33,10 @@ class LayoutSectionManifestMixin(UserPassesTestMixin):
         self.section = get_section_manifest()
 
     def _is_member(self):
-        return self.request.user.groups.filter(name='display_organizer').exists() or self.request.user.is_superuser
+        return (
+            self.request.user.groups.filter(name="display_organizer").exists()
+            or self.request.user.is_superuser
+        )
 
     def test_func(self):
         return self._is_member()
@@ -42,16 +46,18 @@ class LayoutSectionManifestMixin(UserPassesTestMixin):
         return context
 
 
-class LayoutListView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, GenericListTemplateMixin, ListView):
+class LayoutListView(
+    LoginRequiredMixin,
+    LayoutSectionManifestMixin,
+    MetaMixin,
+    GenericListTemplateMixin,
+    ListView,
+):
     queryset = DisplayLayout.objects.all()
     template_name = "common/list_view.html"
     model = DisplayLayout
     view_meta = ViewMeta.Preset.table(DisplayLayout)
-    fields = [
-        "items_shown",
-        "is_room_based",
-        "is_active"
-    ]
+    fields = ["items_shown", "is_room_based", "is_active"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -62,7 +68,9 @@ class LayoutListView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, 
 layout_list_view = LayoutListView.as_view()
 
 
-class LayoutCreateView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, CreateView):
+class LayoutCreateView(
+    LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, CreateView
+):
     model = DisplayLayout
     form_class = DisplayLayoutForm
     template_name = "screenshow/layout/layout_form.html"
@@ -70,8 +78,8 @@ class LayoutCreateView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['screen_list'] = ScreenResource.objects.order_by('screen_model')
-        context['group_list'] = ScreenGroup.objects.order_by('group_name')
+        context["screen_list"] = ScreenResource.objects.order_by("screen_model")
+        context["group_list"] = ScreenGroup.objects.order_by("group_name")
         return context
 
     def get_success_url(self) -> str:
@@ -98,7 +106,9 @@ class LayoutUpdateView(LayoutCreateView, UpdateView):
 layout_update_view = LayoutUpdateView.as_view()
 
 
-class LayoutDetailView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, DetailView):
+class LayoutDetailView(
+    LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, DetailView
+):
     model = DisplayLayout
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -109,7 +119,9 @@ class LayoutDetailView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
 layout_detail_view = LayoutDetailView.as_view()
 
 
-class LayoutDeleteView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, DeleteView):
+class LayoutDeleteView(
+    LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin, DeleteView
+):
     model = DisplayLayout
     slug_field = "slug"
     slug_url_kwarg = "slug"
@@ -117,8 +129,30 @@ class LayoutDeleteView(LoginRequiredMixin, LayoutSectionManifestMixin, MetaMixin
     view_meta = ViewMeta.Preset.delete(DisplayLayout)
 
     def get_success_url(self) -> str:
-        return reverse(
-            "screenshow:layout_list"
-        )
+        return reverse("screenshow:layout_list")
+
 
 layout_delete_view = LayoutDeleteView.as_view()
+
+
+
+class DisplayLayoutsListJsonView(LoginRequiredMixin, JsonListView):
+    model = DisplayLayout
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        return list(
+            map(
+                lambda x: {
+                    "id": x.id,
+                    "slug": x.slug,
+                    "name": x.name,
+                    "display_layout_text": x.triggers_display_layout_text,
+                },
+                qs,
+            )
+        )
+
+
+layout_list_json_view = DisplayLayoutsListJsonView.as_view()

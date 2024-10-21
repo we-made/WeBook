@@ -1,0 +1,50 @@
+<template id="vuec-js-tree-select">
+    <input type="search" name="" id="" class="form-control mb-2">
+
+    <div ref="tree">
+    </div>
+</template>
+
+<script>
+    let TreeSelect = {
+        components: {},
+        props: {
+            dataSource: {
+                type: String,
+                default: '',
+            },
+            multiple: {
+                type: Boolean,
+                default: false,
+            },
+        },
+        data: function () {
+            return {
+                data: [],
+            }
+        },
+        methods: {
+            refreshData() {
+                return fetch(this.dataSource)
+                    .then(response => response.json())
+                    .then(data => this.data=data);
+            },
+        },
+        mounted() {
+            this.refreshData().then(() => {
+                console.log("data", this.data);
+                $(this.$refs.tree).jstree({
+                    core: {
+                        data: this.data,
+                        multiple: this.multiple,
+                    },
+                    plugins: ['checkbox'],
+                }).on('changed.jstree', (e, data) => {
+                    
+                });
+            });
+        },
+        delimiters: ['[[', ']]'],
+        template: '#vuec-js-tree-select',
+    }
+</script>

@@ -14,12 +14,18 @@ from webook.arrangement.views import (
     upload_files_to_event_json_form_view,
     upload_files_to_event_serie_json_form_view,
 )
+from webook.arrangement.views.event_views import GetEventJsonView
 
 event_urls = [
     path(
         route="event/create_serie",
         view=create_event_serie_json_view,
         name="create_event_serie",
+    ),
+    path(
+        route="event/<int:pk>/json",
+        view=GetEventJsonView.as_view(),
+        name="get_event_json",
     ),
     path(
         route="event/create",
@@ -29,7 +35,7 @@ event_urls = [
     path(
         route="event/<int:pk>/upload",
         view=upload_files_to_event_json_form_view,
-        name="upload_files_to_event"
+        name="upload_files_to_event",
     ),
     path(
         route="event/<int:event_pk>/files/<int:pk>/delete",
@@ -44,7 +50,7 @@ event_urls = [
     path(
         route="planner/delete_event/<int:pk>",
         view=delete_event_json_view,
-        name="plan_delete_event"
+        name="plan_delete_event",
     ),
     path(
         route="eventSerie/files/delete/<int:pk>",
@@ -54,7 +60,7 @@ event_urls = [
     path(
         route="eventSerie/<int:pk>/files/upload",
         view=upload_files_to_event_serie_json_form_view,
-        name="upload_files_to_event_serie"
+        name="upload_files_to_event_serie",
     ),
     path(
         route="eventSerie/delete/<int:pk>",

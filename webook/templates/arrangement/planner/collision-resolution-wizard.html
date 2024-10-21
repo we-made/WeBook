@@ -1,0 +1,494 @@
+<template id="collisionResolutionWizard">
+    <dialog-component
+        :is-draggable="true"
+        :is-visible="isVisible"
+        :chain-to="chainTo"
+        :use-backdrop="true"
+        @close="$emit('close')">
+
+        <template v-slot:header>            
+            <h3 class="mb-0 fw-bold">
+                Løs konflikt
+            </h3>
+        </template>
+
+        <template v-slot:subheader>
+
+            <hr>
+
+            <div class="d-flex mb-2 mt-2 justify-content-between" v-if="localConflictedEvents.length > 1">
+                <div>
+                    <button class="btn wb-btn-main" @click="selectedConflictedEventIndex--; loadSelectedConflictIntoView();" :disabled="selectedConflictedEventIndex == 0">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="fw-bold">
+                    [[ selectedConflictedEventIndex + 1 ]] / [[ localConflictedEvents.length ]]
+                </div>
+
+                <div>
+                    <button class="btn wb-btn-main" @click="selectedConflictedEventIndex++; loadSelectedConflictIntoView();" :disabled="selectedConflictedEventIndex + 1 >= conflictedEvents.length">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <template v-slot:content>
+            <div class="border border-dark wb-bg-secondary mb-4">
+                <div class="wb-bg-main d-flex justify-content-between p-3 pt-2 pb-2">
+                    <div>
+                        <h5 class="fw-bold text-white text-uppercase mb-0">[[event.title]]</h5>
+                    </div>
+
+                    <div class="badge badge-light">
+                        <h6 class="text-dark mb-0">
+                            <i class="fas fa-calendar"></i>&nbsp;
+                            [[ dateFormatter(event.extendedProps.originalStart) ]]
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="p-3">
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="" class="d-block fw-bold">Fra</label>
+                            <vue-date-picker v-model="event.start"  locale="nb-no" :format="dateFormatter"></vue-date-picker>
+                        </div>
+                        <div class="col-6">
+                            <label for="" class="d-block fw-bold">Til</label>
+                            <vue-date-picker v-model="event.end" locale="nb-no" :format="dateFormatter"></vue-date-picker>
+                        </div>
+                    </div>
+    
+                    <div>
+                        <label for="" class="d-block fw-bold">Rom</label>
+                        <rooms-select v-model:selected="event.resourceIds"></rooms-select>
+                    </div>
+                </div>
+            </div>
+
+            <calendar-component
+                class="w-100 border border-danger mt-5"
+                height="30rem"
+                @event-change="(event) => onEventChanged(event)"
+                :view="view"
+                :arrow-navigation="true"
+                :event-start-editable="true"
+                :editable="true"
+                :event-source="eventSource"
+                :resources="resources"
+                :event-overlap="eventOverlap"
+                :show-popover="false"
+                ref="collisionCalendar">
+            </calendar-component>
+        </template>
+
+        <template v-slot:footer>
+            <div class="d-flex justify-content-between">
+                <div>
+                    <button class="btn wb-btn-secondary" @click="close()">
+                        <i class="fas fa-times"></i>&nbsp;
+                        Avbryt
+                    </button>
+                </div>
+                <div>
+
+                    <button class="btn wb-btn-main" @click="removeDate()">
+                        <i class="fas fa-trash"></i>&nbsp;
+                        Slett
+                    </button>
+
+                    <button class="btn wb-btn-main ms-2" @click="save()">
+                        <i class="fas fa-check"></i>&nbsp;
+                        Oppdater
+                    </button>
+                </div>
+            </div>
+        </template>
+
+    </dialog-component>
+
+</template>
+
+
+<script>
+let CollisionResolutionWizard = {
+    template: "#collisionResolutionWizard",
+    delimiters: ["[[", "]]"],
+    components: {
+        DialogComponent,
+        CalendarComponent, 
+        VueDatePicker,
+        RoomsSelect,
+    },
+    computed: {
+        view: function() {
+           return this.resources.length > 2 ? "resourceTimeline" : "resourceTimeGridWeek"
+        }
+    },
+    data: function() {
+        return {
+            dateFormatter: (date) => {
+                const pad = (n) => String(n).padStart(2, '0');
+                return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+            },
+            resources: [],
+            selectedConflictedEventIndex: 0,
+            events: [],
+            event: {
+                title: "Møte",
+                start: null,
+                end: null,
+                rooms: null,
+                resourceIds: [],
+            },
+            localConflictedEvents: [],
+            onEventChanged: (eventInfo) => {
+                this.event.start = eventInfo.event.start;
+                this.event.end = eventInfo.event.end;
+                console.log("eventInfo.event.getResources()", eventInfo.event.getResources())
+                this.event.resourceIds = eventInfo.event.getResources().map((resource) => resource.id);
+
+                const uuid = eventInfo.event.extendedProps.parentId;
+
+                const conflictedEvent = this.localConflictedEvents.find((ev) => ev.parentId === uuid);
+                conflictedEvent.event_a_start = this.event.start.toISOString();
+                conflictedEvent.event_a_end = this.event.end.toISOString();
+                conflictedEvent.contested_resource_id = this.event.resourceIds[0];
+            },
+            eventSource: async (fetchInfo, successCallback, failureCallback) => {
+                const start = fetchInfo.start;
+                const end = fetchInfo.end;
+
+                let events = [];
+
+                for await (const room of this.resources) {
+                    const slug = room.extendedProps.slug;
+                    const isExclusive = room.extendedProps.is_exclusive;
+
+                    const response = await fetch(
+                        "/arrangement/calendar/room/" + slug + "/events" 
+                        + "?start=" + start.toISOString() 
+                        + "&end=" + end.toISOString());
+
+                    if (response.ok === false) {
+                        failureCallback("Could not fetch events for room: " + room.title);
+                    }
+
+                    const data = await response.json();
+
+                    for (const event of data) {
+                        if (events.find((ev) => ev.id === event.id)) {
+                            continue;
+                        }
+
+                        events.push({
+                            id: event.id,
+                            title: event.title,
+                            start: event.start,
+                            end: event.end,
+                            resourceId: room.id,
+                            editable: false,
+                            startEditable: false,
+                            backgroundColor: isExclusive ? "#c93d3d" : "#6e894f",
+                            borderColor: "black",
+                            extendedProps: {
+                                isExclusive: isExclusive
+                            }
+                        });
+                    };
+                }
+
+                for (const bgEvent of this.backgroundEvents) {
+                    console.log("stayin alive", bgEvent, this.event)
+                    if (bgEvent.extendedProps.parentType === "serie" 
+                        && bgEvent.start.getDate() + "." + bgEvent.start.getMonth() + "." + bgEvent.start.getFullYear() == this.event.extendedProps.originalStart.getDate() + "." + this.event.extendedProps.originalStart.getMonth() + "." + this.event.extendedProps.originalStart.getFullYear()
+                        ) {
+                        console.log("skip current")
+                        continue;
+                    }   
+                    events.push({
+                        ...bgEvent,
+                        backgroundColor: "#ffd966",
+                        display: "background",
+                        color: "white",
+                        extendedProps: {
+                            isExclusive: false
+                        }
+                    });
+                }
+
+                events.push(this.event);
+
+                successCallback(events);
+            },
+            eventOverlap: (stillEvent, movingEvent) => {
+                if (stillEvent.extendedProps.isExclusive || movingEvent.extendedProps.isExclusive) {
+                    return false;
+                }
+
+                return true;
+            }
+        };
+    },
+    props: {
+        isVisible: true,
+        chainTo: {
+            type: String,
+            default: '',
+        },
+        conflictedEvents: {
+            type: Array[Object],
+            default: () => {
+                return [];
+                /* Expected format:
+                {
+                    rooms: [],
+                    start: new Date(),
+                    end: new Date().setHours(new Date().getHours() + 1),
+                }
+                */
+            }
+        },
+        backgroundEvents: {
+            type: Array[Object],
+            default: () => {
+                return [];
+                /* Expected format:
+                {
+                    rooms: [],
+                    start: new Date(),
+                    end: new Date().setHours(new Date().getHours() + 1),
+                }
+                */
+            }
+        }
+    },
+    watch: {
+        isVisible: function() {
+            if (this.isVisible) {
+                this.$nextTick(() => {
+                    this.$refs.collisionCalendar.refetchResources();
+                    this.$refs.collisionCalendar.refetchEvents();
+                });
+            }
+        },
+        selectedConflictedEventIndex: this.loadSelectedConflictIntoView,
+        conflictedEvents: {
+            handler: function() {
+                console.log("Conflicted Events Changed!", this.conflictedEvents, this.selectedConflictedEventIndex);
+
+                if (this.conflictedEvents.length === 0) {
+                   this.event = {
+                        title: "Møte",
+                        start: null,
+                        end: null,
+                        rooms: null,
+                        resourceIds: [],
+                        extendedProps: {
+                            originalStart: null
+                        }
+                    };
+                    return;
+                }
+                
+                const isEvent = this.conflictedEvents[0].parentType == "event";
+
+                this.localConflictedEvents = this.conflictedEvents ? this.conflictedEvents : [];
+                
+                if (isEvent)
+                    this.localConflictedEvents = [ this.conflictedEvents[0] ];
+
+                const ev = this.localConflictedEvents[this.selectedConflictedEventIndex];
+                if (ev === undefined)
+                    ev = this.localConflictedEvents[0];
+
+                console.log("ev", ev)
+
+                this.event = {
+                    title: ev.event_a_title,
+                    start: new Date(ev.event_a_start),
+                    end: new Date(ev.event_a_end),
+                    resourceIds: ev.resourceIds,
+                    droppable: true,
+                    rooms: ev.resourceIds ,
+                    backgroundColor: "#231f20",
+                    extendedProps: {
+                        originalStart: new Date(ev.event_a_start),
+                        parentType: ev.parentType,
+                        parentId: ev.parentId
+                    }
+                };
+            },
+            immediate: true
+        },
+        event: {
+            handler: async function() {
+                if (this.$refs.collisionCalendar === undefined) {
+                    return;
+                }
+
+                this.resources.length = 0;
+                this.events.length = 0;
+
+                this.$refs.collisionCalendar.gotoDate(this.event.start);
+
+                const startOfDay = new Date(this.event.start);
+                startOfDay.setHours(0, 0, 0, 0);
+
+                const endOfDay = new Date(this.event.end);
+                endOfDay.setHours(23, 59, 59, 999);
+
+                for await (const roomId of this.event.resourceIds) {
+                    const roomResponse = await fetch("/arrangement/room/json_pk/" + roomId);
+                    const data = await roomResponse.json();
+                    console.log("Room Id Push Resources", roomId)
+                    if (this.resources.find((res) => res.id === data.id)) {
+                        continue;
+                    }
+                    this.resources.push({
+                        id: data.id,
+                        title: data.name,
+                        extendedProps: {
+                            slug: data.slug,
+                            is_exclusive: data.is_exclusive
+                        }
+                    });
+
+                    const eventColor = data.is_exclusive ? "#c93d3d" : "green";
+
+                    const eventsResponse = await fetch(
+                        "/arrangement/calendar/room/" + data.slug + "/events" 
+                        + "?start=" + startOfDay.toISOString() 
+                        + "&end=" + endOfDay.toISOString());
+                    
+                    const events = await eventsResponse.json();
+
+                    for (const event of events) {
+                        if (this.events.find((ev) => ev.id === event.id)) {
+                            continue;
+                        }
+
+                        this.events.push({
+                            id: event.id,
+                            title: event.title,
+                            start: event.start,
+                            end: event.end,
+                            resourceId: data.id,
+                            backgroundColor: eventColor,
+                            borderColor: "black"
+                        });
+                    }
+                }
+
+                this.$refs.collisionCalendar.refetchResources();
+                this.$refs.collisionCalendar.refetchEvents();
+
+                console.log("Event Changed!", this.event, this.events);
+
+                if (this.resources.length > 2) {
+                    this.$refs.collisionCalendar.changeView("resourceTimelineWeek");
+                } else {
+                    this.$refs.collisionCalendar.changeView("resourceTimeGridWeek");
+                }
+
+            },
+            deep: true
+        }
+    },
+    methods: {
+        removeDate() {
+            Swal.fire({
+                title: "Slett tidspunkt",
+                text: "Er du sikker på at du vil slette dette tidspunktet?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.$emit(
+                        "remove",
+                        {
+                            originalStart: this.event.extendedProps.originalStart,
+                            changedEvent: this.event,
+                            successCallback: () => {
+                                this.localConflictedEvents.splice(this.selectedConflictedEventIndex, 1);
+
+                                console.log("icecream")
+
+                                if (this.localConflictedEvents.length === 0) {
+                                    this.$emit("close");
+                                    return;
+                                }
+                                
+                                if (this.selectedConflictedEventIndex >= this.localConflictedEvents.length) {
+                                    this.selectedConflictedEventIndex = this.localConflictedEvents.length - 1;
+                                }
+
+                                if (this.selectedConflictedEventIndex == 0) {
+                                    this.loadSelectedConflictIntoView();
+                                }
+                            }
+                        });
+                }
+            });
+        },
+        loadSelectedConflictIntoView() {
+            console.log("loadSelectedConflictIntoview")
+            if (this.selectedConflictedEventIndex < 0) {
+                this.selectedConflictedEventIndex = 0;
+            }
+
+            if (this.selectedConflictedEventIndex >= this.localConflictedEvents.length) {
+                this.selectedConflictedEventIndex = this.localConflictedEvents.length - 1;
+            }
+
+            const selectedConflictedEvent = this.localConflictedEvents[this.selectedConflictedEventIndex];
+
+            this.event = {
+                title: selectedConflictedEvent.event_a_title,
+                start: new Date(selectedConflictedEvent.event_a_start),
+                end: new Date(selectedConflictedEvent.event_a_end),
+                resourceIds: [ selectedConflictedEvent.contested_resource_id ],
+                droppable: true,
+                rooms: [ selectedConflictedEvent.contested_resource_id ],
+                backgroundColor: "#231f20",
+                extendedProps: {
+                    originalStart: new Date(selectedConflictedEvent.event_a_start),
+                    parentType: selectedConflictedEvent.parentType,
+                    parentId: selectedConflictedEvent.parentId
+                }
+            };
+            console.log("selectedConflictedEvent", selectedConflictedEvent);
+        },
+        close() {
+            this.$emit("close");
+        },
+        save() {
+            this.$emit("update", {
+                originalStart: this.event.extendedProps.originalStart,
+                changedEvent: this.event,
+                successCallback: () => {
+                    this.localConflictedEvents.splice(this.selectedConflictedEventIndex, 1);
+
+                    if (this.localConflictedEvents.length === 0) {
+                        this.$emit("close");
+                        return;
+                    }
+                    
+                    if (this.selectedConflictedEventIndex >= this.localConflictedEvents.length) {
+                        this.selectedConflictedEventIndex = this.localConflictedEvents.length - 1;
+                    }
+
+                    if (this.selectedConflictedEventIndex == 0) {
+                        this.loadSelectedConflictIntoView();
+                    }
+                }
+            });
+        }
+    },
+    emits: ["close", "update", "remove"]
+}
+</script>

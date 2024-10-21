@@ -1,0 +1,98 @@
+<template id="vuec-note-form">
+    <div v-if="!displayMode">
+        <h4 class="mb-2 mt-3">
+            Tittel
+        </h4>
+
+        <p>Tittelen vises i menyen til venstre i notatlisten</p>
+        <input type="text" name="" id="" class="form-control mb-2" :disabled="displayMode"
+            :value="title" @change="$emit('update:title', $event.target.value)">
+    </div>
+
+    <div v-if="displayMode" 
+         v-html="text">
+    </div>
+    <div v-else>
+        <div id="quill-editor" ref="editorEl" style="height: 17rem;">
+        </div>
+    </div>
+
+    <div class="alert alert-dark mt-3">
+        <h4 class="mb-2 mt-3">
+            <i class="fas fa-shield-alt"></i>
+            Inneholder notatet <abbr title="Personlig Identifiserende Informasjon">PII<abbr>?
+        </h4>
+        <p>
+            Notater med PII vil saneres 30 dager etter siste tidspunkt i arrangementet.
+        </p>
+        <div class="form-check form-switch">
+            <input class="form-check-input" 
+                type="checkbox" role="switch" id="hasPiiCheck" 
+                @click="$emit('update:hasPii', !hasPii)"
+                v-model="hasPii"
+                :disabled="displayMode" />
+            <label class="form-check-label fw-bold" for="hasPiiCheck">
+                [[ hasPii ? 'JA' : 'NEI'  ]]
+            </label>
+        </div>
+    </div>
+</template>
+
+<script>
+    let NoteFormComponent = {
+        props: ['title', 'text', 'hasPii', "displayMode"],
+        emits: [
+            'update:text', 
+            'update:hasPii', 
+            'update:title',
+            ],
+        computed: {
+            content() {
+                return this.editor ? this.editor.root.innerHTML : '';
+            }
+        },
+        data() {
+            return {
+                editor: null,
+            }
+        },
+        watch: {
+            displayMode(val) {
+                if(!val) {
+                    this.$nextTick(() => {
+                        this.initializeQuillEditor();
+                    });
+                }
+            }
+        },
+        methods: {
+            initializeQuillEditor() {
+                if (this.editor) {
+                    this.editor.root.innerHTML = this.text;
+                }
+                if (!this.$refs.editorEl) {
+                    return;
+                }
+
+                this.editor = new Quill(this.$refs.editorEl, {
+                    theme: 'snow'
+                });
+
+                this.editor.on('text-change', () => {
+                    this.$emit('update:text', this.editor.root.innerHTML);
+                });
+
+                if (this.text)
+                    this.editor.root.innerHTML = this.text;
+            }
+        },
+        mounted() {
+            if (!this.displayMode)
+                this.$nextTick(() => {
+                    this.initializeQuillEditor();
+                });
+        },
+        delimiters: ['[[', ']]'],
+        template: '#vuec-note-form'
+    }
+</script>

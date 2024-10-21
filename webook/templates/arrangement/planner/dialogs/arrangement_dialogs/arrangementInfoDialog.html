@@ -407,174 +407,7 @@
                             </thead>
             
                             <tbody>
-                                {% for event_serie in object.series.all %}
-                                <tr>
-                                    <td>
-                                        <div class="p-4 rounded-6 wb-bg-extra">
-                                            <h4>
-                                                <i class="fas fa-redo"></i>&nbsp;
-                                                {{event_serie.serie_plan_manifest.title}}
-                                            </h4>
-                                            <div>
-                                                <h6>
-                                                    {{ event_serie.serie_plan_manifest.schedule_description }}
-                                                    <small>({{event_serie.serie_plan_manifest.start_time}} - {{event_serie.serie_plan_manifest.end_time}})</small>
 
-                                                    {% if event_serie.serie_plan_manifest.rooms.exists %}
-                                                    <div>
-                                                        <strong>På: </strong> {{event_serie.serie_plan_manifest.rooms_str_list}}
-                                                    </div>
-                                                    {% endif %}
-
-                                                    {% if event_serie.serie_plan_manifest.people.exists %}
-                                                    <div>
-                                                        <strong>Med: </strong> {{event_serie.serie_plan_manifest.people_str_list}}
-                                                    </div>
-                                                    {% endif %}
-
-                                                    <small class="d-block mt-2">
-                                                        <i class="fas fa-star"></i> {{event_serie.serie_plan_manifest.responsible}}
-                                                    </small>
-                                                    <small class="d-block mt-2">
-                                                        <i class="fas fa-users"></i> {{event_serie.serie_plan_manifest.audience}}
-                                                    </small>
-                                                    <small class="d-block mt-2">
-                                                        <i class="fas fa-cogs"></i> {{event_serie.serie_plan_manifest.arrangement_type}}
-                                                    </small>
-                                                    <small class="d-block mt-2">
-                                                        <i class="fas fa-cogs"></i> {{event_serie.serie_plan_manifest.status}}
-                                                    </small>
-                                                </h6>
-                                            </div>
-            
-                                            <div class="accordion accordion-flush" id="accordion_{{event_serie.pk}}">
-                                                <div class="accordion-item">
-                                                <h6 class="accordion-header" id="flush-headingOne">
-                                                    <button
-                                                            class="accordion-button collapsed wb-bg-extra"
-                                                            type="button"
-                                                            data-mdb-toggle="collapse"
-                                                            data-mdb-target="#flush-collapseOne_{{event_serie.pk}}"
-                                                            aria-expanded="false"
-                                                            aria-controls="flush-collapseOne">
-                                                        Filer
-                                                    </button>
-                                                </h6>
-                                                <div
-                                                    id="flush-collapseOne_{{event_serie.pk}}"
-                                                    class="accordion-collapse collapse"
-                                                    aria-labelledby="flush-headingOne"
-                                                    data-mdb-parent="#accordion_{{event_serie.pk}}">
-                                                    <div class="accordion-body  wb-bg-extra">
-                                                        <div title="Last opp filer under '{{arrangement.name}}'" class=" wb-bg-extra">
-                                                            {% if user|has_group:"planners" or user.is_superuser %}
-                                                            <div class="clearfix">
-                                                                <button class="btn btn-sm wb-btn-secondary float-end"
-                                                                    d-trigger="uploadFilesToEventSerie"
-                                                                    d-arg-event_serie_pk="{{ event_serie.pk }}">
-                                                                    <i class="fas fa-upload"></i>
-                                                                    Last opp fil(er)
-                                                                </button>
-                                                            </div>
-                                                            {% endif %}
-
-                                                            {% if not event_serie.files.exists %}
-                                                            <h6>Ingen filer lastet opp her ennå</h6>
-                                                            {% endif %}
-
-
-                                                            {% for file in event_serie.files.all %}
-                                                                <div class="bg-white p-3 mt-2 rounded-pill">
-                                                                    <span>{{file.filename}}</span>
-                                                                    <span class="float-end">
-                                                                        <a href="#"
-                                                                                d-trigger="deleteFile"
-                                                                                d-arg-type_discriminator="event_serie"
-                                                                                d-arg-file_id="{{file.pk}}">
-                                                                            <i class="fas fa-trash"></i>
-                                                                        </a>
-
-                                                                        <a data-mdb-toggle="tooltip"
-                                                                                class="ms-2 me-3"
-                                                                                title="{% trans 'Download this file' %}"
-                                                                                href="/media/{{file.file}}"
-                                                                                download>
-                                                                            <i class="fas fa-download"></i>
-                                                                        </a>
-                                                                    </span>
-                                                                </div>
-                                                            {% endfor %}
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                </div>
-                                                <div class="accordion-item">
-                                                <h6 class="accordion-header" id="flush-headingTwo">
-                                                    <button
-                                                    class="accordion-button collapsed  wb-bg-extra"
-                                                    type="button"
-                                                    data-mdb-toggle="collapse"
-                                                    data-mdb-target="#flush-collapseTwo_{{event_serie.pk}}"
-                                                    aria-expanded="false"
-                                                    aria-controls="flush-collapseTwo_{{event_serie.pk}}">
-                                                        Aktiviteter
-                                                    </button>
-                                                </h6>
-                                                <div
-                                                    id="flush-collapseTwo_{{event_serie.pk}}"
-                                                    class="accordion-collapse collapse"
-                                                    aria-labelledby="flush-headingTwo"
-                                                    data-mdb-parent="#accordion_{{event_serie.pk}}">
-                                                    <div class="accordion-body wb-bg-extra" style="max-height: 30em; overflow: scroll;">
-                                                        {% for event in event_serie.events.all %}
-                                                            <div class="bg-white p-3 mt-2 rounded-pill">
-                                                                <span>
-                                                                    {{event.start}} / {{event.end}}
-                                                                </span>
-                                                                
-                                                                {% if user|has_group:"planners" or user.is_superuser %}
-                                                                <span class="float-end">
-                                                                    <a href="#" d-trigger="openEditEvent" d-arg-event_pk="{{ event.pk }}">
-                                                                        <i class="fas fa-edit"></i>
-                                                                    </a>
-                                                                    
-                                                                    <a href="#" class="ms-2 me-3">
-                                                                        <i class="fas fa-trash"></i>
-                                                                    </a>
-                                                                </span>
-                                                                {% endif %}
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {% if user|has_group:"planners" or user.is_superuser %}
-                                        <div class="mt-2">
-                                            <button class="btn wb-btn-blank"
-                                                data-mdb-toggle="tooltip"
-                                                title="Delete this time plan"
-                                                d-arg-event_serie_pk="{{event_serie.pk}}"
-                                                d-trigger="deleteEventSerie">
-                                                <i class="fas fa-trash"></i>
-                                                Slett
-                                            </button>
-                                            <button class="btn btn-sm wb-btn-blank"
-                                                data-mdb-toggle="tooltip"
-                                                title="Edit this time plan"
-                                                d-arg-event_serie_pk="{{event_serie.pk}}"
-                                                d-trigger="triggerEditSerie">
-                                                <i class="fas fa-edit"></i>
-                                                Rediger tidsplan
-                                            </button>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -596,22 +429,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for event in object.event_set.all %}
-                                    <tr id="eventsTable_event_{{event.pk}}"
-                                        d-trigger="triggerInspectEvent"
-                                        d-arg-event_pk="{{event.pk}}">
-                                        <td>
-                                            {{ event.title }} - <small>{{event.start|date:"d.m.Y H:i:s"}} - {{event.end|date:"d.m.Y H:i:s"}}</small>
-                                        </td>
-                                        <td>
-                                            {% if event.serie %}
-                                                <i class="fas fa-check text-success"></i>
-                                            {% else %}
-                                                <i class="fas fa-times text-danger"></i>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
+  
                             </tbody>
                         </table>
                     </div>
@@ -822,6 +640,14 @@
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
+            console.log("Fetching event series for arrangement", {{ object.id }});
+            fetch("/api/arrangement/event_serie/list?arrangement_id={{ object.id }}")
+                .then(a => a.json())
+                .then(a => {
+                    console.log("event series", a);
+                });
+
+
             {% if user|has_group:"readonly_level_2" and user.is_superuser == False %}
                 dialog.querySelectorAll("input,select").forEach( (inputElement) => inputElement.setAttribute("disabled", "") );
             {% endif %}
@@ -947,24 +773,7 @@
                 popoverSaveChoicesButtonText: 'Lagre valg',
             });
             
-            {% for event in object.event_set.all %}
-            new mdb.Popover(dialog.getElementById('eventsTable_event_{{event.pk}}'), {
-                container: dialog.dialogElement,
-                trigger: 'hover',
-                html: true,
-                content: `
-                    <h5 class='mb-0 mt-0 fw-bold'>{{event.title}}</h5>
 
-                    {{event.start|date:"d.m.Y H:i:s"}} - {{event.end|date:"d.m.Y H:i:s"}}
-
-                    <small class='d-block'><strong><i class='fas fa-star'></i> {{event.responsible}}</strong></small>
-                    <small class='d-block'><strong><i class='fas fa-cog'></i> {{event.arrangement_type}}</strong></small>
-                    <small class='d-block'><strong><i class='fas fa-users'></i> {{event.audience}}</strong></small>
-                    <small class='d-block'><strong><i class='fas fa-cog'></i> {{event.status}}</strong></small>
-
-                `
-            });
-            {% endfor %}
 
             {% if user|has_group:"readonly_level_2" and user.is_superuser == False %}
                 document.querySelectorAll("#jsTreeSelects button").forEach( (buttonElement) => buttonElement.remove() );
@@ -1089,6 +898,7 @@
                     formData: formData,
                 });
             },
+
             triggerEditSerie(dialog, { eventSeriePk } = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent("arrangementInspector", "editEventSerieDialog", { event_serie_pk: eventSeriePk, $parent: dialog.dialogElement });
             },

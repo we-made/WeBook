@@ -1,0 +1,108 @@
+{% include 'arrangement/vue/popover_component.html' %}
+
+<template id="vuec-advanced-tree-filter">
+    <button class="btn wb-btn-white btn-lg wb-large-btn" 
+        @click="isExpanded = !isExpanded">
+        <i :class="'fa ' + icon"></i>&nbsp;
+        <span>[[label]]</span>&nbsp;
+        <i class="fas fa-angle-down"></i>
+    </button>
+
+    <popover-component 
+        :is-visible="isExpanded"
+        @update:is-visible="(value) => isExpanded = value">
+        
+        <button class="btn wb-btn-white  mb-2 btn-block"
+            @click="emitFiltered()">
+            <i class="fa fa-filter"></i>&nbsp;
+            <span>Filtrer</span>
+        </button>
+
+        <div id="tree" ref="tree"></div>
+
+    </popover-component>
+</template>
+
+<script>
+    let AdvancedTreeFilter = {
+        components: { PopoverComponent },
+        props: {
+            icon: {
+                type: String,
+                default: 'fa fa-filter'
+            },
+            label: {
+                type: String,
+                default: 'Filter'
+            },
+            cascadeBehaviour: {
+                type: String,
+                default: 'normal'
+            },
+            dataSourceUrl: {
+                type: String,
+                default: () => []
+            },
+        },
+        methods: {
+            initializeTree() {
+                $(this.$refs.tree).jstree({
+                    'checkbox': this.cascadeBehaviour in this.behaviours ? this.behaviours[this.cascadeBehaviour] : this.behaviours.normal,
+                    'plugins': ['checkbox', 'search', 'changed'],
+                    'core': {
+                        "themes" : { "icons": false },
+                        'multiple': true,
+                    }
+                });
+            },
+            loadData() {
+                fetch(this.dataSourceUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.data = data;
+                    });
+            },
+            emitFiltered() {
+                let selected = $(this.$refs.tree).jstree(true).get_selected();
+                this.$emit('filter', selected);
+            }
+        },
+        data: function () {
+            return {
+                isExpanded: false,
+                data: [],
+                searchTerm: '',
+                behaviours: {
+                    normal: {},
+                    parent_independent_cascade: {
+                        "three_state": false,
+                        "cascade": "up+undetermined",
+                    },
+                }
+            }
+        },
+        watch: {
+            isExpanded: function (value) {
+                this.$nextTick(() => {
+                    if (value) {
+                        $(this.$refs.tree).jstree();
+                    }
+                });
+                this.initializeTree();
+            },
+            data: function (value) {
+                $(this.$refs.tree).jstree(true).settings.core.data = this.data;
+                $(this.$refs.tree).jstree(true).refresh();
+            }
+        },
+        async mounted() {
+            this.$nextTick(async () => {
+                await this.loadData();
+                this.initializeTree();
+            });
+        },
+        emits: ['filter'],
+        template: '#vuec-advanced-tree-filter',
+        delimiters: ['[[', ']]']
+    }
+</script>
