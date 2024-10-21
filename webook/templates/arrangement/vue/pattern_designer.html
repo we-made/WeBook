@@ -1,0 +1,399 @@
+{% include "arrangement/vue/weekday_select_component.html" %}
+{% include "arrangement/vue/arbitrator_select_component.html" %}
+{% include "arrangement/vue/day_of_week_select_component.html" %}
+{% include "arrangement/vue/month_select_component.html" %}
+
+
+<template id="patternDesignerTemplate">
+    <h5>
+        Mønster
+        <span class="fw-bold">&nbsp;*</span>
+    </h5>
+    <div class="row">
+        <div class="col-3 border-end border-1">
+            <div>
+                <input type="radio" v-model="localSchedule.pattern" value="daily" id="pattern_daily">
+                <label for="pattern_daily" class="ms-1">
+                    Daglig
+                </label>
+            </div>
+
+            <div>
+                <input type="radio" v-model="localSchedule.pattern" value="weekly" id="pattern_weekly">
+                <label for="pattern_weekly" class="ms-1">
+                    Ukentlig
+                </label>
+            </div>
+
+            <div>
+                <input type="radio" v-model="localSchedule.pattern" value="monthly" id="pattern_monthly">
+                <label for="pattern_monthly" class="ms-1">
+                    Månedlig
+                </label>                
+            </div>
+
+            <div>
+                <input type="radio" v-model="localSchedule.pattern" value="yearly" id="pattern_yearly">
+                <label for="pattern_yearly" class="ms-1">
+                    Årlig
+                </label>
+            </div>
+
+        </div>
+        
+        <div class="col-9">
+            <!-- Pattern: Daily -->
+            <div v-if="localSchedule.pattern == 'daily'">
+                <!-- Subpattern: Daily every X day
+                    E.g; every 2nd day, every 3rd day, every 4th day, etc.
+                     -->
+                <div class="d-flex align-items-center">
+                    <div>
+                        <input type="radio" v-model="localSchedule.subpattern" value="daily__every_x_day" id="daily_every_x_day_subpattern">
+                    </div>
+    
+                    <div class="ms-1">
+                        <label for="daily_every_x_day_subpattern_interval">
+                            Hver
+                            <input type="number" min="1" required
+                                v-model="localSchedule.interval"
+                                id="daily_every_x_day_subpattern_interval"
+                                :disabled="localSchedule.subpattern != 'daily__every_x_day'" />
+                            dag
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Subpattern: Daily every weekday -->
+                <div>
+                    <input type="radio" v-model="localSchedule.subpattern" value="daily__every_weekday" id="daily__every_weekday_subpattern">
+                    <label class="ms-1" for="daily__every_weekday_subpattern">Hver ukedag</label>
+                </div>
+            </div>
+
+            <!-- Pattern: Weekly -->
+            <div v-if="localSchedule.pattern == 'weekly'">
+                [[localSchedule.daysOfWeek]]
+                <!-- Subpattern: Days of Week -->
+                <label for="">Skjer hver</label>
+                <input type="number" class="ms-1 me-1" min="1" v-model="localSchedule.interval" style="width: 40px" required>
+                uke på:
+            
+                <div>
+                    <weekday-select-component v-model="localSchedule.daysOfWeek">
+                    </weekday-select-component>
+                </div>
+            </div>
+            
+            <!-- Pattern: Monthly -->
+            <div v-if="localSchedule.pattern == 'monthly'">
+                <!-- Subpattern: Every X day every Y month-->
+                <div>
+                    <input 
+                        v-model="localSchedule.subpattern" 
+                        type="radio" 
+                        value="month__every_x_day_every_y_month"
+                        id="monthly_every_x_day_every_y_month__subpattern"
+                        required 
+                        />
+                    <label for="monthly_every_x_day_every_y_month__subpattern">&nbsp;Dag&nbsp;</label>
+
+                    <input
+                        v-model="localSchedule.dayOfMonth"
+                        type="number"
+                        min="1"
+                        max="31"
+                        style="width: 40px"
+                        :disabled="localSchedule.subpattern != 'month__every_x_day_every_y_month'" />
+
+                    hver
+
+                    <input 
+                        v-model="localSchedule.interval"
+                        type="number" 
+                        min="1" 
+                        max="12" 
+                        style="width: 40px"
+                        :disabled="localSchedule.subpattern != 'month__every_x_day_every_y_month'" 
+                        />
+
+                    måned
+                </div>
+
+                <!-- Subpattern: Every arbitrary date of month -->
+                <div>
+                    <input
+                        v-model="localSchedule.subpattern"
+                        type="radio"
+                        value="month__every_arbitrary_date_of_month"
+                        required 
+                        />
+
+                    Den
+                    
+                    <arbitrator-select-component
+                        v-model="localSchedule.arbitrator"
+                        :disabled="localSchedule.subpattern != 'month__every_arbitrary_date_of_month'"
+                        required>
+                    </arbitrator-select-component>
+
+                    <day-of-week-select-component
+                        v-model="localSchedule.dayOfWeek"
+                        required
+                        :disabled="localSchedule.subpattern != 'month__every_arbitrary_date_of_month'">
+                    </day-of-week-select-component>
+
+                    hver 
+
+                    <input 
+                        v-model="localSchedule.interval" 
+                        type="number" 
+                        min="1" 
+                        :disabled="localSchedule.subpattern != 'month__every_arbitrary_date_of_month'"
+                        style="width:40px"
+                        />
+
+                    måned
+                </div>
+            </div>
+
+            <!-- Pattern: Yearly -->
+            <div v-if="localSchedule.pattern == 'yearly'">
+                <div>
+                    Skjer hvert
+
+                    <input 
+                        v-model="localSchedule.interval"
+                        type="number" 
+                        min="1" 
+                        style="width: 40px;" />
+
+                    år
+                </div>
+
+                <!-- Subpattern: Every X of Month
+                    E.g; Every 10. of January, every year -->
+                <div>
+
+                    <input 
+                        v-model="localSchedule.subpattern"
+                        type="radio"
+                        value="yearly__every_x_of_month"
+                        required 
+                        />
+
+                    Dato:
+
+                    <input
+                        v-model="localSchedule.dayOfMonth"
+                        type="number"
+                        class="ms-1 me-1"
+                        min="1"
+                        max="31"
+                        style="width: 40px"
+                        required
+                        :disabled="localSchedule.subpattern != 'yearly__every_x_of_month'"
+                        />
+
+                    <month-select-component
+                        v-model="localSchedule.month"
+                        required
+                        :disabled="localSchedule.subpattern != 'yearly__every_x_of_month'">
+                    </month-select-component>
+                </div>
+
+                <!-- Subpattern: Every arbitrary weekday in month -->
+                <div>
+                    <input 
+                        v-model="localSchedule.subpattern"
+                        type="radio" 
+                        value="yearly__every_arbitrary_weekday_in_month"
+                        />
+                    
+                    Hver:
+
+                    <arbitrator-select-component
+                        v-model="localSchedule.arbitrator"
+                        required
+                        :disabled="localSchedule.subpattern != 'yearly__every_arbitrary_weekday_in_month'">
+                    </arbitrator-select-component>
+
+                    <day-of-week-select-component
+                        v-model="localSchedule.dayOfWeek"
+                        required
+                        :disabled="localSchedule.subpattern != 'yearly__every_arbitrary_weekday_in_month'">
+                    </day-of-week-select-component>
+
+                    i
+
+                    <month-select-component
+                        v-model="localSchedule.month"
+                        required
+                        :disabled="localSchedule.subpattern != 'yearly__every_arbitrary_weekday_in_month'">
+                    </month-select-component>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-2">
+        <h5>
+            Område
+            <span class="fw-bold">&nbsp;*</span>
+        </h5>
+
+        <div class="row">
+            <div class="col-3">
+                <label for="areaStartDate">Startdato</label>
+                <input type="date" v-model="localSchedule.startDate" id="areaStartDate" required>
+            </div>
+            <div class="col-9">
+
+                <!-- Recurrence Method: Concrete start date to concrete end date -->
+                <div>
+                    <input 
+                        v-model="localSchedule.recurrenceMethod"
+                        type="radio" 
+                        value="StopWithin"
+                        required 
+                        />
+                
+                    Stopp innen:
+                    
+                    <input v-model="localSchedule.endDate" type="date" :disabled="localSchedule.recurrenceMethod != 'StopWithin'">
+                </div>
+
+                <!-- Recurrence Method: Do for X instances -->
+                <div>
+                    <input 
+                        v-model="localSchedule.recurrenceMethod"
+                        type="radio"
+                        value="StopAfterXInstances" 
+                        />
+                    
+                    Stopp etter:
+
+                    <input 
+                        v-model="localSchedule.noOfInstances" 
+                        type="number" 
+                        min="1" 
+                        required 
+                        :disabled="localSchedule.recurrenceMethod != 'StopAfterXInstances'"
+                        />
+
+                    instanser
+                </div>
+
+                <!-- Recurrence Method: No end date (Projection) -->
+                <div>
+                    <input 
+                        v-model="localSchedule.recurrenceMethod"
+                        type="radio" 
+                        value="NoStopDate" 
+                        />
+                    
+                    Ingen sluttdato
+                    
+                    <br>
+
+                    Projiser
+
+                    <input 
+                        v-model="localSchedule.projectHowFarInMonths"
+                        type="number"
+                        min="1"
+                        required
+                        style="width:50px;"
+                        :disabled="localSchedule.recurrenceMethod != 'NoStopDate'"
+                        >
+
+                    måneder inn i fremtiden
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    let PatternDesigner = {
+        template: '#patternDesignerTemplate',
+        components: {
+            WeekdaySelectComponent,
+            ArbitratorSelectComponent,
+            MonthSelectComponent,
+            DayOfWeekSelectComponent
+        },
+        delimiters: ['[[', ']]'],
+        props: {
+            schedule: {
+                type: Object,
+                required: true,
+            }
+        },
+        emits: ['update:schedule'],
+        watch: {
+            localSchedule: {
+                handler(n, o) {
+                    if (this.ignoreNextLocalScheduleChange) {
+                        this.ignoreNextLocalScheduleChange = false;
+                        return;
+                    }
+
+                    this.ignoreNextLocalScheduleChange = true;
+                    n.inOldStyle = this.convertToOldFormat();
+                    this.$emit('update:schedule', n);
+                },
+                deep: true,
+            }
+        },
+        methods: {
+            convertToOldFormat(){
+                console.log("at convertToOldFormat", this.localSchedule)
+                return {
+                    "pattern": {
+                        "pattern_routine": this.localSchedule.pattern == "weekly" ? 'weekly__standard' : this.localSchedule.subpattern,
+                        "method_name": this.localSchedule.recurrenceMethod,
+                        "stop_within": this.localSchedule.endDate,
+                        "start_date": this.localSchedule.startDate,
+                        "week_interval": this.localSchedule.interval,
+                        "days": this.localSchedule.daysOfWeek,
+                        "day_of_month": this.localSchedule.dayOfMonth,
+                        "arbitrator": this.localSchedule.arbitrator,
+                        "weekday": this.localSchedule.dayOfWeek,
+                        "day_index": this.localSchedule.dayOfMonth,
+                        "year_interval": this.localSchedule.interval,
+                    },
+                    "time_area": {
+                        "method_name": this.localSchedule.recurrenceMethod,
+                        "stop_within": this.localSchedule.endDate,
+                        "start_date": this.localSchedule.startDate,
+                        "week_interval": this.localSchedule.interval,
+                        "days": this.localSchedule.daysOfWeek,
+                        "day_of_month": this.localSchedule.dayOfMonth,
+                        "arbitrator": this.localSchedule.arbitrator,
+                        "weekday": this.localSchedule.dayOfWeek,
+                        "day_index": this.localSchedule.dayOfMonth,
+                        "year_interval": this.localSchedule.interval,
+                    },
+                    "time": {
+                        "title": this.localSchedule.title,
+                        "start": this.localSchedule.startDate,
+                        "end": this.localSchedule.endDate,
+                        "color": ""
+                    },
+                }
+            }
+        },
+        data: function () {
+            return {
+                localSchedule: { pattern: "daily" },
+                ignoreNextLocalScheduleChange: false,
+            }
+        },
+        mounted() {
+            this.localSchedule = {...this.schedule} || { pattern: "daily" };
+            if (!("patttern" in this.localSchedule))
+                this.localSchedule.pattern = "daily";
+        }
+    }
+</script>

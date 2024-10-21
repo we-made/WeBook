@@ -1,0 +1,76 @@
+{% include "arrangement/vue/dialog-component.html" %}
+{% include "arrangement/vue/notes/note-form.html" %}
+
+<template id="vuec-edit-note-dialog">
+    <dialog-component
+        :is-visible="isVisible" 
+        :use-backdrop="true" 
+        :is-draggable="true"
+        @close="$emit('close')"
+        width="70em">
+
+        <template v-slot:header>
+            <h3 class="mb-0 fw-bold">Nytt notat</h3>
+        </template>
+
+        <template v-slot:content>
+
+            <note-form-component
+                v-model:title="title"
+                v-model:text="content"
+                v-model:has-pii="hasPii">
+            </note-form-component>
+        </template>
+
+        <template v-slot:footer>
+            <div class="clearfix float-end">
+                <button type="button" class="btn wb-btn-secondary" @click="$emit('close')">Lukk</button>
+                <button type="button" class="btn wb-btn-main" @click="$emit('save', id, title, content, hasPii)">Lagre</button>
+            </div>
+        </template>
+    </dialog-component>
+</template>
+
+<script>
+let EditNoteDialogComponent = {
+    components: { DialogComponent, NoteFormComponent },
+    props: {
+        isVisible: {
+            type: Boolean,
+            default: false
+        },
+        note: {
+            type: Object,
+            default: function () {
+                return {
+                    id: null,
+                    title: null,
+                    text: null,
+                    has_personal_information: false
+                }
+            }
+        }
+    },
+    data: function () {
+        return {
+            id: null,
+            title: null,
+            hasPii: false,
+            content: null
+        }
+    },
+    watch: {
+        note: function (val) {
+            if (val) {
+                this.id = val.id;
+                this.content = val.text;
+                this.title = val.title;
+                this.hasPii = val.has_pii;
+            }
+        }
+    },
+    emits: ['close', 'save'],
+    delimiters: ['[[', ']]'],
+    template: '#vuec-edit-note-dialog',
+}
+</script>

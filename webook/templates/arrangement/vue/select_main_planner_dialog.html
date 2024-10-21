@@ -1,0 +1,110 @@
+{% include "arrangement/vue/dialog-component.html" %}
+{% include "arrangement/vue/select_main_planner_base.html" %}
+
+<template id="vuec-select-main-planner-dialog-component-template">
+
+    <div class="border rounded box-shadow-2 wb-bg-secondary p-4 mb-4">
+        <div class="d-flex">
+            <div>
+                <label class="d-block form-label">
+                    <i class="fas fa-star"></i>
+                    Hovedplanlegger
+                </label>
+        
+                <div>
+                    [[ modelValue?.full_name || 'Ingen valgt' ]]
+                </div>
+        
+                <button class="wb-btn-main"
+                    @click="isExpanded = !isExpanded"
+                    ref="trigger"
+                    type="button">
+        
+                    Velg hovedplanlegger
+                </button>
+            </div>
+            <div>
+                <dialog-component :is-visible="isExpanded" is-draggable="true" use-backdrop="true"
+                    :position="{ my: 'bottom', at: 'center', of: window }">
+                    <template v-slot:header>
+                        <h5>
+                            <i class="fas fa-user"></i>&nbsp;
+                            Velg hovedplanlegger
+                        </h5>
+                    </template>
+
+                    <template v-slot:content>
+                        <base-select-main-planner-component
+                            v-model="modelValueCopy">
+                        </base-select-main-planner-component>
+                    </template>
+
+                    <template v-slot:footer>
+                        <div class="d-flex justify-content-end">
+                            <button class="btn wb-btn-secondary" @click="isExpanded = false">
+                                <i class="fas fa-times"></i>&nbsp;
+                                Avbryt
+                            </button>
+                            <button class="btn wb-btn-main">
+                                <i class="fas fa-save"></i>&nbsp;
+                                Lagre
+                            </button>
+                        </div>
+                    </template>
+
+                </dialog-component>
+            </div>
+        </div>
+
+
+
+    </div>
+</template>
+
+<script>
+    let SelectMainPlannerDialogComponent = {
+            components: {
+                DialogComponent,
+                BaseSelectMainPlannerComponent
+            },
+            props: {
+                modelValue: Object,
+            },
+            emits: ["update:modelValue"],
+            data() {
+                return {
+                    modelValueCopy: null,
+                    isMounted: false,
+                    isExpanded: false,
+                    mainPlannerSearchTerm: null,
+                    mainPlannerSearchResults: [],
+                }
+            },
+            methods: {
+                open() {
+                    this.isExpanded = true;
+                },
+            },
+            computed: {
+                triggerRef() {
+                    if (!this.isMounted) {
+                        return null;
+                    }
+                    return this.$refs.trigger;
+                },
+            },
+            watch: {
+                modelValueCopy: function (val) {
+                    this.modelValueCopy = val;
+                    this.$emit("update:modelValue", val);
+                },
+            },
+            mounted() {
+                this.mainPlannerSearchTerm = "";
+                this.isMounted = true;
+                this.modelValueCopy = this.modelValue;
+            },
+            delimiters: ["[[", "]]"],
+            template: "#vuec-select-main-planner-dialog-component-template"
+    }
+</script>

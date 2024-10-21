@@ -41,6 +41,7 @@ from webook.arrangement.models import (
     ServiceRequisition,
 )
 from webook.arrangement.views.generic_views.archive_view import ArchiveView
+from webook.arrangement.views.generic_views.json_list_view import JsonListView
 from webook.arrangement.views.mixins.multi_redirect_mixin import MultiRedirectMixin
 from webook.authorization_mixins import PlannerAuthorizationMixin
 from webook.utils.crudl_utils.view_mixins import GenericListTemplateMixin
@@ -161,3 +162,26 @@ class RoomPresetDeleteView(
 
 
 room_preset_delete_view = RoomPresetDeleteView.as_view()
+
+
+class RoomPresetJsonListView(LoginRequiredMixin, JsonListView):
+    model = RoomPreset
+
+    def get_queryset(self):
+        qs = RoomPreset.objects.all()
+
+        return list(
+            map(
+                lambda x: {
+                    "id": x.id,
+                    "text": x.name,
+                    "rooms": list(
+                        map(lambda y: {"id": y.id, "text": y.name}, list(x.rooms.all()))
+                    ),
+                },
+                list(qs),
+            )
+        )
+
+
+room_preset_json_list_view = RoomPresetJsonListView.as_view()

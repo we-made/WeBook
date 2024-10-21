@@ -1,0 +1,48 @@
+<template id="vuec_month_select_component_template">
+    <select 
+        :value="modelValue" 
+        :name="name" 
+        :id="id" 
+        :class="classes"
+        :required="required || false"
+        @change="$emit('update:modelValue', $event.target.value)">
+
+        <option v-for="option in options" :value="option.id">
+            [[ option.label ]]
+        </option>
+    </select>
+</template>
+
+
+<script>
+    let MonthSelectComponent = {
+        props: {
+            modelValue: Number,
+            id: String,
+            name: String,
+            required: Boolean,
+            classes: String
+        },
+        emits: ["update:modelValue"],
+        data() {
+            return {
+                options: [
+                    { id: 1, label: "Januar" },
+                    { id: 2, label: "Februar" },
+                    { id: 3, label: "Mars" },
+                    { id: 4, label: "April" },
+                    { id: 5, label: "Mai" },
+                    { id: 6, label: "Juni" },
+                    { id: 7, label: "Juli" },
+                    { id: 8, label: "August" },
+                    { id: 9, label: "September" },
+                    { id: 10, label: "Oktober" },
+                    { id: 11, label: "November" },
+                    { id: 12, label: "Desember" }
+                ]
+            }
+        },
+        delimiters: ["[[", "]]"],
+        template: "#vuec_month_select_component_template"
+    }
+</script>

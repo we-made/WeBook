@@ -1,0 +1,32 @@
+<template id="vuec-stepper">
+
+    <div class="stepper-rail">
+        <div class="stepper-stage-pill border d-inline" v-for="(step, index) in steps">
+            [[ index+1 ]]. [[ step ]]
+        </div>
+    </div>
+
+</template>
+
+<script>
+    let Stepper = {
+        template: '#vuec-stepper',
+        delimiters: ['[[', ']]'],
+        props: {
+            steps: {
+                type: Array,
+                required: true
+            },
+            currentStep: {
+                type: Number,
+                required: true
+            }
+        },
+        data() {
+            return {
+                currentStepIndex: this.currentStep - 1
+            }
+        },
+        emits: ['update:currentStep']
+    }
+</script>

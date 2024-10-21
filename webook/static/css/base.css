@@ -638,3 +638,7 @@ a.fc-event {
 .dropdown-search-result-entry:hover {
     background-color: var(--SECONDARY-COLOR);
 }
+
+.ui-widget-overlay {
+    display: none;
+}

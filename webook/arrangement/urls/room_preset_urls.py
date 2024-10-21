@@ -7,6 +7,7 @@ from webook.arrangement.views import (
     room_preset_create_view,
     room_preset_update_view,
     room_preset_delete_view,
+    room_preset_json_list_view,
 )
 
 
@@ -30,6 +31,11 @@ room_preset_urls = [
         name="room_preset_delete",
         route="room_preset/delete/<slug:slug>",
         view=room_preset_delete_view,
+    ),
+    path(
+        name="room_preset_json_list_view",
+        route="room_preset/json_list",
+        view=room_preset_json_list_view,
     ),
     path(
         name="room_preset_detail",

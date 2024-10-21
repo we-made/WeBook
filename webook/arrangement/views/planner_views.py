@@ -594,12 +594,12 @@ class PlannerArrangementInformationDialogView(
         qs = qs.prefetch_related("planners")
         qs = qs.prefetch_related("notes")
 
-        qs = qs.prefetch_related("series")
-        # qs = qs.select_related("series__serie_plan_manifest")
-        qs = qs.prefetch_related("series__serie_plan_manifest__rooms")
-        qs = qs.prefetch_related("series__serie_plan_manifest__people")
-        qs = qs.prefetch_related("series__files")
-        qs = qs.prefetch_related("series__events")
+        # qs = qs.prefetch_related("series")
+        # # qs = qs.select_related("series__serie_plan_manifest")
+        # qs = qs.prefetch_related("series__serie_plan_manifest__rooms")
+        # qs = qs.prefetch_related("series__serie_plan_manifest__people")
+        # qs = qs.prefetch_related("series__files")
+        # qs = qs.prefetch_related("series__events")
 
         # qs = qs.select_related("series__serie_plan_manifest__responsible")
         # qs = qs.select_related("series__serie_plan_manifest__arrangement_type")
@@ -615,7 +615,7 @@ class PlannerArrangementInformationDialogView(
         qs = qs.select_related("location")
         qs = qs.select_related("status")
         qs = qs.prefetch_related("display_layouts")
-        qs = qs.prefetch_related("event_set")
+        # qs = qs.prefetch_related("event_set")
 
         return super().get_object(qs)
 
@@ -1213,3 +1213,10 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
 
 
 arrangement_create_serie_dialog_view = PlanSerieForm.as_view()
+
+
+class PlannerCalendarV2(TemplateView):
+    template_name = "arrangement/planner/planner_calendar_v2.html"
+
+
+planner_calendar_v2 = PlannerCalendarV2.as_view()
