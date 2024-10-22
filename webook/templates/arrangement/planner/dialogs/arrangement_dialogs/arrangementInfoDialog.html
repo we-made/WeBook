@@ -1,4 +1,4 @@
-{% load static i18n %}
+ {% load static i18n %}
 {% load crispy_forms_tags %}
 {% load custom_tags %}
 
@@ -406,17 +406,53 @@
                             <thead>
                             </thead>
             
-                            <tbody>
+                            <tbody id="seriesTbody">
 
                             </tbody>
                         </table>
+
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                Totalt antall repeterende aktiviteter:
+                                <span id="seriesTableTotalEntitiesCount">
+                                </span>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <div class="me-3">
+                                    <div style="display:none" id="seriesTableLoadSpinner">
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        Laster inn data...
+                                    </div>
+
+                                </div>
+
+                                <button class="btn wb-btn-secondary" id="seriesTableGoBackOnePageButton">
+                                    Forrige
+                                </button>
+    
+                                <div class="d-flex align-content-center">
+                                    <input type="number" class="form-control ms-2" min="0" style="width: 6em;" id="seriesTableCurrentPageInput">
+                                    <span class="ms-2">/</span>
+                                    <span class="ms-2" id="seriesTableMaxPageInput">
+
+                                    </span>
+                                </div>
+    
+                                <button class="ms-2 btn wb-btn-secondary" id="seriesTableGoForwardOnePageButton">
+                                    Neste
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
 
                 <!-- Activities/Events Tab -->
                 <div class="tab-pane fade" id="timeslots_tabs_activities" role="tabpanel">
-                    <div class="table-responsive"  style="max-height:20rem!important; overflow-y: scroll;">
+                    <div class="table-responsive"  style="max-height:32rem!important; overflow-y: scroll;">
                         <table class="table table-sm interactiveTable"  id="eventsTable">
                             <thead>
                                 <tr class="wb-bg-secondary">
@@ -428,10 +464,46 @@
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="activitiesTbody">
   
                             </tbody>
                         </table>
+
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                Totalt antall aktiviteter:
+                                <span id="activitiesTableTotalEntitiesCount">
+                                </span>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <div class="me-3">
+                                    <div style="display:none" id="activitiesTableLoadSpinner">
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        Laster inn data...
+                                    </div>
+
+                                </div>
+
+                                <button class="btn wb-btn-secondary" id="activitiesTableGoBackOnePageButton">
+                                    Forrige
+                                </button>
+    
+                                <div class="d-flex align-content-center">
+                                    <input type="number" class="form-control ms-2" min="0" style="width: 6em;" id="activitesTableCurrentPageInput">
+                                    <span class="ms-2">/</span>
+                                    <span class="ms-2" id="activitiesTableMaxPageInput">
+
+                                    </span>
+                                </div>
+    
+                                <button class="ms-2 btn wb-btn-secondary" id="activitiesTableGoForwardOnePageButton">
+                                    Neste
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -641,11 +713,69 @@
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
             console.log("Fetching event series for arrangement", {{ object.id }});
-            fetch("/api/arrangement/event_serie/list?arrangement_id={{ object.id }}")
-                .then(a => a.json())
-                .then(a => {
-                    console.log("event series", a);
-                });
+
+            dialog._methods.loadEventsToTable(
+                dialog,
+                { pageNumber: 1 }
+            );
+
+            dialog._methods.loadSeriesToTable(
+                dialog,
+                { pageNumber: 1 }
+            );
+
+            dialog.getElementById("activitiesTableGoForwardOnePageButton").onclick = () => {
+                let currentPageInput = dialog.getElementById("activitesTableCurrentPageInput");
+                let currentPage = parseInt(currentPageInput.value);
+                dialog._methods.loadEventsToTable(
+                    dialog,
+                    { pageNumber: currentPage + 1 }
+                );
+            };
+
+            dialog.getElementById("activitiesTableGoBackOnePageButton").onclick = () => {
+                let currentPageInput = dialog.getElementById("activitesTableCurrentPageInput");
+                let currentPage = parseInt(currentPageInput.value);
+                dialog._methods.loadEventsToTable(
+                    dialog,
+                    { pageNumber: currentPage - 1 }
+                );
+            };
+
+            dialog.getElementById("activitesTableCurrentPageInput").onchange = (e) => {
+                let currentPage = parseInt(e.target.value);
+                dialog._methods.loadEventsToTable(
+                    dialog,
+                    { pageNumber: currentPage }
+                );
+            };
+
+            dialog.getElementById("seriesTableGoForwardOnePageButton").onclick = () => {
+                let currentPageInput = dialog.getElementById("seriesTableCurrentPageInput");
+                let currentPage = parseInt(currentPageInput.value);
+                dialog._methods.loadSeriesToTable(
+                    dialog,
+                    { pageNumber: currentPage + 1 }
+                );
+            };
+
+            dialog.getElementById("seriesTableGoBackOnePageButton").onclick = () => {
+                let currentPageInput = dialog.getElementById("seriesTableCurrentPageInput");
+                let currentPage = parseInt(currentPageInput.value);
+                dialog._methods.loadSeriesToTable(
+                    dialog,
+                    { pageNumber: currentPage - 1 }
+                );
+            };
+
+            dialog.getElementById("seriesTableCurrentPageInput").onchange = (e) => {
+                let currentPage = parseInt(e.target.value);
+                dialog._methods.loadSeriesToTable(
+                    dialog,
+                    { pageNumber: currentPage }
+                );
+            };
+
 
 
             {% if user|has_group:"readonly_level_2" and user.is_superuser == False %}
@@ -799,6 +929,254 @@
             triggerUploadFilesToArrangementDialog(dialog, {} = {}, triggeredByElement) {
                 dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesToArrangementDialog", { $parent: dialog.dialogElement });
             },
+            loadEventsToTable(dialog, { pageNumber } = {}, triggeredByElement) {
+                const spinner = dialog.getElementById("activitiesTableLoadSpinner");
+                spinner.style.display = "block";
+
+                fetch("/api/arrangement/event/list?arrangement_id={{ object.id }}&page=" + pageNumber + "&limit=10&sort_desc=true")
+                    .then(a => a.json())
+                    .then(a => {
+                        let tbody = dialog.getElementById("activitiesTbody");
+                        tbody.innerHTML = "";
+                        const currentPageInput = dialog.getElementById("activitesTableCurrentPageInput");
+                        currentPageInput.setAttribute("max", a.summary.total_pages);
+                        currentPageInput.value = a.summary.page;
+                        dialog.getElementById("activitiesTableMaxPageInput").innerHTML = a.summary.total_pages;
+                        dialog.getElementById("activitiesTableTotalEntitiesCount").innerHTML = a.summary.total;
+
+                        a.data.forEach(event => {
+                            let tr = document.createElement("tr");
+                            const startDate = new Date(event.start);
+                            const endDate = new Date(event.end);
+
+                            const startDateString = startDate.toLocaleDateString("nb-NO", { year: 'numeric', month: '2-digit', day: '2-digit' });
+                            const endDateString = endDate.toLocaleDateString("nb-NO", { year: 'numeric', month: '2-digit', day: '2-digit' });
+                            tr.innerHTML = `
+                                <td>${event.title} - ${startDateString} til ${endDateString}</td>
+                                <td>${event.serieId ? "Ja" : "Nei"}</td>
+                            `;
+                            tr.onclick = () => {
+                                dialog._methods.triggerInspectEvent(dialog, { eventId: event.id });
+                            };
+
+                            tbody.appendChild(tr);
+                        });
+
+                        spinner.style.display = "none";
+                    });
+            },
+            loadSeriesToTable(dialog, { pageNumber } = {}, triggeredByElement) {
+                const spinner = dialog.getElementById("seriesTableLoadSpinner");
+                spinner.style.display = "block";
+
+                fetch("/api/arrangement/event_serie/list?arrangement_id={{ object.id }}&page=" + pageNumber + "&limit=5&sort_desc=true&sort_by=pk")
+                    .then(a => a.json())
+                    .then(a => {
+                        let tbody = dialog.getElementById("seriesTbody");
+                        tbody.innerHTML = "";
+                        const currentPageInput = dialog.getElementById("seriesTableCurrentPageInput");
+                        currentPageInput.setAttribute("max", a.summary.total_pages);
+                        currentPageInput.value = a.summary.page;
+
+                        dialog.getElementById("seriesTableMaxPageInput").innerHTML = a.summary.total_pages;
+                        dialog.getElementById("seriesTableTotalEntitiesCount").innerHTML = a.summary.total;
+
+                        a.data.forEach(eventSerie => {
+                            let tr = document.createElement("tr");
+                            tr.setAttribute("id", `${eventSerie.id}`);
+
+                            fetch("/api/arrangement/event_serie/files/list?parent_id=" + eventSerie.id)
+                                .then(fr => fr.json())
+                                .then(filesList => {
+                                    console.log("Files for event serie " + eventSerie.id, filesList);
+
+                                    const roomsList = eventSerie.seriePlanManifest.rooms.map(room => room.name).join(", ");
+                                    const peopleList = eventSerie.seriePlanManifest.people.map(person => person.name).join(", ");
+                                    
+                                    let filesBadgeListHtml = "";
+                                    for (let i = 0; i < filesList.length; i++) {
+                                        const fileObj = filesList[i];
+                                        filesBadgeListHtml += `<a href="${fileObj.url}" target="_blank" download class="badge badge-light wb-bg-secondary border border-dark ${i > 0 ? 'ms-2' : ''}">${filesList[i].filename}</a>`;
+                                    }
+
+                                    tr.innerHTML = `
+                                        <td>
+                                            <div class="d-flex justify-content-between">
+                                                <h5><span class='badge badge-dark'>${eventSerie.id}</span> ${eventSerie.seriePlanManifest.title} - <em>${eventSerie.seriePlanManifest.scheduleDescription}</em></h5>
+                                                
+                                                <div>
+                                                    <button class="btn wb-btn-main" id="c_${eventSerie.id}_openButton">
+                                                        <i class="fas fa-eye"></i>
+                                                        Åpne
+                                                    </button>
+
+                                                    <button class="btn wb-btn-main" id="c_${eventSerie.id}_deleteButton">
+                                                        <i class="fas fa-trash"></i>
+                                                        Slett
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex">
+                                                <div>
+                                                    <i class="fas fa-star"></i> 
+                                                    ${eventSerie.seriePlanManifest.responsible.first_name && eventSerie.seriePlanManifest.responsible.last_name ? 
+                                                        eventSerie.seriePlanManifest.responsible.first_name + " " + eventSerie.seriePlanManifest.responsible.last_name : 
+                                                        "Ingen ansvarlig"}
+                                                </div>
+
+                                                <div class="ms-3">
+                                                    <i class="fas fa-users"></i>
+                                                    ${eventSerie.seriePlanManifest.audience?.name || "Ingen målgruppe"}
+                                                </div>
+
+                                                <div class="ms-3">
+                                                    <i class="fas fa-cogs"></i>
+                                                    ${eventSerie.seriePlanManifest.arrangement_type?.name || "Ingen arrangement type"}
+                                                </div>
+
+                                                <div class="ms-3">
+                                                    <i class="fas fa-cogs"></i>
+                                                    ${eventSerie.seriePlanManifest.status?.name || "Ingen status"}
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex mt-3">
+                                                <div class=" border border-1 border-dark p-2">
+                                                    <h6>Rom: </h6>
+                                                    ${roomsList || "Ingen rom"}
+                                                </div>
+
+                                                <div class="ms-3 border border-1 border-dark p-2">
+                                                    <h6>Personer: </h6>
+                                                    ${peopleList || "Ingen personer"}
+                                                </div>
+
+                                                <div class="ms-3 border border-1 border-dark p-2">
+                                                    <div class="d-flex">
+                                                        <h6>
+                                                            Filer
+                                                        </h6>
+
+                                                        <a href="#" class="ms-3" id="c_${eventSerie.id}_uploadFilesBtn">
+                                                            (<i class='fas fa-upload'></i>&nbsp;Last opp...)
+                                                        </a>
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        ${filesBadgeListHtml}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-3 wb-bg-secondary border border-dark p-2">
+                                                <h6 id="c_${eventSerie.id}_showEventsTable" class="wb-bg-secondary mb-0 pt-2 pb-2 ps-1">
+                                                    <i class="fas fa-chevron-right" id="c_${eventSerie.id}_showEventsTableButtonIcon"></i>
+                                                    Forekomster <small class="text-muted ms-3"><i class='fas fa-info'></i>&nbsp; Trykk for å ekspandere/skjule</small>
+                                                </h6>
+
+                                                <div id="c_${eventSerie.id}_events_loader" style="display: none">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                    Laster inn data...
+                                                </div>
+
+                                                <div id="c_${eventSerie.id}_eventsBody" class="bg-white" style="display: none;">
+                                                    <table class="table table-sm table-bordered table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Tittel</th>
+                                                                <th>Start</th>
+                                                                <th>Slutt</th>
+                                                                <th>Valg</th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody id="c_${eventSerie.id}_eventsTbody">
+                                                            
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    `;
+
+                                    tbody.appendChild(tr);
+
+                                    dialog.getElementById(`c_${eventSerie.id}_openButton`).onclick = () => {
+                                        dialog._methods.triggerEditSerie(dialog, { eventSeriePk: eventSerie.id });
+                                    };
+                                    dialog.getElementById(`c_${eventSerie.id}_deleteButton`).onclick = () => {
+                                        dialog._methods.deleteEventSerie(dialog, { eventSeriePk: eventSerie.id });
+                                    };
+                                    dialog.getElementById(`c_${eventSerie.id}_uploadFilesBtn`).onclick = () => {
+                                        dialog._methods.uploadFilesToEventSerie(dialog, { eventSeriePk: eventSerie.id });
+                                    };
+                                    dialog.getElementById(`c_${eventSerie.id}_showEventsTable`).onclick = () => {
+                                        let eventsBody = dialog.getElementById(`c_${eventSerie.id}_eventsBody`);
+                                        let eventsTableButtonIcon = dialog.getElementById(`c_${eventSerie.id}_showEventsTableButtonIcon`);
+                                        eventsTableButtonIcon.className = eventsBody.style.display === "none" ? "fas fa-chevron-down" : "fas fa-chevron-right";
+                                        eventsBody.style.display = eventsBody.style.display === "none" ? "block" : "none";
+
+                                        if (eventsBody.style.display === "none") {
+                                            return;
+                                        }
+                                        
+                                        let loader = dialog.getElementById(`c_${eventSerie.id}_events_loader`);
+                                        loader.style.display = "block";
+
+                                        fetch("/api/arrangement/event/list?serie_id=" + eventSerie.id)
+                                            .then(a => a.json())
+                                            .then(a => {
+                                                const tbody = dialog.getElementById(`c_${eventSerie.id}_eventsTbody`);
+                                                tbody.innerHTML = "";
+
+                                                a.data.forEach(event => {
+                                                    let tr = document.createElement("tr");
+                                                    const startDate = new Date(event.start);
+                                                    const endDate = new Date(event.end);
+
+                                                    const startDateString = startDate.toLocaleDateString("nb-NO", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                                                    const endDateString = endDate.toLocaleDateString("nb-NO", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                                                    tr.innerHTML = `
+                                                        <td>${event.title}</td>
+                                                        <td>${startDateString}</td>
+                                                        <td>${endDateString}</td>
+                                                        <td>
+                                                            <btn href="#" class="btn btn-sm btn-light border border-dark wb-bg-secondary box-shadow-0 shadow-0"
+                                                                d-trigger="openEditEvent" d-arg-event_pk="${event.id}">
+                                                                Åpne
+                                                            </btn>
+                                                        </td>
+                                                    `;
+                                                    tr.onclick = () => {
+                                                        dialog._methods.triggerInspectEvent(dialog, { eventId: event.id });
+                                                    };
+
+                                                    tbody.appendChild(tr);
+                                                });
+
+                                                loader.style.display = "none";
+                                            });
+                                    };
+                                    // ensure we sort, since asynchronous fetches can cause out of order rendering
+                                    let rows = tbody.querySelectorAll("tr[id]");
+                                    let rowsArray = Array.from(rows);
+                                    rowsArray.sort((rowA, rowB) => {
+                                        let idA = parseInt(rowA.getAttribute("id"));
+                                        let idB = parseInt(rowB.getAttribute("id"));
+                                        return idB - idA;
+                                    });
+
+                                    tbody.innerHTML = "";
+                                    rowsArray.forEach(row => tbody.appendChild(row));
+                                }); 
+                            });
+
+                            spinner.style.display = "none";
+                        })
+            },
             deleteNote(dialog, { notePk } = {}, triggeredByElement) {
                 Swal.fire({
                     title: 'Er du sikker?',
@@ -856,7 +1234,11 @@
                 });
             },
             triggerInspectEvent(dialog, { eventId } = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("eventInspector", "inspectEventDialog", { pk: eventId });
+                document.dispatchEvent(
+                    new CustomEvent("cel.renderInspectEventDialog", { "detail": {
+                        pk: eventId
+                    }}
+                ))
             },
             submit(dialog, {} = {}, triggeredByElement) {
                 if (!dialog.data.audienceJsTreeSelect.isValid()) {
