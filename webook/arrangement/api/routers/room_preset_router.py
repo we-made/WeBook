@@ -9,7 +9,7 @@ from webook.arrangement.api.routers.audience_router import AudienceGetSchema
 from webook.arrangement.api.routers.person_router import PersonGetSchema
 from webook.arrangement.api.routers.room_router import RoomGetSchema
 from webook.arrangement.models import Arrangement, ArrangementFile, Person, RoomPreset
-from webook.api.crud_router import CrudRouter
+from webook.api.crud_router import CrudRouter, Views
 from datetime import datetime
 
 
@@ -23,7 +23,18 @@ class RoomPresetCreateSchema(BaseSchema):
     rooms: List[int]
 
 
-room_preset_router = CrudRouter(
+class RoomPresetRouter(CrudRouter):
+    def __init__(self, *args, **kwargs):
+        self.non_deferred_fields = ["rooms"]
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self, view: Views = Views.GET):
+        qs = super().get_queryset(view)
+        qs = qs.prefetch_related("rooms")
+        return qs
+
+
+room_preset_router = RoomPresetRouter(
     model=RoomPreset,
     tags=["roomPreset"],
     create_schema=RoomPresetCreateSchema,
