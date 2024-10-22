@@ -1,11 +1,21 @@
+from django.db.models.query import QuerySet as QuerySet
 from django.shortcuts import get_object_or_404
+from webook.api.crud_router import Views
 from webook.api.crud_router import CrudRouter
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.onlinebooking.api.schemas import CountyCreateSchema, CountyGetSchema
 from webook.onlinebooking.models import County
 
+
 class CountyRouter(CrudRouter):
-    pass
+    def __init__(self, *args, **kwargs):
+        self.non_deferred_fields = ["city_segments"]
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self, view: Views = Views.GET) -> QuerySet:
+        qs = super().get_queryset(view)
+        qs = qs.prefetch_related("city_segments")
+        return qs
 
 
 county_router = CountyRouter(

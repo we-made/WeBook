@@ -19,7 +19,7 @@ from webook.api.schemas.operation_result_schema import (
     OperationType,
     OperationResultStatus,
 )
-from asgiref.sync import sync_to_async
+from django.db import transaction
 import inflect
 from django.db import models
 from ninja.pagination import paginate, PageNumberPagination
@@ -28,6 +28,7 @@ from webook.arrangement.models import Person
 from webook.utils.camelize import decamelize
 from webook.utils.docgen.pdf_gen import TableReport
 from .standards import STANDARD_PAGE_SIZE
+from ninja.decorators import decorate_view
 
 MAX_PAGE_SIZE = 1000
 
@@ -42,6 +43,7 @@ class Views(Enum):
 
 
 T = TypeVar("T")
+
 
 class ExportType(str, Enum):
     """
@@ -364,8 +366,6 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
                 func.__signature__ = sig.replace(parameters=params)
 
-                return func
-
             self.add_api_operation(
                 path="list",
                 methods=["GET"],
@@ -408,6 +408,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         self.init_m2m_functionality()
 
     def get_export_list_func(self):
+        # @decorate_view(transaction.non_atomic_requests(using="default"))
         def export_func(request, export_instruction: ExportInstructionSchema):
             qs = self.get_queryset(Views.EXPORT)
             if not export_instruction.include_archived_entities and hasattr(
@@ -467,6 +468,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         return export_func
 
     def get_post_func(self):
+        # @decorate_view(transaction.non_atomic_requests(using="default"))
         def post_func(request, payload: self.create_schema) -> int:
             instance = self.model()
 
@@ -489,8 +491,12 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         return post_func
 
     def get_retrieve_func(self):
+        # @decorate_view(transaction.non_atomic_requests(using="default"))
         def retrieve_func(request, id: int) -> self.get_schema:
-            return get_object_or_404(self.model, id=id)
+            try:
+                return self.model.get(id=id)
+            except self.model.DoesNotExist:
+                raise HttpResponse(status=404)
 
         retrieve_func.__name__ = f"get_{self.model_name_singular.lower()}"
 
@@ -527,12 +533,12 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         )
         return manager.all().defer(*self._deferred_fields.keys())
 
-    async def transform_pd_to_response(self, pd: PaginatedData) -> ListResponseSchema:
-        items_s = [self.list_schema.from_orm(x) async for x in pd.paginated_qs.all()]
+    def transform_pd_to_response(self, pd: PaginatedData) -> ListResponseSchema:
+        items_s = [self.list_schema.from_orm(x) for x in pd.paginated_qs.all()]
 
         return ListResponseSchema[self.list_schema](
             summary={
-                "page": await pd.paginated_qs.acount(),
+                "page": pd.paginated_qs.count(),
                 "limit": pd.page_size,
                 "total": pd.total_items,
                 "total_pages": pd.num_pages,
@@ -541,7 +547,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         )
 
     def get_list_func(self):
-        async def list_func(
+        # @decorate_view(transaction.non_atomic_requests(using="default"))
+        def list_func(
             request,
             page: int = 0,
             limit: int = 100,
@@ -634,9 +641,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                         else qs.order_by(decamalized_sort_by)
                     )
             try:
-                paginated_data: PaginatedData = await paginate_queryset(
-                    qs, page or 1, limit
-                )
+                paginated_data: PaginatedData = paginate_queryset(qs, page or 1, limit)
             except EmptyPage as e:
                 return ListResponseSchema[self.list_schema](
                     summary={
@@ -648,7 +653,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                     data=[],
                 )
 
-            response = await self.transform_pd_to_response(paginated_data)
+            response = self.transform_pd_to_response(paginated_data)
 
             return response
 
