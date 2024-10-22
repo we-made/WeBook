@@ -78,7 +78,7 @@ class PlanManifestSchema(BaseSchema, BufferMixinSchema):
     meeting_place: Optional[str]
     meeting_place_en: Optional[str]
 
-    # responsible: Optional[PersonGetSchema] = None
+    responsible: Optional[PersonGetSchema] = None
     responsible_id: Optional[int] = None
 
     schedule_description: Optional[str] = None
@@ -97,24 +97,24 @@ class PlanManifestSchema(BaseSchema, BufferMixinSchema):
 
     interval: Optional[int] = None
 
-    # status: Optional[StatusTypeGetSchema] = None
+    status: Optional[StatusTypeGetSchema] = None
     status_id: Optional[int] = None
 
-    # audience: Optional[AudienceGetSchema] = None
+    audience: Optional[AudienceGetSchema] = None
     audience_id: Optional[int] = None
 
-    # arrangement_type: Optional[ArrangementTypeGetSchema] = None
+    arrangement_type: Optional[ArrangementTypeGetSchema] = None
     arrangement_type_id: Optional[int] = None
 
     display_text: Optional[str] = None
 
     display_text_en: Optional[str] = None
 
-    # # rooms: List[RoomGetSchema]
+    rooms: List[RoomGetSchema]
     # rooms: List[int]
-    # # people: Optional[List[PersonGetSchema]] = None
+    people: Optional[List[PersonGetSchema]] = None
     # people: Optional[List[int]] = None
-    # # display_layouts: Optional[List[DisplayLayoutGetSchema]] = None
+    display_layouts: Optional[List[DisplayLayoutGetSchema]] = None
     # display_layouts: Optional[List[int]] = None
 
     # timezone: str
@@ -156,14 +156,23 @@ class EventSerieRouter(CrudRouter, NotesMixinRouter, FileMixinRouter):
             ),
         ]
 
-        self.non_deferred_fields = ["serie_plan_manifest", "arrangement"]
+        self.non_deferred_fields = [
+            "serie_plan_manifest",
+            "arrangement",
+        ]
 
         super().__init__(*args, **kwargs)
 
     def get_queryset(self, view: Views = Views.GET) -> QuerySet:
         qs = super().get_queryset(view)
-        qs = qs.select_related("serie_plan_manifest")
-        qs = qs.select_related("arrangement")
+        qs = (
+            qs.select_related("serie_plan_manifest")
+            .prefetch_related("serie_plan_manifest__rooms")
+            .prefetch_related("serie_plan_manifest__people")
+            .prefetch_related("serie_plan_manifest__display_layouts")
+            .select_related("serie_plan_manifest__responsible")
+            .select_related("arrangement")
+        )
         return qs
 
     file_model = EventSerieFile
@@ -307,6 +316,7 @@ def create_event_serie(request, data: PlanManifestCreateSchema):
         raise Exception(form.errors)
 
     return form.save(form=form, user=request.user)
+
 
 @router.put("/{id}", response=GetEventSerieSchema)
 def update_event_serie(request, id: int, data: PlanManifestSchema):
