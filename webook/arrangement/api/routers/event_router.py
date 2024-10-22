@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
+from django.db.models.query import QuerySet as QuerySet
 import pytz
 from webook.api.schemas.base_schema import BaseSchema
 from webook.api.schemas.collision_record_schema import CollisionRecordSchema
@@ -20,7 +21,7 @@ from webook.arrangement.forms.exclusivity_analysis.analyze_non_existant_event im
     AnalyzeNonExistantEventForm,
 )
 from webook.arrangement.models import Event, EventSerie, PlanManifest
-from webook.api.crud_router import CrudRouter, QueryFilter
+from webook.api.crud_router import CrudRouter, QueryFilter, Views
 from webook.screenshow.api import DisplayLayoutGetSchema
 from webook.utils.collision_analysis import CollisionRecord, analyze_collisions
 from webook.utils.sph_gen import get_serie_positional_hash
@@ -125,7 +126,35 @@ class EventRouter(FileMixinRouter, NotesMixinRouter, CrudRouter):
             ),
         ]
 
+        self.non_deferred_fields = [
+            "rooms",
+            "audience",
+            "serie",
+            "responsible",
+            "status",
+            "display_layouts",
+            "arrangement_type",
+            "arrangement",
+        ]
+
         super().__init__(*args, **kwargs)
+
+    def get_queryset(self, view: Views = Views.GET) -> QuerySet:
+        qs = super().get_queryset(view)
+        qs = (
+            qs.prefetch_related("rooms")
+            .prefetch_related("display_layouts")
+            .prefetch_related("display_layouts__screens")
+            .prefetch_related("display_layouts__groups")
+            .prefetch_related("display_layouts__setting")
+            .select_related("responsible")
+            .select_related("status")
+            .select_related("audience")
+            .select_related("serie")
+            .select_related("arrangement_type")
+            .select_related("arrangement")
+        )
+        return qs
 
 
 event_router = EventRouter(
