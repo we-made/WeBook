@@ -1,4 +1,5 @@
 from typing import List, Optional, Union
+from django.db.models.query import QuerySet as QuerySet
 from ninja import Router, Schema
 
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
@@ -9,7 +10,19 @@ from webook.api.crud_router import CrudRouter, ListResponseSchema, QueryFilter, 
 from datetime import datetime, date
 from ninja.errors import HttpError
 
-note_router = CrudRouter(
+
+class NoteRouter(CrudRouter):
+    def __init__(self, *args, **kwargs):
+        self.non_deferred_fields = ["author", "event", "event_series", "arrangement"]
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self, view: Views = Views.GET) -> QuerySet:
+        qs = super().get_queryset(view)
+        qs = qs.select_related("author")
+        return qs
+
+
+note_router = NoteRouter(
     model=Note,
     tags=["note"],
     create_schema=NoteCreateSchema,
