@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
-from webook.api.crud_router import CrudRouter
+from webook.api.crud_router import CrudRouter, Views
 from webook.arrangement.models import Room
 
 
@@ -28,7 +28,18 @@ class RoomGetSchema(ModelBaseSchema):
     has_screen: bool
 
 
-room_router = CrudRouter(
+class RoomRouter(CrudRouter):
+    def __init__(self, *args, **kwargs):
+        self.non_deferred_fields = ["location"]
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self, view: Views = Views.GET):
+        qs = super().get_queryset(view)
+        qs = qs.select_related("location")
+        return qs
+
+
+room_router = RoomRouter(
     tags=["rooms"],
     model=Room,
     create_schema=RoomCreateSchema,
