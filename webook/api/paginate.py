@@ -27,7 +27,7 @@ class PaginatedData:
     num_pages: int
 
 
-async def paginate_queryset(
+def paginate_queryset(
     queryset, page, page_size: int = STANDARD_PAGE_SIZE
 ) -> PaginatedData:
     """Paginate a queryset and return the paginated queryset."""
@@ -37,7 +37,7 @@ async def paginate_queryset(
     if isinstance(queryset, QuerySet) and not queryset.ordered:
         queryset = queryset.order_by("id")
 
-    count = await queryset.acount()
+    count = queryset.count()
     qs = queryset[(page - 1) * page_size : min(page * page_size, count)]
 
     pd = PaginatedData(
