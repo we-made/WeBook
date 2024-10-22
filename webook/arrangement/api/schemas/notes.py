@@ -6,7 +6,7 @@ from datetime import datetime
 
 class NoteGetSchema(ModelBaseSchema):
     id: Optional[int] = None
-    title: str
+    title: Optional[str] = None
     content: str
     author: PersonGetSchema
     has_personal_information: bool
