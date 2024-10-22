@@ -308,19 +308,6 @@ def create_event_serie(request, data: PlanManifestCreateSchema):
 
     return form.save(form=form, user=request.user)
 
-
-@router.get("/testList", response=List[GetEventSerieSchema])
-@paginate(PageNumberPagination)
-async def test_list(
-    request, arrangement_id: Optional[int] = None
-) -> List[GetEventSerieSchema]:
-    qs = EventSerie.objects.select_related("serie_plan_manifest").select_related(
-        "arrangement"
-    )
-
-    return [x async for x in qs.iterator()]
-
-
 @router.put("/{id}", response=GetEventSerieSchema)
 def update_event_serie(request, id: int, data: PlanManifestSchema):
     event_serie = EventSerie.objects.get(id=id)

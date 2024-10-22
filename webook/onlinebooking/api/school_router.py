@@ -1,4 +1,7 @@
 from typing import Optional
+
+from django.db.models.query import QuerySet as QuerySet
+from webook.api.crud_router import Views
 from webook.api.crud_router import CrudRouter, QueryFilter
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.onlinebooking.api.county_router import CountyGetSchema
@@ -29,11 +32,20 @@ class SchoolRouter(CrudRouter):
             ),
         ]
 
+        self.non_deferred_fields = ["audiences", "county", "city_segment"]
+
         super().__init__(*args, **kwargs)
 
         self.pre_update_hook = (
             handle_zeroing_of_segment_if_moving_to_county_without_city_segments
         )
+
+    def get_queryset(self, view: Views = Views.GET) -> QuerySet:
+        qs = super().get_queryset(view)
+        qs = qs.prefetch_related("audiences")
+        qs = qs.select_related("county")
+        qs = qs.select_related("city_segment")
+        return qs
 
 
 def handle_zeroing_of_segment_if_moving_to_county_without_city_segments(

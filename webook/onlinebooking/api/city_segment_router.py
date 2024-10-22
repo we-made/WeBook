@@ -1,4 +1,7 @@
 from typing import Optional
+
+from django.db.models.query import QuerySet as QuerySet
+from webook.api.crud_router import Views
 from webook import logger
 from webook.api.crud_router import CrudRouter, QueryFilter
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
@@ -33,9 +36,16 @@ class CitySegmentRouter(CrudRouter):
             ),
         ]
 
+        self.non_deferred_fields = ["county"]
+
         super().__init__(*args, **kwargs)
 
         self.pre_update_hook = CitySegmentRouter.handle_school_move_on_county_edit
+
+    def get_queryset(self, view: Views = Views.GET) -> QuerySet:
+        qs = super().get_queryset(view)
+        qs = qs.select_related("county").prefetch_related("county__city_segments")
+        return qs
 
     def handle_school_move_on_county_edit(
         instance: CitySegment, payload: CitySegmentCreateSchema
