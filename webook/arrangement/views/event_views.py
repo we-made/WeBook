@@ -232,6 +232,7 @@ class CalculateEventSeriePreviewView(
 
 calculate_event_serie_preview_view = CalculateEventSeriePreviewView.as_view()
 
+
 class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView):
     """View for getting detailed information of a single event in JSON"""
 
@@ -246,26 +247,32 @@ class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
             "title": self.object.title,
             "title_en": self.object.title_en,
             "location_name": self.object.arrangement.location.name,
-            "arrangement_type": self.object.arrangement_type.name
-            if self.object.arrangement_type
-            else None,
+            "arrangement_type": (
+                self.object.arrangement_type.name
+                if self.object.arrangement_type
+                else None
+            ),
             "status": self.object.status.name if self.object.status else None,
             "audience": self.object.audience.name if self.object.audience else None,
             "start_date": self.object.start.strftime("%Y-%m-%d %H:%M:%S"),
             "end_date": self.object.end.strftime("%Y-%m-%d %H:%M:%S"),
-            "responsible_name": self.object.responsible.full_name
-            if self.object.responsible
-            else None,
+            "responsible_name": (
+                self.object.responsible.full_name if self.object.responsible else None
+            ),
             "is_part_of_serie": self.object.serie is not None,
-            "manifest_schedule_description": self.object.serie.serie_plan_manifest.schedule_description
-            if self.object.serie
-            else None,
+            "manifest_schedule_description": (
+                self.object.serie.serie_plan_manifest.schedule_description
+                if self.object.serie
+                else None
+            ),
             "arrangement": {
                 "id": self.object.arrangement.id,
                 "name": self.object.arrangement.name,
-                "responsible": self.object.arrangement.responsible.full_name
-                if self.object.arrangement.responsible
-                else "Ingen",
+                "responsible": (
+                    self.object.arrangement.responsible.full_name
+                    if self.object.arrangement.responsible
+                    else "Ingen"
+                ),
                 "created": self.object.arrangement.created,
                 "modified": self.object.arrangement.modified,
                 "location_name": self.object.arrangement.location.name,
@@ -316,6 +323,7 @@ class GetEventJsonView(LoginRequiredMixin, PlannerAuthorizationMixin, DetailView
 
         return JsonResponse(transformed, safe=False)
 
+
 class EventSerieManifestView(
     LoginRequiredMixin, PlannerAuthorizationMixin, DetailView, JSONResponseMixin
 ):
@@ -329,7 +337,33 @@ class EventSerieManifestView(
 
     def get_object(self):
         serie_pk = self.kwargs.get(self.pk_url_kwarg)
-        event_serie = EventSerie.objects.filter(pk=serie_pk).first()
+        event_serie = (
+            EventSerie.objects.filter(pk=serie_pk)
+            .select_related("serie_plan_manifest")
+            .select_related("serie_plan_manifest__responsible")
+            .select_related("serie_plan_manifest__status")
+            .select_related("serie_plan_manifest__audience")
+            .select_related("serie_plan_manifest__arrangement_type")
+            .select_related("serie_plan_manifest__county")
+            .select_related("serie_plan_manifest__school")
+            .select_related("serie_plan_manifest__school__county")
+            .prefetch_related("serie_plan_manifest__school__audiences")
+            .select_related("serie_plan_manifest__school__city_segment")
+            .prefetch_related("serie_plan_manifest__rooms")
+            .prefetch_related("serie_plan_manifest__people")
+            .prefetch_related("serie_plan_manifest__display_layouts")
+            .select_related("serie_plan_manifest__responsible")
+            .select_related("arrangement")
+            .select_related("arrangement__location")
+            .select_related("arrangement__responsible")
+            .select_related("arrangement__audience")
+            .select_related("arrangement__status")
+            .select_related("arrangement__arrangement_type")
+            .select_related("arrangement__county")
+            .select_related("arrangement__school")
+            .select_related("arrangement__responsible")
+            .first()
+        )
 
         if event_serie is None:
             raise Http404("No event_serie found matching the query")
