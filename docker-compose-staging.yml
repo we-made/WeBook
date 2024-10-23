@@ -16,7 +16,7 @@ services:
       - /app/node_modules
   onlinebooking:
     build:
-      context: /onlinebooking_app/
+      context: onlinebooking_app/
       dockerfile: Dockerfile
     ports:
       - "5100:5100"
