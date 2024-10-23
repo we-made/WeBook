@@ -178,7 +178,7 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webook.middleware.timezone_middleware.TimezoneMiddleware",
-    # "crum.CurrentRequestUserMiddleware",
+    "crum.CurrentRequestUserMiddleware",
 ]
 
 # STATIC
