@@ -712,8 +712,6 @@
         dialogId: '{{dialogId}}',
         discriminator: '{{discriminator}}',
         postInit: function (dialog) {
-            console.log("Fetching event series for arrangement", {{ object.id }});
-
             dialog._methods.loadEventsToTable(
                 dialog,
                 { pageNumber: 1 }
@@ -1008,8 +1006,6 @@
                             fetch("/api/arrangement/event_serie/files/list?parent_id=" + eventSerie.id)
                                 .then(fr => fr.json())
                                 .then(filesList => {
-                                    console.log("Files for event serie " + eventSerie.id, filesList);
-
                                     const roomsList = eventSerie.seriePlanManifest.rooms.map(room => room.name).join(", ");
                                     const peopleList = eventSerie.seriePlanManifest.people.map(person => person.fullName).join(", ");
                                     
