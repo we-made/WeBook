@@ -16,6 +16,8 @@ ALLOWED_HOSTS = env.list(
     default=["webook.wemade.no", "localhost", "0.0.0.0", "127.0.0.1"],
 )
 
+CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
+
 
 # CACHES
 # ------------------------------------------------------------------------------

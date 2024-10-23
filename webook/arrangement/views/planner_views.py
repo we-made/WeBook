@@ -982,8 +982,8 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, DialogView, Templat
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        locations = Location.objects.all()
-        room_presets = RoomPreset.objects.all()
+        locations = Location.objects.prefetch_related("rooms").all()
+        room_presets = RoomPreset.objects.prefetch_related("rooms").all()
 
         for preset in room_presets:
             pks = preset.rooms.all().values_list("pk", flat=True)
@@ -996,10 +996,11 @@ class PlannerCalendarOrderRoomDialogView(LoginRequiredMixin, DialogView, Templat
 
         event = None
         if event_pk is not None and event_pk != 0 and event_pk != "0":
-            event = Event.objects.get(pk=event_pk)
+            event = Event.objects.prefetch_related("rooms").get(pk=event_pk)
+            event_rooms = map(lambda x: x.pk, list(event.rooms.all()))
             for location in locations:
                 for room in location.rooms.all():
-                    if room in event.rooms.all():
+                    if room.pk in event_rooms:
                         room.is_selected = True
 
         context["locations"] = locations
@@ -1036,7 +1037,7 @@ class PlannerCalendarOrderPersonDialogView(
         context["event_pk"] = event_pk
         event = None
         if event_pk is not None and event_pk != 0 and event_pk != "0":
-            event = Event.objects.get(pk=event_pk)
+            event = Event.objects.prefetch_related("people").get(pk=event_pk)
             for person in people:
                 if person in event.people.all():
                     person.is_selected = True
@@ -1196,11 +1197,23 @@ class PlanSerieForm(LoginRequiredMixin, DialogView, FormView):
         context["orderRoomDialog"] = self.request.GET.get("orderRoomDialog")
         context["orderPersonDialog"] = self.request.GET.get("orderPersonDialog")
 
-        settings = OnlineBookingSettings.objects.first()
-        counties = County.objects.all().order_by("name")
+        settings = (
+            OnlineBookingSettings.objects.prefetch_related("allowed_audiences")
+            .select_related("audience_group")
+            .first()
+        )
+        counties = (
+            County.objects.all().prefetch_related("city_segments").order_by("name")
+        )
 
         for county in counties:
-            county.schools = School.objects.filter(county=county).order_by("name")
+            county.schools = (
+                School.objects.filter(county=county)
+                .prefetch_related("audiences")
+                .select_related("county")
+                .select_related("city_segment")
+                .order_by("name")
+            )
 
         context["schoolAudiences"] = [
             *settings.allowed_audiences.all(),

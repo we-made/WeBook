@@ -538,7 +538,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
         return ListResponseSchema[self.list_schema](
             summary={
-                "page": pd.paginated_qs.count(),
+                "page": pd.current_page,
                 "limit": pd.page_size,
                 "total": pd.total_items,
                 "total_pages": pd.num_pages,
