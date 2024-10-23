@@ -26,7 +26,7 @@ django-crum==0.7.9
 python-json-logger==2.0.7
 django-ninja==1.3.0
 inflect==7.2.1
-pandas==2.2.3
+pandas==2.0.3
 reportlab==4.2.2
 pyjwt==2.8.0
 
