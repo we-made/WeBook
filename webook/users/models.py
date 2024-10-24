@@ -12,6 +12,33 @@ import webook.users.media_pathing as media_path
 from webook.arrangement.models import Person
 
 
+class LoginAudit(models.Model):
+    time_stamp = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey("User", on_delete=models.RESTRICT, null=True)
+    attempted_email = models.EmailField(null=True)
+
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.CharField(max_length=255)
+    successful = models.BooleanField(default=False)
+    login_type = models.CharField(max_length=255, default="email")
+
+    threshold_exceeded = models.BooleanField(default=False)
+
+
+class UserTokenRevocation(models.Model):
+    # All tokens that are issued before this timestamp are to be considered revoked. ( iat < revocation_timestamp )
+    revocation_timestamp = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey("User", on_delete=models.RESTRICT)
+    revocation_reason = models.CharField(max_length=512, null=True, blank=True)
+
+
+class UserResetPasswordToken(models.Model):
+    user = models.ForeignKey("User", on_delete=models.RESTRICT)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    token = models.CharField(max_length=255, unique=True)
+
+
 class CustomUserManager(BaseUserManager):
     """
     Custom user model manager without a username field.

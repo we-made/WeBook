@@ -26,7 +26,9 @@ from webook.arrangement.api.routers.arrangement_type_router import (
 )
 from webook.screenshow.api import display_layout_router, display_layout_setting_router
 
-from webook.users.api import router as user_router
+from webook.users.api.user_router import router as user_router
+from webook.users.api.group_router import group_router
+from webook.api.scopes_router import api_scopes_router
 
 from webook.onlinebooking.api import (
     county_router,
@@ -69,6 +71,8 @@ api.add_router("/screenshow/display_layout", display_layout_router)
 api.add_router("/screenshow/display_layout_setting", display_layout_setting_router)
 
 api.add_router("/users", user_router)
+api.add_router("/groups", group_router)
+api.add_router("/scopes", api_scopes_router)
 
 
 @api.exception_handler(ObjectDoesNotExist)
