@@ -15,13 +15,12 @@ from webook.users.models import User
 
 class GroupRouter(CrudRouter):
     def __init__(self, *args, **kwargs):
-        # self.non_deferred_fields = ["endpoint_scopes"]
+        self.non_deferred_fields = ["endpoint_scopes"]
         super().__init__(*args, **kwargs)
 
     def get_queryset(self, view: Views = Views.GET) -> QuerySet:
         qs = super().get_queryset(view)
-        # qs = qs.select_related("endpoint_scopes")
-
+        qs = qs.prefetch_related("endpoint_scopes")
         return qs
 
 
