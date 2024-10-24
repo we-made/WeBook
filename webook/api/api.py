@@ -19,7 +19,6 @@ from webook.arrangement.api.routers.event_serie_router import (
     router as event_serie_router,
 )
 from webook.arrangement.api.routers.calendar_router import calendar_router
-from webook.api.routers.login_router import login_router
 from webook.arrangement.api.routers.organization_router import organization_router
 from webook.arrangement.api.routers.arrangement_type_router import (
     arrangement_type_router,
@@ -47,7 +46,7 @@ api = NinjaAPI(
     auth=[JWTBearer(), django_auth],
     openapi_extra={"tags": []},
 )
-api.add_router("/login", login_router)
+
 api.add_router("/service_accounts", service_account_router)
 api.add_router("/onlinebooking/county", county_router)
 api.add_router("/onlinebooking/city_segment", city_segment_router)
