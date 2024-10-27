@@ -110,6 +110,7 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.microsoft",
     "colorfield",
+    "haystack",
 ]
 
 LOCAL_APPS = [
@@ -435,3 +436,12 @@ PDF_TMP_DIR = env("PDF_TMP_DIR", default="./webook/media/tmpfiles/")
 URL_TO_ONLINE_BOOKING_APP = env(
     "URL_TO_ONLINE_BOOKING_APP", default="http://localhost:5000"
 )
+
+# if env("ELASTICSEARCH_URL", default=None):
+HAYSTACK_CONNECTIONS = {
+    "default": {
+        "ENGINE": "haystack.backends.elasticsearch7_backend.Elasticsearch7SearchEngine",
+        "URL": env("ELASTICSEARCH_URL", default="http://localhost:9200/"),
+        "INDEX_NAME": "haystack",
+    }
+}

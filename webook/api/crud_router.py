@@ -14,6 +14,8 @@ from webook.api.jwt_auth import JWTBearer
 from webook.api.paginate import PaginatedData, paginate_queryset
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.api.m2m_rel_router_mixin import ManyToManyRelRouterMixin
+from haystack.query import EmptySearchQuerySet, SearchQuerySet
+from haystack.models import SearchResult
 from webook.api.schemas.operation_result_schema import (
     OperationResultSchema,
     OperationType,
@@ -75,6 +77,10 @@ class ExportInstructionSchema(BaseSchema):
 class ListResponseSchema(BaseSchema, Generic[T]):
     summary: dict
     data: List[T]
+
+class SearchResponseItemSchema(BaseSchema, Generic[T]):
+    score: float
+    item: T
 
 
 class QueryFilter:
@@ -366,17 +372,29 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
                 func.__signature__ = sig.replace(parameters=params)
 
-            self.add_api_operation(
-                path="list",
-                methods=["GET"],
-                auth=self.list_auth or self.auth or NOT_SET,
-                view_func=func,
-                response=ListResponseSchema[self.list_schema],
-                summary=f"List {self.model_name_plural}",
-                description=f"List all {self.model_name_plural.lower()} instances.",
-                operation_id=f"list_{self.model_name_plural.lower()}",
-                by_alias=True,
-            )
+                self.add_api_operation(
+                    path="list",
+                    methods=["GET"],
+                    auth=self.list_auth or self.auth or NOT_SET,
+                    view_func=func,
+                    response=ListResponseSchema[self.list_schema],
+                    summary=f"List {self.model_name_plural}",
+                    description=f"List all {self.model_name_plural.lower()} instances.",
+                    operation_id=f"list_{self.model_name_plural.lower()}",
+                    by_alias=True,
+                )
+
+                self.add_api_operation(
+                    path="search",
+                    methods=["GET"],
+                    auth=self.list_auth or self.auth or NOT_SET,
+                    view_func=self.get_search_func(),
+                    response=ListResponseSchema[self.list_schema],
+                    summary=f"Search {self.model_name_plural}",
+                    description=f"Search all {self.model_name_plural.lower()} instances.",
+                    operation_id=f"search_{self.model_name_plural.lower()}",
+                    by_alias=True,
+                )
 
             if Views.EXPORT in self.views:
                 self.add_api_operation(
@@ -534,7 +552,36 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         return manager.all().defer(*self._deferred_fields.keys())
 
     def transform_pd_to_response(self, pd: PaginatedData) -> ListResponseSchema:
-        items_s = [self.list_schema.from_orm(x) for x in pd.paginated_qs.all()]
+        # itemss = list(pd.paginated_qs.all() if type(pd.paginated_qs) == models.QuerySet else pd.paginated_qs)
+        
+        if type(pd.paginated_qs) == models.QuerySet:
+            items_s = [
+                self.list_schema.from_orm(x) for x in pd.paginated_qs.all()
+            ]
+        else:
+            # It is a search result
+            items_s: List[SearchResponseItemSchema] = list()
+            for x in pd.paginated_qs:
+                if type(x) == SearchResult:
+                    d = SearchResponseItemSchema()
+                    d.item = self.list_schema.from_orm(self.model.objects.get(id=x.pk))
+                    d.score = x.score
+                    items_s.append(d)
+
+            return ListResponseSchema[SearchResponseItemSchema](
+                summary={
+                    "page": pd.current_page,
+                    "limit": pd.page_size,
+                    "total": pd.total_items,
+                    "total_pages": pd.num_pages,
+                },
+                data=items_s,
+            )
+
+        # items_s = [
+        #     self.list_schema.from_orm((x.object if type(x) == SearchResult else x)) for x in 
+        #     (pd.paginated_qs.all() if type(pd.paginated_qs) == models.QuerySet else pd.paginated_qs)
+        # ]
 
         return ListResponseSchema[self.list_schema](
             summary={
@@ -660,6 +707,17 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         list_func.__name__ = f"list_{self.model_name_plural.lower()}"
 
         return list_func
+    
+    def get_search_func(self):
+        sqs = SearchQuerySet().models(self.model)
+
+        def search_func(request, query: str) -> ListResponseSchema[self.list_schema]:
+            results = paginate_queryset(sqs.auto_query(query), 1, 100)
+            return self.transform_pd_to_response(results)
+        
+        search_func.__name__ = f"search_{self.model_name_plural.lower()}"
+
+        return search_func
 
     def get_put_func(self):
         def update_func(

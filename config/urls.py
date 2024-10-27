@@ -10,6 +10,7 @@ from django.urls import include, path, re_path, reverse
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
+import haystack.urls
 
 from webook.api.api import api
 from webook.users.views import LoginView
@@ -66,6 +67,7 @@ urlpatterns = [
         include("webook.onlinebooking.urls", namespace="onlinebooking"),
     ),
     path("api/", api.urls),
+    path('search/', include('haystack.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
