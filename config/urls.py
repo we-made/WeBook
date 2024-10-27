@@ -43,7 +43,6 @@ urlpatterns = [
     ),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
-    path(r'i18n/', include('django.conf.urls.i18n')),
     # User management
     path(
         "users/",
