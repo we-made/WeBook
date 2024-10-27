@@ -35,3 +35,4 @@ sentry-sdk==2.14.0
 
 redis==5.0.8
 hiredis==3.0.0
+django-haystack==3.3.0
