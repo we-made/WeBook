@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import include, path, reverse
+from django.urls import include, path, re_path, reverse
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
@@ -93,3 +93,6 @@ if settings.DEBUG:
     #     import debug_toolbar
 
     #     urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
+
+if 'rosetta' in settings.INSTALLED_APPS:
+    urlpatterns += [re_path('rosetta/', include('rosetta.urls'))]
