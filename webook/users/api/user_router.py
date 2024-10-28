@@ -1,13 +1,23 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta, timezone
 from http.client import HTTPException
 import logging
-from typing import List, Optional
+from typing import List, Optional, Union
 from django.http import HttpResponse
 from ninja import NinjaAPI
 from pydantic import EmailStr, SecretStr
 import sentry_sdk
-from webook.api.jwt_auth import IssueeType, TokenData, decode_jwt_token, issue_token
-from webook.api.models import APIScope
+from webook.api.jwt_auth import (
+    IssueeType,
+    JWTBearer,
+    TokenData,
+    decode_jwt_token,
+    issue_token,
+)
+from ninja.security import django_auth
+from webook.api.models import APIScope, ServiceAccount
+from webook.api.routers.service_account_router import ServiceAccountSchema
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.api.crud_router import CrudRouter, Views
 from django.db.models import QuerySet
@@ -33,12 +43,181 @@ from webook.users.utils.password_reset import (
 )
 
 
+class GroupRouter(CrudRouter):
+    def __init__(self, *args, **kwargs):
+        self.non_deferred_fields = ["endpoint_scopes"]
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self, view: Views = Views.GET) -> QuerySet:
+        qs = super().get_queryset(view)
+        qs = qs.prefetch_related("endpoint_scopes")
+        return qs
+
+
+class GroupGetSchema(BaseSchema):
+    name: str
+    endpoint_scopes: List[APIScopeGetSchema]
+    user_set: List[UserGetSchema]
+    service_accounts_set: List[ServiceAccountSchema]
+
+
+class GroupUpdatePermissionsSchema(BaseSchema):
+    group_name: str
+    endpoint_scopes: List[str]
+
+
+group_router = GroupRouter(
+    model=Group,
+    tags=["Group"],
+    views=[Views.GET, Views.LIST],
+    get_schema=GroupGetSchema,
+    list_schema=GroupGetSchema,
+)
+
+
+@group_router.post("/create")
+def create_group(request, name: str):
+    if not request.auth.is_superuser:
+        raise HTTPException(
+            status_code=403, detail="You do not have permission to do this"
+        )
+
+    group = Group(name=name)
+    group.save()
+
+    return {"success": True}
+
+
+@group_router.delete("/delete")
+def delete_group(request, name: str):
+    if not request.auth.is_superuser:
+        raise HTTPException(
+            status_code=403, detail="You do not have permission to do this"
+        )
+
+    group = Group.objects.get(name=name)
+    group.delete()
+
+    return {"success": True}
+
+
+@group_router.post("/update-scopes")
+def update_group_permissions(request, data: GroupUpdatePermissionsSchema):
+    if not request.auth.is_superuser:
+        raise HTTPException(
+            status_code=403, detail="You do not have permission to do this"
+        )
+
+    group = Group.objects.get(name=data.group_name)
+    group.endpoint_scopes.clear()
+
+    for endpoint in data.endpoint_scopes:
+        try:
+            ep = APIScope.objects.get(operation_id=endpoint)
+            group.endpoint_scopes.add(ep.id)
+        except APIScope.DoesNotExist:
+            raise HTTPException(
+                status_code=400, detail=f"Endpoint {endpoint} does not exist"
+            )
+
+    group.save()
+
+    return {"success": True}
+
+
+@group_router.post("/add-user-to-group")
+def add_user_to_group(request, group_name: str, user_id: int):
+    if not request.auth.is_superuser:
+        raise HTTPException(
+            status_code=403, detail="You do not have permission to do this"
+        )
+
+    try:
+        group = Group.objects.get(name=group_name)
+        user = User.objects.get(pk=user_id)
+    except Group.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Group not found")
+    except User.DoesNotExist:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.groups.add(group)
+    user.save()
+
+    return {"success": True}
+
+
+@group_router.post("/remove-user-from-group")
+def remove_user_from_group(request, group_name: str, user_id: int):
+    if not request.auth.is_superuser:
+        raise HTTPException(
+            status_code=403, detail="You do not have permission to do this"
+        )
+
+    try:
+        group = Group.objects.get(name=group_name)
+        user = User.objects.get(pk=user_id)
+    except Group.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Group not found")
+    except User.DoesNotExist:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.groups.remove(group)
+    user.save()
+
+    return {"success": True}
+
+
+@group_router.post("/add-service-account-to-group")
+def add_service_account_to_group(request, group_name: str, service_account_id: int):
+    if not request.auth.is_superuser:
+        raise HTTPException(
+            status_code=403, detail="You do not have permission to do this"
+        )
+
+    try:
+        group = Group.objects.get(name=group_name)
+        service_account = ServiceAccount.objects.get(pk=service_account_id)
+    except Group.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Group not found")
+    except User.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Service account not found")
+
+    service_account.groups.add(group)
+    service_account.save()
+
+    return {"success": True}
+
+
+@group_router.post("/remove-service-account-from-group")
+def remove_service_account_from_group(
+    request, group_name: str, service_account_id: int
+):
+    if not request.auth.is_superuser:
+        raise HTTPException(
+            status_code=403, detail="You do not have permission to do this"
+        )
+
+    try:
+        group = Group.objects.get(name=group_name)
+        service_account = ServiceAccount.objects.get(pk=service_account_id)
+    except Group.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Group not found")
+    except User.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Service account not found")
+
+    service_account.groups.remove(group)
+    service_account.save()
+
+    return {"success": True}
+
+
 class UserGetSchema(BaseSchema):
     email: str
     timezone: str
     is_user_admin: bool
     # profile_picture: str
     person: PersonGetSchema
+    groups: List[GroupGetSchema]
 
 
 class RegisterUserSchema(BaseSchema):
@@ -99,10 +278,14 @@ def _throw_if_email_login_not_allowed():
         raise HTTPException(status_code=403, detail="Email login is not allowed")
 
 
-@router.get("/me/", response=UserGetSchema)
+@router.get(
+    "/me/",
+    response=Union[UserGetSchema, ServiceAccountSchema],
+    auth=[JWTBearer(require_scoped_access=False), django_auth],
+)
 def me(request):
-    if request.user:
-        return request.user
+    if request.auth:
+        return request.auth
     else:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -115,7 +298,7 @@ def register_user(request, data: RegisterUserSchema):
             detail="Email login disabled. Normal registration is not allowed.",
         )
 
-    if not settings.ACCOUNT_ALLOW_REGISTRATION and not request.user.is_superuser:
+    if not settings.ACCOUNT_ALLOW_REGISTRATION and not request.auth.is_superuser:
         raise HTTPException(
             status_code=403, detail="Registration is not allowed on this instance."
         )
@@ -230,7 +413,7 @@ def refresh_token_refresh(request, data: RefreshTokenRefreshSchema):
 
 @router.post("/revoke-all-tokens-on-user")
 def revoke_all_tokens_on_user(request, user_id: int):
-    current_user = request.user
+    current_user = request.auth
 
     if not current_user.is_superuser:
         raise HTTPException(
@@ -249,9 +432,13 @@ def revoke_all_tokens_on_user(request, user_id: int):
     return {"revoked": True}
 
 
-@router.post("/revoke-all-user-tokens")
+@router.post(
+    "/revoke-all-user-tokens",
+    auth=JWTBearer(require_scoped_access=True, super_user_only=True),
+)
 def revoke_all_user_tokens(request):
-    current_user = request.user
+    """Revoke all tokens for all users in the system. Superuser only."""
+    current_user = request.auth
 
     if not current_user.is_superuser:
         raise HTTPException(
@@ -269,9 +456,12 @@ def revoke_all_user_tokens(request):
     return {"revoked": True}
 
 
-@router.post("/me/revoke-all-tokens")
+@router.post(
+    "/me/revoke-all-tokens", auth=[JWTBearer(require_scoped_access=False), django_auth]
+)
 def revoke_all_tokens(request):
-    user = request.user
+    """Revoke all tokens for the current user."""
+    user = request.auth
 
     revocation = UserTokenRevocation(
         user=user,
@@ -291,20 +481,17 @@ def ms_login():
         )
 
 
-@router.post("/logout")
+@router.post("/logout", auth=[JWTBearer(require_scoped_access=False), django_auth])
 def logout(request):
-    if not request.user.is_authenticated:
-        raise HTTPException(status_code=401, detail="You are not authenticated")
-
     UserTokenRevocation(
-        user=request.user,
+        user=request.auth,
         revocation_reason="User action",
     ).save()
 
     return {"revoked": True}
 
 
-@router.post("/trigger-forgot-password", throttle=[AnonRateThrottle("10/h")])
+@router.post("/trigger-forgot-password", throttle=[AnonRateThrottle("10/h")], auth=None)
 def forgot_password(request, email: EmailStr):
     _throw_if_email_login_not_allowed()
 
@@ -323,13 +510,13 @@ def forgot_password(request, email: EmailStr):
     return {"success": True}
 
 
-@router.post("/change-password", throttle=[AnonRateThrottle("10/h")])
+@router.post("/change-password", throttle=[AnonRateThrottle("10/h")], auth=None)
 def change_password(request, data: ChangePasswordSchema):
     user = User.objects.filter(email=data.email).first()
     if user is None:
         return {"success": False}
 
-    if request.user.is_superuser and data.super_user_override_token_validation:
+    if request.auth.is_superuser and data.super_user_override_token_validation:
         user.set_password(data.new_password.get_secret_value())
         return {"success": True, "super_user_override": True}
 

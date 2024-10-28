@@ -2,7 +2,7 @@ from typing import List, Optional
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.security import django_auth_superuser
-from webook.api.jwt_auth import issue_token
+from webook.api.jwt_auth import IssueeType, TokenType, issue_token
 from webook.api.schemas.base_schema import BaseSchema
 from webook.api.models import ServiceAccount, APIScope
 from django.core.exceptions import PermissionDenied
@@ -48,7 +48,11 @@ def login_service_account(request, payload: ServiceAccountLoginSchema) -> str:
     if not service_account.check_password(payload.password):
         raise PermissionDenied("Invalid password")
 
-    return issue_token(service_account)
+    return issue_token(
+        issuee_type=IssueeType.ServiceAccount,
+        pk=service_account.pk,
+        token_type=TokenType.Access,
+    )
 
 
 @service_account_router.get(

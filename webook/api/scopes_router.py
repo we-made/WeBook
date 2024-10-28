@@ -37,26 +37,26 @@ api_scopes_router = APIScopesRouter(
 
 
 @api_scopes_router.post("/add-scope-direct-on-user")
-def add_scope_direct_on_user(request, user_id: int, scope_id: int):
+def add_scope_direct_on_user(request, user_id: int, scope_id: str):
     if not request.user.is_superuser:
         raise HTTPException(
             status_code=403, detail="You do not have permission to do this"
         )
 
     user = User.objects.get(id=user_id)
-    scope = APIScope.objects.get(id=scope_id)
+    scope = APIScope.objects.get(operation_id=scope_id)
     user.endpoint_scopes.add(scope)
     return {"success": True}
 
 
 @api_scopes_router.delete("/remove-scope-direct-on-user")
-def remove_scope_direct_on_user(request, user_id: int, scope_id: int):
+def remove_scope_direct_on_user(request, user_id: int, scope_id: str):
     if not request.user.is_superuser:
         raise HTTPException(
             status_code=403, detail="You do not have permission to do this"
         )
 
     user = User.objects.get(id=user_id)
-    scope = APIScope.objects.get(id=scope_id)
+    scope = APIScope.objects.get(operation_id=scope_id)
     user.endpoint_scopes.remove(scope)
     return {"success": True}

@@ -723,7 +723,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             if self.pre_delete_hook is not None:
                 self.pre_delete_hook(instance)
 
-            person = request.user.person
+            person = request.auth.person
 
             instance.archive(person)
 

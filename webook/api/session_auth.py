@@ -41,7 +41,6 @@ class AuthAgent:
         return False
 
     def authenticate(self, request):
-        # TODO: Use JWT bearer tokens as well in the future.
         if request.user.is_authenticated and self._is_authorized(request.user):
             return request.user
         return None

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 import logging
-from typing import List, Union
+from typing import List, Optional, Union
 from ninja.security import HttpBearer
 from webook.api.models import ServiceAccount, RevokedToken, APIScope
 from django.conf import settings
@@ -73,16 +73,15 @@ class TokenData:
             raise HttpError(403, "Token has been revoked")
 
     token_value: str
-
-    token_type: TokenType
-    issuee_type: IssueeType
-    pk: int
-
     iss: str
     iat: datetime
     aud: str
     sub: str
     exp: datetime
+
+    token_type: Optional[TokenType] = None
+    issuee_type: Optional[IssueeType] = None
+    pk: Optional[int] = None
 
 
 def decode_jwt_token(token: str) -> TokenData:
@@ -111,21 +110,20 @@ def decode_jwt_token(token: str) -> TokenData:
 
 
 class JWTBearer(HttpBearer):
-    def __init__(self, groups: List[str] = []):
+    def __init__(
+        self, require_scoped_access: bool = True, super_user_only: bool = False
+    ):
         """
         Initialize the JWTBearer instance.
 
         args:
-            groups: list of groups that are always allowed to access the endpoint that this instance of JWTBearer is attached to.
+            require_scoped_access: If set to True, the user must have the required scope to access the endpoint.
+
+            super_user_only: If set to True, only superusers will be allowed to access the endpoint.
         """
 
-        self._allowed_groups = []
-        if groups:
-            for group in groups:
-                if not Group.objects.filter(name=group).exists():
-                    raise ValueError(f"Group {group} does not exist.")
-
-                self._allowed_groups.append(group)
+        self.require_scoped_access = require_scoped_access
+        self.super_user_only = super_user_only
 
         super().__init__()
 
@@ -144,6 +142,9 @@ class JWTBearer(HttpBearer):
         entity: Union[ServiceAccount, User] = None
 
         if token_data.issuee_type == IssueeType.ServiceAccount:
+            if self.super_user_only:  # Service Account != Super User
+                raise HttpError(403, "Invalid token")
+
             service_account_id = token_data.pk
             if service_account_id is None:
                 logging.info("Invalid token")
@@ -159,7 +160,7 @@ class JWTBearer(HttpBearer):
 
                 service_account.last_seen = datetime.now(timezone.utc)
                 service_account.save()
-                
+
                 entity = service_account
             except ServiceAccount.DoesNotExist:
                 logging.info(
@@ -167,9 +168,6 @@ class JWTBearer(HttpBearer):
                 )
                 raise HttpError(403, "Invalid token")
         elif token_data.issuee_type == IssueeType.User:
-            if self._allowed_groups == []:
-                raise HttpError(403, "Users can not access this endpoint")
-
             user_id = token_data.pk
             if user_id is None:
                 logging.info("Invalid token")
@@ -183,6 +181,12 @@ class JWTBearer(HttpBearer):
                     )
                     raise HttpError(403, "This user is deactivated.")
 
+                if user.is_superuser:
+                    return user
+
+                if self.super_user_only:
+                    raise HttpError(403, "Invalid token")
+
                 entity = user
 
             except User.DoesNotExist:
@@ -191,7 +195,7 @@ class JWTBearer(HttpBearer):
         else:
             raise HttpError(403, "Invalid token")
 
-        if operation_id in ALWAYS_ALLOWED_ENDPOINTS:
+        if operation_id in ALWAYS_ALLOWED_ENDPOINTS or not self.require_scoped_access:
             return entity  # scope check does not apply to always allowed endpoints
 
         scopes_on_entity = (
