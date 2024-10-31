@@ -26,6 +26,7 @@ location_router = CrudRouter(
     create_schema=LocationCreateSchema,
     update_schema=LocationCreateSchema,
     get_schema=LocationGetSchema,
+    enable_search=True,
 )
 
 
