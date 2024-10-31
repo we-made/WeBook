@@ -790,10 +790,13 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         ) -> ListResponseSchema[self.list_schema]:
             sqs = SearchQuerySet().models(self.model)
 
-            if self.list_filters:
+            if self.search_query_filters:
                 for qf in self.search_query_filters:
                     if qf.param in extra_params and extra_params[qf.param] is not None:
-                        sqs = qf.apply(sqs, extra_params[qf.param])
+                        val = extra_params[qf.param]
+                        if type(val) == bool:
+                            val = str(val).lower()
+                        sqs = qf.apply(sqs, val)
 
             results = paginate_queryset(
                 sqs.auto_query(query), page or 1, limit or STANDARD_PAGE_SIZE
