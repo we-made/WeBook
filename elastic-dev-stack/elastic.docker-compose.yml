@@ -10,9 +10,11 @@ services:
       - http.cors.enabled=true
       - http.cors.allow-origin=http://localhost:8080
     volumes:
-      - ./data:/usr/share/elasticsearch/data
+      - data:/usr/share/elasticsearch/data
       # - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
   elasticvue:
     image: cars10/elasticvue:latest
     ports:
       - "8080:8080"
+volumes:
+  data:
