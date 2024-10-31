@@ -45,6 +45,7 @@ room_router = RoomRouter(
     create_schema=RoomCreateSchema,
     update_schema=RoomCreateSchema,
     get_schema=RoomGetSchema,
+    enable_search=True,
 )
 
 

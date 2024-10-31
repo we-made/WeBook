@@ -163,6 +163,7 @@ event_router = EventRouter(
     create_schema=EventCreateSchema,
     get_schema=EventGetSchema,
     update_schema=EventCreateSchema,
+    enable_search=True,
 )
 
 

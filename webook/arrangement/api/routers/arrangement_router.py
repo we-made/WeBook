@@ -128,6 +128,7 @@ arrangement_router = ArrangementRouter(
     create_schema=ArrangementCreateSchema,
     response_schema=ArrangementGetSchema,
     update_schema=ArrangementCreateSchema,
+    enable_search=True,
 )
 
 

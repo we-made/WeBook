@@ -1,0 +1,9 @@
+{{ object.full_name }}
+{{ object.personal_email}}
+
+{% if object.user_set.exists %}
+    Has User
+{% endif %}
+
+SSO Capable: {{ object.is_sso_capable }}
+Is Synced: {{ object.is_synced }}

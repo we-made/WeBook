@@ -29,4 +29,5 @@ note_router = NoteRouter(
     get_schema=NoteGetSchema,
     update_schema=NoteCreateSchema,
     views=[Views.LIST, Views.GET],
+    enable_search=True,
 )
