@@ -68,4 +68,5 @@ person_router = PersonRouter(
     create_schema=PersonCreateSchema,
     get_schema=PersonGetSchema,
     update_schema=PersonCreateSchema,
+    enable_search=True,
 )
