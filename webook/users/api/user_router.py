@@ -91,6 +91,7 @@ router = UserRouter(
     views=[Views.GET, Views.LIST],
     get_schema=UserGetSchema,
     list_schema=UserGetSchema,
+    enable_search=True,
 )
 
 
