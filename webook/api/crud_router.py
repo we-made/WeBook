@@ -16,11 +16,13 @@ from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.api.m2m_rel_router_mixin import ManyToManyRelRouterMixin
 from haystack.query import EmptySearchQuerySet, SearchQuerySet
 from haystack.models import SearchResult
+import haystack.fields as haystack_fields
 from webook.api.schemas.operation_result_schema import (
     OperationResultSchema,
     OperationType,
     OperationResultStatus,
 )
+from haystack import connections
 from django.db import transaction
 import inflect
 from django.db import models
@@ -42,6 +44,7 @@ class Views(Enum):
     LIST = "list"
     DELETE = "delete"
     EXPORT = "export"
+    SEARCH = "search"
 
 
 T = TypeVar("T")
@@ -74,13 +77,20 @@ class ExportInstructionSchema(BaseSchema):
     export_type: ExportType
 
 
+class SearchMetadataSchema(BaseSchema):
+    field: str
+    type: str
+    required: bool = False
+
+
 class ListResponseSchema(BaseSchema, Generic[T]):
     summary: dict
     data: List[T]
 
+
 class SearchResponseItemSchema(BaseSchema, Generic[T]):
     score: float
-    item: T
+    obj: T
 
 
 class QueryFilter:
@@ -125,15 +135,6 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
     model = None
 
     auth = None
-
-    views = [
-        Views.CREATE,
-        Views.UPDATE,
-        Views.GET,
-        Views.LIST,
-        Views.DELETE,
-        Views.EXPORT,
-    ]
 
     m2m_rel_fields: Dict[str, Type[models.Field]] = {}
 
@@ -181,7 +182,47 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         conditional_callable_triggers: Optional[
             List[ConditionalCallableTrigger]
         ] = None,
+        enable_search: bool = False,
     ) -> None:
+
+        if views is None:
+            self.views = [
+                Views.CREATE,
+                Views.UPDATE,
+                Views.GET,
+                Views.LIST,
+                Views.DELETE,
+                Views.EXPORT,
+            ]
+        else:
+            self.views = views
+
+        self.search_query_filters: List[QueryFilter] = []
+
+        if enable_search and Views.SEARCH not in self.views:
+            self.views.append(Views.SEARCH)
+            ui = connections["default"].get_unified_index()
+            index = ui.get_index(model)
+            search_index_fields = {k: v for k, v in index.fields.items() if k != "text"}
+
+            for field_name, field_type in search_index_fields.items():
+                annotation = Optional[str]
+
+                if type(field_type) == haystack_fields.BooleanField:
+                    annotation = Optional[bool]
+                elif type(field_type) == haystack_fields.IntegerField:
+                    annotation = Optional[int]
+                elif type(field_type) == haystack_fields.DateTimeField:
+                    annotation = Optional[str]
+
+                self.search_query_filters.append(
+                    QueryFilter(
+                        param=field_name,
+                        query_by=field_name,
+                        default=None,
+                        annotation=annotation,
+                    )
+                )
 
         self.property_fields_on_model: List[str] = [
             k for k, v in Person.__dict__.items() if type(v) == property
@@ -245,9 +286,6 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         ]
 
         super().__init__(auth=auth, tags=tags)
-
-        if views is not None:
-            self.views = views
 
         if Views.CREATE in self.views and self.create_schema is not None:
             self.add_api_operation(
@@ -383,16 +421,55 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                     operation_id=f"list_{self.model_name_plural.lower()}",
                     by_alias=True,
                 )
+            if Views.SEARCH in self.views and self.list_schema is not None:
+                search_func = self.get_search_func()
+
+                sig = inspect.signature(search_func)
+
+                params = [
+                    *list(sig.parameters.values())[
+                        :-1
+                    ],  # Exclude the variadic keyword parameter
+                    *[
+                        inspect.Parameter(
+                            qf.param,
+                            annotation=qf.annotation,
+                            kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                            default=qf.default,
+                        )
+                        for qf in self.search_query_filters or []
+                    ],
+                    *list(sig.parameters.values())[
+                        -1:
+                    ],  # Add the variadic keyword parameter at the end
+                ]
+
+                search_func.__signature__ = sig.replace(parameters=params)
 
                 self.add_api_operation(
                     path="search",
                     methods=["GET"],
                     auth=self.list_auth or self.auth or NOT_SET,
-                    view_func=self.get_search_func(),
-                    response=ListResponseSchema[self.list_schema],
+                    view_func=search_func,
+                    response=ListResponseSchema[
+                        SearchResponseItemSchema[self.list_schema]
+                    ],
                     summary=f"Search {self.model_name_plural}",
                     description=f"Search all {self.model_name_plural.lower()} instances.",
                     operation_id=f"search_{self.model_name_plural.lower()}",
+                    by_alias=True,
+                )
+
+                search_metadata_func = self.get_search_metadata()
+                self.add_api_operation(
+                    path="search_metadata",
+                    methods=["GET"],
+                    auth=self.list_auth or self.auth or NOT_SET,
+                    view_func=search_metadata_func,
+                    response=List[SearchMetadataSchema],
+                    summary=f"Search metadata for {self.model_name_plural}",
+                    description=f"Get search metadata (available search options) for {self.model_name_plural.lower()}.",
+                    operation_id=f"search_metadata_{self.model_name_plural.lower()}",
                     by_alias=True,
                 )
 
@@ -552,21 +629,31 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         return manager.all().defer(*self._deferred_fields.keys())
 
     def transform_pd_to_response(self, pd: PaginatedData) -> ListResponseSchema:
-        # itemss = list(pd.paginated_qs.all() if type(pd.paginated_qs) == models.QuerySet else pd.paginated_qs)
-        
         if type(pd.paginated_qs) == models.QuerySet:
-            items_s = [
-                self.list_schema.from_orm(x) for x in pd.paginated_qs.all()
-            ]
+            items_s = [self.list_schema.from_orm(x) for x in pd.paginated_qs.all()]
+
+            return ListResponseSchema[self.list_schema](
+                summary={
+                    "page": pd.current_page,
+                    "limit": pd.page_size,
+                    "total": pd.total_items,
+                    "total_pages": pd.num_pages,
+                },
+                data=items_s,
+            )
         else:
             # It is a search result
-            items_s: List[SearchResponseItemSchema] = list()
+            items_s: List[SearchResponseItemSchema[self.list_schema]] = list()
             for x in pd.paginated_qs:
                 if type(x) == SearchResult:
-                    d = SearchResponseItemSchema()
-                    d.item = self.list_schema.from_orm(self.model.objects.get(id=x.pk))
-                    d.score = x.score
-                    items_s.append(d)
+                    items_s.append(
+                        SearchResponseItemSchema(
+                            obj=self.list_schema.from_orm(
+                                self.model.objects.get(id=x.pk)
+                            ),
+                            score=x.score,
+                        )
+                    )
 
             return ListResponseSchema[SearchResponseItemSchema](
                 summary={
@@ -577,21 +664,6 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 },
                 data=items_s,
             )
-
-        # items_s = [
-        #     self.list_schema.from_orm((x.object if type(x) == SearchResult else x)) for x in 
-        #     (pd.paginated_qs.all() if type(pd.paginated_qs) == models.QuerySet else pd.paginated_qs)
-        # ]
-
-        return ListResponseSchema[self.list_schema](
-            summary={
-                "page": pd.current_page,
-                "limit": pd.page_size,
-                "total": pd.total_items,
-                "total_pages": pd.num_pages,
-            },
-            data=items_s,
-        )
 
     def get_list_func(self):
         # @decorate_view(transaction.non_atomic_requests(using="default"))
@@ -707,17 +779,56 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         list_func.__name__ = f"list_{self.model_name_plural.lower()}"
 
         return list_func
-    
-    def get_search_func(self):
-        sqs = SearchQuerySet().models(self.model)
 
-        def search_func(request, query: str) -> ListResponseSchema[self.list_schema]:
-            results = paginate_queryset(sqs.auto_query(query), 1, 100)
+    def get_search_func(self):
+        def search_func(
+            request,
+            query: str,
+            page: int = 0,
+            limit: int = 0,
+            **extra_params,
+        ) -> ListResponseSchema[self.list_schema]:
+            sqs = SearchQuerySet().models(self.model)
+
+            if self.list_filters:
+                for qf in self.search_query_filters:
+                    if qf.param in extra_params and extra_params[qf.param] is not None:
+                        sqs = qf.apply(sqs, extra_params[qf.param])
+
+            results = paginate_queryset(
+                sqs.auto_query(query), page or 1, limit or STANDARD_PAGE_SIZE
+            )
             return self.transform_pd_to_response(results)
-        
+
         search_func.__name__ = f"search_{self.model_name_plural.lower()}"
 
         return search_func
+
+    def get_search_metadata(self):
+        def search_metadata_func(request):
+            field_metadata_list: List[SearchMetadataSchema] = list()
+
+            for qf in self.search_query_filters:
+                required = True
+
+                field_type_name = qf.annotation.__name__
+
+                if field_type_name == "Optional":
+                    required = False
+                    field_type_name = qf.annotation.__args__[0].__name__
+
+                field_metadata_list.append(
+                    SearchMetadataSchema(
+                        field=qf.param, type=field_type_name, required=required
+                    )
+                )
+
+            return field_metadata_list
+
+        search_metadata_func.__name__ = (
+            f"search_metadata_{self.model_name_plural.lower()}"
+        )
+        return search_metadata_func
 
     def get_put_func(self):
         def update_func(
