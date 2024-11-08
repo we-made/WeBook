@@ -43,7 +43,6 @@
         </div>
     </div>
 
-
     <table :class="tableClasses ? tableClasses : 'table  align-middle mt-3 text-center'">
         <thead ref="thead">
             <tr>
@@ -80,6 +79,13 @@
                             <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
                                 v-model="row[columnKey]" :disabled="'is_disabled' in row && row.is_disabled">
                         </div>
+                        <div class="form-group" v-if="options.componentName == 'toggle'">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" role="switch" class="form-check-input" 
+                                    @click.native="emitCheckboxClickedEvent(row, columnKey)"
+                                    v-model="row[columnKey]" :disabled="'is_disabled' in row && row.is_disabled" />
+                            </div>
+                        </div>
                     </span>
                     <span v-else>
                         <span v-if="!options.isHtml">[[ options.formatter ? options.formatter(row, row[columnKey]) : format(options.type, row[columnKey]) ]]</span>
@@ -88,7 +94,7 @@
                 </td>
 
                 <td v-if="actions && Object.keys(actions).length" style="min-width: 15rem">
-                    <span v-if="Object.keys(actions).length > 2">
+                    <span v-if="Object.keys(actions).length > 2 || forceDropdownActionButton">
                         <div class="dropdown" id="actionDropdown">
                             <button class="btn wb-btn-main-outline shadow-0 border border-dark wb-sm" type="button"
                                 id="actionsDropdownMenuButton" data-mdb-toggle="dropdown" aria-expanded="false">
@@ -324,7 +330,8 @@
             defaultSortedBy = null,
             defaultSortDirection = "asc",
             isPaginated = false,
-            transformerHook = null) {
+            transformerHook = null,
+            useV2Search = false) {
 
             this.endpoint = endpoint;
             this.columns = columns;
@@ -333,6 +340,8 @@
             this.isPaginated = isPaginated;
             this.defaultSortedBy = defaultSortedBy;
             this.defaultSortDirection = defaultSortDirection;
+
+            this.useV2Search = useV2Search;
 
             this.pagesInTotal = 0;
             this.resultsInTotal = 0;
@@ -377,13 +386,10 @@
             this.lastSortBy = sortBy;
             this.lastSortDirection = sortDirection;
 
-            console.log("get", page, pageSize, searchTerm, sortBy, sortDirection);
-
             let extraQueryParams = {};
             if (this.isPaginated) {
                 if (searchTerm) {
                     extraQueryParams["search"] = searchTerm;
-                    extraQueryParams["fields_to_search"] = Object.keys(this.columns).filter(x => "isSearchable" in this.columns[x] && this.columns[x].isSearchable).join(",");
                 }
                 if (sortBy) {
                     extraQueryParams["sort_by"] = sortBy;
@@ -396,6 +402,14 @@
             else if (this.endpoint.endsWith("&") == false)
                 this.endpoint += "&"
             let url = this.endpoint + "page=" + page + "&limit=" + pageSize;
+
+            if (this.useV2Search && searchTerm) { // switch endpoint over to v2, backed by elasticsearch
+                url = url.replace("/list", "/search"); // todo: this is naive
+                if (extraQueryParams) {
+                    extraQueryParams["query"] = searchTerm;
+                    delete extraQueryParams["search"];
+                }
+            }
 
             if (extraQueryParams)
                 url += "&" + new URLSearchParams(extraQueryParams).toString();
@@ -410,6 +424,11 @@
                     this.pagesInTotal = data.summary.total_pages;
                     this.currentPage = data.summary.page;
                     this.itemsPerPage = data.summary.limit;
+
+                    if (this.useV2Search && searchTerm) {
+                        return data.data.map(x => x.obj);
+                        // console.log("using v2 search", data);
+                    }
 
                     console.log("Data fetched", data);
                     console.log("Data fetched", this.resultsInTotal, this.pagesInTotal, this.currentPage, this.itemsPerPage);
@@ -464,7 +483,8 @@
             tableClasses: String,
             columnNames: Object,
             rerenderToggle: Boolean,
-            compactNav: Boolean
+            compactNav: Boolean,
+            forceDropdownActionButton: Boolean
         },
         data() {
             return {
@@ -505,8 +525,10 @@
                 let items = this.data;
                 console.log("computed.visibleItems", items);
 
-                if (this.isApiDataSource)
+                if (this.isApiDataSource) {
                     return items || []; // Do not filter on API data sources. It's handled by backend.
+                
+                }
 
                 if (this.canSearch && this.searchTerm) {
                     let columnsToSearch = []
@@ -816,7 +838,7 @@
 
                     return {
                         columns: this.dataSource.columns,
-                        data: data.data,
+                        data: data.data || data || [],
                         actions: this.dataSource.actions
                     }
                 }    
