@@ -34,11 +34,18 @@ from webook.users.utils.password_reset import (
 
 
 class UserGetSchema(BaseSchema):
+    slug: str
     email: str
     timezone: str
     is_user_admin: bool
     # profile_picture: str
+    role: Optional[str] = None
     person: PersonGetSchema
+    is_staff: bool
+    is_active: bool
+    date_joined: datetime
+    last_login: Optional[datetime]
+    is_superuser: bool
 
 
 class RegisterUserSchema(BaseSchema):
