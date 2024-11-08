@@ -77,7 +77,15 @@
                                 <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
                                     v-model="row[columnKey]" :disabled="'is_disabled' in row && row.is_disabled" />
                             </label>
-
+                        </div>
+                        [[options]]
+                        <div class="form-group" v-if="options.componentName == 'toggle'">
+                            aaaa
+                            <label class="switch">
+                                <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
+                                    v-model="row[columnKey]" :disabled="'is_disabled' in row && row.is_disabled" />
+                                <span class="slider round"></span>
+                            </label>
                         </div>
                     </span>
                     <span v-else>
@@ -331,7 +339,8 @@
             defaultSortedBy = null,
             defaultSortDirection = "asc",
             isPaginated = false,
-            transformerHook = null) {
+            transformerHook = null,
+            useV2Search = false) {
 
             this.endpoint = endpoint;
             this.columns = columns;
@@ -351,6 +360,8 @@
             this.lastSearchTerm = null;
             this.lastSortBy = null;
             this.lastSortDirection = null;
+
+            this.useV2Search = useV2Search;
         }
 
         /**
@@ -404,8 +415,12 @@
                 this.endpoint += "&"
             let url = this.endpoint + "page=" + page + "&limit=" + pageSize;
 
+            if (this.useV2Search) // switch endpoint over to v2, backed by elasticsearch
+                this.endpoint = this.endpoint.replace("/list", "/search"); // todo: this is naive
+
             if (extraQueryParams)
                 url += "&" + new URLSearchParams(extraQueryParams).toString();
+
 
             return await fetch(url)
                 .then(response => response.json())
@@ -418,8 +433,9 @@
                     this.currentPage = data.summary.page;
                     this.itemsPerPage = data.summary.limit;
 
-                    console.log("Data fetched", data);
-                    console.log("Data fetched", this.resultsInTotal, this.pagesInTotal, this.currentPage, this.itemsPerPage);
+                    if (useV2Search) {
+                        data = data.map(x => x.obj); // api sorts by score, top hits are the most relevant
+                    }
 
                     return data;
                 })
@@ -818,7 +834,6 @@
                         this.searchTerm,
                         this.sortedBy,
                         this.sortDirection);
-                    console.log("data data data", data)
                     this.isApiDataSource = true;
 
                     return {
