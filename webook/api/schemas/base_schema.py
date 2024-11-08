@@ -1,7 +1,7 @@
 from typing import Optional
 from ninja import Schema
 from datetime import datetime
-from utils.camelize import camelize
+from webook.utils.camelize import camelize
 
 
 class BaseSchema(Schema):
