@@ -14,6 +14,14 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: [ "celery", "-A", "app.celery", "worker", "--loglevel=info" ]
   onlinebooking:
     build:
       context: onlinebooking_app/
