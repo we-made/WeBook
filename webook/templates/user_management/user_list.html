@@ -1,0 +1,334 @@
+{% extends "common/meta_base.html" %}
+{% load static i18n %}
+
+{% block content %}
+
+<div id="users-app">
+
+    <table-component 
+        :data-source="dataSource"
+        :can-search="true"
+        @checkbox-clicked="(row, columnKey) => checkboxClicked(row, columnKey)"
+        @edit="(user) => openShowDialog(user)"
+        ref="schoolsTable">
+    </table-component>
+</div>
+{% include "arrangement/vue/table_component.html" %}
+
+
+<script type="module">
+    import { Dialog, DialogManager, DialogSimpleRenderer, DialogFormInterceptorPlugin } from  "{% static 'modules/planner/dialog_manager/dialogManager.js' %}";
+    import UserCard from "{% static 'vue-components/user_card.js' %}";
+    import UsersTable from "{% static 'vue-components/users_table.js' %}";
+
+    const app = Vue.createApp({
+        components: {
+            TableComponent,
+            UserCard,
+        },
+        data() {
+            return {
+
+            }
+        },
+        computed: {
+            dataSource: function () {
+                let url = "/api/users/list?";
+
+                let columnsDefinition = {
+                    "name": {
+                        friendlyName: "Navn",
+                        field: "username",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true,
+                        formatter: (obj, value) => {
+                            return obj.person.fullName;
+                        }
+                    },
+                    "email": {
+                        friendlyName: "E-Post",
+                        field: "email",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: true,
+                    },
+                    "role": {
+                        friendlyName: "Rolle",
+                        field: "role",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                    formatter: (obj, value) => {
+                            if (obj.isSuperuser) {
+                                return "<span class='badge bg-danger'>Superbruker</span>";
+                            }
+
+                            switch (obj.role) {
+                                case "planners":
+                                    return "<span class='badge bg-primary'>Planlegger</span>"; 
+                                    break;
+                                case "readonly_level_2":
+                                    return "<span class='badge bg-secondary'>Lesetilgang - Nivå 2</span>";
+                                    break;
+                                case "readonly":
+                                    return "<span class='badge bg-secondary'>Lesetilgang</span>";
+                                    break;
+                                case null:
+                                    return "<span class='badge bg-secondary'>Ingen rolle</span>";
+                                    break;
+                                default:
+                                    return obj.role;    
+                            }
+
+                            return obj.role;
+                        }
+                    },
+                    "lastLogIn": {
+                        friendlyName: "Sist innlogget",
+                        field: "lastLogIn",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                        formatter: (obj, value) => {
+                            return new Date(obj.lastLogin).toLocaleString("nb-NO", { 
+                                "year": "numeric",
+                                "month": "2-digit",
+                                "day": "2-digit",
+                                "hour": "2-digit", 
+                                "minute": "2-digit", 
+                            });
+                        }
+                    },
+                    "signedUp": {
+                        friendlyName: "Registrert",
+                        field: "signedUp",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                        formatter: (obj, value) => {
+                            return new Date(obj.dateJoined).toLocaleString("nb-NO", { 
+                                "year": "numeric",
+                                "month": "2-digit",
+                                "day": "2-digit",
+                                "hour": "2-digit", 
+                                "minute": "2-digit", 
+                            });
+                        }
+                    },
+                    "isActive": {
+                        friendlyName: "Aktiv",
+                        field: "isActive",
+                        sortable: true,
+                        isHidden: false,
+                        isHtml: true,
+                        isSearchable: false,
+                        isComponent: true,
+                        componentName: "toggle"
+                    },
+                };
+
+                return new APITableDataSource(
+                    url,
+                    columnsDefinition,
+                    {
+                        "edit": { type: 'main', content: "<i class='fas fa-edit'></i>", isContentHtml: true }
+                    },
+                    'name',
+                    'asc',
+                    true,
+                    (data) => {
+                        return data;
+                    },
+                    true // useV2Search (elastic search)
+                );
+            }
+        },
+        methods: {
+            openShowDialog: function (user) {
+                console.log("openShowDialog", user);
+
+                document.dispatchEvent(new CustomEvent(
+                    'genericManager.user_admin_detail.trigger',
+                    { detail: { url: '/users/administration/' + user.slug + "/dialogs/user_admin_detail", title: user.person.fullName } }  
+                ));
+            },
+            deactivateUserDialog(user) {
+                console.log("deactivateUserDialog.user", user)
+                Swal.fire({
+                    title: "Er du sikker på at du ønsker å deaktivere brukerkonto '" + user.person.fullName + "'?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: "Avbryt",
+                    confirmButtonText: 'Deaktiver brukerkonto'
+                }).then((result) => {
+
+                    if (result.isDismissed) {
+                        this.$refs.schoolsTable.refresh();
+                        return;
+                    }
+
+                    let formData = new FormData();
+                    formData.append("user_slug", user.slug);
+
+                    fetch("/users/administration/toggle_active", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': "{{ csrf_token }}"
+                        },
+                        body: formData
+                    }).then(_ => {
+                        toastr.success("Brukerkontoen til " + user.person.fullName + " har blitt deaktivert!");
+                    });
+                })
+            },
+            checkboxClicked: function (row, columnKey) {
+                console.log("checkboxClicked", row, columnKey);
+
+                console.log("columnKey", row.columnKey);
+
+                if (row.columnKey === "isActive") {
+                    console.log("isActive", row.row.isActive);
+                    
+                    if (row.row.isActive) {
+                        this.deactivateUserDialog(row.row);
+                    } else {
+                        this.activateUserDialog(row.row);
+                    }
+                }
+
+            },
+            activateUserDialog(user) {
+                Swal.fire({
+                    title: "Aktiver kontoen til " + user.person.fullName + "?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: "Avbryt",
+                    confirmButtonText: 'Aktiver bruker'
+                }).then((result) => {
+                    if (result.isDismissed) {
+                        this.$refs.schoolsTable.refresh();
+                        return;
+                    }
+
+                    let formData = new FormData();
+                    formData.append("user_slug", user.slug);
+
+                    fetch("/users/administration/toggle_active", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': "{{ csrf_token }}"
+                        },
+                        body: formData
+                    }).then(_ => {
+                        toastr.success("Brukerkontoen til " + user.person.fullName + " har blitt aktivert!");
+                    });
+                });
+            },
+        },
+        delimiters: ['[[', ']]'],
+    });
+
+    app.mount('#users-app');
+
+
+    class CustomDialogFormInterceptorPlugin extends DialogFormInterceptorPlugin {
+        constructor (csrf_token) {
+            super(csrf_token);
+        }
+
+        onResponseOk() {
+            toastr.success("Forandringene har blitt lagret!");
+            window.vueRefresh();
+        }
+    }
+
+    $(document).ready(function () {
+        const e = new DialogManager({
+            managerName: 'genericManager',
+            allowMultipleOpenAtOnce: false,
+            dialogs: [
+                [
+                    "user_sso_detail",
+                    new Dialog({
+                        dialogElementId: 'user_sso_detail',
+                        triggerElementId: undefined,
+                        triggerByEvent: true,
+                        dialogOptions: {
+                            dialogClass: 'no-titlebar',
+                            modal: true
+                        },
+                        plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                        htmlFabricator: async (context, dialog) => {
+                            if (!context.lastTriggererDetails.url) {
+                                throw Error("URL must be specified to call detail dialog view");
+                            }
+
+                            dialog.formUrl = context.lastTriggererDetails.url;
+                            if (context.lastTriggererDetails.title) {
+                                dialog.title = context.lastTriggererDetails.title;
+                            }
+
+                            return e.loadDialogHtml({
+                                url: context.lastTriggererDetails.url,
+                                dialogId: "detail",
+                                managerName: "genericManager",
+                            });
+                        }
+                    }),
+                ],
+                [
+                "user_admin_detail",
+                new Dialog({
+                    dialogElementId: 'user_admin_detail',
+                    triggerElementId: undefined,
+                    triggerByEvent: true,
+                    renderer: new DialogSimpleRenderer(),
+                    dialogOptions: {
+                        classes: { "ui-dialog": "wb-dialog" },
+                        modal: true,
+                        width: '50%'
+                    },
+                    plugins: [ new CustomDialogFormInterceptorPlugin("{{csrf_token}}") ],
+                    htmlFabricator: async (context, dialog) => {
+                        if (!context.lastTriggererDetails.url) {
+                            throw Error("URL must be specified to call detail dialog view");
+                        }
+
+                        dialog.formUrl = context.lastTriggererDetails.url;
+                        if (context.lastTriggererDetails.title) {
+                            dialog.title = context.lastTriggererDetails.title;
+                        }
+
+                        return e.loadDialogHtml({
+                            url: context.lastTriggererDetails.url,
+                            dialogId: "user_admin_detail",
+                            managerName: "genericManager",
+                        });
+                    },
+                    onRenderedCallback: (dialogManager, context) => {
+                    },
+                    onUpdatedCallback: (dialogManager, context) => {
+                    },
+                    onSubmit: async (context, details) => {
+                    }
+                }),
+            ],
+            ]
+        });
+
+        e._makeAware();
+    });
+</script>
+
+{% endblock %}
+

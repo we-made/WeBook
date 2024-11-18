@@ -19,7 +19,33 @@ def run_pii_sanitization():
     stdout, stderr = [x.decode("utf-8") for x in process.communicate()]
 
 
+def hourly_index_update():
+    now = datetime.now()
+    print(f"[{now}] Updating indexes in Elastic")
+
+    process = subprocess.Popen(
+        ["python", "manage.py", "update_index", "--remove", "--age", "1"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, stderr = [x.decode("utf-8") for x in process.communicate()]
+
+
+def nightly_index_rebuild():
+    now = datetime.now()
+    print(f"[{now}] Rebuilding indexes in Elastic")
+
+    process = subprocess.Popen(
+        ["python", "manage.py", "rebuild_index", "--noinput"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, stderr = [x.decode("utf-8") for x in process.communicate()]
+
+
 schedule.every().day.at("02:00").do(run_pii_sanitization)
+schedule.every().hour.do(hourly_index_update)
+schedule.every().day.at("03:00").do(nightly_index_rebuild)
 
 
 while True:

@@ -1,5 +1,6 @@
 from typing import List, Optional, Union
 from ninja import Router, Schema
+from pydantic import Extra
 
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.api.paginate import paginate_queryset
@@ -19,21 +20,21 @@ class PersonCreateSchema(BaseSchema):
     birth_date: Optional[date]
 
 
-class PersonGetSchema(ModelBaseSchema):
+class PersonGetSchema(ModelBaseSchema, extra="allow"):
     id: Optional[int] = None
-    social_provider_id: Optional[str]
-    social_provider_email: Optional[str]
-    personal_email: str
-    first_name: str
-    middle_name: str
-    last_name: str
-    birth_date: Optional[date]
-    modified: datetime
-    created: datetime
+    social_provider_id: Optional[str] = None
+    social_provider_email: Optional[str] = None
+    personal_email: Optional[str] = None
+    first_name: Optional[str] = None
+    middle_name: Optional[str] = ""
+    last_name: Optional[str] = ""
+    birth_date: Optional[date] = None
+    modified: Optional[datetime] = None
+    created: Optional[datetime] = None
 
-    is_sso_capable: bool
-    is_synced: bool
-    full_name: str
+    is_sso_capable: bool = False
+    is_synced: bool = False
+    full_name: str = ""
 
 
 class PersonFilterSchema(Schema):
@@ -67,4 +68,5 @@ person_router = PersonRouter(
     create_schema=PersonCreateSchema,
     get_schema=PersonGetSchema,
     update_schema=PersonCreateSchema,
+    enable_search=True,
 )

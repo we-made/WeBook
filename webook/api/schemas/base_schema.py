@@ -14,4 +14,4 @@ class ModelBaseSchema(BaseSchema):
     id: Optional[int]
     created: datetime
     modified: datetime
-    is_archived: bool
+    is_archived: bool = False

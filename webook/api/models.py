@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.contrib.auth.models import Group
+from webook.users.models import User
 
 
 class RevokedToken(models.Model):
@@ -11,10 +13,15 @@ class RevokedToken(models.Model):
         return self.token
 
 
-class APIEndpoint(models.Model):
+class APIScope(models.Model):
     disabled = models.BooleanField(default=False)
     operation_id = models.CharField(max_length=255, unique=True)
     path = models.CharField(max_length=255)
+
+    groups_allowed = models.ManyToManyField(Group, related_name="endpoint_scopes")
+    users_directly_allowed = models.ManyToManyField(
+        User, related_name="endpoint_scopes"
+    )
 
     def __str__(self):
         return self.operation_id
@@ -24,10 +31,20 @@ class ServiceAccount(AbstractUser):
     valid_until = models.DateTimeField(null=True, blank=True)
     last_seen = models.DateTimeField(null=True, blank=True)
     allowed_endpoints = models.ManyToManyField(
-        APIEndpoint, related_name="service_accounts"
+        APIScope, related_name="service_accounts"
     )
 
-    groups = None
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name="groups",
+        blank=True,
+        help_text=(
+            "The groups this service account belongs to. A service account will get all API scopes "
+            "granted to each of their groups."
+        ),
+        related_name="service_accounts_set",
+        related_query_name="service_account",
+    )
     user_permissions = None
 
     class Meta:
