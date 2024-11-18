@@ -1,6 +1,9 @@
 services:
   webook:
-    image: "europe-west1-docker.pkg.dev/$PROJECT_ID/wemadefree/webook-nm-development"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: "webook_app_staging:latest"
     ports:
       - "8080:8080"
     volumes:
@@ -15,9 +18,7 @@ services:
       - .:/app
       - /app/node_modules
   celery:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: "webook_app_staging:latest"
     volumes:
       - .:/app
       - /app/node_modules
