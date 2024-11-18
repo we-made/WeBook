@@ -186,6 +186,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webook.middleware.timezone_middleware.TimezoneMiddleware",
     "crum.CurrentRequestUserMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 # STATIC
