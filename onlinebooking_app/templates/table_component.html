@@ -80,7 +80,6 @@
                         </div>
                         [[options]]
                         <div class="form-group" v-if="options.componentName == 'toggle'">
-                            aaaa
                             <label class="switch">
                                 <input type="checkbox" @click.native="emitCheckboxClickedEvent(row, columnKey)"
                                     v-model="row[columnKey]" :disabled="'is_disabled' in row && row.is_disabled" />
