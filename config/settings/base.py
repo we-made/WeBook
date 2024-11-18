@@ -110,6 +110,8 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.microsoft",
     "colorfield",
+    "django_celery_results",
+    "django_celery_beat",
     "haystack",
 ]
 
@@ -269,7 +271,7 @@ SECURE_BROWSER_XSS_FILTER = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#x-frame-options
 X_FRAME_OPTIONS = "DENY"
 
-CSRT_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+CSRT_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=["http://localhost"])
 
 # EMAIL
 # ------------------------------------------------------------------------------
@@ -284,6 +286,8 @@ DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="webook@webook.no"
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
 USE_REDIS = env.bool("USE_REDIS", default=False)
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
 
 # CACHING
 if USE_REDIS:
@@ -306,6 +310,11 @@ else:
             "LOCATION": "",
         }
     }
+
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="django-db")
+RESULT_BACKEND = env("RESULT_BACKEND", default="django-db")
+# CELERY_CACHE_BACKEND = env("CELERY_CACHE_BACKEND", default="default")
+
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL.
@@ -379,7 +388,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = env.str("ACCOUNT_EMAIL_VERIFICATION", "mandatory")
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_ADAPTER = "webook.users.adapters.AccountAdapter"
 ACCOUNT_FORMS = {"signup": "webook.users.forms.UserCreationForm"}
@@ -424,6 +433,7 @@ USER_DEFAULT_TIMEZONE = env(
     "USER_DEFAULT_TIMEZONE",
     default=TIME_ZONE,
 )
+HAYSTACK_SIGNAL_PROCESSOR = "haystack.signals.RealtimeSignalProcessor"
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
@@ -445,3 +455,6 @@ HAYSTACK_CONNECTIONS = {
         "INDEX_NAME": "haystack",
     }
 }
+HAYSTACK_SIGNAL_PROCESSOR = (
+    "webook.celery_haystack.queued_signal_processor.QueuedSignalProcessor"
+)

@@ -111,6 +111,10 @@ class User(AbstractUser):
         return self._get_slug
 
     @property
+    def role(self):
+        return self.groups.first().name
+
+    @property
     def _get_slug(self):
         """
         Generate slug for this user. We want to, as far as it is possible, generate the slug based on the person associated with this user.
