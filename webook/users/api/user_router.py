@@ -11,7 +11,7 @@ from webook.api.models import APIScope
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.api.crud_router import CrudRouter, Views
 from django.db.models import QuerySet
-
+from django.core.exceptions import PermissionDenied
 from webook.api.scopes_router import APIScopeGetSchema
 from webook.arrangement.api.routers.person_router import PersonGetSchema
 from webook.arrangement.models import Person
@@ -148,6 +148,10 @@ def register_user(request, data: RegisterUserSchema):
 
 @router.post("/email-login", auth=None)
 def email_login(request, data: EmailLoginSchema, request_refresh_token: bool = False):
+    raise HTTPException(
+        status_code=403, detail="Registration is not allowed on this instance."
+    )
+
     _throw_if_email_login_not_allowed()
 
     login_audit = LoginAudit(
@@ -199,6 +203,8 @@ def refresh_token_refresh(request, data: RefreshTokenRefreshSchema):
     """Refresh a refresh token.
     This will place a revocation on all tokens issued before the current time.
     """
+    raise HTTPException(status_code=403, detail="Currently disabled.")
+
     t: TokenData = decode_jwt_token(data.refresh_token)
 
     if t.token_type != "refresh":
@@ -279,6 +285,8 @@ def revoke_all_user_tokens(request):
 
 @router.post("/me/revoke-all-tokens")
 def revoke_all_tokens(request):
+    raise HTTPException(status_code=403, detail="Currently disabled.")
+
     user = request.user
 
     revocation = UserTokenRevocation(
@@ -314,6 +322,8 @@ def logout(request):
 
 @router.post("/trigger-forgot-password", throttle=[AnonRateThrottle("10/h")])
 def forgot_password(request, email: EmailStr):
+    raise HTTPException(status_code=403, detail="Currently disabled.")
+
     _throw_if_email_login_not_allowed()
 
     user = User.objects.filter(email=email).first()
@@ -333,6 +343,8 @@ def forgot_password(request, email: EmailStr):
 
 @router.post("/change-password", throttle=[AnonRateThrottle("10/h")])
 def change_password(request, data: ChangePasswordSchema):
+    raise HTTPException(status_code=403, detail="Currently disabled.")
+
     user = User.objects.filter(email=data.email).first()
     if user is None:
         return {"success": False}
