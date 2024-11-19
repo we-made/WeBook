@@ -158,6 +158,14 @@
               <i class="fas fa-building fa-fw me-3"></i><span>Lokasjoner</span></a
             >
           </li>
+
+          <li class="sidenav-item {% if url_name == 'room_preset_list' %}active{% endif %}">
+            <a  href="{% url 'arrangement:room_preset_list' %}" 
+            class="sidenav-link">
+              <i class="fas fa-building fa-fw me-3"></i><span>Rom Preset</span></a
+            >
+          </li>
+
           <li class="sidenav-item {% if url_name == 'person_list' %}active{% endif %}">
             <a  href="{% url 'arrangement:person_list' %}" 
                 class="sidenav-link">
