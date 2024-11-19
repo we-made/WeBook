@@ -448,13 +448,12 @@ export class PlannerCalendar extends FullCalendarBased {
         if (date.getDay() === 0)
             weekNumber -= 1;
 
-        const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week') or contains(@class, 'fc-timeline-slot-cushion')][contains(.,'${weekNumber}')]`, document).iterateNext();
-
         setTimeout(function(){
+            const row = document.evaluate(`//a[contains(@class, 'fc-daygrid-week') or contains(@class, 'fc-timeline-slot-cushion')][contains(.,'${weekNumber}')]`, document).iterateNext();
             row.scrollIntoView();
             // scroll up by 100px to account for the header
-            window.scrollBy(0, -100);
-        }, 500);
+            // window.scrollBy(0, -100);
+        }, 800);
     }
 
     /**
@@ -517,6 +516,9 @@ export class PlannerCalendar extends FullCalendarBased {
                         if (this.lastGoneToDate !== undefined) {
                             this.scrollToWeekOfDate(this.lastGoneToDate);
                             delete this.lastGoneToDate;
+                        }
+                        else {
+                            this.scrollToWeekOfDate(this._fcCalendar.getDate());
                         }
                     }
 
