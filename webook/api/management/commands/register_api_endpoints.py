@@ -1,5 +1,5 @@
 import os
-from typing import Dict
+from typing import Dict, Set
 import django
 from django.core.management.base import BaseCommand
 from django.db.migrations.recorder import MigrationRecorder
@@ -7,6 +7,13 @@ from django.db.migrations.recorder import MigrationRecorder
 
 class Command(BaseCommand):
     help = "Register API endpoints in the database"
+
+    ignored_endpoints: Set[str] = {
+        "api-root",
+        "openapi-json",
+        "openapi-view",
+        "login_service_account",
+    }
 
     def handle(self, *args, **kwargs):
         try:
@@ -20,12 +27,12 @@ class Command(BaseCommand):
 
             print("Registering API Endpoints")
             from webook.api.api import api
-            from webook.api.models import APIEndpoint
+            from webook.api.models import APIScope
 
             original_value = os.getenv("NINJA_SKIP_REGISTRY", "0")
             os.environ["NINJA_SKIP_REGISTRY"] = "1"
 
-            registered_endpoints = APIEndpoint.objects.filter(disabled=False)
+            registered_endpoints = APIScope.objects.filter(disabled=False)
             registered_endpoints_url_map = {
                 x.operation_id: x.path for x in registered_endpoints
             }
@@ -53,15 +60,15 @@ class Command(BaseCommand):
                 return
 
             for operation_id in to_delete:
-                ep = APIEndpoint.objects.get(operation_id=operation_id)
+                ep = APIScope.objects.get(operation_id=operation_id)
                 ep.disabled = True
                 ep.save()
                 print(f"Disabled {operation_id}")
 
             for operation_id in new:
                 try:
-                    existing = APIEndpoint.objects.get(operation_id=operation_id)
-                except APIEndpoint.DoesNotExist:
+                    existing = APIScope.objects.get(operation_id=operation_id)
+                except APIScope.DoesNotExist:
                     existing = None
 
                 if existing:
@@ -70,7 +77,7 @@ class Command(BaseCommand):
                     print(f"Enabled {operation_id}")
                     continue
 
-                api_endpoint = APIEndpoint(
+                api_endpoint = APIScope(
                     operation_id=operation_id, path=present_urls_lookup[operation_id]
                 )
                 api_endpoint.save()
@@ -81,7 +88,7 @@ class Command(BaseCommand):
                     present_urls_lookup[operation_id]
                     != registered_endpoints_url_map[operation_id]
                 ):
-                    ep = APIEndpoint.objects.get(operation_id=operation_id)
+                    ep = APIScope.objects.get(operation_id=operation_id)
                     ep.path = present_urls_lookup[operation_id]
                     ep.save()
                     print(f"Updated {operation_id}")
