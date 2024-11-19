@@ -41,7 +41,7 @@ from webook.onlinebooking.api import (
 
 api = NinjaAPI(
     title="WeBook V1 API",
-    docs=Swagger(),
+    docs=Swagger() if settings.DEBUG else None,
     description="WeBook API",
     # JWTBearer() needs to be the first to be attempted
     # If django_auth goes first, CSRF will be checked. This messes up if you're using the onlinebooking
