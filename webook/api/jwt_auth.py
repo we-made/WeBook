@@ -96,6 +96,9 @@ def decode_jwt_token(token: str) -> TokenData:
             raise HttpError(403, "Token has been revoked")
 
         return TokenData(
+            token_type=TokenType(d.get("sub").split(":")[2]),
+            issuee_type=IssueeType(d.get("sub").split(":")[0]),
+            pk=int(d.get("sub").split(":")[1]),
             token_value=token,
             iss=d.get("iss"),
             iat=datetime.fromtimestamp(d.get("iat"), timezone.utc),
@@ -159,7 +162,7 @@ class JWTBearer(HttpBearer):
 
                 service_account.last_seen = datetime.now(timezone.utc)
                 service_account.save()
-                
+
                 entity = service_account
             except ServiceAccount.DoesNotExist:
                 logging.info(
