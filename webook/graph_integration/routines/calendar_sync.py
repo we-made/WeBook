@@ -13,11 +13,15 @@ from msgraph.generated.models.calendar import Calendar
 from webook.graph_integration.routines.mapping.single_event_mapping import (
     map_event_to_graph_event,
 )
-from webook.graph_integration.routines.mapping.repeating_event_mapping import (
-    map_repeating_event_to_graph_event,
+
+# from webook.graph_integration.routines.mapping.repeating_event_mapping import (
+#     map_repeating_event_to_graph_event,
+# )
+from msgraph.generated.users.item.calendars.item.calendar_item_request_builder import (
+    CalendarItemRequestBuilder,
 )
-from msgraph.generated.users.item.calendars.item import CalendarItemRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
+from django.conf import settings
 
 
 class Operation(Enum):
@@ -28,7 +32,21 @@ class Operation(Enum):
 
 
 def create_calendar(person_pk: int) -> GraphCalendar:
-    pass
+    """Create a WeBook calendar for a given user in Graph / Outlook."""
+    client: GraphServiceClient = create_graph_service_client()
+
+    person: Person = Person.objects.get(pk=person_pk)
+
+    result = client.users.by_user_id(person.social_provider_email).calendars.post(
+        Calendar(name=settings.APP_TITLE + " - " + person.full_name)
+    )
+
+    graph_calendar_representation = GraphCalendar(
+        person_id=person_pk, name=result.name, calendar_id=result.id
+    )
+    graph_calendar_representation.save()
+
+    return graph_calendar_representation
 
 
 def _execute_sync_instructions(
