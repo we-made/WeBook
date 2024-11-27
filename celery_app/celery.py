@@ -8,7 +8,11 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks(packages=["webook.celery_haystack"])
 
 app.conf.result_backend = "django-db"
+app.conf.timezone = "Europe/Oslo"
 
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    pass
 
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):
