@@ -196,15 +196,16 @@ class ModelAuditableMixin(models.Model):
 
     def save(self, *args, **kwargs):
         user = get_current_user()
-        person = user.person
+        if user:  # User may be none if test is running
+            person = user.person
 
-        if person is None:
-            raise Exception("User has no person")
+            if person is None:
+                raise Exception("User has no person")
 
-        if self._state.adding:
-            self.created_by = person
-        else:
-            self.updated_by = person
+            if self._state.adding:
+                self.created_by = person
+            else:
+                self.updated_by = person
 
         super().save(*args, **kwargs)
 
@@ -1173,6 +1174,8 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         populate_from="full_name", unique=True, manager_name="all_objects"
     )
 
+    calendar_sync_enabled = models.BooleanField(default=False)
+
     instance_name_attribute_name = "full_name"
     entity_name_singular = _("Person")
     entity_name_plural = _("People")
@@ -1505,6 +1508,9 @@ class Event(
     arrangement_type = models.ForeignKey(
         to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True
     )
+
+    def hash_key(self) -> str:
+        return str(hash((self.title, self.start, self.end)))
 
     @property
     def is_buffer_event(self) -> bool:
