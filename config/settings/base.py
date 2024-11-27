@@ -123,6 +123,7 @@ LOCAL_APPS = [
     "webook.screenshow.apps.ScreenshowConfig",
     "webook.api.apps.ApiConfig",
     "webook.onlinebooking.apps.OnlinebookingConfig",
+    "webook.graph_integration.apps.GraphIntegrationConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -459,3 +460,7 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = (
     "webook.celery_haystack.queued_signal_processor.QueuedSignalProcessor"
 )
+
+AZURE_TENANT_ID = env("AZURE_TENANT_ID", default=None)
+AZURE_CLIENT_ID = env("AZURE_CLIENT_ID", default=None)
+AZURE_CLIENT_SECRET = env("AZURE_CLIENT_SECRET", default=None)
