@@ -1952,6 +1952,10 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin, CalendarEntitySchoolMixi
     )
 
     @property
+    def hash_key(self) -> str:
+        return str(hash((self.title, self.start_date, self.start_time, self.end_time, self.pattern_strategy, self.recurrence_strategy)))
+
+    @property
     def rooms_str_list(self):
         return ", ".join(list(map(lambda room: room.name, self.rooms.all())))
 
