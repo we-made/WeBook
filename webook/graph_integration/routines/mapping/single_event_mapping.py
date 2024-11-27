@@ -1,5 +1,5 @@
 from typing import List
-from msgraph.generated.models.calendar import Event as GraphEvent
+from msgraph.generated.models.event import Event as GraphEvent
 from webook.arrangement.models import (
     Event as WebookEvent,
     PlanManifest as WebookSerieManifest,
@@ -8,7 +8,7 @@ from webook.arrangement.models import (
 )
 from msgraph.generated.models.item_body import ItemBody
 from msgraph.generated.models.location import Location as GraphLocation
-from msgraph.generated.models.recipient import Attendee
+from msgraph.generated.models.attendee import Attendee
 from msgraph.generated.models.email_address import EmailAddress
 from msgraph.generated.models.body_type import BodyType
 from msgraph.generated.models.date_time_time_zone import DateTimeTimeZone
@@ -17,6 +17,7 @@ from msgraph.generated.models.recurrence_range import RecurrenceRange
 from msgraph.generated.models.recurrence_pattern_type import RecurrencePatternType
 from msgraph.generated.models.day_of_week import DayOfWeek
 from msgraph.generated.models.week_index import WeekIndex
+
 
 def map_event_to_graph_event(event: WebookEvent) -> GraphEvent:
     """Map a WeBook event to a Graph API event.
@@ -29,27 +30,23 @@ def map_event_to_graph_event(event: WebookEvent) -> GraphEvent:
     """
     return GraphEvent(
         subject=event.title,
-        body=ItemBody(content=event.description, content_type=BodyType.Html),
-        start=DateTimeTimeZone(
-            date_time=event.start.isoformat(), time_zone=event.start.tzinfo.zone
-        ),
-        end=DateTimeTimeZone(
-            date_time=event.end.isoformat(), time_zone=event.end.tzinfo.zone
-        ),
+        body=ItemBody(content=event.title, content_type=BodyType.Html),
+        start=DateTimeTimeZone(date_time=event.start.isoformat(), time_zone="UTC"),
+        end=DateTimeTimeZone(date_time=event.end.isoformat(), time_zone="UTC"),
         location=GraphLocation(
-            display_name=f"{event.location.name} ({" ,".join([room.name for room in event.rooms.all()])})"
+            display_name=f"{event.arrangement.location.name} ({', '.join([room.name for room in event.rooms.all()])})"
         ),
         # TODO: If we create one event per person, will the people get the event duplicated?
         # This needs to be tested.
-        attendees = [ 
+        attendees=[
             Attendee(
                 email_address=EmailAddress(
-                    address=person.email,
+                    address=person.social_provider_email,
                     name=person.full_name,
                 ),
                 type="required",
             )
             for person in event.people.all()
         ],
-        allow_new_time_proposals = False,
+        allow_new_time_proposals=False,
     )
