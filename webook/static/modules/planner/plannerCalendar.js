@@ -892,7 +892,6 @@ export class PlannerCalendar extends FullCalendarBased {
             }
         }
         else {
-            // initialView = this._fcCalendar.view.type;
             this._fcCalendar.refetchEvents();
         }
 
