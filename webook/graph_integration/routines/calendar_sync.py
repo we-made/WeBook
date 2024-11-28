@@ -14,9 +14,9 @@ from webook.graph_integration.routines.mapping.single_event_mapping import (
     map_event_to_graph_event,
 )
 
-# from webook.graph_integration.routines.mapping.repeating_event_mapping import (
-#     map_repeating_event_to_graph_event,
-# )
+from webook.graph_integration.routines.mapping.repeating_event_mapping import (
+    map_serie_to_graph_event,
+)
 from msgraph.generated.users.item.calendars.item.calendar_item_request_builder import (
     CalendarItemRequestBuilder,
 )
