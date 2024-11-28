@@ -52,7 +52,7 @@ def get_activities_excel_report(
     sub_audiences = main_audience.nested_children.all()
 
     events = Event.objects.filter(
-        arrangement__audience__in=sub_audiences,
+        arrangement__audience__in=[main_audience, *sub_audiences],
         start__gte=query.start_date,
         end__lte=query.end_date,
     ).all()
