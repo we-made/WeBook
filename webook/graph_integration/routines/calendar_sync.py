@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Optional, List, Tuple
-from webook.arrangement.models import Event, Person
+from typing import Optional, List, Tuple, Union
+from webook.arrangement.models import Event, Person, PlanManifest
 from webook.graph_integration.graph_client.client_factory import (
     create_graph_service_client,
 )
@@ -63,9 +63,14 @@ def _execute_sync_instructions(
         if operation == Operation.IGNORE:
             continue
 
-        mapped_graph_event: GraphEvent = map_event_to_graph_event(
-            synced_event.webook_event
-        )
+        mapped_graph_event: GraphEvent = None
+
+        if synced_event.event_type == SyncedEvent.REPEATING:
+            mapped_graph_event = map_serie_to_graph_event(
+                synced_event.webook_serie_manifest
+            )
+        else:
+            mapped_graph_event = map_event_to_graph_event(synced_event.webook_event)
 
         calendar_request_builder: CalendarItemRequestBuilder = (
             graph_service_client.users.by_user_id(
@@ -100,8 +105,11 @@ def _execute_sync_instructions(
 
 
 def _get_events_matching_criteria(
-    future_only: bool, persons: Optional[List[Person]], event_ids: Optional[List[int]]
-) -> List[Event]:
+    future_only: bool,
+    persons: Optional[List[Person]],
+    event_ids: Optional[List[int]],
+    serie_ids: Optional[List[int]],
+) -> List[Union[Event, PlanManifest]]:
     """Get events for synchronization that match the given criteria.
 
     Args:
@@ -111,24 +119,37 @@ def _get_events_matching_criteria(
     """
 
     events = Event.objects.prefetch_related("synced_events").prefetch_related("people")
+    series = PlanManifest.objects.prefetch_related("synced_events").prefetch_related()
 
     if future_only:
         events = events.filter(start__gte=datetime.now())
+        series = series.filter(start__gte=datetime.now())  # TODO: Consider further...
 
     if event_ids:
         events = events.filter(id__in=event_ids)
 
+        if not serie_ids:
+            series = series.none()
+
+    if serie_ids:
+        series = series.filter(id__in=serie_ids)
+
+        if not event_ids:
+            events = events.none()
+
     if persons:
         # Gets any events that have at least one person in the persons list
         events = events.filter(people__in=persons)
+        series = series.filter(people__in=persons)
 
     events = events.all()
+    series = series.all()
 
-    return events
+    return [*events, *series]
 
 
 def _calculate_instructions(
-    events: List[Event], persons: List[Person] = []
+    calendar_items: List[Union[Event, PlanManifest]], persons: List[Person] = []
 ) -> List[Tuple[Person, SyncedEvent, Operation]]:
     """Given a list of events and persons (optional), calculate what operations need to be performed to synchronize the events
     to Outlook.
@@ -140,18 +161,22 @@ def _calculate_instructions(
     """
     instructions: List[Tuple[Person, SyncedEvent, Operation]] = []
 
-    if not events:
+    if not calendar_items:
         raise ValueError("Provided list of events is empty.")
 
-    for event in events:
+    for item in calendar_items:
         synced_events = (
-            event.synced_events.filter(graph_calendar__person__in=persons).all()
+            item.synced_events.filter(graph_calendar__person__in=persons).all()
             if persons
-            else event.synced_events.all()
+            else item.synced_events.all()
         )
 
         for synced_event in synced_events:
-            if synced_event.webook_event.is_archived:
+            if (
+                synced_event.webook_event
+                if synced_event.event_type == synced_event.SINGLE
+                else synced_event.webook_serie_manifest
+            ).is_archived:
                 instructions.append(
                     (synced_event.graph_calendar.person, synced_event, Operation.DELETE)
                 )
@@ -168,11 +193,11 @@ def _calculate_instructions(
         # Otherwise, we should sync the event for all persons associated with the event. It's important that we don't use the "all" persons
         # as this would generate instructions that include all persons in the system, not just the persons associated with the event. That's a bad day.
         for person in (
-            event.people.all()
+            item.people.all()
             if not persons
-            else event.people.filter(pk__in=[person.pk for person in persons]).all()
+            else item.people.filter(pk__in=[person.pk for person in persons]).all()
         ):
-            if not event.synced_events.filter(graph_calendar__person=person).exists():
+            if not item.synced_events.filter(graph_calendar__person=person).exists():
                 try:
                     calendar = GraphCalendar.objects.get(person=person)
                 except GraphCalendar.DoesNotExist:
@@ -182,9 +207,12 @@ def _calculate_instructions(
                     (
                         person,
                         SyncedEvent(
-                            webook_event=event,
+                            webook_event=item if isinstance(item, Event) else None,
+                            webook_serie_manifest=(
+                                item if isinstance(item, PlanManifest) else None
+                            ),
                             graph_calendar=calendar,
-                            event_hash=event.hash_key(),
+                            event_hash=item.hash_key(),
                         ),
                         Operation.CREATE,
                     )
@@ -197,6 +225,7 @@ def synchronize_calendars(
     future_only: bool = True,
     persons: Optional[List[Person]] = None,
     event_ids: Optional[List[int]] = None,
+    serie_ids: Optional[List[int]] = None,
     dry_run: bool = False,
 ):
     if persons:
@@ -210,7 +239,9 @@ def synchronize_calendars(
                 "Not all persons have a social provider ID. Please set a social provider ID for all persons."
             )
 
-    events: List[Event] = _get_events_matching_criteria(future_only, persons, event_ids)
+    calendar_items: List[Union[Event, PlanManifest]] = _get_events_matching_criteria(
+        future_only, persons, event_ids, serie_ids
+    )
 
     persons: List[Person] = (
         persons
@@ -220,7 +251,7 @@ def synchronize_calendars(
     )
 
     instructions: List[Tuple[Person, SyncedEvent, Operation]] = _calculate_instructions(
-        events, persons
+        calendar_items, persons
     )
 
     if dry_run:
