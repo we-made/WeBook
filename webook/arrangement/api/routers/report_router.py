@@ -52,7 +52,7 @@ def get_activities_excel_report(
     sub_audiences = main_audience.nested_children.all()
 
     events = Event.objects.filter(
-        arrangement__audience__in=[main_audience, *sub_audiences],
+        audience__in=[main_audience, *sub_audiences],
         start__gte=query.start_date,
         end__lte=query.end_date,
     ).all()
@@ -67,7 +67,14 @@ def get_activities_excel_report(
             {
                 "Dato": event.start.strftime("%d.%m.%Y"),
                 "Tittel": event.title,
-                "Målgrupper": event.audience.name,
+                "Hovedmålgruppe": (
+                    event.audience.parent.name
+                    if event.audience.parent
+                    else event.audience.name
+                ),
+                "Undermålgruppe": (
+                    event.audience.name if event.audience.parent else None
+                ),
                 "Antall forventet besøkende": event.expected_visitors,
                 "Antall faktisk besøkende": event.actual_visitors,
                 "Arrangementstype": event.arrangement_type.name,
