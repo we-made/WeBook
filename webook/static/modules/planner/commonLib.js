@@ -280,14 +280,18 @@ export class ArrangementStore extends BaseStore {
                 (statusTypesMap === undefined || statusTypesMap.has(arrangement.status_slug) === true) &&
                 (locationsMap === undefined || locationsMap.has(arrangement.location_slug) === true);
 
+            if (!isWithinFilter)
+                return;
+
             if (filterSet.showOnlyEventsWithNoRooms === true && arrangement.room_names.length > 0 && arrangement.room_names[0] !== null) {
                 isWithinFilter = false;
             }
 
             if (filterMap.size > 0) {
                 let match = false;
-                for (let y = 0; y < arrangement.slug_list.length; y++) {
-                    const slug = arrangement.slug_list[y];
+
+                for (let i = 0; i < arrangement.slug_list.length; i++) {
+                    const slug = arrangement.slug_list[i];
                     if (filterMap.has(slug)) {
                         match = true;
                         break;
@@ -350,8 +354,6 @@ export class CalendarFilter {
         this.locations = locationSlugs;
         if (runOnFilterUpdate)
             this.onFilterUpdated(this);
-
-        console.log("Filtering locations", locationSlugs)
     }
 
     filterRooms (roomSlugs, runOnFilterUpdate=true) {
