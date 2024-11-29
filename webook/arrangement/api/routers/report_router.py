@@ -80,7 +80,11 @@ def get_activities_excel_report(
                 "Arrangementstype": event.arrangement_type.name,
                 "Fylke": event.county.name if event.county else None,
                 "Skole": event.school.name if event.school else None,
-                "Bydel": event.city_segment.name if event.city_segment else None,
+                "Bydel": (
+                    event.school.city_segment.name
+                    if event.school
+                    else (event.city_segment.name if event.city_segment else None)
+                ),
             }
             for event in events
         ]
