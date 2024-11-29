@@ -107,8 +107,8 @@ def _execute_sync_instructions(
 def _get_events_matching_criteria(
     future_only: bool,
     persons: Optional[List[Person]],
-    event_ids: Optional[List[int]],
-    serie_ids: Optional[List[int]],
+    event_ids: Optional[List[int]] = None,
+    serie_ids: Optional[List[int]] = None,
 ) -> List[Union[Event, PlanManifest]]:
     """Get events for synchronization that match the given criteria.
 
@@ -123,7 +123,9 @@ def _get_events_matching_criteria(
 
     if future_only:
         events = events.filter(start__gte=datetime.now())
-        series = series.filter(start__gte=datetime.now())  # TODO: Consider further...
+        series = series.filter(
+            start_date__gte=datetime.now()
+        )  # TODO: Consider further...
 
     if event_ids:
         events = events.filter(id__in=event_ids)
