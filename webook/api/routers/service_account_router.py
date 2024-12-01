@@ -2,26 +2,24 @@ from typing import List, Optional
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.security import django_auth_superuser
-from webook.api.jwt_auth import issue_token
+from webook.api.jwt_auth import IssueeType, TokenType, issue_token
 from webook.api.schemas.base_schema import BaseSchema
-from webook.api.models import ServiceAccount, APIEndpoint
+from webook.api.models import ServiceAccount, APIScope
 from django.core.exceptions import PermissionDenied
 from jwt import encode
 from django.conf import settings
 from datetime import datetime, timedelta
 
+from webook.api.scopes_router import APIScopeGetSchema
+
 service_account_router = Router(tags=["Service Account"])
-
-
-class APIEndpointSchema(BaseSchema):
-    operation_id: str
 
 
 class ServiceAccountSchema(BaseSchema):
     id: int
     username: str
     is_active: bool
-    allowed_endpoints: List[APIEndpointSchema]
+    allowed_endpoints: List[APIScopeGetSchema]
     last_seen: Optional[datetime] = None
 
 
@@ -50,7 +48,11 @@ def login_service_account(request, payload: ServiceAccountLoginSchema) -> str:
     if not service_account.check_password(payload.password):
         raise PermissionDenied("Invalid password")
 
-    return issue_token(service_account)
+    return issue_token(
+        issuee_type=IssueeType.ServiceAccount,
+        pk=service_account.id,
+        token_type=TokenType.Access,
+    )
 
 
 @service_account_router.get(
@@ -76,7 +78,7 @@ def create_service_account(
 
 @service_account_router.get("/ep", response=List[str])
 def get_endpoint_choices(request):
-    return list(APIEndpoint.objects.values_list("operation_id", flat=True))
+    return list(APIScope.objects.values_list("operation_id", flat=True))
 
 
 @service_account_router.get(
@@ -100,7 +102,7 @@ def update_service_account(
         service_account.is_active = payload.is_active
     if payload.allowed_endpoints is not None:
         service_account.allowed_endpoints.set(
-            APIEndpoint.objects.filter(operation_id__in=payload.allowed_endpoints)
+            APIScope.objects.filter(operation_id__in=payload.allowed_endpoints)
         )
 
     service_account.save()

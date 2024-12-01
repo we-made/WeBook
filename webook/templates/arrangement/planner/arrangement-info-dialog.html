@@ -1,0 +1,302 @@
+{% include "arrangement/vue/popover-tree-select.html" %}
+
+<template id="vuec-arrangement-info-dialog">
+
+    <dialog-component
+        :is-visible="true"
+        :start-full-screen="true"
+        @close="$emit('close')"
+        :use-backdrop="true" 
+        width="50%"
+        :is-draggable="true">
+
+        <template v-slot:header>
+            
+            <h3 class="mb-0 fw-bold">
+                Arrangement Tittel          
+            </h3>
+        
+        </template>
+
+        <template v-slot:content>
+            <div>
+                <popover-tree-select
+                    :is-visible="selectIsExpanded"
+                    data-source="/arrangement/audience/tree"
+                    @update:selected="(selected) => { console.log('wololo', selected); }">
+                </popover-tree-select>
+            </div>
+
+
+            <div class="d-flex mt-2">
+                <div>
+                    <button class="btn wb-btn-secondary">
+                        <i class="fas fa-trash"></i>&nbsp;
+                        Slett
+                    </button>
+
+                    <button class="btn wb-btn-main ms-2">
+                        <i class="fas fa-tree"></i>&nbsp;
+                        Kaskadeendringer & Synkronitet
+                    </button>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-4">
+                    <div class="alert wb-bg-secondary">
+                        <h4 class="mb-0">Hovedplanlegger:</h4>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="alert wb-bg-secondary">
+                        aaaaa
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="nav nav-tabs webook-tabs" id="arrangement-info-dialog-tabs">
+                <li class="nav-item" role="presentation">
+                    <a 
+                        href="#arrangementInfoDialog_tabs_info" 
+                        class="nav-link active"
+                        role="tab"
+                        data-mdb-toggle="tab">
+
+                        <i class="fas fa-info-circle"></i>&nbsp;
+                        Info
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a 
+                        href="#arrangementInfoDialog_tabs_timeslots" 
+                        class="nav-link"
+                        role="tab"
+                        data-mdb-toggle="tab">
+
+                        <i class="fas fa-clock"></i>&nbsp;
+                        Tidspunkter
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a 
+                        href="#arrangementInfoDialog_tabs_notes" 
+                        class="nav-link"
+                        role="tab"
+                        data-mdb-toggle="tab">
+
+                        <i class="fas fa-edit"></i>&nbsp;
+                        Notater
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a 
+                        href="#arrangementInfoDialog_tabs_files" 
+                        class="nav-link"
+                        role="tab"
+                        data-mdb-toggle="tab">
+
+                        <i class="fas fa-file-alt"></i>&nbsp;
+                        Filer
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a 
+                        href="#arrangementInfoDialog_tabs_service_orders" 
+                        class="nav-link"
+                        role="tab"
+                        data-mdb-toggle="tab">
+
+                        <i class="fas fa-tools"></i>&nbsp;
+                        Tjenestebestillinger
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-3">
+                <div class="tab-pane fade show active" id="arrangementInfoDialog_tabs_info" role="tabpanel">
+                    <div class="row">
+                        <div class="col-8">
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="" class="form-label">
+                                        Navn:
+                                    </label>
+                                    <input type="text" name="" id="" class="form-control ">
+                                </div>
+                                <div class="col-6">
+                                    <label for="" class="form-label">
+                                        Navn (Engelsk):
+                                    </label>
+                                    <input type="text" name="" id="" class="form-control ">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="">Billettinfo</label>
+                                <input type="text" name="" id="" class="form-control ">
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-6">
+                                    <h5>Møtested</h5>
+                                    <div>
+                                        <label for="">Møtested</label>
+                                        <input type="text" name="" id="" class="form-control ">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="">Møtested (Engelsk)</label>
+                                        <input type="text" name="" id="" class="form-control ">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h5>Besøkende</h5>
+                                    <div>
+                                        <label for="">Forventet antall besøkende</label>
+                                        <input type="number" name="" id="" class="form-control " min="0">
+                                    </div>
+
+                                    <div class>
+                                        <label for="">Faktisk antall besøkende</label>
+                                        <input type="number" name="" id="" class="form-control" min="0">
+                                    </div>
+
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="mt-3">
+                                        <display-layout-select
+                                            v-model:selected-display-layouts="selectedLayouts"
+                                            v-model:text="displayText">
+                                        </display-layout-select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div>
+                                <label for="" class="form-label">
+                                    Lokasjon
+                                </label>
+                                <select name="" id="" class="form-select form-select-sm">
+                                    <option value="">Konsert</option>
+                                    <option value="">Festival</option>
+                                    <option value="">Kurs</option>
+                                </select>
+                            </div>
+
+                            <div class="mt-2">
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Målgruppe" 
+                                    json-url="{% url 'arrangement:audience_tree' %}"
+                                    button-label="Velg målgruppe"
+                                    icon="fas fa-users"
+                                    v-model="arrangement.audience">
+
+                                </tree-select-component>
+                            </div>
+
+                            <div class="mt-2">
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Arrangementstype" 
+                                    json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                    button-label="Velg arrangementstype"
+                                    icon="fas fa-cog"
+                                    v-model="arrangement.arrangement_type">
+
+                                </tree-select-component>
+                            </div>
+
+                            <div class="mt-2">
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Status" 
+                                    json-url="{% url 'arrangement:statustype_tree' %}"
+                                    button-label="Velg status"
+                                    icon="fas fa-cog"
+                                    v-model="arrangement.status_type">
+
+                                </tree-select-component>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="arrangementInfoDialog_tabs_timeslots" role="tabpanel">
+                    <h1>Timeslots</h1>
+                </div>
+
+                <div class="tab-pane fade" id="arrangementInfoDialog_tabs_notes" role="tabpanel">
+                    <notes-list-component
+                        :notes="[]"
+                        :are-notes-editable="true">
+                        {% comment %} @save="(id, title, content, hasPii) => saveNote(id, title, content, hasPii)"
+                        @delete="(id) => deleteNote(id)"> {% endcomment %}
+
+                    </notes-list-component>
+                </div>
+
+                <div class="tab-pane fade" id="arrangementInfoDialog_tabs_files" role="tabpanel">
+                    <files-list-component
+                        :is-upload-enabled="true"
+                        :files="[]">
+                        {% comment %} @upload="(files) => uploadFiles(files)"
+                        @delete="(id) => deleteFile(id)"> {% endcomment %}
+                    </files-list-component>
+                </div>
+
+                <div class="tab-pane fade" id="arrangementInfoDialog_tabs_service_orders" role="tabpanel">
+                    <h1>Service Orders</h1>
+                </div>
+            </div>
+
+        </template>
+    </dialog-component>
+
+</template>
+
+<script>
+    let ArrangementInfoDialog = {
+        name: 'ArrangementInfoDialog',
+        components: { 
+            DialogComponent, 
+            NotesListComponent, 
+            FilesListComponent, 
+            PopoverTreeSelect, 
+            DisplayLayoutSelect, 
+            TreeSelectComponent,
+            
+         },
+        data() {
+            return {
+                dialogVisible: false,
+                arrangementInfo: {},
+                selectIsExpanded: false,
+                selectedLayouts: [],
+                displayText: "Hi",
+                arrangement: {
+                    audience: null,
+                    arrangement_type: null,
+                    status_type: null
+                }
+            }
+        },
+        methods: {
+            show(arrangementInfo) {
+                this.arrangementInfo = arrangementInfo;
+                this.dialogVisible = true;            
+            },
+            close() {
+                this.dialogVisible = false;
+            }
+        },
+        template: '#vuec-arrangement-info-dialog',
+        delimiters: ['[[', ']]']
+    }
+</script>

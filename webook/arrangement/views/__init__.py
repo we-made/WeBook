@@ -28,6 +28,7 @@ from .arrangement_views import (
     planners_on_arrangement_table_view,
     planners_on_arrangement_view,
     synchronize_events_in_arrangement_view,
+    main_planner_select2_json_view,
 )
 from .arrangementtype_views import (
     arrangement_type_create_view,
@@ -156,6 +157,7 @@ from .planner_views import (
     planner_event_inspector_dialog_view,
     planner_view,
     upload_files_dialog,
+    planner_calendar_v2,
 )
 from .requisition_views import (
     cancel_service_requisition_form_view,
@@ -175,6 +177,7 @@ from .room_preset_views import (
     room_preset_detail_view,
     room_preset_update_view,
     room_presets_listview,
+    room_preset_json_list_view,
 )
 from .room_views import (
     location_room_list_view,
@@ -185,6 +188,7 @@ from .room_views import (
     room_update_view,
     search_room_ajax_view,
     search_rooms_ajax_view,
+    rooms_select2_json_view,
 )
 from .servicetype_views import (
     search_service_types,

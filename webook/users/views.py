@@ -165,7 +165,7 @@ toggle_user_active_state_view = ToggleUserActiveStateView.as_view()
 
 class UsersListView(LoginRequiredMixin, UserAdminAuthorizationMixin, ListView):
     model = User
-    template_name = "user_management/list.html"
+    template_name = "user_management/user_list.html"
 
 
 users_list_view = UsersListView.as_view()

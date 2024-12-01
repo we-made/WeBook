@@ -1,0 +1,10 @@
+{{ object.email }}
+{{ object.timezone }}
+
+{% if object.person %}
+    {{ object.person.full_name }}
+    {% if object.person.social_provider_id %}
+        {{ object.person.social_provider_id }}
+        {{ object.person.social_provider_email }}
+    {% endif %}
+{% endif %}

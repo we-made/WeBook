@@ -1,0 +1,84 @@
+
+
+<template id="vuec-rigging-form">
+    <div class="d-flex flex-column">
+        <div>
+            <input type="text" name="title" id="title" placeholder="Tittel"
+                v-model="localModelValue.title"
+                class="form-control w-auto">
+        </div>
+        <span class="mt-2">
+            Fra
+        </span>
+        <div class="row">
+            <div class="col-6">
+                <div class="input-group w-auto">
+                    <input type="date" class="form-control" 
+                        v-model="localModelValue.date">
+                    </input>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="input-group w-auto">
+                    <span class="input-group-text">
+                        <i class="fas fa-clock"></i>
+                    </span>
+                    <input type="time" class="form-control" v-model="localModelValue.start_time" />
+                </div>
+            </div>
+        </div>
+
+        <span class="mt-2">
+            Til
+        </span>
+
+        <div class="input-group w-auto">
+            <span class="input-group-text">
+                <i class="fas fa-clock"></i>
+            </span>
+            <input type="time" class="form-control" v-model="localModelValue.end_time" />
+        </div>
+    </div>
+</template>
+
+
+<script>
+    let RiggingForm = {
+        template: '#vuec-rigging-form',
+        delimiters: ['[[', ']]'],
+        props: {
+            split: {
+                type: Boolean,
+                default: false,
+            },
+            modelValue: {
+                type: Object,
+                default: function() {
+                    return {
+                        title: '',
+                        date: '',
+                        start_time: '',
+                        end_time: '',
+                    }
+                }
+            }
+        },
+        data() {
+            return {
+                localModelValue: this.modelValue,
+            }
+        },
+        watch: {
+            modelValue: function(newVal, oldVal) {
+                this.localModelValue = newVal;
+            },
+            localModelValue: {
+                handler(n, o) {
+                    this.$emit('update:modelValue', n);
+                },
+                deep: true,
+            }
+        },
+        emits: ['update:modelValue'],
+    }
+</script>

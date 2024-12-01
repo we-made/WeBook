@@ -1,0 +1,5 @@
+{{ object.name }}
+{{ object.name_en }}
+
+{{ object.meeting_place }}
+{{ object.meeting_place_en }}

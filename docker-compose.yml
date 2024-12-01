@@ -1,6 +1,8 @@
 services:
   webook:
-    image: "ghcr.io/wemadefree/webook-nm:Docker"
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     volumes:
@@ -14,6 +16,14 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: [ "celery", "-A", "app.celery", "worker", "--loglevel=info" ]
   dozzle:
     image: amir20/dozzle:latest
     container_name: dozzle

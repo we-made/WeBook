@@ -205,7 +205,16 @@ class CreateSerieForm(SerieManifestForm):
             id=form.cleaned_data["arrangementPk"]
         )
         serie.serie_plan_manifest = manifest
+
+        files_on_old_serie = EventSerie.objects.filter(
+            id=pk_of_preceding_event_serie
+        ).values_list("files", flat=True)
+
         serie.save()
+
+        if files_on_old_serie:
+            serie.files = files_on_old_serie
+            serie.save()
 
         logger.info(f"Created event serie with id {serie.id}")
 

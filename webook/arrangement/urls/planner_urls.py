@@ -40,6 +40,7 @@ from webook.arrangement.views import (
     planner_event_inspector_dialog_view,
     planner_view,
     upload_files_dialog,
+    planner_calendar_v2,
 )
 
 planner_urls = [
@@ -48,15 +49,9 @@ planner_urls = [
         view=planner_view,
         name="planner",
     ),
+    path(route="planner/plan", view=plan_arrangement_view, name="plan_arrangement"),
     path(
-        route="planner/plan",
-        view=plan_arrangement_view,
-        name="plan_arrangement"
-    ),
-    path(
-        route="planner/create_event",
-        view=plan_create_event,
-        name="plan_create_event"
+        route="planner/create_event", view=plan_create_event, name="plan_create_event"
     ),
     path(
         route="planner/get_events",
@@ -96,7 +91,7 @@ planner_urls = [
     path(
         route="planner/people_to_requisition_table",
         view=plan_people_to_requisition_component_view,
-        name="people_to_requisition_table_component"
+        name="people_to_requisition_table_component",
     ),
     path(
         route="planner/calendar",
@@ -111,7 +106,7 @@ planner_urls = [
     path(
         route="planner/arrangements_in_period",
         view=get_arrangements_in_period_view,
-        name="arrangements_in_period"
+        name="arrangements_in_period",
     ),
     path(
         route="planner/dialogs/arrangement_information/<slug:slug>",
@@ -126,7 +121,7 @@ planner_urls = [
     path(
         route="planner/dialogs/create_simple_event",
         view=arrangement_create_simple_event_dialog_view,
-        name="arrangement_create_event_dialog"
+        name="arrangement_create_event_dialog",
     ),
     path(
         route="planner/dialogs/create_serie",
@@ -156,12 +151,12 @@ planner_urls = [
     path(
         route="planner/remove_planners",
         view=arrangement_remove_planners_form_view,
-        name="arrangement_remove_planners_form"
+        name="arrangement_remove_planners_form",
     ),
     path(
         route="planner/dialogs/create_arrangement",
         view=create_arrangement_dialog_view,
-        name="create_arrangement_dialog"
+        name="create_arrangement_dialog",
     ),
     path(
         route="planner/dialogs/event_inspector/<int:pk>",
@@ -186,7 +181,7 @@ planner_urls = [
     path(
         route="planner/dialogs/order_people_form",
         view=planner_calendar_order_person_for_series_form_view,
-        name="order_people_form"
+        name="order_people_form",
     ),
     path(
         route="planner/dialogs/order_rooms_form",
@@ -195,8 +190,8 @@ planner_urls = [
     ),
     path(
         route="planner/dialogs/order_rooms_for_event_form",
-        view = planner_calendar_order_room_for_event_form_view,
-        name="order_room_for_event_form"
+        view=planner_calendar_order_room_for_event_form_view,
+        name="order_room_for_event_form",
     ),
     path(
         route="planner/dialogs/order_people_for_event_form",
@@ -206,7 +201,7 @@ planner_urls = [
     path(
         route="planner/remove_person_from_event",
         view=planner_calendar_remove_person_from_event_form_view,
-        name="remove_person_from_event"
+        name="remove_person_from_event",
     ),
     path(
         route="planner/remove_room_from_event",
@@ -222,5 +217,10 @@ planner_urls = [
         route="planner/dialogs/edit_note/<int:pk>",
         view=planner_arrangement_edit_note_dialog_view,
         name="edit_note_dialog",
+    ),
+    path(
+        route="planner/calendar_v2",
+        view=planner_calendar_v2,
+        name="planner_calendar_v2",
     ),
 ]

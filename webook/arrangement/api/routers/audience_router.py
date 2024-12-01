@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 from django.db.models import Q, Sum
 
+from webook.api.crud_router import Views
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.arrangement.api.validators import validate_tree_node_update
 from webook.arrangement.models import Arrangement, Event
@@ -52,7 +53,14 @@ def validate_save(
 
 
 class AudienceRouter(CrudRouter):
-    pass
+    def __init__(self, *args, **kwargs):
+        self.non_deferred_fields = ["parent"]
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self, view: Views = Views.GET) -> QuerySet:
+        qs = super().get_queryset(view)
+        qs = qs.select_related("parent")
+        return qs
 
 
 audience_router = AudienceRouter(

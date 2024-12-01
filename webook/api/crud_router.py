@@ -5,26 +5,34 @@ from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 from django.http import HttpResponse
 from django.core.paginator import EmptyPage
 from django.shortcuts import get_object_or_404
-from ninja import Router
+from ninja import Router, Schema
 from ninja.constants import NOT_SET
 import pandas as pd
+from django.core.paginator import Paginator
 from webook.api.dj_group_auth import SessionGroupAuth
 from webook.api.jwt_auth import JWTBearer
-from webook.api.paginate import paginate_queryset
-
+from webook.api.paginate import PaginatedData, paginate_queryset
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
 from webook.api.m2m_rel_router_mixin import ManyToManyRelRouterMixin
+from haystack.query import EmptySearchQuerySet, SearchQuerySet
+from haystack.models import SearchResult
+import haystack.fields as haystack_fields
 from webook.api.schemas.operation_result_schema import (
     OperationResultSchema,
     OperationType,
     OperationResultStatus,
 )
+from haystack import connections
+from django.db import transaction
 import inflect
 from django.db import models
-
+from ninja.pagination import paginate, PageNumberPagination
+from django.conf import settings
 from webook.arrangement.models import Person
 from webook.utils.camelize import decamelize
 from webook.utils.docgen.pdf_gen import TableReport
+from .standards import STANDARD_PAGE_SIZE
+from ninja.decorators import decorate_view
 
 MAX_PAGE_SIZE = 1000
 
@@ -36,9 +44,11 @@ class Views(Enum):
     LIST = "list"
     DELETE = "delete"
     EXPORT = "export"
+    SEARCH = "search"
 
 
 T = TypeVar("T")
+
 
 class ExportType(str, Enum):
     """
@@ -67,9 +77,20 @@ class ExportInstructionSchema(BaseSchema):
     export_type: ExportType
 
 
+class SearchMetadataSchema(BaseSchema):
+    field: str
+    type: str
+    required: bool = False
+
+
 class ListResponseSchema(BaseSchema, Generic[T]):
     summary: dict
     data: List[T]
+
+
+class SearchResponseItemSchema(BaseSchema, Generic[T]):
+    score: float
+    obj: T
 
 
 class QueryFilter:
@@ -91,12 +112,13 @@ class QueryFilter:
     def __str__(self) -> str:
         return f"{self.field}"
 
+
 class ConditionalCallableTrigger:
     def __init__(
-            self,
-            param,
-            transformer: Callable,
-            default: bool = False,
+        self,
+        param,
+        transformer: Callable,
+        default: bool = False,
     ):
         self.transformer = transformer
         self.param = param
@@ -104,22 +126,15 @@ class ConditionalCallableTrigger:
 
     def apply(self, qs, value) -> models.QuerySet:
         return self.transformer(qs, value)
-    
+
     def __str__(self) -> str:
         return f"{self.field}"
+
 
 class CrudRouter(Router, ManyToManyRelRouterMixin):
     model = None
 
     auth = None
-
-    views = [
-        Views.CREATE, 
-        Views.UPDATE, 
-        Views.GET, 
-        Views.LIST, 
-        Views.DELETE,
-        Views.EXPORT]
 
     m2m_rel_fields: Dict[str, Type[models.Field]] = {}
 
@@ -164,13 +179,59 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         pre_delete_hook: Optional[Callable] = None,
         export_exclude_fields: Optional[List[str]] = None,
         list_filters: Optional[List[QueryFilter]] = None,
-        conditional_callable_triggers: Optional[List[ConditionalCallableTrigger]] = None,
+        conditional_callable_triggers: Optional[
+            List[ConditionalCallableTrigger]
+        ] = None,
+        enable_search: bool = False,
     ) -> None:
 
-        self.property_fields_on_model: List[str] =  [k for k, v in Person.__dict__.items() if type(v) == property]
+        if views is None:
+            self.views = [
+                Views.CREATE,
+                Views.UPDATE,
+                Views.GET,
+                Views.LIST,
+                Views.DELETE,
+                Views.EXPORT,
+            ]
+        else:
+            self.views = views
+
+        self.search_query_filters: List[QueryFilter] = []
+
+        if enable_search and Views.SEARCH not in self.views:
+            self.views.append(Views.SEARCH)
+            ui = connections["default"].get_unified_index()
+            index = ui.get_index(model)
+            search_index_fields = {k: v for k, v in index.fields.items() if k != "text"}
+
+            for field_name, field_type in search_index_fields.items():
+                annotation = Optional[str]
+
+                if type(field_type) == haystack_fields.BooleanField:
+                    annotation = Optional[bool]
+                elif type(field_type) == haystack_fields.IntegerField:
+                    annotation = Optional[int]
+                elif type(field_type) == haystack_fields.DateTimeField:
+                    annotation = Optional[str]
+
+                self.search_query_filters.append(
+                    QueryFilter(
+                        param=field_name,
+                        query_by=field_name,
+                        default=None,
+                        annotation=annotation,
+                    )
+                )
+
+        self.property_fields_on_model: List[str] = [
+            k for k, v in Person.__dict__.items() if type(v) == property
+        ]
 
         self.list_filters += list_filters or []
-        self.conditional_callable_triggers: List[ConditionalCallableTrigger] = conditional_callable_triggers or [] 
+        self.conditional_callable_triggers: List[ConditionalCallableTrigger] = (
+            conditional_callable_triggers or []
+        )
 
         self.model = model
         self.model_name_singular = (
@@ -187,7 +248,9 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         self._deferred_fields = {
             field.name: field
             for field in model._meta.get_fields()
-            if field.is_relation and not field.auto_created and not field.name in self.non_deferred_fields
+            if field.is_relation
+            and not field.auto_created
+            and not field.name in self.non_deferred_fields
         }
 
         self.create_auth = create_auth
@@ -196,7 +259,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         self.list_auth = list_auth
         self.delete_auth = None
 
-        self.create_schema = create_schema 
+        self.create_schema = create_schema
         self.update_schema = update_schema
         self.get_schema = get_schema
         self.list_schema = list_schema or self.get_schema
@@ -206,24 +269,30 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         # make all fields optional in patch schema
         if self.patch_schema is not None:
             for field in self.patch_schema.__annotations__.keys():
-                setattr(self.patch_schema, field, Optional[self.patch_schema.__annotations__[field]])
+                setattr(
+                    self.patch_schema,
+                    field,
+                    Optional[self.patch_schema.__annotations__[field]],
+                )
 
         self.pre_create_hook = pre_create_hook
         self.pre_update_hook = pre_update_hook
         self.pre_delete_hook = pre_delete_hook
 
-        self.export_exclude_fields = export_exclude_fields or ["is_archived", "archived_by", "archived_when"]
+        self.export_exclude_fields = export_exclude_fields or [
+            "is_archived",
+            "archived_by",
+            "archived_when",
+        ]
 
         super().__init__(auth=auth, tags=tags)
-
-        if views is not None:
-            self.views = views
 
         if Views.CREATE in self.views and self.create_schema is not None:
             self.add_api_operation(
                 path="/",
                 methods=["POST"],
-                auth=self.create_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
+                auth=self.create_auth
+                or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_post_func(),
                 response=self.response_schema,
                 summary=f"Create {self.model_name_singular}",
@@ -236,7 +305,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="update",
                 methods=["PUT"],
-                auth=self.update_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
+                auth=self.update_auth
+                or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_put_func(),
                 response=OperationResultSchema[self.get_schema],
                 summary=f"Update {self.model_name_singular}",
@@ -248,7 +318,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="patch",
                 methods=["PATCH"],
-                auth=self.update_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
+                auth=self.update_auth
+                or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_put_func(),
                 response=OperationResultSchema[self.get_schema],
                 summary=f"Patch {self.model_name_singular}",
@@ -256,7 +327,6 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 operation_id=f"patch_{self.model_name_singular.lower()}",
                 by_alias=True,
             )
-        
 
         if Views.GET in self.views and self.get_schema is not None:
             self.add_api_operation(
@@ -280,7 +350,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 With this setup it has proven somewhat tedious, and the most easy way to do it was by overriding, but there's a lot
                 of logic in the list endpoint we don't want the consumer to have to tango with.
                 This section is purely to ensure Swagger includes the extra parameters added by the consumer.
-                In the get_func method we handle the extras as kwargs, use the QueryFilter instances to apply the filters 
+                In the get_func method we handle the extras as kwargs, use the QueryFilter instances to apply the filters
                 and return the queryset. This is a much more elegant solution than overriding the list function.
 
                 If you chose to go the override route you would have to:
@@ -306,12 +376,15 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                     *list(sig.parameters.values())[
                         :-1
                     ],  # Exclude the variadic keyword parameter
-                    *[inspect.Parameter(
-                        qf.param,
-                        annotation=qf.annotation,
-                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                        default=qf.default,
-                    ) for qf in self.list_filters or []],
+                    *[
+                        inspect.Parameter(
+                            qf.param,
+                            annotation=qf.annotation,
+                            kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                            default=qf.default,
+                        )
+                        for qf in self.list_filters or []
+                    ],
                     # *[
                     #     *[inspect.Parameter(
                     #         qf.param,
@@ -337,17 +410,68 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
                 func.__signature__ = sig.replace(parameters=params)
 
-            self.add_api_operation(
-                path="list",
-                methods=["GET"],
-                auth=self.list_auth or self.auth or NOT_SET,
-                view_func=func,
-                response=ListResponseSchema[self.list_schema],
-                summary=f"List {self.model_name_plural}",
-                description=f"List all {self.model_name_plural.lower()} instances.",
-                operation_id=f"list_{self.model_name_plural.lower()}",
-                by_alias=True,
-            )
+                self.add_api_operation(
+                    path="list",
+                    methods=["GET"],
+                    auth=self.list_auth or self.auth or NOT_SET,
+                    view_func=func,
+                    response=ListResponseSchema[self.list_schema],
+                    summary=f"List {self.model_name_plural}",
+                    description=f"List all {self.model_name_plural.lower()} instances.",
+                    operation_id=f"list_{self.model_name_plural.lower()}",
+                    by_alias=True,
+                )
+            if Views.SEARCH in self.views and self.list_schema is not None:
+                search_func = self.get_search_func()
+
+                sig = inspect.signature(search_func)
+
+                params = [
+                    *list(sig.parameters.values())[
+                        :-1
+                    ],  # Exclude the variadic keyword parameter
+                    *[
+                        inspect.Parameter(
+                            qf.param,
+                            annotation=qf.annotation,
+                            kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                            default=qf.default,
+                        )
+                        for qf in self.search_query_filters or []
+                    ],
+                    *list(sig.parameters.values())[
+                        -1:
+                    ],  # Add the variadic keyword parameter at the end
+                ]
+
+                search_func.__signature__ = sig.replace(parameters=params)
+
+                self.add_api_operation(
+                    path="search",
+                    methods=["GET"],
+                    auth=self.list_auth or self.auth or NOT_SET,
+                    view_func=search_func,
+                    response=ListResponseSchema[
+                        SearchResponseItemSchema[self.list_schema]
+                    ],
+                    summary=f"Search {self.model_name_plural}",
+                    description=f"Search all {self.model_name_plural.lower()} instances.",
+                    operation_id=f"search_{self.model_name_plural.lower()}",
+                    by_alias=True,
+                )
+
+                search_metadata_func = self.get_search_metadata()
+                self.add_api_operation(
+                    path="search_metadata",
+                    methods=["GET"],
+                    auth=self.list_auth or self.auth or NOT_SET,
+                    view_func=search_metadata_func,
+                    response=List[SearchMetadataSchema],
+                    summary=f"Search metadata for {self.model_name_plural}",
+                    description=f"Get search metadata (available search options) for {self.model_name_plural.lower()}.",
+                    operation_id=f"search_metadata_{self.model_name_plural.lower()}",
+                    by_alias=True,
+                )
 
             if Views.EXPORT in self.views:
                 self.add_api_operation(
@@ -366,7 +490,8 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             self.add_api_operation(
                 path="delete",
                 methods=["DELETE"],
-                auth=self.delete_auth or [JWTBearer(), SessionGroupAuth(group_name="planners")],
+                auth=self.delete_auth
+                or [JWTBearer(), SessionGroupAuth(group_name="planners")],
                 view_func=self.get_delete_func(),
                 response=OperationResultSchema,
                 summary=f"Delete {self.model_name_singular}",
@@ -378,9 +503,12 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         self.init_m2m_functionality()
 
     def get_export_list_func(self):
+        # @decorate_view(transaction.non_atomic_requests(using="default"))
         def export_func(request, export_instruction: ExportInstructionSchema):
-            qs = self.get_queryset()
-            if not export_instruction.include_archived_entities and hasattr(self.model, "is_archived"):
+            qs = self.get_queryset(Views.EXPORT)
+            if not export_instruction.include_archived_entities and hasattr(
+                self.model, "is_archived"
+            ):
                 qs = qs.filter(is_archived=False)
             data = self.__transform_data_to_export(qs)
 
@@ -435,6 +563,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         return export_func
 
     def get_post_func(self):
+        # @decorate_view(transaction.non_atomic_requests(using="default"))
         def post_func(request, payload: self.create_schema) -> int:
             instance = self.model()
 
@@ -448,14 +577,21 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             instance.save()
             return instance
 
-        post_func.__annotations__ = { "payload": self.create_schema, "response": self.model }
+        post_func.__annotations__ = {
+            "payload": self.create_schema,
+            "response": self.model,
+        }
         post_func.__name__ = f"create_{self.model_name_singular.lower()}"
 
         return post_func
 
     def get_retrieve_func(self):
+        # @decorate_view(transaction.non_atomic_requests(using="default"))
         def retrieve_func(request, id: int) -> self.get_schema:
-            return get_object_or_404(self.model, id=id)
+            try:
+                return self.model.get(id=id)
+            except self.model.DoesNotExist:
+                raise HttpResponse(status=404)
 
         retrieve_func.__name__ = f"get_{self.model_name_singular.lower()}"
 
@@ -484,27 +620,53 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
         return d
 
-    def get_queryset(self):
-        manager = self.model.all_objects if hasattr(self.model, "all_objects") else self.model.objects
-        return manager.all().defer(
-            *self._deferred_fields.keys()
-        )        
-
-    def transform_paginator_to_response(self, paginator) -> ListResponseSchema:
-        return ListResponseSchema[self.list_schema](
-            summary={
-                "page": paginator.number,
-                "limit": paginator.paginator.per_page,
-                "total": paginator.paginator.count,
-                "total_pages": paginator.paginator.num_pages,
-            },
-            data=paginator.object_list
+    def get_queryset(self, view: Views = Views.GET) -> models.QuerySet:
+        manager = (
+            self.model.all_objects
+            if hasattr(self.model, "all_objects")
+            else self.model.objects
         )
+        return manager.all().defer(*self._deferred_fields.keys())
 
-    def apply_filters(self, qs, filters):
-        return qs
+    def transform_pd_to_response(self, pd: PaginatedData) -> ListResponseSchema:
+        if type(pd.paginated_qs) == models.QuerySet:
+            items_s = [self.list_schema.from_orm(x) for x in pd.paginated_qs.all()]
+
+            return ListResponseSchema[self.list_schema](
+                summary={
+                    "page": pd.current_page,
+                    "limit": pd.page_size,
+                    "total": pd.total_items,
+                    "total_pages": pd.num_pages,
+                },
+                data=items_s,
+            )
+        else:
+            # It is a search result
+            items_s: List[SearchResponseItemSchema[self.list_schema]] = list()
+            for x in pd.paginated_qs:
+                if type(x) == SearchResult:
+                    items_s.append(
+                        SearchResponseItemSchema(
+                            obj=self.list_schema.from_orm(
+                                self.model.objects.get(id=x.pk)
+                            ),
+                            score=x.score,
+                        )
+                    )
+
+            return ListResponseSchema[SearchResponseItemSchema](
+                summary={
+                    "page": pd.current_page,
+                    "limit": pd.page_size,
+                    "total": pd.total_items,
+                    "total_pages": pd.num_pages,
+                },
+                data=items_s,
+            )
 
     def get_list_func(self):
+        # @decorate_view(transaction.non_atomic_requests(using="default"))
         def list_func(
             request,
             page: int = 0,
@@ -516,7 +678,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             sort_desc: bool = False,
             **extra_params,
         ) -> ListResponseSchema[self.list_schema]:
-            qs = self.get_queryset()
+            qs = self.get_queryset(Views.LIST)
 
             if not include_archived and hasattr(self.model, "is_archived"):
                 qs = qs.filter(is_archived=False)
@@ -529,14 +691,17 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
             # can't use the queryset filter)
             if self.conditional_callable_triggers:
                 for cct in self.conditional_callable_triggers:
-                    if cct.param in extra_params and extra_params[cct.param] is not None:
-                        qs = cct.apply(qs, extra_params[cct.param])        
+                    if (
+                        cct.param in extra_params
+                        and extra_params[cct.param] is not None
+                    ):
+                        qs = cct.apply(qs, extra_params[cct.param])
 
             if self.list_filters:
                 for qf in self.list_filters:
                     if qf.param in extra_params and extra_params[qf.param] is not None:
                         qs = qf.apply(qs, extra_params[qf.param])
-            
+
             if search and fields_to_search:
                 fields = [decamelize(x) for x in fields_to_search.split(",")]
 
@@ -552,16 +717,19 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
                     if self.model._meta.get_field(field) is None:
                         raise Exception(f"Field {field} does not exist in {self.model}")
-                    
+
                     normal_fields.append(field)
-                    
+
                 if property_fields:
                     objects = list(self.model.objects.all())
 
                     for field in property_fields:
-                        objects = list(filter(
-                            lambda o: search.lower() in getattr(o, field).lower(), objects
-                        ))
+                        objects = list(
+                            filter(
+                                lambda o: search.lower() in getattr(o, field).lower(),
+                                objects,
+                            )
+                        )
 
                     prop_qs = qs.filter(id__in=[o.id for o in objects])
 
@@ -581,12 +749,18 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 decamalized_sort_by = decamelize(sort_by)
                 if decamalized_sort_by in self.property_fields_on_model:
                     items = list(qs.all())
-                    items.sort(key=lambda x: getattr(x, decamalized_sort_by), reverse=sort_desc)
+                    items.sort(
+                        key=lambda x: getattr(x, decamalized_sort_by), reverse=sort_desc
+                    )
                     qs = items
-                else:    
-                    qs = qs.order_by(f"-{decamalized_sort_by}") if sort_desc else qs.order_by(decamalized_sort_by)
+                else:
+                    qs = (
+                        qs.order_by(f"-{decamalized_sort_by}")
+                        if sort_desc
+                        else qs.order_by(decamalized_sort_by)
+                    )
             try:
-                paginator = paginate_queryset(qs, page or 1, limit)
+                paginated_data: PaginatedData = paginate_queryset(qs, page or 1, limit)
             except EmptyPage as e:
                 return ListResponseSchema[self.list_schema](
                     summary={
@@ -595,11 +769,10 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                         "total": 0,
                         "total_pages": 0,
                     },
-                    data=[]
+                    data=[],
                 )
-            data=paginator.object_list
 
-            response = self.transform_paginator_to_response(paginator)
+            response = self.transform_pd_to_response(paginated_data)
 
             return response
 
@@ -607,8 +780,63 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
 
         return list_func
 
+    def get_search_func(self):
+        def search_func(
+            request,
+            query: str,
+            page: int = 0,
+            limit: int = 0,
+            **extra_params,
+        ) -> ListResponseSchema[self.list_schema]:
+            sqs = SearchQuerySet().models(self.model)
+
+            if self.search_query_filters:
+                for qf in self.search_query_filters:
+                    if qf.param in extra_params and extra_params[qf.param] is not None:
+                        val = extra_params[qf.param]
+                        if type(val) == bool:
+                            val = str(val).lower()
+                        sqs = qf.apply(sqs, val)
+
+            results = paginate_queryset(
+                sqs.auto_query(query), page or 1, limit or STANDARD_PAGE_SIZE
+            )
+            return self.transform_pd_to_response(results)
+
+        search_func.__name__ = f"search_{self.model_name_plural.lower()}"
+
+        return search_func
+
+    def get_search_metadata(self):
+        def search_metadata_func(request):
+            field_metadata_list: List[SearchMetadataSchema] = list()
+
+            for qf in self.search_query_filters:
+                required = True
+
+                field_type_name = qf.annotation.__name__
+
+                if field_type_name == "Optional":
+                    required = False
+                    field_type_name = qf.annotation.__args__[0].__name__
+
+                field_metadata_list.append(
+                    SearchMetadataSchema(
+                        field=qf.param, type=field_type_name, required=required
+                    )
+                )
+
+            return field_metadata_list
+
+        search_metadata_func.__name__ = (
+            f"search_metadata_{self.model_name_plural.lower()}"
+        )
+        return search_metadata_func
+
     def get_put_func(self):
-        def update_func(request, id: int, payload: self.update_schema) -> OperationResultSchema[self.get_schema]:
+        def update_func(
+            request, id: int, payload: self.update_schema
+        ) -> OperationResultSchema[self.get_schema]:
             instance = get_object_or_404(self.model, id=id)
 
             if self.pre_update_hook is not None:
@@ -621,7 +849,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                         related_field.set(value)
                     else:
                         setattr(instance, key, value)
-                        
+
             instance.save()
 
             return OperationResultSchema[self.get_schema](
@@ -634,9 +862,11 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
         update_func.__name__ = f"update_{self.model_name_singular.lower()}"
 
         return update_func
-    
+
     def get_patch_func(self):
-        def patch_func(request, id: int, payload: self.patch_schema) -> OperationResultSchema[self.get_schema]:
+        def patch_func(
+            request, id: int, payload: self.patch_schema
+        ) -> OperationResultSchema[self.get_schema]:
             instance = get_object_or_404(self.model, id=id)
 
             if self.pre_update_hook is not None:
@@ -653,9 +883,9 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 message=f"{self.model_name_singular.lower()} updated successfully",
                 data=instance,
             )
-        
+
         patch_func.__name__ = f"patch_{self.model_name_singular.lower()}"
-        
+
         return patch_func
 
     def get_delete_func(self):
@@ -675,7 +905,7 @@ class CrudRouter(Router, ManyToManyRelRouterMixin):
                 message=f"{self.model_name_singular.lower()} deleted successfully",
                 data=instance,
             )
-        
+
         delete_func.__name__ = f"delete_{self.model_name_singular.lower()}"
 
         return delete_func

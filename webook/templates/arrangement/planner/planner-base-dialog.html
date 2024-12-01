@@ -1,0 +1,1860 @@
+{% include "arrangement/vue/stepper.html" %}
+{% include "arrangement/vue/display-layout-select-component.html" %}
+{% include "arrangement/vue/rooms-select.html" %}
+{% include "arrangement/planner/edit-serie-dialog.html" %}
+{% include "arrangement/planner/edit-event-dialog.html" %}
+{% include "arrangement/vue/select-main-planner-s2.html" %}
+{% include "arrangement/vue/location-select2.html" %}
+{% include "arrangement/planner/collision-resolution-wizard.html" %}
+{% include "arrangement/planner/designer-order-service-dialog.html" %}
+
+<template id="vuec-planner-base">
+
+    <collision-resolution-wizard
+        v-model="arrangement"
+        @update="(eventInfo) => handleEventConflictResolutionChange(eventInfo.originalStart, eventInfo.changedEvent, eventInfo.successCallback)"
+        @remove="(eventInfo) => handleEventConflictResolutionDelete(eventInfo.originalStart, eventInfo.changedEvent, eventInfo.successCallback)"
+        @close="collisionResolutionWizardExpanded = false"
+        :background-events="allFcEvents"
+        :conflicted-events="focusedCollisions"
+        :use-backdrop="true"
+        :is-visible="collisionResolutionWizardExpanded"
+        chain-to="#plannerBaseDialogAA">
+    </collision-resolution-wizard>
+
+    <edit-serie-dialog
+        v-model="focusedSerie"
+        @close="editSerieDialogExpanded = false"
+        :collision-validation-hook="internalOverbookingValidationHook"
+        :use-backdrop="true"
+        :is-visible="editSerieDialogExpanded"
+        chain-to="#plannerBaseDialogAA">
+    </edit-serie-dialog>
+
+    <edit-event-dialog
+        v-model:event="focusedEvent"
+        @close="editEventDialogExpanded = false;"
+        :collision-validation-hook="internalOverbookingValidationHook"
+        :use-backdrop="true"
+        :is-visible="editEventDialogExpanded"
+        chain-to="#plannerBaseDialogAA">
+    </edit-event-dialog>
+
+    <designer-order-service-dialog
+        v-model="focusedServiceOrder"
+        @close="orderServiceDialogExpanded = false"
+        :use-backdrop="true"
+        :is-visible="orderServiceDialogExpanded"
+        chain-to="#plannerBaseDialogAA"
+        :events="arrangement.events"
+        :series="arrangement.series">
+    </designer-order-service-dialog>
+
+    <dialog-component
+        @close="$emit('close')"
+        @fullscreenenter="rerender()"
+        @fullscreenexit="rerender()"
+        :use-backdrop="false"
+        :is-visible="isVisible"
+        :is-draggable="true"
+        :start-full-screen="true"
+        width="60rem"
+        id="plannerBaseDialogAA"
+        ref="baseDialog">
+
+        <template v-slot:header>
+            <h3 class="mb-0 fw-bold">
+                <i class="fas fa-calendar-plus"></i> Nytt Arrangement
+            </h3>
+        </template>
+
+        <template v-slot:content>
+            <div v-show="step == 1">
+                <div class="row">
+                    <div class="col-lg-8 col-md-6 col-sm-12">
+                        <div class="row">
+                            <div class="col-6">
+                                <label>Tittel *</label>
+                                <input type="text" class="form-control" v-model="arrangement.title">
+                                <div class="text-danger" v-if="validationRules.stepOne.showFormErrors && !validationRules.stepOne.title.condition()">
+                                    * Tittel er påkrevd
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label>Tittel (Engelsk)</label>
+                                <input type="text" class="form-control" v-model="arrangement.title_en">
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <label>Forventet Besøkende</label>
+                                <input type="number" v-model="arrangement.expected_visitors" class="form-control">
+                            </div>
+                            <div class="col-6">
+                                <label>Billettinfo</label>
+                                <input type="text" v-model="arrangement.ticket_code" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label class="d-block">Hovedplanlegger</label>
+                                        <select-main-planner-s2 v-model:selected="arrangement.mainPlanner" />
+                                    </div>
+                                    <div class="col-8">
+                                        <label class="d-block">Medplanleggere</label>
+                                        <select-main-planner-s2 v-model:selected="arrangement.planners" :multiple="true" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="row mt-2">
+                                    <div class="col-4">
+                                        <label>Lokasjon *</label>
+                                        <location-select v-model:selected="arrangement.location" V-IsRequired="true"></location-select>
+
+                                        <div class="text-danger" v-if="validationRules.stepOne.showFormErrors && !validationRules.stepOne.location.condition()">
+                                            * Lokasjon er påkrevd
+                                        </div>
+
+                                    </div>
+                                    <div class="col-8">
+                                        <label>Rom</label>
+                                        <rooms-select v-model:selected="arrangement.rooms"></rooms-select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <display-layout-select
+                            :text="arrangement.displayLayoutText"
+                            :selected-display-layouts="arrangement.displayLayouts">
+                        </display-layout-select>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div>
+                            <tree-select-component
+                                :is-open="false"
+                                label="Målgruppe *"
+                                json-url="{% url 'arrangement:audience_tree' %}"
+                                button-label="Velg målgruppe"
+                                icon="fas fa-users"
+                                v-model="arrangement.audience">
+
+                            </tree-select-component>
+
+                            <div class="text-danger" v-if="validationRules.stepOne.showFormErrors && !validationRules.stepOne.audience.condition()">
+                                * Målgruppe er påkrevd
+                            </div>
+                        </div>
+
+                        <div>
+                            <tree-select-component
+                                :is-open="false"
+                                label="Arrangementstype *"
+                                json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                button-label="Velg arrangementstype"
+                                icon="fas fa-cog"
+                                v-model="arrangement.arrangement_type">
+
+                            </tree-select-component>
+
+                            <div class="text-danger" v-if="validationRules.stepOne.showFormErrors && !validationRules.stepOne.arrangement_type.condition()">
+                                * Arrangementstype er påkrevd
+                            </div>
+                        </div>
+
+                        <div>
+                            <tree-select-component
+                                :is-open="false"
+                                label="Status"
+                                json-url="{% url 'arrangement:statustype_tree' %}"
+                                button-label="Velg status"
+                                icon="fas fa-cog"
+                                v-model="arrangement.status_type">
+
+                            </tree-select-component>
+                        </div>
+
+                        <div class="mt-2">
+                            <label for="meeting_place">Møtested (Norsk)</label>
+                            <input type="text" id="meeting_place" v-model="arrangement.meeting_place" class="form-control">
+                        </div>
+
+                        <div class="mt-1">
+                            <label for="meeting_place_en">Møtested (Engelsk)</label>
+                            <input type="text" id="meeting_place_en" v-model="arrangement.meeting_place_en" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-show="step == 2">
+                <div class="row">
+                    <div class="col-9">
+                        <div class="m-0 rounded-0 alert alert-danger text-dark mb-3" style="border-left: solid 10px #dc3545; background-color: #f4c2c7;" v-if="isInCollision">
+                            <h3 class="mt-2 mb-2">
+                                <i class="fas fa-exclamation-triangle"></i>&nbsp; Konflikter på ressurser
+                            </h3>
+
+                            Det har oppstått konflikter. Før du kan opprette dette arrangementet så må disse konfliktene løses.
+
+                            <div class="mt-2">
+                                <button class="btn wb-btn-secondary" @click="launchCollisionResolutionWizard(collisions)" type="button">
+                                    <i class="fas fa-question-circle"></i>&nbsp; Løs konfliktene
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <calendar-component
+                                @event-change="(event) => onEventChanged(event)"
+                                @date-changed="(date) =>  { header = date.toISOString(); }"
+                                :event-content="buildEventContent"
+                                :build-context-menu="buildContextMenu"
+                                :arrow-navigation="true"
+                                :nav-links="false"
+                                nav-link-day-click="timeGridDay"
+                                nav-link-week-click="timeGridWeek"
+                                :allowed-views="[ { name: 'timelineMonth', friendlyName: 'Måned' }, { name: 'timeGridWeek', friendlyName: 'Uke' }, { name: 'timeGridDay', friendlyName: 'Dag' } ]"
+                                :on-event-click="handleEventClickedInCalendar"
+                                :event-start-editable="true"
+                                :editable="true"
+                                height="50rem"
+                                view="timelineMonth"
+                                ref="calendar">
+                            </calendar-component>
+                        </div>
+                    </div>
+                    <div class="col-3">
+
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-end align-items-center">
+                                <div>
+                                    <button :class="['btn', { 'wb-btn-main': showActivitiesTab, 'wb-btn-secondary': !showActivitiesTab }]" @click="showActivitiesTab = true">
+                                        <i class="fas fa-calendar"></i>&nbsp; Tidspunkter
+                                    </button>
+                                    <button :class="['btn ms-2', { 'wb-btn-main': !showActivitiesTab, 'wb-btn-secondary': showActivitiesTab }]" @click="showActivitiesTab = false">
+                                        <i class="fas fa-tasks"></i>&nbsp; Tjenestebestilling
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div id="orders-tab" v-show="!showActivitiesTab">
+                                <div>
+                                    <button class="btn wb-btn-main w-100" @click="orderServiceDialogExpanded = true">
+                                        <i class="fas fa-dollar-sign"></i>&nbsp; Bestill tjenester
+                                    </button>
+                                </div>
+
+                                <hr>
+
+                                <div>
+                                    <div v-for="(serviceOrder, index) in arrangement.serviceOrders" :class="{ 'mt-2': index > 0 }">
+                                        <div class="d-flex" :class="{ 'wb-bg-secondary': (index % 2) > 0 }">
+                                            <div class="card w-100">
+                                                <div class="card-body wb-bg-secondary">
+                                                    <h5 class="card-title">
+                                                        <span class="fw-bold">
+                                                            [[ index + 1 ]].
+                                                        </span>
+
+                                                        Bestilling av [[ serviceOrder.services.map(x => x.name).join(", ") ]]
+                                                    </h5>
+
+
+                                                    <h6>Gjelder for:</h6>
+                                                    <ul>
+                                                        <li v-for="serie in serviceOrder.series">
+                                                            <span class="fw-bold">
+                                                                [[serie.title]]
+                                                            </span>
+                                                             - [[getSerieDescription(serie)]]
+                                                        </li>
+
+                                                        <li v-for="event in serviceOrder.events">
+                                                            [[event.title]]
+                                                        </li>
+                                                    </ul>
+
+                                                    <div class="mt-2">
+                                                        <button class="btn wb-btn-main btn-sm"
+                                                            @click="orderServiceDialogExpanded = true; focusedServiceOrder=serviceOrder;">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                        <button class="btn wb-btn-main btn-sm ms-2"
+                                                            @click="removeServiceOrder(index)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="activities-tab" v-show="showActivitiesTab">
+                                <div>
+                                    <button class="btn wb-btn-main w-100" @click="newEvent()">
+                                        <i class="fas fa-plus"></i>&nbsp; Legg til hendelse
+                                    </button>
+                                    <button class="btn wb-btn-main w-100 mt-2" @click="newSerie()">
+                                        <i class="fas fa-plus"></i>&nbsp; Legg til gjentagende hendelse
+                                    </button>
+                                </div>
+
+                                <hr>
+
+                                <div style="max-height: 800px!important; overflow: scroll;">
+                                    <ul class="list-group list-group-light mt-3">
+                                        <li class="list-group-item shadow-2 mt-2" v-for="event in arrangement.events">
+                                            <div class="d-flex align-items-center justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-circle" :style="event.color ? 'color: ' + event.color : ''"></i>
+                                                    <div class="ms-2 fw-bold">
+                                                        [[event.title]]
+                                                    </div>
+                                                </div>
+                                                <div class="fw-bold">
+                                                    [[ event.to_date == event.from_date ? event.from_date + '  ' + event.from_time + " - " + event.to_time : 'fra ' + event.from_date + ' ' + event.from_time + ' til ' + event.to_date + ' ' + event.to_time ]]
+                                                </div>
+
+                                                <div>
+                                                    <button class="btn wb-btn-main" @click="removeEvent(event)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                    <button class="btn wb-btn-main ms-2" @click="editEvent(event)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div v-if="event.collisions && event.collisions.length > 0">
+                                                <div>
+                                                    <i class="fas fa-alert-triangle"></i>
+                                                </div>
+                                                <table class="table table-bordered border border-dark table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th colspan="3" style="backgroundColor: #dc3545;" class="text-white fw-bold text-center">
+                                                                <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                                                                Konflikter
+                                                                <div>
+                                                                    Aktiviteten konflikterer med følgende andre aktiviteter;
+                                                                </div>
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="fw-bold text-center">Tittel</th>
+                                                            <th class="fw-bold text-center">Ressurs</th>
+                                                            <th class="fw-bold text-center">Tid</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="collision in event.collisions">
+                                                            <td>
+                                                                [[collision.event_b_title]]
+                                                            </td>
+                                                            <td>
+                                                                [[collision.contested_resource_name]]
+                                                            </td>
+                                                            <td>
+                                                                <div v-if="collision.event_b_start.split('T')[0] == collision.event_a_start.split('T')[0]">
+                                                                    [[ displayDate(new Date(collision.event_b_start)) ]] -- [[ new Date(collision.event_b_end).getHours() + ":" + new Date(collision.event_b_end).getMinutes() ]]
+                                                                </div>
+                                                                <div v-else>
+                                                                    [[ displayDate(new Date(collision.event_b_start)) ]] -- [[ displayDate(new Date(collision.event_b_end)) ]]
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </li>
+
+                                        <li class="list-group-item shadow-2 mt-2" v-for="serie in arrangement.series">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="fw-bold">
+                                                    <i class="fas fa-exclamation text-danger me-2" v-if="serie.collisions && serie.collisions.length > 0"></i>
+                                                    <i class="fas fa-redo"></i> [[serie.title]]
+                                                </div>
+
+                                                <div>
+                                                    <i class="fas fa-circle" :style="serie.color ? 'color: ' + serie.color : ''"></i>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                [[serie.schedule.exploded.length]] instanser forekommer
+                                                <br>
+                                                [[getSerieDescription(serie)]]
+                                            </div>
+
+                                            <div v-if="serie.collisions && serie.collisions.length > 0">
+                                                <div>
+                                                    <i class="fas fa-alert-triangle"></i>
+                                                </div>
+
+                                                <table class="table table-bordered border border-dark table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th colspan="2" style="backgroundColor: #dc3545;" class="text-white fw-bold text-center">
+                                                                <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                                                                Konflikter
+                                                                <div>
+                                                                    Serien konflikterer med følgende andre aktiviteter;
+                                                                </div>
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="fw-bold text-center">Tittel</th>
+                                                            <th class="fw-bold text-center">Tid</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="collision in serie.collisions.filter(x => !x.isHidden)">
+                                                            <td>
+                                                                [[collision.event_b_title]]
+                                                            </td>
+                                                            <td>
+                                                                <div v-if="collision.event_b_start.split('T')[0] == collision.event_a_start.split('T')[0]">
+                                                                    [[ displayDate(new Date(collision.event_b_start)) ]] -- [[ new Date(collision.event_b_end).getHours() + ":" + new Date(collision.event_b_end).getMinutes() ]]
+                                                                </div>
+                                                                <div v-else>
+                                                                    [[ displayDate(new Date(collision.event_b_start)) ]] -- [[ displayDate(new Date(collision.event_b_end)) ]]
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div class="d-flex justify-content-between mt-2">
+                                                <div class="float-start">
+                                                    <button class="btn wb-btn-secondary" @click="launchCollisionResolutionWizard(serie.collisions)" type="button" v-if="serie.collisions && serie.collisions.length > 0">
+                                                        <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                                                        Løs konflikter
+                                                    </button>
+                                                </div>
+                                                <div class="float-end">
+                                                    <button class="btn wb-btn-main" @click="removeSerie(serie)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                    <button class="btn wb-btn-main ms-2" @click="editSerie(serie)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-show="step == 3">
+                <h2>Oppsummering</h2>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Tittel</th>
+                                <th>Annet</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr v-for="event in arrangement.events">
+                                <td>Hendelse</td>
+                                <td>[[event.title]]</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </template>
+
+        <template v-slot:footer>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <button class="btn wb-btn-secondary" @click="step -= 1">
+                        <i class="fas fa-arrow-left"></i>
+                        Tilbake
+                    </button>
+                </div>
+
+                <div v-if="step != 3">
+                    <button class="btn wb-btn-main" @click="progressIfValid()" :disabled="isInCollision">
+                        <i class="fas fa-arrow-right"></i>
+                        Neste
+                    </button>
+                </div>
+                <div v-else>
+                    <button class="btn wb-btn-main" @click="submitNewArrangement()">
+                        <i class="fas fa-arrow-right"></i>
+                        Opprett
+                    </button>
+                </div>
+            </div>
+        </template>
+
+    </dialog-component>
+</template>
+
+<script>
+    function toDisplayString(date) {
+        return date.toLocaleDateString('nb-NO', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    function toTimeDisplayString(date) {
+        return String(date.getHours()).padStart(2, '0') + ":" + String(date.getMinutes()).padStart(2, '0');
+    }
+
+    function isSameDate(dateA, dateB) {
+        return dateA.getDate() === dateB.getDate() &&
+               dateA.getMonth() === dateB.getMonth() &&
+               dateA.getYear() === dateB.getYear();
+    }
+
+    function toStartEndDisplayString(dateA, dateB) {
+        return `${toDisplayString(dateA)} - ${isSameDate(dateA, dateB) ? toTimeDisplayString(dateB) : toDisplayString(dateB)}`;
+    }
+
+    let PlannerBaseDialog = {
+        template: "#vuec-planner-base",
+        delimiters: ['[[', ']]'],
+        props: {
+            isVisible: {
+                type: Boolean,
+                default: false
+            }
+        },
+        emits: ['close', 'arrangementCreated'],
+        computed: {
+            allFcEvents() {
+                let allEvents = this.arrangement.events.map(x => x.fc);
+                for (const serie of this.arrangement.series) {
+                    allEvents = allEvents.concat(serie.schedule.exploded.map(x => x.fc));
+                }
+
+                return allEvents;
+            },
+            collisions() {
+                const getCollisions = (arr) => {
+                    if (arr && arr.length > 0) {
+                        return arr.map(x => x.collisions)
+                                  .filter(x => x && x.length > 0)
+                                  .reduce((accumulator, currentValue) => accumulator.concat(currentValue));
+                    }
+
+                    return [];
+                }
+
+                const x = [].concat(getCollisions(this.arrangement.series))
+                         .concat(getCollisions(this.arrangement.events))
+                return x;
+            }
+        },
+        data: function() {
+            // Attempt to get either the event or serie information from the element
+            // Returns an array with [ type, entity ]
+            const getCalendarEntityFromElement = (element) => {
+                const extractClassStoredMetadata = (element, className, separator) => {
+                    return [...element.classList]
+                        .filter((x) => x.startsWith(className))
+                        ?.map((x) => x.split(separator).pop())[0];
+                }
+
+                const eventUuid = extractClassStoredMetadata(element, "event", ":");
+                const serieUuid = extractClassStoredMetadata(element, "serie-event", ":");
+                const collisionGhostUuid = extractClassStoredMetadata(element, "collisionGhost", ":")
+
+                const startDate = extractClassStoredMetadata(element, "start-date", ":");
+                const endDate   = extractClassStoredMetadata(element, "end-date", ":")
+
+                if (eventUuid) {
+                    let eventObject = this.arrangement.events.filter(x => x.uuid == eventUuid)[0];
+                    return [ "event", eventObject, startDate, endDate ];
+                }
+                if (serieUuid) {
+                    let serie = this.arrangement.series.filter(x => x.uuid == serieUuid)[0];
+                    return [ "serie", serie, startDate, endDate ];
+                }
+                if (collisionGhostUuid) {
+                    let collision = this.collisions.filter(x => x.uuid = collisionGhostUuid).pop();
+                    return [ "collisionGhost", collision, startDate, endDate ];
+                }
+
+                throw new Error("Could not find uuid - no matching class found on element");
+            }
+
+            const calendarEntityTypes = {
+                event: {
+                    "edit": this.editEvent,
+                    "delete": this.removeEvent
+                },
+                serie: {
+                    "edit": this.editSerie,
+                    "delete": this.removeSerie
+                },
+                collisionGhost: {
+                    "edit": null,
+                    "delete": null,
+                }
+            }
+
+            return {
+                buildEventContent: (arg) => {
+                    let html = arg.event.title;
+
+                    if (arg.event.extendedProps.isCollision) {
+                        html = "<i class='fas fa-exclamation-triangle'></i>&nbsp;" + html;
+                    }
+                    if (arg.event.extendedProps.isInternalCollision) {
+                        html = "<i class='fas fa-exclamation-triangle'></i>&nbsp; <strong>(OVERBOOKING)</strong>" + html;
+                    }
+                    if (arg.event.extendedProps.parentType === "serie") {
+                        html = "<i class='fas fa-redo'></i>&nbsp;" + html;
+                    }
+
+                    return { html: html }
+                },
+                focusedCollisions: [],
+                exclusiveRoomIds: [],
+                buildContextMenu: ($trigger) => {
+                    let options = {
+                        callback: function(key, options) {
+                            console.log(key, options);
+                        },
+                        items: {
+                            title: {
+                                type: "html",
+                                html: "<h4 class='fw-bold mb-0 mt-1'>$TITLE</h4>"
+                            },
+                            edit: {
+                                name: "<i class='fas fa-edit'></i>&nbsp; Rediger",
+                                isHtmlName: true,
+                                callback: (key, opt) => {
+                                    const [ type, entity ] = getCalendarEntityFromElement(opt.$trigger[0]);
+                                    calendarEntityTypes[type].edit(entity);
+                                }
+                            },
+
+                            delete: {
+                                name: "<i class='fas fa-trash'></i>&nbsp; Fjern",
+                                isHtmlName: true,
+                                callback: (key, opt) => {
+                                    const [ type, entity ] = getCalendarEntityFromElement(opt.$trigger[0]);
+                                    calendarEntityTypes[type].delete(entity);
+                                }
+                            }
+                        }
+                    }
+
+                    const [ type, entity, startDate, endDate ] = getCalendarEntityFromElement($trigger[0]);
+
+                    if (calendarEntityTypes[type].edit === null) {
+                        delete options.items.edit;
+                    }
+                    if (calendarEntityTypes[type].delete === null) {
+                        delete options.items.delete;
+                    }
+
+                    if (type == "serie") {
+                        options.items.title.html = `
+                            <div class="d-flex justify-content-between mb-2">
+                                <div>
+                                    ${options.items.title.html.replace("$TITLE", "<i class='fas fa-redo'></i>&nbsp;" + entity.title)}
+                                </div>
+                            </div>
+                            <div class='fw-light text-muted'>
+                                <div class='fw-bold'>
+                                    ${entity.start_time} -- ${entity.end_time}
+                                </div>
+                                <div>
+                                    ${window.SerieMetaTranslator.generate(entity.schedule.inOldStyle)}, totalt ${entity.schedule.exploded.length} forekomster.
+                                </div>
+                            </div>
+                            <hr>`;
+                        options.items.edit.name = "<i class='fas fa-edit text-success'></i>&nbsp; Rediger Serie";
+                        options.items.breakout = {
+                            name: "<i class='fas fa-arrow-right text-info'></i>&nbsp; Omgjør tidspunktet til unik aktivitet",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+                                if (!entity.excludedDates)
+                                    entity.excludedDates = [];
+
+                                entity.excludedDates.push(startDate);
+
+                                const y = entity.collisions.filter((collision) => {
+                                    return collision.event_a_start.split("T")[0] != startDate
+                                });
+
+                                entity.collisions = y;
+
+                                const eventUUID = crypto.randomUUID();
+                                this.arrangement.events.push({
+                                    _isNew: true,
+                                    uuid: eventUUID,
+                                    title: entity.title,
+                                    title_en: entity.title_en,
+                                    meeting_place: entity.meeting_place,
+                                    meeting_place_en: entity.meeting_place_en,
+                                    mainPlanner: entity.mainPlanner,
+                                    planners: entity.planners,
+                                    ticket_code: entity.ticket_code,
+                                    expected_visitors: entity.expected_visitors,
+                                    from_date: startDate,
+                                    to_date: endDate,
+                                    from_time: entity.start_time,
+                                    to_time: entity.end_time,
+                                    rooms: entity.rooms,
+                                    audience: entity.audience,
+                                    arrangement_type: entity.arrangement_type,
+                                    status_type: entity.status_type,
+                                    location: entity.location,
+
+                                    // TODO: Rigging must be looked at
+                                    riggingBefore: {
+                                        date: '',
+                                        start_time: '',
+                                        end_time: '',
+                                    },
+                                    riggingAfter: {
+                                        date: '',
+                                        start_time: '',
+                                        end_time: '',
+                                    },
+
+                                    fc: {
+                                        title:  entity.title,
+                                        start:  new Date(startDate + "T" + entity.start_time + ":00"),
+                                        end:    new Date(endDate + "T" + entity.end_time + ":00"),
+                                        classNames: [
+                                            'event:' + eventUUID
+                                        ],
+                                        extendedProps: {
+                                            parentType: 'event',
+                                            parentUuid: eventUUID
+                                        }
+                                    }
+                                });
+
+                                this.regenerateEventSource();
+                            }
+                        };
+                        options.items.delete.name = "<i class='fas fa-trash text-danger'></i>&nbsp; Fjern serie";
+                        options.items.excludeDate = {
+                            name: "<i class='fas fa-times text-danger'></i>&nbsp; Fjern tidspunktet",
+                            isHtmlName: true,
+                            callback: (key, opt) => {
+                                if (!entity.excludedDates)
+                                    entity.excludedDates = [];
+
+                                entity.excludedDates.push(startDate);
+
+                                this.regenerateEventSource();
+                            }
+                        };
+                    }
+
+                    if (type == "event") {
+                        options.items.title.html = `
+                            ${options.items.title.html.replace("$TITLE", entity.title)}
+                            <div class='fw-light text-muted'>
+                                <div>
+                                    ${entity.from_date == entity.to_date ? entity.from_date : string(entity.from_date) + " " + string(entity.to_date) }
+                                </div>
+                                <div class="d-flex">
+                                    <div>
+                                        <input type='time' value='${entity.from_time}'>
+                                    </div>
+                                    <div class="ms-1 me-1">
+                                        -
+                                    </div>
+                                    <div>
+                                        <input type='time' value='${entity.to_time}'>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>`;
+                        options.items.edit.name = "<i class='fas fa-edit text-success'></i>&nbsp; Rediger aktivitet";
+                        options.items.delete.name = "<i class='fas fa-trash text-danger'></i>&nbsp; Fjern aktivitet";
+                    }
+
+                    if (type == "collisionGhost") {
+                        options.items.title.html = `
+                            ${options.items.title.html.replace("$TITLE", entity.event_b_title)}
+
+                            <div class='alert alert-danger'>
+                                konflikt
+                            </div>
+                        `;
+
+                        options.items.resolve = {
+                            name: "<i class='fas fa-hammer'></i>&nbsp; Løs konflikt",
+                            isHtmlName: true,
+                            callback: (ey, opt) => {
+                                this.collisionResolutionWizardExpanded=true;
+                            }
+                        }
+                    }
+
+                    return options;
+                },
+                validationRules: {
+                    stepOne: {
+                        showFormErrors: false,
+                        title: { friendlyName: "Tittel", condition: () => this.arrangement.title.length > 0 },
+                        location: { friendlyName: "Lokasjon", condition: () => this.arrangement.location.length > 0 },
+                        audience: { friendlyName: "Målgruppe", condition: () => this.arrangement.audience != null },
+                        arrangement_type: { friendlyName: "Arrangementstype", condition: () => this.arrangement.arrangement_type != null }
+                    }
+                },
+                isInCollision: false,
+                header: "",
+                step: 1,
+                baseDialogEl: null,
+                nextStep: false,
+                showActivitiesTab: true,
+                editSerieDialogExpanded: false,
+                editEventDialogExpanded: false,
+                orderServiceDialogExpanded: false,
+                collisionResolutionWizardExpanded: false,
+                focusedEvent: null,
+                focusedServiceOrder: null,
+                calendarEventsSource: [],
+                focusedSerie: null,
+                colors: [
+                    "#63b598", "#ce7d78", "#ea9e70", "#a48a9e", "#c6e1e8", "#648177", "#0d5ac1",
+                    "#f205e6", "#1c0365", "#14a9ad", "#4ca2f9", "#a4e43f", "#d298e2", "#6119d0",
+                    "#d2737d", "#c0a43c", "#f2510e", "#651be6", "#79806e", "#61da5e", "#cd2f00",
+                    "#9348af", "#01ac53", "#c5a4fb", "#996635", "#b11573", "#4bb473", "#75d89e",
+                    "#2f3f94", "#2f7b99", "#da967d", "#34891f", "#b0d87b", "#ca4751", "#7e50a8",
+                    "#c4d647", "#e0eeb8", "#11dec1", "#289812", "#566ca0", "#ffdbe1", "#2f1179",
+                    "#935b6d", "#916988", "#513d98", "#aead3a", "#9e6d71", "#4b5bdc", "#0cd36d",
+                    "#250662", "#cb5bea", "#228916", "#ac3e1b", "#df514a", "#539397", "#880977",
+                    "#f697c1", "#ba96ce", "#679c9d", "#c6c42c", "#5d2c52", "#48b41b", "#e1cf3b",
+                    "#5be4f0", "#57c4d8", "#a4d17a", "#be608b", "#96b00c", "#088baf", "#f158bf",
+                    "#e145ba", "#ee91e3", "#05d371", "#5426e0", "#4834d0", "#802234", "#6749e8",
+                    "#0971f0", "#8fb413", "#b2b4f0", "#c3c89d", "#c9a941", "#41d158", "#fb21a3",
+                    "#51aed9", "#5bb32d", "#21538e", "#89d534", "#d36647", "#7fb411", "#0023b8",
+                    "#3b8c2a", "#986b53", "#f50422", "#983f7a", "#ea24a3", "#79352c", "#521250",
+                    "#c79ed2", "#d6dd92", "#e33e52", "#b2be57", "#fa06ec", "#1bb699", "#6b2e5f",
+                    "#64820f", "#21538e", "#89d534", "#d36647", "#7fb411", "#0023b8", "#3b8c2a",
+                    "#986b53", "#f50422", "#983f7a", "#ea24a3", "#79352c", "#521250", "#c79ed2",
+                    "#d6dd92", "#e33e52", "#b2be57", "#fa06ec", "#1bb699", "#6b2e5f", "#64820f",
+                    "#9cb64a", "#996c48", "#9ab9b7", "#06e052", "#e3a481", "#0eb621", "#fc458e",
+                    "#b2db15", "#aa226d", "#792ed8", "#73872a", "#520d3a", "#cefcb8", "#a5b3d9",
+                    "#7d1d85", "#c4fd57", "#f1ae16", "#8fe22a", "#ef6e3c", "#243eeb", "#dd93fd",
+                    "#3f8473", "#e7dbce", "#421f79", "#7a3d93", "#635f6d", "#93f2d7", "#9b5c2a",
+                    "#15b9ee", "#0f5997", "#409188", "#911e20", "#1350ce", "#10e5b1", "#fff4d7",
+                    "#cb2582", "#ce00be", "#32d5d6", "#608572", "#c79bc2", "#00f87c", "#77772a",
+                    "#6995ba", "#fc6b57", "#f07815", "#8fd883", "#060e27", "#96e591", "#21d52e",
+                     "#b47162", "#1ec227", "#4f0f6f", "#1d1d58", "#947002", "#bde052",
+                    "#e08c56", "#28fcfd", "#36486a", "#d02e29", "#1ae6db", "#3e464c", "#a84a8f",
+                    "#911e7e", "#3f16d9", "#0f525f", "#ac7c0a", "#b4c086", "#c9d730", "#30cc49",
+                    "#3d6751", "#fb4c03", "#640fc1", "#62c03e", "#d3493a", "#88aa0b", "#406df9",
+                    "#615af0", "#2a3434", "#4a543f", "#79bca0", "#a8b8d4", "#00efd4", "#7ad236",
+                    "#7260d8", "#1deaa7", "#06f43a", "#823c59", "#e3d94c", "#dc1c06", "#f53b2a",
+                    "#b46238", "#2dfff6", "#a82b89", "#1a8011", "#436a9f", "#1a806a", "#4cf09d",
+                    "#c188a2", "#67eb4b", "#b308d3", "#fc7e41", "#af3101", "#71b1f4", "#a2f8a5",
+                    "#e23dd0", "#d3486d", "#00f7f9", "#474893", "#3cec35", "#1c65cb", "#5d1d0c",
+                    "#2d7d2a", "#ff3420", "#5cdd87", "#a259a4", "#e4ac44", "#1bede6", "#8798a4",
+                    "#d7790f", "#b2c24f", "#de73c2", "#d70a9c", "#88e9b8", "#c2b0e2", "#86e98f",
+                    "#ae90e2", "#1a806b", "#436a9e", "#0ec0ff", "#f812b3", "#b17fc9", "#8d6c2f",
+                    "#d3277a", "#2ca1ae", "#9685eb", "#8a96c6", "#dba2e6", "#76fc1b", "#608fa4",
+                    "#20f6ba", "#07d7f6", "#dce77a", "#77ecca", "#c95dfa", "#d8ffec", "#baf2aa",
+                ],
+                arrangement: {
+                    title: '',
+                    title_en: '',
+                    audience: null,
+                    status_type: null,
+                    arrangement_type: null,
+                    rooms: [],
+                    location: [],
+                    events: [],
+                    series: [],
+                    serviceOrders: [],
+                    displayLayoutText: '',
+                    displayLayouts: []
+                }
+            }
+        },
+        methods: {
+            /** Sub-creation dialogs should call this method to evaluate if their proposed event will cause overbooking.
+            Expects a fullcalendar event (populated with resourceIds and times).
+            If proposed event would be overbooking then we return { allowed: false, room: $roomThatCantBeDoubleBooked }
+            If it is allowable, we return { allowed: true }
+            */
+            internalOverbookingValidationHook(proposedFcEvent) {
+                const exclusiveRoomIds = this.exclusiveRooms.map(x => x.id);
+                const exclusiveRoomsUsed = proposedFcEvent.resourceIds
+                    .filter(x => exclusiveRoomIds.includes(x))
+                    .map(x => this.exclusiveRooms.filter(y => y.id == x)[0]);
+
+                if (exclusiveRoomsUsed.length == 0) {
+                    return {
+                        allowed: true,
+                        proposedFcEvent: proposedFcEvent,
+                        exclusiveRoomIds: exclusiveRoomIds
+                    }
+                }
+
+                let conflicts = new Map();
+
+                if (exclusiveRoomsUsed.length > 0) {
+                    for (const exclusiveRoom of exclusiveRoomsUsed) {
+                        const otherEventsUsingThisRoom = this.allFcEvents.filter(x => x.resourceIds.includes(exclusiveRoom.id));
+
+                        for (const otherEvent of otherEventsUsingThisRoom) {
+                            if (proposedFcEvent.start < otherEvent.end && proposedFcEvent.end > otherEvent.start) {
+                                if (!conflicts.has(otherEvent.uuid))
+                                    conflicts.set(otherEvent.uuid, { event: otherEvent, exclusiveRoomsUsed: [] });
+                                conflicts.get(otherEvent.uuid).exclusiveRoomsUsed.push(exclusiveRoom);
+                            }
+                        }
+                    }
+                }
+
+                if (conflicts.size === 0) {
+                    return { allowed: true };
+                }
+
+                return {
+                    allowed: false,
+                    conflicts: Array.from(conflicts.values())
+                }
+            },
+            onEventChanged(eventInfo) {
+                if (eventInfo.oldEvent.extendedProps.parentType === "serie") {
+                    Swal.fire({
+                        title: "Tidspunktet tilhører en gjentagende hendelse",
+                        text: "Dette tidspunktet tilhører en gjentagende hendelse. Ved å flytte den vil tidspunktet brytes ut av den gjentagende hendelsen. Er du sikker?",
+                        icon: "question",
+                        confirmButtonColor: "#3085d6",
+                        showCancelButton: true,
+                        cancelButtonText: "Avbryt"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const serie = this.arrangement.series.filter(x => x.uuid == eventInfo.oldEvent.extendedProps.parentUuid)[0];
+                            this.breakoutDateFromSerie(serie, eventInfo.oldEvent.start, eventInfo.event.start, eventInfo.event.end);
+                        } else {
+                            eventInfo.revert();
+                        }
+                    });
+                }
+            },
+            removeServiceOrder(index) {
+                Swal.fire({
+                    title: "Er du sikker?",
+                    text: "Er du sikker på at du vil fjerne denne tjenestebestillingen?",
+                    icon: "warning",
+                    confirmButtonColor: "#3085d6",
+                    showCancelButton: true,
+                    cancelButtonText: "Avbryt"
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        this.arrangement.serviceOrders.splice(index, 1);
+                    }
+                });
+            },
+            progressIfValid() {
+                if (this.step == 1) {
+                    const validationStepOne = Object.keys(this.validationRules.stepOne)
+                        .map(x => this.validationRules.stepOne[x])
+                        .filter(x => typeof x == "object" && "condition" in x);
+
+                    if (validationStepOne.some(x => x.condition() == false)) {
+                        const listHtml = "<ul>" + validationStepOne.filter(x => x.condition() == false).map(x => "<li>" + x.friendlyName + "</li>").join("") + "</ul>";
+                        Swal.fire({
+                            title: "Validasjonsfeil",
+                            html: "Vennligst fyll ut disse feltene før du går videre.\n" + listHtml,
+                            icon: "warning",
+                            confirmButtonColor: "#3085d6",
+                        });
+                        this.validationRules.stepOne.showFormErrors = true;
+                        return;
+                    }
+                }
+
+                if (this.step == 2) {
+                    if (this.arrangement.events.length == 0 && this.arrangement.series.length == 0) {
+                        Swal.fire({
+                            title: "Ingen aktiviteter",
+                            text: "Du må legge til minst én aktivitet før du kan fortsette.",
+                            icon: "warning",
+                            confirmButtonColor: "#3085d6",
+                        });
+                        return;
+                    }
+
+                    if (this.isInCollision) {
+                        Swal.fire({
+                            title: "Konflikter",
+                            text: "Konfliktene må løses før du kan fortsette. Endre tider, ressurs, eller fjern tidspunkter i konflikt.",
+                            icon: "warning",
+                            confirmButtonColor: "#3085d6",
+                        });
+                        return;
+                    }
+                }
+
+                this.step++;
+            },
+            launchCollisionResolutionWizard(collisions) {
+                this.collisionResolutionWizardExpanded = true;
+                this.focusedCollisions = collisions;
+            },
+            handleEventConflictResolutionDelete(originalStart, changedEvent, successCallback) {
+                const parentId = changedEvent.extendedProps.parentId;
+                const parentType = changedEvent.extendedProps.parentType;
+
+                switch (changedEvent.extendedProps.parentType) {
+                    case "event":
+                        let event = this.arrangement.events.filter(x => x.uuid == parentId)[0];
+                        this.arrangement.events = this.arrangement.events.filter(x => x.uuid != parentId);
+                        this.regenerateEventSource();
+                        successCallback();
+                        break;
+                    case "serie":
+                        let serie = this.arrangement.series.filter(x => x.uuid == parentId)[0];
+                        if (!serie.excludedDates)
+                            serie.excludedDates = [];
+
+                        serie.excludedDates.push(originalStart.toISOString().split("T")[0]);
+                        this.regenerateEventSource();
+                        successCallback();
+                        break;
+                    default:
+                        throw new Error("Unknown parent type");
+                };
+            },
+            handleEventConflictResolutionChange(originalStart, changedEvent, successCallback) {
+                const dateCompare = (date1, date2) => {
+                    let date1Val = date1.getDate() + "-" + date1.getMonth() + "-" + date1.getYear();
+                    let date2Val = date2.getDate() + "-" + date2.getMonth() + "-" + date2.getYear();
+                    return date1Val === date2Val;
+                }
+
+                const parentId = changedEvent.extendedProps.parentId;
+                const parentType = changedEvent.extendedProps.parentType;
+
+                switch (changedEvent.extendedProps.parentType) {
+                    case "event":
+                        let event = this.arrangement.events.filter(x => x.uuid == parentId)[0];
+
+                        event.from_date = changedEvent.start.toISOString().split("T")[0];
+                        event.to_date = changedEvent.end.toISOString().split("T")[0];
+                        event.from_time = String(changedEvent.start.getHours()).padStart(2, '0') + ":" + String(changedEvent.start.getMinutes()).padStart(2, '0');
+                        event.to_time = String(changedEvent.end.getHours()).padStart(2, '0') + ":" + String(changedEvent.end.getMinutes()).padStart(2, '0');
+                        event.rooms = changedEvent.resourceIds;
+
+                        event.fc = {
+                            ...event.fc,
+                            start: changedEvent.start,
+                            end: changedEvent.end,
+                            classNames: [
+                                'event:' + event.uuid,
+                                'start-date:' + event.from_date,
+                                'end-date:' + event.to_date
+                            ]
+                        };
+
+                        this.regenerateEventSource();
+
+                        successCallback();
+                        break;
+                    case "serie":
+                        let serie = this.arrangement.series.filter(x => x.uuid == parentId)[0];
+                        this.breakoutDateFromSerie(serie, originalStart, changedEvent.start, changedEvent.end);
+                        successCallback();
+                        break;
+                    default:
+                        throw new Error("Unknown parent type");
+                };
+            },
+            /** Break a date out from a serie into its own unique event */
+            breakoutDateFromSerie(serie, originalStartDate, newStartDate, newEndDate) {
+                const dateCompare = (date1, date2) => {
+                    return date1.getFullYear() === date2.getFullYear() &&
+                           date1.getMonth() === date2.getMonth() &&
+                           date1.getDate() === date2.getDate();
+                }
+
+                let serieEvent =  serie.schedule.exploded.filter(x => dateCompare(x.from, originalStartDate))[0];
+
+                if (serie.excludedDates === undefined)
+                    serie.excludedDates = [];
+
+                serie.excludedDates.push(originalStartDate.toISOString().split("T")[0]);
+
+                const eventUUID = crypto.randomUUID();
+                this.arrangement.events.push({
+                    _isNew: true,
+                    uuid: eventUUID,
+                    title: serie.title,
+                    title_en: serie.title_en,
+                    meeting_place: serie.meeting_place,
+                    meeting_place_en: serie.meeting_place_en,
+                    mainPlanner: serie.mainPlanner,
+                    planners: serie.planners,
+                    ticket_code: serie.ticket_code,
+                    expected_visitors: serie.expected_visitors,
+                    from_date: newStartDate.toISOString().split("T")[0],
+                    to_date: newEndDate.toISOString().split("T")[0],
+                    from_time: String(newStartDate.getHours()).padStart(2, '0') + ":" + String(newStartDate.getMinutes()).padStart(2, '0'),
+                    to_time: String(newEndDate.getHours()).padStart(2, '0') + ":" + String(newEndDate.getMinutes()).padStart(2, '0'),
+                    rooms: serie.rooms,
+                    audience: serie.audience,
+                    arrangement_type: serie.arrangement_type,
+                    status_type: serie.status_type,
+                    location: serie.location,
+
+                    riggingBefore: {
+                        date: '',
+                        start_time: '',
+                        end_time: ''
+                    },
+                    riggingAfter: {
+                        date: '',
+                        start_time: '',
+                        end_time: ''
+                    },
+
+                    fc: {
+                        title: serie.title,
+                        start: newStartDate,
+                        end:   newEndDate,
+                        classNames: [
+                            'event:' + eventUUID
+                        ],
+                        extendedProps: {
+                            parentType: 'event',
+                            parentUuuid: eventUUID
+                        }
+                    }
+                });
+
+                this.regenerateEventSource();
+            },
+            close() {
+                this.$emit('close');
+            },
+            displayDate(date) {
+                return date.toLocaleString([], {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            },
+            async collisionAnalysis() {
+
+                {% comment %} let allEvents = this.arrangement.events.map(x => x.fc);
+                for (const serie of this.arrangement.series) {
+                    allEvents = allEvents.concat(serie.schedule.exploded.map(x => x.fc));
+                }
+
+                // Handle internal overbookings (where two or more events, created in this planning, claim the same exclusive resource at intersecting times).
+                let resourcesUsed = allEvents.flatMap(event => event.resourceIds);
+                const exclusiveRoomsUsed = resourcesUsed.filter(x => this.exclusiveRooms.includes(x));
+                if (exclusiveRoomsUsed.length > 0) {
+                    for (const exclusiveRoomId of exclusiveRoomsUsed) {
+                        const eventsUsingThisRoom = allEvents.filter(x => x.resourceIds.includes(exclusiveRoomId));
+
+                        for (const event of eventsUsingThisRoom) {
+                            for (const otherEvent of eventsUsingThisRoom) {
+                                if (event == otherEvent)
+                                    continue;
+
+                                if (event.start < otherEvent.end && event.end > otherEvent.start) {
+                                    event.extendedProps.isInternalCollision = true;
+                                    otherEvent.extendedProps.isInternalCollision = true;
+
+                                    switch (event.extendedProps.parentType) {
+                                        case "event":
+                                            let event = this.arrangement.events.filter(x => x.uuid == event.extendedProps.parentUuid)[0];
+                                            event.isInternalCollision = true;
+                                            event.collidesWith = otherEvent;
+                                            break;
+                                        case "serie":
+                                            let serie = this.arrangement.series.filter(x => x.uuid == event.extendedProps.parentUuid)[0];
+                                            if ("internalCollisions" in serie === false) {
+                                                serie.internalCollisions = [];
+                                            }
+
+                                            serie.internalCollisions.push({
+                                                ourEvent: event,
+                                                otherEvent: otherEvent
+                                            });
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } {% endcomment %}
+
+                const eventsForAnalysis = this.arrangement.events.map(x => {
+                    return {
+                        _originalEvent: x,
+                        title: x.title,
+                        fromDate: x.from_date + " " + x.from_time,
+                        toDate: x.to_date + " " + x.to_time,
+                        rooms: x.rooms,
+                        startTime: x.from_time,
+                        endTime: x.end_time
+                    }
+                });
+                const seriesForAnalysis = this.arrangement.series.map(x => {
+                    return {
+                        _originalSerie: x,
+                        pattern: x.schedule.pattern,
+                        patternRoutine: x.schedule.subpattern,
+                        timeAreaMethod: x.schedule.recurrenceMethod,
+                        startDate: x.schedule.startDate,
+                        startTime: x.start_time,
+                        endTime: x.end_time,
+                        ticketCode: x.ticket_code,
+                        expectedVisitors: x.expected_visitors,
+                        title: x.title,
+                        title_en: x.title_en,
+                        rooms: x.rooms,
+                        display_layouts: x.display_layouts,
+                        interval: x.schedule.interval,
+                        day_of_month: x.schedule.dayOfMonth,
+                        arbitrator: x.schedule.arbitrator,
+                        day_of_week: x.schedule.dayOfWeek,
+                        month: x.schedule.month,
+                        stopWithin: x.schedule.endDate,
+                        stopAfterXInstances: x.schedule.noOfInstances,
+                        projectionDistanceInMonths: x.schedule.projectHowFarInMonths,
+                        status: x.status,
+                        audience: x.audience,
+                        arrangement_type: x.arrangement_type,
+                        display_text: x.display_text,
+                        responsible: x.responsible,
+                        predecessorSerie: null,
+                        meeting_place: x.meeting_place,
+                        meeting_place_en: x.meeting_place_en,
+                        predecessorSerie: 0,
+                        internal_uuid: x.uuid,
+                        exclusions: x.excludedDates
+                    }
+                });
+
+                const objToFormData = (obj) => {
+                    const formData = new FormData();
+                    for (const key of Object.keys(obj)) {
+                        if (obj[key] !== undefined) {
+                            const val = obj[key];
+                            if (Array.isArray(val))
+                                for (let i = 0; i < val.length; i++)
+                                    formData.append(key, val[i]);
+                            else
+                                formData.set(key, obj[key]);
+                        }
+                    }
+                    return formData;
+                }
+
+                let knownCollisionEventIdsSet = new Set();
+
+                const hideCollisionIfAlreadySeen = (collision) => {
+                    if (knownCollisionEventIdsSet.has(collision.event_b_id)) {
+                        // A collision event can appear multiple times, e.g two events colliding
+                        // with the same event. We only want to display the collision once, but we do want
+                        // to allow collision resolution for both events. Therefore this.
+                        collision.isHidden = true;
+                    }
+                    else {
+                        knownCollisionEventIdsSet.add(collision.event_b_id);
+                    }
+                }
+
+                for (const eventToAnalyze of eventsForAnalysis) {
+                    eventToAnalyze._originalEvent.collisions = [];
+
+                    const results = await fetch("/arrangement/analysis/analyzeNonExistentEvent", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: objToFormData(eventToAnalyze)
+                    }).then(response => response.json())
+                      .then(data => {
+                        if (!Array.isArray(data))
+                            data = [ data ];
+
+                        for (const collision of data) {
+                            collision.parentType = "event";
+                            collision.parentId = eventToAnalyze._originalEvent.uuid;
+                            collision.resourceIds = eventToAnalyze.rooms;
+                            hideCollisionIfAlreadySeen(collision);
+                        }
+
+                        eventToAnalyze._originalEvent.collisions = data;
+                    });
+                }
+
+                for (const serieToAnalyze of seriesForAnalysis) {
+                    const results = await fetch("/arrangement/analysis/analyzeNonExistentSerie", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: objToFormData(serieToAnalyze)
+                    }).then(response => response.json())
+                      .then(data => {
+                        // We need to extract double collisions. This can happen if a event has multiple rooms
+                        // and collides with another event that has two or more of those rooms selected as well.
+                        // We can uniquely identify the event based on the event_a_start, which means we know that for
+                        // every event_a_start a collision_b_event_id should appear only once - no more.
+                        for (const collision of data) {
+                            if (data.filter(x => x.event_a_start == collision.event_a_start).length > 1) {
+                                data = data.filter(x => x.event_a_start != collision.event_a_start);
+                                data.push(collision); // leave one
+                                continue;
+                            }
+                        }
+
+                        for (const collision of data) {
+                            collision.resourceIds = serieToAnalyze._originalSerie.rooms;
+                            collision.parentType = "serie";
+                            collision.parentId = serieToAnalyze._originalSerie.uuid;
+
+                            // a collision can still appear multiple times
+                            // just linked to different events, but never multiple times for the same event.
+                            hideCollisionIfAlreadySeen(collision);
+                        }
+
+                        serieToAnalyze._originalSerie.collisions = data;
+                    });
+                }
+            },
+            moveCalendarOneUnitForward() {
+                this.$refs.calendar.next();
+            },
+            moveCalendarOneUnitBackward() {
+                this.$refs.calendar.prev();
+            },
+            handleEventClickedInCalendar(eventClickInfo) {
+                const { event, el, jsEvent, view } = eventClickInfo;
+
+                if (event.extendedProps.parentType == "event") {
+                    let eventObject = this.arrangement.events.filter(x => x.uuid == event.extendedProps.parentUuid)[0];
+                    this.editEvent(eventObject);
+                    return;
+                }
+                if (event.extendedProps.parentType == "serie") {
+                    let serie = this.arrangement.series.filter(x => x.uuid == event.extendedProps.parentUuid)[0];
+                    this.editSerie(serie);
+                    return;
+                }
+            },
+            async regenerateEventSource() {
+                let events = [];
+
+                this.isInCollision = false;
+
+                await this.collisionAnalysis();
+
+                for (const serie of this.arrangement.series) {
+                    if (!serie.schedule) {
+                        continue;
+                    }
+
+                    if (!serie.color) {
+                        serie.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+                    }
+
+                    if (serie.collisions && serie.collisions.length > 0) {
+                        this.isInCollision = true;
+
+                        for (const exception of serie.collisions) {
+                            if (exception.isHidden) {
+                                continue;
+                            }
+
+                            exception.uuid = crypto.randomUUID();
+                            events.push({
+                                title: `<i class='fas fa-triangle'></i>&nbsp; ${exception.event_b_title} - ${exception.contested_resource_name}`,
+                                start: new Date(exception.event_b_start),
+                                end: new Date(exception.event_b_end),
+                                borderColor: "black",
+                                backgroundColor: "#dc3545",
+                                editable: false,
+                                startEditable: false,
+                                classNames: [
+                                    "collisionGhost:" +  exception.uuid,
+                                    "start-date:" + exception.event_b_start,
+                                    "end-date:" + exception.event_b_end
+                                ],
+                                textColor: "white",
+                                extendedProps: {
+                                    parentType: 'collisionGhost',
+                                    parentUuid: exception.uuid,
+                                    isCollision: true
+                                }
+                            });
+                        }
+                    }
+
+                    for (const ev of serie.schedule.exploded.map((ev) => ev.fc)) {
+                        if (serie.excludedDates
+                            && serie.excludedDates.includes(`${ev.start.getFullYear()}-${String(ev.start.getMonth() + 1).padStart(2, '0')}-${String(ev.start.getDate()).padStart(2, '0')}`)) {
+                            continue;
+                        }
+
+                        ev.color = serie.color;
+
+                        events.push(ev);
+                    }
+                }
+
+                let standaloneEvents = this.arrangement.events.filter(x => x.fc);
+                standaloneEvents.forEach((e) => {
+                    if (e.color) {
+                        e.fc.color = e.color;
+                        return;
+                    }
+
+                    if (e.fc.extendedProps.isInternalCollision) {
+                        e.fc.borderColor = "red";
+                    }
+
+                    if (e.collisions && e.collisions.length > 0) {
+                        this.isInCollision = true;
+
+                        for (const exception of e.collisions) {
+                            if (exception.isHidden) {
+                                continue;
+                            }
+
+                            exception.uuid = crypto.randomUUID();
+                            events.push({
+                                title: `<i class='fas fa-triangle'></i>&nbsp; ${exception.event_b_title}`,
+                                start: new Date(exception.event_b_start),
+                                end: new Date(exception.event_b_end),
+                                borderColor: "black",
+                                backgroundColor: "#dc3545",
+                                editable: false,
+                                startEditable: false,
+                                textColor: "white",
+                                classNames: [
+                                    "collisionGhost:" +  exception.uuid,
+                                    "start-date:" + exception.event_b_start,
+                                    "end-date:" + exception.event_b_end
+                                ],
+                                extendedProps: {
+                                    parentType: 'collisionGhost',
+                                    parentUuid: exception.uuid,
+                                    isCollision: true
+                                }
+                            });
+                        }
+                    }
+
+                    e.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+                    e.fc.color = e.color;
+                });
+
+                events = events.concat(standaloneEvents.map(x => x.fc));
+
+                this.calendarEventsSource = events;
+            },
+            rerender() {
+                this.$refs.calendar.render();
+                this.regenerateEventSource();
+            },
+            newEvent() {
+                this.editEventDialogExpanded = true;
+                this.focusedEvent = {
+                    _isNew: true,
+                    uuid:               crypto.randomUUID(),
+                    title:              this.arrangement.title,
+                    title_en:           this.arrangement.title_en,
+                    meeting_place:      this.arrangement.meeting_place,
+                    meeting_place_en:   this.arrangement.meeting_place_en,
+                    audience:           this.arrangement.audience,
+                    status_type:        this.arrangement.status_type,
+                    arrangement_type:   this.arrangement.arrangement_type,
+                    rooms:              this.arrangement.rooms,
+                    mainPlanner:        this.arrangement.mainPlanner,
+                    planners:           this.arrangement.planners,
+                    ticket_code:        this.arrangement.ticket_code,
+                    expected_visitors:  this.arrangement.expected_visitors || 0,
+                    location:           this.arrangement.location,
+                };
+            },
+            getSerieDescription(serie) {
+                if (serie.schedule)
+                    return window.SerieMetaTranslator.generate(serie.schedule.inOldStyle);
+
+                throw new Error("No serie description");
+            },
+            editEvent(event) {
+                this.focusedEvent = event;
+                this.editEventDialogExpanded = true;
+            },
+            removeEvent(event) {
+                Swal.fire({
+                    title: 'Er du sikker?',
+                    text: "Aktiviteten vil fjernes fra arrangementet",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Fjern',
+                    cancelButtonText: 'Avbryt'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.arrangement.events.forEach((e, index) => {
+                            if (e.uuid === event.uuid) {
+                                this.arrangement.events.splice(index, 1);
+                            }
+                        });
+
+                        this.regenerateEventSource();
+                    }
+                });
+            },
+            newSerie() {
+                this.editSerieDialogExpanded = true;
+
+                this.focusedSerie = {
+                    _isNew: true,
+                    uuid:               crypto.randomUUID(),
+                    title:              this.arrangement.title,
+                    title_en:           this.arrangement.title_en,
+                    meeting_place:      this.arrangement.meeting_place,
+                    meeting_place_en:   this.arrangement.meeting_place_en,
+                    audience:           this.arrangement.audience,
+                    status_type:        this.arrangement.status_type,
+                    arrangement_type:   this.arrangement.arrangement_type,
+                    rooms:              this.arrangement.rooms,
+                    mainPlanner:        this.arrangement.mainPlanner,
+                    planners:           this.arrangement.planners,
+                    ticket_code:        this.arrangement.ticket_code,
+                    expected_visitors:  this.arrangement.expected_visitors || 0,
+                    location:           this.arrangement.location,
+                    predecessorSerie: 0,
+                }
+            },
+            async submitNewArrangement() {
+                const arrangementFormData = new FormData();
+                arrangementFormData.append("csrf_token", "{{csrf_token}}");
+                arrangementFormData.append("name", this.arrangement.title);
+                arrangementFormData.append("name_en", this.arrangement.title_en || '');
+                arrangementFormData.append("audience", this.arrangement.audience);
+                arrangementFormData.append("location", this.arrangement.location);
+                arrangementFormData.append("arrangement_type", this.arrangement.arrangement_type);
+                if (this.arrangement.mainPlanner)
+                    arrangementFormData.append("responsible", this.arrangement.mainPlanner);
+                if (this.arrangement.status)
+                    arrangementFormData.append("status", this.arrangement.status);
+                arrangementFormData.append("ticket_code", this.arrangement.ticket_code || '');
+                arrangementFormData.append("meeting_place", this.arrangement.meeting_place || '');
+                arrangementFormData.append("meeting_place_en", this.arrangement.meeting_place_en || '');
+                arrangementFormData.append("expected_visitors", this.arrangement.expected_visitors || 0);
+
+                if (this.arrangement.planners)
+                    for (const planner of this.arrangement.planners)
+                        arrangementFormData.append("planners", planner);
+
+                arrangementFormData.append("display_text", this.arrangement.displayLayoutText);
+                this.arrangement.displayLayouts.forEach((displayLayout) => {
+                    arrangementFormData.append("display_layouts", displayLayout);
+                });
+
+                const arrangement = await fetch("/arrangement/arrangement/ajax/create", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: arrangementFormData
+                }).then(response => {
+                    if (response.status == 200) {
+                        return response.json();
+                    }
+                    else {
+                        Swal.fire({
+                            title: "Noe gikk galt",
+                            text: "Det oppstod en feil under lagring av arrangementet. Vennligst prøv igjen.",
+                            icon: "error",
+                            confirmButtonColor: "#3085d6"
+                        });
+
+                        throw new Error("Failed to save arrangement");
+                    }
+                });
+
+                for (const serie of this.arrangement.series) {
+                    const formData = new FormData();
+                    formData.append("timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    formData.append("arrangementPk", arrangement.arrangementPk);
+                    if (serie.rooms && serie.rooms.length > 0)
+                        formData.append("rooms", serie.rooms);
+                    formData.append("startTime", serie.start_time);
+                    formData.append("endTime", serie.end_time);
+                    formData.append("startDate", serie.schedule.startDate);
+                    formData.append("endDate", serie.schedule.endDate);
+                    formData.append("internal_uuid", serie.uuid);
+                    formData.append("expectedVisitors", serie.expected_visitors);
+                    formData.append("patternRoutine", serie.schedule.subpattern);
+                    formData.append("timeAreaMethod", serie.schedule.recurrenceMethod);
+                    formData.append("pattern", serie.schedule.pattern);
+                    formData.append("meeting_place", serie.meeting_place || "");
+                    formData.append("meeting_place_en", serie.meeting_place_en || "");
+
+                    switch (serie.schedule.recurrenceMethod) {
+                        case "StopWithin":
+                            formData.append("stopWithin", serie.schedule.endDate);
+                            break;
+                        case "StopAfterXInstances":
+                            formData.append("stopAfterXInstances", serie.schedule.noOfInstances);
+                            break;
+                        case "NoStopDate":
+                            formData.append("projectionDistanceInMonths", serie.schedule.projectHowFarInMonths);
+                            break;
+                        default:
+                            throw new Exception("Unknown recurrence method: '" + serie.schedule.recurrenceMethod + "'");
+                            break;
+                    }
+
+                    for (const key of Object.keys(serie)) {
+                        if (key == "rooms")
+                            continue;
+                        formData.append(key, serie[key]);
+                    }
+
+                    const serieResult = await fetch("/arrangement/event/create_serie",{
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    }).then(response => {
+                        if (response.status == 200) {
+                            return response.json();
+                        }
+
+                        Swal.fire({
+                            title: "Noe gikk galt",
+                            text: "Det oppstod en feil under lagring av serie. Vennligst prøv igjen.",
+                            icon: "error",
+                            confirmButtonColor: "#3085d6"
+                        });
+
+                        throw new Error("Failed to save serie", serie);
+                    });
+                }
+
+                for (const event of this.arrangement.events) {
+                    const eventFormData = new FormData();
+                    eventFormData.append("timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    eventFormData.append("arrangement", arrangement.arrangementPk);
+                    eventFormData.append("start", event.fc.start.toISOString());
+                    eventFormData.append("end", event.fc.end.toISOString());
+                    eventFormData.append("meeting_place", event.meeting_place || "");
+                    eventFormData.append("meeting_place_en", event.meeting_place_en || "");
+
+                    if (event.rooms && event.rooms.length)
+                        eventFormDataa.append("rooms", event.rooms);
+
+                    for (const key of Object.keys(event)) {
+                        if (key == "rooms")
+                            continue;
+                        eventFormData.append(key, event[key]);
+                    }
+
+                    const eventResult = await fetch("/arrangement/event/create", {
+                        method: 'POSt',
+                        body: eventFormData,
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    }).then(response => {
+                        if (response.status == 200) {
+                            return response.json();
+                        }
+
+                        Swal.fire({
+                            title: "Noe gikk galt",
+                            text: "Det oppstod en feil under lagring av aktivitet. Vennligst prøv igjen.",
+                            icon: "error",
+                            confirmButtonColor: "#3085d6"
+                        });
+
+                        throw new Error("Failed to save event", event, response);
+                    });
+                }
+
+                this.close();
+                toastr.success("Arrangementet ble opprettet");
+                this.$emit("arrangementCreated", arrangement);
+            },
+            removeSerie(serie) {
+                Swal.fire({
+                    title: 'Er du sikker?',
+                    text: "Den gjentagende aktiviteten vil fjernes fra arrangementet",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Fjern',
+                    cancelButtonText: 'Avbryt'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.arrangement.series.forEach((s, index) => {
+                            if (s.uuid === serie.uuid) {
+                                this.arrangement.series.splice(index, 1);
+                            }
+                        });
+
+                        this.regenerateEventSource();
+                    }
+                });
+            },
+            editSerie(serie) {
+                this.focusedSerie = serie;
+                this.editSerieDialogExpanded = true;
+            }
+        },
+        watch: {
+            step: function(val) {
+                if (val == 2) {
+                    this.$nextTick(() => {
+                        this.rerender();
+                    });
+                }
+            },
+            calendarEventsSource: function(val) {
+                this.$refs.calendar.removeAllEventSources();
+                this.$refs.calendar.addEventSource(val);
+            },
+            isVisible: function(val) {
+                this.$nextTick(() => {
+                    if (this.isVisible) {
+                        document.getElementById("baseCalendar").style.display = "none";
+                        this.step = 1;
+                        this.arrangement = {
+                            title: '',
+                            title_en: '',
+                            audience: null,
+                            status_type: null,
+                            arrangement_type: null,
+                            rooms: [],
+                            location: [],
+                            events: [],
+                            series: [],
+                            serviceOrders: [],
+                            displayLayoutText: '',
+                            displayLayouts: []
+                        };
+                        this.focusedCollisions = [];
+                        this.exclusiveRoomIds = [];
+                        this.focusedSerie = null;
+                        this.focusedevent = null;
+                        this.calendarEventsSource = [];
+                    }
+                    else {
+                        document.getElementById("baseCalendar").style.display = "block";
+                    }
+                    this.baseDialogEl = this.$refs.baseDialog.$el;
+                })
+            },
+            focusedServiceOrder: function(newValue, oldValue) {
+                if (newValue) {
+                    if (this.arrangement.serviceOrders.filter(x => x.id == newValue.id).length == 0) {
+                        this.arrangement.serviceOrders.push(newValue);
+                    }
+                    else {
+                        const existing = this.arrangement.serviceOrders.filter(x => x.id == newValue.id)[0];
+                        Object.assign(existing, newValue);
+                    }
+                }
+            },
+            focusedEvent: function(newValue) {
+                if (newValue) {
+                    if (newValue._isNew) {
+                        delete newValue._isNew;
+                        return;
+                    }
+
+                    this.arrangement.events.forEach((event, index) => {
+                        if (event.uuid === newValue.uuid) {
+                            this.arrangement.events.splice(index, 1);
+                        }
+                    });
+
+                    this.arrangement.events.push(newValue);
+
+                    this.regenerateEventSource();
+                }
+            },
+            focusedSerie: function(newValue) {
+                if (newValue) {
+                    if (newValue._isNew) {
+                        delete newValue._isNew;
+                        return;
+                    }
+
+                    this.arrangement.series.forEach((serie, index) => {
+                        if (serie.uuid === newValue.uuid) {
+                            this.arrangement.series.splice(index, 1);
+                        }
+                    });
+
+                    this.arrangement.series.push(newValue);
+
+                    this.regenerateEventSource();
+                }
+            }
+        },
+        mounted() {
+            fetch("/arrangement/room/exclusive", {
+                method: "GET",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            }).then(response => response.json())
+              .then(data => { this.exclusiveRooms = data; });
+        },
+        components: {
+            DialogComponent,
+            Stepper,
+            DisplayLayoutSelect,
+            TreeSelectComponent,
+            RoomsSelect,
+            CalendarComponent,
+            EditSerieDialog,
+            EditEventDialog,
+            SelectMainPlannerDialogComponent,
+            SelectMainPlannerS2,
+            LocationSelect,
+            CollisionResolutionWizard,
+            DesignerOrderServiceDialog
+        }
+    }
+</script>

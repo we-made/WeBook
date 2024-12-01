@@ -1,0 +1,444 @@
+{% include "arrangement/vue/select-main-planner-s2.html" %}
+
+<template id="editEventDialog">
+    <dialog-component
+        :is-draggable="true"
+        :is-visible="isVisible"
+        :chain-to="chainTo"
+        @close="$emit('close')">
+
+        <template v-slot:header>
+            <h3 class="mb-0 fw-bold">
+                Planlegg Aktivitet
+            </h3>
+        </template>
+
+        <template v-slot:content>
+            <div class="row">
+                <div class="col-6"> 
+                    <label class="fw-bold">Tittel (Norsk)</label>
+                    <input type="text" v-model="localEvent.title" class="form-control">
+                </div>
+    
+                <div class="col-6">
+                    <label class="fw-bold">Tittel (Engelsk)</label>
+                    <input type="text" v-model="localEvent.title_en" class="form-control">
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-6">
+                    <label class="fw-bold">
+                        <i class="fas fa-calendar-alt"></i>&nbsp; Fra
+                    </label>
+                    <input type="date" v-model="localEvent.from_date" class="form-control">
+                </div>
+
+                <div class="col-6">
+                    <label class="fw-bold">
+                        <i class="fas fa-clock"></i>&nbsp;
+                    </label>
+                    <input type="time" v-model="localEvent.from_time" class="form-control">
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-6">
+                    <label class="fw-bold">
+                        <i class="fas fa-calendar-alt"></i>&nbsp; Til
+                    </label>
+
+                    <input type="date" v-model="localEvent.to_date" class="form-control">
+                </div>
+                <div class="col-6">
+                    <label class="fw-bold">
+                        <i class="fas fa-clock"></i>&nbsp;
+                    </label>
+
+                    <input type="time" v-model="localEvent.to_time" class="form-control">
+                </div>
+            </div>
+
+            <div class="mt-3 row">
+                <div class="col-4">
+                    <label class="fw-bold">
+                        <i class="fas fa-building"></i>&nbsp;
+                        Lokasjon
+                    </label>
+                    <location-select v-model:selected="localEvent.location"></location-select>
+                </div>
+                <div class="col-8">
+                    <label class="fw-bold">
+                        <i class="fas fa-list"></i>&nbsp;
+                        Rom
+                    </label>
+                    <rooms-select v-model:selected="localEvent.rooms"></rooms-select>
+                </div>
+            </div>
+
+            <div class="accordion accordion-flush mt-3" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h4 class="accordion-header" id="flush-headingTwo">
+                      <button
+                        data-mdb-collapse-init
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-mdb-toggle="collapse"
+                        data-mdb-target="#flush-collapseTwo"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseTwo"
+                      >
+                        <div class="badge badge-success">
+                            <i class="fas fa-clipboard"></i>
+                        </div>
+
+                        <div class="ms-2">
+                            Detaljer
+                        </div>
+                      </button>
+                    </h4>
+                    <div
+                      id="flush-collapseTwo"
+                      class="accordion-collapse collapse"
+                      aria-labelledby="flush-headingTwo"
+                      data-mdb-parent="#accordionFlushExample"
+                    >
+                        <div class="accordion-body">
+                            <div>
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Målgruppe" 
+                                    json-url="{% url 'arrangement:audience_tree' %}"
+                                    button-label="Velg målgruppe"
+                                    icon="fas fa-users"
+                                    button-position="left"
+                                    v-model="localEvent.audience">
+                
+                                </tree-select-component>
+                            </div>
+              
+                            <div>
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Arrangementstype" 
+                                    json-url="{% url 'arrangement:arrangement_type_tree_list' %}"
+                                    button-label="Velg arrangementstype"
+                                    icon="fas fa-cog"
+                                    button-position="left"
+                                    v-model="localEvent.arrangement_type">
+                
+                                </tree-select-component>
+                            </div>
+              
+                            <div>
+                                <tree-select-component 
+                                    :is-open="false" 
+                                    label="Status" 
+                                    json-url="{% url 'arrangement:statustype_tree' %}"
+                                    button-label="Velg status"
+                                    icon="fas fa-cog"
+                                    button-position="left"
+                                    v-model="localEvent.status_type">
+                
+                                </tree-select-component>
+                            </div>
+                            <div>
+                                <label>Billettinfo</label>
+                                <input type="text" v-model="localEvent.ticket_code" class="form-control">
+                            </div>
+              
+                            <div class="mt-2">
+                                <label>Forventet besøkende</label>
+                                <input type="number" v-model="localEvent.expected_visitors" class="form-control">            
+                            </div>
+                      </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                  <h4 class="accordion-header" id="flush-headingOne">
+                    <button
+                      data-mdb-collapse-init
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-mdb-toggle="collapse"
+                      data-mdb-target="#flush-collapseOne"
+                      aria-expanded="false"
+                      aria-controls="flush-collapseOne"
+                    >
+                        <div class="badge badge-warning">
+                            <i class="fas fa-hammer"></i>
+                        </div>
+
+                        <div class="ms-2">
+                            Rigging
+                        </div>
+                    </button>
+                  </h4>
+                  <div
+                    id="flush-collapseOne"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="flush-headingOne"
+                    data-mdb-parent="#accordionFlushExample"
+                  >
+                    <div class="accordion-body">
+                        <h4>Opprigging</h4>
+                        <p>
+                            Definer tidspunkt for opprigging av arrangementet.
+                        </p>    
+                        
+                        <rigging-form v-model="localEvent.riggingBefore" @update:model-value="(n) => localEvent.riggingBefore = n"></rigging-form>
+                    
+                        <h4 class="mt-3">Nedrigging</h4>
+                        <p>
+                            Definer tidspunkt for nedrigging av arrangementet
+                        </p>
+            
+                        <rigging-form v-model="localEvent.riggingAfter"></rigging-form>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h4 class="accordion-header" id="flush-headingThree">
+                      <button
+                        data-mdb-collapse-init
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-mdb-toggle="collapse"
+                        data-mdb-target="#flush-collapseThree"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseThree"
+                      >
+                        <div class="badge badge-info">
+                            <i class="fas fa-tv"></i>
+                        </div>
+                        <div class="ms-2">
+                            Skjerm & Møteplass
+                        </div>
+                      </button>
+                    </h4>
+                    <div
+                      id="flush-collapseThree"
+                      class="accordion-collapse collapse"
+                      aria-labelledby="flush-headingThree"
+                      data-mdb-parent="#accordionFlushExample"
+                    >
+                      <div class="accordion-body">
+                        
+                        <display-layout-select></display-layout-select>
+
+                        <div class="mt-2">
+                            <label>Møtested (Norsk)</label>
+                            <input type="text" v-model="localEvent.meeting_place" class="form-control">
+                        </div>
+
+                        <div class="mt-2">
+                            <label>Møtested (Engelsk)</label>
+                            <input type="text" v-model="localEvent.meeting_place_en" class="form-control">
+                        </div>
+                      </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item mb-0">
+                    <h4 class="accordion-header mb-0" id="flush-headingFour">
+                        <div class="d-flex align-items-center">
+                            <button
+                                data-mdb-collapse-init
+                                class="accordion-button collapsed"
+                                type="button"
+                                data-mdb-toggle="collapse"
+                                data-mdb-target="#flush-collapseFour"
+                                aria-expanded="false"
+                                aria-controls="flush-collapseFour">
+                                <div class="badge badge-info">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="ms-2">
+                                    Planleggere
+                                </div>
+                            </button>
+                        </div>
+                    </h4>
+                    <div
+                      id="flush-collapseFour"
+                      class="accordion-collapse collapse"
+                      aria-labelledby="flush-headingThree"
+                      data-mdb-parent="#accordionFlushExample"
+                    >
+                      <div class="accordion-body">
+                        <div class="mt-2 w-25 ">
+                            <label class="d-block">Hovedplanlegger</label>
+                            <select-main-planner-s2
+                                v-model:selected="localEvent.mainPlanner">
+                            </select-main-planner-s2>
+                        </div>
+
+                        <div class="mt-2 w-25">
+                            <label class="d-block">Medplanleggere</label>
+                            <select-main-planner-s2 
+                                :multiple="true"
+                                v-model:selected="localEvent.planners">
+                            </select-main-planner-s2>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template v-slot:footer>
+            <div class="d-flex justify-content-between">
+                <button class="btn wb-btn-secondary" @click="close()">
+                    <i class="fas fa-times"></i>
+                    Avbryt
+                </button>
+                <button class="btn wb-btn-main" @click="save()">
+                    Lagre
+                </button>
+            </div>
+        </template>
+
+    </dialog-component>
+</template>
+
+<script>
+    let EditEventDialog = {
+        template: '#editEventDialog',
+        delimiters: ['[[', ']]'],
+        components: {
+            DialogComponent,
+            TreeSelectComponent, 
+            RoomsSelect, 
+            DisplayLayoutSelect, 
+            Stepper,
+            RiggingForm,
+            SelectMainPlannerS2,
+            LocationSelect
+        },
+        props: {
+            collisionValidationHook: {
+                type: Function,
+                default: () => {
+                    return (event) => {
+                        return {
+                            allowed: true,
+                            conflicts: []
+                        }
+                    }
+                }
+            },
+            event: {
+                type: Object,
+                default: () => {
+                    return {
+                        title: '',
+                        rooms: 0,
+                        audience: 0,
+                        arrangement_type: 0,
+                        status_type: 0,
+                        riggingBefore: {
+                            date: '',
+                            start_time: '',
+                            end_time: '',
+                        },
+                        riggingAfter: {
+                            date: '',
+                            start_time: '',
+                            end_time: '',
+                        },
+                    }
+                }
+            },
+            isVisible: {
+                type: Boolean,
+                default: false,
+            },
+            chainTo: {
+                type: String,
+                default: '',
+            },
+        },
+        methods: {
+            close() {
+                this.$emit('close');
+            },
+            save() {
+                this.localEvent.fc = {
+                    title: this.localEvent.title,
+                    start: new Date(this.localEvent.from_date + 'T' + this.localEvent.from_time),
+                    end:   new Date(this.localEvent.to_date + 'T' + this.localEvent.to_time),
+                    resourceIds: this.localEvent.rooms,
+                    classNames: [
+                        'event:' + this.localEvent.uuid, 
+                        'start-date:' + this.localEvent.from_date,
+                        'end-date:' + this.localEvent.to_date
+                    ],
+                    extendedProps: {
+                        parentType: 'event',
+                        parentUuid: this.localEvent.uuid,
+                    }
+                };
+
+                const overbookingValidationResults = this.collisionValidationHook(this.localEvent.fc);
+                if (overbookingValidationResults.allowed === false) {
+                    let description = `${overbookingValidationResults.conflicts}`;
+                    let list = "";
+                    for (const conflict of overbookingValidationResults.conflicts) {
+                        list += `
+                        <li>
+                            <strong>${conflict.event.title}</strong> - ${toStartEndDisplayString(conflict.event.start, conflict.event.end)}
+                            <ul>
+                                ${conflict.exclusiveRoomsUsed.map(room => `<li>${room.name}</li>`).join('')}
+                            </ul>
+                        </li>`;
+                    }
+
+                    description = `
+                        <div style="text-align:left;">
+                            <div class="alert alert-light">
+                                Du har allerede satt opp arrangementer i samme tidsrom på en eller flere eksklusive rom.
+                                På eksklusive rom kan det kun være ett arrangement om gangen.
+                            </div>
+                            <ul>${list}</ul>
+                            <div class="alert alert-light">
+                                Vennligst endre tidspunkt eller rom for arrangementet.
+                            </div>
+                        </div>`;
+
+                    Swal.fire({
+                        title: "Overbooking",
+                        html: description,
+                        icon: 'error',
+                        confirmButtonColor: '#231f20',
+                    }).then(() => {
+                        return;
+                    });
+
+                    return;
+                }
+                
+                this.$emit('update:event', this.localEvent);
+
+                this.close();
+            }
+        },
+        watch: {
+            event: {
+                handler: function(n, o) {
+                    console.log("Event changed", n, o)
+                    this.localEvent = {...n} || {};
+                    console.log("localEvent", this.localEvent);
+                },
+                deep: true,
+            }
+        },
+        emits: ['update:event', 'close'],
+        data() {
+            return {
+                localEvent: {...this.event} || {},
+            }
+        }
+    }
+</script>

@@ -2,5 +2,7 @@
     "python.formatting.provider": "black",
     "python.analysis.extraPaths": [
         "./webook/arrangement/dto"
-    ]
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

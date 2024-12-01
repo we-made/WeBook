@@ -1,0 +1,71 @@
+<template id="vuec-display-layout-select">
+    <h5>
+        <i class="fas fa-tv"></i>&nbsp;
+        Skjermvisning
+    </h5>
+    <hr>
+    <div class="alert alert-info rounded-0 d-flex p-0 align-items-center wb-bg-secondary">
+        <div class="wb-bg-main p-3 text-white">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="ms-2 text-dark text-muted ">
+            Tidspunktene i dette arrangementet vil vises på de valgte skjermene
+        </div>
+    </div>
+    <div class="mt-2 mb-1">
+        <div v-for="layout in displayLayouts">
+            <input type="checkbox" v-model="layout.isSelected" @change="updateSelectedDisplayLayouts()">
+            <label for="" class="ms-2">[[layout.name]]</label>
+        </div>
+    </div>
+    <input type="text" placeholder="Visningstekst"  class="form-control"
+        v-if="showDisplayLayoutText" :value="text" @input="$emit('update:text', $event.target.value)">
+</template>
+
+<script>
+    let DisplayLayoutSelect = {
+        template: '#vuec-display-layout-select',
+        delimiters: ['[[', ']]'],
+        props: ['selectedDisplayLayouts', 'text'],
+        emits: ['update:displayLayouts', 'update:text'],
+        data() {
+            return {
+                displayLayouts: [],
+            }
+        },
+        methods: {
+            updateSelectedDisplayLayouts() {
+                this.$emit('update:selectedDisplayLayouts', this.displayLayouts.filter((x) => x.isSelected).map((x) => x.id));
+            },
+        },
+        computed: {
+            showDisplayLayoutText: function() {
+                const showDisplayLayoutText = this.displayLayouts.filter((x) => x.isSelected && x.display_layout_text).length > 0;
+
+                if (!showDisplayLayoutText && this.text) {
+                    this.$emit('update:text', '');
+                }
+
+                return showDisplayLayoutText;
+            }
+        },
+        watch: {
+            selectedDisplayLayouts: function(value) {
+                this.displayLayouts.forEach(element => {
+                    element.isSelected = false;
+                    element.isSelected = this.selectedDisplayLayouts.includes(element.id);
+                });
+            }
+        },
+        async mounted() {
+            this.displayLayouts = await fetch("/screenshow/layout/list/json", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }).then(function (response) {
+                return response.json();
+            });
+        }
+    }
+</script>

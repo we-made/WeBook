@@ -31,6 +31,10 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 TIME_ZONE = "UTC"
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
 LANGUAGE_CODE = "en-us"
+LANGUAGES = [
+    ("en", "English"),
+    ("nb-NO", "Norwegian"),
+]
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-i18n
@@ -53,16 +57,16 @@ DATABASES = {
 }
 
 
-sentry_sdk.init(
-    dsn=env.str("SENTRY_DSN", default=None),
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for tracing.
-    traces_sample_rate=1.0,
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production.
-    profiles_sample_rate=1.0,
-)
+# sentry_sdk.init(
+#     dsn=env.str("SENTRY_DSN", default=None),
+#     # Set traces_sample_rate to 1.0 to capture 100%
+#     # of transactions for tracing.
+#     traces_sample_rate=1.0,
+#     # Set profiles_sample_rate to 1.0 to profile 100%
+#     # of sampled transactions.
+#     # We recommend adjusting this value in production.
+#     profiles_sample_rate=1.0,
+# )
 
 if env.str("DATABASE_HOST", default=None):
     DATABASES["default"]["HOST"] = env.str("DATABASE_HOST")
@@ -106,6 +110,9 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.microsoft",
     "colorfield",
+    "django_celery_results",
+    "django_celery_beat",
+    "haystack",
 ]
 
 LOCAL_APPS = [
@@ -178,7 +185,8 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "webook.middleware.timezone_middleware.TimezoneMiddleware",
-    # "crum.CurrentRequestUserMiddleware",
+    "crum.CurrentRequestUserMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 # STATIC
@@ -264,6 +272,8 @@ SECURE_BROWSER_XSS_FILTER = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#x-frame-options
 X_FRAME_OPTIONS = "DENY"
 
+CSRT_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=["http://localhost"])
+
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
@@ -277,6 +287,8 @@ DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="webook@webook.no"
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
 USE_REDIS = env.bool("USE_REDIS", default=False)
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
 
 # CACHING
 if USE_REDIS:
@@ -299,6 +311,11 @@ else:
             "LOCATION": "",
         }
     }
+
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="django-db")
+RESULT_BACKEND = env("RESULT_BACKEND", default="django-db")
+# CELERY_CACHE_BACKEND = env("CELERY_CACHE_BACKEND", default="default")
+
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL.
@@ -372,7 +389,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = env.str("ACCOUNT_EMAIL_VERIFICATION", "mandatory")
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_ADAPTER = "webook.users.adapters.AccountAdapter"
 ACCOUNT_FORMS = {"signup": "webook.users.forms.UserCreationForm"}
@@ -417,6 +434,7 @@ USER_DEFAULT_TIMEZONE = env(
     "USER_DEFAULT_TIMEZONE",
     default=TIME_ZONE,
 )
+HAYSTACK_SIGNAL_PROCESSOR = "haystack.signals.RealtimeSignalProcessor"
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
@@ -428,4 +446,16 @@ PDF_TMP_DIR = env("PDF_TMP_DIR", default="./webook/media/tmpfiles/")
 
 URL_TO_ONLINE_BOOKING_APP = env(
     "URL_TO_ONLINE_BOOKING_APP", default="http://localhost:5000"
+)
+
+# if env("ELASTICSEARCH_URL", default=None):
+HAYSTACK_CONNECTIONS = {
+    "default": {
+        "ENGINE": "haystack.backends.elasticsearch7_backend.Elasticsearch7SearchEngine",
+        "URL": env("ELASTICSEARCH_URL", default="http://localhost:9200/"),
+        "INDEX_NAME": "haystack",
+    }
+}
+HAYSTACK_SIGNAL_PROCESSOR = (
+    "webook.celery_haystack.queued_signal_processor.QueuedSignalProcessor"
 )

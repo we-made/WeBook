@@ -19,6 +19,7 @@ from webook.arrangement.views import (
     planners_on_arrangement_table_view,
     planners_on_arrangement_view,
     synchronize_events_in_arrangement_view,
+    main_planner_select2_json_view,
 )
 
 arrangement_urls = [
@@ -101,5 +102,10 @@ arrangement_urls = [
         route="arrangement/synchronize",
         view=synchronize_events_in_arrangement_view,
         name="arrangement_synchronize_events",
+    ),
+    path(
+        route="arrangement/main_planner_select2",
+        view=main_planner_select2_json_view,
+        name="arrangement_main_planner_select2",
     ),
 ]

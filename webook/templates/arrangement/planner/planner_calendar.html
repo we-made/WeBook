@@ -259,6 +259,10 @@ container-fluid
     let eventInspector = new EventInspector();
     let arrangementInspector = new ArrangementInspector();
 
+    document.addEventListener("cel.renderInspectEventDialog", function (e) {
+        eventInspector.inspect(e.detail.pk);
+    });
+
     function reflectFilterStateOnTriggerElement(filter, countOfSelectedItems=0) {
         filter.triggerElement.classList.remove("border-dark");
         filter.triggerElement.querySelectorAll('.count-badge').forEach( (el) => el.remove() );
