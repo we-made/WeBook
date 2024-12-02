@@ -63,6 +63,36 @@ class DialogPresetSelectManager extends DialogPluginBase {
         });
     }
 
+    setSelection(bundle) {
+        if (!bundle) return;
+
+        this.activePresets.forEach((presetKey) => this.softUntogglePreset(presetKey));
+        this.selectedItemsMap.keys().forEach((id) => {
+            this.dialog.$('#' + id).click();
+        });
+
+        if (bundle.selectedPresets) {
+            bundle.selectedPresets.forEach((presetKey) => this.activatePreset(presetKey));
+        }
+
+        if (bundle.allSelectedEntityIds) {
+            bundle.allSelectedEntityIds.forEach((entity) => {
+                if (!entity) return;
+
+                let $checkboxElement = this.dialog.$('#' + entity.id);
+                
+                if ($checkboxElement) {
+                    $checkboxElement.click();
+                }
+
+                this.selectedItemsMap.set(
+                    entity.id, 
+                    entity.text,
+                );
+            });
+        }
+    }
+
     softUntogglePreset(presetKey) {
         if (this.activePresets.has(presetKey)) {
             if (typeof this.activePresets.get(presetKey) === "object")
@@ -73,28 +103,53 @@ class DialogPresetSelectManager extends DialogPluginBase {
 
     activatePreset(presetKey, triggerElement=undefined) {
         const preset = this.presets.get(presetKey);
-        preset.ids.forEach((id) => {
-            const roomName = this.rooms.get(parseInt(id))
-            let $checkboxElement = this.dialog.$('#' + id);
-            if ($checkboxElement) {
-                $checkboxElement.attr("checked", true);
-            }
 
-            this.selectedItemsMap.set(
-                id, 
-                roomName,
-            );
-        });
+        if (this.activePresets.has(presetKey)) {
+            this.softUntogglePreset(presetKey);
 
-        if (triggerElement !== undefined)
-            triggerElement.classList.add("border", "border-success");
+            preset.ids.forEach((id) => {
+                let $checkboxElement = this.dialog.$('#' + id);
+                if ($checkboxElement) {
+                    $checkboxElement.removeAttr("checked").change();
+                }
 
-        this.activePresets.set(presetKey, triggerElement !== undefined ? triggerElement : true);
+                this.selectedItemsMap.delete(id);
+            });
+        }
+        else {
+            preset.ids.forEach((id) => {
+                const roomName = this.rooms.get(parseInt(id))
+                let $checkboxElement = this.dialog.$('#' + id);
+                if ($checkboxElement) {
+                    $checkboxElement.attr("checked", true);
+                }
+    
+                this.selectedItemsMap.set(
+                    id, 
+                    roomName,
+                );
+            });
+    
+            if (!triggerElement)
+                triggerElement = this.dialog.$('a[d-arg-preset_key="' + presetKey + '"]')[0];
+    
+            if (triggerElement !== undefined)
+                triggerElement.classList.add("border", "border-success");
+    
+            this.activePresets.set(presetKey, triggerElement !== undefined ? triggerElement : true);
+        }
+
+        if ("onPresetActivated" in this) {
+            this.onPresetActivated(this.dialog, this.getSelected());
+        }
+        else {
+            console.log("No onPresetActivated method found in DialogPresetSelectManager");
+        }
     }
 
     uncheckAll() {
         this.checkboxes.forEach((checkboxElement) => {
-            checkboxElement.removeAttr("checked").change();
+            $(checkboxElement).removeAttr("checked").change();
             this.selectedItemsMap.delete(checkboxElement.id);
         });
     }
