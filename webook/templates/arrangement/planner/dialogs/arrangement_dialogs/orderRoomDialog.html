@@ -1,4 +1,6 @@
 <div id="{{dialogId}}" class="{{discriminator}}">
+    <input type="hidden" name="preselection" id="preselection" />
+
     <div class="clearfix">
         <div class="float-start">
             <h5 class="fw-bold">
@@ -92,11 +94,7 @@
                 <a href="#" class="btn wb-btn-secondary btn-lg"
                     d-trigger="close">
                     <i class="fas fa-times"></i>
-                    Avbryt / Lukk
-                </a>
-
-                <a class="btn wb-btn-main shadow-0" type="button" d-trigger="order">
-                    <i class="fas fa-check"></i>&nbsp; Legg til valgte rom
+                    Lukk
                 </a>
             </div>
         </div>
@@ -117,6 +115,20 @@
             dialog.$('#{{location.slug}}_roomsTable').DataTable().destroy();
             dialog.$('#{{location.slug}}_roomsTable').DataTable();
             {% endfor %}
+
+            // Listen to all checkboxes and update the preset select manager
+            dialog.querySelectorAll("input[type='checkbox'][name='orderRoomDialog__checkboxArray']").forEach((checkbox) => {
+                checkbox.addEventListener('change', (event) => {
+                    let selectedBundle = dialog.plugins.presetSelectManager.getSelected();
+                    selectedBundle.eventPk = "{{event.pk}}";
+
+                    dialog.raiseSubmitEvent({
+                        recipientDialog: "{{recipientDialogId}}",
+                        selectedBundle: selectedBundle,
+                        csrf_token: "{{csrf_token}}",
+                    });
+                });
+            });
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {
@@ -141,8 +153,17 @@
                     selectedBundle: selectedBundle,
                     csrf_token: "{{csrf_token}}",
                 });
+
+                console.log("selectedBundle", selectedBundle);
             },
         },
+        when: [
+            { eventKnownAs: "setRoomSelection", do: (dialog, payload) => {
+                console.log("setROomSelection", payload);
+                if (payload.selectedBundle)
+                    dialog.plugins.presetSelectManager.setSelection(payload.selectedBundle);
+            } },
+        ],
         data: {},
         plugins: [
             { 
@@ -175,6 +196,19 @@
                         {% endfor %}
                     ]),
                     datatables: ( dialog ) => { return dialog.querySelectorAll("table.rooms-in-location-table") },
+                    onPresetActivated: (dialog) => {
+                        return (dialog, selected) => {
+                            if (!selected) return;
+
+                            selected.eventPk = "{{event.pk}}";
+
+                            dialog.raiseSubmitEvent({
+                                recipientDialog: "{{recipientDialogId}}",
+                                selectedBundle: selected,
+                                csrf_token: "{{csrf_token}}",
+                            });
+                        }
+                    },
                 }
             }
         ],

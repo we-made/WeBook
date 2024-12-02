@@ -427,15 +427,21 @@ export class ArrangementCreator {
                                 }
                             })
                         },
-                        onRenderedCallback: () => { },
+                        onRenderedCallback: (dialogManager, context) => {
+                            window.MessagesFacility.send(
+                                "orderRoomDialog", 
+                                context.lastTriggererDetails.data, 
+                                "setRoomSelection"
+                            );
+                        },
                         dialogOptions: { 
                             width: "50%",
                             dialogClass: 'no-titlebar',
                         },
                         onUpdatedCallback: () => {
-                            $(this.dialogManager.$getDialogElement("orderRoomDialog")).toggle("slide", () => {
-                                this.dialogManager.closeDialog("orderRoomDialog");
-                            });
+                            // $(this.dialogManager.$getDialogElement("orderRoomDialog")).toggle("slide", () => {
+                            //     this.dialogManager.closeDialog("orderRoomDialog");
+                            // });
                         },
                         onSubmit: (context, details, dialogManager) => {
                             window.MessagesFacility.send(details.recipientDialog, details.selectedBundle, "roomsSelected");
