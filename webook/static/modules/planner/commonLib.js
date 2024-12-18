@@ -342,42 +342,82 @@ export class CalendarFilter {
     constructor (onFilterUpdated) {
         this.onFilterUpdated = onFilterUpdated;
 
-        this.locations = [];
-        this.rooms = [];
-        this.audiences = [];
-        this.arrangementTypes = [];
+        const cached = localStorage.getItem("calendarFilter");
+
+        this.locations = cached ? JSON.parse(cached).locations : [];
+        this.rooms = cached ? JSON.parse(cached).rooms : [];
+        
+        this.audiences = cached ? JSON.parse(cached).audiences : [];
+        this.audienceIds = cached ? JSON.parse(cached).audienceIds : [];
+
+        this.arrangementTypes = cached ? JSON.parse(cached).arrangementTypes : [];
+        this.arrangementTypeIds = cached ? JSON.parse(cached).arrangementTypeIds : [];
+
+        this.statuses = cached ? JSON.parse(cached).statusTypes : [];
+        this.statusIds = cached ? JSON.parse(cached).statusIds : [];
         
         this.showOnlyEventsWithNoRooms = false;
+    }
+
+    _onFilterUpdate() {
+        localStorage.setItem("calendarFilter", JSON.stringify({
+            locations: this.locations,
+            rooms: this.rooms,
+            audiences: this.audiences,
+            audienceIds: this.audienceIds,
+            arrangementTypes: this.arrangementTypes,
+            arrangementTypeIds: this.arrangementTypeIds,
+            statusTypes: this.statuses,
+            statusIds: this.statusIds,
+        }));
+
+        this.onFilterUpdated(this);
+    }
+
+    _updateSpecificFilter(propKey, value) {
+        let filter = JSON.parse(localStorage.getItem("calendarFilter"));
+        filter[propKey] = value;
+        localStorage.setItem("calendarFilter", JSON.stringify(filter));
     }
 
     filterLocations (locationSlugs, runOnFilterUpdate=true) {
         this.locations = locationSlugs;
         if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
+            this._onFilterUpdate();
     }
 
     filterRooms (roomSlugs, runOnFilterUpdate=true) {
         this.rooms = roomSlugs;
-        if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
+        if (runOnFilterUpdate) {
+            this._onFilterUpdate();
+        }
     }
 
-    filterStatusTypes(statusSlugs, runOnFilterUpdate=true) {
+    filterStatusTypes(statusSlugs, runOnFilterUpdate=true, cacheValue=null) {
         this.statuses = statusSlugs;
-        if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
+        this.statusIds = cacheValue;
+
+        if (runOnFilterUpdate) {
+            this._onFilterUpdate();
+        }
     }
 
-    filterAudiences (audienceSlugs, runOnFilterUpdate=true) {
+    filterAudiences (audienceSlugs, runOnFilterUpdate=true, cacheValue=null) {
         this.audiences = audienceSlugs;
-        if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
+        this.audienceIds = cacheValue;
+
+        if (runOnFilterUpdate) {
+            this._onFilterUpdate();
+        }
     }
 
-    filterArrangementTypes (arrangementTypeSlugs, runOnFilterUpdate=true) {
+    filterArrangementTypes (arrangementTypeSlugs, runOnFilterUpdate=true, cacheValue=null) {
         this.arrangementTypes = arrangementTypeSlugs;
-        if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
+        this.arrangementTypeIds = cacheValue;
+
+        if (runOnFilterUpdate) {
+            this._onFilterUpdate();
+        }
     }
 }
 
