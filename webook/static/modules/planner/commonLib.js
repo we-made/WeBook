@@ -342,19 +342,21 @@ export class CalendarFilter {
     constructor (onFilterUpdated) {
         this.onFilterUpdated = onFilterUpdated;
 
-        const cached = localStorage.getItem("calendarFilter");
+        let cached = localStorage.getItem("calendarFilter");
+        cached = cached ? JSON.parse(cached) : null;
 
-        this.locations = cached ? JSON.parse(cached).locations : [];
-        this.rooms = cached ? JSON.parse(cached).rooms : [];
         
-        this.audiences = cached ? JSON.parse(cached).audiences : [];
-        this.audienceIds = cached ? JSON.parse(cached).audienceIds : [];
+        this.locations =    cached ? cached.locations   : [];
+        this.rooms =        cached ? cached.rooms       : [];
+        
+        this.audiences =    cached ? cached.audiences   : [];
+        this.audienceIds =  cached ? cached.audienceIds : [];
 
-        this.arrangementTypes = cached ? JSON.parse(cached).arrangementTypes : [];
-        this.arrangementTypeIds = cached ? JSON.parse(cached).arrangementTypeIds : [];
+        this.arrangementTypes = cached ? cached.arrangementTypes : [];
+        this.arrangementTypeIds = cached ? cached.arrangementTypeIds : [];
 
-        this.statuses = cached ? JSON.parse(cached).statusTypes : [];
-        this.statusIds = cached ? JSON.parse(cached).statusIds : [];
+        this.statuses =     cached ? cached.statusTypes : [];
+        this.statusIds =    cached ? cached.statusIds   : [];
         
         this.showOnlyEventsWithNoRooms = false;
     }
