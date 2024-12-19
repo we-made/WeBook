@@ -87,8 +87,8 @@ msgid "Archived when"
 msgstr "Arkivert Når"
 
 #: webook/arrangement/models.py:302
-msgid "Ticket Code"
-msgstr "Billettkode"
+msgid "Ticket Information"
+msgstr "Billettinfo"
 
 #: webook/arrangement/models.py:311
 msgid "Expected visitors"
@@ -1733,8 +1733,8 @@ msgid "Name of the arrangement (in english)"
 msgstr "Arrangementets navn (engelsk)"
 
 #: webook/templates/arrangement/planner/dialogs/arrangement_dialogs/arrangementInfoDialog.html:165
-msgid "Ticket code"
-msgstr "Billettkode"
+msgid "Ticket Information"
+msgstr "Billettinfo"
 
 #: webook/templates/arrangement/planner/dialogs/arrangement_dialogs/arrangementInfoDialog.html:202
 msgid "Forventet antall besøkende"

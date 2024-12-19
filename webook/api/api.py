@@ -23,7 +23,7 @@ from webook.api.routers.login_router import login_router
 from webook.arrangement.api.routers.organization_router import organization_router
 from webook.arrangement.api.routers.arrangement_type_router import (
     arrangement_type_router,
-)   
+)
 from webook.screenshow.api import display_layout_router, display_layout_setting_router
 
 from webook.users.api.user_router import router as user_router
@@ -31,6 +31,8 @@ from webook.users.api.group_router import group_router
 
 # from webook.users.api.group_router import group_router
 from webook.api.scopes_router import api_scopes_router
+from webook.arrangement.api.routers.report_router import report_router
+
 
 from webook.onlinebooking.api import (
     county_router,
@@ -68,6 +70,8 @@ api.add_router("/arrangement/room", room_router)
 api.add_router("/arrangement/event_serie", event_serie_router)
 api.add_router("/arrangement/calendar", calendar_router)
 api.add_router("/arrangement/organization", organization_router)
+
+api.add_router("/arrangement/report", report_router)
 
 api.add_router("/screenshow/display_layout", display_layout_router)
 api.add_router("/screenshow/display_layout_setting", display_layout_setting_router)

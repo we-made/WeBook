@@ -280,14 +280,18 @@ export class ArrangementStore extends BaseStore {
                 (statusTypesMap === undefined || statusTypesMap.has(arrangement.status_slug) === true) &&
                 (locationsMap === undefined || locationsMap.has(arrangement.location_slug) === true);
 
+            if (!isWithinFilter)
+                return;
+
             if (filterSet.showOnlyEventsWithNoRooms === true && arrangement.room_names.length > 0 && arrangement.room_names[0] !== null) {
                 isWithinFilter = false;
             }
 
             if (filterMap.size > 0) {
                 let match = false;
-                for (let y = 0; y < arrangement.slug_list.length; y++) {
-                    const slug = arrangement.slug_list[y];
+
+                for (let i = 0; i < arrangement.slug_list.length; i++) {
+                    const slug = arrangement.slug_list[i];
                     if (filterMap.has(slug)) {
                         match = true;
                         break;
@@ -338,44 +342,84 @@ export class CalendarFilter {
     constructor (onFilterUpdated) {
         this.onFilterUpdated = onFilterUpdated;
 
-        this.locations = [];
-        this.rooms = [];
-        this.audiences = [];
-        this.arrangementTypes = [];
+        let cached = localStorage.getItem("calendarFilter");
+        cached = cached ? JSON.parse(cached) : null;
+
+        
+        this.locations =    cached ? cached.locations   : [];
+        this.rooms =        cached ? cached.rooms       : [];
+        
+        this.audiences =    cached ? cached.audiences   : [];
+        this.audienceIds =  cached ? cached.audienceIds : [];
+
+        this.arrangementTypes = cached ? cached.arrangementTypes : [];
+        this.arrangementTypeIds = cached ? cached.arrangementTypeIds : [];
+
+        this.statuses =     cached ? cached.statusTypes : [];
+        this.statusIds =    cached ? cached.statusIds   : [];
         
         this.showOnlyEventsWithNoRooms = false;
+    }
+
+    _onFilterUpdate() {
+        localStorage.setItem("calendarFilter", JSON.stringify({
+            locations: this.locations,
+            rooms: this.rooms,
+            audiences: this.audiences,
+            audienceIds: this.audienceIds,
+            arrangementTypes: this.arrangementTypes,
+            arrangementTypeIds: this.arrangementTypeIds,
+            statusTypes: this.statuses,
+            statusIds: this.statusIds,
+        }));
+
+        this.onFilterUpdated(this);
+    }
+
+    _updateSpecificFilter(propKey, value) {
+        let filter = JSON.parse(localStorage.getItem("calendarFilter"));
+        filter[propKey] = value;
+        localStorage.setItem("calendarFilter", JSON.stringify(filter));
     }
 
     filterLocations (locationSlugs, runOnFilterUpdate=true) {
         this.locations = locationSlugs;
         if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
-
-        console.log("Filtering locations", locationSlugs)
+            this._onFilterUpdate();
     }
 
     filterRooms (roomSlugs, runOnFilterUpdate=true) {
         this.rooms = roomSlugs;
-        if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
+        if (runOnFilterUpdate) {
+            this._onFilterUpdate();
+        }
     }
 
-    filterStatusTypes(statusSlugs, runOnFilterUpdate=true) {
+    filterStatusTypes(statusSlugs, runOnFilterUpdate=true, cacheValue=null) {
         this.statuses = statusSlugs;
-        if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
+        this.statusIds = cacheValue;
+
+        if (runOnFilterUpdate) {
+            this._onFilterUpdate();
+        }
     }
 
-    filterAudiences (audienceSlugs, runOnFilterUpdate=true) {
+    filterAudiences (audienceSlugs, runOnFilterUpdate=true, cacheValue=null) {
         this.audiences = audienceSlugs;
-        if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
+        this.audienceIds = cacheValue;
+
+        if (runOnFilterUpdate) {
+            this._onFilterUpdate();
+        }
     }
 
-    filterArrangementTypes (arrangementTypeSlugs, runOnFilterUpdate=true) {
+    filterArrangementTypes (arrangementTypeSlugs, runOnFilterUpdate=true, cacheValue=null) {
         this.arrangementTypes = arrangementTypeSlugs;
-        if (runOnFilterUpdate)
-            this.onFilterUpdated(this);
+        this.arrangementTypeIds = cacheValue;
+
+        if (runOnFilterUpdate) {
+            this._onFilterUpdate();
+        }
     }
 }
 
