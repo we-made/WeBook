@@ -872,10 +872,22 @@ export class PlannerCalendar extends FullCalendarBased {
                     }
                 }
 
-                $.contextMenu({
+                var x = $.contextMenu({
                     className: "",
                     selector: ".fc-event",
-                    items: items
+                    items: items,
+                    events: {
+                        show: function (options) {
+                            if (options.$trigger[0].classList.contains("fc-event")) {
+                                options.$trigger[0].style.backgroundColor = "lightgray";
+                            }
+                        },
+                        hide: function (options) {
+                            if (options.$trigger[0].classList.contains("fc-event")) {
+                                options.$trigger[0].style.backgroundColor = "";
+                            }
+                        }
+                    }
                 });
             }
         }
@@ -887,6 +899,7 @@ export class PlannerCalendar extends FullCalendarBased {
         let focusedElement = null;
         let isBound = false;
         let hoveringStart = null;
+
         $('body').on('mouseover', '.fc-event', function(event, context) {
             hoveringStart = new Date();
             focusedElement = event.currentTarget;
