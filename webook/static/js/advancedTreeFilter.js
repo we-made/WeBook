@@ -37,6 +37,8 @@ export class AdvancedTreeFilter extends Popover {
             wrapperElement: wrapperElement,
         });
 
+        this.onRender = [];
+
         this.title = title;
         this.isSearchable = isSearchable;
         this.cascadeBehaviour = cascadeBehaviour;
@@ -84,6 +86,19 @@ export class AdvancedTreeFilter extends Popover {
 
     getSelectedValues() {
         return Array.from(this._selectedMap.keys());
+    }
+
+    setSelectedValues(values) {
+        this.clear();
+        values.forEach((value) => {
+            this._selectedMap.set(value, true);
+        });
+
+        this.onRender.push(() => {
+            this._selectedMap.forEach((_, key) => {
+                $(this._jsTreeElement).jstree("select_node", "#" + key);
+            });
+        });
     }
         
     clear() {
@@ -193,6 +208,23 @@ export class AdvancedTreeFilter extends Popover {
                         "themes" : { "icons": false },
                         'data': treeValidObj,
                         'multiple': true,
+                    }
+                });
+            })
+            .then(() => { 
+                this.isRendered = true;
+                
+                $(this._jsTreeElement).on("ready.jstree", (e, data) => {
+                    this.onRender.forEach((fn) => {
+                        fn();
+                    });
+
+                    this._selectedMap.clear();
+                    const selectedNodes = $(this._jsTreeElement).jstree("get_selected", true);
+                    const undeterminedNodes = $(this._jsTreeElement).jstree("get_undetermined", true);
+        
+                    if (selectedNodes.length > 0) {
+                        this._onSubmit(this, selectedNodes, undeterminedNodes);
                     }
                 });
             });
