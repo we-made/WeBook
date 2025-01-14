@@ -1510,7 +1510,9 @@ class Event(
     )
 
     def hash_key(self) -> str:
-        return str(hash((self.title, self.start, self.end)))
+        return str(
+            (self.title + "-" + self.start.isoformat() + "-" + self.end.isoformat())
+        )
 
     @property
     def is_buffer_event(self) -> bool:
@@ -1951,9 +1953,17 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin, CalendarEntitySchoolMixi
         max_length=124,
     )
 
-    @property
     def hash_key(self) -> str:
-        return str(hash((self.title, self.start_date, self.start_time, self.end_time, self.pattern_strategy, self.recurrence_strategy)))
+        return "-".join(
+            [
+                self.title,
+                self.start_date.isoformat(),
+                self.start_time.isoformat(),
+                self.end_time.isoformat(),
+                self.pattern_strategy,
+                self.recurrence_strategy,
+            ]
+        )
 
     @property
     def rooms_str_list(self):
@@ -1988,7 +1998,14 @@ class EventSerie(TimeStampedModel, ModelArchiveableMixin):
     arrangement = models.ForeignKey(
         to=Arrangement, on_delete=models.RESTRICT, related_name="series"
     )
-    serie_plan_manifest = models.ForeignKey(to=PlanManifest, on_delete=models.RESTRICT)
+    serie_plan_manifest = models.ForeignKey(
+        to=PlanManifest, on_delete=models.RESTRICT, related_name="event_series"
+    )
+
+    def hash_key(self) -> str:
+        if self.serie_plan_manifest is None:
+            return "undefined"
+        return str(self.serie_plan_manifest.hash_key())
 
     def on_archive(self, person_archiving_this):
         for event in self.events.all():
