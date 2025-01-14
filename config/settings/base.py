@@ -124,6 +124,7 @@ LOCAL_APPS = [
     "webook.api.apps.ApiConfig",
     "webook.onlinebooking.apps.OnlinebookingConfig",
     "webook.graph_integration.apps.GraphIntegrationConfig",
+    "webook.celery_haystack.apps.CeleryHaystackConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -249,6 +250,7 @@ TEMPLATES = [
 TEMPLATE_DIRS = (
     BASE_DIR / "templates",  # app-shared project templates (is this anti-pattern?)
     APPS_DIR / "onlinebooking/templates",  # app-specific templates
+    APPS_DIR / "celery_haystack/templates",  # app-specific templates
 )
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
@@ -290,6 +292,7 @@ SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 USE_REDIS = env.bool("USE_REDIS", default=False)
 
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+REDIS_URL = env("REDIS_URL", default="redis://localhost:6379")
 
 # CACHING
 if USE_REDIS:
