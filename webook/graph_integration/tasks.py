@@ -2,6 +2,8 @@ from argparse import ArgumentError
 from datetime import datetime
 from typing import List, Tuple
 from celery import shared_task
+import uuid
+from webook import logger
 from webook.arrangement.models import Event, Person
 from webook.graph_integration.models import GraphCalendar, SyncedEvent
 from enum import Enum
@@ -12,7 +14,9 @@ from webook.graph_integration.graph_client.client_factory import (
 from msgraph import GraphServiceClient
 from msgraph.generated.models.calendar import Calendar
 from django.conf import settings
+import webook.graph_integration.routines.calendar_sync as cal_sync
 from webook.users.models import User
+import asyncio
 
 
 class Operation(Enum):
@@ -22,156 +26,129 @@ class Operation(Enum):
     IGNORE = "ignore"
 
 
-def sync_events(instructions: List[Tuple[SyncedEvent, Operation]]):
-    client = create_graph_service_client()
-    for instruction in instructions:
-        synced_event, operation = instruction
+@shared_task(name="subscribe_person_to_webook_calendar")
+def subscribe_person_to_webook_calendar(person_pk: int):
+    """
+    Subscribe to the WeBook personal calendar for the given user, if it is not already subscribed.
+    Will subsequently trigger a full user cal synchronization to the calendar in Graph / Outlook.
+    """
+    print("subscribe_person_to_webook_calendar", person_pk)
 
-        if operation == Operation.CREATE:
-            pass
-        elif operation == Operation.UPDATE:
-            pass
-        elif operation == Operation.DELETE:
-            pass
-        elif operation == Operation.IGNORE:
-            pass
+    person = Person.objects.get(pk=person_pk)
+
+    _: GraphCalendar = asyncio.run(cal_sync.subscribe_person_to_webook_calendar(person))
+
+    synchronize_user_calendar.delay(person.user_set.first().pk)
 
 
-async def create_calendar(person_pk: int) -> GraphCalendar:
-    """Create a WeBook calendar for a given user in Graph / Outlook."""
-    client: GraphServiceClient = create_graph_service_client()
-
+@shared_task(name="unsubscribe_person_from_webook_calendar")
+def unsubscribe_person_from_webook_calendar(person_pk: int):
+    """
+    Unsubscribe from the WeBook personal calendar for the given user, deleting the calendar in Graph / Outlook and WeBook.
+    """
     person: Person = Person.objects.get(pk=person_pk)
 
-    result = await client.users.by_user_id(person.social_provider_email).calendars.post(
-        Calendar(name=settings.APP_TITLE + " - " + person.full_name)
-    )
+    if not person:
+        raise ArgumentError(f"Person by ID '{person_pk}' does not exist")
 
-    graph_calendar_representation = GraphCalendar(
-        person_id=person_pk, name=result.name, calendar_id=result.id
-    )
-    graph_calendar_representation.save()
-
-    return graph_calendar_representation
+    asyncio.run(cal_sync.unsubscribe_person_from_webook_calendar(person))
 
 
-@shared_task
+@shared_task(name="synchronize_user_calendar")
 def synchronize_user_calendar(user_pk: int):
-    """Synchronize a WeBook calendar for a given user in Graph / Outlook."""
-    user = User.objects.get(id=user_pk)
-    if not user:
+    """
+    Synchronize a WeBook calendar for a given user in Graph / Outlook.
+    This will populate all future events, and series, in the calendar of that user.
+    """
+    try:
+        _ = User.objects.get(id=user_pk)
+    except User.DoesNotExist:
         raise ArgumentError(f"User by ID '{user_pk}' does not exist")
-    if not user.person.exists():
-        raise ArgumentError(f"Person for user by ID '{user_pk}' does not exist")
 
-    person = user.person.get()
-
-    if not person.social_provider_id:
-        raise ArgumentError(
-            f"Person by ID '{person.pk}' does not have a social provider ID"
-        )
-    if not person.calendar_sync_enabled:
-        raise ArgumentError(
-            f"Person by ID '{person.pk}' does not have calendar sync enabled"
-        )
-
-    calendar = GraphCalendar.objects.get(person=person)
-
-    if not calendar:
-        calendar = create_calendar(person.pk)
-
-    events = (
-        Event.objects.filter(persons__in=[person])
-        .filter(start__gte=datetime.now())
-        .prefetch_related("synced_events")
-        .prefetch_related("persons")
-    ).all()
-
-    instructions: List[Tuple[SyncedEvent, Operation]] = []
-
-    for event in events:
-        synced_event = event.synced_events.filter(graph_calendar=calendar).first()
-
-        if not synced_event:
-            instructions.append(
-                (
-                    SyncedEvent(
-                        webook_event=event,
-                        graph_calendar=calendar,
-                    ),
-                    Operation.CREATE,
-                )
-            )
-
-        if not synced_event.is_in_sync():
-            instructions.append((synced_event, Operation.UPDATE))
-
-    synced_events_referring_archived_events = SyncedEvent.objects.filter(
-        Q(webook_event__is_archived=True) & Q(webook_event__start__gte=datetime.now())
-    ).all()
-
-    for synced_event in synced_events_referring_archived_events:
-        instructions.append((synced_event, Operation.DELETE))
-
-    sync_events(instructions)
+    return cal_sync.synchronize_calendars(
+        future_only=True,
+        persons=Person.objects.filter(user__id=user_pk).all(),
+        dry_run=False,
+    )
 
 
-@shared_task
-def synchronize_all_calendars(future_events_only: bool = True):
-    """Synchronize all calendars for all users in Graph / Outlook."""
-    # Get all events that are in the future if future_events_only is True
-    # And if they have one person or more associated with them
-    events = (
-        (
-            Event.objects.filter(start__gte=datetime.now())
-            if future_events_only
-            else Event.objects.all()
-        )
-        .filter(persons__isnull=False)
-        .prefetch_related("synced_events")
-        .prefetch_related("persons")
-    ).all()
+@shared_task(name="synchronize_event_to_graph")
+def synchronize_event_to_graph(event_pk: int):
+    """
+    Synchronize a specific WeBook event to Graph / Outlook.
+    This will populate that event in the calendars of all users that are associated with the event.
+    """
+    event = Event.objects.get(pk=event_pk)
 
-    instructions: List[Tuple[SyncedEvent, Operation]] = []
+    if not event:
+        raise ArgumentError(f"Event by ID '{event_pk}' does not exist")
 
-    for event in events:
-        synced_events = (
-            event.synced_events.all()
-        )  # One event can be synced to multiple calendars
+    return cal_sync.synchronize_calendars(
+        future_only=False,
+        event_ids=[event_pk],
+        dry_run=False,
+    )
 
-        persons = event.persons.filter(
-            Q(social_provider_id__isnull=False) & Q(calendar_sync_enabled=True)
-        ).all()
-        events_for_person_dict = {}
 
-        for synced_event in synced_events:
-            events_for_person_dict[synced_event.graph_calendar.person] = synced_event
+# @shared_task
+# def synchronize_all_calendars(future_events_only: bool = True):
+#     """Synchronize all calendars for all users in Graph / Outlook."""
+#     # Get all events that are in the future if future_events_only is True
+#     # And if they have one person or more associated with them
+#     events = (
+#         (
+#             Event.objects.filter(start__gte=datetime.now())
+#             if future_events_only
+#             else Event.objects.all()
+#         )
+#         .filter(people__isnull=False)
+#         .prefetch_related("synced_events")
+#         .prefetch_related("people")
+#     ).all()
 
-            if synced_event.is_in_sync():
-                continue
+#     instructions: List[Tuple[SyncedEvent, Operation]] = []
 
-            instructions.append((synced_event, Operation.UPDATE))
+#     for event in events:
+#         synced_events = (
+#             event.synced_events.all()
+#         )  # One event can be synced to multiple calendars
 
-        for person in persons:
-            if person not in events_for_person_dict:
-                calendar = GraphCalendar.objects.get(person=person)
-                if calendar is None:
-                    create_calendar(person.pk)
-                instructions.append(
-                    (
-                        SyncedEvent(
-                            webook_event=event,
-                            graph_calendar=GraphCalendar.objects.get(person=person),
-                        ),
-                        Operation.CREATE,
-                    )
-                )
+#         persons = event.people.filter(
+#             Q(social_provider_id__isnull=False) & Q(calendar_sync_enabled=True)
+#         ).all()
+#         events_for_person_dict = {}
 
-    synced_events_referring_archived_events = SyncedEvent.objects.filter(
-        Q(webook_event__is_archived=True) & Q(webook_event__start__gte=datetime.now())
-    ).all()
+#         for synced_event in synced_events:
+#             events_for_person_dict[synced_event.graph_calendar.person] = synced_event
 
-    for synced_event in synced_events_referring_archived_events:
-        instructions.append((synced_event, Operation.DELETE))
+#             if synced_event.is_in_sync():
+#                 continue
 
-    sync_events(instructions)
+#             instructions.append((synced_event, Operation.UPDATE))
+
+#         for person in persons:
+#             if person not in events_for_person_dict:
+#                 calendar = GraphCalendar.objects.get(person=person)
+#                 if calendar is None:
+#                     logger.error(
+#                         f"Person by ID '{person.pk}' is not subscribed to a calendar"
+#                     )
+#                     continue
+#                 instructions.append(
+#                     (
+#                         SyncedEvent(
+#                             webook_event=event,
+#                             graph_calendar=GraphCalendar.objects.get(person=person),
+#                         ),
+#                         Operation.CREATE,
+#                     )
+#                 )
+
+#     synced_events_referring_archived_events = SyncedEvent.objects.filter(
+#         Q(webook_event__is_archived=True) & Q(webook_event__start__gte=datetime.now())
+#     ).all()
+
+#     for synced_event in synced_events_referring_archived_events:
+#         instructions.append((synced_event, Operation.DELETE))
+
+#     sync_events(instructions)
