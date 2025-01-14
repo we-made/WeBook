@@ -3,6 +3,7 @@ from msgraph.generated.models.event import Event as GraphEvent
 from webook.arrangement.models import (
     Event as WebookEvent,
     PlanManifest as WebookSerieManifest,
+    EventSerie as WebookEventSerie,
 )
 from msgraph.generated.models.item_body import ItemBody
 from msgraph.generated.models.location import Location
@@ -219,14 +220,8 @@ def _map_recurrence_pattern(manifest: WebookSerieManifest) -> RecurrencePattern:
 def _map_stop_within_range(manifest: WebookSerieManifest) -> RecurrenceRange:
     return RecurrenceRange(
         type=RecurrenceRangeType.EndDate,
-        start_date=DateTimeTimeZone(
-            date_time=manifest.start_date.isoformat(),
-            time_zone="UTC",
-        ),
-        end_date=DateTimeTimeZone(
-            date_time=manifest.stop_within.isoformat(),
-            time_zone="UTC",
-        ),
+        start_date=manifest.start_date,
+        end_date=manifest.stop_within,
     )
 
 
@@ -259,15 +254,21 @@ def _map_recurrence_range(manifest: WebookSerieManifest) -> RecurrenceRange:
     }[manifest.recurrence_strategy](manifest)
 
 
-def map_serie_to_graph_event(serie: WebookSerieManifest) -> GraphEvent:
+async def map_serie_to_graph_event(event_serie: WebookEventSerie) -> GraphEvent:
+    manifest: WebookSerieManifest = event_serie.serie_plan_manifest
     sample_event = (
-        WebookSerieManifest.objects.last().eventserie_set.first().events.first()
+        await event_serie.events.prefetch_related("people")
+        .select_related("arrangement")
+        .select_related("arrangement__location")
+        .afirst()
     )
-    base = map_event_to_graph_event(sample_event)
-    base.start = None
-    base.end = None
+
+    base: GraphEvent = await map_event_to_graph_event(sample_event)
+    # base.start = None
+    # base.end = None
     base.recurrence = PatternedRecurrence(
-        pattern=_map_recurrence_pattern(serie),
-        range=_map_recurrence_range(serie),
+        pattern=_map_recurrence_pattern(manifest),
+        range=_map_recurrence_range(manifest),
     )
+
     return base

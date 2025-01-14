@@ -1,4 +1,4 @@
-from typing import List
+from typing import Coroutine, List
 from msgraph.generated.models.event import Event as GraphEvent
 from webook.arrangement.models import (
     Event as WebookEvent,
@@ -17,9 +17,10 @@ from msgraph.generated.models.recurrence_range import RecurrenceRange
 from msgraph.generated.models.recurrence_pattern_type import RecurrencePatternType
 from msgraph.generated.models.day_of_week import DayOfWeek
 from msgraph.generated.models.week_index import WeekIndex
+from asgiref.sync import sync_to_async
 
 
-def map_event_to_graph_event(event: WebookEvent) -> GraphEvent:
+async def map_event_to_graph_event(event: WebookEvent) -> GraphEvent:
     """Map a WeBook event to a Graph API event.
 
     Args:
@@ -28,20 +29,24 @@ def map_event_to_graph_event(event: WebookEvent) -> GraphEvent:
     Returns:
         Dict: Graph API event.
     """
+    room_names = ", ".join(
+        [room.name for room in await sync_to_async(list)(event.rooms.all())]
+    )
     return GraphEvent(
-        subject=event.title,
+        subject=event.title + " | " + str(event.id),
         body=ItemBody(content=event.title, content_type=BodyType.Html),
         start=DateTimeTimeZone(date_time=event.start.isoformat(), time_zone="UTC"),
         end=DateTimeTimeZone(date_time=event.end.isoformat(), time_zone="UTC"),
         location=GraphLocation(
-            display_name=f"{event.arrangement.location.name} ({', '.join([room.name for room in event.rooms.all()])})"
+            display_name=f"{event.arrangement.location.name} ({room_names})"
         ),
         # TODO: If we create one event per person, will the people get the event duplicated?
         # This needs to be tested.
         attendees=[
             Attendee(
                 email_address=EmailAddress(
-                    address=person.social_provider_email,
+                    address=person.email,
+                    name=person.full_name,
                     name=person.full_name,
                 ),
                 type="required",
