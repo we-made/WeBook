@@ -290,13 +290,7 @@ async def subscribe_person_to_webook_calendar(person: Person) -> GraphCalendar:
             await create_graph_service_client()
             .users.by_user_id(person.social_provider_email)
             .calendars.post(
-                Calendar(
-                    name=settings.APP_TITLE
-                    + " - "
-                    + person.full_name
-                    + " - "
-                    + str(uuid.uuid4())
-                )
+                Calendar(name=settings.APP_TITLE + " - " + person.full_name)
             )
         )
 
