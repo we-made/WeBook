@@ -196,15 +196,16 @@ class ModelAuditableMixin(models.Model):
 
     def save(self, *args, **kwargs):
         user = get_current_user()
-        person = user.person
+        if user:  # User may be none if test is running
+            person = user.person
 
-        if person is None:
-            raise Exception("User has no person")
+            if person is None:
+                raise Exception("User has no person")
 
-        if self._state.adding:
-            self.created_by = person
-        else:
-            self.updated_by = person
+            if self._state.adding:
+                self.created_by = person
+            else:
+                self.updated_by = person
 
         super().save(*args, **kwargs)
 
@@ -1173,6 +1174,8 @@ class Person(TimeStampedModel, ModelNamingMetaMixin, ModelArchiveableMixin):
         populate_from="full_name", unique=True, manager_name="all_objects"
     )
 
+    calendar_sync_enabled = models.BooleanField(default=False)
+
     instance_name_attribute_name = "full_name"
     entity_name_singular = _("Person")
     entity_name_plural = _("People")
@@ -1505,6 +1508,11 @@ class Event(
     arrangement_type = models.ForeignKey(
         to=ArrangementType, on_delete=models.RESTRICT, null=True, blank=True
     )
+
+    def hash_key(self) -> str:
+        return str(
+            (self.title + "-" + self.start.isoformat() + "-" + self.end.isoformat())
+        )
 
     @property
     def is_buffer_event(self) -> bool:
@@ -1945,6 +1953,18 @@ class PlanManifest(TimeStampedModel, BufferFieldsMixin, CalendarEntitySchoolMixi
         max_length=124,
     )
 
+    def hash_key(self) -> str:
+        return "-".join(
+            [
+                self.title,
+                self.start_date.isoformat(),
+                self.start_time.isoformat(),
+                self.end_time.isoformat(),
+                self.pattern_strategy,
+                self.recurrence_strategy,
+            ]
+        )
+
     @property
     def rooms_str_list(self):
         return ", ".join(list(map(lambda room: room.name, self.rooms.all())))
@@ -1978,7 +1998,14 @@ class EventSerie(TimeStampedModel, ModelArchiveableMixin):
     arrangement = models.ForeignKey(
         to=Arrangement, on_delete=models.RESTRICT, related_name="series"
     )
-    serie_plan_manifest = models.ForeignKey(to=PlanManifest, on_delete=models.RESTRICT)
+    serie_plan_manifest = models.ForeignKey(
+        to=PlanManifest, on_delete=models.RESTRICT, related_name="event_series"
+    )
+
+    def hash_key(self) -> str:
+        if self.serie_plan_manifest is None:
+            return "undefined"
+        return str(self.serie_plan_manifest.hash_key())
 
     def on_archive(self, person_archiving_this):
         for event in self.events.all():

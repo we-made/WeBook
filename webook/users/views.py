@@ -177,6 +177,14 @@ class UserSSODetailView(LoginRequiredMixin, UserAdminAuthorizationMixin, DetailV
     slug_field = "slug"
     slug_url_kwarg = "slug"
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        user = self.get_object()
+
+        context["CAL_SYNC"] = False
+
+        return context
+
 
 sso_detail_dialog_view = UserSSODetailView.as_view()
 

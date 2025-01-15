@@ -95,7 +95,7 @@ class BaseEventForm(forms.ModelForm):
         if self.instance.associated_serie is not None:
             serie = self.instance.associated_serie
         elif serie_uuid is not None and source_manifest is not None:
-            serie: EventSerie = source_manifest.eventserie_set.first()
+            serie: EventSerie = source_manifest.event_series.first()
             self.instance.associated_serie = serie
 
         if serie is not None:

@@ -8,7 +8,19 @@
 
 {% block inner %}
 
-    
+    <div class="d-flex justify-content-end">
+        <div class="form-check" title="Ved aktivering vil det opprettes en ny kalender i Outlook, hvor da aktivitetene som vist her, vil dukke opp. Kalenderen vil synkroniseres jevnlig." data-mdb-toggle="tooltip">
+            <input class="form-check-input" type="checkbox" value="true" id="outlookSubscriptionCheck"/>
+            <label class="form-check-label" for="outlookSubscriptionCheck">
+                Synkroniser til min Outlook
+                
+                <strong>
+                    <i class="fas fa-question-circle"></i>
+                </strong>
+            </label>
+        </div>
+    </div>
+
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center w-100">
         <div>
             <span style="font-size: large!important;;" class="mb-2 d-block">
@@ -111,6 +123,76 @@
         import { ArrangementInspector } from "{% static 'modules/planner/arrangementInspector.js' %}";
         import { EventInspector } from "{% static 'modules/planner/eventInspector.js' %}";
 
+        const calendarSyncEnabled = "{{ object.person.calendars.exists }}" === "True";
+        $('#outlookSubscriptionCheck').prop('checked', calendarSyncEnabled);
+
+        $('#outlookSubscriptionCheck').on('change', function() {
+            if ($(this).is(':checked')) {
+                Swal.fire({
+                    title: 'Aktiver synkronisering til Outlook',
+                    html: 'Ved å aktivere denne funksjonen, vil det opprettes en ny kalender i din Outlook, hvor aktiviteter fra planlegger som angår deg vil dukke opp. Outlook kalenderen vil synkroniseres jevnlig. <br><br> Ønsker du å fortsette?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ja',
+                    cancelButtonText: 'Nei',
+                }).then((result) => {
+                    if (result.isDismissed) {
+                        $(this).prop('checked', false);
+                        return;
+                    }
+
+                    fetch("/api/graph_integration/graph_calendar/subscribe", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: JSON.stringify({
+                            "personId": "{{ object.person.id }}"
+                        })
+                    }).then((response) => {
+                        if (response.ok) {
+                            toastr.success("Synkronisering til Outlook er aktivert. Kalender vil opprettes og synkroniseres jevnlig. Dette kan ta noen minutter.");
+                        } else {
+                            if (response.status === 409) {
+                                toastr.error("Synkronisering er allerede aktivert");
+                            } else {
+                                toastr.error("Kunne ikke aktivere synkronisering til Outlook");
+                                $(this).prop('checked', false);
+                            }
+                        }
+                    });
+                });
+            } else {
+                Swal.fire({
+                    title: 'Deaktiver synkronisering til Outlook',
+                    html: 'Ved å deaktivere denne funksjonen, vil planlegger kalenderen i din Outlook bli slettet. Ønsker du å fortsette?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ja',
+                    cancelButtonText: 'Nei',
+                }).then((result) => {
+                    if (result.isDismissed) {
+                        $(this).prop('checked', true);
+                        return;
+                    }
+
+                    fetch("/api/graph_integration/graph_calendar/{{ object.person.id }}", {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        }
+                    }).then((response) => {
+                        if (response.ok) {
+                            toastr.success("Synkronisering til Outlook er deaktivert. Det kan ta noen minutter før kalenderen er fjernet fra Outlook.");
+                        } else {
+                            toastr.error("Kunne ikke deaktivere synkronisering til Outlook");
+                            $(this).prop('checked', true);
+                        }
+                    });
+                });
+            }
+        });
+        
         let arrangementInspector = new ArrangementInspector();
         let eventInspector = new EventInspector();
         let calendarFilter = new CalendarFilter( (filter) => { activeCalendar.init(); } );
