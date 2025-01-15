@@ -33,7 +33,7 @@ async def map_event_to_graph_event(event: WebookEvent) -> GraphEvent:
         [room.name for room in await sync_to_async(list)(event.rooms.all())]
     )
     return GraphEvent(
-        subject=event.title + " | " + str(event.id),
+        subject=event.title,
         body=ItemBody(content=event.title, content_type=BodyType.Html),
         start=DateTimeTimeZone(date_time=event.start.isoformat(), time_zone="UTC"),
         end=DateTimeTimeZone(date_time=event.end.isoformat(), time_zone="UTC"),
