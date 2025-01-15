@@ -72,6 +72,31 @@ def synchronize_user_calendar(user_pk: int):
     )
 
 
+@shared_task(name="synchronize_all_user_calendars")
+def synchronize_all_user_calendars():
+    """Synchronize all user calendars in Graph / Outlook
+
+    Raises:
+        ArgumentError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    calendars = GraphCalendar.objects.all()
+
+    if not calendars:
+        raise ArgumentError("No calendars found to synchronize")
+
+    for calendar in calendars:
+        user = calendar.person.user_set.first()
+
+        if not user:
+            logger.warning(f"Person by ID '{calendar.person.pk}' has no user")
+            continue
+
+        synchronize_user_calendar.delay(user.pk)
+
+
 @shared_task(name="synchronize_event_to_graph")
 def synchronize_event_to_graph(event_pk: int):
     """
