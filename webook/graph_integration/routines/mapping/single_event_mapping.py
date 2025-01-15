@@ -47,7 +47,6 @@ async def map_event_to_graph_event(event: WebookEvent) -> GraphEvent:
                 email_address=EmailAddress(
                     address=person.email,
                     name=person.full_name,
-                    name=person.full_name,
                 ),
                 type="required",
             )
