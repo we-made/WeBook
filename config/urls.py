@@ -59,6 +59,10 @@ urlpatterns = [
         include("webook.arrangement.urls", namespace="arrangement"),
     ),
     path(
+        "tasks/",
+        include("webook.celery_haystack.urls", namespace="celery_haystack"),
+    ),
+    path(
         "screenshow/",
         include("webook.screenshow.urls", namespace="screenshow"),
     ),
@@ -67,7 +71,7 @@ urlpatterns = [
         include("webook.onlinebooking.urls", namespace="onlinebooking"),
     ),
     path("api/", api.urls),
-    path('search/', include('haystack.urls')),
+    path("search/", include("haystack.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
@@ -96,5 +100,5 @@ if settings.DEBUG:
 
     #     urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
 
-if 'rosetta' in settings.INSTALLED_APPS:
-    urlpatterns += [re_path('rosetta/', include('rosetta.urls'))]
+if "rosetta" in settings.INSTALLED_APPS:
+    urlpatterns += [re_path("rosetta/", include("rosetta.urls"))]

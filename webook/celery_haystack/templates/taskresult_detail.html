@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block container_classes %}
+container-fluid
+{% endblock %}
+
+{% block content %}
+
+<h1>
+    Task Result
+</h1>
+
+<table>
+    <tbody>
+        <tr>
+            <th>
+                Task ID
+            </th>
+    
+            <td>
+                {{ object.task_id }}
+            </td>
+        </tr>
+
+        <tr>
+            <th>
+                Task Name
+            </th>
+    
+            <td>
+                {{ object.task_name }}
+            </td>
+        </tr>
+
+        <tr>
+            <th>
+                Task Status
+            </th>
+    
+            <td clsss="ps-2">
+                {{ object.status }}
+            </td>
+        </tr>
+
+    </tbody>
+</table>
+<hr>
+
+<div class="border p-2 border-dark">
+    <samp>
+        {{ object.result }}
+
+    </samp>
+</div>
+
+{% endblock %}

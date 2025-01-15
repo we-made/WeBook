@@ -245,10 +245,16 @@
         </li>
         {% endif %}
         {% if user.is_superuser %}
-        <li class="sidenav-item">
+        <li class="sidenav-item mb-1">
           <a class="sidenav-link sidenav-link-danger-subtle" href="{% url 'admin:index' %}">
             <i class="fas fa-tools fa-fw me-3"></i><span>Django Admin Panel</span></a
           >
+        </li>
+
+        <li class="sidenav-item">
+          <a href="{% url 'celery_haystack:taskresult_list' %}" class="sidenav-link sidenav-link-danger-subtle">
+            <i class="fas fa-tasks"></i>&nbsp; Tasks Backend
+          </a>
         </li>
         {% endif %}
       </ul>
