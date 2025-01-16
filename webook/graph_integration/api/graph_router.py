@@ -62,7 +62,6 @@ def subscribe_to_calendar(request, payload: GraphCalendarSubscribeSchema):
         )
 
     tasks.subscribe_person_to_webook_calendar.delay(payload.person_id)
-    print("set task!", tasks.subscribe_person_to_webook_calendar.delay(payload.person_id))
 
     return HttpResponse(status=202, content="Task started")
 

@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('arrangement', '0056_alter_arrangement_archived_by_and_more'),
+        #('arrangement', '0056_alter_arrangement_archived_by_and_more'),
         ('onlinebooking', '0021_alter_onlinebookingsettings_audience_group'),
     ]
 

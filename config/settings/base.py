@@ -467,3 +467,9 @@ HAYSTACK_SIGNAL_PROCESSOR = (
 AZURE_TENANT_ID = env("AZURE_TENANT_ID", default=None)
 AZURE_CLIENT_ID = env("AZURE_CLIENT_ID", default=None)
 AZURE_CLIENT_SECRET = env("AZURE_CLIENT_SECRET", default=None)
+
+# Alert shown to super users in header
+ALERT_TEXT_SUPER_USER = env("ALERT_TEXT_SUPER_USER", default=None)
+
+# Alert shown to all users in header
+ALERT_TEXT_ALL_USERS = env("ALERT_TEXT_ALL_USERS", default=None)
