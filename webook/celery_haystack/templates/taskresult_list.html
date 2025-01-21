@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block container_classes %}
+container-fluid
+{% endblock %}
+
+
+{% block content %}
+    <h1>
+        Tasks
+    </h1>
+
+    <div class="d-flex justify-content-between mb-2">
+        <div class="d-flex align-items-center">
+            <div class="form-outline">
+                <input type="text" class="form-control form-control-md" id="datatable-search-input">
+                <label for="datatable-search-input" class="form-label">
+                    <i class="fas fa-search"></i>&nbsp;
+                    Search for Tasks
+                </label>
+            </div>
+
+            <div class="d-flex align-items-center ms-3">
+                <select name="" id="" class="form-control">
+                    {% for task_name in task_names %}
+                        <option value="{{ task_name }}">{{ task_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="d-flex align-items-center ms-3">
+                <select name="" id="" data-mdb-select-init class="form-control">
+                    {% for state in task_states %}
+                        <option value="{{ state }}">{{ state.0 }}</option>
+                    {% endfor %}
+                </select>
+                <!-- <i class="fas fa-clipboard"></i> -->
+            </div>
+            <!-- <div class="form-outline mb-3 ms-2"> -->
+
+            <!-- </div> -->
+        </div>
+
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr class="border-bottom border-dark border-top" style="background-color: ghostwhite;">
+                <th class="fw-bold">Task ID</th>
+                <th class="fw-bold">Task Name</th>
+                <th class="fw-bold">Task Status</th>
+                <th class="fw-bold">Task Result</th>
+                <th class="fw-bold">Task Date</th>
+                <th>
+                    <i class="fas fa-cog"></i>
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for task in object_list %}
+                <tr class="align-middle">
+                    <td>{{ task.task_id }}</td>
+                    <td>{{ task.task_name }}</td>
+                    <td>
+                        {% if task.status == "SUCCESS" %}
+                        <div class="badge badge-success bg-success text-white d-block">
+                            {{ task.status }}
+                        </div>
+                        {% elif task.status == "FAILURE" %}
+                        <div class="badge badge-danger bg-danger text-white d-block">
+                            {{ task.status }}
+                        </div>
+                        {% else %}
+                        <div class="badge badge-warning bg-warning text-white d-block">
+                            {{ task.status }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="bg-light text-dark border border-primary">
+                        <samp>
+                            {{ task.result }}
+                        </samp>
+                    </td>
+                    <td>{{ task.date_done }}</td>
+
+                    <td>
+                        <a href="{% url 'celery_haystack:taskresult_detail' task.id %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span> <!-- &laquo; -->
+                    </a>
+                </li>
+
+                <li class="page-item">
+                    <a class="page-link" href="#">1</a>
+                </li>
+
+
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span> <!-- &raquo; -->
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

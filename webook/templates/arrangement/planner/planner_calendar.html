@@ -255,7 +255,17 @@ container-fluid
     import { ArrangementInspector } from "{% static 'modules/planner/arrangementInspector.js' %}";
 
     let activeCalendar;
-    let calendarFilter = new CalendarFilter( (filter) => { activeCalendar.init(); } );
+    let calendarFilter = new CalendarFilter( 
+        (filter) => { 
+            activeCalendar.init(); 
+        },
+    );
+
+    let cachedFilterValues = localStorage.getItem("calendarFilter");
+    if (cachedFilterValues) {
+        cachedFilterValues = JSON.parse(cachedFilterValues);
+    }
+
     let eventInspector = new EventInspector();
     let arrangementInspector = new ArrangementInspector();
 
@@ -282,8 +292,9 @@ container-fluid
         triggerElement: document.getElementById('status-type-popover-filter-trigger'),
         wrapperElement: document.getElementById('status-type-popover-filter-content'),
         onSubmit: function (filter, selectedNodes) {
+            const ids = selectedNodes.map( (node) => node.id );
             const slugs = selectedNodes.map( (node) => node.data.slug );
-            calendarFilter.filterStatusTypes(slugs);
+            calendarFilter.filterStatusTypes(slugs, true, ids);
 
             reflectFilterStateOnTriggerElement(filter, slugs.length);
         },
@@ -297,8 +308,9 @@ container-fluid
         triggerElement: document.getElementById('arrangement-type-popover-filter-trigger'),
         wrapperElement: document.getElementById('arrangement-type-popover-filter-content'),
         onSubmit: function (filter, selectedNodes) {
+            const ids = selectedNodes.map( (node) => node.id );
             const slugs = selectedNodes.map( (node) => node.data.slug );
-            calendarFilter.filterArrangementTypes(slugs);
+            calendarFilter.filterArrangementTypes(slugs, true, ids);
 
             reflectFilterStateOnTriggerElement(filter, slugs.length);
         },
@@ -312,8 +324,9 @@ container-fluid
         triggerElement: document.getElementById('audience-popover-filter-trigger'),
         wrapperElement: document.getElementById('audience-popover-filter-content'),
         onSubmit: function (filter, selectedNodes) { 
+            const ids = selectedNodes.map( (node) => node.id );
             const slugs = selectedNodes.map( (node) => node.data.slug );
-            calendarFilter.filterAudiences(slugs);
+            calendarFilter.filterAudiences(slugs, true, ids);
 
             reflectFilterStateOnTriggerElement(filter, slugs.length);
         },
@@ -608,6 +621,24 @@ container-fluid
 
         activeCalendar = plannerCalendar; // default active calendar
         activeCalendar.renderNavigationButtons();
+
+        if (cachedFilterValues) {
+            if (cachedFilterValues.arrangementTypes) {
+                arrangementTypeTreeFilter.setSelectedValues(cachedFilterValues.arrangementTypeIds);
+            }
+
+            if (cachedFilterValues.locations) {
+                locationAndRoomsFilter.setSelectedValues(cachedFilterValues.locations);
+            }
+
+            if (cachedFilterValues.audiences) {
+                audienceTreeFilter.setSelectedValues(cachedFilterValues.audienceIds);
+            }
+
+            if (cachedFilterValues.statusTypes) {
+                statusTypeFilter.setSelectedValues(cachedFilterValues.statusIds);
+            }
+        }
 
         let mainCalendarFilterWrapper = $('#plannerCalendarFilter');
         
