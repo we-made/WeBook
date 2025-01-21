@@ -470,7 +470,13 @@ export class ArrangementCreator {
                                 }
                             });
                         },
-                        onRenderedCallback: () => { },
+                        onRenderedCallback: (dialogManager, context) => {
+                            window.MessagesFacility.send(
+                                "orderPersonDialog", 
+                                context.lastTriggererDetails.data, 
+                                "setPersonSelection"
+                            );
+                        },
                         dialogOptions: { 
                             width: 500,
                             dialogClass: 'no-titlebar',
