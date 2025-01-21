@@ -91,10 +91,16 @@
         </div>
         <div class="clearfix">
             <div class="float-end">
-                <a href="#" class="btn wb-btn-secondary btn-lg"
+                <a href="#" class="btn wb-btn-secondary shadow-0"
                     d-trigger="close">
                     <i class="fas fa-times"></i>
-                    Lukk
+                    Avbryt / Lukk
+                </a>
+
+                <a href="#" class="btn wb-btn-main btn-lg"
+                    d-trigger="order">
+                    <i class="fas fa-save"></i>
+                    Lagre
                 </a>
             </div>
         </div>
@@ -121,12 +127,6 @@
                 checkbox.addEventListener('change', (event) => {
                     let selectedBundle = dialog.plugins.presetSelectManager.getSelected();
                     selectedBundle.eventPk = "{{event.pk}}";
-
-                    dialog.raiseSubmitEvent({
-                        recipientDialog: "{{recipientDialogId}}",
-                        selectedBundle: selectedBundle,
-                        csrf_token: "{{csrf_token}}",
-                    });
                 });
             });
         },
@@ -154,12 +154,11 @@
                     csrf_token: "{{csrf_token}}",
                 });
 
-                console.log("selectedBundle", selectedBundle);
+                dialog.closeMe();
             },
         },
         when: [
             { eventKnownAs: "setRoomSelection", do: (dialog, payload) => {
-                console.log("setROomSelection", payload);
                 if (payload.selectedBundle)
                     dialog.plugins.presetSelectManager.setSelection(payload.selectedBundle);
             } },
