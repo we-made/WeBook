@@ -163,6 +163,7 @@ class DialogPresetSelectManager extends DialogPluginBase {
             allSelectedEntityIds: Array.from(this.selectedItemsMap, ([name, value]) => ({id: name, text: value})),
         };
 
+
         let selectedItemsMapExcludingPresetSubjects = new Map(this.selectedItemsMap);
         Array.from(this.activePresets.keys()).forEach((presetKey) => {
             const preset = this.presets.get(presetKey);
@@ -172,6 +173,11 @@ class DialogPresetSelectManager extends DialogPluginBase {
         viewables = viewables.concat(Array.from(selectedItemsMapExcludingPresetSubjects, ([name, value]) => ({id: name, text: value})));
 
         results.viewables = viewables;
+        
+        if (Array.from(this.checkboxes).some((checkboxElement) => checkboxElement.getAttribute("type") === "radio")) {
+            results.allSelectedEntityIds = results.allSelectedEntityIds.slice(-1);
+            results.viewables = results.viewables.slice(-1);
+        }
 
         return results;
     }
