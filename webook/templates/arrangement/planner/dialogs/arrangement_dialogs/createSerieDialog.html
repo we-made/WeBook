@@ -816,8 +816,6 @@
                 dialog.getElementById('title').innerText = "Rediger " + dialog.interior.serie_title.value;
             }
 
-            
-
             new DayOfWeekSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__weekday'));
             new MonthSelectComponent(dialog.getElementById('every_arbitrary_weekday_in_month__month'));
             new MonthSelectComponent(dialog.getElementById('every_x_of_month__month'));
@@ -843,8 +841,6 @@
                         stepOut: () => {
                             if (ValidatorFunctions.validate_head(dialog.dialogElement) === false)
                                 return false;
-                            
-                            debugger;
 
                             if (dialog.interior.serie_start.value >= dialog.interior.serie_end.value) {
                                 dialog.$('#invalidTimesStep1Feedback').show();
@@ -1134,7 +1130,6 @@
                 };
 
                 let statusValue = dialog.data.statusTypeJsTreeSelect.getSelectedValue();
-                console.log(">> statusValue", statusValue)
                 if (statusValue !== undefined)
                     time.status = statusValue;
 
@@ -1320,13 +1315,38 @@
                 }
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true });
+                dialog.raiseTriggerEvent(
+                    "{{managerName}}", "{{orderRoomDialog}}", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{dialogId}}', 
+                        renderInChain: true,
+                        data: { whenEventName: "roomsSelected", selectedBundle: dialog.data.roomPayload } 
+                    }
+                );
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true, multiple: true, data: { whenEventName: "peopleSelected" } });
+                dialog.raiseTriggerEvent(
+                    "{{managerName}}", "{{orderPersonDialog}}", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{dialogId}}', 
+                        renderInChain: true, 
+                        multiple: true, 
+                        data: { whenEventName: "peopleSelected", selectedBundle: dialog.data.peoplePayload } 
+                    });
             },
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', renderInChain: true, multiple: false, data: { whenEventName: "setPlanner" } });
+                dialog.raiseTriggerEvent(
+                    "{{managerName}}", "{{orderPersonDialog}}", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{dialogId}}', 
+                        renderInChain: true, 
+                        multiple: false, 
+                        data: { whenEventName: "setPlanner", selectedBundle: dialog.data.mainPlannerPayload } 
+                    }
+                );
             },
             removeAssociation(dialog, {} = {}, triggeredByElement) {
                 let $triggeredByElement = $(triggeredByElement);
