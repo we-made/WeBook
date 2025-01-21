@@ -1145,8 +1145,6 @@
                 dialog.data.mainPlannerPayload = payload;
 
                 const person = payload.viewables[0];
-                
-                console.log("event setPlanner", payload);
 
                 dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                 dialog.getElementById('mainPlannerName').innerText = person.text;

@@ -1201,7 +1201,6 @@
                 dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesDialog", { $parent: dialog.dialogElement });
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                console.log("triggerAddRooms", dialog.data.roomPayload);
                 dialog.raiseTriggerEvent(
                     dialog.managerName, 
                     "orderRoomDialog", 
