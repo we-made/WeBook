@@ -423,8 +423,6 @@ export class PlannerCalendar extends FullCalendarBased {
         })
 
         popover.show();
-
-        console.log("Bound popover to element", popover);
     }
 
     _bindInspectorTrigger (elementToBindWith) {
@@ -752,17 +750,11 @@ export class PlannerCalendar extends FullCalendarBased {
                     }
                     else {
                         console.log("Loading events");
-                        $('.fc-event').on('mouseover', function() {
-                            console.log("Mouseover event");
-                        });
                     }
 
 
                 },
                 eventAfterAllRender: function (view) {
-                    $('.fc-event').on('mouseover', function() {
-                        console.log("Mouseover event");
-                    });
                     console.log("All events rendered");
                 },
                 eventDidMount: (arg) => {
@@ -909,7 +901,6 @@ export class PlannerCalendar extends FullCalendarBased {
                 
                 if (hoveringStart && new Date().getTime() - hoveringStart.getTime()) {
                     $('.popover').remove();
-                    console.log("Mouseover event");
                     _this._bindPopover(event.currentTarget);
                     isBound = true;
                 }
