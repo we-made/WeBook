@@ -28,6 +28,14 @@ class APIScope(models.Model):
 
 
 class ServiceAccount(AbstractUser):
+    person = models.ForeignKey(
+        "arrangement.Person",
+        on_delete=models.RESTRICT,
+        related_name="service_accounts",
+        null=True,
+        blank=True,
+    )
+
     valid_until = models.DateTimeField(null=True, blank=True)
     last_seen = models.DateTimeField(null=True, blank=True)
     allowed_endpoints = models.ManyToManyField(

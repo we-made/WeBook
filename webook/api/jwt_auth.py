@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 import logging
 from typing import List, Union
+from crum import get_current_request
 from ninja.security import HttpBearer
 from webook.api.models import ServiceAccount, RevokedToken, APIScope
 from django.conf import settings
@@ -164,6 +165,9 @@ class JWTBearer(HttpBearer):
                 service_account.save()
 
                 entity = service_account
+
+                current_request = get_current_request()
+                current_request.service_account = service_account
             except ServiceAccount.DoesNotExist:
                 logging.info(
                     f"Invalid user tried to authenticate: {service_account_id}"
@@ -187,6 +191,9 @@ class JWTBearer(HttpBearer):
                     raise HttpError(403, "This user is deactivated.")
 
                 entity = user
+
+                current_request = get_current_request()
+                current_request.user = user
 
             except User.DoesNotExist:
                 logging.info(f"Invalid user tried to authenticate: {user_id}")
