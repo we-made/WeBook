@@ -981,6 +981,8 @@
                         });
 
                         spinner.style.display = "none";
+                    }).catch(e => {
+                        spinner.innerHTML = "Noe gikk galt under lasting av data. Prøv igjen senere.<br><code>" + e + "</code>";
                     });
             },
             loadSeriesToTable(dialog, { pageNumber } = {}, triggeredByElement) {
@@ -1189,7 +1191,9 @@
                             });
 
                             spinner.style.display = "none";
-                        })
+                        }).catch(e => {
+                            spinner.innerHTML = "Noe gikk galt under lasting av data. Prøv igjen senere.<br><code>" + e + "</code>";
+                        });
             },
             deleteNote(dialog, { notePk } = {}, triggeredByElement) {
                 Swal.fire({

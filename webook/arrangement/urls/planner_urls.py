@@ -41,6 +41,7 @@ from webook.arrangement.views import (
     planner_view,
     upload_files_dialog,
     planner_calendar_v2,
+    get_specific_arrangement_in_format_view,
 )
 
 planner_urls = [
@@ -107,6 +108,11 @@ planner_urls = [
         route="planner/arrangements_in_period",
         view=get_arrangements_in_period_view,
         name="arrangements_in_period",
+    ),
+    path(
+        route="planner/arrangement_by_event_pk",
+        view=get_specific_arrangement_in_format_view,
+        name="arrangement_by_event_pk",
     ),
     path(
         route="planner/dialogs/arrangement_information/<slug:slug>",

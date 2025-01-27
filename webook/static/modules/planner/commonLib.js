@@ -239,14 +239,26 @@ export class ArrangementStore extends BaseStore {
      * Get arrangement by the given slug
      * @param {*} slug 
      */
-    get({pk, get_as } = {}) {
-        if (this._store.has(parseInt(pk)) === false) {
-            console.error(`Can not get arrangement with pk '${pk}' as pk is not known.`)
-            return;
+    async get({pk, get_as } = {}) {
+        let arrangement = null;
+        if (this._store.has(parseInt(pk))) {
+            arrangement = this._store.get(parseInt(pk));
+        }
+        else {
+            arrangement = await fetch("/arrangement/planner/arrangement_by_event_pk?pk=" + pk)
+                .then(response => response.json())
+                .catch((error) => {
+                    console.error("Error fetching arrangement by pk", error);
+                });
+
+            if (arrangement === undefined) {
+                console.error(`Can not get arrangement with pk '${pk}' as pk is not known.`)
+                return;
+            }
+
+            arrangement = arrangement[0];
         }
 
-        const arrangement = this._store.get(parseInt(pk));
-        
         if (get_as === _FC_EVENT) {
             return this._mapArrangementToFullCalendarEvent(arrangement);
         }
@@ -313,8 +325,6 @@ export class ArrangementStore extends BaseStore {
             arrangements.forEach( (arrangement) => {
                 mappedEvents.push( this._mapArrangementToFullCalendarEvent(arrangement) );
             });
-
-            console.log("get_all -> ", mappedEvents);
 
             return mappedEvents;
         }

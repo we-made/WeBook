@@ -212,11 +212,15 @@ export class PlannerCalendar extends FullCalendarBased {
     }
 
     _listenToInspectArrangementEvents() {
-        document.addEventListener("plannerCalendar.inspectThisArrangement", (e) => {
-            let arrangement = this._ARRANGEMENT_STORE.get({
+        document.addEventListener("plannerCalendar.inspectThisArrangement", async (e) => {
+            let arrangement = await this._ARRANGEMENT_STORE.get({
                 pk: e.detail.event_pk,
                 get_as: _NATIVE_ARRANGEMENT
             });
+
+            if (arrangement === undefined) {
+                throw new Error("Arrangement with pk " + e.detail.event_pk + " not found.");
+            }
     
             this.arrangementInspectorUtility.inspect(arrangement);
         })
@@ -254,10 +258,10 @@ export class PlannerCalendar extends FullCalendarBased {
      * Bind popover with arrangement info to elementToBindWith
      * @param {*} elementToBindWith 
      */
-    _bindPopover (elementToBindWith) {
+    async _bindPopover (elementToBindWith) {
         let pk = this._findEventPkFromEl(elementToBindWith);
         
-        let arrangement = this._ARRANGEMENT_STORE.get({
+        let arrangement = await this._ARRANGEMENT_STORE.get({
             pk: pk,
             get_as: _NATIVE_ARRANGEMENT
         });
@@ -703,7 +707,7 @@ export class PlannerCalendar extends FullCalendarBased {
                             console.log("Events requested from " + startStr + " to " + endStr);
 
                             return await _this._ARRANGEMENT_STORE._refreshStore(start, end)
-                                .then(_ => _this._ARRANGEMENT_STORE.get_all(
+                                .then(async _ => await _this._ARRANGEMENT_STORE.get_all(
                                     { 
                                         get_as: _FC_EVENT, 
                                         locations: this.filter.locations,
@@ -782,10 +786,10 @@ export class PlannerCalendar extends FullCalendarBased {
                     arrangement_inspector: {
                         name: "<i class='fas fa-search'></i>&nbsp; Inspiser arrangement",
                         isHtmlName: true,
-                        callback: (key, opt) => {
+                        callback: async (key, opt) => {
                             if (!opt.event || opt.event.backgroundColor !== "prussianblue") {
                                 let pk = _this._findEventPkFromEl(opt.$trigger[0]);
-                                let arrangement = _this._ARRANGEMENT_STORE.get({
+                                let arrangement = await _this._ARRANGEMENT_STORE.get({
                                     pk: pk,
                                     get_as: _NATIVE_ARRANGEMENT
                                 });
@@ -903,15 +907,14 @@ export class PlannerCalendar extends FullCalendarBased {
         $('body').on('mouseover', '.fc-event', function(event, context) {
             hoveringStart = new Date();
             focusedElement = event.currentTarget;
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (focusedElement !== event.currentTarget || isBound) {
                     return;
                 }
                 
                 if (hoveringStart && new Date().getTime() - hoveringStart.getTime()) {
                     $('.popover').remove();
-                    console.log("Mouseover event");
-                    _this._bindPopover(event.currentTarget);
+                    await _this._bindPopover(event.currentTarget);
                     isBound = true;
                 }
             }, 200);
