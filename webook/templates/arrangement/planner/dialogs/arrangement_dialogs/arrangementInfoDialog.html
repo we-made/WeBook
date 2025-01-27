@@ -1196,7 +1196,11 @@
                             });
 
                             spinner.style.display = "none";
-                        })
+                    }).catch(
+                        e => {
+                            spinner.innerHTML = "<span class='text-danger'>Noe gikk galt under lasting av data. Prøv igjen senere. <i>(Statuskode: " + e.status + ")</i></span>";
+                        }
+                    )
             },
             deleteNote(dialog, { notePk } = {}, triggeredByElement) {
                 Swal.fire({
