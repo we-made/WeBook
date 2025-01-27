@@ -1177,6 +1177,8 @@
                                                 });
 
                                                 loader.style.display = "none";
+                                            }).catch(e => {
+                                                loader.innerHTML = "<span class='text-danger'>Noe gikk galt under lasting av data. Prøv igjen senere. <i>(Statuskode: " + e.status + ")</i></span>";
                                             });
                                     };
                                     // ensure we sort, since asynchronous fetches can cause out of order rendering
