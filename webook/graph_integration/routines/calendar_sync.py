@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 import json
 from typing import Optional, List, Tuple, Union
 import uuid
@@ -6,7 +6,9 @@ from webook.arrangement.models import Event, EventSerie, Person, PlanManifest
 from webook.graph_integration.graph_client.client_factory import (
     create_graph_service_client,
 )
+
 from msgraph.generated.models.event import Event as GraphEvent
+from msgraph.generated.models.event_type import EventType as GraphEventType
 from webook.graph_integration.models import GraphCalendar, SyncedEvent
 from enum import Enum
 from django.db.models import Q
@@ -15,19 +17,24 @@ from msgraph.generated.models.calendar import Calendar
 from webook.graph_integration.routines.mapping.single_event_mapping import (
     map_event_to_graph_event,
 )
-
+from asgiref.sync import sync_to_async
 from webook.graph_integration.routines.mapping.repeating_event_mapping import (
     map_serie_to_graph_event,
 )
 from msgraph.generated.users.item.calendars.item.calendar_item_request_builder import (
     CalendarItemRequestBuilder,
 )
+from msgraph.generated.models.o_data_errors.o_data_error import ODataError
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 from django.conf import settings
 import asyncio
 import redlock
 from django.conf import settings
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter
+from kiota_abstractions.base_request_configuration import RequestConfiguration
+from msgraph.generated.users.item.events.item.instances.instances_request_builder import (
+    InstancesRequestBuilder,
+)
 
 if not settings.REDIS_URL:
     raise ValueError("REDIS_URL is not set in settings")
@@ -64,6 +71,62 @@ def create_calendar(person_pk: int) -> GraphCalendar:
     return graph_calendar_representation
 
 
+async def _get_instance_in_graph_repeating_event(
+    calendar_item_request_builder: CalendarItemRequestBuilder,
+    graph_event: GraphEvent,
+    event: Event,
+) -> Optional[GraphEvent]:
+    """Given a GraphEvent and an Event, find the corresponding instance in the GraphEvent that should be
+    a repeating event.
+
+    Args:
+        graph_service_client (GraphServiceClient): The GraphServiceClient to use.
+        graph_event (GraphEvent): The GraphEvent to search in.
+        event (Event): The Event to find the corresponding instance for.
+
+    Returns:
+        GraphEvent: The corresponding instance in the GraphEvent.
+
+    Raises:
+        ValueError: If the GraphEvent is not a repeating event.
+        ValueError: If the instance cannot be found in the Graph event instances.
+    """
+    if graph_event.type != GraphEventType.SeriesMaster:
+        raise ValueError("GraphEvent must be a repeating event")
+
+    instances_request_configuration = RequestConfiguration(
+        query_parameters=InstancesRequestBuilder.InstancesRequestBuilderGetQueryParameters(
+            start_date_time=(datetime.now() - timedelta(7 * 4 * 3)).isoformat(),
+            end_date_time=(datetime.now() + timedelta(7 * 4 * 3)).isoformat(),
+        )
+    )
+    instances_request_configuration.headers.add(
+        "Prefer", 'outlook.timezone="Europe/Oslo"'
+    )
+
+    instances = await calendar_item_request_builder.events.by_event_id(
+        graph_event.id
+    ).instances.get(instances_request_configuration)
+
+    instance: Optional[GraphEvent] = next(
+        (
+            ge
+            for ge in instances.value
+            if ge.type == GraphEventType.Occurrence
+            and datetime.strptime(
+                ge.start.date_time.replace(".0000000", ""), "%Y-%m-%dT%H:%M:%S"
+            ).date()
+            == event.start.date()
+        ),
+        None,
+    )
+
+    if not instance:
+        raise ValueError("Could not find instance in GraphEvent")
+
+    return instance
+
+
 async def _execute_sync_instructions(
     instructions: List[Tuple[Person, SyncedEvent, Operation]]
 ) -> List[SyncedEvent]:
@@ -71,6 +134,10 @@ async def _execute_sync_instructions(
 
     request_configuration = RequestConfiguration()
     request_configuration.headers.add("Prefer", 'outlook.timezone="Europe/Oslo"')
+
+    # We always want to process the repeating events (serie masters)
+    instructions.sort(key=lambda instruction: instruction[1].event_type)
+    print(instructions)
 
     for person, synced_event, operation in instructions:
         if operation == Operation.IGNORE:
@@ -96,12 +163,82 @@ async def _execute_sync_instructions(
         print("calendar_id|" + synced_event.graph_calendar.calendar_id)
 
         if operation == Operation.CREATE:
-            resultant_event: GraphEvent = await calendar_request_builder.events.post(
-                mapped_graph_event, request_configuration
-            )
-            synced_event.graph_event_id = resultant_event.id
+            if (
+                synced_event.webook_event
+                and synced_event.webook_event.association_type
+                == Event.DEGRADED_FROM_SERIE
+            ):
+                # This event was formerly part of a serie, but has been degraded to a single event
+                # There is no matching SyncedEvent yet for this event. Normally we would create the GraphEvent,
+                # but for this case we already have one in Graph -- the instance of the serie.
+                webook_serie: EventSerie = await sync_to_async(
+                    lambda: synced_event.webook_event.associated_serie
+                )()
+
+                serie_synced_event = await webook_serie.synced_events.filter(
+                    graph_calendar=synced_event.graph_calendar
+                ).afirst()  # We want THIS calendar's instance of the serie.
+
+                # If no serie = the person/resource is not added on serie level
+                # We treat it as a "normal" event, makes sense in this scenario.
+                if serie_synced_event:
+                    graph_repeating_event = (
+                        await calendar_request_builder.events.by_event_id(
+                            serie_synced_event.graph_event_id
+                        ).get(request_configuration)
+                    )
+
+                    matching_instance = await _get_instance_in_graph_repeating_event(
+                        calendar_item_request_builder=calendar_request_builder,
+                        graph_event=graph_repeating_event,
+                        event=synced_event.webook_event,
+                    )
+
+                    # Now we do a PATCH request to update the instance with the new values.
+                    resultant_event = await calendar_request_builder.events.by_event_id(
+                        matching_instance.id
+                    ).patch(mapped_graph_event, request_configuration)
+
+                    synced_event.graph_event_id = resultant_event.id
+
+            if not synced_event.graph_event_id:
+                resultant_event: GraphEvent = (
+                    await calendar_request_builder.events.post(
+                        mapped_graph_event, request_configuration
+                    )
+                )
+                synced_event.graph_event_id = resultant_event.id
+
             synced_event.event_hash = synced_event.calendar_item.hash_key()
             synced_event.state = SyncedEvent.SYNCED
+
+            if synced_event.event_type == SyncedEvent.REPEATING:
+                graph_serie = await calendar_request_builder.events.by_event_id(
+                    synced_event.graph_event_id
+                ).get(request_configuration)
+
+                exception_events = (
+                    synced_event.webook_event_serie.associated_events.filter(
+                        association_type=Event.DEGRADED_FROM_SERIE
+                    )
+                )
+
+                async for exception_event in exception_events:
+                    matching_instance: GraphEvent = (
+                        await _get_instance_in_graph_repeating_event(
+                            calendar_item_request_builder=calendar_request_builder,
+                            graph_event=graph_serie,
+                            event=exception_event,
+                        )
+                    )
+
+                    await calendar_request_builder.events.by_event_id(
+                        matching_instance.id
+                    ).patch(
+                        body=await map_event_to_graph_event(exception_event),
+                        request_configuration=request_configuration,
+                    )
+
             print("Created event", resultant_event.id)
         elif operation == Operation.UPDATE:
             await calendar_request_builder.events.by_event_id(
@@ -121,6 +258,7 @@ async def _execute_sync_instructions(
             print("Deleted event", synced_event.graph_event_id)
 
         synced_event.synced_counter += 1
+        print("Saving event", synced_event.graph_event_id, synced_event.event_type)
         await synced_event.asave()
 
     return list(map(lambda instruction: instruction[1], instructions))
@@ -148,7 +286,8 @@ def _get_events_matching_criteria(
         .prefetch_related("arrangement")
         .prefetch_related("arrangement__location")
     )
-    serie_manifests = PlanManifest.objects.all()
+    # Ignore those without arrangement - they are the ones used for collision analysis and are to be considered invisible.
+    serie_manifests = PlanManifest.objects.filter(event_series__isnull=False)
 
     if future_only:
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -157,6 +296,19 @@ def _get_events_matching_criteria(
         serie_manifests = serie_manifests.filter(
             start_date__gte=today
         )  # TODO: Consider further...
+
+    for event in events:
+        # It is possible for an event to be considered need-to-sync and it's parent serie not to be
+        # In this case, we push the serie in.
+        if event.associated_serie and event.associated_serie not in serie_manifests:
+            serie_manifests = serie_manifests | PlanManifest.objects.filter(
+                id=event.associated_serie.id
+            )
+            continue
+        if event.serie and event.serie not in serie_manifests:
+            serie_manifests = serie_manifests | PlanManifest.objects.filter(
+                id=event.serie.id
+            )
 
     if event_ids:
         events = events.filter(id__in=event_ids)
@@ -205,9 +357,13 @@ def _calculate_instructions(
 
     for item in calendar_items:
         synced_events = (
-            item.synced_events.filter(graph_calendar__person__in=persons).all()
-            if persons
-            else item.synced_events.all()
+            (
+                item.synced_events.filter(graph_calendar__person__in=persons)
+                if persons
+                else item.synced_events
+            )
+            .select_related("webook_event_serie")
+            .prefetch_related("webook_event_serie__associated_events")
         )
 
         for synced_event in synced_events:
@@ -316,9 +472,13 @@ async def unsubscribe_person_from_webook_calendar(person: Person) -> None:
     if not calendar:
         raise ValueError(f"Person by ID '{person.id}' is not subscribed to a calendar")
 
-    await client.users.by_user_id(
-        person.social_provider_email
-    ).calendars.by_calendar_id(calendar.calendar_id).delete()
+    try:
+        await client.users.by_user_id(
+            person.social_provider_email
+        ).calendars.by_calendar_id(calendar.calendar_id).delete()
+    except ODataError as err:
+        if err.response_status_code != 404:
+            raise err
 
     await calendar.adelete()
 
@@ -334,15 +494,9 @@ def synchronize_calendars(
     dry_run: bool = False,
 ):
     if persons:
-        # Sanity check the provided persons - we can only sync calendars for persons that have calendar sync enabled and a social provider ID
-        if not all([person.calendars.exists() for person in persons]):
-            raise ValueError(
-                "Not all persons have calendar sync enabled. Please enable calendar sync for all persons."
-            )
-        if not all([person.social_provider_id for person in persons]):
-            raise ValueError(
-                "Not all persons have a social provider ID. Please set a social provider ID for all persons."
-            )
+        persons = [
+            p for p in persons if p.calendar_sync_enabled and p.social_provider_id
+        ]
 
     calendar_items: List[Union[Event, PlanManifest]] = _get_events_matching_criteria(
         future_only, persons, event_ids, serie_ids

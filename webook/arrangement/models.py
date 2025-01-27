@@ -195,8 +195,8 @@ class ModelAuditableMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        request =   get_current_request()
-        user =      get_current_user()
+        request = get_current_request()
+        user = get_current_user()
         if user and user.pk:  # User may be none if test is running
             person = user.person
 

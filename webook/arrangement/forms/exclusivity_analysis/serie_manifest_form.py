@@ -212,8 +212,8 @@ class CreateSerieForm(SerieManifestForm):
 
         serie.save()
 
-        if files_on_old_serie:
-            serie.files = files_on_old_serie
+        if files_on_old_serie and files_on_old_serie[0]:
+            serie.files.set(files_on_old_serie)
             serie.save()
 
         logger.info(f"Created event serie with id {serie.id}")
