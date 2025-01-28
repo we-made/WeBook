@@ -102,7 +102,13 @@ export class EventInspector {
                                 },
                             });
                         },
-                        onRenderedCallback: () => { },
+                        onRenderedCallback: (dialogManager, context) => {
+                            window.MessagesFacility.send(
+                                "orderPersonDialog", 
+                                context.lastTriggererDetails.data, 
+                                "setPersonSelection"
+                            );
+                        },
                         dialogOptions: { 
                             width: 500,
                             dialogClass: 'no-titlebar',
@@ -136,7 +142,13 @@ export class EventInspector {
                                 }
                             });
                         },
-                        onRenderedCallback: () => { },
+                        onRenderedCallback: (dialogManager, context) => {
+                            window.MessagesFacility.send(
+                                "orderRoomDialog", 
+                                context.lastTriggererDetails.data, 
+                                "setRoomSelection"
+                            );
+                        },
                         dialogOptions: { 
                             width: 500,
                             dialogClass: 'no-titlebar',

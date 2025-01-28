@@ -1019,7 +1019,7 @@
                                         <td>
                                             <div class="d-flex justify-content-between">
                                                 <h5><span class='badge badge-dark'>${eventSerie.id}</span> ${eventSerie.seriePlanManifest.title} - <em>${eventSerie.seriePlanManifest.scheduleDescription}</em></h5>
-                                                
+                                                {% if user|has_group:"planners" %}
                                                 <div>
                                                     <button class="btn wb-btn-main" id="c_${eventSerie.id}_openButton">
                                                         <i class="fas fa-eye"></i>
@@ -1031,6 +1031,7 @@
                                                         Slett
                                                     </button>
                                                 </div>
+                                                {% endif %}
                                             </div>
 
                                             <div class="d-flex">
@@ -1072,9 +1073,11 @@
                                                             Filer
                                                         </h6>
 
+                                                        {% if user|has_group:"planners" %}
                                                         <a href="#" class="ms-3" id="c_${eventSerie.id}_uploadFilesBtn">
                                                             (<i class='fas fa-upload'></i>&nbsp;Last opp...)
                                                         </a>
+                                                        {% endif %}
                                                     </div>
                                                     
                                                     <div>
@@ -1117,7 +1120,8 @@
                                     `;
 
                                     tbody.appendChild(tr);
-
+                                    
+                                    {% if user|has_group:"planners" %}
                                     dialog.getElementById(`c_${eventSerie.id}_openButton`).onclick = () => {
                                         dialog._methods.triggerEditSerie(dialog, { eventSeriePk: eventSerie.id });
                                     };
@@ -1127,6 +1131,7 @@
                                     dialog.getElementById(`c_${eventSerie.id}_uploadFilesBtn`).onclick = () => {
                                         dialog._methods.uploadFilesToEventSerie(dialog, { eventSeriePk: eventSerie.id });
                                     };
+                                    {% endif %}
                                     dialog.getElementById(`c_${eventSerie.id}_showEventsTable`).onclick = () => {
                                         let eventsBody = dialog.getElementById(`c_${eventSerie.id}_eventsBody`);
                                         let eventsTableButtonIcon = dialog.getElementById(`c_${eventSerie.id}_showEventsTableButtonIcon`);

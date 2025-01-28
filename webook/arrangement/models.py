@@ -8,7 +8,7 @@ from email.policy import default
 from enum import Enum
 from tabnanny import verbose
 from typing import Dict, List, Optional, Tuple
-from crum import get_current_user
+from crum import get_current_request, get_current_user
 from django.utils.functional import cached_property
 from django.core.cache import cache
 
@@ -195,8 +195,9 @@ class ModelAuditableMixin(models.Model):
     )
 
     def save(self, *args, **kwargs):
+        request = get_current_request()
         user = get_current_user()
-        if user:  # User may be none if test is running
+        if user and user.pk:  # User may be none if test is running
             person = user.person
 
             if person is None:
@@ -206,6 +207,20 @@ class ModelAuditableMixin(models.Model):
                 self.created_by = person
             else:
                 self.updated_by = person
+        elif request.service_account:
+            if not request.service_account.person:
+                person = Person()
+                person.first_name = request.service_account.username
+                person.last_name = "(Service Account)"
+                person.personal_email = request.service_account.email
+                person.save()
+                request.service_account.person = person
+                request.service_account.save()
+
+            if self._state.adding:
+                self.created_by = request.service_account.person
+            else:
+                self.updated_by = request.service_account.person
 
         super().save(*args, **kwargs)
 

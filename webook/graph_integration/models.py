@@ -32,6 +32,8 @@ class SyncedEvent(models.Model):
     graph_event_id = models.CharField(max_length=255)
     graph_calendar = models.ForeignKey(GraphCalendar, on_delete=models.CASCADE)
 
+    is_degraded_event = models.BooleanField(default=False)
+
     # Hash of the event to track changes
     # This is used to check if the event has been updated
     event_hash = models.CharField(max_length=255)
