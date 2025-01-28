@@ -112,7 +112,10 @@ async def _get_instance_in_graph_repeating_event(
         (
             ge
             for ge in instances.value
-            if ge.type == GraphEventType.Occurrence
+            if (
+                ge.type == GraphEventType.Occurrence
+                or ge.type == GraphEventType.Exception
+            )
             and datetime.strptime(
                 ge.start.date_time.replace(".0000000", ""), "%Y-%m-%dT%H:%M:%S"
             ).date()
@@ -221,6 +224,9 @@ async def _execute_sync_instructions(
                     synced_event.webook_event_serie.associated_events.filter(
                         association_type=Event.DEGRADED_FROM_SERIE
                     )
+                    .select_related("arrangement")
+                    .select_related("arrangement__location")
+                    .prefetch_related("people")
                 )
 
                 async for exception_event in exception_events:
@@ -277,7 +283,6 @@ def _get_events_matching_criteria(
         persons (Optional[List[Person]]): Persons to filter events by.
         event_ids (Optional[List[int]]): Event IDs to filter by.
     """
-
     events = (
         Event.objects.filter(serie__isnull=True)
         .prefetch_related("synced_events")
@@ -444,7 +449,9 @@ async def subscribe_person_to_webook_calendar(person: Person) -> GraphCalendar:
 
         result = (
             await create_graph_service_client()
-            .users.by_user_id(person.social_provider_email)
+            .users.by_user_id(
+                person.social_provider_email
+            )
             .calendars.post(
                 Calendar(name=settings.APP_TITLE + " - " + person.full_name)
             )
