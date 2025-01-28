@@ -1108,7 +1108,7 @@
 
                 dialog.data.selectedPeopleIds = new Map();
                 dialog.data.personPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, x.text) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
 
                 dialog.data.peoplePayload = payload;
