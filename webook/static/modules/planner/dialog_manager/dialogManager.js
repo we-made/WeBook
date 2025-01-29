@@ -292,8 +292,8 @@ export class DialogSimpleRenderer extends DialogBaseRenderer {
         }
         else {
             console.warn("Dialog is already rendering...")
-            this._isRendering = false;
-            return await this.render(context, dialog, html);
+            // this._isRendering = false;
+            // return await this.render(context, dialog, html);
         }
     }
 }
@@ -442,8 +442,8 @@ export class DialogComplexDiscriminativeRenderer extends DialogBaseRenderer {
         }
         else {
             console.warn("Dialog is already rendering...")
-            this._isRendering = false;
-            return await this.render(context, dialog, html);
+            // this._isRendering = false;
+            // return await this.render(context, dialog, html);
         }
     }
 }

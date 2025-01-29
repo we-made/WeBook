@@ -239,13 +239,13 @@ export class ArrangementStore extends BaseStore {
      * Get arrangement by the given slug
      * @param {*} slug 
      */
-    async get({pk, get_as } = {}) {
+    get({pk, get_as } = {}) {
         let arrangement = null;
         if (this._store.has(parseInt(pk))) {
             arrangement = this._store.get(parseInt(pk));
         }
         else {
-            arrangement = await fetch("/arrangement/planner/arrangement_by_event_pk?pk=" + pk)
+            arrangement = fetch("/arrangement/planner/arrangement_by_event_pk?pk=" + pk)
                 .then(response => response.json())
                 .catch((error) => {
                     console.error("Error fetching arrangement by pk", error);
