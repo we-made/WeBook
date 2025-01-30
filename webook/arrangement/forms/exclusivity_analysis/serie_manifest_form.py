@@ -106,6 +106,8 @@ class SerieManifestForm(forms.Form):
         plan_manifest.start_time = self.cleaned_data["startTime"]
         plan_manifest.end_time = self.cleaned_data["endTime"]
         plan_manifest.ticket_code = self.cleaned_data["ticketCode"]
+        if plan_manifest.ticket_code == "undefined":
+            plan_manifest.ticket_code = ""
         plan_manifest.expected_visitors = self.cleaned_data["expectedVisitors"]
         plan_manifest.title = self.cleaned_data["title"]
         plan_manifest.title_en = self.cleaned_data["title_en"]
