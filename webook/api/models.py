@@ -36,6 +36,17 @@ class ServiceAccount(AbstractUser):
         blank=True,
     )
 
+    NORMAL_SERVICE_ACCOUNT = "normal"
+    GOOGLE_SERVICE_ACCOUNT = "google"
+    SERVICE_ACCOUNT_TYPES = [
+        (NORMAL_SERVICE_ACCOUNT, "Normal"),
+        (GOOGLE_SERVICE_ACCOUNT, "Google"),
+    ]
+
+    service_account_type = models.CharField(
+        max_length=255, choices=SERVICE_ACCOUNT_TYPES, default=NORMAL_SERVICE_ACCOUNT
+    )
+
     valid_until = models.DateTimeField(null=True, blank=True)
     last_seen = models.DateTimeField(null=True, blank=True)
     allowed_endpoints = models.ManyToManyField(
