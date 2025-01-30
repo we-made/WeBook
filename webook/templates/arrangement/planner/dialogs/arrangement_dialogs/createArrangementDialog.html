@@ -974,7 +974,7 @@
                     mapOfSelectedItemIds = dialog.data.selectedRoomIds;
                     appropriatePresetMap = dialog.data.roomPresets;
                     reflectorHook = (dialog) => {
-                        dialog.data.roomPayload.allSelectedEntityIds = dialog.data.selectedRoomIds.entries().map(([id, text]) => { return { id: id, text: text } });
+                        dialog.data.roomPayload.allSelectedEntityIds = dialog.data.selectedRoomIds.entries().map(([id, text]) => { return { id: id, text: text } }).toArray();
                         dialog.data.roomPayload.selectedPresets = Array.from(dialog.data.roomPresets.keys());
 
                         window.MessagesFacility.send(
@@ -1108,7 +1108,7 @@
 
                 dialog.data.selectedPeopleIds = new Map();
                 dialog.data.personPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, x.text) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
 
                 dialog.data.peoplePayload = payload;
