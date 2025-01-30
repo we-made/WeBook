@@ -2,6 +2,8 @@ import requests
 import jwt
 from webook.api.models import ServiceAccount
 from django.db.models import Q
+from ninja.security import HttpBearer
+from ninja.errors import HttpError
 
 from webook import logger
 
@@ -50,3 +52,16 @@ def verify_google_jwt(token: str, audience: str):
         print("Token verification failed." + str(e))
         logger.exception(e)
         return None
+
+class GoogleOidcBearer(HttpBearer):
+    def authenticate(self, request, token):
+        try:
+            service_account = verify_google_jwt(token, "webook")
+        except Exception as e:
+            logger.exception(e)
+            raise HttpError(403, "Unauthorized.")
+        
+        if not service_account:
+            raise HttpError(403, "Unauthorized.")
+
+        return service_account
