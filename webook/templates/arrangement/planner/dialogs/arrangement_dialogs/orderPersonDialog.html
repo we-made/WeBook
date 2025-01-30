@@ -94,6 +94,8 @@
         },
         when: [
             { eventKnownAs: "setPersonSelection", do: (dialog, payload) => {
+                console.log("Setting person selection", payload.selectedBundle);
+
                 if (payload.selectedBundle) {
                     dialog.plugins.presetSelectManager.setSelection(payload.selectedBundle);
                 }
