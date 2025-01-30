@@ -995,7 +995,22 @@
                         window.MessagesFacility.send(
                             "orderPersonDialog",
                             { selectedBundle: dialog.data.peoplePayload },
-                            "setPeopleSelection"
+                            "setPersonSelection"
+                        )
+                    }
+                }
+                else if (type == "planner") {
+                    mapOfSelectedItemIds = dialog.data.selectedPlannerIds;
+                    appropriatePresetMap = dialog.data.plannerPresets;
+
+                    reflectorHook = (dialog) => {
+                        dialog.data.plannerPayload.allSelectedEntityIds = dialog.data.selectedPlannerIds.entries().map(([id, text]) => { return { id: id, text: text } });
+                        dialog.data.plannerPayload.selectedPresets = Array.from(dialog.data.plannerPresets.keys());
+
+                        window.MessagesFacility.send(
+                            "orderPersonDialog",
+                            { selectedBundle: dialog.data.plannerPayload },
+                            "setPersonSelection"
                         )
                     }
                 }
@@ -1121,7 +1136,7 @@
                     wrapper.append(
                         $(`<selected-pill name='${person.text}'
                                           id='${person.id}'
-                                          select-type='person'
+                                          select-type='planner'
                                           class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
                                           d-trigger='removeAssociation'>
                            </selected-pill>`)
@@ -1130,7 +1145,7 @@
 
                 dialog.data.selectedPlannerIds = new Map();
                 dialog.data.plannerPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPlannerIds.set(x.id, true) );
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPlannerIds.set(x.id, x.text) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.plannerPresets.set(presetId, payload.allPresets.get(presetId)));
 
                 dialog.data.plannerPayload = payload;
