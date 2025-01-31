@@ -72,7 +72,7 @@ urlpatterns = [
         include("webook.onlinebooking.urls", namespace="onlinebooking"),
     ),
     path("api/", api.urls),
-    path("api_admin/", include(api_urls)),
+    path("api_admin/", include("webook.api.urls", namespace="api_admin")),
     path("search/", include("haystack.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
