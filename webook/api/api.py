@@ -49,7 +49,7 @@ api = NinjaAPI(
     # JWTBearer() needs to be the first to be attempted
     # If django_auth goes first, CSRF will be checked. This messes up if you're using the onlinebooking
     # app.
-    auth=[JWTBearer(), GoogleOidcBearer(), django_auth],
+    auth=[GoogleOidcBearer(), JWTBearer(), django_auth],
     openapi_extra={"tags": []},
 )
 api.add_router("/login", login_router)
