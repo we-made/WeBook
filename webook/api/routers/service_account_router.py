@@ -8,7 +8,8 @@ from webook.api.models import ServiceAccount, APIScope
 from django.core.exceptions import PermissionDenied
 from jwt import encode
 from django.conf import settings
-from datetime import datetime, timedelta
+from webook.api.models import LoginRecord
+from datetime import datetime, timedelta, timezone
 
 from webook.api.scopes_router import APIScopeGetSchema
 
@@ -47,6 +48,17 @@ def login_service_account(request, payload: ServiceAccountLoginSchema) -> str:
     service_account = get_object_or_404(ServiceAccount, username=payload.username)
     if not service_account.check_password(payload.password):
         raise PermissionDenied("Invalid password")
+
+    record = LoginRecord(
+        service_account=service_account,
+        login_time=datetime.now(timezone.utc),
+        ip_address=(
+            request.META.get("REMOTE_ADDR")
+            if "X-Forwarded-For" not in request.META
+            else request.META.get("X-Forwarded-For")
+        ),
+    )
+    record.save()
 
     return issue_token(
         issuee_type=IssueeType.ServiceAccount,
