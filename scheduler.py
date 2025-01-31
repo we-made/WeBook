@@ -36,7 +36,7 @@ def nightly_index_rebuild():
     print(f"[{now}] Rebuilding indexes in Elastic")
 
     process = subprocess.Popen(
-        ["python", "manage.py", "rebuild_index", "--noinput"],
+        ["python", "manage.py", "rebuild_index", "--noinput", "--age=24"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
