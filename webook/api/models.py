@@ -36,6 +36,19 @@ class ServiceAccount(AbstractUser):
         blank=True,
     )
 
+    NORMAL_SERVICE_ACCOUNT = "normal"
+    GOOGLE_SERVICE_ACCOUNT = "google"
+    SERVICE_ACCOUNT_TYPES = [
+        (NORMAL_SERVICE_ACCOUNT, "Normal"),
+        (GOOGLE_SERVICE_ACCOUNT, "Google"),
+    ]
+
+    service_account_type = models.CharField(
+        max_length=255, choices=SERVICE_ACCOUNT_TYPES, default=NORMAL_SERVICE_ACCOUNT
+    )   
+
+    is_deactivated = models.BooleanField(default=False)
+    
     valid_until = models.DateTimeField(null=True, blank=True)
     last_seen = models.DateTimeField(null=True, blank=True)
     allowed_endpoints = models.ManyToManyField(
@@ -64,3 +77,17 @@ class ServiceAccount(AbstractUser):
         raise ValidationError(
             "Service accounts cannot be used for login on the default login page."
         )
+
+class LoginRecord(models.Model):
+    service_account = models.ForeignKey(
+        ServiceAccount, on_delete=models.RESTRICT, related_name="login_records"
+    )
+    login_time = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField()
+
+    class Meta:
+        verbose_name = "Login Record"
+        verbose_name_plural = "Login Records"
+
+    def __str__(self):
+        return self.service_account.email

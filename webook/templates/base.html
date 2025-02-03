@@ -236,6 +236,16 @@
           >
         </li>
         {% endif %}
+
+        {% if user.is_superuser %}
+        <li class="sidenav-item {% if url_name == 'service_account_list' %}active{% endif %} mb-1">
+          <a  href="{% url 'api_admin:service_account_list' %}"
+              class="sidenav-link sidenav-link-success-subtle">
+            <i class="fas fa-user-shield fa-fw me-3"></i><span>Tjenestekontoer</span></a
+          >
+        </li>
+        {% endif %}
+
         {% if user.is_superuser or user|has_group:"display_organizer" %}
         <li class="sidenav-item {% if url_name == 'screen_list' %}active{% endif %} mb-1">
           <a  href="{% url 'screenshow:screen_list' %}"

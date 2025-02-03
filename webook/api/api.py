@@ -33,7 +33,7 @@ from webook.graph_integration.api.graph_router import router as graph_integratio
 # from webook.users.api.group_router import group_router
 from webook.api.scopes_router import api_scopes_router
 from webook.arrangement.api.routers.report_router import report_router
-
+from webook.api.google_oidc_auth import GoogleOidcBearer
 
 from webook.onlinebooking.api import (
     county_router,
@@ -49,7 +49,7 @@ api = NinjaAPI(
     # JWTBearer() needs to be the first to be attempted
     # If django_auth goes first, CSRF will be checked. This messes up if you're using the onlinebooking
     # app.
-    auth=[JWTBearer(), django_auth],
+    auth=[GoogleOidcBearer(), JWTBearer(), django_auth],
     openapi_extra={"tags": []},
 )
 api.add_router("/login", login_router)

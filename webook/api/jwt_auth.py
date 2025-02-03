@@ -5,7 +5,7 @@ import logging
 from typing import List, Union
 from crum import get_current_request
 from ninja.security import HttpBearer
-from webook.api.models import ServiceAccount, RevokedToken, APIScope
+from webook.api.models import ServiceAccount, RevokedToken, APIScope, LoginRecord
 from django.conf import settings
 from jwt import ExpiredSignatureError, decode, DecodeError, encode
 from ninja.errors import HttpError
@@ -138,6 +138,9 @@ class JWTBearer(HttpBearer):
             token_data = decode_jwt_token(token)
         except ValueError as e:
             logging.info(f"Token validation failed: {e}")
+            raise HttpError(403, "Unauthorized.")
+        except Exception as e:
+            logging.exception(e)
             raise HttpError(403, "Unauthorized.")
 
         if token_data.token_type == TokenType.Refresh:
