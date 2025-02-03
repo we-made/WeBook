@@ -1,6 +1,7 @@
 import json
 import requests
 import jwt
+from webook.api.auth import has_permission_for_this_operation
 from webook.api.models import ServiceAccount
 from django.db.models import Q
 from ninja.security import HttpBearer
@@ -50,6 +51,9 @@ def verify_google_jwt(token: str, audience: str):
         if not service_account:
             raise Exception("Service account not found")
 
+        if service_account.is_deactivated:
+            raise PermissionError("Service account is deactivated")
+
         return service_account
     except Exception as e:
         print("Token verification failed." + str(e))
@@ -60,6 +64,17 @@ class GoogleOidcBearer(HttpBearer):
     def authenticate(self, request, token):
         try:
             service_account = verify_google_jwt(token, "webook")
+            if not service_account:
+                raise HttpError(403, "Unauthorized.")
+
+            is_permitted = has_permission_for_this_operation(
+                entity=service_account, operation_id=request.resolver_match.url_name
+            )
+
+            if not is_permitted:
+                raise HttpError(403, "You do not have permission to access this endpoint.")
+
+            request.service_account = service_account
         except Exception as e:
             return None
             # raise HttpError(403, "Unauthorized.")
