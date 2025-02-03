@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta, timezone
 from http.client import HTTPException
 import logging
-from typing import List, Optional
+from typing import List, Optional, Union
 from django.http import HttpResponse
 from ninja import NinjaAPI
 from pydantic import EmailStr, SecretStr
 import sentry_sdk
+from webook.api.routers.service_account_router import ServiceAccountSchema
 from webook.api.jwt_auth import IssueeType, TokenData, decode_jwt_token, issue_token
 from webook.api.models import APIScope
 from webook.api.schemas.base_schema import BaseSchema, ModelBaseSchema
@@ -107,10 +108,12 @@ def _throw_if_email_login_not_allowed():
         raise HTTPException(status_code=403, detail="Email login is not allowed")
 
 
-@router.get("/me/", response=UserGetSchema)
+@router.get("/me/", response=Union[UserGetSchema, ServiceAccountSchema])
 def me(request):
-    if request.user:
+    if request.user and request.user.is_authenticated:
         return request.user
+    elif request.service_account:
+        return request.service_account
     else:
         raise HTTPException(status_code=401, detail="Not authenticated")
 

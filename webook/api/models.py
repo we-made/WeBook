@@ -47,6 +47,8 @@ class ServiceAccount(AbstractUser):
         max_length=255, choices=SERVICE_ACCOUNT_TYPES, default=NORMAL_SERVICE_ACCOUNT
     )   
 
+    is_deactivated = models.BooleanField(default=False)
+    
     valid_until = models.DateTimeField(null=True, blank=True)
     last_seen = models.DateTimeField(null=True, blank=True)
     allowed_endpoints = models.ManyToManyField(
