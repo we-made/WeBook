@@ -7,3 +7,6 @@ class GraphIntegrationConfig(AppConfig):
 
     def ready(self):
         from . import signals
+        import webook.graph_integration.systask
+
+        return super().ready()

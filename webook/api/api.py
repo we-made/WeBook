@@ -35,6 +35,8 @@ from webook.api.scopes_router import api_scopes_router
 from webook.arrangement.api.routers.report_router import report_router
 from webook.api.google_oidc_auth import GoogleOidcBearer
 
+from webook.systask.api import systask_router
+
 from webook.onlinebooking.api import (
     county_router,
     city_segment_router,
@@ -82,6 +84,8 @@ api.add_router("/screenshow/display_layout_setting", display_layout_setting_rout
 api.add_router("/users", user_router)
 api.add_router("/groups", group_router)
 api.add_router("/scopes", api_scopes_router)
+
+api.add_router("/systask", systask_router)
 
 
 @api.exception_handler(ObjectDoesNotExist)
