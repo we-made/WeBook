@@ -122,6 +122,7 @@ LOCAL_APPS = [
     "webook.crumbinator.apps.CrumbinatorConfig",
     "webook.screenshow.apps.ScreenshowConfig",
     "webook.api.apps.ApiConfig",
+    "webook.systask.apps.SystaskConfig",
     "webook.onlinebooking.apps.OnlinebookingConfig",
     "webook.graph_integration.apps.GraphIntegrationConfig",
     "webook.celery_haystack.apps.CeleryHaystackConfig",
@@ -473,3 +474,12 @@ ALERT_TEXT_SUPER_USER = env("ALERT_TEXT_SUPER_USER", default=None)
 
 # Alert shown to all users in header
 ALERT_TEXT_ALL_USERS = env("ALERT_TEXT_ALL_USERS", default=None)
+
+APP_URL = env("APP_URL", default="http://localhost:8000")
+
+SYSTASK_SCHEDULER_PROVIDER = env(
+    "SYSTASK_SCHEDULER_PROVIDER", default="google_cloud_tasks"
+)
+GOOGLE_CLOUD_PROJECT_ID = env("GOOGLE_CLOUD_PROJECT_ID", default=None)
+GOOGLE_CLOUD_LOCATION = env("GOOGLE_CLOUD_LOCATION", default=None)
+GOOGLE_CLOUD_QUEUE = env("GOOGLE_CLOUD_QUEUE", default=None)
