@@ -8,6 +8,7 @@ from ninja.security import HttpBearer
 from ninja.errors import HttpError
 from jwt.algorithms import RSAAlgorithm
 from webook import logger
+from django.conf import settings
 
 GOOGLE_ISSUER = "https://accounts.google.com"
 GOOGLE_CERTS_URL = "https://www.googleapis.com/oauth2/v3/certs"
@@ -63,7 +64,9 @@ def verify_google_jwt(token: str, audience: str):
 class GoogleOidcBearer(HttpBearer):
     def authenticate(self, request, token):
         try:
-            service_account = verify_google_jwt(token, "webook")
+            service_account = verify_google_jwt(
+                token, settings.GOOGLE_CLOUD_SERVICE_ACCOUNT_AUDIENCE
+            )
             if not service_account:
                 raise HttpError(403, "Unauthorized.")
 
@@ -72,7 +75,9 @@ class GoogleOidcBearer(HttpBearer):
             )
 
             if not is_permitted:
-                raise HttpError(403, "You do not have permission to access this endpoint.")
+                raise HttpError(
+                    403, "You do not have permission to access this endpoint."
+                )
 
             request.service_account = service_account
         except Exception as e:
