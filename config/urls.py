@@ -43,7 +43,6 @@ urlpatterns = [
         name="home",
     ),
     # Django Admin, use {% url 'admin:index' %}
-    path(settings.ADMIN_URL, admin.site.urls),
     # User management
     path(
         "users/",
@@ -73,6 +72,11 @@ urlpatterns = [
     path("api/", api.urls),
     path("search/", include("haystack.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.ADMIN_ENABLED:
+    urlpatterns += [
+        path(settings.ADMIN_URL, admin.site.urls),
+    ]
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

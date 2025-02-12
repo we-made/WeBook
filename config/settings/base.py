@@ -473,3 +473,5 @@ ALERT_TEXT_SUPER_USER = env("ALERT_TEXT_SUPER_USER", default=None)
 
 # Alert shown to all users in header
 ALERT_TEXT_ALL_USERS = env("ALERT_TEXT_ALL_USERS", default=None)
+
+ADMIN_ENABLED = env("ADMIN_ENABLED", default=False)
