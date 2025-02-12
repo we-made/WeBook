@@ -43,7 +43,6 @@ urlpatterns = [
         name="home",
     ),
     # Django Admin, use {% url 'admin:index' %}
-    path(settings.ADMIN_URL, admin.site.urls),
     # User management
     path(
         "users/",
@@ -59,6 +58,10 @@ urlpatterns = [
         include("webook.arrangement.urls", namespace="arrangement"),
     ),
     path(
+        "tasks/",
+        include("webook.celery_haystack.urls", namespace="celery_haystack"),
+    ),
+    path(
         "screenshow/",
         include("webook.screenshow.urls", namespace="screenshow"),
     ),
@@ -67,8 +70,13 @@ urlpatterns = [
         include("webook.onlinebooking.urls", namespace="onlinebooking"),
     ),
     path("api/", api.urls),
-    path('search/', include('haystack.urls')),
+    path("search/", include("haystack.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.ADMIN_ENABLED:
+    urlpatterns += [
+        path(settings.ADMIN_URL, admin.site.urls),
+    ]
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
@@ -96,5 +104,5 @@ if settings.DEBUG:
 
     #     urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
 
-if 'rosetta' in settings.INSTALLED_APPS:
-    urlpatterns += [re_path('rosetta/', include('rosetta.urls'))]
+if "rosetta" in settings.INSTALLED_APPS:
+    urlpatterns += [re_path("rosetta/", include("rosetta.urls"))]

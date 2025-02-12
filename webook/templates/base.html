@@ -245,10 +245,16 @@
         </li>
         {% endif %}
         {% if user.is_superuser %}
-        <li class="sidenav-item">
+        <li class="sidenav-item mb-1">
           <a class="sidenav-link sidenav-link-danger-subtle" href="{% url 'admin:index' %}">
             <i class="fas fa-tools fa-fw me-3"></i><span>Django Admin Panel</span></a
           >
+        </li>
+
+        <li class="sidenav-item">
+          <a href="{% url 'celery_haystack:taskresult_list' %}" class="sidenav-link sidenav-link-danger-subtle">
+            <i class="fas fa-tasks"></i>&nbsp; Tasks Backend
+          </a>
         </li>
         {% endif %}
       </ul>
@@ -271,6 +277,20 @@
               <h2 class="mb-0 ms-2 wb-text-main text-uppercase">
                 {{APP_TITLE}}
               </h2>
+
+              <div>
+                {% if ALERT_TEXT_ALL_USERS %}
+                <span class="badge badge-danger ms-4">
+                  {{ ALERT_TEXT_ALL_USERS }}
+                </span>
+                {% endif %}
+
+                {% if ALERT_TEXT_SUPER_USER %}
+                <span class="badge badge-danger ms-4">
+                  {{ ALERT_TEXT_SUPER_USER }}
+                </span>
+                {% endif %}
+              </div>
 
               <ul class="navbar-nav ms-auto d-flex flex-row">
                 <form class="d-none d-md-flex input-group input-group-lg w-auto my-auto">

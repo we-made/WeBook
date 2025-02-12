@@ -683,16 +683,48 @@
                 }
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderRoomDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}' });
+                dialog.raiseTriggerEvent(
+                    "{{managerName}}", "{{orderRoomDialog}}", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{dialogId}}', 
+                        multiple: true, 
+                        data: { selectedBundle: dialog.data.roomPayload } 
+                    }
+                );
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "peopleSelected" } });
+                dialog.raiseTriggerEvent(
+                    "{{managerName}}", "{{orderPersonDialog}}", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{dialogId}}', 
+                        multiple: true, 
+                        data: { whenEventName: "peopleSelected", selectedBundle: dialog.data.peoplePayload } 
+                    }
+                );
             },
             triggerAddPlanners(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: true, data: { whenEventName: "plannersSelected" } });
+                dialog.raiseTriggerEvent(
+                    "{{managerName}}", 
+                    "{{orderPersonDialog}}", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{dialogId}}', 
+                        multiple: true, 
+                        data: { whenEventName: "plannersSelected", selectedBundle: dialog.data.plannerPayload }
+                });
             },
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent("{{managerName}}", "{{orderPersonDialog}}", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
+                dialog.raiseTriggerEvent(
+                    "{{managerName}}", 
+                    "{{orderPersonDialog}}", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{dialogId}}', 
+                        multiple: false, 
+                        data: { whenEventName: "setPlanner", selectedBundle: dialog.data.mainPlannerPayload } 
+                    })
             },
             submit(dialog, {} = {}, triggeredByElement) {
                 if (dialog.validate() === false) {
@@ -936,26 +968,66 @@
 
                 let mapOfSelectedItemIds = null;
                 let appropriatePresetMap = null;
+                let reflectorHook = null;
 
                 if (type === "room") {
                     mapOfSelectedItemIds = dialog.data.selectedRoomIds;
                     appropriatePresetMap = dialog.data.roomPresets;
+                    reflectorHook = (dialog) => {
+                        dialog.data.roomPayload.allSelectedEntityIds = dialog.data.selectedRoomIds.entries().map(([id, text]) => { return { id: id, text: text } }).toArray();
+                        dialog.data.roomPayload.selectedPresets = Array.from(dialog.data.roomPresets.keys());
+
+                        window.MessagesFacility.send(
+                            "orderRoomDialog",
+                            { selectedBundle: dialog.data.roomPayload },
+                            "setRoomSelection"
+                        )
+                    }
                 }
                 else if (type === "person") {
                     mapOfSelectedItemIds = dialog.data.selectedPeopleIds;
                     appropriatePresetMap = dialog.data.personPresets;
+
+                    reflectorHook = (dialog) => {
+                        dialog.data.peoplePayload.allSelectedEntityIds = dialog.data.selectedPeopleIds.entries().map(([id, text]) => { return { id: id, text: text } });
+                        dialog.data.peoplePayload.selectedPresets = Array.from(dialog.data.personPresets.keys());
+
+                        window.MessagesFacility.send(
+                            "orderPersonDialog",
+                            { selectedBundle: dialog.data.peoplePayload },
+                            "setPersonSelection"
+                        )
+                    }
+                }
+                else if (type == "planner") {
+                    mapOfSelectedItemIds = dialog.data.selectedPlannerIds;
+                    appropriatePresetMap = dialog.data.plannerPresets;
+
+                    reflectorHook = (dialog) => {
+                        dialog.data.plannerPayload.allSelectedEntityIds = dialog.data.selectedPlannerIds.entries().map(([id, text]) => { return { id: id, text: text } });
+                        dialog.data.plannerPayload.selectedPresets = Array.from(dialog.data.plannerPresets.keys());
+
+                        window.MessagesFacility.send(
+                            "orderPersonDialog",
+                            { selectedBundle: dialog.data.plannerPayload },
+                            "setPersonSelection"
+                        )
+                    }
                 }
                 else {
                     throw Error("Type not recognized")
                 }
 
                 if (itemId.startsWith("preset_")) {
-                    const preset = appropriatePresetMap.get(id.split("_")[1]);
-                    preset.ids.forEach((id) => mapOfSelectedItemIds.delete(id));
+                    const preset = appropriatePresetMap.get(itemId.split("_")[1]);
+                    preset.ids.forEach((id) => mapOfSelectedItemIds.delete(itemId));
                 }
                 else {
                     mapOfSelectedItemIds.delete(itemId);
                 }
+
+                if (reflectorHook)
+                    reflectorHook(dialog);
                 
                 triggeredByElement.remove();
             },
@@ -1029,7 +1101,7 @@
 
                 dialog.data.selectedRoomIds = new Map();
                 dialog.data.roomPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, true) );
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedRoomIds.set(x.id, x.text) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.roomPresets.set(presetId, payload.allPresets.get(presetId)) );
 
                 dialog.data.roomPayload = payload;
@@ -1051,7 +1123,7 @@
 
                 dialog.data.selectedPeopleIds = new Map();
                 dialog.data.personPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, true) );
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPeopleIds.set(x.id, x.text) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.personPresets.set(presetId, payload.allPresets.get(presetId)) );
 
                 dialog.data.peoplePayload = payload;
@@ -1064,7 +1136,7 @@
                     wrapper.append(
                         $(`<selected-pill name='${person.text}'
                                           id='${person.id}'
-                                          select-type='person'
+                                          select-type='planner'
                                           class='bg-white p-2 shadow-4 me-2 mt-1 border border-dark'
                                           d-trigger='removeAssociation'>
                            </selected-pill>`)
@@ -1073,7 +1145,7 @@
 
                 dialog.data.selectedPlannerIds = new Map();
                 dialog.data.plannerPresets = new Map();
-                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPlannerIds.set(x.id, true) );
+                payload.allSelectedEntityIds.forEach( (x) => dialog.data.selectedPlannerIds.set(x.id, x.text) );
                 payload.selectedPresets.forEach( (presetId) => dialog.data.plannerPresets.set(presetId, payload.allPresets.get(presetId)));
 
                 dialog.data.plannerPayload = payload;
@@ -1088,7 +1160,7 @@
                 dialog.data.mainPlannerPayload = payload;
 
                 const person = payload.viewables[0];
-                
+
                 dialog.getElementById('{{ form.responsible.id_for_label }}').value = person.id;
                 dialog.getElementById('mainPlannerName').innerText = person.text;
                 dialog.getElementById('setMainPlannerButton').innerText = "Endre hovedplanlegger";

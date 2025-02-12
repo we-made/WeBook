@@ -75,6 +75,8 @@
         postInit: function (dialog) {
             dialog.$('#orderPersonDialog__table').DataTable().destroy();
             dialog.$("#orderPersonDialog__table").DataTable();
+
+            
         },
         methods: {
             close(dialog, {} = {}, triggeredByElement) {
@@ -90,6 +92,15 @@
                 });
             }
         },
+        when: [
+            { eventKnownAs: "setPersonSelection", do: (dialog, payload) => {
+                console.log("Setting person selection", payload.selectedBundle);
+
+                if (payload.selectedBundle) {
+                    dialog.plugins.presetSelectManager.setSelection(payload.selectedBundle);
+                }
+            } }
+        ],
         data: {},
         plugins: [
             {
@@ -103,6 +114,9 @@
                     {% endif%}
                     presets: new Map(),
                     checkboxIdPrefix: "personCheck",
+                    datatables: ( dialog ) => {
+                        return [dialog.$("#orderPersonDialog__table")]
+                    }
                 }
             }
         ]

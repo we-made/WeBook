@@ -950,7 +950,13 @@ export class ArrangementInspector {
                                 }
                             });
                         },
-                        onRenderedCallback: () => { },
+                        onRenderedCallback: (dialogManager, context) => {
+                            window.MessagesFacility.send(
+                                "nestedOrderRoomDialog",
+                                context.lastTriggererDetails.data,
+                                "setRoomSelection"
+                            );
+                        },
                         dialogOptions: { width: 500, dialogClass: 'no-titlebar' },
                         onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("nestedOrderRoomDialog");
@@ -983,7 +989,13 @@ export class ArrangementInspector {
                                 }
                             });
                         },
-                        onRenderedCallback: () => { },
+                        onRenderedCallback: (dialogManager, context) => {
+                            window.MessagesFacility.send(
+                                "nestedOrderPersonDialog", 
+                                context.lastTriggererDetails.data, 
+                                "setPersonSelection"
+                            );
+                        },
                         dialogOptions: { width: 500, dialogClass: 'no-titlebar', },
                         onUpdatedCallback: () => {
                             this.dialogManager.closeDialog("nestedOrderPersonDialog");

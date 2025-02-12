@@ -1201,23 +1201,97 @@
                 dialog.raiseTriggerEvent(dialog.managerName, "uploadFilesDialog", { $parent: dialog.dialogElement });
             },
             triggerAddRooms(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent(dialog.managerName, "orderRoomDialog", { $parent: dialog.dialogElement, sendTo: '{{ dialogId }}' });
+                dialog.raiseTriggerEvent(
+                    dialog.managerName, 
+                    "orderRoomDialog", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{ dialogId }}',
+                        multiple: true,
+                        data: { whenEventName: "roomsSelected", selectedBundle: dialog.data.roomPayload }
+                    }
+                );
             },
             triggerAddPeople(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{ dialogId }}', multiple: true, data: { whenEventName: "peopleSelected" } });
+                dialog.raiseTriggerEvent(
+                    dialog.managerName, 
+                    "orderPersonDialog", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{ dialogId }}', 
+                        multiple: true, 
+                        data: { whenEventName: "peopleSelected", selectedBundle: dialog.data.peoplePayload } 
+                    }
+                );
             },
             triggerSetPlanner(dialog, {} = {}, triggeredByElement) {
-                dialog.raiseTriggerEvent(dialog.managerName, "orderPersonDialog", { $parent: dialog.dialogElement, sendTo: '{{dialogId}}', multiple: false, data: { whenEventName: "setPlanner" } })
+                dialog.raiseTriggerEvent(
+                    dialog.managerName, 
+                    "orderPersonDialog", 
+                    { 
+                        $parent: dialog.dialogElement, 
+                        sendTo: '{{dialogId}}', 
+                        multiple: false, 
+                        data: { whenEventName: "setPlanner", selectedBundle: dialog.data.mainPlannerPayload } 
+                    }
+                )
             },
         },
         data: {
             peopleMap: new Map(),
             roomsMap: new Map(),
+            peoplePayload: {
+                allPresets: new Map(),
+                allSelectedEntityIds: [
+                    {% for person in object.people.all %}
+                        { id: "{{person.pk}}", text: "{{person}}" },
+                    {% endfor %}
+                ],
+                eevntPk: "",
+                selectedPresets: [],
+                viewables: [
+                    {% for person in object.people.all %}
+                        { id: "{{person.pk}}", text: "{{person}}" },
+                    {% endfor %}
+                ],
+            },
+            roomPayload: {
+                allPresets: new Map(),
+                allSelectedEntityIds: [
+                    {% for room in object.rooms.all %}
+                        { id: "{{room.pk}}", text: "{{room}}" },
+                    {% endfor %}
+                ],
+                eevntPk: "",
+                selectedPresets: [],
+                viewables: [
+                    {% for room in object.rooms.all %}
+                        { id: "{{room.pk}}", text: "{{room}}" },
+                    {% endfor %}
+                ],
+            },
+            mainPlannerPayload: {
+                allPresets: new Map(),
+                allSelectedEntityIds: [
+                    {% for person in object.people.all %}
+                        { id: "{{object.arrangement.responsible.pk}}", text: "{{object.arrangement.responsible}}" },
+                    {% endfor %}
+                ],
+                eevntPk: "",
+                selectedPresets: [],
+                viewables: [
+                    {% for person in object.people.all %}
+                        { id: "{{object.arrangement.responsible.pk}}", text: "{{object.arrangement.responsible}}" },
+                    {% endfor %}
+                ],
+            }
         },
         when: [
             { eventKnownAs: "setPlanner", do: (dialog, payload) => {
                 if (payload.allSelectedEntityIds.length == 0)
                     return;
+
+                dialog.data.mainPlannerPayload = payload;
 
                 const person = payload.viewables[0];
                 
@@ -1225,6 +1299,7 @@
                 dialog.getElementById('mainPlannerName').innerText = person.text;
             } },
             { eventKnownAs: "roomsSelected", do: (dialog, payload) => {
+                dialog.data.roomPayload = payload;
                 dialog.data.roomsMap = new Map(
                     payload.allSelectedEntityIds.map(x => [x.id, x.text])
                 );
@@ -1234,6 +1309,7 @@
                 dialog.data.peopleMap = new Map(
                     payload.allSelectedEntityIds.map(x => [x.id, x.text])
                 );
+                dialog.data.peoplePayload = payload;
                 dialog.setPeople(payload.allSelectedEntityIds.map(x => x.id).join(","));
             } },
         ],

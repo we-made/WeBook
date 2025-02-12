@@ -34,9 +34,10 @@ class QueuedSignalProcessor(RealtimeSignalProcessor):
         from webook.celery_haystack.tasks import update_object, ALL_MODELS
 
         if instance.__class__.__name__ not in ALL_MODELS:
-            logging.warning(
-                f"Model {instance.__class__.__name__} is not in the list of models to be indexed"
-            )
+            if instance.__class__.__name__ not in ["Migration", "Site"]:
+                logging.debug(
+                    f"Model {instance.__class__.__name__} is not in the list of models to be indexed"
+                )
             return
 
         update_object.delay(id=instance.id, model_name=instance.__class__.__name__)

@@ -43,6 +43,19 @@ def nightly_index_rebuild():
     stdout, stderr = [x.decode("utf-8") for x in process.communicate()]
 
 
+def synchronize_all_calendars():
+    now = datetime.now()
+    print(f"[{now}] Synchronizing all calendars")
+
+    process = subprocess.Popen(
+        ["python", "manage.py", "synchronize_all_user_calendars"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, stderr = [x.decode("utf-8") for x in process.communicate()]
+
+
+schedule.every().day.at("01:00").do(synchronize_all_calendars)
 schedule.every().day.at("02:00").do(run_pii_sanitization)
 schedule.every().hour.do(hourly_index_update)
 schedule.every().day.at("03:00").do(nightly_index_rebuild)
