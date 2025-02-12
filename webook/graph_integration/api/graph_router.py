@@ -45,9 +45,11 @@ def get_graph_calendars(request):
     return GraphCalendar.objects.all()
 
 
-@router.post("/graph_calendar/subscribe")
+@router.post("/graph_calendar/subscribe", auth=None)
 def subscribe_to_calendar(request, payload: GraphCalendarSubscribeSchema):
     print("/graph_calendar/subscribe", payload)
+    if request.user.is_anonymous:
+        return HttpResponse(status=401, content="You need to be logged in")
     if payload.person_id != request.user.id and request.user.is_superuser is False:
         return HttpResponse(status=403, content="You do not have permission")
 
@@ -66,8 +68,11 @@ def subscribe_to_calendar(request, payload: GraphCalendarSubscribeSchema):
     return HttpResponse(status=202, content="Task started")
 
 
-@router.delete("/graph_calendar/{person_id}")
+@router.delete("/graph_calendar/{person_id}", auth=None)
 def destroy_graph_calendar(request, person_id: int):
+    if request.user.is_anonymous:
+        return HttpResponse(status=401, content="You need to be logged in")
+
     person = Person.objects.get(id=person_id)
 
     if not person:
