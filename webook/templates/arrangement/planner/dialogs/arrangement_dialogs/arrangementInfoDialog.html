@@ -785,7 +785,12 @@
                 dropdownParent: dialog.$dialogElement
             });
             dialog.getElementById("countySelect").addEventListener("change", (e) => {
-                fetch("/api/onlinebooking/city_segment/list?county_id=" + e.target.value)
+                fetch("/api/onlinebooking/city_segment/list?county_id=" + e.target.value, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
                     .then(a => a.json())
                     .then(a => {
                         dialog.data.citySegmentMap = new Map(
@@ -981,13 +986,21 @@
                         });
 
                         spinner.style.display = "none";
+                    }).catch(e => {
+                        spinner.innerHTML = "Noe gikk galt under lasting av data. Prøv igjen senere.<br><code>" + e + "</code>";
                     });
             },
             loadSeriesToTable(dialog, { pageNumber } = {}, triggeredByElement) {
                 const spinner = dialog.getElementById("seriesTableLoadSpinner");
                 spinner.style.display = "block";
 
-                fetch("/api/arrangement/event_serie/list?arrangement_id={{ object.id }}&page=" + pageNumber + "&limit=5&sort_desc=true&sort_by=pk")
+                fetch("/api/arrangement/event_serie/list?arrangement_id={{ object.id }}&page=" + pageNumber + "&limit=5&sort_desc=true&sort_by=pk", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    }
+                })
                     .then(a => a.json())
                     .then(a => {
                         let tbody = dialog.getElementById("seriesTbody");

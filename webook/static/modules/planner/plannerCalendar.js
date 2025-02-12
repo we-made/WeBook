@@ -217,6 +217,10 @@ export class PlannerCalendar extends FullCalendarBased {
                 pk: e.detail.event_pk,
                 get_as: _NATIVE_ARRANGEMENT
             });
+
+            if (arrangement === undefined) {
+                throw new Error("Arrangement with pk " + e.detail.event_pk + " not found.");
+            }
     
             this.arrangementInspectorUtility.inspect(arrangement);
         })
