@@ -68,8 +68,11 @@ def subscribe_to_calendar(request, payload: GraphCalendarSubscribeSchema):
     return HttpResponse(status=202, content="Task started")
 
 
-@router.delete("/graph_calendar/{person_id}")
+@router.delete("/graph_calendar/{person_id}", auth=None)
 def destroy_graph_calendar(request, person_id: int):
+    if request.user.is_anonymous:
+        return HttpResponse(status=401, content="You need to be logged in")
+
     person = Person.objects.get(id=person_id)
 
     if not person:
